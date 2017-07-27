@@ -30,3 +30,8 @@
 *.exe
 *.out
 *.app
+.reggae
+/examplegame
+*.ninja
+.ninja_*
+compile_commands.json
