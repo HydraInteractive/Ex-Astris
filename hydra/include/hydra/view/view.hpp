@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 #include <glm/glm.hpp>
 
 namespace Hydra::View {
@@ -7,11 +9,9 @@ namespace Hydra::View {
 	public:
 		virtual ~IRenderTarget() = 0;
 
-		virtual void begin() = 0;
+		virtual uint32_t getID() = 0;
 
-		virtual void clear(glm::vec4 clearColor) = 0;
-
-		virtual void end() = 0;
+		virtual void finalize() = 0;
 	};
 
 	inline IRenderTarget::~IRenderTarget() {}
@@ -27,6 +27,7 @@ namespace Hydra::View {
 		virtual void hide() = 0;
 
 		virtual glm::ivec2 getSize() = 0;
+		virtual void* getHandler() = 0;
 
 		/// Did it get a close event, and hid itself
 		virtual bool isClosed() = 0;
