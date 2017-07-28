@@ -1,0 +1,10 @@
+-std=c++17
+-ggdb
+-Wall
+-Werror
+-fdiagnostics-color=always
+-fopenmp
+-fPIC
+-Ihydra/include
+-Iexample/include
+-I/usr/include

@@ -3,10 +3,10 @@
 #include <SDL2/SDL.h>
 #include <glad/glad.h>
 
-class SDLView final : public Hydra::View::IView, public Hydra::View::IRenderTarget {
+class SDLView final : public Hydra::View::IView {
 public:
 	SDLView() {
-		SDL_Init(SDL_INIT_EVERYTHING);
+		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 
 		_size = glm::ivec2(1920, 1080);
 		_wantToClose = false;
@@ -15,7 +15,7 @@ public:
 		_glContext = SDL_GL_CreateContext(_window);
 		gladLoadGLLoader(SDL_GL_GetProcAddress);
 	}
-	
+
 	~SDLView() final {
 		SDL_GL_DeleteContext(_glContext);
 		SDL_DestroyWindow(_window);
@@ -30,12 +30,12 @@ public:
 			case SDL_QUIT:
 				_wantToClose = true;
 				break;
-				
+
 			case SDL_KEYDOWN:
 				if (event.key.keysym.sym == SDLK_ESCAPE)
 					_wantToClose = true;
 				break;
-				
+
 			default:
 				break;
 			}
@@ -45,42 +45,35 @@ public:
 	void show() final { SDL_ShowWindow(_window); }
 	void hide() final {	SDL_HideWindow(_window); }
 
-	IRenderTarget& getRenderTarget() final {
-		return static_cast<IRenderTarget&>(*this);
-	}
-	
 	glm::ivec2 getSize() final { return _size; }
 
 	bool isClosed() final { return _wantToClose; }
 	bool didChangeSize() final { return false; }
 
 	// IRenderTarget
-	
-	void bind() final {
+	void begin() final {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
-		
-	void clear() final {
-		glClearColor(0, 0, 0, 1);
+
+	void clear(glm::vec4 clearColor) final {
+		glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
-		
-	/// Push the rendered pixels to the screen
-	void push() final {
+
+	void end() final {
 		SDL_GL_SwapWindow(_window);
 	}
-	
+
 private:
 	SDL_Window* _window;
 	SDL_GLContext _glContext;
 
 	glm::ivec2 _size;
-	
-	bool _wantToClose;	
+
+	bool _wantToClose;
 };
 
 
 Hydra::View::IView* Hydra::View::SDLView::create() {
 	return static_cast<Hydra::View::IView*>(new ::SDLView());
 }
- 

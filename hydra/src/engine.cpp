@@ -11,17 +11,16 @@ public:
 		view = Hydra::View::SDLView::create();
 	}
 
-	virtual ~HydraEngine() final{
+	virtual ~HydraEngine() final {
 		delete view;
 	}
-	
+
 	void run() final {
 		while (!view->isClosed()) {
 			view->update();
-			auto& rt = view->getRenderTarget();
-			rt.bind();
-			rt.clear();
-			rt.push();
+			view->begin();
+			view->clear(glm::vec4{0, 0, 0, 1});
+			view->end();
 		}
 	}
 

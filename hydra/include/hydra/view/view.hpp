@@ -3,9 +3,20 @@
 #include <glm/glm.hpp>
 
 namespace Hydra::View {
-	class IRenderTarget;
-	
-	class IView {
+	class IRenderTarget {
+	public:
+		virtual ~IRenderTarget() = 0;
+
+		virtual void begin() = 0;
+
+		virtual void clear(glm::vec4 clearColor) = 0;
+
+		virtual void end() = 0;
+	};
+
+	inline IRenderTarget::~IRenderTarget() {}
+
+	class IView : public IRenderTarget {
 	public:
 		virtual ~IView() = 0;
 
@@ -15,27 +26,12 @@ namespace Hydra::View {
 		virtual void show() = 0;
 		virtual void hide() = 0;
 
-		virtual IRenderTarget& getRenderTarget() = 0; 
 		virtual glm::ivec2 getSize() = 0;
 
 		/// Did it get a close event, and hid itself
 		virtual bool isClosed() = 0;
 		virtual bool didChangeSize() = 0;
 	};
-	
+
 	inline IView::~IView() {}
-
-	class IRenderTarget {
-	public:
-		virtual ~IRenderTarget() = 0;
-
-		virtual void bind() = 0;
-		
-		virtual void clear() = 0;		
-		
-		/// Push the rendered pixels to the screen
-		virtual void push() = 0;
-	};
-
-	inline IRenderTarget::~IRenderTarget() {}
 }
