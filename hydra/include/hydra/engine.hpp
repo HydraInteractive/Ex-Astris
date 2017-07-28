@@ -1,15 +1,10 @@
 #pragma once
 
-#include "singleton.hpp"
-
 namespace Hydra {
-class Engine : public Singleton<Engine> {
-public:
-	void run();
-
-private:
-	friend class Singleton;
-	Engine();
-	virtual ~Engine();
-};
+	class Engine {
+	public:
+		static Engine& getInstance();
+		
+		virtual void run() = 0;
+	};
 }
