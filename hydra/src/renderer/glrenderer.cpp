@@ -14,7 +14,7 @@ public:
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-		_glContext = SDL_GL_CreateContext(static_cast<SDL_Window*>(view->getHandler()));
+		_glContext = SDL_GL_CreateContext(_window = static_cast<SDL_Window*>(view->getHandler()));
 		_loadGLAD();
 	}
 
@@ -23,15 +23,17 @@ public:
 	}
 
 	void bind(Hydra::View::IRenderTarget* renderTarget) final {
+		SDL_GL_MakeCurrent(_window, _glContext);
 		glBindFramebuffer(GL_FRAMEBUFFER, renderTarget->getID());
 	}
 
 	void clear(glm::vec4 clearColor) final {
-		glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
+		glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 private:
+	SDL_Window* _window;
 	SDL_GLContext _glContext;
 
 	static void _loadGLAD() {
