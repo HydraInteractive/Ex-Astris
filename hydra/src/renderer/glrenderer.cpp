@@ -16,6 +16,8 @@ public:
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 		_glContext = SDL_GL_CreateContext(_window = static_cast<SDL_Window*>(view->getHandler()));
 		_loadGLAD();
+
+		SDL_GL_SetSwapInterval(0);
 	}
 
 	~GLRenderer() final {
