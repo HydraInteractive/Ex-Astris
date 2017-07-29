@@ -21,6 +21,16 @@ public:
 		_pipeline = HR::GLPipeline::create();
 		_pipeline->attachStage(*_vertexShader);
 		_pipeline->attachStage(*_fragmentShader);
+
+		{
+			std::vector<HR::Vertex> vertices{
+				HR::Vertex{glm::vec3{-0.5, -0.5, 0.0}, glm::vec3{0, 0, 0}, glm::vec3{1, 0, 0}},
+				HR::Vertex{glm::vec3{ 0.5, -0.5, 0.0}, glm::vec3{0, 0, 0}, glm::vec3{0, 1, 0}},
+				HR::Vertex{glm::vec3{ 0.0,  0.5, 0.0}, glm::vec3{0, 0, 0}, glm::vec3{0, 0, 1}},
+			};
+			std::vector<uint32_t> indices{0, 1, 2};
+			_mesh = HR::GLMesh::create(vertices, indices);
+		}
 	}
 
 	virtual ~Engine() final {
@@ -34,6 +44,8 @@ public:
 			_renderer->use(*_pipeline);
 			_renderer->clear(glm::vec4{0, 0.2, 0.2, 1});
 
+			_renderer->render(*_mesh, 1);
+
 			_view->finalize();
 		}
 	}
@@ -46,6 +58,8 @@ private:
 	std::unique_ptr<HR::IShader> _fragmentShader;
 
 	std::unique_ptr<HR::IPipeline> _pipeline;
+
+	std::unique_ptr<HR::IMesh> _mesh;
 };
 
 int main(int argc, const char** argv) {

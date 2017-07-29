@@ -10,6 +10,63 @@ using namespace Hydra::Renderer;
 
 static void glDebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
 
+class GLMeshImpl : public IMesh {
+public:
+	GLMeshImpl(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices) {
+		_indicesCount = indices.size();
+
+		_makeBuffers();
+		_uploadData(vertices, indices);
+	}
+
+	~GLMeshImpl() final {
+		GLuint buffers[2] = {_vbo, _ibo};
+		glDeleteBuffers(sizeof(buffers) / sizeof(*buffers), buffers);
+
+		glDeleteVertexArrays(1, &_vao);
+	}
+
+	GLuint getVAO() { return _vao; }
+	size_t getIndicesCount() { return _indicesCount; }
+
+private:
+	GLuint _vao; // Vertex Array
+	GLuint _vbo; // Vertices
+	GLuint _ibo; // Indices
+
+	size_t _indicesCount;
+
+	void _makeBuffers() {
+		glGenVertexArrays(1, &_vao);
+		glBindVertexArray(_vao);
+
+		GLuint buffers[2];
+		glGenBuffers(sizeof(buffers) / sizeof(*buffers), buffers);
+		_vbo = buffers[0];
+		_ibo = buffers[1];
+	}
+
+	void _uploadData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices) {
+		glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(VertexLocation::position);
+		glEnableVertexAttribArray(VertexLocation::normal);
+		glEnableVertexAttribArray(VertexLocation::color);
+		glEnableVertexAttribArray(VertexLocation::uv);
+		glEnableVertexAttribArray(VertexLocation::tangent);
+
+		glVertexAttribPointer(VertexLocation::position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, position));
+		glVertexAttribPointer(VertexLocation::normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, normal));
+		glVertexAttribPointer(VertexLocation::color, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, color));
+		glVertexAttribPointer(VertexLocation::uv, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, uv));
+		glVertexAttribPointer(VertexLocation::tangent, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, tangent));
+	}
+};
+
 class GLRendererImpl final : public IRenderer {
 public:
 	GLRendererImpl(Hydra::View::IView& view) {
@@ -43,6 +100,12 @@ public:
 
 	void use(IPipeline& pipeline) final { glBindProgramPipeline(*static_cast<GLuint*>(pipeline.getHandler())); }
 
+	void render(IMesh& mesh_, size_t instances) final {
+		GLMeshImpl& mesh = static_cast<GLMeshImpl&>(mesh_);
+		glBindVertexArray(mesh.getVAO());
+		glDrawElementsInstanced(GL_TRIANGLES, mesh.getIndicesCount(), GL_UNSIGNED_INT, NULL, instances);
+	}
+
 private:
 	SDL_Window* _window;
 	SDL_GLContext _glContext;
@@ -58,6 +121,19 @@ private:
 
 std::unique_ptr<IRenderer> GLRenderer::create(Hydra::View::IView& view) {
 	return std::unique_ptr<IRenderer>(new ::GLRendererImpl(view));
+}
+
+std::unique_ptr<IMesh> GLMesh::create(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices) {
+	return std::unique_ptr<IMesh>(new ::GLMeshImpl(vertices, indices));
+}
+
+std::unique_ptr<IMesh> GLMesh::createFromFile(const std::string& file) {
+	std::vector<Vertex> vertices;
+	std::vector<uint32_t> indices;
+
+	// TODO: Implement ASSIMP
+
+	return create(vertices, indices);
 }
 
 void glDebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
