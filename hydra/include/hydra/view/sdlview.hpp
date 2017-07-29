@@ -4,6 +4,8 @@
 
 namespace Hydra::View {
 	struct SDLView final {
+		SDLView() = delete;
+
 		static IView* create();
 	};
 }

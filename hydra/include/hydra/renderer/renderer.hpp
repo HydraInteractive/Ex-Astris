@@ -12,5 +12,5 @@ namespace Hydra::Renderer {
 		virtual void clear(glm::vec4 clearColor) = 0;
 	};
 
-	IRenderer::~IRenderer() {}
+	inline IRenderer::~IRenderer() {}
 }

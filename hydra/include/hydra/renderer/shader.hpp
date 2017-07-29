@@ -24,7 +24,7 @@ namespace Hydra::Renderer {
 
 		virtual void* getHandler() = 0;
 	};
-	IShader::~IShader() {}
+	inline IShader::~IShader() {}
 
 	enum class PipelineStage : uint32_t {
 		vertex = 1 << 0,
@@ -43,5 +43,5 @@ namespace Hydra::Renderer {
 
 		virtual void bind() = 0;
 	};
-	IPipeline::~IPipeline() {}
+	inline IPipeline::~IPipeline() {}
 }

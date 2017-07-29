@@ -5,6 +5,8 @@
 
 namespace Hydra::Renderer {
 	struct GLRenderer final {
+		GLRenderer() = delete;
+
 		static IRenderer* create(Hydra::View::IView* view);
 	};
 }
