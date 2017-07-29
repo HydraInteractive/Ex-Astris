@@ -2,9 +2,11 @@
 
 #include <SDL2/SDL.h>
 
-class SDLView final : public Hydra::View::IView {
+using namespace Hydra::View;
+
+class SDLViewImpl final : public IView {
 public:
-	SDLView() {
+	SDLViewImpl() {
 		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 
 		_size = glm::ivec2(1920, 1080);
@@ -13,7 +15,7 @@ public:
 		_window = SDL_CreateWindow("SDL2 window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _size.x, _size.y, SDL_WINDOW_OPENGL);
 	}
 
-	~SDLView() final {
+	~SDLViewImpl() final {
 		SDL_DestroyWindow(_window);
 		SDL_Quit();
 	}
@@ -64,6 +66,6 @@ private:
 };
 
 
-Hydra::View::IView* Hydra::View::SDLView::create() {
-	return static_cast<Hydra::View::IView*>(new ::SDLView());
+std::unique_ptr<IView> SDLView::create() {
+	return std::unique_ptr<IView>(new ::SDLViewImpl());
 }

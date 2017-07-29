@@ -2,10 +2,12 @@
 
 #include <hydra/view/view.hpp>
 
+#include <memory>
+
 namespace Hydra::View {
 	struct SDLView final {
 		SDLView() = delete;
 
-		static IView* create();
+		static std::unique_ptr<IView> create();
 	};
 }

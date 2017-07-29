@@ -6,6 +6,14 @@
 #include <glm/glm.hpp>
 
 namespace Hydra::Renderer {
+	enum class PipelineStage : uint32_t {
+		vertex = 1 << 0,
+		geometry = 1 << 1,
+		fragment = 1 << 2
+	};
+
+	inline PipelineStage operator& (PipelineStage a, PipelineStage b) { return static_cast<PipelineStage>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b)); }
+
 	class IShader {
 	public:
 		virtual ~IShader() = 0;
@@ -22,26 +30,20 @@ namespace Hydra::Renderer {
 		virtual void setValue(int32_t id, const glm::mat3& value) = 0;
 		virtual void setValue(int32_t id, const glm::mat4& value) = 0;
 
+		virtual PipelineStage getStage() = 0;
+
 		virtual void* getHandler() = 0;
 	};
 	inline IShader::~IShader() {}
-
-	enum class PipelineStage : uint32_t {
-		vertex = 1 << 0,
-		geometry = 1 << 1,
-		fragment = 1 << 2
-	};
-
-	PipelineStage operator& (PipelineStage a, PipelineStage b) { return static_cast<PipelineStage>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b)); }
 
 	class IPipeline {
 	public:
 		virtual ~IPipeline() = 0;
 
-		virtual void attachStage(PipelineStage stage, IShader* shader) = 0;
+		virtual void attachStage(IShader& shader) = 0;
 		virtual void detachStage(PipelineStage stage) = 0;
 
-		virtual void bind() = 0;
+		virtual void* getHandler() = 0;
 	};
 	inline IPipeline::~IPipeline() {}
 }

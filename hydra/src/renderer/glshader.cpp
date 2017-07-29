@@ -7,8 +7,9 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-static GLuint stageToGL(Hydra::Renderer::PipelineStage stage) {
-	using Hydra::Renderer::PipelineStage;
+using namespace Hydra::Renderer;
+
+static GLuint stageToGL(PipelineStage stage) {
 	switch (stage) {
 	case PipelineStage::vertex:
 		return GL_VERTEX_SHADER;
@@ -21,9 +22,7 @@ static GLuint stageToGL(Hydra::Renderer::PipelineStage stage) {
 	}
 }
 
-static GLuint stageToGLBit(Hydra::Renderer::PipelineStage stage) {
-	using Hydra::Renderer::PipelineStage;
-
+static GLuint stageToGLBit(PipelineStage stage) {
 	GLuint result = 0;
 	if ((stage & PipelineStage::vertex) == PipelineStage::vertex)
 		result |= GL_VERTEX_SHADER_BIT;
@@ -35,14 +34,31 @@ static GLuint stageToGLBit(Hydra::Renderer::PipelineStage stage) {
 	return result;
 }
 
-class GLShader : public Hydra::Renderer::IShader {
+class GLShaderImpl : public IShader {
 public:
-	GLShader(Hydra::Renderer::PipelineStage stage, const std::string& source) {
+	GLShaderImpl(PipelineStage stage, const std::string& source) : _stage(stage) {
 		const char * src = source.c_str();
 		_program = glCreateShaderProgramv(stageToGL(stage), 1, &src);
+
+		GLint status;
+		glGetProgramiv(_program, GL_LINK_STATUS, &status);
+		if (status == GL_FALSE) {
+			GLint len;
+			glGetProgramiv(_program, GL_INFO_LOG_LENGTH, &len);
+
+			GLchar* errorLog = static_cast<GLchar*>(malloc(len));
+			glGetProgramInfoLog(_program, len, &len, errorLog);
+
+			char buf[0x1000];
+			snprintf(buf, sizeof(buf), "Linking failed (%u):\n%s", _program, errorLog);
+			free(errorLog);
+
+			fprintf(stderr, "%s", buf);
+			throw buf;
+		}
 	}
 
-	~GLShader() final {
+	~GLShaderImpl() final {
 		glDeleteProgram(_program);
 	}
 
@@ -58,33 +74,36 @@ public:
 	void setValue(int32_t id, const glm::mat3& value) final { glProgramUniformMatrix3fv(_program, id, 1, false, glm::value_ptr(value)); }
 	void setValue(int32_t id, const glm::mat4& value) final { glProgramUniformMatrix4fv(_program, id, 1, false, glm::value_ptr(value)); }
 
+	PipelineStage getStage() final { return _stage; }
+
 	void* getHandler() final { return static_cast<void*>(&_program); }
 
 private:
+	PipelineStage _stage;
 	GLuint _program;
 };
 
-class GLPipeline : public Hydra::Renderer::IPipeline {
+class GLPipelineImpl : public IPipeline {
 public:
-	GLPipeline() {
+	GLPipelineImpl() {
 		glGenProgramPipelines(1, &_pipeline);
 	}
 
-	~GLPipeline() final {
+	~GLPipelineImpl() final {
 		glDeleteProgramPipelines(1, &_pipeline);
 	}
 
-	void attachStage(Hydra::Renderer::PipelineStage stage, Hydra::Renderer::IShader* shader) final { glUseProgramStages(_pipeline, stageToGLBit(stage), *static_cast<GLuint*>(shader->getHandler())); }
-	void detachStage(Hydra::Renderer::PipelineStage stage) final { glUseProgramStages(_pipeline, stageToGLBit(stage), 0); }
+	void attachStage(IShader& shader) final { glUseProgramStages(_pipeline, stageToGLBit(shader.getStage()), *static_cast<GLuint*>(shader.getHandler())); }
+	void detachStage(PipelineStage stage) final { glUseProgramStages(_pipeline, stageToGLBit(stage), 0); }
 
-	void bind() final { glBindProgramPipeline(_pipeline); }
+	void* getHandler() final { return static_cast<void*>(&_pipeline); }
 
 private:
 	GLuint _pipeline;
 };
 
 
-Hydra::Renderer::IShader* Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage stage, const std::string& file) {
+std::unique_ptr<IShader> GLShader::createFromSource(PipelineStage stage, const std::string& file) {
 	FILE* fp = fopen(file.c_str(), "rb");
 	if (!fp)
 		return nullptr;
@@ -93,16 +112,17 @@ Hydra::Renderer::IShader* Hydra::Renderer::GLShader::createFromSource(Hydra::Ren
 	long length = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
 
-	char* data = static_cast<char*>(malloc(length));
+	char* data = static_cast<char*>(malloc(length + 1));
 	fread(data, length, 1, fp);
 	fclose(fp);
+	data[length] = '\0';
 
 	std::string src = std::string(data, length);
 	free(data);
 
-	return static_cast<Hydra::Renderer::IShader*>(new ::GLShader(stage, src));
+	return std::unique_ptr<IShader>(new ::GLShaderImpl(stage, src));
 }
 
-Hydra::Renderer::IPipeline* Hydra::Renderer::GLPipeline::create() {
-	return static_cast<Hydra::Renderer::IPipeline*>(new ::GLPipeline());
+std::unique_ptr<IPipeline> GLPipeline::create() {
+	return std::unique_ptr<IPipeline>(new ::GLPipelineImpl());
 }
