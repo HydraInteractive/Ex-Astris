@@ -4,6 +4,7 @@
 
 #include <hydra/renderer/renderer.hpp>
 #include <hydra/world/world.hpp>
+#include <hydra/io/textureloader.hpp>
 
 namespace Hydra {
 	class IEngine {
@@ -14,6 +15,7 @@ namespace Hydra {
 
 		virtual World::IWorld* getWorld() = 0;
 		virtual Renderer::IRenderer* getRenderer() = 0;
+		virtual IO::TextureLoader* getTextureLoader() = 0;
 	};
 	inline IEngine::~IEngine() {}
 }

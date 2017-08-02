@@ -11,37 +11,30 @@
 
 #include <hydra/world/blueprintloader.hpp>
 
-namespace HW = Hydra::World;
-namespace HV = Hydra::View;
-namespace HR = Hydra::Renderer;
-namespace HC = Hydra::Component;
+using namespace Hydra;
+
+Hydra::IEngine* engineInstance;
 
 class Engine final : public Hydra::IEngine {
 public:
 	Engine() {
-		_world = HW::World::create();
+		engineInstance = this;
 
-		_view = HV::SDLView::create();
-		_renderer = HR::GLRenderer::create(*_view);
+		_world = World::World::create();
 
-		_vertexShader = HR::GLShader::createFromSource(HR::PipelineStage::vertex, "assets/shaders/base.vert");
-		_fragmentShader = HR::GLShader::createFromSource(HR::PipelineStage::fragment, "assets/shaders/base.frag");
+		_view = View::SDLView::create();
+		_renderer = Renderer::GLRenderer::create(*_view);
+		_textureLoader = std::make_unique<IO::TextureLoader>();
 
-		_pipeline = HR::GLPipeline::create();
+		_vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/base.vert");
+		_fragmentShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::fragment, "assets/shaders/base.frag");
+
+		_pipeline = Renderer::GLPipeline::create();
 		_pipeline->attachStage(*_vertexShader);
 		_pipeline->attachStage(*_fragmentShader);
 
 		std::shared_ptr<IEntity> testEntity = _world->createEntity("TestEntity");
-
-		{
-			std::vector<HR::Vertex> vertices{
-				HR::Vertex{glm::vec3{-0.75, -0.75, 0.0}, glm::vec3{0, 0, 0}, glm::vec3{1, 0, 0}},
-				HR::Vertex{glm::vec3{ 0.75, -0.75, 0.0}, glm::vec3{0, 0, 0}, glm::vec3{0, 1, 0}},
-				HR::Vertex{glm::vec3{ 0.0,   0.75, 0.0}, glm::vec3{0, 0, 0}, glm::vec3{0, 0, 1}},
-			};
-			std::vector<uint32_t> indices{0, 1, 2};
-			testEntity->add(std::unique_ptr<HW::IComponent>(new HC::MeshComponent(std::weak_ptr<IEntity>(testEntity), vertices, indices)));
-		}
+		testEntity->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world);
 	}
@@ -50,8 +43,8 @@ public:
 
 	void run() final {
 		while (!_view->isClosed()) {
-			_world->tick(HW::TickAction::checkDead);
-			_world->tick(HW::TickAction::physics);
+			_world->tick(World::TickAction::checkDead);
+			_world->tick(World::TickAction::physics);
 
 			_view->update();
 
@@ -59,40 +52,39 @@ public:
 			_renderer->use(*_pipeline);
 			_renderer->clear(glm::vec4{0, 0.1, 0.1, 1});
 
-			// _renderer->setRenderOrder(HR::RenderOrder::frontToBack);
-			_world->tick(HW::TickAction::render);
+			_renderer->setRenderOrder(Renderer::RenderOrder::frontToBack);
+			_world->tick(World::TickAction::render);
+			_renderer->flush();
 
-			// _renderer->setRenderOrder(HR::RenderOrder::backToFront);
-			_world->tick(HW::TickAction::renderTransparent);
+			_renderer->setRenderOrder(Renderer::RenderOrder::backToFront);
+			_world->tick(World::TickAction::renderTransparent);
+			_renderer->flush();
 
 			_view->finalize();
 
-			_world->tick(HW::TickAction::network);
+			_world->tick(World::TickAction::network);
 		}
 	}
 
 
-	HW::IWorld* getWorld() final { return _world.get(); }
-	HR::IRenderer* getRenderer() final { return _renderer.get(); }
+	World::IWorld* getWorld() final { return _world.get(); }
+	Renderer::IRenderer* getRenderer() final { return _renderer.get(); }
+	IO::TextureLoader* getTextureLoader() final { return _textureLoader.get(); }
 
 private:
-	std::shared_ptr<HW::IWorld> _world;
+	std::shared_ptr<World::IWorld> _world;
 
-	std::unique_ptr<HV::IView> _view;
-	std::unique_ptr<HR::IRenderer> _renderer;
+	std::unique_ptr<View::IView> _view;
+	std::unique_ptr<Renderer::IRenderer> _renderer;
+	std::unique_ptr<IO::TextureLoader> _textureLoader;
 
-	std::unique_ptr<HR::IShader> _vertexShader;
-	std::unique_ptr<HR::IShader> _fragmentShader;
+	std::unique_ptr<Renderer::IShader> _vertexShader;
+	std::unique_ptr<Renderer::IShader> _fragmentShader;
 
-	std::unique_ptr<HR::IPipeline> _pipeline;
+	std::unique_ptr<Renderer::IPipeline> _pipeline;
 };
 
-Hydra::IEngine* engineInstance;
-
 int main(int argc, const char** argv) {
-	engineInstance = new Engine();
-	engineInstance->run();
-
-	delete engineInstance;
+	Engine().run();
 	return 0;
 }

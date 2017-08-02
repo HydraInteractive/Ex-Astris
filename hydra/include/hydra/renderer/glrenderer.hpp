@@ -8,16 +8,17 @@
 #include <cstdint>
 
 namespace Hydra::Renderer {
-	struct GLRenderer final {
-		GLRenderer() = delete;
-
-		static std::unique_ptr<IRenderer> create(Hydra::View::IView& view);
+	namespace GLRenderer {
+		std::unique_ptr<IRenderer> create(Hydra::View::IView& view);
 	};
 
-	struct GLMesh final {
-		GLMesh() = delete;
+	namespace GLMesh {
+		std::unique_ptr<IMesh> create(const std::string& file);
+	};
 
-		static std::unique_ptr<IMesh> create(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
-		static std::unique_ptr<IMesh> createFromFile(const std::string& file);
+	namespace GLTexture {
+		std::shared_ptr<ITexture> createFromFile(const std::string& file);
+		std::shared_ptr<ITexture> createFromData(uint32_t width, uint32_t height, void* data);
+		std::shared_ptr<ITexture> createFromDataExt(const char* ext, void* data, uint32_t size);
 	};
 }

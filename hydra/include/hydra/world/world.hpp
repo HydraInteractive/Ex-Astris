@@ -25,7 +25,12 @@ namespace Hydra::World {
 
 		virtual void markDead() = 0;
 
-		virtual void add(std::unique_ptr<IComponent> component) = 0;
+		template <typename T, typename... Args, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
+		T* addComponent(Args... args) {
+			return static_cast<T*>(add(std::unique_ptr<IComponent>(new T(this, args...))));
+		}
+
+		virtual IComponent* add(std::unique_ptr<IComponent> component) = 0;
 		virtual void remove(IComponent* component) = 0;
 		virtual const std::vector<std::unique_ptr<IComponent>>& getComponents() = 0;
 
@@ -44,7 +49,7 @@ namespace Hydra::World {
 
 	class IComponent {
 	public:
-		inline IComponent(std::weak_ptr<IEntity> entity) : entity(entity) {}
+		inline IComponent(IEntity* entity) : entity(entity) {}
 		virtual ~IComponent() = 0;
 
 		virtual void tick(TickAction action) = 0;
@@ -56,7 +61,7 @@ namespace Hydra::World {
 		// TODO?: IComponent* getParent();
 		// TODO?: std::vector<IComponent*> getChildren();
 	protected:
-		std::weak_ptr<IEntity> entity;
+		IEntity* entity;
 	};
 	inline IComponent::~IComponent() {}
 

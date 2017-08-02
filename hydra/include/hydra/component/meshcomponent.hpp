@@ -10,8 +10,7 @@ using namespace Hydra::World;
 namespace Hydra::Component {
 	class MeshComponent : public IComponent {
 	public:
-		MeshComponent(std::weak_ptr<IEntity> entity, const std::vector<Hydra::Renderer::Vertex>& vertices, const std::vector<uint32_t>& indices);
-		MeshComponent(std::weak_ptr<IEntity> entity, const std::string& meshFile);
+		MeshComponent(IEntity* entity, const std::string& meshFile);
 		~MeshComponent() final;
 
 		void tick(TickAction action) final;

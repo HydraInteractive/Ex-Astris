@@ -1,7 +1,7 @@
 import reggae;
 
-enum CFlagsLib = "-std=c++17 -ggdb -Wall -Werror -fdiagnostics-color=always -fopenmp -fPIC -Ihydra/include";
-enum CFlagsExec = "-std=c++17 -ggdb -Wall -Werror -fdiagnostics-color=always -fopenmp -fPIC -Ihydra/include -Iexample/include";
+enum CFlagsLib = "-std=c++1z -ggdb -Wall -Werror -fdiagnostics-color=always -fopenmp -fPIC -Ihydra/include";
+enum CFlagsExec = "-std=c++1z -ggdb -Wall -Werror -fdiagnostics-color=always -fopenmp -fPIC -Ihydra/include -Iexample/include";
 enum LFlagsLib = "-shared -ggdb -fdiagnostics-color=always -fopenmp -lm -ldl -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lGL -lassimp";
 enum LFlagsExec = "-Wl,-rpath,. -Lobjs/examplegame.objs -L. -lhydra -ggdb -fdiagnostics-color=always -fopenmp";
 

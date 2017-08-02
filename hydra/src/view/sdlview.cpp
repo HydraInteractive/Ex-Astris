@@ -49,10 +49,10 @@ public:
 	bool isClosed() final { return _wantToClose; }
 	bool didChangeSize() final { return false; }
 
-	// IRenderTarget
-
+	// ITexture
 	uint32_t getID() final { return 0; } // Because 0 = Screen
 
+	// IRenderTarget
 	void finalize() final {
 		SDL_GL_SwapWindow(_window);
 	}

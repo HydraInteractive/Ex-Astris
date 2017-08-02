@@ -3,20 +3,10 @@
 #include <cstdint>
 
 #include <glm/glm.hpp>
+#include <hydra/renderer/renderer.hpp>
 
 namespace Hydra::View {
-	class IRenderTarget {
-	public:
-		virtual ~IRenderTarget() = 0;
-
-		virtual uint32_t getID() = 0;
-
-		virtual void finalize() = 0;
-	};
-
-	inline IRenderTarget::~IRenderTarget() {}
-
-	class IView : public IRenderTarget {
+	class IView : public Hydra::Renderer::IRenderTarget {
 	public:
 		virtual ~IView() = 0;
 
@@ -33,6 +23,5 @@ namespace Hydra::View {
 		virtual bool isClosed() = 0;
 		virtual bool didChangeSize() = 0;
 	};
-
 	inline IView::~IView() {}
 }

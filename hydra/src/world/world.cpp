@@ -27,7 +27,12 @@ public:
 
 	void markDead() final { _dead = true; }
 
-	void add(std::unique_ptr<IComponent> component) final { _components.push_back(std::move(component)); }
+	IComponent* add(std::unique_ptr<IComponent> component) final {
+		IComponent* ptr = component.get();
+		_components.push_back(std::move(component));
+		return ptr;
+	}
+
 	void remove(IComponent* component) final {
 		auto it = std::remove_if(_components.begin(), _components.end(), [&component](const std::unique_ptr<IComponent>& c) { return c.get() == component; });
 		_components.erase(it, _components.end());
@@ -88,9 +93,7 @@ public:
 	~WorldImpl() final {}
 
 	std::shared_ptr<IEntity> createEntity(const std::string& name) final {
-		auto entity = std::shared_ptr<IEntity>(new EntityImpl(name, this));
-		_children.push_back(entity);
-		return entity;
+		return spawn(std::shared_ptr<IEntity>(new EntityImpl(name, this)));
 	}
 };
 
