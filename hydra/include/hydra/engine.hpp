@@ -1,11 +1,19 @@
 #pragma once
 
+#include <memory>
+
+#include <hydra/renderer/renderer.hpp>
+#include <hydra/world/world.hpp>
+
 namespace Hydra {
-	class Engine {
+	class IEngine {
 	public:
-		virtual ~Engine() = 0;
+		virtual ~IEngine() = 0;
 
 		virtual void run() = 0;
+
+		virtual World::IWorld* getWorld() = 0;
+		virtual Renderer::IRenderer* getRenderer() = 0;
 	};
-	inline Engine::~Engine() {}
+	inline IEngine::~IEngine() {}
 }
