@@ -5,16 +5,19 @@
 #include <glm/glm.hpp>
 #include <hydra/renderer/renderer.hpp>
 
+namespace Hydra::Renderer { class IUIRenderer; }
+
 namespace Hydra::View {
 	class IView : public Hydra::Renderer::IRenderTarget {
 	public:
 		virtual ~IView() = 0;
 
 		/// Run the event loop stuff
-		virtual void update() = 0;
+		virtual void update(Hydra::Renderer::IUIRenderer* uiRenderer = nullptr) = 0;
 
 		virtual void show() = 0;
 		virtual void hide() = 0;
+		virtual void quit() = 0;
 
 		virtual glm::ivec2 getSize() = 0;
 		virtual void* getHandler() = 0;

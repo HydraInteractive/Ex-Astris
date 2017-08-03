@@ -2,12 +2,14 @@
 
 #include <SDL2/SDL.h>
 
+#include <hydra/renderer/uirenderer.hpp>
+
 using namespace Hydra::View;
 
 class SDLViewImpl final : public IView {
 public:
 	SDLViewImpl() {
-		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
+		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER);
 
 		_size = glm::ivec2(1920, 1080);
 		_wantToClose = false;
@@ -21,15 +23,19 @@ public:
 	}
 
 	// IView
-	void update() final {
+	void update(Hydra::Renderer::IUIRenderer* uiRenderer) final {
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
+			if (uiRenderer)
+				uiRenderer->handleEvent(event);
 			switch (event.type) {
 			case SDL_QUIT:
 				_wantToClose = true;
 				break;
 
 			case SDL_KEYDOWN:
+				if (uiRenderer && uiRenderer->usingKeyboard())
+					break;
 				if (event.key.keysym.sym == SDLK_ESCAPE)
 					_wantToClose = true;
 				break;
@@ -42,6 +48,7 @@ public:
 
 	void show() final { SDL_ShowWindow(_window); }
 	void hide() final {	SDL_HideWindow(_window); }
+	void quit() final { _wantToClose = true; }
 
 	glm::ivec2 getSize() final { return _size; }
 	void* getHandler() final { return _window; }
@@ -55,6 +62,7 @@ public:
 	// IRenderTarget
 	void finalize() final {
 		SDL_GL_SwapWindow(_window);
+		SDL_Delay(2); // XXX: REMOVE LATER, ELSE HATE LIFE
 	}
 
 private:

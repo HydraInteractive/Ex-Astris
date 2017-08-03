@@ -6,6 +6,7 @@
 #include <hydra/view/sdlview.hpp>
 #include <hydra/renderer/glrenderer.hpp>
 #include <hydra/renderer/glshader.hpp>
+#include <hydra/renderer/uirenderer.hpp>
 
 #include <hydra/component/meshcomponent.hpp>
 
@@ -24,6 +25,7 @@ public:
 
 		_view = View::SDLView::create();
 		_renderer = Renderer::GLRenderer::create(*_view);
+		_uiRenderer = Renderer::UIRenderer::create(*_view);
 		_textureLoader = std::make_unique<IO::TextureLoader>();
 
 		_vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/base.vert");
@@ -44,9 +46,11 @@ public:
 	void run() final {
 		while (!_view->isClosed()) {
 			_world->tick(World::TickAction::checkDead);
-			_world->tick(World::TickAction::physics);
 
-			_view->update();
+			_view->update(_uiRenderer.get());
+			_uiRenderer->newFrame();
+
+			_world->tick(World::TickAction::physics);
 
 			_renderer->bind(*_view);
 			_renderer->use(*_pipeline);
@@ -60,6 +64,7 @@ public:
 			_world->tick(World::TickAction::renderTransparent);
 			_renderer->flush();
 
+			_uiRenderer->render();
 			_view->finalize();
 
 			_world->tick(World::TickAction::network);
@@ -76,6 +81,7 @@ private:
 
 	std::unique_ptr<View::IView> _view;
 	std::unique_ptr<Renderer::IRenderer> _renderer;
+	std::unique_ptr<Renderer::IUIRenderer> _uiRenderer;
 	std::unique_ptr<IO::TextureLoader> _textureLoader;
 
 	std::unique_ptr<Renderer::IShader> _vertexShader;
