@@ -2,7 +2,10 @@
 
 #include <string>
 #include <memory>
+#include <map>
 #include <vector>
+#include <typeinfo>
+#include <typeindex>
 #include <msgpack.hpp>
 
 namespace Hydra::World {
@@ -25,14 +28,20 @@ namespace Hydra::World {
 
 		virtual void markDead() = 0;
 
+		virtual IComponent* addComponent_(const std::type_index& id, std::unique_ptr<IComponent> component) = 0;
+		virtual void removeComponent_(const std::type_index& id) = 0;
+		virtual std::map<std::type_index, std::unique_ptr<IComponent>>& getComponents() = 0;
+
 		template <typename T, typename... Args, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
 		T* addComponent(Args... args) {
-			return static_cast<T*>(add(std::unique_ptr<IComponent>(new T(this, args...))));
+			T* ptr = new T(this, args...);
+			addComponent_(std::type_index(typeid(T)), std::unique_ptr<IComponent>(ptr));
+			return ptr;
 		}
-
-		virtual IComponent* add(std::unique_ptr<IComponent> component) = 0;
-		virtual void remove(IComponent* component) = 0;
-		virtual const std::vector<std::unique_ptr<IComponent>>& getComponents() = 0;
+		template <typename T, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
+		void removeComponent() { removeComponent_(std::type_index(typeid(T))); }
+		template <typename T, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
+		T* getComponent() { return static_cast<T*>(getComponents()[std::type_index(typeid(T))].get()); }
 
 		virtual std::shared_ptr<IEntity> spawn(std::shared_ptr<IEntity> entity) = 0;
 		virtual std::shared_ptr<IEntity> spawn(Blueprint& blueprint) = 0;

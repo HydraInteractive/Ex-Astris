@@ -9,6 +9,7 @@
 #include <hydra/renderer/uirenderer.hpp>
 
 #include <hydra/component/meshcomponent.hpp>
+#include <hydra/component/transformcomponent.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
 
@@ -37,6 +38,7 @@ public:
 
 		std::shared_ptr<IEntity> testEntity = _world->createEntity("TestEntity");
 		testEntity->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
+		testEntity->addComponent<Component::TransformComponent>(glm::vec3(0), glm::vec3(2));
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world);
 	}

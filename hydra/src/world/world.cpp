@@ -1,7 +1,6 @@
 #include <hydra/world/world.hpp>
 
 #include <algorithm>
-#include <typeinfo>
 
 using namespace Hydra::World;
 
@@ -19,7 +18,7 @@ public:
 			_children.erase(it, _children.end());
 		} else
 			for (auto& component : _components)
-				component->tick(action);
+				component.second->tick(action);
 
 		for (auto& child : _children)
 			child->tick(action);
@@ -27,17 +26,17 @@ public:
 
 	void markDead() final { _dead = true; }
 
-	IComponent* add(std::unique_ptr<IComponent> component) final {
+	IComponent* addComponent_(const std::type_index& id, std::unique_ptr<IComponent> component) final {
 		IComponent* ptr = component.get();
-		_components.push_back(std::move(component));
+		_components[id] = std::move(component);
 		return ptr;
 	}
 
-	void remove(IComponent* component) final {
-		auto it = std::remove_if(_components.begin(), _components.end(), [&component](const std::unique_ptr<IComponent>& c) { return c.get() == component; });
-		_components.erase(it, _components.end());
+	void removeComponent_(const std::type_index& id) final {
+		_components.erase(id);
 	}
-	const std::vector<std::unique_ptr<IComponent>>& getComponents() final { return _components; }
+
+	std::map<std::type_index, std::unique_ptr<IComponent>>& getComponents() final { return _components; }
 
 	std::shared_ptr<IEntity> spawn(std::shared_ptr<IEntity> entity) final {
 		_children.push_back(entity);
@@ -62,8 +61,8 @@ public:
 		o.pack("Components");
 		o.pack_map(_components.size());
 		for (auto& component : _components) {
-			o.pack(component->type());
-			component->pack(o);
+			o.pack(component.second->type());
+			component.second->pack(o);
 		}
 
 		o.pack("Children");
@@ -81,7 +80,7 @@ public:
 	std::string _name;
 	bool _dead = false;
 	IEntity* _parent = nullptr;
-	std::vector<std::unique_ptr<IComponent>> _components;
+	std::map<std::type_index, std::unique_ptr<IComponent>> _components;
 	std::vector<std::shared_ptr<IEntity>> _children;
 };
 
