@@ -5,6 +5,7 @@ in VertexData {
 	vec3 normal;
 	vec3 color;
 	vec2 uv;
+	mat3 tbn;
 } inData;
 
 out vec4 fragColor;

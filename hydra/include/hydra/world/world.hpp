@@ -8,6 +8,8 @@
 #include <typeindex>
 #include <msgpack.hpp>
 
+namespace Hydra::Renderer { struct DrawObject; }
+
 namespace Hydra::World {
 	class IComponent;
 	struct Blueprint;
@@ -25,6 +27,7 @@ namespace Hydra::World {
 		virtual ~IEntity() = 0;
 
 		virtual void tick(TickAction action) = 0;
+		// TODO: Add a wantTick field, to now talk parts of the tree that don't want those actions
 
 		virtual void markDead() = 0;
 
@@ -52,6 +55,7 @@ namespace Hydra::World {
 		virtual msgpack::packer<msgpack::sbuffer>& pack(msgpack::packer<msgpack::sbuffer>& o) const = 0;
 
 		virtual const std::string& getName() const = 0;
+		virtual Hydra::Renderer::DrawObject* getDrawObject() = 0;
 		virtual bool isDead() const = 0;
 	};
 	inline IEntity::~IEntity() {}
@@ -62,6 +66,7 @@ namespace Hydra::World {
 		virtual ~IComponent() = 0;
 
 		virtual void tick(TickAction action) = 0;
+		// TODO: Add a wantTick field, to now talk parts of the tree that don't want those actions
 
 		virtual const std::string type() = 0;
 

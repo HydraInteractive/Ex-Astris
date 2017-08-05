@@ -57,7 +57,7 @@ public:
 	bool didChangeSize() final { return false; }
 
 	// ITexture
-	uint32_t getID() final { return 0; } // Because 0 = Screen
+	uint32_t getID() const final { return 0; } // Because 0 = Screen
 
 	// IRenderTarget
 	void finalize() final {

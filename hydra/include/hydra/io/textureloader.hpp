@@ -6,6 +6,8 @@
 
 using namespace Hydra::Renderer;
 
+//TODO: Use PBO! http://www.songho.ca/opengl/gl_pbo.html#unpack
+
 namespace Hydra::IO {
 	class TextureLoader final {
 	public:

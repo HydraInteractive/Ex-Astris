@@ -94,6 +94,7 @@ public:
 	}
 
 	void attachStage(IShader& shader) final { glUseProgramStages(_pipeline, stageToGLBit(shader.getStage()), *static_cast<GLuint*>(shader.getHandler())); }
+
 	void detachStage(PipelineStage stage) final { glUseProgramStages(_pipeline, stageToGLBit(stage), 0); }
 
 	void* getHandler() final { return static_cast<void*>(&_pipeline); }

@@ -7,8 +7,10 @@
 
 using namespace Hydra::World;
 
+// TODO: Implement LOD
+
 namespace Hydra::Component {
-	class MeshComponent : public IComponent {
+	class MeshComponent final : public IComponent {
 	public:
 		MeshComponent(IEntity* entity, const std::string& meshFile);
 		~MeshComponent() final;
@@ -21,6 +23,7 @@ namespace Hydra::Component {
 
 	private:
 		std::string _meshFile;
+		Hydra::Renderer::DrawObject* _drawObject;
 		std::unique_ptr<Hydra::Renderer::IMesh> _mesh;
 	};
 };

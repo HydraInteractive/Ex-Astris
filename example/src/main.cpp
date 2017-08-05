@@ -10,6 +10,7 @@
 
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
+#include <hydra/component/cameracomponent.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
 
@@ -30,11 +31,16 @@ public:
 		_textureLoader = std::make_unique<IO::TextureLoader>();
 
 		_vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/base.vert");
+		_geometryShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::geometry, "assets/shaders/base.geom");
 		_fragmentShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::fragment, "assets/shaders/base.frag");
 
 		_pipeline = Renderer::GLPipeline::create();
 		_pipeline->attachStage(*_vertexShader);
+		_pipeline->attachStage(*_geometryShader);
 		_pipeline->attachStage(*_fragmentShader);
+
+		std::shared_ptr<IEntity> cameraEntity = _world->createEntity("Camera");
+		_cc = cameraEntity->addComponent<Component::CameraComponent>();
 
 		std::shared_ptr<IEntity> testEntity = _world->createEntity("TestEntity");
 		testEntity->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
@@ -48,23 +54,26 @@ public:
 	void run() final {
 		while (!_view->isClosed()) {
 			_world->tick(World::TickAction::checkDead);
+			_renderer->cleanup();
 
 			_view->update(_uiRenderer.get());
 			_uiRenderer->newFrame();
 
 			_world->tick(World::TickAction::physics);
 
-			_renderer->bind(*_view);
-			_renderer->use(*_pipeline);
-			_renderer->clear(glm::vec4{0, 0.1, 0.1, 1});
-
-			_renderer->setRenderOrder(Renderer::RenderOrder::frontToBack);
 			_world->tick(World::TickAction::render);
-			_renderer->flush();
+			_batch.clearColor = glm::vec4(0, 0, 0, 1);
+			_batch.renderTarget = _view.get();
+			_batch.pipeline = _pipeline.get();
 
-			_renderer->setRenderOrder(Renderer::RenderOrder::backToFront);
-			_world->tick(World::TickAction::renderTransparent);
-			_renderer->flush();
+			_geometryShader->setValue(0, _cc->getViewMatrix());
+			_geometryShader->setValue(1, _cc->getProjectionMatrix());
+			_geometryShader->setValue(2, _cc->getPosition());
+
+			for (DrawObject* drawObj : _renderer->activeDrawObjects())
+				_batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+
+			_renderer->render(_batch);
 
 			_uiRenderer->render();
 			_view->finalize();
@@ -87,9 +96,13 @@ private:
 	std::unique_ptr<IO::TextureLoader> _textureLoader;
 
 	std::unique_ptr<Renderer::IShader> _vertexShader;
+	std::unique_ptr<Renderer::IShader> _geometryShader;
 	std::unique_ptr<Renderer::IShader> _fragmentShader;
 
 	std::unique_ptr<Renderer::IPipeline> _pipeline;
+
+	Component::CameraComponent* _cc = nullptr;
+	Renderer::Batch _batch;
 };
 
 int main(int argc, const char** argv) {

@@ -3,7 +3,7 @@ import reggae;
 enum CFlagsLib = "-O0 -ffat-lto-objects -std=c++1z -ggdb -Wall -Werror -fdiagnostics-color=always -fopenmp -fPIC -Ihydra/include";
 enum CFlagsExec = "-O0 -ffat-lto-objects -std=c++1z -ggdb -Wall -Werror -fdiagnostics-color=always -fopenmp -fPIC -Ihydra/include -Iexample/include";
 enum LFlagsLib = "-O3 -shared -ggdb -fdiagnostics-color=always -fopenmp -lm -ldl -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lGL -lassimp";
-enum LFlagsExec = "-O3 -Wl,-rpath,. -Lobjs/examplegame.objs -L. -lhydra -ggdb -fdiagnostics-color=always -fopenmp";
+enum LFlagsExec = "-O3 -Wl,--no-undefined -Wl,-rpath,. -Lobjs/examplegame.objs -L. -lhydra -ggdb -fdiagnostics-color=always -fopenmp";
 
 enum CompileCommand {
 	CompileLib = "g++ -c " ~ CFlagsLib ~ " $in -o $out",
@@ -41,5 +41,5 @@ Build myBuild() {
 	auto libhydra = Target("libhydra.so", CompileCommand.LinkLib, MakeObjects!("hydra/src/", CompileCommand.CompileLib));
 	auto example = Target("examplegame", CompileCommand.LinkExec, MakeObjects!("example/src/", CompileCommand.CompileExec), [libhydra]);
 
-	return Build(libhydra, example);
+	return Build(example);
 }

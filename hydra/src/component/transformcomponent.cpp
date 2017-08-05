@@ -1,18 +1,21 @@
 #include <hydra/component/transformcomponent.hpp>
 
-#include <hydra/engine.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-extern Hydra::IEngine* engineInstance;
-
-TransformComponent::TransformComponent(IEntity* entity, const glm::vec3& position, const glm::vec3& scale, const glm::quat& rotation) : IComponent(entity), _dirty(true), _position(position), _scale(scale), _rotation(rotation) {}
-TransformComponent::~TransformComponent() {}
+TransformComponent::TransformComponent(IEntity* entity, const glm::vec3& position, const glm::vec3& scale, const glm::quat& rotation) : IComponent(entity), _drawObject(entity->getDrawObject()), _dirty(true), _position(position), _scale(scale), _rotation(rotation) {
+	_drawObject->refCounter++;
+}
+TransformComponent::~TransformComponent() {
+	_drawObject->modelMatrix = glm::mat4(1);
+	_drawObject->refCounter--;
+}
 
 void TransformComponent::tick(TickAction action) {
-	// if (action == TickAction::physics)
+	if (action == TickAction::physics)
+		_drawObject->modelMatrix = getMatrix();
 }
 
 msgpack::packer<msgpack::sbuffer>& TransformComponent::pack(msgpack::packer<msgpack::sbuffer>& o) const {

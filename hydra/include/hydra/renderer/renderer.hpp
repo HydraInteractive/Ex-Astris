@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include <cstdint>
 #include <memory>
+#include <map>
+#include <vector>
 
 #include <hydra/renderer/shader.hpp>
 
@@ -12,7 +14,11 @@ namespace Hydra::Renderer {
 		normal = 1,
 		color = 2,
 		uv = 3,
-		tangent = 4
+		tangent = 4,
+		modelMatrix = 5,
+		_modelMatrix1 = 6,
+		_modelMatrix2 = 7,
+		_modelMatrix3 = 8
 	};
 
 	struct Vertex final {
@@ -27,7 +33,7 @@ namespace Hydra::Renderer {
 	public:
 		virtual ~ITexture() = 0;
 
-		virtual uint32_t getID() = 0;
+		virtual uint32_t getID() const = 0;
 	};
 	inline ITexture::~ITexture() {}
 
@@ -52,26 +58,40 @@ namespace Hydra::Renderer {
 	};
 	inline IMesh::~IMesh() {}
 
-	enum class RenderOrder {
-		frontToBack = 0,
-		backToFront = 1
+	// Components updates this object
+	// Renderer uses these to know what to render and where
+	// TODO: Maybe add DrawObject for transparent stuff or just field
+	struct DrawObject final {
+		int refCounter = 0;
+		// bool disable; // TODO: ?
+		IMesh* mesh = nullptr; // & Material // TODO: Change to something else than IMesh?
+		glm::mat4 modelMatrix;
+	};
+
+	struct Camera final {
+		glm::mat4 viewMatrix;
+		glm::mat4 projectionMatrix;
+	};
+
+	struct Batch {
+		glm::vec4 clearColor;
+		IRenderTarget* renderTarget;
+		IPipeline* pipeline;
+		// Camera* camera;
+		std::map<IMesh*, std::vector<glm::mat4 /* Model matrix */>> objects;
 	};
 
 	class IRenderer {
 	public:
 		virtual ~IRenderer() = 0;
 
-		virtual void setRenderOrder(RenderOrder renderOrder) = 0;
+		virtual void render(Batch& batch) = 0;
 
-		virtual void bind(IRenderTarget& renderTarget) = 0;
-		virtual void clear(glm::vec4 clearColor) = 0;
+		virtual DrawObject* aquireDrawObject() = 0;
 
-		virtual void use(IPipeline& pipeline) = 0;
+		virtual std::vector<DrawObject*> activeDrawObjects() = 0;
 
-		virtual void render(IMesh& mesh, size_t instances) = 0;
-
-		/// Render all created batches
-		virtual void flush() = 0;
+		virtual void cleanup() = 0;
 	};
 	inline IRenderer::~IRenderer() {}
 }

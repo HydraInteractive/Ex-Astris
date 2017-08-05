@@ -9,14 +9,19 @@ using namespace Hydra::Component;
 
 extern Hydra::IEngine* engineInstance;
 
-MeshComponent::MeshComponent(IEntity* entity, const std::string& meshFile) : IComponent(entity), _meshFile(meshFile) {
+MeshComponent::MeshComponent(IEntity* entity, const std::string& meshFile) : IComponent(entity), _meshFile(meshFile), _drawObject(entity->getDrawObject()) {
 	_mesh = Hydra::Renderer::GLMesh::create(meshFile);
+	_drawObject->refCounter++;
 }
-MeshComponent::~MeshComponent() {}
+
+MeshComponent::~MeshComponent() {
+	_drawObject->mesh = nullptr;
+	_drawObject->refCounter--;
+}
 
 void MeshComponent::tick(TickAction action) {
 	if (action == TickAction::render)
-		engineInstance->getRenderer()->render(*_mesh, 1);
+		_drawObject->mesh = _mesh.get();
 }
 
 msgpack::packer<msgpack::sbuffer>& MeshComponent::pack(msgpack::packer<msgpack::sbuffer>& o) const {

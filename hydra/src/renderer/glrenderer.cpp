@@ -49,8 +49,8 @@ public:
 
 	Material& getMaterial() final { return _material; }
 
-	GLuint getVAO() { return _vao; }
-	size_t getIndicesCount() { return _indicesCount; }
+	GLuint getVAO() const { return _vao; }
+	size_t getIndicesCount() const { return _indicesCount; }
 
 private:
 	Material _material;
@@ -270,7 +270,7 @@ public:
 			glDeleteTextures(1, &_texture);
 	}
 
-	uint32_t getID() { return _texture; }
+	uint32_t getID() const { return _texture; }
 private:
 	bool _own;
 	GLuint _texture;
@@ -307,41 +307,75 @@ public:
 		glEnable(GL_DEBUG_OUTPUT);
 
 		SDL_GL_SetSwapInterval(0);
+
+		glGenBuffers(1, &_modelMatrixBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
+		glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, NULL, GL_DYNAMIC_DRAW);
 	}
 
 	~GLRendererImpl() final {
+		glDeleteBuffers(1, &_modelMatrixBuffer);
 		SDL_GL_DeleteContext(_glContext);
 	}
 
-	void setRenderOrder(RenderOrder renderOrder) final { _renderOrder = renderOrder; }
-
-	void bind(IRenderTarget& renderTarget) final {
+	void render(Batch& batch) final {
 		SDL_GL_MakeCurrent(_window, _glContext);
-		glBindFramebuffer(GL_FRAMEBUFFER, renderTarget.getID());
+		glBindFramebuffer(GL_FRAMEBUFFER, batch.renderTarget->getID());
+
+		glClearColor(batch.clearColor.r, batch.clearColor.g, batch.clearColor.b, batch.clearColor.a);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // TODO:
+
+		glBindProgramPipeline(*static_cast<GLuint*>(batch.pipeline->getHandler()));
+
+		for (std::pair<const IMesh*, std::vector<glm::mat4>> kv : batch.objects) {
+			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, kv.second.size() * sizeof(glm::mat4), &kv.second[0]);
+			for (int i = 0; i < 4; i++) {
+				glEnableVertexAttribArray(VertexLocation::modelMatrix + i);
+				glVertexAttribPointer(VertexLocation::modelMatrix + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(sizeof(glm::vec4) * i));
+				glVertexAttribDivisor(VertexLocation::modelMatrix + i, 1);
+			}
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			const GLMeshImpl* mesh = static_cast<const GLMeshImpl*>(kv.first);
+			glBindVertexArray(mesh->getVAO());
+			glDrawElementsInstanced(GL_TRIANGLES, mesh->getIndicesCount(), GL_UNSIGNED_INT, NULL, kv.second.size());
+		}
 	}
 
-	void clear(glm::vec4 clearColor) final {
-		glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	DrawObject* aquireDrawObject() final {
+		DrawObject* drawObj;
+		if (_inactiveDrawObjects.empty())
+			drawObj = new DrawObject();
+		else {
+			drawObj = _inactiveDrawObjects.back();
+			_inactiveDrawObjects.pop_back();
+		}
+		_activeDrawObjects.push_back(drawObj);
+		return drawObj;
 	}
 
-	void use(IPipeline& pipeline) final { glBindProgramPipeline(*static_cast<GLuint*>(pipeline.getHandler())); }
+	std::vector<DrawObject*> activeDrawObjects() final { return _activeDrawObjects; }
 
-	void render(IMesh& mesh_, size_t instances) final {
-		GLMeshImpl& mesh = static_cast<GLMeshImpl&>(mesh_);
-		glBindVertexArray(mesh.getVAO());
-		glDrawElementsInstanced(GL_TRIANGLES, mesh.getIndicesCount(), GL_UNSIGNED_INT, NULL, instances);
-	}
+	void cleanup() final {
+		auto isInactive = [this](DrawObject* drawObj) {
+			if (drawObj->refCounter)
+				return false;
+			_inactiveDrawObjects.push_back(drawObj);
+			return true;
+		};
 
-	void flush() final {
-		// TODO:
+		_activeDrawObjects.erase(std::remove_if(_activeDrawObjects.begin(), _activeDrawObjects.end(), isInactive), _activeDrawObjects.end());
 	}
 
 private:
 	SDL_Window* _window;
 	SDL_GLContext _glContext;
+	std::vector<DrawObject*> _activeDrawObjects;
+	std::vector<DrawObject*> _inactiveDrawObjects;
 
-	RenderOrder _renderOrder = RenderOrder::frontToBack;
+	const size_t _modelMatrixSize = sizeof(glm::mat4) * 128;
+	GLuint _modelMatrixBuffer;
 
 	static void _loadGLAD() {
 		static bool initialized = false;

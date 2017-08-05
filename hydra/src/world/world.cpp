@@ -1,8 +1,12 @@
 #include <hydra/world/world.hpp>
 
 #include <algorithm>
+#include <hydra/renderer/renderer.hpp>
+#include <hydra/engine.hpp>
 
 using namespace Hydra::World;
+
+extern Hydra::IEngine* engineInstance;
 
 // Is is 'virtual public' because WorldImpl needs it like that
 class EntityImpl : virtual public IEntity {
@@ -10,7 +14,10 @@ public:
 	EntityImpl() : _name("") {}
 	EntityImpl(const std::string& name, IEntity* parent) : _name(name), _parent(parent) {}
 
-	virtual ~EntityImpl() {}
+	virtual ~EntityImpl() {
+		if (_drawObject)
+			_drawObject->refCounter--;
+	}
 
 	void tick(TickAction action) final {
 		if (action == TickAction::checkDead) {
@@ -74,6 +81,13 @@ public:
 	}
 
 	const std::string& getName() const final { return _name; }
+	Hydra::Renderer::DrawObject* getDrawObject() final {
+		if (!_drawObject) {
+			_drawObject = engineInstance->getRenderer()->aquireDrawObject();
+			_drawObject->refCounter++;
+		}
+		return _drawObject;
+	}
 	bool isDead() const final { return _dead; }
 
  protected:
@@ -82,6 +96,8 @@ public:
 	IEntity* _parent = nullptr;
 	std::map<std::type_index, std::unique_ptr<IComponent>> _components;
 	std::vector<std::shared_ptr<IEntity>> _children;
+
+	Hydra::Renderer::DrawObject* _drawObject = nullptr;
 };
 
 // WorldImpl implement IWorld, and IWorld implements IEntity
