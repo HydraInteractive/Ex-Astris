@@ -42,13 +42,21 @@ public:
 		std::shared_ptr<IEntity> cameraEntity = _world->createEntity("Camera");
 		_cc = cameraEntity->addComponent<Component::CameraComponent>(glm::vec3{0, 0, -3});
 
-		for (int x = 0; x < 3; x++)
-			for (int y = 0; y < 3; y++)
+		std::shared_ptr<IEntity> boxes = _world->createEntity("Boxes");
+		boxes->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0));
+		for (int x = 0; x < 3; x++) {
+			std::shared_ptr<IEntity> xLevel = boxes->createEntity("X Level");
+			xLevel->addComponent<Component::TransformComponent>(glm::vec3(x-1.5, 0, 0), glm::vec3(x*0.5 + 1, 1, 1));
+			for (int y = 0; y < 3; y++) {
+				std::shared_ptr<IEntity> yLevel = xLevel->createEntity("Y Level");
+				yLevel->addComponent<Component::TransformComponent>(glm::vec3(0, y-1.5, 0), glm::vec3(1, y*0.5 + 1, 1));
 				for (int z = 0; z < 3; z++) {
-					std::shared_ptr<IEntity> testEntity = _world->createEntity("TestEntity");
-					testEntity->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
-					testEntity->addComponent<Component::TransformComponent>(glm::vec3(x-1.5, y-1.5, z-1.5), glm::vec3(0.25));
+					std::shared_ptr<IEntity> zLevel = yLevel->createEntity("Z Level");
+					zLevel->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
+					zLevel->addComponent<Component::TransformComponent>(glm::vec3(0, 0, z-1.5), glm::vec3(0.25, 0.25, z*0.125 + 0.25));
 				}
+			}
+		}
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world);
 	}
@@ -77,7 +85,8 @@ public:
 			_batch.objects.clear();
 
 			for (DrawObject* drawObj : _renderer->activeDrawObjects())
-				_batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+				if (drawObj->mesh)
+					_batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
 			_renderer->render(_batch);
 

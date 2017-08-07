@@ -2,6 +2,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <hydra/engine.hpp>
+
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
@@ -14,8 +16,11 @@ TransformComponent::~TransformComponent() {
 }
 
 void TransformComponent::tick(TickAction action) {
-	if (action == TickAction::physics)
+	if (action == TickAction::physics) {
+		_rotation *= glm::angleAxis(0.001f, glm::vec3(0.15, 0.8, 0.2) * _rotation);
+		_dirty = true;
 		_drawObject->modelMatrix = getMatrix();
+	}
 }
 
 msgpack::packer<msgpack::sbuffer>& TransformComponent::pack(msgpack::packer<msgpack::sbuffer>& o) const {

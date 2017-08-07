@@ -5,8 +5,10 @@
 #include <SDL/SDL.h>
 #include <memory>
 #include <hydra/engine.hpp>
+#include <hydra/world/world.hpp>
 
 using namespace Hydra::Renderer;
+using namespace Hydra::World;
 
 class UILogImpl final : public IUILog {
 public:
@@ -62,7 +64,7 @@ public:
 			const char* bufBegin = _buffer.begin();
 			for (size_t i = 0; i < _lineInfo.size(); i++) {
 				const char* line = bufBegin + _lineInfo[i].start;
-				const char* lineEnd = bufBegin + _lineInfo[i].end;
+				const char* lineEnd = bufBegin + _lineInfo[i].end + 1;
 				if (_filter.PassFilter(line, lineEnd)) {
 					ImGui::Text(fmt, _lineInfo[i].count, Hydra::toString(_lineInfo[i].level));
 					ImGui::SameLine();
@@ -74,7 +76,7 @@ public:
 			const int maxLines = 4096;
 			for (size_t i = std::max(0, (int)_lineInfo.size() - maxLines); i < _lineInfo.size(); i++) {
 				const char* line = bufBegin + _lineInfo[i].start;
-				const char* lineEnd = bufBegin + _lineInfo[i].end;
+				const char* lineEnd = bufBegin + _lineInfo[i].end + 1;
 				ImGui::Text(fmt, _lineInfo[i].count, Hydra::toString(_lineInfo[i].level));
 				ImGui::SameLine();
 				ImGui::TextUnformatted(line, lineEnd);
@@ -177,7 +179,9 @@ public:
     if (ImGui::BeginMainMenuBar()) {
 			if (ImGui::BeginMenu("File")) {
 				ImGui::MenuItem("Log", nullptr, &_logWindow);
-				ImGui::MenuItem("Test window", nullptr, &_testWindow);
+				ImGui::MenuItem("Entity List", nullptr, &_entityWindow);
+				ImGui::Separator();
+				ImGui::MenuItem("ImGui Test Window", nullptr, &_testWindow);
 
 				ImGui::Separator();
 
@@ -200,6 +204,9 @@ public:
 
 		if (_logWindow)
 			_log->render(&_logWindow);
+
+		if (_entityWindow)
+			_renderEntityWindow();
 
 		if (_testWindow)
 			ImGui::ShowTestWindow(&_testWindow);
@@ -231,12 +238,42 @@ private:
 	std::unique_ptr<IUILog> _log;
 
 	bool _logWindow = true;
+	bool _entityWindow = true;
 	bool _testWindow = false;
 
 	ImFont* _normalFont;
 	ImFont* _mediumFont;
 	ImFont* _monospaceFont;
 	ImFont* _bigFont;
+
+	void _renderEntityWindow() {
+		ImGui::SetNextWindowSize(ImVec2(480, 640), ImGuiSetCond_Once);
+		ImGui::Begin("Entity List", &_entityWindow);
+
+		auto world = Hydra::IEngine::getInstance()->getWorld();
+
+		_renderEntity(world);
+
+		ImGui::End();
+	}
+
+	void _renderEntity(IEntity* entity) {
+		if (!ImGui::TreeNode(entity, "%s", entity->getName().c_str()))
+			return;
+
+		if (entity->getComponents().size()) {
+			ImGui::Text("Components:");
+		}
+
+		if (entity->getChildren().size()) {
+			ImGui::Text("Children:");
+
+			for (auto& child : entity->getChildren())
+				_renderEntity(child.get());
+		}
+
+		ImGui::TreePop();
+	}
 };
 
 std::unique_ptr<IUIRenderer> UIRenderer::create(Hydra::View::IView& view) {

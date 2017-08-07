@@ -53,6 +53,9 @@ public:
 		_children.push_back(entity = std::shared_ptr<IEntity>(new EntityImpl(blueprint.name, this)));
 		return entity;
 	}
+	std::shared_ptr<IEntity> createEntity(const std::string& name) final {
+		return spawn(std::shared_ptr<IEntity>(new EntityImpl(name, this)));
+	}
 
 	IEntity* getParent() final { return _parent; }
 	const std::vector<std::shared_ptr<IEntity>>& getChildren() final { return _children; }
@@ -104,10 +107,6 @@ class WorldImpl final : virtual public IWorld, public EntityImpl {
 public:
 	WorldImpl() : EntityImpl("World", nullptr) {}
 	~WorldImpl() final {}
-
-	std::shared_ptr<IEntity> createEntity(const std::string& name) final {
-		return spawn(std::shared_ptr<IEntity>(new EntityImpl(name, this)));
-	}
 };
 
 std::shared_ptr<IWorld> World::create() {

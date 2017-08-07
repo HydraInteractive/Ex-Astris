@@ -54,6 +54,7 @@ namespace Hydra::World {
 
 		virtual std::shared_ptr<IEntity> spawn(std::shared_ptr<IEntity> entity) = 0;
 		virtual std::shared_ptr<IEntity> spawn(Blueprint& blueprint) = 0;
+		virtual std::shared_ptr<IEntity> createEntity(const std::string& name) = 0;
 
 		virtual IEntity* getParent() = 0;
 		virtual const std::vector<std::shared_ptr<IEntity>>& getChildren() = 0;
@@ -95,8 +96,6 @@ namespace Hydra::World {
 	class IWorld : public virtual IEntity {
 	public:
 		virtual ~IWorld() = 0;
-
-		virtual std::shared_ptr<IEntity> createEntity(const std::string& name) = 0;
 	};
 	inline IWorld::~IWorld() {}
 
