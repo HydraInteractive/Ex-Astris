@@ -30,7 +30,7 @@ layout(location = 0) uniform mat4 v;
 layout(location = 1) uniform mat4 p;
 layout(location = 2) uniform vec3 cameraPos;
 
-layout(location = 3) uniform bool setting_doBackFaceCulling = true;
+layout(location = 3) uniform bool setting_doBackFaceCulling = false;
 
 #define M_PI 3.1415
 

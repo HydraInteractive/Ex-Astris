@@ -1,12 +1,19 @@
 #include <hydra/component/cameracomponent.hpp>
 
+#include <typeinfo>
+#include <typeindex>
+
+
 using namespace Hydra::Component;
 
 CameraComponent::CameraComponent(IEntity* entity, const glm::vec3& position) : IComponent(entity), _position(position) {}
 
 CameraComponent::~CameraComponent() {}
 
-void CameraComponent::tick(TickAction action) {}
+void CameraComponent::tick(TickAction action) {
+	if (action == TickAction::physics)
+		_position += glm::vec3{0, 0, 0};
+}
 
 void CameraComponent::translate(const glm::vec3& transform) {
 	_position += transform * _orientation;

@@ -1,16 +1,15 @@
 #include <hydra/component/meshcomponent.hpp>
 
 #include <hydra/renderer/glrenderer.hpp>
+#include <hydra/io/meshloader.hpp>
 
 #include <hydra/engine.hpp>
 
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-extern Hydra::IEngine* engineInstance;
-
 MeshComponent::MeshComponent(IEntity* entity, const std::string& meshFile) : IComponent(entity), _meshFile(meshFile), _drawObject(entity->getDrawObject()) {
-	_mesh = Hydra::Renderer::GLMesh::create(meshFile);
+	_mesh = Hydra::IEngine::getInstance()->getMeshLoader()->getMesh(meshFile);
 	_drawObject->refCounter++;
 }
 

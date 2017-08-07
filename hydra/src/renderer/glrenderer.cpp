@@ -12,10 +12,9 @@
 #include <assimp/postprocess.h>
 
 #include <hydra/engine.hpp>
+#include <hydra/ext/stacktrace.hpp>
 
 using namespace Hydra::Renderer;
-
-extern Hydra::IEngine* engineInstance;
 
 static void glDebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
 
@@ -37,7 +36,7 @@ public:
 
 		_loadModel(scene);
 		_material.diffuse = _getTexture(scene, file);
-		_material.normal = engineInstance->getTextureLoader()->getTexture("assets/textures/errorNormal.png");	
+		_material.normal = Hydra::IEngine::getInstance()->getTextureLoader()->getTexture("assets/textures/errorNormal.png");	
 	}
 
 	~GLMeshImpl() final {
@@ -159,21 +158,21 @@ private:
 
 	std::shared_ptr<ITexture> _getTexture(const aiScene* scene, const std::string& filename) {
 		if (scene->mNumMaterials == 0)
-			return engineInstance->getTextureLoader()->getTexture(""); // Error texture
+			return Hydra::IEngine::getInstance()->getTextureLoader()->getTexture(""); // Error texture
 		const aiMaterial* pMaterial = scene->mMaterials[0];
 		if (pMaterial->GetTextureCount(aiTextureType_DIFFUSE) == 0)
-			return engineInstance->getTextureLoader()->getTexture(""); // Error texture
+			return Hydra::IEngine::getInstance()->getTextureLoader()->getTexture(""); // Error texture
 
 		aiString path;
 
 		if (pMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &path, NULL, NULL, NULL, NULL, NULL) != AI_SUCCESS)
-			return engineInstance->getTextureLoader()->getTexture(""); // Error texture
+			return Hydra::IEngine::getInstance()->getTextureLoader()->getTexture(""); // Error texture
 
 		if (path.data[0] == '*') {
 			unsigned int id = atoi(path.data + 1);
 			printf("Embedded texture: %u(%s)\n", id, path.data);
 			if (scene->mNumTextures < id)
-				return engineInstance->getTextureLoader()->getTexture(""); // Error texture
+				return Hydra::IEngine::getInstance()->getTextureLoader()->getTexture(""); // Error texture
 			aiTexture* tex = scene->mTextures[id];
 
 			printf("Texture: \n");
@@ -188,7 +187,7 @@ private:
 		} else {
 			std::string fullPath = filename.substr(0, filename.find_last_of("/\\") + 1) + path.data; // TODO: fix path
 			printf("External texture: %s\n", fullPath.c_str());
-			return engineInstance->getTextureLoader()->getTexture(fullPath);
+			return Hydra::IEngine::getInstance()->getTextureLoader()->getTexture(fullPath);
 		}
 	}
 };
@@ -303,8 +302,15 @@ public:
 		_glContext = SDL_GL_CreateContext(_window = static_cast<SDL_Window*>(view.getHandler()));
 		_loadGLAD();
 
-		glDebugMessageCallback(&glDebugLog, nullptr);
-		glEnable(GL_DEBUG_OUTPUT);
+		glDisable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+
+		glEnable(GL_DEPTH_TEST);
+
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glDebugMessageCallback(&glDebugLog, nullptr);
+    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 
 		SDL_GL_SetSwapInterval(0);
 
@@ -328,6 +334,8 @@ public:
 		glBindProgramPipeline(*static_cast<GLuint*>(batch.pipeline->getHandler()));
 
 		for (std::pair<const IMesh*, std::vector<glm::mat4>> kv : batch.objects) {
+			const GLMeshImpl* mesh = static_cast<const GLMeshImpl*>(kv.first);
+			glBindVertexArray(mesh->getVAO());
 			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
 			glBufferSubData(GL_ARRAY_BUFFER, 0, kv.second.size() * sizeof(glm::mat4), &kv.second[0]);
 			for (int i = 0; i < 4; i++) {
@@ -337,8 +345,6 @@ public:
 			}
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-			const GLMeshImpl* mesh = static_cast<const GLMeshImpl*>(kv.first);
-			glBindVertexArray(mesh->getVAO());
 			glDrawElementsInstanced(GL_TRIANGLES, mesh->getIndicesCount(), GL_UNSIGNED_INT, NULL, kv.second.size());
 		}
 	}
@@ -407,54 +413,66 @@ std::shared_ptr<ITexture> GLTexture::createFromDataExt(const char* ext, void* da
 }
 
 void glDebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+	if(id == 131169 || id == 131185 || id == 131218 || id == 131204)
+		return;
+
 	if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
 		return;
 
 	std::string sourceStr = "!UNKNOWN!";
 	if (source == GL_DEBUG_SOURCE_API)
-		sourceStr = "GL_DEBUG_SOURCE_API";
+		sourceStr = "API";
 	else if (source == GL_DEBUG_SOURCE_WINDOW_SYSTEM)
-		sourceStr = "GL_DEBUG_SOURCE_WINDOW_SYSTEM";
+		sourceStr = "WINDOW_SYSTEM";
 	else if (source == GL_DEBUG_SOURCE_SHADER_COMPILER)
-		sourceStr = "GL_DEBUG_SOURCE_SHADER_COMPILER";
+		sourceStr = "SHADER_COMPILER";
 	else if (source == GL_DEBUG_SOURCE_THIRD_PARTY)
-		sourceStr = "GL_DEBUG_SOURCE_THIRD_PARTY";
+		sourceStr = "THIRD_PARTY";
 	else if (source == GL_DEBUG_SOURCE_APPLICATION)
-		sourceStr = "GL_DEBUG_SOURCE_APPLICATION";
+		sourceStr = "APPLICATION";
 	else if (source == GL_DEBUG_SOURCE_OTHER)
-		sourceStr = "GL_DEBUG_SOURCE_OTHER";
+		sourceStr = "OTHER";
 
 	std::string typeStr = "!UNKNOWN!";
 
 	if (type == GL_DEBUG_TYPE_ERROR)
-		typeStr = "GL_DEBUG_TYPE_ERROR";
+		typeStr = "ERROR";
 	else if (type == GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR)
-		typeStr = "GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR";
+		typeStr = "DEPRECATED_BEHAVIOR";
 	else if (type == GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR)
-		typeStr = "GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR";
+		typeStr = "UNDEFINED_BEHAVIOR";
 	else if (type == GL_DEBUG_TYPE_PORTABILITY)
-		typeStr = "GL_DEBUG_TYPE_PORTABILITY";
+		typeStr = "PORTABILITY";
 	else if (type == GL_DEBUG_TYPE_PERFORMANCE)
-		typeStr = "GL_DEBUG_TYPE_PERFORMANCE";
+		typeStr = "PERFORMANCE";
 	else if (type == GL_DEBUG_TYPE_MARKER)
-		typeStr = "GL_DEBUG_TYPE_MARKER";
+		typeStr = "MARKER";
 	else if (type == GL_DEBUG_TYPE_PUSH_GROUP)
-		typeStr = "GL_DEBUG_TYPE_PUSH_GROUP";
+		typeStr = "PUSH_GROUP";
 	else if (type == GL_DEBUG_TYPE_POP_GROUP)
-		typeStr = "GL_DEBUG_TYPE_POP_GROUP";
+		typeStr = "POP_GROUP";
 	else if (type == GL_DEBUG_TYPE_OTHER)
-		typeStr = "GL_DEBUG_TYPE_OTHER";
+		typeStr = "OTHER";
 
 	std::string severityStr = "!UNKNOWN!";
 
-	if (severity == GL_DEBUG_SEVERITY_HIGH)
-		severityStr = "GL_DEBUG_SEVERITY_HIGH";
-	else if (severity == GL_DEBUG_SEVERITY_MEDIUM)
-		severityStr = "GL_DEBUG_SEVERITY_MEDIUM";
-	else if (severity == GL_DEBUG_SEVERITY_LOW)
-		severityStr = "GL_DEBUG_SEVERITY_LOW";
-	else if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
-		severityStr = "GL_DEBUG_SEVERITY_NOTIFICATION";
+	Hydra::LogLevel level;
 
-	fprintf(stdout, "[%s][%s][%d][%s] %s\n", sourceStr.c_str(), typeStr.c_str(), id, severityStr.c_str(), message);
+	if (severity == GL_DEBUG_SEVERITY_HIGH) {
+		severityStr = "HIGH";
+		level = Hydra::LogLevel::error;
+	} else if (severity == GL_DEBUG_SEVERITY_MEDIUM){
+		severityStr = "MEDIUM";
+		level = Hydra::LogLevel::warning;
+	} else if (severity == GL_DEBUG_SEVERITY_LOW) {
+		severityStr = "LOW";
+		level = Hydra::LogLevel::normal;
+	} else if (severity == GL_DEBUG_SEVERITY_NOTIFICATION) {
+		severityStr = "NOTIFICATION";
+		level = Hydra::LogLevel::verbose;
+	}
+
+	std::string stackTrace = Hydra::Ext::getStackTrace();
+
+	Hydra::IEngine::getInstance()->log(level, "GL error: Source %s, Type: %s, ID: %d, Severity: %s\n%s%s%s", sourceStr.c_str(), typeStr.c_str(), id, severityStr.c_str(), message, stackTrace.length() ? "\n" : "", stackTrace.c_str());
 }

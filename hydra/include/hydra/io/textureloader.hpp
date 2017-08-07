@@ -18,7 +18,7 @@ namespace Hydra::IO {
 		std::shared_ptr<ITexture> getErrorTexture();
 
 	private:
-		std::map<std::string, std::shared_ptr<Renderer::ITexture>> _storage;
+		std::map<std::string, std::shared_ptr<ITexture>> _storage;
 		std::shared_ptr<ITexture> _errorTexture;
 
 		std::shared_ptr<ITexture> _loadErrorTexture();

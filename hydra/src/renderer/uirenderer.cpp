@@ -3,18 +3,121 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_sdl_gl3.h>
 #include <SDL/SDL.h>
+#include <memory>
+#include <hydra/engine.hpp>
 
 using namespace Hydra::Renderer;
+
+class UILogImpl final : public IUILog {
+public:
+	UILogImpl(IUIRenderer* uiRenderer) : _uiRenderer(uiRenderer) {
+		_buffer.append("Log initialized");
+		_lineInfo.push_back(Line{0, (size_t)_buffer.size() - 1, Hydra::LogLevel::normal, 1});
+	}
+	~UILogImpl() final {}
+
+	void log(Hydra::LogLevel level, const char* fmt, va_list args) final {
+		static char tmp[0x1000];
+
+		vsnprintf(tmp, sizeof(tmp), fmt, args);
+
+		auto& lastLine = _lineInfo.back();
+		if (std::string(&(_buffer.c_str()[lastLine.start]), lastLine.end - lastLine.start + 1) == std::string(tmp)) {
+			lastLine.count++;
+			return;
+		}
+
+		size_t oldSize = _buffer.size();
+		_buffer.append(tmp);
+
+		_lineInfo.push_back(Line{oldSize, (size_t)_buffer.size() - 1, level, 1});
+		_scrollToBottom = true;
+	}
+
+	void clear() final {
+		_buffer.clear();
+		_lineInfo.clear();
+	}
+
+	void render(bool* pOpen) final {
+		ImGui::SetNextWindowSize(ImVec2(640, 480), ImGuiSetCond_Once);
+		ImGui::Begin("Hydra Log", pOpen);
+		if (ImGui::Button("Clear"))
+			clear();
+		ImGui::SameLine();
+
+		bool copy = ImGui::Button("Copy");
+		ImGui::SameLine();
+		_filter.Draw("Filter", -100.0f);
+		ImGui::Separator();
+		ImGui::BeginChild("scrolling", ImVec2(0,0), false, ImGuiWindowFlags_HorizontalScrollbar);
+		if (copy)
+			ImGui::LogToClipboard();
+
+		_uiRenderer->pushFont(UIFont::monospace);
+
+		const char * fmt = "[Count:%06d Level:%s]";
+
+		if (_filter.IsActive()) {
+			const char* bufBegin = _buffer.begin();
+			for (size_t i = 0; i < _lineInfo.size(); i++) {
+				const char* line = bufBegin + _lineInfo[i].start;
+				const char* lineEnd = bufBegin + _lineInfo[i].end;
+				if (_filter.PassFilter(line, lineEnd)) {
+					ImGui::Text(fmt, _lineInfo[i].count, Hydra::toString(_lineInfo[i].level));
+					ImGui::SameLine();
+					ImGui::TextUnformatted(line, lineEnd);
+				}
+			}
+		} else {
+			const char* bufBegin = _buffer.begin();
+			const int maxLines = 4096;
+			for (size_t i = std::max(0, (int)_lineInfo.size() - maxLines); i < _lineInfo.size(); i++) {
+				const char* line = bufBegin + _lineInfo[i].start;
+				const char* lineEnd = bufBegin + _lineInfo[i].end;
+				ImGui::Text(fmt, _lineInfo[i].count, Hydra::toString(_lineInfo[i].level));
+				ImGui::SameLine();
+				ImGui::TextUnformatted(line, lineEnd);
+			}
+		}
+		_uiRenderer->popFont();
+
+		if (_scrollToBottom)
+			ImGui::SetScrollHere(1.0f);
+		_scrollToBottom = false;
+		ImGui::EndChild();
+		ImGui::End();
+	}
+
+private:
+	struct Line {
+		size_t start;
+		size_t end;
+		Hydra::LogLevel level;
+		int count;
+	};
+
+	IUIRenderer* _uiRenderer;
+
+	ImGuiTextBuffer _buffer;
+	ImGuiTextFilter _filter;
+	std::vector<Line> _lineInfo;
+	bool _scrollToBottom;
+};
 
 class UIRendererImpl final : public IUIRenderer {
 public:
 	UIRendererImpl(Hydra::View::IView& view) : _view(&view) {
     ImGui_ImplSdlGL3_Init(_window = static_cast<SDL_Window*>(view.getHandler()));
 
+		_log = std::unique_ptr<IUILog>(new UILogImpl(this));
+
 		ImGuiIO& io = ImGui::GetIO();
-		_defaultFont = io.Fonts->AddFontFromFileTTF("assets/fonts/DroidSans.ttf", 18.0f);
-		//_bigFont = io.Fonts->AddFontFromFileTTF("assets/fonts/DroidSans-Bold.ttf", 64 + 32);
-		//_mediumFont = io.Fonts->AddFontFromFileTTF("assets/fonts/DroidSans-Bold.ttf", 32);
+		_normalFont = io.Fonts->AddFontFromFileTTF("assets/fonts/DroidSans.ttf", 18.0f);
+		_mediumFont = io.Fonts->AddFontFromFileTTF("assets/fonts/DroidSans-Bold.ttf", 32);
+		_bigFont = io.Fonts->AddFontFromFileTTF("assets/fonts/DroidSans-Bold.ttf", 64 + 32);
+
+		_monospaceFont = io.Fonts->AddFontFromFileTTF("assets/fonts/SourceCodePro-Regular.ttf", 18.0f);
 
 		ImGuiStyle& style = ImGui::GetStyle();
 		style.Colors[ImGuiCol_Text] = ImVec4(0.83f, 0.95f, 0.95f, 1.00f);
@@ -73,6 +176,7 @@ public:
 
     if (ImGui::BeginMainMenuBar()) {
 			if (ImGui::BeginMenu("File")) {
+				ImGui::MenuItem("Log", nullptr, &_logWindow);
 				ImGui::MenuItem("Test window", nullptr, &_testWindow);
 
 				ImGui::Separator();
@@ -94,23 +198,45 @@ public:
 			ImGui::EndMainMenuBar();
 		}
 
+		if (_logWindow)
+			_log->render(&_logWindow);
+
 		if (_testWindow)
 			ImGui::ShowTestWindow(&_testWindow);
 	}
 
 	void render() final { ImGui::Render(); }
 
+	void pushFont(UIFont font) final {
+#define _(x) static_cast<int>(x)
+		ImFont* lookup[] = {
+			[_(UIFont::normal)] =  _normalFont,
+			[_(UIFont::medium)] = _mediumFont,
+			[_(UIFont::big)] = _bigFont,
+			[_(UIFont::monospace)] = _monospaceFont
+		};
+		ImGui::PushFont(lookup[_(font)]);
+#undef _
+	}
+	void popFont() final { ImGui::PopFont(); }
+
+
+	IUILog* getLog() final { return _log.get(); }
+
 	bool usingKeyboard() final { return ImGui::GetIO().WantCaptureKeyboard; }
 
 private:
 	Hydra::View::IView* _view;
 	SDL_Window* _window;
+	std::unique_ptr<IUILog> _log;
 
+	bool _logWindow = true;
 	bool _testWindow = false;
 
-	ImFont* _defaultFont;
-	//ImFont* _bigFont;
-	//ImFont* _mediumFont;
+	ImFont* _normalFont;
+	ImFont* _mediumFont;
+	ImFont* _monospaceFont;
+	ImFont* _bigFont;
 };
 
 std::unique_ptr<IUIRenderer> UIRenderer::create(Hydra::View::IView& view) {

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/transform.hpp>
@@ -18,7 +17,7 @@ namespace Hydra::Component {
 
 		void tick(TickAction action) final;
 
-		inline const std::string type() final { return "TransformComponent"; }
+		inline const std::string type() const final { return "TransformComponent"; }
 
 		msgpack::packer<msgpack::sbuffer>& pack(msgpack::packer<msgpack::sbuffer>& o) const final;
 

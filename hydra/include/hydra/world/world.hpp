@@ -44,7 +44,13 @@ namespace Hydra::World {
 		template <typename T, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
 		void removeComponent() { removeComponent_(std::type_index(typeid(T))); }
 		template <typename T, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
-		T* getComponent() { return static_cast<T*>(getComponents()[std::type_index(typeid(T))].get()); }
+		T* getComponent() {
+			try {
+				return static_cast<T*>(getComponents().at(std::type_index(typeid(T))).get());
+			} catch (std::out_of_range) {
+				return nullptr;
+			}
+		}
 
 		virtual std::shared_ptr<IEntity> spawn(std::shared_ptr<IEntity> entity) = 0;
 		virtual std::shared_ptr<IEntity> spawn(Blueprint& blueprint) = 0;
@@ -68,7 +74,7 @@ namespace Hydra::World {
 		virtual void tick(TickAction action) = 0;
 		// TODO: Add a wantTick field, to now talk parts of the tree that don't want those actions
 
-		virtual const std::string type() = 0;
+		virtual const std::string type() const = 0;
 
 		virtual msgpack::packer<msgpack::sbuffer>& pack(msgpack::packer<msgpack::sbuffer>& o) const = 0;
 

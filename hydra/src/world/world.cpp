@@ -6,8 +6,6 @@
 
 using namespace Hydra::World;
 
-extern Hydra::IEngine* engineInstance;
-
 // Is is 'virtual public' because WorldImpl needs it like that
 class EntityImpl : virtual public IEntity {
 public:
@@ -83,7 +81,7 @@ public:
 	const std::string& getName() const final { return _name; }
 	Hydra::Renderer::DrawObject* getDrawObject() final {
 		if (!_drawObject) {
-			_drawObject = engineInstance->getRenderer()->aquireDrawObject();
+			_drawObject = Hydra::IEngine::getInstance()->getRenderer()->aquireDrawObject();
 			_drawObject->refCounter++;
 		}
 		return _drawObject;

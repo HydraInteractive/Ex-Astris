@@ -35,3 +35,4 @@ compile_commands.json
 *~
 imgui.ini
 world.blueprint
+*.trace

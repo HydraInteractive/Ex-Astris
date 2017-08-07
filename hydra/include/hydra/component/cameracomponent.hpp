@@ -16,9 +16,9 @@ namespace Hydra::Component {
 
 		void tick(TickAction action) final;
 
-		inline const std::string type() final { return "CameraComponent"; }
+		inline const std::string type() const final { return "CameraComponent"; }
 
-		msgpack::packer<msgpack::sbuffer>& pack(msgpack::packer<msgpack::sbuffer>& o) const final;
+		virtual msgpack::packer<msgpack::sbuffer>& pack(msgpack::packer<msgpack::sbuffer>& o) const final;
 
 		void translate(const glm::vec3& transform);
 		void rotation(float angle, const glm::vec3& axis);
@@ -37,9 +37,9 @@ namespace Hydra::Component {
 		glm::vec3 _position;
 		glm::quat _orientation;
 
-		float _fov = 1.0f;
-		float _zNear = 1.f;
-		float _zFar = 75.f;
-		float _aspect = 1.77f;
+		float _fov = 90;
+		float _zNear = 0.001;
+		float _zFar = 75;
+		float _aspect = 1920.0/1080.0;
 	};
 };

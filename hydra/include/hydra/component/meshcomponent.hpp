@@ -17,13 +17,13 @@ namespace Hydra::Component {
 
 		void tick(TickAction action) final;
 
-		inline const std::string type() final { return "MeshComponent"; }
+		inline const std::string type() const final { return "MeshComponent"; }
 
 		msgpack::packer<msgpack::sbuffer>& pack(msgpack::packer<msgpack::sbuffer>& o) const final;
 
 	private:
 		std::string _meshFile;
 		Hydra::Renderer::DrawObject* _drawObject;
-		std::unique_ptr<Hydra::Renderer::IMesh> _mesh;
+		std::shared_ptr<Hydra::Renderer::IMesh> _mesh;
 	};
 };
