@@ -4,6 +4,8 @@
 #include <memory>
 #include <cstdarg>
 
+#include <glm/gtc/type_ptr.hpp>
+
 // TODO: Abstact away?
 union SDL_Event;
 

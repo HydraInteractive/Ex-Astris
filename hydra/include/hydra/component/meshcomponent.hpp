@@ -20,6 +20,7 @@ namespace Hydra::Component {
 		inline const std::string type() const final { return "MeshComponent"; }
 
 		msgpack::packer<msgpack::sbuffer>& pack(msgpack::packer<msgpack::sbuffer>& o) const final;
+		void registerUI() final;
 
 	private:
 		std::string _meshFile;

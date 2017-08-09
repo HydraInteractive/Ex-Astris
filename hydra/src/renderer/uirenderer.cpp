@@ -2,6 +2,7 @@
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_sdl_gl3.h>
+#include <imgui/icons.hpp>
 #include <SDL/SDL.h>
 #include <memory>
 #include <hydra/engine.hpp>
@@ -116,6 +117,12 @@ public:
 
 		ImGuiIO& io = ImGui::GetIO();
 		_normalFont = io.Fonts->AddFontFromFileTTF("assets/fonts/DroidSans.ttf", 18.0f);
+		static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+		ImFontConfig icons_config;
+		icons_config.MergeMode = true;
+		icons_config.PixelSnapH = true;
+		io.Fonts->AddFontFromFileTTF("assets/fonts/fontawesome-webfont.ttf", 18.0f, &icons_config, icons_ranges);
+
 		_mediumFont = io.Fonts->AddFontFromFileTTF("assets/fonts/DroidSans-Bold.ttf", 32);
 		_bigFont = io.Fonts->AddFontFromFileTTF("assets/fonts/DroidSans-Bold.ttf", 64 + 32);
 
@@ -252,26 +259,33 @@ private:
 
 		auto world = Hydra::IEngine::getInstance()->getWorld();
 
-		_renderEntity(world);
+		// This doesn't use _renderEntity, because I want a globe instad of a user
+		if (ImGui::TreeNode(world, ICON_FA_GLOBE " %s", world->getName().c_str())) {
+			for (auto& component : world->getComponents())
+				_renderComponent(component.second.get());
+
+			for (auto& child : world->getChildren())
+				_renderEntity(child.get());
+			ImGui::TreePop();
+		}
 
 		ImGui::End();
 	}
 
 	void _renderEntity(IEntity* entity) {
-		if (!ImGui::TreeNode(entity, "%s", entity->getName().c_str()))
+		if (!ImGui::TreeNode(entity, ICON_FA_USER_O " %s", entity->getName().c_str()))
 			return;
+		for (auto& component : entity->getComponents())
+			_renderComponent(component.second.get());
+		for (auto& child : entity->getChildren())
+			_renderEntity(child.get());
+		ImGui::TreePop();
+	}
 
-		if (entity->getComponents().size()) {
-			ImGui::Text("Components:");
-		}
-
-		if (entity->getChildren().size()) {
-			ImGui::Text("Children:");
-
-			for (auto& child : entity->getChildren())
-				_renderEntity(child.get());
-		}
-
+	void _renderComponent(IComponent* component) {
+		if (!ImGui::TreeNode(component, ICON_FA_MICROCHIP " %s", component->type().c_str()))
+			return;
+		component->registerUI();
 		ImGui::TreePop();
 	}
 };

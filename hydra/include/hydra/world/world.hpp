@@ -78,6 +78,7 @@ namespace Hydra::World {
 		virtual const std::string type() const = 0;
 
 		virtual msgpack::packer<msgpack::sbuffer>& pack(msgpack::packer<msgpack::sbuffer>& o) const = 0;
+		virtual void registerUI() = 0;
 
 		// TODO?: IComponent* getParent();
 		// TODO?: std::vector<IComponent*> getChildren();

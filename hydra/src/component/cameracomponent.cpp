@@ -1,8 +1,7 @@
 #include <hydra/component/cameracomponent.hpp>
 
-#include <typeinfo>
-#include <typeindex>
-
+#include <imgui/imgui.h>
+#include <glm/gtc/type_ptr.hpp>
 
 using namespace Hydra::Component;
 
@@ -23,11 +22,9 @@ void CameraComponent::rotation(float angle, const glm::vec3& axis) {
 	_orientation *= glm::angleAxis(angle, axis * _orientation);
 }
 
-
 CameraComponent& CameraComponent::yaw(float angle) { rotation(angle, {0, 1, 0}); return *this; }
 CameraComponent& CameraComponent::pitch(float angle) { rotation(angle, {1, 0, 0}); return *this; }
 CameraComponent& CameraComponent::roll(float angle) { rotation(angle, {0, 0, 1}); return *this; }
-
 
 msgpack::packer<msgpack::sbuffer>& CameraComponent::pack(msgpack::packer<msgpack::sbuffer>& o) const {
 	o.pack_map(6);
@@ -58,4 +55,14 @@ msgpack::packer<msgpack::sbuffer>& CameraComponent::pack(msgpack::packer<msgpack
 	o.pack_float(_aspect);
 
 	return o;
+}
+
+void CameraComponent::registerUI() {
+	//TODO: Change if dirty flag is added!
+	ImGui::DragFloat3("Position", glm::value_ptr(_position), 0.01);
+	ImGui::DragFloat4("Orientation", glm::value_ptr(_orientation), 0.01);
+	ImGui::DragFloat("FOV", &_fov);
+	ImGui::DragFloat("Z Near", &_zNear);
+	ImGui::DragFloat("Z Far", &_zFar);
+	ImGui::DragFloat("Aspect", &_aspect);
 }

@@ -1,6 +1,9 @@
 #include <hydra/component/transformcomponent.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include <imgui/imgui.h>
 
 #include <hydra/engine.hpp>
 
@@ -46,6 +49,12 @@ msgpack::packer<msgpack::sbuffer>& TransformComponent::pack(msgpack::packer<msgp
 	o.pack_float(_rotation.z);
 
 	return o;
+}
+
+void TransformComponent::registerUI() {
+	_dirty |= ImGui::DragFloat3("Position", glm::value_ptr(_position), 0.01);
+	_dirty |= ImGui::DragFloat3("Scale", glm::value_ptr(_scale), 0.01);
+	_dirty |= ImGui::DragFloat4("Rotation", glm::value_ptr(_rotation), 0.01);
 }
 
 void TransformComponent::setPosition(const glm::vec3& position) {

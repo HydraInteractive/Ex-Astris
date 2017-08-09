@@ -1,7 +1,7 @@
 #include <hydra/component/meshcomponent.hpp>
 
+#include <imgui/imgui.h>
 #include <hydra/renderer/glrenderer.hpp>
-#include <hydra/io/meshloader.hpp>
 
 #include <hydra/engine.hpp>
 
@@ -29,4 +29,8 @@ msgpack::packer<msgpack::sbuffer>& MeshComponent::pack(msgpack::packer<msgpack::
 	o.pack(_meshFile);
 
 	return o;
+}
+
+void MeshComponent::registerUI() {
+	ImGui::InputText("Mesh file", (char*)_meshFile.c_str(), _meshFile.length(), ImGuiInputTextFlags_ReadOnly);
 }

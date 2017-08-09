@@ -20,6 +20,7 @@ namespace Hydra::Component {
 		inline const std::string type() const final { return "TransformComponent"; }
 
 		msgpack::packer<msgpack::sbuffer>& pack(msgpack::packer<msgpack::sbuffer>& o) const final;
+		void registerUI() final;
 
 		inline bool isDirty() { return _dirty; }
 		inline glm::mat4 getMatrix() {
@@ -35,7 +36,6 @@ namespace Hydra::Component {
 			static const glm::vec3 forward = {0, 0, -1};
 			return glm::mat3_cast(_rotation) * forward;
 		}
-
 
 		void setPosition(const glm::vec3& position);
 		void setScale(const glm::vec3& scale);
