@@ -74,7 +74,9 @@ public:
 			_world->tick(TickAction::physics);
 
 			_world->tick(TickAction::render);
+			// TODO: Move, don't need to reset the value every tick
 			_batch.clearColor = glm::vec4(0, 0, 0, 1);
+			_batch.clearFlags = ClearFlags::color | ClearFlags::depth;
 			_batch.renderTarget = _view.get();
 			_batch.pipeline = _pipeline.get();
 
