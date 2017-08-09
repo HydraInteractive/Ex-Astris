@@ -13,7 +13,7 @@ namespace Hydra::Renderer {
 	};
 
 	namespace GLMesh {
-		std::unique_ptr<IMesh> create(const std::string& file);
+		std::unique_ptr<IMesh> create(const std::string& file, IRenderer* renderer);
 	};
 
 	namespace GLTexture {

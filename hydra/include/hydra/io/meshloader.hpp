@@ -11,13 +11,14 @@ using namespace Hydra::Renderer;
 namespace Hydra::IO {
 	class MeshLoader final {
 	public:
-		MeshLoader();
+		MeshLoader(IRenderer* renderer);
 		virtual ~MeshLoader();
 
 		std::shared_ptr<IMesh> getMesh(const std::string& file);
 		std::shared_ptr<IMesh> getErrorMesh();
 
 	private:
+		IRenderer* _renderer;
 		std::map<std::string, std::shared_ptr<IMesh>> _storage;
 		std::shared_ptr<IMesh> _errorMesh;
 

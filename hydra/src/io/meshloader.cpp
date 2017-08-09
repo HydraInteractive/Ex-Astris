@@ -7,7 +7,7 @@
 
 using namespace Hydra::IO;
 
-MeshLoader::MeshLoader() : _errorMesh(_loadErrorMesh()) {}
+MeshLoader::MeshLoader(IRenderer* renderer) : _renderer(renderer), _errorMesh(_loadErrorMesh()) {}
 
 MeshLoader::~MeshLoader() {
 	_storage.clear();
@@ -20,7 +20,7 @@ std::shared_ptr<IMesh> MeshLoader::getMesh(const std::string& file) {
 	if (!mesh) {
 		try {
 			std::cout << "Loading mesh: " << file << std::endl;
-			mesh = _storage[file] = Hydra::Renderer::GLMesh::create(file);
+			mesh = _storage[file] = Hydra::Renderer::GLMesh::create(file, _renderer);
 		} catch (const std::exception& e) {
 			std::cerr << "FAILED TO LOAD MESH: " << e.what() << std::endl;
 			return _errorMesh;

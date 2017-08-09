@@ -20,7 +20,7 @@ static void glDebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, G
 
 class GLMeshImpl : public IMesh {
 public:
-	GLMeshImpl(const std::string& file) {
+	GLMeshImpl(const std::string& file, GLuint modelMatrixBuffer) {
 		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
 
@@ -34,7 +34,7 @@ public:
 			throw "Could not load model";
 		}
 
-		_loadModel(scene);
+		_loadModel(scene, modelMatrixBuffer);
 		_material.diffuse = _getTexture(scene, file);
 		_material.normal = Hydra::IEngine::getInstance()->getTextureLoader()->getTexture("assets/textures/errorNormal.png");	
 	}
@@ -69,7 +69,7 @@ private:
 		_ibo = buffers[1];
 	}
 
-	void _uploadData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices) {
+	void _uploadData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, GLuint modelMatrixBuffer) {
 		glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
@@ -87,6 +87,13 @@ private:
 		glVertexAttribPointer(VertexLocation::color, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, color));
 		glVertexAttribPointer(VertexLocation::uv, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, uv));
 		glVertexAttribPointer(VertexLocation::tangent, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, tangent));
+
+		glBindBuffer(GL_ARRAY_BUFFER, modelMatrixBuffer);
+		for (int i = 0; i < 4; i++) {
+			glEnableVertexAttribArray(VertexLocation::modelMatrix + i);
+			glVertexAttribPointer(VertexLocation::modelMatrix + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(sizeof(glm::vec4) * i));
+			glVertexAttribDivisor(VertexLocation::modelMatrix + i, 1);
+		}
 	}
 
 	bool _hasVertexColors(aiMesh* mesh, uint32_t pIndex) {
@@ -103,7 +110,7 @@ private:
 			return mesh->mTextureCoords[pIndex] != NULL && mesh->mNumVertices > 0;
 	}
 
-	void _loadModel(const aiScene* scene) {
+	void _loadModel(const aiScene* scene, GLuint modelMatrixBuffer) {
 		std::vector<Vertex> vertices;
 		std::vector<GLuint> indices;
 
@@ -153,7 +160,7 @@ private:
 		_indicesCount = indices.size();
 
 		_makeBuffers();
-		_uploadData(vertices, indices);
+		_uploadData(vertices, indices, modelMatrixBuffer);
 	}
 
 	std::shared_ptr<ITexture> _getTexture(const aiScene* scene, const std::string& filename) {
@@ -342,17 +349,16 @@ public:
 
 		for (std::pair<const IMesh*, std::vector<glm::mat4>> kv : batch.objects) {
 			const GLMeshImpl* mesh = static_cast<const GLMeshImpl*>(kv.first);
-			glBindVertexArray(mesh->getVAO());
-			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, kv.second.size() * sizeof(glm::mat4), &kv.second[0]);
-			for (int i = 0; i < 4; i++) {
-				glEnableVertexAttribArray(VertexLocation::modelMatrix + i);
-				glVertexAttribPointer(VertexLocation::modelMatrix + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(sizeof(glm::vec4) * i));
-				glVertexAttribDivisor(VertexLocation::modelMatrix + i, 1);
-			}
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-			glDrawElementsInstanced(GL_TRIANGLES, mesh->getIndicesCount(), GL_UNSIGNED_INT, NULL, kv.second.size());
+			size_t size = kv.second.size();
+			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
+			for (size_t i = 0; i < size; i += maxPerLoop) {
+				size_t amount = std::min(size - i, maxPerLoop);
+				glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
+				glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &kv.second[i]);
+				glBindVertexArray(mesh->getVAO());
+				glDrawElementsInstanced(GL_TRIANGLES, mesh->getIndicesCount(), GL_UNSIGNED_INT, NULL, amount);
+			}
 		}
 	}
 
@@ -381,13 +387,15 @@ public:
 		_activeDrawObjects.erase(std::remove_if(_activeDrawObjects.begin(), _activeDrawObjects.end(), isInactive), _activeDrawObjects.end());
 	}
 
+	GLuint getModelMatrixBuffer() const { return _modelMatrixBuffer; }
+
 private:
 	SDL_Window* _window;
 	SDL_GLContext _glContext;
 	std::vector<DrawObject*> _activeDrawObjects;
 	std::vector<DrawObject*> _inactiveDrawObjects;
 
-	const size_t _modelMatrixSize = sizeof(glm::mat4) * 128;
+	const size_t _modelMatrixSize = sizeof(glm::mat4) * 128; // max 128 mesh instances per draw call
 	GLuint _modelMatrixBuffer;
 
 	static void _loadGLAD() {
@@ -403,8 +411,8 @@ std::unique_ptr<IRenderer> GLRenderer::create(Hydra::View::IView& view) {
 	return std::unique_ptr<IRenderer>(new ::GLRendererImpl(view));
 }
 
-std::unique_ptr<IMesh> GLMesh::create(const std::string& file) {
-	return std::unique_ptr<IMesh>(new ::GLMeshImpl(file));
+std::unique_ptr<IMesh> GLMesh::create(const std::string& file, IRenderer* renderer) {
+	return std::unique_ptr<IMesh>(new ::GLMeshImpl(file, static_cast<GLRendererImpl*>(renderer)->getModelMatrixBuffer()));
 }
 
 std::shared_ptr<ITexture> GLTexture::createFromFile(const std::string& file) {
@@ -480,6 +488,8 @@ void glDebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei 
 	}
 
 	std::string stackTrace = Hydra::Ext::getStackTrace();
+
+	fprintf(stderr, "GL error: Source %s, Type: %s, ID: %d, Severity: %s\n%s%s%s", sourceStr.c_str(), typeStr.c_str(), id, severityStr.c_str(), message, stackTrace.length() ? "\n" : "", stackTrace.c_str());
 
 	Hydra::IEngine::getInstance()->log(level, "GL error: Source %s, Type: %s, ID: %d, Severity: %s\n%s%s%s", sourceStr.c_str(), typeStr.c_str(), id, severityStr.c_str(), message, stackTrace.length() ? "\n" : "", stackTrace.c_str());
 }

@@ -28,7 +28,7 @@ public:
 		_renderer = Renderer::GLRenderer::create(*_view);
 		_uiRenderer = Renderer::UIRenderer::create(*_view);
 		_textureLoader = std::make_unique<IO::TextureLoader>();
-		_meshLoader = std::make_unique<IO::MeshLoader>();
+		_meshLoader = std::make_unique<IO::MeshLoader>(_renderer.get());
 
 		_vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/base.vert");
 		_geometryShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::geometry, "assets/shaders/base.geom");
