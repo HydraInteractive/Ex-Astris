@@ -1,6 +1,7 @@
 #pragma once
 
 #include <hydra/world/world.hpp>
+#include <hydra/renderer/renderer.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -11,7 +12,7 @@ using namespace Hydra::World;
 namespace Hydra::Component {
 	class CameraComponent final : public IComponent {
 	public:
-		CameraComponent(IEntity* entity, const glm::vec3& position = {0, 0, 0});
+		CameraComponent(IEntity* entity, Hydra::Renderer::IRenderTarget* renderTarget, const glm::vec3& position = {0, 0, 0});
 		~CameraComponent() final;
 
 		void tick(TickAction action) final;
@@ -32,9 +33,10 @@ namespace Hydra::Component {
 
 		// TODO: Cache these?
 		inline glm::mat4 getViewMatrix() const { return glm::translate(glm::mat4_cast(_orientation), _position); }
-		inline glm::mat4 getProjectionMatrix() const { return glm::perspective(glm::radians(_fov), _aspect, _zNear, _zFar); }
+		inline glm::mat4 getProjectionMatrix() const { return glm::perspective(glm::radians(_fov), (_renderTarget->getSize().x*1.0f) / _renderTarget->getSize().y, _zNear, _zFar); }
 
 	private:
+		Hydra::Renderer::IRenderTarget* _renderTarget;
 		glm::vec3 _position;
 		glm::quat _orientation;
 

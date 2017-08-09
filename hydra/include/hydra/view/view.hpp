@@ -19,7 +19,6 @@ namespace Hydra::View {
 		virtual void hide() = 0;
 		virtual void quit() = 0;
 
-		virtual glm::ivec2 getSize() = 0;
 		virtual void* getHandler() = 0;
 
 		/// Did it get a close event, and hid itself

@@ -33,6 +33,7 @@ namespace Hydra::Renderer {
 	public:
 		virtual ~ITexture() = 0;
 
+		virtual glm::ivec2 getSize() = 0;
 		virtual uint32_t getID() const = 0;
 	};
 	inline ITexture::~ITexture() {}

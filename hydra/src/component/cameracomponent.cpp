@@ -5,7 +5,7 @@
 
 using namespace Hydra::Component;
 
-CameraComponent::CameraComponent(IEntity* entity, const glm::vec3& position) : IComponent(entity), _position(position) {}
+CameraComponent::CameraComponent(IEntity* entity, Hydra::Renderer::IRenderTarget* renderTarget, const glm::vec3& position) : IComponent(entity), _renderTarget(renderTarget), _position(position) {}
 
 CameraComponent::~CameraComponent() {}
 
@@ -62,7 +62,8 @@ void CameraComponent::registerUI() {
 	ImGui::DragFloat3("Position", glm::value_ptr(_position), 0.01);
 	ImGui::DragFloat4("Orientation", glm::value_ptr(_orientation), 0.01);
 	ImGui::DragFloat("FOV", &_fov);
-	ImGui::DragFloat("Z Near", &_zNear);
+	ImGui::DragFloat("Z Near", &_zNear, 0.001);
 	ImGui::DragFloat("Z Far", &_zFar);
-	ImGui::DragFloat("Aspect", &_aspect);
+	float aspect = (_renderTarget->getSize().x*1.0f) / _renderTarget->getSize().y;
+	ImGui::InputFloat("Aspect", &aspect, 0, 0, -1, ImGuiInputTextFlags_ReadOnly);
 }

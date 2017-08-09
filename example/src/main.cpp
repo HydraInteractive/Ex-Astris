@@ -40,7 +40,7 @@ public:
 		_pipeline->attachStage(*_fragmentShader);
 
 		std::shared_ptr<IEntity> cameraEntity = _world->createEntity("Camera");
-		_cc = cameraEntity->addComponent<Component::CameraComponent>(glm::vec3{0, 0, -3});
+		_cc = cameraEntity->addComponent<Component::CameraComponent>(_view.get(), glm::vec3{0, 0, -3});
 
 		std::shared_ptr<IEntity> boxes = _world->createEntity("Boxes");
 		boxes->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0));

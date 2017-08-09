@@ -194,7 +194,7 @@ private:
 
 class GLTextureImpl : public ITexture {
 public:
-	GLTextureImpl(GLuint texture) : _own(false), _texture(texture) { }
+	GLTextureImpl(GLuint texture, glm::ivec2 size) : _own(false), _texture(texture), _size(size) { }
 
 	GLTextureImpl(const std::string& file) : _own(true) {
 		SDL_Surface* surface = IMG_Load(file.c_str());
@@ -269,12 +269,17 @@ public:
 			glDeleteTextures(1, &_texture);
 	}
 
-	uint32_t getID() const { return _texture; }
+	glm::ivec2 getSize() final { return _size; }
+	uint32_t getID() const final { return _texture; }
+
 private:
 	bool _own;
 	GLuint _texture;
+	glm::ivec2 _size;
 
 	void _setData(GLenum format, GLuint w, GLuint h, const void* pixels) {
+		_size = glm::ivec2{w, w};
+
 		glGenTextures(1, &_texture);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, _texture);
@@ -327,6 +332,8 @@ public:
 	void render(Batch& batch) final {
 		SDL_GL_MakeCurrent(_window, _glContext);
 		glBindFramebuffer(GL_FRAMEBUFFER, batch.renderTarget->getID());
+		const auto& size = batch.renderTarget->getSize();
+		glViewport(0, 0, size.x, size.y);
 
 		glClearColor(batch.clearColor.r, batch.clearColor.g, batch.clearColor.b, batch.clearColor.a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // TODO:

@@ -14,7 +14,7 @@ public:
 		_size = glm::ivec2(1920, 1080);
 		_wantToClose = false;
 
-		_window = SDL_CreateWindow("SDL2 window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _size.x, _size.y, SDL_WINDOW_OPENGL);
+		_window = SDL_CreateWindow("SDL2 window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _size.x, _size.y, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 	}
 
 	~SDLViewImpl() final {
@@ -39,7 +39,10 @@ public:
 				if (event.key.keysym.sym == SDLK_ESCAPE)
 					_wantToClose = true;
 				break;
-
+			case SDL_WINDOWEVENT:
+				if (event.window.event == SDL_WINDOWEVENT_RESIZED || event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+					_size = glm::ivec2{event.window.data1, event.window.data2};
+				break;
 			default:
 				break;
 			}
@@ -50,13 +53,14 @@ public:
 	void hide() final {	SDL_HideWindow(_window); }
 	void quit() final { _wantToClose = true; }
 
-	glm::ivec2 getSize() final { return _size; }
 	void* getHandler() final { return _window; }
 
 	bool isClosed() final { return _wantToClose; }
 	bool didChangeSize() final { return false; }
 
 	// ITexture
+	glm::ivec2 getSize() final { return _size; }
+
 	uint32_t getID() const final { return 0; } // Because 0 = Screen
 
 	// IRenderTarget
