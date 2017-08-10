@@ -16,6 +16,7 @@ namespace Hydra::Component {
 		~MeshComponent() final;
 
 		void tick(TickAction action) final;
+		inline TickAction wantTick() const final { return TickAction::render; }
 
 		inline const std::string type() const final { return "MeshComponent"; }
 

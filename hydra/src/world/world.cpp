@@ -23,31 +23,54 @@ public:
 			_children.erase(it, _children.end());
 		} else
 			for (auto& component : _components)
-				component.second->tick(action);
+				if ((action & component.second->wantTick()) == action)
+					component.second->tick(action);
 
 		for (auto& child : _children)
-			child->tick(action);
+			if ((action & child->wantTick()) == action)
+				child->tick(action);
+	}
+
+	TickAction wantTick() final {
+		static TickAction want = TickAction::checkDead;
+
+		if (!_wantDirty)
+			return want;
+
+		_wantDirty = false;
+
+		for (auto& component : _components)
+			want = want | component.second->wantTick();
+
+		for (auto& child : _children)
+			want = want | child->wantTick();
+
+		return want;
 	}
 
 	void markDead() final { _dead = true; }
 
 	IComponent* addComponent_(const std::type_index& id, std::unique_ptr<IComponent> component) final {
+		_wantDirty = true;
 		IComponent* ptr = component.get();
 		_components[id] = std::move(component);
 		return ptr;
 	}
 
 	void removeComponent_(const std::type_index& id) final {
+		_wantDirty = true;
 		_components.erase(id);
 	}
 
 	std::map<std::type_index, std::unique_ptr<IComponent>>& getComponents() final { return _components; }
 
 	std::shared_ptr<IEntity> spawn(std::shared_ptr<IEntity> entity) final {
+		_wantDirty = true;
 		_children.push_back(entity);
 		return entity;
 	}
 	std::shared_ptr<IEntity> spawn(Blueprint& blueprint) final {
+		_wantDirty = true;
 		// TODO:
 		std::shared_ptr<IEntity> entity;
 		_children.push_back(entity = std::shared_ptr<IEntity>(new EntityImpl(blueprint.name, this)));
@@ -92,6 +115,7 @@ public:
 	bool isDead() const final { return _dead; }
 
  protected:
+	bool _wantDirty = false;
 	std::string _name;
 	bool _dead = false;
 	IEntity* _parent = nullptr;

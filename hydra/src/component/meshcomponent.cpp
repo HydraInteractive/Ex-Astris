@@ -19,8 +19,8 @@ MeshComponent::~MeshComponent() {
 }
 
 void MeshComponent::tick(TickAction action) {
-	if (action == TickAction::render)
-		_drawObject->mesh = _mesh.get();
+	// assert(action == TickAction::render); // Can only be this due to wantTick
+	_drawObject->mesh = _mesh.get();
 }
 
 msgpack::packer<msgpack::sbuffer>& MeshComponent::pack(msgpack::packer<msgpack::sbuffer>& o) const {

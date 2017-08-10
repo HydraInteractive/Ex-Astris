@@ -16,6 +16,7 @@ namespace Hydra::Component {
 		~TransformComponent() final;
 
 		void tick(TickAction action) final;
+		inline TickAction wantTick() const final { return TickAction::physics; }
 
 		inline const std::string type() const final { return "TransformComponent"; }
 

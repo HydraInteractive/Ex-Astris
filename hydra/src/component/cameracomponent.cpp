@@ -10,8 +10,8 @@ CameraComponent::CameraComponent(IEntity* entity, Hydra::Renderer::IRenderTarget
 CameraComponent::~CameraComponent() {}
 
 void CameraComponent::tick(TickAction action) {
-	if (action == TickAction::physics)
-		_position += glm::vec3{0, 0, 0};
+	// assert(action == TickAction::physics); // Can only be this due to wantTick
+	_position += glm::vec3{0, 0, 0};
 }
 
 void CameraComponent::translate(const glm::vec3& transform) {

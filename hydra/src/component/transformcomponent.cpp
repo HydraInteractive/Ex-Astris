@@ -19,11 +19,10 @@ TransformComponent::~TransformComponent() {
 }
 
 void TransformComponent::tick(TickAction action) {
-	if (action == TickAction::physics) {
-		_rotation *= glm::angleAxis(0.001f, glm::vec3(0.15, 0.8, 0.2) * _rotation);
-		_dirty = true;
-		_drawObject->modelMatrix = getMatrix();
-	}
+	// assert(action == TickAction::physics); // Can only be this due to wantTick
+	_rotation *= glm::angleAxis(0.001f, glm::vec3(0.15, 0.8, 0.2) * _rotation);
+	_dirty = true;
+	_drawObject->modelMatrix = getMatrix();
 }
 
 msgpack::packer<msgpack::sbuffer>& TransformComponent::pack(msgpack::packer<msgpack::sbuffer>& o) const {

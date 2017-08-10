@@ -14,20 +14,23 @@ namespace Hydra::World {
 	class IComponent;
 	struct Blueprint;
 
+	// The tick function only accepts one value, but the wantTick is a bitfield
 	enum class TickAction {
-		checkDead = 0,
-		physics,
-		render,
-		renderTransparent,
-		network
+		checkDead = 1 << 0,
+		physics = 1 << 1,
+		render = 1 << 2,
+		renderTransparent = 1 << 3,
+		network = 1 << 4
 	};
+	inline TickAction operator| (TickAction a, TickAction b) { return static_cast<TickAction>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b)); }
+	inline TickAction operator& (TickAction a, TickAction b) { return static_cast<TickAction>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b)); }
 
 	class IEntity {
 	public:
 		virtual ~IEntity() = 0;
 
 		virtual void tick(TickAction action) = 0;
-		// TODO: Add a wantTick field, to now talk parts of the tree that don't want those actions
+		virtual TickAction wantTick() = 0;
 
 		virtual void markDead() = 0;
 
@@ -73,7 +76,7 @@ namespace Hydra::World {
 		virtual ~IComponent() = 0;
 
 		virtual void tick(TickAction action) = 0;
-		// TODO: Add a wantTick field, to now talk parts of the tree that don't want those actions
+		virtual TickAction wantTick() const = 0;
 
 		virtual const std::string type() const = 0;
 
