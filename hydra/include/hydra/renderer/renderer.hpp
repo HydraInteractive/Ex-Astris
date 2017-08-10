@@ -64,7 +64,7 @@ namespace Hydra::Renderer {
 	// TODO: Maybe add DrawObject for transparent stuff or just field
 	struct DrawObject final {
 		int refCounter = 0;
-		// bool disable; // TODO: ?
+		bool disable = false; // Temporarily disable object
 		IMesh* mesh = nullptr; // & Material // TODO: Change to something else than IMesh?
 		glm::mat4 modelMatrix;
 	};

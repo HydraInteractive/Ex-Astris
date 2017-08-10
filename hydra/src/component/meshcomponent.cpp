@@ -32,5 +32,6 @@ msgpack::packer<msgpack::sbuffer>& MeshComponent::pack(msgpack::packer<msgpack::
 }
 
 void MeshComponent::registerUI() {
+	ImGui::Checkbox("Disable", &_drawObject->disable);
 	ImGui::InputText("Mesh file", (char*)_meshFile.c_str(), _meshFile.length(), ImGuiInputTextFlags_ReadOnly);
 }

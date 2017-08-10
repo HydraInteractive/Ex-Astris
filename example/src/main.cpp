@@ -87,7 +87,7 @@ public:
 			_batch.objects.clear();
 
 			for (DrawObject* drawObj : _renderer->activeDrawObjects())
-				if (drawObj->mesh)
+				if (!drawObj->disable && drawObj->mesh)
 					_batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
 			_renderer->render(_batch);
