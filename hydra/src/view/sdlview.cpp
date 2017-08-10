@@ -66,7 +66,6 @@ public:
 	// IRenderTarget
 	void finalize() final {
 		SDL_GL_SwapWindow(_window);
-		SDL_Delay(2); // XXX: REMOVE LATER, ELSE HATE LIFE
 	}
 
 private:
