@@ -56,6 +56,9 @@ namespace Hydra::Renderer {
 		virtual ~IMesh() = 0;
 
 		virtual Material& getMaterial() = 0;
+
+		virtual uint32_t getID() const = 0;
+		virtual size_t getIndicesCount() const = 0;
 	};
 	inline IMesh::~IMesh() {}
 
@@ -101,6 +104,8 @@ namespace Hydra::Renderer {
 		virtual std::vector<DrawObject*> activeDrawObjects() = 0;
 
 		virtual void cleanup() = 0;
+
+		virtual void* getModelMatrixBuffer() = 0;
 	};
 	inline IRenderer::~IRenderer() {}
 }
