@@ -7,9 +7,12 @@
 #include <memory>
 #include <hydra/engine.hpp>
 #include <hydra/world/world.hpp>
+#include <hydra/renderer/renderer.hpp>
 
 using namespace Hydra::Renderer;
 using namespace Hydra::World;
+
+std::shared_ptr<ITexture> geometryFBOID{}; // XXX:
 
 class UILogImpl final : public IUILog {
 public:
@@ -180,9 +183,9 @@ public:
 
 	void handleEvent(SDL_Event& event) final { ImGui_ImplSdlGL3_ProcessEvent(&event); }
 
-	void newFrame() final {
-		ImGui_ImplSdlGL3_NewFrame(_window);
+	void newFrame() final {	ImGui_ImplSdlGL3_NewFrame(_window); }
 
+	void render() final {
     if (ImGui::BeginMainMenuBar()) {
 			if (ImGui::BeginMenu("File")) {
 				ImGui::MenuItem("Log", nullptr, &_logWindow);
@@ -209,6 +212,11 @@ public:
 			ImGui::EndMainMenuBar();
 		}
 
+		ImGui::SetNextWindowSize(ImVec2(1280, 720), ImGuiSetCond_Once);
+		ImGui::Begin("Geometry FBO");
+		ImGui::Image(reinterpret_cast<ImTextureID>(geometryFBOID->getID()), ImGui::GetWindowSize(), ImVec2(0.4, 0.4), ImVec2(0.6, 0.6));
+		ImGui::End();
+
 		if (_logWindow)
 			_log->render(&_logWindow);
 
@@ -217,9 +225,8 @@ public:
 
 		if (_testWindow)
 			ImGui::ShowTestWindow(&_testWindow);
+	 ImGui::Render();
 	}
-
-	void render() final { ImGui::Render(); }
 
 	void pushFont(UIFont font) final {
 #define _(x) static_cast<int>(x)

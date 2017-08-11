@@ -14,8 +14,13 @@
 
 #include <hydra/world/blueprintloader.hpp>
 
+#include <cstdio>
+
 using namespace Hydra;
 using namespace Hydra::World;
+
+// XXX:
+extern std::shared_ptr<ITexture> geometryFBOID;
 
 class Engine final : public Hydra::IEngine {
 public:
@@ -38,6 +43,11 @@ public:
 		_pipeline->attachStage(*_vertexShader);
 		_pipeline->attachStage(*_geometryShader);
 		_pipeline->attachStage(*_fragmentShader);
+
+		_geometryFBO = Renderer::GLFramebuffer::create(_view->getSize(), 1);
+		_geometryFBO->addTexture(0, FramebufferTextureType::rgb)
+			.addTexture(1, FramebufferTextureType::depth32)
+			.finalize();
 
 		std::shared_ptr<IEntity> cameraEntity = _world->createEntity("Camera");
 		_cc = cameraEntity->addComponent<Component::CameraComponent>(_view.get(), glm::vec3{0, 0, -3});
@@ -77,7 +87,8 @@ public:
 			// TODO: Move, don't need to reset the value every tick
 			_batch.clearColor = glm::vec4(0, 0, 0, 1);
 			_batch.clearFlags = ClearFlags::color | ClearFlags::depth;
-			_batch.renderTarget = _view.get();
+			//_batch.renderTarget = _view.get();
+			_batch.renderTarget = _geometryFBO.get();
 			_batch.pipeline = _pipeline.get();
 
 			_geometryShader->setValue(0, _cc->getViewMatrix());
@@ -90,6 +101,11 @@ public:
 				if (!drawObj->disable && drawObj->mesh)
 					_batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
+			_renderer->render(_batch);
+			geometryFBOID = _geometryFBO->resolve(0); // XXX:
+
+			_batch.objects.clear();
+			_batch.renderTarget = _view.get();
 			_renderer->render(_batch);
 
 			_uiRenderer->render();
@@ -108,6 +124,7 @@ public:
 	void log(LogLevel level, const char* fmt, ...) {
 		va_list va;
 		va_start(va, fmt);
+		vfprintf(stderr, fmt, va);
 		_uiRenderer->getLog()->log(level, fmt, va);
 		va_end(va);
 	}
@@ -124,8 +141,9 @@ private:
 	std::unique_ptr<Renderer::IShader> _vertexShader;
 	std::unique_ptr<Renderer::IShader> _geometryShader;
 	std::unique_ptr<Renderer::IShader> _fragmentShader;
-
 	std::unique_ptr<Renderer::IPipeline> _pipeline;
+
+	std::shared_ptr<Renderer::IFramebuffer> _geometryFBO;
 
 	Component::CameraComponent* _cc = nullptr;
 	Renderer::Batch _batch;

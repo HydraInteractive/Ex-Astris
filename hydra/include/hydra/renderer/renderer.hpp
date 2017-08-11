@@ -41,10 +41,46 @@ namespace Hydra::Renderer {
 	class IRenderTarget : public ITexture {
 	public:
 		virtual ~IRenderTarget() = 0;
-
-		virtual void finalize() = 0;
 	};
 	inline IRenderTarget::~IRenderTarget() {}
+
+	enum class FramebufferTextureType {
+		// GL_UNSIGNED_BYTE
+		r = 0,
+		rg,
+		rgb,
+		rgba,
+
+		// GL_FLOAT
+		f16R,
+		f16RG,
+		f16RGB,
+		f16RGBA,
+		f32R,
+		f32RG,
+		f32RGB,
+		f32RGBA,
+
+		// GL_DEPTH_COMPONENT
+		depth16,
+		depth32
+	};
+
+	class IFramebuffer : public IRenderTarget {
+	public:
+		virtual ~IFramebuffer() = 0;
+
+		virtual IFramebuffer& addTexture(size_t id, FramebufferTextureType type) = 0;
+
+		virtual void finalize() = 0;
+
+		virtual std::shared_ptr<ITexture> resolve(size_t idx) = 0;
+
+		// Remember this texture is a MULTISAMPLE texture, and thus need to be resolve
+		// before being rendered as a standard texture
+		virtual std::shared_ptr<ITexture> operator[](size_t idx) = 0;
+	};
+	inline IFramebuffer::~IFramebuffer() {}
 
 	struct Material final {
 		std::shared_ptr<ITexture> diffuse;

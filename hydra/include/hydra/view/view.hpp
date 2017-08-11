@@ -20,6 +20,7 @@ namespace Hydra::View {
 		virtual void quit() = 0;
 
 		virtual void* getHandler() = 0;
+		virtual void finalize() = 0;
 
 		/// Did it get a close event, and hid itself
 		virtual bool isClosed() = 0;

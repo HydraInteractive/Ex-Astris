@@ -9,7 +9,7 @@ using namespace Hydra::Renderer;
 
 class GLTextureImpl final : public ITexture {
 public:
-	GLTextureImpl(GLuint texture, glm::ivec2 size) : _own(false), _texture(texture), _size(size) { }
+	GLTextureImpl(GLuint texture, glm::ivec2 size, bool own = true) : _own(own), _texture(texture), _size(size) { }
 
 	GLTextureImpl(const std::string& file) : _own(true) {
 		SDL_Surface* surface = IMG_Load(file.c_str());
@@ -108,6 +108,10 @@ private:
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, format, GL_UNSIGNED_BYTE, pixels);
 	}
 };
+
+std::shared_ptr<ITexture> GLTexture::createFromID(uint32_t id, glm::ivec2 size, bool own) {
+	return std::shared_ptr<ITexture>(new ::GLTextureImpl(id, size, own));
+}
 
 std::shared_ptr<ITexture> GLTexture::createFromFile(const std::string& file) {
 	return std::shared_ptr<ITexture>(new ::GLTextureImpl(file));
