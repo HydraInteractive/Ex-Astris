@@ -7,74 +7,134 @@
 
 using namespace Hydra::Renderer;
 
-class GLTextureImpl final : public ITexture {
-public:
-	GLTextureImpl(GLuint texture, glm::ivec2 size, bool own = true) : _own(own), _texture(texture), _size(size) { }
+static GLenum toGLBase(TextureType type) {
+#define _(x) static_cast<int>(x)
+	static const GLenum translate[] = {
+		[_(TextureType::u8R)] = GL_RED,
+		[_(TextureType::u8RG)] = GL_RG,
+		[_(TextureType::u8RGB)] = GL_RGB,
+		[_(TextureType::u8RGBA)] = GL_RGBA,
 
-	GLTextureImpl(const std::string& file) : _own(true) {
+		[_(TextureType::f16R)] = GL_RED,
+		[_(TextureType::f16RG)] = GL_RG,
+		[_(TextureType::f16RGB)] = GL_RGB,
+		[_(TextureType::f16RGBA)] = GL_RGBA,
+
+		[_(TextureType::f32R)] = GL_RED,
+		[_(TextureType::f32RG)] = GL_RG,
+		[_(TextureType::f32RGB)] = GL_RGB,
+		[_(TextureType::f32RGBA)] = GL_RGBA,
+
+		[_(TextureType::f16Depth)] = GL_DEPTH_COMPONENT,
+		[_(TextureType::f32Depth)] = GL_DEPTH_COMPONENT
+	};
+	return translate[_(type)];
+#undef _
+}
+
+static GLenum toGLInternal(TextureType type) {
+#define _(x) static_cast<int>(x)
+	static const GLenum translate[] = {
+		[_(TextureType::u8R)] = GL_RED,
+		[_(TextureType::u8RG)] = GL_RG,
+		[_(TextureType::u8RGB)] = GL_RGB,
+		[_(TextureType::u8RGBA)] = GL_RGBA,
+
+		[_(TextureType::f16R)] = GL_R16F,
+		[_(TextureType::f16RG)] = GL_RG16F,
+		[_(TextureType::f16RGB)] = GL_RGB16F,
+		[_(TextureType::f16RGBA)] = GL_RGBA16F,
+
+		[_(TextureType::f32R)] = GL_R32F,
+		[_(TextureType::f32RG)] = GL_RG32F,
+		[_(TextureType::f32RGB)] = GL_RGB32F,
+		[_(TextureType::f32RGBA)] = GL_RGBA32F,
+
+		[_(TextureType::f16Depth)] = GL_DEPTH_COMPONENT16,
+		[_(TextureType::f32Depth)] = GL_DEPTH_COMPONENT32
+	};
+	return translate[_(type)];
+#undef _
+}
+
+static GLenum toGLDataType(TextureType type) {
+#define _(x) static_cast<int>(x)
+	static const GLenum translate[] = {
+		[_(TextureType::u8R)] = GL_UNSIGNED_BYTE,
+		[_(TextureType::u8RG)] = GL_UNSIGNED_BYTE,
+		[_(TextureType::u8RGB)] = GL_UNSIGNED_BYTE,
+		[_(TextureType::u8RGBA)] = GL_UNSIGNED_BYTE,
+
+		[_(TextureType::f16R)] = GL_FLOAT,
+		[_(TextureType::f16RG)] = GL_FLOAT,
+		[_(TextureType::f16RGB)] = GL_FLOAT,
+		[_(TextureType::f16RGBA)] = GL_FLOAT,
+
+		[_(TextureType::f32R)] = GL_FLOAT,
+		[_(TextureType::f32RG)] = GL_FLOAT,
+		[_(TextureType::f32RGB)] = GL_FLOAT,
+		[_(TextureType::f32RGBA)] = GL_FLOAT,
+
+		[_(TextureType::f16Depth)] = GL_UNSIGNED_BYTE,
+		[_(TextureType::f32Depth)] = GL_UNSIGNED_BYTE
+	};
+	return translate[_(type)];
+#undef _
+}
+
+class GLTextureImpl : public ITexture {
+public:
+	GLTextureImpl(GLuint texture, glm::ivec2 size, TextureType format, size_t samples, bool own) : _own(own), _texture(texture), _format(format), _samples(samples), _size(size) {
+		_textureType = samples ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+	}
+
+	GLTextureImpl(const std::string& file) : _textureType(GL_TEXTURE_2D), _own(true), _samples(0) {
 		SDL_Surface* surface = IMG_Load(file.c_str());
 		if (!surface)
 			throw "Texture failed to load!";
 
-		GLenum format;
-
-		int nOfColors = surface->format->BytesPerPixel;
-		if (nOfColors == 4) {
-			if (surface->format->Rmask == 0x000000ff)
-				format = GL_RGBA;
-			else
-				format = GL_BGRA;
-		} else if (nOfColors == 3) {
-			if (surface->format->Rmask == 0x000000ff)
-				format = GL_RGB;
-			else
-				format = GL_BGR;
-		} else {
-			SDL_Surface* newSurf = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGB24, 0);
+		{
+			SDL_Surface* newSurf = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA32, 0);
 			if (!newSurf)
 				throw "Unknown texture format";
 			SDL_FreeSurface(surface);
 			surface = newSurf;
-			format = GL_RGB;
+			_format = TextureType::u8RGBA;
 		}
 
-		_setData(format, surface->w, surface->h, surface->pixels);
+		_size = glm::ivec2{surface->w, surface->h};
+
+		_setData(surface->pixels);
 
 		SDL_FreeSurface(surface);
 	}
 
-	GLTextureImpl(uint32_t width, uint32_t height, void* data) : _own(true) {
-		_setData(GL_RGBA, width, height, data);
+	GLTextureImpl(uint32_t width, uint32_t height, TextureType format, size_t samples) : _own(true), _format(format), _samples(samples), _size(glm::ivec2{width, height}) {
+		_textureType = samples ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+		_setData(nullptr);
 	}
 
-	GLTextureImpl(const char* ext, void* data, uint32_t size) : _own(true) {
+	GLTextureImpl(uint32_t width, uint32_t height, TextureType format, void* data) : _textureType(GL_TEXTURE_2D), _own(true), _format(format), _samples(0), _size(glm::ivec2{width, height}) {
+		_setData(data);
+	}
+
+	GLTextureImpl(const char* ext, void* data, uint32_t size) : _textureType(GL_TEXTURE_2D), _own(true), _samples(0) {
 		SDL_Surface* surface = IMG_LoadTyped_RW(SDL_RWFromConstMem(data, size), 1, ext);
 		if (!surface)
 			throw "Texture failed to load!";
 
-		GLenum format;
-
-		int nOfColors = surface->format->BytesPerPixel;
-		if (nOfColors == 4) {
-			if (surface->format->Rmask == 0x000000ff)
-				format = GL_RGBA;
-			else
-				format = GL_BGRA;
-		} else if (nOfColors == 3) {
-			if (surface->format->Rmask == 0x000000ff)
-				format = GL_RGB;
-			else
-				format = GL_BGR;
-		} else {
-			SDL_Surface* newSurf = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGB24, 0);
+		{
+			SDL_Surface* newSurf = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA32, 0);
 			if (!newSurf)
 				throw "Unknown texture format";
 			SDL_FreeSurface(surface);
 			surface = newSurf;
-			format = GL_RGB;
+			_format = TextureType::u8RGBA;
 		}
 
-		_setData(format, surface->w, surface->h, surface->pixels);
+		_size = glm::ivec2{surface->w, surface->h};
+
+		_setData(surface->pixels);
 
 		SDL_FreeSurface(surface);
 	}
@@ -84,41 +144,64 @@ public:
 			glDeleteTextures(1, &_texture);
 	}
 
+	void resize(glm::ivec2 size) final {
+		if (!_own)
+			return;
+		_size = size;
+
+		glBindTexture(_textureType, _texture);
+		if (_textureType == GL_TEXTURE_2D)
+			glTexImage2D(GL_TEXTURE_2D, 0, toGLInternal(_format), size.x, size.y, 0, toGLBase(_format), toGLDataType(_format), nullptr);
+		else if (_textureType == GL_TEXTURE_2D_MULTISAMPLE)
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, _samples, toGLBase(_format), _size.x, _size.y, GL_FALSE);
+	}
+
 	glm::ivec2 getSize() final { return _size; }
 	uint32_t getID() const final { return _texture; }
 
 private:
+	GLenum _textureType;
 	bool _own;
 	GLuint _texture;
+	TextureType _format;
+	size_t _samples;
 	glm::ivec2 _size;
 
-	void _setData(GLenum format, GLuint w, GLuint h, const void* pixels) {
-		_size = glm::ivec2{w, w};
-
+	void _setData(const void* pixels) {
 		glGenTextures(1, &_texture);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, _texture);
+		glBindTexture(_textureType, _texture);
 
 		// TODO: be able to change this
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		if (_textureType == GL_TEXTURE_2D) {
+			glTexParameteri(_textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(_textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(_textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(_textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		}
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, format, GL_UNSIGNED_BYTE, pixels);
+		// TODO: Remove Alpha component?
+		if (_textureType == GL_TEXTURE_2D)
+			glTexImage2D(_textureType, 0, toGLInternal(_format), _size.x, _size.y, 0, toGLBase(_format), toGLDataType(_format), pixels);
+		else if (_textureType == GL_TEXTURE_2D_MULTISAMPLE)
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, _samples, toGLBase(_format), _size.x, _size.y, GL_FALSE);
 	}
 };
 
-std::shared_ptr<ITexture> GLTexture::createFromID(uint32_t id, glm::ivec2 size, bool own) {
-	return std::shared_ptr<ITexture>(new ::GLTextureImpl(id, size, own));
+std::shared_ptr<ITexture> GLTexture::createFromID(uint32_t id, glm::ivec2 size, TextureType format, size_t samples, bool own) {
+	return std::shared_ptr<ITexture>(new ::GLTextureImpl(id, size, format, samples, own));
 }
 
 std::shared_ptr<ITexture> GLTexture::createFromFile(const std::string& file) {
 	return std::shared_ptr<ITexture>(new ::GLTextureImpl(file));
 }
 
-std::shared_ptr<ITexture> GLTexture::createFromData(uint32_t width, uint32_t height, void* data) {
-	return std::shared_ptr<ITexture>(new ::GLTextureImpl(width, height, data));
+std::shared_ptr<ITexture> GLTexture::createEmpty(uint32_t width, uint32_t height, TextureType format, size_t samples) {
+	return std::shared_ptr<ITexture>(new ::GLTextureImpl(width, height, format, samples));
+}
+
+std::shared_ptr<ITexture> GLTexture::createFromData(uint32_t width, uint32_t height, TextureType format, void* data) {
+	return std::shared_ptr<ITexture>(new ::GLTextureImpl(width, height, format, data));
 }
 
 std::shared_ptr<ITexture> GLTexture::createFromDataExt(const char* ext, void* data, uint32_t size) {

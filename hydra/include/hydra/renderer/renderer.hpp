@@ -33,6 +33,8 @@ namespace Hydra::Renderer {
 	public:
 		virtual ~ITexture() = 0;
 
+		virtual void resize(glm::ivec2 size) = 0;
+
 		virtual glm::ivec2 getSize() = 0;
 		virtual uint32_t getID() const = 0;
 	};
@@ -44,37 +46,36 @@ namespace Hydra::Renderer {
 	};
 	inline IRenderTarget::~IRenderTarget() {}
 
-	enum class FramebufferTextureType {
-		// GL_UNSIGNED_BYTE
-		r = 0,
-		rg,
-		rgb,
-		rgba,
+	enum class TextureType {
+		u8R = 0,
+		u8RG,
+		u8RGB,
+		u8RGBA,
 
-		// GL_FLOAT
 		f16R,
 		f16RG,
 		f16RGB,
 		f16RGBA,
+
 		f32R,
 		f32RG,
 		f32RGB,
 		f32RGBA,
 
-		// GL_DEPTH_COMPONENT
-		depth16,
-		depth32
+		// These needs to be last due to some code in the framebuffer
+		f16Depth,
+		f32Depth
 	};
 
 	class IFramebuffer : public IRenderTarget {
 	public:
 		virtual ~IFramebuffer() = 0;
 
-		virtual IFramebuffer& addTexture(size_t id, FramebufferTextureType type) = 0;
+		virtual IFramebuffer& addTexture(size_t id, TextureType type) = 0;
 
 		virtual void finalize() = 0;
 
-		virtual std::shared_ptr<ITexture> resolve(size_t idx) = 0;
+		virtual std::shared_ptr<ITexture> resolve(size_t idx, std::shared_ptr<ITexture> result) = 0;
 
 		// Remember this texture is a MULTISAMPLE texture, and thus need to be resolve
 		// before being rendered as a standard texture

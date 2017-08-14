@@ -20,7 +20,7 @@ TransformComponent::~TransformComponent() {
 
 void TransformComponent::tick(TickAction action) {
 	// assert(action == TickAction::physics); // Can only be this due to wantTick
-	//_rotation *= glm::angleAxis(0.001f, glm::vec3(0.15, 0.8, 0.2) * _rotation);
+	_rotation *= glm::angleAxis(0.001f, glm::vec3(0.15, 0.8, 0.2) * _rotation);
 	_dirty = true;
 	_drawObject->modelMatrix = getMatrix();
 }

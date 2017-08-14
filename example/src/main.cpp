@@ -19,9 +19,6 @@
 using namespace Hydra;
 using namespace Hydra::World;
 
-// XXX:
-extern std::shared_ptr<ITexture> geometryFBOID;
-
 class Engine final : public Hydra::IEngine {
 public:
 	Engine() {
@@ -44,13 +41,24 @@ public:
 		_pipeline->attachStage(*_geometryShader);
 		_pipeline->attachStage(*_fragmentShader);
 
-		_geometryFBO = Renderer::GLFramebuffer::create(_view->getSize(), 1);
-		_geometryFBO->addTexture(0, FramebufferTextureType::rgb)
-			.addTexture(1, FramebufferTextureType::depth32)
+		_geometryFBO = Renderer::GLFramebuffer::create(_view->getSize(), 4);
+		_geometryFBO->addTexture(0, TextureType::u8RGB)
+			.addTexture(1, TextureType::u8RGB)
+			.addTexture(2, TextureType::f32Depth)
 			.finalize();
 
+		_geometryWindow = _uiRenderer->addRenderWindow();
+		_geometryWindow->enabled = true;
+		_geometryWindow->title = "Geometry FBO";
+		_geometryWindow->image = Renderer::GLTexture::createFromData(_view->getSize().x, _view->getSize().y, TextureType::u8RGB, nullptr);
+
+		_depthWindow = _uiRenderer->addRenderWindow();
+		_depthWindow->enabled = true;
+		_depthWindow->title = "Depth FBO";
+		_depthWindow->image = Renderer::GLTexture::createFromData(_view->getSize().x, _view->getSize().y, TextureType::u8RGB, nullptr);
+
 		std::shared_ptr<IEntity> cameraEntity = _world->createEntity("Camera");
-		_cc = cameraEntity->addComponent<Component::CameraComponent>(_view.get(), glm::vec3{0, 0, -3});
+		_cc = cameraEntity->addComponent<Component::CameraComponent>(_geometryFBO.get(), glm::vec3{0, 0, -3});
 
 		std::shared_ptr<IEntity> boxes = _world->createEntity("Boxes");
 		boxes->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0));
@@ -68,6 +76,16 @@ public:
 			}
 		}
 
+		_geometryBatch.clearColor = glm::vec4(0, 0, 0, 1);
+		_geometryBatch.clearFlags = ClearFlags::color | ClearFlags::depth;
+		_geometryBatch.renderTarget = _geometryFBO.get();
+		_geometryBatch.pipeline = _pipeline.get();
+
+		_viewBatch.clearColor = glm::vec4(0, 0.05, 0.05, 1);
+		_viewBatch.clearFlags = ClearFlags::color | ClearFlags::depth;
+		_viewBatch.renderTarget = _view.get();
+		_viewBatch.pipeline = _pipeline.get(); // TODO: Change to "null" pipeline
+
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world);
 	}
 
@@ -84,31 +102,30 @@ public:
 			_world->tick(TickAction::physics);
 
 			_world->tick(TickAction::render);
-			// TODO: Move, don't need to reset the value every tick
-			_batch.clearColor = glm::vec4(0, 0, 0, 1);
-			_batch.clearFlags = ClearFlags::color | ClearFlags::depth;
-			//_batch.renderTarget = _view.get();
-			_batch.renderTarget = _geometryFBO.get();
-			_batch.pipeline = _pipeline.get();
+
+			// Render to geometryFBO
+			_geometryFBO->resize(_geometryWindow->size);
 
 			_geometryShader->setValue(0, _cc->getViewMatrix());
 			_geometryShader->setValue(1, _cc->getProjectionMatrix());
 			_geometryShader->setValue(2, _cc->getPosition());
 
-			_batch.objects.clear();
+			_geometryBatch.objects.clear();
 
 			for (DrawObject* drawObj : _renderer->activeDrawObjects())
 				if (!drawObj->disable && drawObj->mesh)
-					_batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+					_geometryBatch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
-			_renderer->render(_batch);
-			geometryFBOID = _geometryFBO->resolve(0); // XXX:
+			_renderer->render(_geometryBatch);
 
-			_batch.objects.clear();
-			_batch.renderTarget = _view.get();
-			_renderer->render(_batch);
+			// Render to view
+			_renderer->render(_viewBatch);
 
+			// Resolve gemoetryFBO into the geometry window in the UI
+			_geometryFBO->resolve(0, _geometryWindow->image);
+			_geometryFBO->resolve(1, _depthWindow->image);
 			_uiRenderer->render();
+
 			_view->finalize();
 
 			_world->tick(TickAction::network);
@@ -144,9 +161,12 @@ private:
 	std::unique_ptr<Renderer::IPipeline> _pipeline;
 
 	std::shared_ptr<Renderer::IFramebuffer> _geometryFBO;
+	Renderer::UIRenderWindow* _geometryWindow;
+	Renderer::UIRenderWindow* _depthWindow;
 
 	Component::CameraComponent* _cc = nullptr;
-	Renderer::Batch _batch;
+	Renderer::Batch _geometryBatch;
+	Renderer::Batch _viewBatch;
 };
 
 int main(int argc, const char** argv) {

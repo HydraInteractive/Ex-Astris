@@ -59,6 +59,8 @@ public:
 	bool didChangeSize() final { return false; }
 
 	// ITexture
+	void resize(glm::ivec2 size) final { SDL_SetWindowSize(_window, size.x, size.y); }
+
 	glm::ivec2 getSize() final { return _size; }
 
 	uint32_t getID() const final { return 0; } // Because 0 = Screen

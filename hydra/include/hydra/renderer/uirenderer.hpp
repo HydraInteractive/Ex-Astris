@@ -21,12 +21,20 @@ namespace Hydra { enum class LogLevel; }
 
 namespace Hydra::Renderer {
 	class IUILog;
+	class ITexture;
 
 	enum class UIFont {
 		normal,
 		medium,
 		big,
 		monospace
+	};
+
+	struct UIRenderWindow final {
+		bool enabled = false;
+		std::string title = "Untitled";
+		glm::ivec2 size = glm::ivec2{640, 280};
+		std::shared_ptr<ITexture> image;
 	};
 
 	class IUIRenderer {
@@ -38,6 +46,8 @@ namespace Hydra::Renderer {
 		virtual void newFrame() = 0;
 
 		virtual void render() = 0; // TODO: Move to IRenderer(?)
+
+		virtual UIRenderWindow* addRenderWindow() = 0;
 
 		virtual void pushFont(UIFont font) = 0;
 		virtual void popFont() = 0;

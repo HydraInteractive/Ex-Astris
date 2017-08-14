@@ -3,16 +3,18 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_sdl_gl3.h>
 #include <imgui/icons.hpp>
+#include <glad/glad.h>
 #include <SDL/SDL.h>
 #include <memory>
 #include <hydra/engine.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/renderer/renderer.hpp>
 
+#include <iomanip>
+#include <sstream>
+
 using namespace Hydra::Renderer;
 using namespace Hydra::World;
-
-std::shared_ptr<ITexture> geometryFBOID{}; // XXX:
 
 class UILogImpl final : public IUILog {
 public:
@@ -183,7 +185,29 @@ public:
 
 	void handleEvent(SDL_Event& event) final { ImGui_ImplSdlGL3_ProcessEvent(&event); }
 
-	void newFrame() final {	ImGui_ImplSdlGL3_NewFrame(_window); }
+	void newFrame() final {
+		ImGui_ImplSdlGL3_NewFrame(_window);
+
+		for (auto& window : _renderWindows) {
+			if (!window->enabled)
+				continue;
+			std::stringstream title;
+			title << window->title << "##" << std::hex << window.get();
+
+			ImGui::SetNextWindowSize(ImVec2(window->size.x, window->size.y), ImGuiSetCond_Once);
+			ImGui::Begin(title.str().c_str());
+			auto iSize = ImGui::GetWindowSize(); //TODO: Minus titlebar
+			window->size = glm::ivec2{iSize.x, iSize.y};
+			ImGui::End();
+		}
+	}
+
+	UIRenderWindow* addRenderWindow() final {
+		auto window = std::make_unique<UIRenderWindow>();
+		UIRenderWindow* output = window.get();
+		_renderWindows.push_back(std::move(window));
+		return output;
+	}
 
 	void render() final {
     if (ImGui::BeginMainMenuBar()) {
@@ -212,10 +236,16 @@ public:
 			ImGui::EndMainMenuBar();
 		}
 
-		ImGui::SetNextWindowSize(ImVec2(1280, 720), ImGuiSetCond_Once);
-		ImGui::Begin("Geometry FBO");
-		ImGui::Image(reinterpret_cast<ImTextureID>(geometryFBOID->getID()), ImGui::GetWindowSize(), ImVec2(0.4, 0.4), ImVec2(0.6, 0.6));
-		ImGui::End();
+		for (auto& window : _renderWindows) {
+			if (!window->enabled)
+				continue;
+			std::stringstream title;
+			title << window->title << "##" << std::hex << window.get();
+
+			ImGui::Begin(title.str().c_str());
+			ImGui::Image(reinterpret_cast<ImTextureID>(window->image->getID()), ImGui::GetWindowSize()); //TODO: Minus titlebar
+			ImGui::End();
+		}
 
 		if (_logWindow)
 			_log->render(&_logWindow);
@@ -225,7 +255,9 @@ public:
 
 		if (_testWindow)
 			ImGui::ShowTestWindow(&_testWindow);
-	 ImGui::Render();
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0); // Bind the screen (0)
+		ImGui::Render();
 	}
 
 	void pushFont(UIFont font) final {
@@ -241,7 +273,6 @@ public:
 	}
 	void popFont() final { ImGui::PopFont(); }
 
-
 	IUILog* getLog() final { return _log.get(); }
 
 	bool usingKeyboard() final { return ImGui::GetIO().WantCaptureKeyboard; }
@@ -250,6 +281,8 @@ private:
 	Hydra::View::IView* _view;
 	SDL_Window* _window;
 	std::unique_ptr<IUILog> _log;
+
+	std::vector<std::unique_ptr<UIRenderWindow>> _renderWindows;
 
 	bool _logWindow = true;
 	bool _entityWindow = true;

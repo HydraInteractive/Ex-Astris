@@ -179,8 +179,10 @@ private:
 			printf("\tmHeight: %u\n", tex->mHeight);
 			printf("\tachFormatHint: %s\n", tex->achFormatHint);
 			printf("\tpcData: %p\n", (void*)tex->pcData);
+
+			// TODO: Parse achFormatHint http://www.assimp.org/lib_html/structai_texture.html#a8e281d19486df620af1b2869464fa5c0
 			if (tex->mHeight)
-				return GLTexture::createFromData(tex->mWidth, tex->mHeight, (void*)tex->pcData);
+				return GLTexture::createFromData(tex->mWidth, tex->mHeight, TextureType::u8RGBA, (void*)tex->pcData);
 			else
 				return GLTexture::createFromDataExt(tex->achFormatHint, (void*)tex->pcData, tex->mWidth);
 		} else {

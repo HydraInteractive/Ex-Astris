@@ -8,57 +8,41 @@
 
 using namespace Hydra::Renderer;
 
-inline static GLenum toGL(FramebufferTextureType type) {
-	static const GLenum translate[] = {
-		GL_RED, // r
-		GL_RG, // rg
-		GL_RGB, // rgb
-		GL_RGBA, // rgba
-
-		GL_R16F, // f16R
-		GL_RG16F, // f16RG
-		GL_RGB16F, // f16RGB
-		GL_RGBA16F, // f16RGBA
-		GL_R32F, // f32R
-		GL_RG32F, // f32RG
-		GL_RGB32F, // f32RGB
-		GL_RGBA32F, // f32RGBA
-
-		GL_DEPTH_COMPONENT16, // depth16
-		GL_DEPTH_COMPONENT32 // depth32
-	};
-	return translate[static_cast<int>(type)];
-}
-
 class GLFramebufferImpl final : public IFramebuffer {
 public:
 	GLFramebufferImpl(glm::ivec2 size, size_t samples) : _size(size), _samples(samples) {
-		glGenFramebuffers(1, &_framebuffer);
+		GLuint fbos[2];
+		glGenFramebuffers(sizeof(fbos) / sizeof(*fbos), fbos);
+		_framebuffer = fbos[0];
+		_resolverFramebuffer = fbos[1];
 		glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 	}
 
 	~GLFramebufferImpl() final {
-		glDeleteFramebuffers(1, &_framebuffer);
+		GLuint fbos[2] = {_framebuffer, _resolverFramebuffer};
+		glDeleteFramebuffers(sizeof(fbos) / sizeof(*fbos), fbos);
 	}
 
 	// ITexture
+	void resize(glm::ivec2 size) final {
+		_size = size;
+		for (auto& attachment : _attachments)
+			attachment.second->resize(size);
+	}
+
 	glm::ivec2 getSize() final { return _size; }
 	uint32_t getID() const final { return _framebuffer; }
 
 	// IFramebuffer
-	IFramebuffer& addTexture(size_t id, FramebufferTextureType type) final {
-		//TODO: IF samples == 0, then don't use _MULTISAMPLE
-		GLuint texID;
-		glGenTextures(1, &texID);
-		glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, texID);
+	IFramebuffer& addTexture(size_t id, TextureType type) final {
+		auto texture = GLTexture::createEmpty(_size.x, _size.y, type, _samples);
 
-		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, _samples, toGL(type), _size.x, _size.y, GL_FALSE);
-		if (static_cast<uint32_t>(type) >= static_cast<uint32_t>(FramebufferTextureType::depth16))
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texID, 0);
+		if (static_cast<uint32_t>(type) >= static_cast<uint32_t>(TextureType::f16Depth))
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texture->getID(), 0);
 		else
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + id, texID, 0);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + id, texture->getID(), 0);
 
-		_attachments[id] = GLTexture::createFromID(texID, _size);
+		_attachments[id] = texture;
 
 		return *this;
 	}
@@ -76,23 +60,20 @@ public:
 	}
 
 	//TODO: Add resolve to FBO and not just a texture
-	std::shared_ptr<ITexture> resolve(size_t idx) final {
-		std::shared_ptr<ITexture> result = GLTexture::createFromData(_size.x, _size.y, nullptr);
-		GLuint tmpFBO;
-		// TODO: CLEAN UP!, maybe not force MSAA on FBO
-		glGenFramebuffers(1, &tmpFBO);
-		glBindFramebuffer(GL_FRAMEBUFFER, tmpFBO);
+	std::shared_ptr<ITexture> resolve(size_t idx, std::shared_ptr<ITexture> result) final {
+		result->resize(_size);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, _resolverFramebuffer);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result->getID(), 0);
 		GLenum buffers = GL_COLOR_ATTACHMENT0;
 		glDrawBuffers(1, &buffers);
 
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, tmpFBO);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _resolverFramebuffer);
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, _framebuffer);
-		glReadBuffer(GL_COLOR_ATTACHMENT0);
+		glReadBuffer(GL_COLOR_ATTACHMENT0 + idx);
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 		glBlitFramebuffer(0, 0, _size.x, _size.y, 0, 0, _size.x, _size.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
-		glDeleteFramebuffers(1, &tmpFBO);
 		return result;
 	}
 
@@ -102,6 +83,7 @@ public:
 
 private:
 	GLuint _framebuffer;
+	GLuint _resolverFramebuffer;
 	std::map<GLuint, std::shared_ptr<ITexture>> _attachments;
 	glm::ivec2 _size;
 	size_t _samples;

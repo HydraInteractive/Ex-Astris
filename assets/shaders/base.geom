@@ -12,7 +12,7 @@ in VertexData {
 	mat4 m;
 } inData[];
 
-out VertexData {
+out GeometryData {
 	vec3 position;
 	vec3 normal;
 	vec3 color;

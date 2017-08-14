@@ -1,6 +1,6 @@
 #version 440 core
 
-in VertexData {
+in GeometryData {
 	vec3 position;
 	vec3 normal;
 	vec3 color;
@@ -8,8 +8,10 @@ in VertexData {
 	mat3 tbn;
 } inData;
 
-out vec4 fragColor;
+layout (location = 0) out vec3 fragColor;
+layout (location = 1) out vec3 depthColor;
 
 void main() {
-	fragColor = vec4(inData.color, 1);
+	fragColor = inData.color;
+	depthColor = vec3(gl_FragCoord.z);
 }
