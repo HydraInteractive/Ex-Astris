@@ -32,103 +32,123 @@ public:
 		_textureLoader = std::make_unique<IO::TextureLoader>();
 		_meshLoader = std::make_unique<IO::MeshLoader>(_renderer.get());
 
-		_vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/base.vert");
-		_geometryShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::geometry, "assets/shaders/base.geom");
-		_fragmentShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::fragment, "assets/shaders/base.frag");
-
-		_pipeline = Renderer::GLPipeline::create();
-		_pipeline->attachStage(*_vertexShader);
-		_pipeline->attachStage(*_geometryShader);
-		_pipeline->attachStage(*_fragmentShader);
-
-		_geometryFBO = Renderer::GLFramebuffer::create(_view->getSize(), 4);
-		_geometryFBO->addTexture(0, TextureType::u8RGB)
-			.addTexture(1, TextureType::u8RGB)
-			.addTexture(2, TextureType::f32Depth)
-			.finalize();
-
 		_geometryWindow = _uiRenderer->addRenderWindow();
 		_geometryWindow->enabled = true;
 		_geometryWindow->title = "Geometry FBO";
-		_geometryWindow->image = Renderer::GLTexture::createFromData(_view->getSize().x, _view->getSize().y, TextureType::u8RGB, nullptr);
+		_geometryWindow->image = Renderer::GLTexture::createFromData(_geometryWindow->size.x, _geometryWindow->size.y, TextureType::u8RGB, nullptr);
 
 		_depthWindow = _uiRenderer->addRenderWindow();
 		_depthWindow->enabled = true;
 		_depthWindow->title = "Depth FBO";
-		_depthWindow->image = Renderer::GLTexture::createFromData(_view->getSize().x, _view->getSize().y, TextureType::u8RGB, nullptr);
+		_depthWindow->image = Renderer::GLTexture::createFromData(_geometryWindow->size.x, _geometryWindow->size.y, TextureType::u8RGB, nullptr);
 
-		std::shared_ptr<IEntity> cameraEntity = _world->createEntity("Camera");
-		_cc = cameraEntity->addComponent<Component::CameraComponent>(_geometryFBO.get(), glm::vec3{0, 0, -3});
+		{
+			auto& batch = _geometryBatch;
+			batch.vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/geometry.vert");
+			batch.geometryShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::geometry, "assets/shaders/geometry.geom");
+			batch.fragmentShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::fragment, "assets/shaders/geometry.frag");
 
-		std::shared_ptr<IEntity> boxes = _world->createEntity("Boxes");
-		boxes->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0));
-		for (int x = 0; x < 3; x++) {
-			std::shared_ptr<IEntity> xLevel = boxes->createEntity("X Level");
-			xLevel->addComponent<Component::TransformComponent>(glm::vec3(x-1.5, 0, 0), glm::vec3(x*0.5 + 1, 1, 1));
-			for (int y = 0; y < 3; y++) {
-				std::shared_ptr<IEntity> yLevel = xLevel->createEntity("Y Level");
-				yLevel->addComponent<Component::TransformComponent>(glm::vec3(0, y-1.5, 0), glm::vec3(1, y*0.5 + 1, 1));
-				for (int z = 0; z < 3; z++) {
-					std::shared_ptr<IEntity> zLevel = yLevel->createEntity("Z Level");
-					zLevel->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
-					zLevel->addComponent<Component::TransformComponent>(glm::vec3(0, 0, z-1.5), glm::vec3(0.25, 0.25, z*0.125 + 0.25));
-				}
-			}
+			batch.pipeline = Renderer::GLPipeline::create();
+			batch.pipeline->attachStage(*batch.vertexShader);
+			batch.pipeline->attachStage(*batch.geometryShader);
+			batch.pipeline->attachStage(*batch.fragmentShader);
+
+			batch.output = Renderer::GLFramebuffer::create(_geometryWindow->size, 4);
+			batch.output->addTexture(0, TextureType::u8RGB)
+				.addTexture(1, TextureType::u8RGB)
+				.addTexture(2, TextureType::f32Depth)
+				.finalize();
+
+			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
+			batch.batch.clearFlags = ClearFlags::color | ClearFlags::depth;
+			batch.batch.renderTarget = batch.output.get();
+			batch.batch.pipeline = batch.pipeline.get();
 		}
 
-		_geometryBatch.clearColor = glm::vec4(0, 0, 0, 1);
-		_geometryBatch.clearFlags = ClearFlags::color | ClearFlags::depth;
-		_geometryBatch.renderTarget = _geometryFBO.get();
-		_geometryBatch.pipeline = _pipeline.get();
+		{
+			auto& batch = _viewBatch;
+			batch.vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/view.vert");
+			batch.fragmentShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::fragment, "assets/shaders/view.frag");
 
-		_viewBatch.clearColor = glm::vec4(0, 0.05, 0.05, 1);
-		_viewBatch.clearFlags = ClearFlags::color | ClearFlags::depth;
-		_viewBatch.renderTarget = _view.get();
-		_viewBatch.pipeline = _pipeline.get(); // TODO: Change to "null" pipeline
+			batch.pipeline = Renderer::GLPipeline::create();
+			batch.pipeline->attachStage(*batch.vertexShader);
+			batch.pipeline->attachStage(*batch.fragmentShader);
 
-		BlueprintLoader::save("world.blueprint", "World Blueprint", _world);
+			batch.batch.clearColor = glm::vec4(0, 0.05, 0.05, 1);
+			batch.batch.clearFlags = ClearFlags::color | ClearFlags::depth;
+			batch.batch.renderTarget = _view.get();
+			batch.batch.pipeline = batch.pipeline.get(); // TODO: Change to "null" pipeline
+		}
+
+		_initEntities();
 	}
 
 	~Engine() final {}
 
 	void run() final {
 		while (!_view->isClosed()) {
-			_world->tick(TickAction::checkDead);
-			_renderer->cleanup();
+			{ // Remove old dead objects
+				_world->tick(TickAction::checkDead);
+				_renderer->cleanup();
+			}
 
-			_view->update(_uiRenderer.get());
-			_uiRenderer->newFrame();
+			{ // Fetch new events
+				_view->update(_uiRenderer.get());
+				_uiRenderer->newFrame();
+			}
 
-			_world->tick(TickAction::physics);
+			{ // Update physics
+				_world->tick(TickAction::physics);
+			}
 
-			_world->tick(TickAction::render);
+			{ // Render objects (Deferred rendering)
+				glm::vec3 cameraPos;
+				_world->tick(TickAction::render);
 
-			// Render to geometryFBO
-			_geometryFBO->resize(_geometryWindow->size);
+				// Render to geometryFBO
+				_geometryBatch.output->resize(_geometryWindow->size);
 
-			_geometryShader->setValue(0, _cc->getViewMatrix());
-			_geometryShader->setValue(1, _cc->getProjectionMatrix());
-			_geometryShader->setValue(2, _cc->getPosition());
+				_geometryBatch.geometryShader->setValue(0, _cc->getViewMatrix());
+				_geometryBatch.geometryShader->setValue(1, _cc->getProjectionMatrix());
+				_geometryBatch.geometryShader->setValue(2, cameraPos = _cc->getPosition());
 
-			_geometryBatch.objects.clear();
+				_geometryBatch.batch.objects.clear();
 
-			for (DrawObject* drawObj : _renderer->activeDrawObjects())
-				if (!drawObj->disable && drawObj->mesh)
-					_geometryBatch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+				for (DrawObject* drawObj : _renderer->activeDrawObjects())
+					if (!drawObj->disable && drawObj->mesh)
+						_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
-			_renderer->render(_geometryBatch);
+				// Sort Front to back
+				for (auto& kv : _geometryBatch.batch.objects) {
+					std::vector<glm::mat4>& list = kv.second;
 
-			// Render to view
-			_renderer->render(_viewBatch);
+					std::sort(list.begin(), list.end(), [cameraPos](const glm::mat4& a, const glm::mat4& b) {
+							return glm::distance(glm::vec3(a[3]), cameraPos) < glm::distance(glm::vec3(b[3]), cameraPos);
+					});
+				}
 
-			// Resolve gemoetryFBO into the geometry window in the UI
-			_geometryFBO->resolve(0, _geometryWindow->image);
-			_geometryFBO->resolve(1, _depthWindow->image);
-			_uiRenderer->render();
+				_renderer->render(_geometryBatch.batch);
+			}
 
-			_view->finalize();
+			{ // Render transparent objects	(Forward rendering)
+				_world->tick(TickAction::renderTransparent);
+			}
 
-			_world->tick(TickAction::network);
+			{ // Update UI & views
+				// Render to view
+				_renderer->render(_viewBatch.batch);
+
+				// Resolve gemoetryFBO into the geometry window in the UI
+				_geometryBatch.output->resolve(0, _geometryWindow->image);
+				_geometryBatch.output->resolve(1, _depthWindow->image);
+				_uiRenderer->render();
+
+				_view->finalize();
+			}
+
+			{ // Sync with network
+				_world->tick(TickAction::network);
+			}
 		}
 	}
 
@@ -142,11 +162,24 @@ public:
 		va_list va;
 		va_start(va, fmt);
 		vfprintf(stderr, fmt, va);
+		fputc('\n', stderr);
+		va_end(va);
+
+		va_start(va, fmt);
 		_uiRenderer->getLog()->log(level, fmt, va);
 		va_end(va);
 	}
 
 private:
+	struct RenderBatch final {
+		std::unique_ptr<Renderer::IShader> vertexShader;
+		std::unique_ptr<Renderer::IShader> geometryShader;
+		std::unique_ptr<Renderer::IShader> fragmentShader;
+		std::unique_ptr<Renderer::IPipeline> pipeline;
+
+		std::shared_ptr<Renderer::IFramebuffer> output;
+		Renderer::Batch batch;
+	};
 	std::shared_ptr<IWorld> _world;
 
 	std::unique_ptr<View::IView> _view;
@@ -155,18 +188,37 @@ private:
 	std::unique_ptr<IO::TextureLoader> _textureLoader;
 	std::unique_ptr<IO::MeshLoader> _meshLoader;
 
-	std::unique_ptr<Renderer::IShader> _vertexShader;
-	std::unique_ptr<Renderer::IShader> _geometryShader;
-	std::unique_ptr<Renderer::IShader> _fragmentShader;
-	std::unique_ptr<Renderer::IPipeline> _pipeline;
-
-	std::shared_ptr<Renderer::IFramebuffer> _geometryFBO;
 	Renderer::UIRenderWindow* _geometryWindow;
 	Renderer::UIRenderWindow* _depthWindow;
 
+	RenderBatch _geometryBatch; // First part of deferred rendering
+	RenderBatch _lightingBatch; // Second part of deferred rendering
+	RenderBatch _viewBatch;
+
 	Component::CameraComponent* _cc = nullptr;
-	Renderer::Batch _geometryBatch;
-	Renderer::Batch _viewBatch;
+
+	void _initEntities() {
+		auto cameraEntity = _world->createEntity("Camera");
+		_cc = cameraEntity->addComponent<Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{0, 0, -3});
+
+		auto boxes = _world->createEntity("Boxes");
+		boxes->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0));
+		for (int x = 0; x < 3; x++) {
+			auto xLevel = boxes->createEntity("X Level");
+			xLevel->addComponent<Component::TransformComponent>(glm::vec3(x-1.5, 0, 0), glm::vec3(x*0.5 + 1, 1, 1));
+			for (int y = 0; y < 3; y++) {
+				auto yLevel = xLevel->createEntity("Y Level");
+				yLevel->addComponent<Component::TransformComponent>(glm::vec3(0, y-1.5, 0), glm::vec3(1, y*0.5 + 1, 1));
+				for (int z = 0; z < 3; z++) {
+					auto zLevel = yLevel->createEntity("Z Level");
+					zLevel->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
+					zLevel->addComponent<Component::TransformComponent>(glm::vec3(0, 0, z-1.5), glm::vec3(0.25, 0.25, z*0.125 + 0.25));
+				}
+			}
+		}
+
+		BlueprintLoader::save("world.blueprint", "World Blueprint", _world);
+	}
 };
 
 int main(int argc, const char** argv) {

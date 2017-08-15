@@ -7,6 +7,9 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+#include <hydra/engine.hpp>
+
+using namespace Hydra;
 using namespace Hydra::Renderer;
 
 static GLuint stageToGL(PipelineStage stage) {
@@ -36,9 +39,24 @@ static GLuint stageToGLBit(PipelineStage stage) {
 
 class GLShaderImpl : public IShader {
 public:
-	GLShaderImpl(PipelineStage stage, const std::string& source) : _stage(stage) {
-		const char * src = source.c_str();
-		_program = glCreateShaderProgramv(stageToGL(stage), 1, &src);
+	GLShaderImpl(PipelineStage stage, const std::string& file) : _stage(stage) {
+		IEngine::getInstance()->log(LogLevel::verbose, "Loading shader: %s", file.c_str());
+		FILE* fp = fopen(file.c_str(), "rb");
+		if (!fp) {
+			IEngine::getInstance()->log(LogLevel::error, "Shader does not exist: %s", file.c_str());
+			return;
+		}
+
+		fseek(fp, 0, SEEK_END);
+		long length = ftell(fp);
+		fseek(fp, 0, SEEK_SET);
+
+		char* data = static_cast<char*>(malloc(length + 1));
+		fread(data, length, 1, fp);
+		fclose(fp);
+		data[length] = '\0';
+
+		_program = glCreateShaderProgramv(stageToGL(stage), 1, &data);
 
 		GLint status;
 		glGetProgramiv(_program, GL_LINK_STATUS, &status);
@@ -49,13 +67,11 @@ public:
 			GLchar* errorLog = static_cast<GLchar*>(malloc(len));
 			glGetProgramInfoLog(_program, len, &len, errorLog);
 
-			char buf[0x1000];
-			snprintf(buf, sizeof(buf), "Linking failed (%u):\n%s", _program, errorLog);
+			IEngine::getInstance()->log(LogLevel::error, "Linking failed %s (%u):\n%s", file.c_str(), _program, errorLog);
 			free(errorLog);
-
-			fprintf(stderr, "%s", buf);
-			throw buf;
 		}
+
+		free(data);
 	}
 
 	~GLShaderImpl() final {
@@ -105,23 +121,7 @@ private:
 
 
 std::unique_ptr<IShader> GLShader::createFromSource(PipelineStage stage, const std::string& file) {
-	FILE* fp = fopen(file.c_str(), "rb");
-	if (!fp)
-		return nullptr;
-
-	fseek(fp, 0, SEEK_END);
-	long length = ftell(fp);
-	fseek(fp, 0, SEEK_SET);
-
-	char* data = static_cast<char*>(malloc(length + 1));
-	fread(data, length, 1, fp);
-	fclose(fp);
-	data[length] = '\0';
-
-	std::string src = std::string(data, length);
-	free(data);
-
-	return std::unique_ptr<IShader>(new ::GLShaderImpl(stage, src));
+	return std::unique_ptr<IShader>(new ::GLShaderImpl(stage, file));
 }
 
 std::unique_ptr<IPipeline> GLPipeline::create() {
