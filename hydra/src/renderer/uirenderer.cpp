@@ -128,6 +128,7 @@ public:
 		icons_config.PixelSnapH = true;
 		io.Fonts->AddFontFromFileTTF("assets/fonts/fontawesome-webfont.ttf", 18.0f, &icons_config, icons_ranges);
 
+		_normalBoldFont = io.Fonts->AddFontFromFileTTF("assets/fonts/DroidSans-Bold.ttf", 18.0f);
 		_mediumFont = io.Fonts->AddFontFromFileTTF("assets/fonts/DroidSans-Bold.ttf", 32);
 		_bigFont = io.Fonts->AddFontFromFileTTF("assets/fonts/DroidSans-Bold.ttf", 64 + 32);
 
@@ -187,19 +188,6 @@ public:
 
 	void newFrame() final {
 		ImGui_ImplSdlGL3_NewFrame(_window);
-
-		for (auto& window : _renderWindows) {
-			if (!window->enabled)
-				continue;
-			std::stringstream title;
-			title << window->title << "##" << std::hex << window.get();
-
-			ImGui::SetNextWindowSize(ImVec2(window->size.x, window->size.y), ImGuiSetCond_Once);
-			ImGui::Begin(title.str().c_str());
-			auto iSize = ImGui::GetWindowSize(); //TODO: Minus titlebar
-			window->size = glm::ivec2{iSize.x, iSize.y};
-			ImGui::End();
-		}
 	}
 
 	UIRenderWindow* addRenderWindow() final {
@@ -236,14 +224,29 @@ public:
 			ImGui::EndMainMenuBar();
 		}
 
-		for (auto& window : _renderWindows) {
-			if (!window->enabled)
-				continue;
-			std::stringstream title;
-			title << window->title << "##" << std::hex << window.get();
+		{ //TODO: Revert this, into multiple windows
+			ImGui::Begin("Render Windows");
+			ImGuiWindow* wind = ImGui::GetCurrentWindow();
+			ImGuiStyle& style = ImGui::GetStyle();
 
-			ImGui::Begin(title.str().c_str());
-			ImGui::Image(reinterpret_cast<ImTextureID>(window->image->getID()), ImGui::GetWindowSize()); //TODO: Minus titlebar
+			pushFont(UIFont::normalBold);
+			ImGui::BeginTabBar("#RenderWindows");
+			popFont();
+			ImGui::DrawTabsBackground();
+			for (auto& window : _renderWindows) {
+				if (!window->enabled)
+					continue;
+
+				if (!ImGui::AddTab(window->title.c_str()))
+					continue;
+
+				auto iSize = wind->Size - style.WindowPadding - ImVec2(24, 72);
+				if (iSize.x <= 2) iSize.x = 2;
+				if (iSize.y <= 2) iSize.y = 2;
+				window->size = glm::ivec2{iSize.x, iSize.y};
+				ImGui::Image(reinterpret_cast<ImTextureID>(window->image->getID()), iSize);
+			}
+			ImGui::EndTabBar();
 			ImGui::End();
 		}
 
@@ -264,6 +267,7 @@ public:
 #define _(x) static_cast<int>(x)
 		ImFont* lookup[] = {
 			[_(UIFont::normal)] =  _normalFont,
+			[_(UIFont::normalBold)] =  _normalBoldFont,
 			[_(UIFont::medium)] = _mediumFont,
 			[_(UIFont::big)] = _bigFont,
 			[_(UIFont::monospace)] = _monospaceFont
@@ -289,6 +293,7 @@ private:
 	bool _testWindow = false;
 
 	ImFont* _normalFont;
+	ImFont* _normalBoldFont;
 	ImFont* _mediumFont;
 	ImFont* _monospaceFont;
 	ImFont* _bigFont;

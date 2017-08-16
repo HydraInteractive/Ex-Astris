@@ -25,6 +25,7 @@ namespace Hydra::Renderer {
 
 	enum class UIFont {
 		normal,
+		normalBold,
 		medium,
 		big,
 		monospace
