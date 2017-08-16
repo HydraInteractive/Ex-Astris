@@ -8,6 +8,7 @@
 
 #include <hydra/engine.hpp>
 
+using namespace Hydra;
 using namespace Hydra::Renderer;
 
 class GLMeshImpl final : public IMesh {
@@ -22,8 +23,8 @@ public:
 		const aiScene* scene = importer.ReadFile(file, flags);
 
 		if (!scene) {
-			fprintf(stderr, "Could not load model %s\n", file.c_str());
-			throw "Could not load model";
+			IEngine::getInstance()->log(LogLevel::error, "Could not load model %s", file.c_str());
+			return;
 		}
 
 		_loadModel(scene, modelMatrixBuffer);
@@ -157,28 +158,24 @@ private:
 
 	std::shared_ptr<ITexture> _getTexture(const aiScene* scene, const std::string& filename) {
 		if (scene->mNumMaterials == 0)
-			return Hydra::IEngine::getInstance()->getTextureLoader()->getTexture(""); // Error texture
+			return Hydra::IEngine::getInstance()->getTextureLoader()->getErrorTexture();
 		const aiMaterial* pMaterial = scene->mMaterials[0];
 		if (pMaterial->GetTextureCount(aiTextureType_DIFFUSE) == 0)
-			return Hydra::IEngine::getInstance()->getTextureLoader()->getTexture(""); // Error texture
+			return Hydra::IEngine::getInstance()->getTextureLoader()->getErrorTexture();
 
 		aiString path;
 
 		if (pMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &path, NULL, NULL, NULL, NULL, NULL) != AI_SUCCESS)
-			return Hydra::IEngine::getInstance()->getTextureLoader()->getTexture(""); // Error texture
+			return Hydra::IEngine::getInstance()->getTextureLoader()->getErrorTexture();
 
 		if (path.data[0] == '*') {
 			unsigned int id = atoi(path.data + 1);
-			printf("Embedded texture: %u(%s)\n", id, path.data);
+			IEngine::getInstance()->log(LogLevel::verbose, "Embedded texture: %u(%s)", id, path.data);
 			if (scene->mNumTextures < id)
-				return Hydra::IEngine::getInstance()->getTextureLoader()->getTexture(""); // Error texture
+				return Hydra::IEngine::getInstance()->getTextureLoader()->getErrorTexture();
 			aiTexture* tex = scene->mTextures[id];
 
-			printf("Texture: \n");
-			printf("\tmWidth: %u\n", tex->mWidth);
-			printf("\tmHeight: %u\n", tex->mHeight);
-			printf("\tachFormatHint: %s\n", tex->achFormatHint);
-			printf("\tpcData: %p\n", (void*)tex->pcData);
+			IEngine::getInstance()->log(LogLevel::verbose, "Texture:\n\tmWidth: %u\n\tmHeight: %u\n\tachFormatHint: %s\n\tpcData: %p", tex->mWidth, tex->mHeight, tex->achFormatHint, (void*)tex->pcData);
 
 			// TODO: Parse achFormatHint http://www.assimp.org/lib_html/structai_texture.html#a8e281d19486df620af1b2869464fa5c0
 			if (tex->mHeight)
@@ -187,7 +184,7 @@ private:
 				return GLTexture::createFromDataExt(tex->achFormatHint, (void*)tex->pcData, tex->mWidth);
 		} else {
 			std::string fullPath = filename.substr(0, filename.find_last_of("/\\") + 1) + path.data; // TODO: fix path
-			printf("External texture: %s\n", fullPath.c_str());
+			IEngine::getInstance()->log(LogLevel::verbose, "External texture: %s", fullPath.c_str());
 			return Hydra::IEngine::getInstance()->getTextureLoader()->getTexture(fullPath);
 		}
 	}

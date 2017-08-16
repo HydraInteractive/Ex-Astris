@@ -1,10 +1,11 @@
 #include <hydra/io/meshloader.hpp>
 
 #include <hydra/renderer/glrenderer.hpp>
+#include <hydra/engine.hpp>
 
 #include <exception>
-#include <iostream>
 
+using namespace Hydra;
 using namespace Hydra::IO;
 
 MeshLoader::MeshLoader(IRenderer* renderer) : _renderer(renderer), _errorMesh(_loadErrorMesh()) {}
@@ -19,13 +20,10 @@ std::shared_ptr<IMesh> MeshLoader::getMesh(const std::string& file) {
 	std::shared_ptr<IMesh> mesh = _storage[file];
 	if (!mesh) {
 		try {
-			std::cout << "Loading mesh: " << file << std::endl;
+			IEngine::getInstance()->log(LogLevel::verbose, "Loading mesh: %s", file.c_str());
 			mesh = _storage[file] = Hydra::Renderer::GLMesh::create(file, _renderer);
 		} catch (const std::exception& e) {
-			std::cerr << "FAILED TO LOAD MESH: " << e.what() << std::endl;
-			return _errorMesh;
-		} catch (const char* msg) {
-			std::cerr << "FAILED TO LOAD MESH: " << msg << std::endl;
+			IEngine::getInstance()->log(LogLevel::error, "FAILED TO LOAD MESH: %s", e.what());
 			return _errorMesh;
 		}
 	}

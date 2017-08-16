@@ -1,10 +1,11 @@
 #include <hydra/io/textureloader.hpp>
 
 #include <hydra/renderer/glrenderer.hpp>
+#include <hydra/engine.hpp>
 
 #include <exception>
-#include <iostream>
 
+using namespace Hydra;
 using namespace Hydra::IO;
 
 TextureLoader::TextureLoader() : _errorTexture(_loadErrorTexture()) {}
@@ -19,13 +20,10 @@ std::shared_ptr<ITexture> TextureLoader::getTexture(const std::string& file) {
 	std::shared_ptr<ITexture> texture = _storage[file];
 	if (!texture) {
 		try {
-			std::cout << "Loading texture: " << file << std::endl;
+			IEngine::getInstance()->log(LogLevel::verbose, "Loading texture: %s", file.c_str());
 			texture = _storage[file] = Hydra::Renderer::GLTexture::createFromFile(file);
 		} catch (const std::exception& e) {
-			std::cerr << "FAILED TO LOAD TEXTURE: " << e.what() << std::endl;
-			return _errorTexture;
-		} catch (const char* msg) {
-			std::cerr << "FAILED TO LOAD TEXTURE: " << msg << std::endl;
+			IEngine::getInstance()->log(LogLevel::error, "FAILED TO LOAD TEXTURE: %s", e.what());
 			return _errorTexture;
 		}
 	}
