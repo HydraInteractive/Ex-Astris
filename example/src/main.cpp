@@ -1,5 +1,7 @@
 #include <hydra/engine.hpp>
 
+#include <SDL2/SDL.h>
+
 #include <memory>
 
 #include <hydra/world/world.hpp>
@@ -238,7 +240,8 @@ private:
 	}
 };
 
-int main(int argc, const char** argv) {
+#undef main
+int main(int argc, char** argv) {
 	Engine().run();
 	return 0;
 }

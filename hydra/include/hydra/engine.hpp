@@ -1,4 +1,5 @@
 #pragma once
+#include <hydra/ext/api.hpp>
 
 #include <memory>
 
@@ -16,18 +17,18 @@
 #endif
 
 namespace Hydra {
-	enum class LogLevel {
+	enum class HYDRA_API LogLevel {
 		verbose,
 		normal,
 		warning,
 		error
 	};
-	inline const char* toString(LogLevel level) {
+	HYDRA_API inline const char* toString(LogLevel level) {
 		static const char* name[4] = {"verbose", "normal", "warning", "error"};
 		return name[static_cast<int>(level)];
 	}
 
-	class IEngine {
+	class HYDRA_API IEngine {
 	public:
 		virtual ~IEngine() = 0;
 

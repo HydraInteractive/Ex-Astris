@@ -1,4 +1,5 @@
 #pragma once
+#include <hydra/ext/api.hpp>
 
 #include <hydra/world/world.hpp>
 #include <hydra/renderer/renderer.hpp>
@@ -10,7 +11,7 @@
 using namespace Hydra::World;
 
 namespace Hydra::Component {
-	class CameraComponent final : public IComponent {
+	class HYDRA_API CameraComponent final : public IComponent {
 	public:
 		CameraComponent(IEntity* entity, Hydra::Renderer::IRenderTarget* renderTarget, const glm::vec3& position = {0, 0, 0});
 		~CameraComponent() final;

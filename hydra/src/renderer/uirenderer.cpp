@@ -4,7 +4,7 @@
 #include <imgui/imgui_impl_sdl_gl3.h>
 #include <imgui/icons.hpp>
 #include <glad/glad.h>
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include <memory>
 #include <hydra/engine.hpp>
 #include <hydra/world/world.hpp>
@@ -244,7 +244,7 @@ public:
 				if (iSize.x <= 2) iSize.x = 2;
 				if (iSize.y <= 2) iSize.y = 2;
 				window->size = glm::ivec2{iSize.x, iSize.y};
-				ImGui::Image(reinterpret_cast<ImTextureID>(window->image->getID()), iSize);
+				ImGui::Image(reinterpret_cast<ImTextureID>((size_t)window->image->getID()), iSize);
 			}
 			ImGui::EndTabBar();
 			ImGui::End();
@@ -264,16 +264,14 @@ public:
 	}
 
 	void pushFont(UIFont font) final {
-#define _(x) static_cast<int>(x)
 		ImFont* lookup[] = {
-			[_(UIFont::normal)] =  _normalFont,
-			[_(UIFont::normalBold)] =  _normalBoldFont,
-			[_(UIFont::medium)] = _mediumFont,
-			[_(UIFont::big)] = _bigFont,
-			[_(UIFont::monospace)] = _monospaceFont
+			/*[_(UIFont::normal)] = */ _normalFont,
+			/*[_(UIFont::normalBold)] = */_normalBoldFont,
+			/*[_(UIFont::medium)] = */_mediumFont,
+			/*[_(UIFont::big)] = */_bigFont,
+			/*[_(UIFont::monospace)] = */_monospaceFont
 		};
-		ImGui::PushFont(lookup[_(font)]);
-#undef _
+		ImGui::PushFont(lookup[static_cast<int>(font)]);
 	}
 	void popFont() final { ImGui::PopFont(); }
 

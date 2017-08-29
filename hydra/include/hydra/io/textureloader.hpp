@@ -1,4 +1,5 @@
 #pragma once
+#include <hydra/ext/api.hpp>
 
 #include <memory>
 #include <map>
@@ -9,7 +10,7 @@ using namespace Hydra::Renderer;
 //TODO: Use PBO! http://www.songho.ca/opengl/gl_pbo.html#unpack
 
 namespace Hydra::IO {
-	class TextureLoader final {
+	class HYDRA_API TextureLoader final {
 	public:
 		TextureLoader();
 		virtual ~TextureLoader();

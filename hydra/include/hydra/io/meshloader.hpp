@@ -1,4 +1,5 @@
 #pragma once
+#include <hydra/ext/api.hpp>
 
 #include <memory>
 #include <map>
@@ -9,7 +10,7 @@ using namespace Hydra::Renderer;
 //TODO: Use PBO! http://www.songho.ca/opengl/gl_pbo.html#unpack
 
 namespace Hydra::IO {
-	class MeshLoader final {
+	class HYDRA_API MeshLoader final {
 	public:
 		MeshLoader(IRenderer* renderer);
 		virtual ~MeshLoader();

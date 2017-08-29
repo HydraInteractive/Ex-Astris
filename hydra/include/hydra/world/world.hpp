@@ -1,4 +1,5 @@
 #pragma once
+#include <hydra/ext/api.hpp>
 
 #include <string>
 #include <memory>
@@ -8,14 +9,14 @@
 #include <typeindex>
 #include <msgpack.hpp>
 
-namespace Hydra::Renderer { struct DrawObject; }
+namespace Hydra::Renderer { struct HYDRA_API DrawObject; }
 
 namespace Hydra::World {
-	class IComponent;
-	struct Blueprint;
+	class HYDRA_API IComponent;
+	struct HYDRA_API Blueprint;
 
 	// The tick function only accepts one value, but the wantTick is a bitfield
-	enum class TickAction {
+	enum class HYDRA_API TickAction {
 		checkDead = 1 << 0,
 		physics = 1 << 1,
 		render = 1 << 2,
@@ -25,7 +26,7 @@ namespace Hydra::World {
 	inline TickAction operator| (TickAction a, TickAction b) { return static_cast<TickAction>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b)); }
 	inline TickAction operator& (TickAction a, TickAction b) { return static_cast<TickAction>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b)); }
 
-	class IEntity {
+	class HYDRA_API IEntity {
 	public:
 		virtual ~IEntity() = 0;
 
@@ -70,7 +71,7 @@ namespace Hydra::World {
 	};
 	inline IEntity::~IEntity() {}
 
-	class IComponent {
+	class HYDRA_API IComponent {
 	public:
 		inline IComponent(IEntity* entity) : entity(entity) {}
 		virtual ~IComponent() = 0;
@@ -90,20 +91,20 @@ namespace Hydra::World {
 	};
 	inline IComponent::~IComponent() {}
 
-	struct Blueprint final {
+	struct HYDRA_API Blueprint final {
 		msgpack::object_handle objectHandle;
 
 		std::string name;
 		msgpack::object_map* data;
 	};
 
-	class IWorld : public virtual IEntity {
+	class HYDRA_API IWorld : public virtual IEntity {
 	public:
 		virtual ~IWorld() = 0;
 	};
 	inline IWorld::~IWorld() {}
 
-	struct World final {
+	struct HYDRA_API World final {
 		static std::shared_ptr<IWorld> create();
 	};
 };

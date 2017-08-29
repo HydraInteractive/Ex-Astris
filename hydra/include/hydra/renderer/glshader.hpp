@@ -1,11 +1,12 @@
 #pragma once
+#include <hydra/ext/api.hpp>
 
 #include <hydra/renderer/shader.hpp>
 
 #include <memory>
 
 namespace Hydra::Renderer {
-	struct GLShader final {
+	struct HYDRA_API GLShader final {
 		GLShader() = delete;
 
 		static std::unique_ptr<IShader> createFromSource(PipelineStage stage, const std::string& file);
@@ -13,7 +14,7 @@ namespace Hydra::Renderer {
 		// TODO: Implement createFromBinary -- https://www.khronos.org/opengl/wiki/Shader_Compilation#Binary_upload
 	};
 
-	struct GLPipeline final {
+	struct HYDRA_API GLPipeline final {
 		GLPipeline() = delete;
 
 		static std::unique_ptr<IPipeline> create();

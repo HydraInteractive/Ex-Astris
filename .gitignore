@@ -21,7 +21,7 @@
 *.lai
 *.la
 *.a
-*.lib
+#*.lib
 
 # Executables
 *.exe
@@ -36,3 +36,11 @@ compile_commands.json
 imgui.ini
 world.blueprint
 *.trace
+x64
+.vs
+*.filters
+hydra/Debug/*
+!lib/*
+!bin/*
+Debug
+*.pdb
