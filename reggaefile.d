@@ -2,8 +2,8 @@ import reggae;
 
 enum CFlagsLib = "-O0 -std=c++14 -ffat-lto-objects -ggdb -Wall -Werror -fdiagnostics-color=always -fopenmp -fPIC -Ihydra/include";
 enum CFlagsExec = "-O0 -std=c++14 -ffat-lto-objects -ggdb -Wall -Werror -fdiagnostics-color=always -fopenmp -fPIC -Ihydra/include -Iexample/include";
-enum LFlagsLib = "-O3 -shared  -Wl,--no-undefined -ggdb -fdiagnostics-color=always -fopenmp -lm -ldl -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lGL -lassimp";
-enum LFlagsExec = "-O3 -Wl,--no-undefined -Wl,-rpath,. -Wl,-rpath,objs/examplegame.objs -Lobjs/examplegame.objs -lhydra -ggdb -fdiagnostics-color=always -fopenmp";
+enum LFlagsLib = "-O0 -shared  -Wl,--no-undefined -ggdb -fdiagnostics-color=always -fopenmp -lm -ldl -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lGL -lassimp";
+enum LFlagsExec = "-O0 -Wl,--no-undefined -Wl,-rpath,. -Wl,-rpath,objs/examplegame.objs -Lobjs/examplegame.objs -lhydra -ggdb -fdiagnostics-color=always -fopenmp";
 
 enum CompileCommand {
 	CompileLib = "g++ -c " ~ CFlagsLib ~ " $in -o $out",

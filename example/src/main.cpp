@@ -32,15 +32,25 @@ public:
 		_textureLoader = std::make_unique<IO::TextureLoader>();
 		_meshLoader = std::make_unique<IO::MeshLoader>(_renderer.get());
 
-		_geometryWindow = _uiRenderer->addRenderWindow();
-		_geometryWindow->enabled = true;
-		_geometryWindow->title = "Geometry FBO";
-		_geometryWindow->image = Renderer::GLTexture::createFromData(_geometryWindow->size.x, _geometryWindow->size.y, TextureType::u8RGB, nullptr);
+		_positionWindow = _uiRenderer->addRenderWindow();
+		_positionWindow->enabled = true;
+		_positionWindow->title = "Position FBO";
+		_positionWindow->image = Renderer::GLTexture::createFromData(_positionWindow->size.x, _positionWindow->size.y, TextureType::u8RGB, nullptr);
+
+		_diffuseWindow = _uiRenderer->addRenderWindow();
+		_diffuseWindow->enabled = true;
+		_diffuseWindow->title = "Diffuse FBO";
+		_diffuseWindow->image = Renderer::GLTexture::createFromData(_diffuseWindow->size.x, _diffuseWindow->size.y, TextureType::u8RGB, nullptr);
+
+		_normalWindow = _uiRenderer->addRenderWindow();
+		_normalWindow->enabled = true;
+		_normalWindow->title = "Normal FBO";
+		_normalWindow->image = Renderer::GLTexture::createFromData(_normalWindow->size.x, _normalWindow->size.y, TextureType::u8RGB, nullptr);
 
 		_depthWindow = _uiRenderer->addRenderWindow();
 		_depthWindow->enabled = true;
 		_depthWindow->title = "Depth FBO";
-		_depthWindow->image = Renderer::GLTexture::createFromData(_geometryWindow->size.x, _geometryWindow->size.y, TextureType::u8RGB, nullptr);
+		_depthWindow->image = Renderer::GLTexture::createFromData(_depthWindow->size.x, _depthWindow->size.y, TextureType::u8RGB, nullptr);
 
 		{
 			auto& batch = _geometryBatch;
@@ -53,10 +63,13 @@ public:
 			batch.pipeline->attachStage(*batch.geometryShader);
 			batch.pipeline->attachStage(*batch.fragmentShader);
 
-			batch.output = Renderer::GLFramebuffer::create(_geometryWindow->size, 4);
-			batch.output->addTexture(0, TextureType::u8RGB)
+			batch.output = Renderer::GLFramebuffer::create(_positionWindow->size, 4);
+			batch.output
+				->addTexture(0, TextureType::f32RGB)
 				.addTexture(1, TextureType::u8RGB)
-				.addTexture(2, TextureType::f32Depth)
+				.addTexture(2, TextureType::u8RGB)
+				.addTexture(3, TextureType::f32RGB)
+				.addTexture(4, TextureType::f32Depth)
 				.finalize();
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
@@ -106,7 +119,7 @@ public:
 				_world->tick(TickAction::render);
 
 				// Render to geometryFBO
-				_geometryBatch.output->resize(_geometryWindow->size);
+				_geometryBatch.output->resize(_positionWindow->size);
 
 				_geometryBatch.geometryShader->setValue(0, _cc->getViewMatrix());
 				_geometryBatch.geometryShader->setValue(1, _cc->getProjectionMatrix());
@@ -139,8 +152,10 @@ public:
 				_renderer->render(_viewBatch.batch);
 
 				// Resolve gemoetryFBO into the geometry window in the UI
-				_geometryBatch.output->resolve(0, _geometryWindow->image);
-				_geometryBatch.output->resolve(1, _depthWindow->image);
+				_geometryBatch.output->resolve(0, _positionWindow->image);
+				_geometryBatch.output->resolve(1, _diffuseWindow->image);
+				_geometryBatch.output->resolve(2, _normalWindow->image);
+				_geometryBatch.output->resolve(3, _depthWindow->image);
 				_uiRenderer->render();
 
 				_view->finalize();
@@ -188,7 +203,9 @@ private:
 	std::unique_ptr<IO::TextureLoader> _textureLoader;
 	std::unique_ptr<IO::MeshLoader> _meshLoader;
 
-	Renderer::UIRenderWindow* _geometryWindow;
+	Renderer::UIRenderWindow* _positionWindow;
+	Renderer::UIRenderWindow* _diffuseWindow;
+	Renderer::UIRenderWindow* _normalWindow;
 	Renderer::UIRenderWindow* _depthWindow;
 
 	RenderBatch _geometryBatch; // First part of deferred rendering

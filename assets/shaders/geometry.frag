@@ -8,10 +8,14 @@ in GeometryData {
 	mat3 tbn;
 } inData;
 
-layout (location = 0) out vec3 fragColor;
-layout (location = 1) out vec3 depthColor;
+layout (location = 0) out vec3 position;
+layout (location = 1) out vec3 diffuse;
+layout (location = 2) out vec3 normal;
+layout (location = 3) out vec3 depth;
 
 void main() {
-	fragColor = inData.color;
-	depthColor = vec3(gl_FragCoord.z);
+	position = inData.position;
+	diffuse = inData.color;
+	normal = inData.normal;
+	depth = vec3((gl_FragCoord.z / gl_FragCoord.w)/ 2 + 0.5);
 }
