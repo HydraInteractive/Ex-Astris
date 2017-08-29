@@ -1,4 +1,5 @@
 #pragma once
+#include <hydra/ext/api.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -10,7 +11,7 @@
 using namespace Hydra::World;
 
 namespace Hydra::Component {
-	class TransformComponent final : public IComponent {
+	class HYDRA_API TransformComponent final : public IComponent {
 	public:
 		TransformComponent(IEntity* entity, const glm::vec3& position = glm::vec3(), const glm::vec3& scale = glm::vec3(1), const glm::quat& rotation = glm::quat());
 		~TransformComponent() final;

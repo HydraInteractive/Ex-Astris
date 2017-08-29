@@ -1,5 +1,7 @@
 #include <hydra/engine.hpp>
 
+#include <SDL2/SDL.h>
+
 #include <memory>
 
 #include <hydra/world/world.hpp>
@@ -53,7 +55,7 @@ public:
 			batch.pipeline->attachStage(*batch.geometryShader);
 			batch.pipeline->attachStage(*batch.fragmentShader);
 
-			batch.output = Renderer::GLFramebuffer::create(_geometryWindow->size, 4);
+			batch.output = Renderer::GLFramebuffer::create(_geometryWindow->size, 0);
 			batch.output->addTexture(0, TextureType::u8RGB)
 				.addTexture(1, TextureType::u8RGB)
 				.addTexture(2, TextureType::f32Depth)
@@ -221,7 +223,8 @@ private:
 	}
 };
 
-int main(int argc, const char** argv) {
+#undef main
+int main(int argc, char** argv) {
 	Engine().run();
 	return 0;
 }

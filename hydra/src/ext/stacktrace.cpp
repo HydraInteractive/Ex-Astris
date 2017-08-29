@@ -66,6 +66,6 @@ std::string Hydra::Ext::getStackTrace() {
 }
 
 #else
-#warning "Stacktrace missing!"
+// #warning "Stacktrace missing!"
 std::string Hydra::Ext::getStackTrace() { return ""; }
 #endif

@@ -1,14 +1,15 @@
 #pragma once
+#include <hydra/ext/api.hpp>
 
 #include <cstdint>
 
 #include <glm/glm.hpp>
 #include <hydra/renderer/renderer.hpp>
 
-namespace Hydra::Renderer { class IUIRenderer; }
+namespace Hydra::Renderer { class HYDRA_API IUIRenderer; }
 
 namespace Hydra::View {
-	class IView : public Hydra::Renderer::IRenderTarget {
+	class HYDRA_API IView : public Hydra::Renderer::IRenderTarget {
 	public:
 		virtual ~IView() = 0;
 

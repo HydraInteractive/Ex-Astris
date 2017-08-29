@@ -1,4 +1,5 @@
 #pragma once
+#include <hydra/ext/api.hpp>
 
 #include <hydra/view/view.hpp>
 #include <memory>
@@ -17,13 +18,13 @@ union SDL_Event;
 #endif
 #endif
 
-namespace Hydra { enum class LogLevel; }
+namespace Hydra { enum class HYDRA_API LogLevel; }
 
 namespace Hydra::Renderer {
-	class IUILog;
-	class ITexture;
+	class HYDRA_API IUILog;
+	class HYDRA_API ITexture;
 
-	enum class UIFont {
+	enum class HYDRA_API UIFont {
 		normal,
 		normalBold,
 		medium,
@@ -31,14 +32,14 @@ namespace Hydra::Renderer {
 		monospace
 	};
 
-	struct UIRenderWindow final {
+	struct HYDRA_API UIRenderWindow final {
 		bool enabled = false;
 		std::string title = "Untitled";
 		glm::ivec2 size = glm::ivec2{640, 280};
 		std::shared_ptr<ITexture> image;
 	};
 
-	class IUIRenderer {
+	class HYDRA_API IUIRenderer {
 	public:
 		virtual ~IUIRenderer() = 0;
 
@@ -59,7 +60,7 @@ namespace Hydra::Renderer {
 	};
 	inline IUIRenderer::~IUIRenderer() {}
 
-	class IUILog {
+	class HYDRA_API IUILog {
 	public:
 		virtual ~IUILog() = 0;
 
@@ -79,6 +80,6 @@ namespace Hydra::Renderer {
 	inline IUILog::~IUILog() {}
 
 	namespace UIRenderer {
-		std::unique_ptr<IUIRenderer> create(Hydra::View::IView& view);
+		HYDRA_API std::unique_ptr<IUIRenderer> create(Hydra::View::IView& view);
 	};
 };

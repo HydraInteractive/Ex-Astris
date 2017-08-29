@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.10
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hydra", "hydra\hydra.vcxproj", "{DC6ED591-6DFA-429F-A1E9-CBCB849C94F3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "example", "example\example.vcxproj", "{8FC1725E-C34D-4954-A12E-8DAF009357BF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DC6ED591-6DFA-429F-A1E9-CBCB849C94F3} = {DC6ED591-6DFA-429F-A1E9-CBCB849C94F3}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DC6ED591-6DFA-429F-A1E9-CBCB849C94F3}.Debug|x64.ActiveCfg = Debug|x64
+		{DC6ED591-6DFA-429F-A1E9-CBCB849C94F3}.Debug|x64.Build.0 = Debug|x64
+		{DC6ED591-6DFA-429F-A1E9-CBCB849C94F3}.Release|x64.ActiveCfg = Release|x64
+		{DC6ED591-6DFA-429F-A1E9-CBCB849C94F3}.Release|x64.Build.0 = Release|x64
+		{8FC1725E-C34D-4954-A12E-8DAF009357BF}.Debug|x64.ActiveCfg = Debug|x64
+		{8FC1725E-C34D-4954-A12E-8DAF009357BF}.Debug|x64.Build.0 = Debug|x64
+		{8FC1725E-C34D-4954-A12E-8DAF009357BF}.Release|x64.ActiveCfg = Release|x64
+		{8FC1725E-C34D-4954-A12E-8DAF009357BF}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DC2DA852-36D0-4C8B-B31B-CDB2A121A4B4}
+	EndGlobalSection
+EndGlobal

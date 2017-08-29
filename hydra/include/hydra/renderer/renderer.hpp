@@ -1,4 +1,5 @@
 #pragma once
+#include <hydra/ext/api.hpp>
 
 #include <glm/glm.hpp>
 #include <cstdint>
@@ -21,7 +22,7 @@ namespace Hydra::Renderer {
 		_modelMatrix3 = 8
 	};
 
-	struct Vertex final {
+	struct HYDRA_API Vertex final {
 		glm::vec3 position;
 		glm::vec3 normal;
 		glm::vec3 color;
@@ -29,7 +30,7 @@ namespace Hydra::Renderer {
 		glm::vec3 tangent;
 	};
 
-	class ITexture {
+	class HYDRA_API ITexture {
 	public:
 		virtual ~ITexture() = 0;
 
@@ -40,13 +41,13 @@ namespace Hydra::Renderer {
 	};
 	inline ITexture::~ITexture() {}
 
-	class IRenderTarget : public ITexture {
+	class HYDRA_API IRenderTarget : public ITexture {
 	public:
 		virtual ~IRenderTarget() = 0;
 	};
 	inline IRenderTarget::~IRenderTarget() {}
 
-	enum class TextureType {
+	enum class HYDRA_API TextureType {
 		u8R = 0,
 		u8RG,
 		u8RGB,
@@ -67,7 +68,7 @@ namespace Hydra::Renderer {
 		f32Depth
 	};
 
-	class IFramebuffer : public IRenderTarget {
+	class HYDRA_API IFramebuffer : public IRenderTarget {
 	public:
 		virtual ~IFramebuffer() = 0;
 
@@ -83,12 +84,12 @@ namespace Hydra::Renderer {
 	};
 	inline IFramebuffer::~IFramebuffer() {}
 
-	struct Material final {
+	struct HYDRA_API Material final {
 		std::shared_ptr<ITexture> diffuse;
 		std::shared_ptr<ITexture> normal;
 	};
 
-	class IMesh {
+	class HYDRA_API IMesh {
 	public:
 		virtual ~IMesh() = 0;
 
@@ -102,26 +103,26 @@ namespace Hydra::Renderer {
 	// Components updates this object
 	// Renderer uses these to know what to render and where
 	// TODO: Maybe add DrawObject for transparent stuff or just field
-	struct DrawObject final {
+	struct HYDRA_API DrawObject final {
 		int refCounter = 0;
 		bool disable = false; // Temporarily disable object
 		IMesh* mesh = nullptr; // & Material // TODO: Change to something else than IMesh?
 		glm::mat4 modelMatrix;
 	};
 
-	struct Camera final {
+	struct HYDRA_API Camera final {
 		glm::mat4 viewMatrix;
 		glm::mat4 projectionMatrix;
 	};
 
-	enum class ClearFlags {
+	enum class HYDRA_API ClearFlags {
 		color = 1 << 0,
 		depth = 1 << 1,
 	};
 	inline ClearFlags operator| (ClearFlags a, ClearFlags b) { return static_cast<ClearFlags>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b)); }
 	inline ClearFlags operator& (ClearFlags a, ClearFlags b) { return static_cast<ClearFlags>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b)); }
 
-	struct Batch {
+	struct HYDRA_API Batch {
 		glm::vec4 clearColor;
 		ClearFlags clearFlags;
 		IRenderTarget* renderTarget;
@@ -130,7 +131,7 @@ namespace Hydra::Renderer {
 		std::map<IMesh*, std::vector<glm::mat4 /* Model matrix */>> objects;
 	};
 
-	class IRenderer {
+	class HYDRA_API IRenderer {
 	public:
 		virtual ~IRenderer() = 0;
 

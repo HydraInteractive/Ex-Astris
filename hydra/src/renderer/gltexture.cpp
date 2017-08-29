@@ -8,78 +8,72 @@
 using namespace Hydra::Renderer;
 
 static GLenum toGLBase(TextureType type) {
-#define _(x) static_cast<int>(x)
 	static const GLenum translate[] = {
-		[_(TextureType::u8R)] = GL_RED,
-		[_(TextureType::u8RG)] = GL_RG,
-		[_(TextureType::u8RGB)] = GL_RGB,
-		[_(TextureType::u8RGBA)] = GL_RGBA,
+		/* [_(TextureType::u8R)] = */ GL_RED,
+		/* [_(TextureType::u8RG)] = */ GL_RG,
+		/* [_(TextureType::u8RGB)] = */ GL_RGB,
+		/* [_(TextureType::u8RGBA)] = */ GL_RGBA,
 
-		[_(TextureType::f16R)] = GL_RED,
-		[_(TextureType::f16RG)] = GL_RG,
-		[_(TextureType::f16RGB)] = GL_RGB,
-		[_(TextureType::f16RGBA)] = GL_RGBA,
+		/* [_(TextureType::f16R)] = */ GL_RED,
+		/* [_(TextureType::f16RG)] = */ GL_RG,
+		/* [_(TextureType::f16RGB)] = */ GL_RGB,
+		/* [_(TextureType::f16RGBA)] = */ GL_RGBA,
 
-		[_(TextureType::f32R)] = GL_RED,
-		[_(TextureType::f32RG)] = GL_RG,
-		[_(TextureType::f32RGB)] = GL_RGB,
-		[_(TextureType::f32RGBA)] = GL_RGBA,
+		/* [_(TextureType::f32R)] = */ GL_RED,
+		/* [_(TextureType::f32RG)] = */ GL_RG,
+		/* [_(TextureType::f32RGB)] = */ GL_RGB,
+		/* [_(TextureType::f32RGBA)] = */ GL_RGBA,
 
-		[_(TextureType::f16Depth)] = GL_DEPTH_COMPONENT,
-		[_(TextureType::f32Depth)] = GL_DEPTH_COMPONENT
+		/* [_(TextureType::f16Depth)] = */ GL_DEPTH_COMPONENT,
+		/* [_(TextureType::f32Depth)] = */ GL_DEPTH_COMPONENT
 	};
-	return translate[_(type)];
-#undef _
+	return translate[static_cast<int>(type)];
 }
 
 static GLenum toGLInternal(TextureType type) {
-#define _(x) static_cast<int>(x)
 	static const GLenum translate[] = {
-		[_(TextureType::u8R)] = GL_RED,
-		[_(TextureType::u8RG)] = GL_RG,
-		[_(TextureType::u8RGB)] = GL_RGB,
-		[_(TextureType::u8RGBA)] = GL_RGBA,
+		/* [_(TextureType::u8R)] = */GL_RED,
+		/* [_(TextureType::u8RG)] = */GL_RG,
+		/* [_(TextureType::u8RGB)] = */GL_RGB,
+		/* [_(TextureType::u8RGBA)] = */GL_RGBA,
 
-		[_(TextureType::f16R)] = GL_R16F,
-		[_(TextureType::f16RG)] = GL_RG16F,
-		[_(TextureType::f16RGB)] = GL_RGB16F,
-		[_(TextureType::f16RGBA)] = GL_RGBA16F,
+		/* [_(TextureType::f16R)] = */GL_R16F,
+		/* [_(TextureType::f16RG)] = */GL_RG16F,
+		/* [_(TextureType::f16RGB)] = */GL_RGB16F,
+		/* [_(TextureType::f16RGBA)] = */GL_RGBA16F,
 
-		[_(TextureType::f32R)] = GL_R32F,
-		[_(TextureType::f32RG)] = GL_RG32F,
-		[_(TextureType::f32RGB)] = GL_RGB32F,
-		[_(TextureType::f32RGBA)] = GL_RGBA32F,
+		/* [_(TextureType::f32R)] = */GL_R32F,
+		/* [_(TextureType::f32RG)] = */GL_RG32F,
+		/* [_(TextureType::f32RGB)] = */GL_RGB32F,
+		/* [_(TextureType::f32RGBA)] = */GL_RGBA32F,
 
-		[_(TextureType::f16Depth)] = GL_DEPTH_COMPONENT16,
-		[_(TextureType::f32Depth)] = GL_DEPTH_COMPONENT32
+		/* [_(TextureType::f16Depth)] = */GL_DEPTH_COMPONENT16,
+		/* [_(TextureType::f32Depth)] = */GL_DEPTH_COMPONENT32
 	};
-	return translate[_(type)];
-#undef _
+	return translate[static_cast<int>(type)];
 }
 
 static GLenum toGLDataType(TextureType type) {
-#define _(x) static_cast<int>(x)
 	static const GLenum translate[] = {
-		[_(TextureType::u8R)] = GL_UNSIGNED_BYTE,
-		[_(TextureType::u8RG)] = GL_UNSIGNED_BYTE,
-		[_(TextureType::u8RGB)] = GL_UNSIGNED_BYTE,
-		[_(TextureType::u8RGBA)] = GL_UNSIGNED_BYTE,
+		/* [_(TextureType::u8R)] = */ GL_UNSIGNED_BYTE,
+		/* [_(TextureType::u8RG)] = */ GL_UNSIGNED_BYTE,
+		/* [_(TextureType::u8RGB)] = */ GL_UNSIGNED_BYTE,
+		/* [_(TextureType::u8RGBA)] = */ GL_UNSIGNED_BYTE,
 
-		[_(TextureType::f16R)] = GL_FLOAT,
-		[_(TextureType::f16RG)] = GL_FLOAT,
-		[_(TextureType::f16RGB)] = GL_FLOAT,
-		[_(TextureType::f16RGBA)] = GL_FLOAT,
+		/* [_(TextureType::f16R)] = */ GL_FLOAT,
+		/* [_(TextureType::f16RG)] = */ GL_FLOAT,
+		/* [_(TextureType::f16RGB)] = */ GL_FLOAT,
+		/* [_(TextureType::f16RGBA)] = */ GL_FLOAT,
 
-		[_(TextureType::f32R)] = GL_FLOAT,
-		[_(TextureType::f32RG)] = GL_FLOAT,
-		[_(TextureType::f32RGB)] = GL_FLOAT,
-		[_(TextureType::f32RGBA)] = GL_FLOAT,
+		/* [_(TextureType::f32R)] = */ GL_FLOAT,
+		/* [_(TextureType::f32RG)] = */ GL_FLOAT,
+		/* [_(TextureType::f32RGB)] = */ GL_FLOAT,
+		/* [_(TextureType::f32RGBA)] = */ GL_FLOAT,
 
-		[_(TextureType::f16Depth)] = GL_UNSIGNED_BYTE,
-		[_(TextureType::f32Depth)] = GL_UNSIGNED_BYTE
+		/* [_(TextureType::f16Depth)] = */ GL_UNSIGNED_BYTE,
+		/* [_(TextureType::f32Depth)] = */ GL_UNSIGNED_BYTE
 	};
-	return translate[_(type)];
-#undef _
+	return translate[static_cast<int>(type)];
 }
 
 class GLTextureImpl : public ITexture {
@@ -153,7 +147,7 @@ public:
 		if (_textureType == GL_TEXTURE_2D)
 			glTexImage2D(GL_TEXTURE_2D, 0, toGLInternal(_format), size.x, size.y, 0, toGLBase(_format), toGLDataType(_format), nullptr);
 		else if (_textureType == GL_TEXTURE_2D_MULTISAMPLE)
-			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, _samples, toGLBase(_format), _size.x, _size.y, GL_FALSE);
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, (GLsizei)_samples, toGLBase(_format), (GLsizei)_size.x, (GLsizei)_size.y, GL_FALSE);
 	}
 
 	glm::ivec2 getSize() final { return _size; }
@@ -184,7 +178,7 @@ private:
 		if (_textureType == GL_TEXTURE_2D)
 			glTexImage2D(_textureType, 0, toGLInternal(_format), _size.x, _size.y, 0, toGLBase(_format), toGLDataType(_format), pixels);
 		else if (_textureType == GL_TEXTURE_2D_MULTISAMPLE)
-			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, _samples, toGLBase(_format), _size.x, _size.y, GL_FALSE);
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, (GLsizei)_samples, toGLBase(_format), (GLsizei)_size.x, (GLsizei)_size.y, GL_FALSE);
 	}
 };
 

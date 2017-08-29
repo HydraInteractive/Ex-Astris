@@ -1,4 +1,5 @@
 #pragma once
+#include <hydra/ext/api.hpp>
 
 #include <memory>
 
@@ -10,7 +11,7 @@ using namespace Hydra::World;
 // TODO: Implement LOD
 
 namespace Hydra::Component {
-	class MeshComponent final : public IComponent {
+	class HYDRA_API MeshComponent final : public IComponent {
 	public:
 		MeshComponent(IEntity* entity, const std::string& meshFile);
 		~MeshComponent() final;
