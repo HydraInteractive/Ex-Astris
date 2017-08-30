@@ -62,7 +62,7 @@ public:
 		clearFlags |= (batch.clearFlags & ClearFlags::depth) == ClearFlags::depth ? GL_DEPTH_BUFFER_BIT : 0;
 		glClear(clearFlags);
 
-		glBindProgramPipeline(*static_cast<GLuint*>(batch.pipeline->getHandler()));
+		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
 
 		for (std::pair<const IMesh*, std::vector<glm::mat4>> kv : batch.objects) {
 			auto& mesh = kv.first;

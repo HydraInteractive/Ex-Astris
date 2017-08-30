@@ -25,17 +25,6 @@ static GLuint stageToGL(PipelineStage stage) {
 	}
 }
 
-static GLuint stageToGLBit(PipelineStage stage) {
-	GLuint result = 0;
-	if ((stage & PipelineStage::vertex) == PipelineStage::vertex)
-		result |= GL_VERTEX_SHADER_BIT;
-	if ((stage & PipelineStage::geometry) == PipelineStage::geometry)
-		result |= GL_GEOMETRY_SHADER_BIT;
-	if ((stage & PipelineStage::fragment) == PipelineStage::fragment)
-		result |= GL_FRAGMENT_SHADER_BIT;
-
-	return result;
-}
 
 class GLShaderImpl : public IShader {
 public:
@@ -56,7 +45,53 @@ public:
 		fclose(fp);
 		data[length] = '\0';
 
-		_program = glCreateShaderProgramv(stageToGL(stage), 1, &data);
+		_shader = glCreateShader(stageToGL(stage));
+		glShaderSource(_shader, 1, &data, nullptr);
+		glCompileShader(_shader);
+
+		GLint status;
+		glGetShaderiv(_shader, GL_COMPILE_STATUS, &status);
+		if (status == GL_FALSE) {
+			GLint len;
+			glGetShaderiv(_shader, GL_INFO_LOG_LENGTH, &len);
+
+			GLchar* errorLog = static_cast<GLchar*>(malloc(len));
+			glGetShaderInfoLog(_shader, len, &len, errorLog);
+
+			IEngine::getInstance()->log(LogLevel::error, "Shader compilation failed %s (%u):\n%s", file.c_str(), _shader, errorLog);
+			free(errorLog);
+		}
+
+		free(data);
+	}
+
+	~GLShaderImpl() final {
+		glDeleteShader(_shader);
+	}
+
+	PipelineStage getStage() final { return _stage; }
+
+	void* getHandler() final { return static_cast<void*>(&_shader); }
+
+private:
+	PipelineStage _stage;
+	GLuint _shader;
+};
+
+class GLPipelineImpl : public IPipeline {
+public:
+	GLPipelineImpl() {
+		_program = glCreateProgram();
+	}
+
+	~GLPipelineImpl() final {
+		glDeleteProgram(_program);
+	}
+
+	void attachStage(IShader& shader) final { glAttachShader(_program, *static_cast<GLuint*>(shader.getHandler())); }
+
+	void finalize() final {
+		glLinkProgram(_program);
 
 		GLint status;
 		glGetProgramiv(_program, GL_LINK_STATUS, &status);
@@ -67,15 +102,9 @@ public:
 			GLchar* errorLog = static_cast<GLchar*>(malloc(len));
 			glGetProgramInfoLog(_program, len, &len, errorLog);
 
-			IEngine::getInstance()->log(LogLevel::error, "Linking failed %s (%u):\n%s", file.c_str(), _program, errorLog);
+			IEngine::getInstance()->log(LogLevel::error, "Linking the program failed %u:\n%s", _program, errorLog);
 			free(errorLog);
 		}
-
-		free(data);
-	}
-
-	~GLShaderImpl() final {
-		glDeleteProgram(_program);
 	}
 
 	void setValue(int32_t id, int value) final { glProgramUniform1i(_program, id, value); }
@@ -90,33 +119,10 @@ public:
 	void setValue(int32_t id, const glm::mat3& value) final { glProgramUniformMatrix3fv(_program, id, 1, false, glm::value_ptr(value)); }
 	void setValue(int32_t id, const glm::mat4& value) final { glProgramUniformMatrix4fv(_program, id, 1, false, glm::value_ptr(value)); }
 
-	PipelineStage getStage() final { return _stage; }
-
 	void* getHandler() final { return static_cast<void*>(&_program); }
 
 private:
-	PipelineStage _stage;
 	GLuint _program;
-};
-
-class GLPipelineImpl : public IPipeline {
-public:
-	GLPipelineImpl() {
-		glGenProgramPipelines(1, &_pipeline);
-	}
-
-	~GLPipelineImpl() final {
-		glDeleteProgramPipelines(1, &_pipeline);
-	}
-
-	void attachStage(IShader& shader) final { glUseProgramStages(_pipeline, stageToGLBit(shader.getStage()), *static_cast<GLuint*>(shader.getHandler())); }
-
-	void detachStage(PipelineStage stage) final { glUseProgramStages(_pipeline, stageToGLBit(stage), 0); }
-
-	void* getHandler() final { return static_cast<void*>(&_pipeline); }
-
-private:
-	GLuint _pipeline;
 };
 
 

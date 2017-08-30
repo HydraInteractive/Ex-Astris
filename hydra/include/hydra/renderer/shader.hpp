@@ -19,18 +19,6 @@ namespace Hydra::Renderer {
 	public:
 		virtual ~IShader() = 0;
 
-		virtual void setValue(int32_t id, int value) = 0;
-		virtual void setValue(int32_t id, float value) = 0;
-		virtual void setValue(int32_t id, const glm::ivec2& value) = 0;
-		virtual void setValue(int32_t id, const glm::ivec3& value) = 0;
-		virtual void setValue(int32_t id, const glm::ivec4& value) = 0;
-		virtual void setValue(int32_t id, const glm::vec2& value) = 0;
-		virtual void setValue(int32_t id, const glm::vec3& value) = 0;
-		virtual void setValue(int32_t id, const glm::vec4& value) = 0;
-		virtual void setValue(int32_t id, const glm::mat2& value) = 0;
-		virtual void setValue(int32_t id, const glm::mat3& value) = 0;
-		virtual void setValue(int32_t id, const glm::mat4& value) = 0;
-
 		virtual PipelineStage getStage() = 0;
 
 		virtual void* getHandler() = 0;
@@ -42,7 +30,20 @@ namespace Hydra::Renderer {
 		virtual ~IPipeline() = 0;
 
 		virtual void attachStage(IShader& shader) = 0;
-		virtual void detachStage(PipelineStage stage) = 0;
+
+		virtual void finalize() = 0;
+
+		virtual void setValue(int32_t id, int value) = 0;
+		virtual void setValue(int32_t id, float value) = 0;
+		virtual void setValue(int32_t id, const glm::ivec2& value) = 0;
+		virtual void setValue(int32_t id, const glm::ivec3& value) = 0;
+		virtual void setValue(int32_t id, const glm::ivec4& value) = 0;
+		virtual void setValue(int32_t id, const glm::vec2& value) = 0;
+		virtual void setValue(int32_t id, const glm::vec3& value) = 0;
+		virtual void setValue(int32_t id, const glm::vec4& value) = 0;
+		virtual void setValue(int32_t id, const glm::mat2& value) = 0;
+		virtual void setValue(int32_t id, const glm::mat3& value) = 0;
+		virtual void setValue(int32_t id, const glm::mat4& value) = 0;
 
 		virtual void* getHandler() = 0;
 	};

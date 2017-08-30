@@ -64,6 +64,7 @@ public:
 			batch.pipeline->attachStage(*batch.vertexShader);
 			batch.pipeline->attachStage(*batch.geometryShader);
 			batch.pipeline->attachStage(*batch.fragmentShader);
+			batch.pipeline->finalize();
 
 			batch.output = Renderer::GLFramebuffer::create(_positionWindow->size, 4);
 			batch.output
@@ -88,6 +89,7 @@ public:
 			batch.pipeline = Renderer::GLPipeline::create();
 			batch.pipeline->attachStage(*batch.vertexShader);
 			batch.pipeline->attachStage(*batch.fragmentShader);
+			batch.pipeline->finalize();
 
 			batch.batch.clearColor = glm::vec4(0, 0.05, 0.05, 1);
 			batch.batch.clearFlags = ClearFlags::color | ClearFlags::depth;
@@ -123,9 +125,9 @@ public:
 				// Render to geometryFBO
 				_geometryBatch.output->resize(_positionWindow->size);
 
-				_geometryBatch.geometryShader->setValue(0, _cc->getViewMatrix());
-				_geometryBatch.geometryShader->setValue(1, _cc->getProjectionMatrix());
-				_geometryBatch.geometryShader->setValue(2, cameraPos = _cc->getPosition());
+				_geometryBatch.pipeline->setValue(0, _cc->getViewMatrix());
+				_geometryBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
+				_geometryBatch.pipeline->setValue(2, cameraPos = _cc->getPosition());
 
 				_geometryBatch.batch.objects.clear();
 
