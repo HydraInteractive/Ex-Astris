@@ -9,6 +9,7 @@
 #include <hydra/engine.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/renderer/renderer.hpp>
+#include <hydra/ext/ram.hpp>
 
 #include <iomanip>
 #include <sstream>
@@ -213,7 +214,7 @@ public:
 			}
 
 			static char buf[64];
-			snprintf(buf, sizeof(buf), "Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			snprintf(buf, sizeof(buf), "Application average %.3f ms/frame (%.1f FPS) - RAM: %.2fMiB", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate, Hydra::Ext::getCurrentRSS()/(1024.0f*1024.0f));
 
 			auto indent = _view->getSize().x / 2 - ImGui::CalcTextSize(buf).x / 2 - /* File */4 / 2;
 

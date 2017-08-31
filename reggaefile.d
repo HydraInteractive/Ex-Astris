@@ -11,7 +11,7 @@ enum string CFlagsLib = "-O0 -std=c++14 -ffat-lto-objects -ggdb -Wall -Werror -f
 enum string CFlagsExec = "-O0 -std=c++14 -ffat-lto-objects -ggdb -Wall -Werror -fdiagnostics-color=always -fopenmp -fPIC -Ibarcode/include " ~ SubProjectsInclude;
 
 enum LFlagsHydraLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -lm -ldl -lSDL2";
-enum LFlagsGraphicsLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -lhydra -lGL -lSDL2 -lSDL2_image -lSDL2_ttf -lassimp";
+enum LFlagsGraphicsLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -ldl -lhydra -lGL -lSDL2 -lSDL2_image -lSDL2_ttf -lassimp";
 enum LFlagsNetworkLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -lhydra";
 enum LFlagsPhysicsLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -lhydra";
 enum LFlagsSoundLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -lSDL2_mixer";
