@@ -7,6 +7,30 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hydra", "hydra\hydra.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "barcode", "barcode\barcode.vcxproj", "{8FC1725E-C34D-4954-A12E-8DAF009357BF}"
 	ProjectSection(ProjectDependencies) = postProject
+		{FBFF7642-0C09-41C4-93CF-3BDD52891010} = {FBFF7642-0C09-41C4-93CF-3BDD52891010}
+		{DC6ED591-6DFA-429F-A1E9-CBCB849C94F3} = {DC6ED591-6DFA-429F-A1E9-CBCB849C94F3}
+		{B7CE4AD1-7A40-44C6-B3B2-87072101411A} = {B7CE4AD1-7A40-44C6-B3B2-87072101411A}
+		{33E58CFA-D741-433B-BA2F-8081FA7DFD1D} = {33E58CFA-D741-433B-BA2F-8081FA7DFD1D}
+		{A7E285FF-CA1B-45A7-BBF6-FBA0F859542E} = {A7E285FF-CA1B-45A7-BBF6-FBA0F859542E}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hydra_graphics", "hydra_graphics\hydra_graphics.vcxproj", "{FBFF7642-0C09-41C4-93CF-3BDD52891010}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DC6ED591-6DFA-429F-A1E9-CBCB849C94F3} = {DC6ED591-6DFA-429F-A1E9-CBCB849C94F3}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hydra_network", "hydra_network\hydra_network.vcxproj", "{A7E285FF-CA1B-45A7-BBF6-FBA0F859542E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DC6ED591-6DFA-429F-A1E9-CBCB849C94F3} = {DC6ED591-6DFA-429F-A1E9-CBCB849C94F3}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hydra_physics", "hydra_physics\hydra_physics.vcxproj", "{B7CE4AD1-7A40-44C6-B3B2-87072101411A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DC6ED591-6DFA-429F-A1E9-CBCB849C94F3} = {DC6ED591-6DFA-429F-A1E9-CBCB849C94F3}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hydra_sound", "hydra_sound\hydra_sound.vcxproj", "{33E58CFA-D741-433B-BA2F-8081FA7DFD1D}"
+	ProjectSection(ProjectDependencies) = postProject
 		{DC6ED591-6DFA-429F-A1E9-CBCB849C94F3} = {DC6ED591-6DFA-429F-A1E9-CBCB849C94F3}
 	EndProjectSection
 EndProject
@@ -24,6 +48,22 @@ Global
 		{8FC1725E-C34D-4954-A12E-8DAF009357BF}.Debug|x64.Build.0 = Debug|x64
 		{8FC1725E-C34D-4954-A12E-8DAF009357BF}.Release|x64.ActiveCfg = Release|x64
 		{8FC1725E-C34D-4954-A12E-8DAF009357BF}.Release|x64.Build.0 = Release|x64
+		{FBFF7642-0C09-41C4-93CF-3BDD52891010}.Debug|x64.ActiveCfg = Debug|x64
+		{FBFF7642-0C09-41C4-93CF-3BDD52891010}.Debug|x64.Build.0 = Debug|x64
+		{FBFF7642-0C09-41C4-93CF-3BDD52891010}.Release|x64.ActiveCfg = Release|x64
+		{FBFF7642-0C09-41C4-93CF-3BDD52891010}.Release|x64.Build.0 = Release|x64
+		{A7E285FF-CA1B-45A7-BBF6-FBA0F859542E}.Debug|x64.ActiveCfg = Debug|x64
+		{A7E285FF-CA1B-45A7-BBF6-FBA0F859542E}.Debug|x64.Build.0 = Debug|x64
+		{A7E285FF-CA1B-45A7-BBF6-FBA0F859542E}.Release|x64.ActiveCfg = Release|x64
+		{A7E285FF-CA1B-45A7-BBF6-FBA0F859542E}.Release|x64.Build.0 = Release|x64
+		{B7CE4AD1-7A40-44C6-B3B2-87072101411A}.Debug|x64.ActiveCfg = Debug|x64
+		{B7CE4AD1-7A40-44C6-B3B2-87072101411A}.Debug|x64.Build.0 = Debug|x64
+		{B7CE4AD1-7A40-44C6-B3B2-87072101411A}.Release|x64.ActiveCfg = Release|x64
+		{B7CE4AD1-7A40-44C6-B3B2-87072101411A}.Release|x64.Build.0 = Release|x64
+		{33E58CFA-D741-433B-BA2F-8081FA7DFD1D}.Debug|x64.ActiveCfg = Debug|x64
+		{33E58CFA-D741-433B-BA2F-8081FA7DFD1D}.Debug|x64.Build.0 = Debug|x64
+		{33E58CFA-D741-433B-BA2F-8081FA7DFD1D}.Release|x64.ActiveCfg = Release|x64
+		{33E58CFA-D741-433B-BA2F-8081FA7DFD1D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

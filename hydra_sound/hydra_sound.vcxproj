@@ -12,7 +12,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{DC6ED591-6DFA-429F-A1E9-CBCB849C94F3}</ProjectGuid>
+    <ProjectGuid>{33E58CFA-D741-433B-BA2F-8081FA7DFD1D}</ProjectGuid>
     <RootNamespace>hydra_sound</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>

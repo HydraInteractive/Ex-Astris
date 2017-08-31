@@ -12,7 +12,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{DC6ED591-6DFA-429F-A1E9-CBCB849C94F3}</ProjectGuid>
+    <ProjectGuid>{FBFF7642-0C09-41C4-93CF-3BDD52891010}</ProjectGuid>
     <RootNamespace>hydra_graphics</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>

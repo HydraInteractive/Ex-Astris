@@ -12,7 +12,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{DC6ED591-6DFA-429F-A1E9-CBCB849C94F3}</ProjectGuid>
+    <ProjectGuid>{A7E285FF-CA1B-45A7-BBF6-FBA0F859542E}</ProjectGuid>
     <RootNamespace>hydra_network</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
