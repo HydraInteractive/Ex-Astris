@@ -85,35 +85,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\glad\glad.h" />
     <ClInclude Include="include\hydra\component\cameracomponent.hpp" />
-    <ClInclude Include="include\hydra\component\meshcomponent.hpp" />
     <ClInclude Include="include\hydra\component\transformcomponent.hpp" />
     <ClInclude Include="include\hydra\engine.hpp" />
     <ClInclude Include="include\hydra\ext\api.hpp" />
     <ClInclude Include="include\hydra\ext\stacktrace.hpp" />
-    <ClInclude Include="include\hydra\io\meshloader.hpp" />
-    <ClInclude Include="include\hydra\io\textureloader.hpp" />
-    <ClInclude Include="include\hydra\renderer\glrenderer.hpp" />
-    <ClInclude Include="include\hydra\renderer\glshader.hpp" />
     <ClInclude Include="include\hydra\renderer\renderer.hpp" />
     <ClInclude Include="include\hydra\renderer\shader.hpp" />
-    <ClInclude Include="include\hydra\renderer\uirenderer.hpp" />
-    <ClInclude Include="include\hydra\view\sdlview.hpp" />
     <ClInclude Include="include\hydra\view\view.hpp" />
     <ClInclude Include="include\hydra\world\blueprintloader.hpp" />
     <ClInclude Include="include\hydra\world\world.hpp" />
-    <ClInclude Include="include\imgui\icons.hpp" />
-    <ClInclude Include="include\imgui\imconfig.h" />
-    <ClInclude Include="include\imgui\imgui.h" />
-    <ClInclude Include="include\imgui\imgui_impl_sdl_gl3.h" />
-    <ClInclude Include="include\imgui\imgui_internal.h" />
-    <ClInclude Include="include\imgui\imgui_tabs.h" />
-    <ClInclude Include="include\imgui\imgui_user.h" />
-    <ClInclude Include="include\imgui\stb_rect_pack.h" />
-    <ClInclude Include="include\imgui\stb_textedit.h" />
-    <ClInclude Include="include\imgui\stb_truetype.h" />
-    <ClInclude Include="include\KHR\khrplatform.h" />
     <ClInclude Include="include\msgpack.hpp" />
     <ClInclude Include="include\msgpack\adaptor\adaptor_base.hpp" />
     <ClInclude Include="include\msgpack\adaptor\adaptor_base_decl.hpp" />
@@ -768,26 +749,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\component\cameracomponent.cpp" />
-    <ClCompile Include="src\component\meshcomponent.cpp" />
     <ClCompile Include="src\component\transformcomponent.cpp" />
     <ClCompile Include="src\engine.cpp" />
     <ClCompile Include="src\ext\stacktrace.cpp" />
-    <ClCompile Include="src\io\meshloader.cpp" />
-    <ClCompile Include="src\io\textureloader.cpp" />
-    <ClCompile Include="src\lib\glad\glad.c" />
-    <ClCompile Include="src\lib\imgui\imgui.cpp" />
-    <ClCompile Include="src\lib\imgui\imgui_demo.cpp" />
-    <ClCompile Include="src\lib\imgui\imgui_draw.cpp" />
-    <ClCompile Include="src\lib\imgui\imgui_impl_sdl_gl3.cpp" />
-    <ClCompile Include="src\lib\imgui\imgui_tabs.cpp" />
-    <ClCompile Include="src\lib\imgui\imgui_user.cpp" />
-    <ClCompile Include="src\renderer\glframebuffer.cpp" />
-    <ClCompile Include="src\renderer\glmesh.cpp" />
-    <ClCompile Include="src\renderer\glrenderer.cpp" />
-    <ClCompile Include="src\renderer\glshader.cpp" />
-    <ClCompile Include="src\renderer\gltexture.cpp" />
-    <ClCompile Include="src\renderer\uirenderer.cpp" />
-    <ClCompile Include="src\view\sdlview.cpp" />
     <ClCompile Include="src\world\blueprintloader.cpp" />
     <ClCompile Include="src\world\world.cpp" />
   </ItemGroup>
