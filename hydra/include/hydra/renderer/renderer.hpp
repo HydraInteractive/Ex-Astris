@@ -35,6 +35,7 @@ namespace Hydra::Renderer {
 		virtual ~ITexture() = 0;
 
 		virtual void resize(glm::ivec2 size) = 0;
+		virtual void bind(size_t idx) = 0;
 
 		virtual glm::ivec2 getSize() = 0;
 		virtual uint32_t getID() const = 0;

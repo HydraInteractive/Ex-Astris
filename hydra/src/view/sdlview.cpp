@@ -64,6 +64,7 @@ public:
 	glm::ivec2 getSize() final { return _size; }
 
 	uint32_t getID() const final { return 0; } // Because 0 = Screen
+	void bind(size_t idx) final{}
 
 	// IRenderTarget
 	void finalize() final {

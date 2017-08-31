@@ -150,6 +150,11 @@ public:
 			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, (GLsizei)_samples, toGLBase(_format), (GLsizei)_size.x, (GLsizei)_size.y, GL_FALSE);
 	}
 
+	void bind(size_t idx) final {
+		glActiveTexture(GL_TEXTURE0 + idx);
+		glBindTexture(GL_TEXTURE_2D, _texture);
+	}
+
 	glm::ivec2 getSize() final { return _size; }
 	uint32_t getID() const final { return _texture; }
 

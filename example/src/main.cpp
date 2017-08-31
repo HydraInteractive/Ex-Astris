@@ -54,6 +54,11 @@ public:
 		_depthWindow->title = "Depth FBO";
 		_depthWindow->image = Renderer::GLTexture::createFromData(_depthWindow->size.x, _depthWindow->size.y, TextureType::u8RGB, nullptr);
 
+		_glowWindow = _uiRenderer->addRenderWindow();
+		_glowWindow->enabled = true;
+		_glowWindow->title = "Glow FBO";
+		_glowWindow->image = Renderer::GLTexture::createFromData(_depthWindow->size.x, _depthWindow->size.y, TextureType::u8RGB, nullptr);
+
 		{
 			auto& batch = _geometryBatch;
 			batch.vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/geometry.vert");
@@ -72,7 +77,29 @@ public:
 				.addTexture(1, TextureType::u8RGB)
 				.addTexture(2, TextureType::u8RGB)
 				.addTexture(3, TextureType::f32RGB)
-				.addTexture(4, TextureType::f32Depth)
+				.addTexture(4, TextureType::u8RGB)
+				.addTexture(5, TextureType::f32Depth)
+				.finalize();
+
+			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
+			batch.batch.clearFlags = ClearFlags::color | ClearFlags::depth;
+			batch.batch.renderTarget = batch.output.get();
+			batch.batch.pipeline = batch.pipeline.get();
+		}
+
+		{
+			auto& batch = _glowBatch;
+			batch.vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/glow.vert");
+			batch.fragmentShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::fragment, "assets/shaders/glow.frag");
+
+			batch.pipeline = Renderer::GLPipeline::create();
+			batch.pipeline->attachStage(*batch.vertexShader);
+			batch.pipeline->attachStage(*batch.fragmentShader);
+			batch.pipeline->finalize();
+
+			batch.output = Renderer::GLFramebuffer::create(_positionWindow->size, 0);
+			batch.output
+				->addTexture(0, TextureType::u8RGB)
 				.finalize();
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
@@ -151,6 +178,14 @@ public:
 				_world->tick(TickAction::renderTransparent);
 			}
 
+			{ // Glow
+				(*_geometryBatch.output)[0]->bind(0);
+				_glowBatch.pipeline->setValue(0, 0);
+				_glowBatch.pipeline->setValue(1, true);
+			  //_glowBatch.output->resize(_positionWindow->size / 2);
+
+			}
+
 			{ // Update UI & views
 				// Render to view
 				_renderer->render(_viewBatch.batch);
@@ -160,6 +195,7 @@ public:
 				_geometryBatch.output->resolve(1, _diffuseWindow->image);
 				_geometryBatch.output->resolve(2, _normalWindow->image);
 				_geometryBatch.output->resolve(3, _depthWindow->image);
+				_geometryBatch.output->resolve(4, _glowWindow->image);
 				_uiRenderer->render();
 
 				_view->finalize();
@@ -210,10 +246,12 @@ private:
 	Renderer::UIRenderWindow* _positionWindow;
 	Renderer::UIRenderWindow* _diffuseWindow;
 	Renderer::UIRenderWindow* _normalWindow;
+	Renderer::UIRenderWindow* _glowWindow;
 	Renderer::UIRenderWindow* _depthWindow;
 
 	RenderBatch _geometryBatch; // First part of deferred rendering
 	RenderBatch _lightingBatch; // Second part of deferred rendering
+	RenderBatch _glowBatch;
 	RenderBatch _viewBatch;
 
 	Component::CameraComponent* _cc = nullptr;

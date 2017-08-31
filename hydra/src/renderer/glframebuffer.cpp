@@ -30,6 +30,10 @@ public:
 			attachment.second->resize(size);
 	}
 
+	void bind(size_t idx) final {
+		// TO-DO: Find purpose.
+	}
+
 	glm::ivec2 getSize() final { return _size; }
 	uint32_t getID() const final { return _framebuffer; }
 
