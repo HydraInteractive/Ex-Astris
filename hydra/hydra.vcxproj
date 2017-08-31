@@ -90,6 +90,8 @@
     <ClInclude Include="include\hydra\engine.hpp" />
     <ClInclude Include="include\hydra\ext\api.hpp" />
     <ClInclude Include="include\hydra\ext\stacktrace.hpp" />
+    <ClInclude Include="include\hydra\io\meshloader.hpp" />
+    <ClInclude Include="include\hydra\io\textureloader.hpp" />
     <ClInclude Include="include\hydra\renderer\renderer.hpp" />
     <ClInclude Include="include\hydra\renderer\shader.hpp" />
     <ClInclude Include="include\hydra\view\view.hpp" />

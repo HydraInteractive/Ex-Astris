@@ -87,8 +87,6 @@
   <ItemGroup>
     <ClInclude Include="include\glad\glad.h" />
     <ClInclude Include="include\hydra\component\meshcomponent.hpp" />
-    <ClInclude Include="include\hydra\io\meshloader.hpp" />
-    <ClInclude Include="include\hydra\io\textureloader.hpp" />
     <ClInclude Include="include\hydra\renderer\glrenderer.hpp" />
     <ClInclude Include="include\hydra\renderer\glshader.hpp" />
     <ClInclude Include="include\hydra\renderer\uirenderer.hpp" />
