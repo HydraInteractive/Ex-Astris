@@ -9,6 +9,8 @@
 #include <hydra/renderer/glrenderer.hpp>
 #include <hydra/renderer/glshader.hpp>
 #include <hydra/renderer/uirenderer.hpp>
+#include <hydra/io/glmeshloader.hpp>
+#include <hydra/io/gltextureloader.hpp>
 
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
@@ -31,8 +33,8 @@ public:
 		_view = View::SDLView::create();
 		_renderer = Renderer::GLRenderer::create(*_view);
 		_uiRenderer = Renderer::UIRenderer::create(*_view);
-		_textureLoader = std::make_unique<IO::TextureLoader>();
-		_meshLoader = std::make_unique<IO::MeshLoader>(_renderer.get());
+		_textureLoader = IO::GLTextureLoader::create();
+		_meshLoader = IO::GLMeshLoader::create(_renderer.get());
 
 		_positionWindow = _uiRenderer->addRenderWindow();
 		_positionWindow->enabled = true;
@@ -174,8 +176,8 @@ public:
 
 	IWorld* getWorld() final { return _world.get(); }
 	Renderer::IRenderer* getRenderer() final { return _renderer.get(); }
-	IO::TextureLoader* getTextureLoader() final { return _textureLoader.get(); }
-	IO::MeshLoader* getMeshLoader() final { return _meshLoader.get(); }
+	IO::ITextureLoader* getTextureLoader() final { return _textureLoader.get(); }
+	IO::IMeshLoader* getMeshLoader() final { return _meshLoader.get(); }
 
 	void log(LogLevel level, const char* fmt, ...) {
 		va_list va;
@@ -204,8 +206,8 @@ private:
 	std::unique_ptr<View::IView> _view;
 	std::unique_ptr<Renderer::IRenderer> _renderer;
 	std::unique_ptr<Renderer::IUIRenderer> _uiRenderer;
-	std::unique_ptr<IO::TextureLoader> _textureLoader;
-	std::unique_ptr<IO::MeshLoader> _meshLoader;
+	std::unique_ptr<IO::ITextureLoader> _textureLoader;
+	std::unique_ptr<IO::IMeshLoader> _meshLoader;
 
 	Renderer::UIRenderWindow* _positionWindow;
 	Renderer::UIRenderWindow* _diffuseWindow;
@@ -242,8 +244,13 @@ private:
 	}
 };
 
+#define _CRTDBG_MAP_ALLOC  
+#include <stdlib.h>  
+#include <crtdbg.h> 
+
 #undef main
 int main(int argc, char** argv) {
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	Engine().run();
 	return 0;
 }

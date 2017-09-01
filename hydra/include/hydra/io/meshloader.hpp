@@ -10,19 +10,12 @@ using namespace Hydra::Renderer;
 //TODO: Use PBO! http://www.songho.ca/opengl/gl_pbo.html#unpack
 
 namespace Hydra::IO {
-	class HYDRA_API MeshLoader final {
+	class HYDRA_API IMeshLoader {
 	public:
-		MeshLoader(IRenderer* renderer);
-		virtual ~MeshLoader();
+		virtual ~IMeshLoader() = 0;
 
-		std::shared_ptr<IMesh> getMesh(const std::string& file);
-		std::shared_ptr<IMesh> getErrorMesh();
-
-	private:
-		IRenderer* _renderer;
-		std::map<std::string, std::shared_ptr<IMesh>> _storage;
-		std::shared_ptr<IMesh> _errorMesh;
-
-		std::shared_ptr<IMesh> _loadErrorMesh();
+		virtual std::shared_ptr<IMesh> getMesh(const std::string& file) = 0;
+		virtual std::shared_ptr<IMesh> getErrorMesh() = 0;
 	};
+	inline IMeshLoader::~IMeshLoader() {}
 };

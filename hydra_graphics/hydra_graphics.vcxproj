@@ -89,6 +89,8 @@
     <ClInclude Include="include\hydra\component\cameracomponent.hpp" />
     <ClInclude Include="include\hydra\component\meshcomponent.hpp" />
     <ClInclude Include="include\hydra\component\transformcomponent.hpp" />
+    <ClInclude Include="include\hydra\io\glmeshloader.hpp" />
+    <ClInclude Include="include\hydra\io\gltextureloader.hpp" />
     <ClInclude Include="include\hydra\renderer\glrenderer.hpp" />
     <ClInclude Include="include\hydra\renderer\glshader.hpp" />
     <ClInclude Include="include\hydra\renderer\uirenderer.hpp" />

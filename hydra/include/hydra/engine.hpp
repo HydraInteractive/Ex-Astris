@@ -36,12 +36,12 @@ namespace Hydra {
 
 		virtual World::IWorld* getWorld() = 0;
 		virtual Renderer::IRenderer* getRenderer() = 0;
-		virtual IO::TextureLoader* getTextureLoader() = 0;
-		virtual IO::MeshLoader* getMeshLoader() = 0;
+		virtual IO::ITextureLoader* getTextureLoader() = 0;
+		virtual IO::IMeshLoader* getMeshLoader() = 0;
 
 		virtual void log(LogLevel level, const char* fmt, ...) PRINTFARGS(3) = 0;
 
-		inline static IEngine*& getInstance() { return _instance; }
+		static IEngine*& getInstance();
 
 	private:
 		static IEngine* _instance;
