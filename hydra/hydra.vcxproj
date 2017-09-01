@@ -87,6 +87,7 @@
   <ItemGroup>
     <ClInclude Include="include\hydra\engine.hpp" />
     <ClInclude Include="include\hydra\ext\api.hpp" />
+    <ClInclude Include="include\hydra\ext\ram.hpp" />
     <ClInclude Include="include\hydra\ext\stacktrace.hpp" />
     <ClInclude Include="include\hydra\io\meshloader.hpp" />
     <ClInclude Include="include\hydra\io\textureloader.hpp" />
@@ -749,6 +750,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\engine.cpp" />
+    <ClCompile Include="src\ext\ram.cpp" />
     <ClCompile Include="src\ext\stacktrace.cpp" />
     <ClCompile Include="src\world\blueprintloader.cpp" />
     <ClCompile Include="src\world\world.cpp" />
