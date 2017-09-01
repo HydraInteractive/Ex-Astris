@@ -108,7 +108,7 @@ namespace Hydra::Renderer {
 		int refCounter = 0;
 		bool disable = false; // Temporarily disable object
 		IMesh* mesh = nullptr; // & Material // TODO: Change to something else than IMesh?
-		glm::mat4 modelMatrix;
+		glm::mat4 modelMatrix = glm::mat4(1);
 	};
 
 	struct HYDRA_API Camera final {

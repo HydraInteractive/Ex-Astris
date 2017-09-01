@@ -57,7 +57,7 @@ public:
 		_glowWindow = _uiRenderer->addRenderWindow();
 		_glowWindow->enabled = true;
 		_glowWindow->title = "Glow FBO";
-		_glowWindow->image = Renderer::GLTexture::createFromData(_depthWindow->size.x, _depthWindow->size.y, TextureType::u8RGB, nullptr);
+		_glowWindow->image = Renderer::GLTexture::createFromData(_glowWindow->size.x, _glowWindow->size.y, TextureType::u8RGB, nullptr);
 
 		{
 			auto& batch = _geometryBatch;
@@ -179,23 +179,31 @@ public:
 			}
 
 			{ // Glow
-				(*_geometryBatch.output)[0]->bind(0);
-				_glowBatch.pipeline->setValue(0, 0);
-				_glowBatch.pipeline->setValue(1, true);
-			  //_glowBatch.output->resize(_positionWindow->size / 2);
+				_glowBatch.output->resize(_glowWindow->size);
+				// Setting uniforms/textures for the pipeline.
+				//_glowBatch.pipeline->setValue(1, 0);
+				//(*_geometryBatch.output)[4]->bind(0);
+				
+				_glowBatch.batch.objects.clear();
 
+				for (DrawObject* drawObj : _renderer->activeDrawObjects())
+					if (!drawObj->disable && drawObj->mesh && drawObj->mesh->getIndicesCount() == 6) {
+						_glowBatch.batch.objects[drawObj->mesh].push_back(glm::mat4(1));
+					}
+
+				_renderer->render(_glowBatch.batch);
 			}
 
 			{ // Update UI & views
 				// Render to view
 				_renderer->render(_viewBatch.batch);
 
-				// Resolve gemoetryFBO into the geometry window in the UI
+				// Resolve geometryFBO into the geometry window in the UI
 				_geometryBatch.output->resolve(0, _positionWindow->image);
 				_geometryBatch.output->resolve(1, _diffuseWindow->image);
 				_geometryBatch.output->resolve(2, _normalWindow->image);
 				_geometryBatch.output->resolve(3, _depthWindow->image);
-				_geometryBatch.output->resolve(4, _glowWindow->image);
+				_glowBatch.output->resolve(0, _glowWindow->image);
 				_uiRenderer->render();
 
 				_view->finalize();
@@ -275,7 +283,9 @@ private:
 				}
 			}
 		}
-
+		auto quad = _world->createEntity("Quad");
+		quad->addComponent<Component::MeshComponent>("assets/objects/quad.fbx");
+		quad->addComponent<Component::TransformComponent>();
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world);
 	}
 };
