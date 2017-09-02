@@ -51,6 +51,9 @@
       <AdditionalIncludeDirectories>$(SolutionDir)/hydra_sound/include;$(SolutionDir)/hydra_physics/include;$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_network/include;$(SolutionDir)/barcode/include;$(SolutionDir)/hydra/include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+      <DisableSpecificWarnings>4250;4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -74,6 +77,8 @@ xcopy /sy "$(SolutionDir)assets" "$(SolutionDir)\x64\$(Configuration)\assets"
       <AdditionalIncludeDirectories>$(SolutionDir)/hydra_sound/include;$(SolutionDir)/hydra_physics/include;$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_network/include;$(SolutionDir)/barcode/include;$(SolutionDir)/hydra/include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>4250;4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

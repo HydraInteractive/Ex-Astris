@@ -40,9 +40,9 @@ public:
 		if (static_cast<uint32_t>(type) >= static_cast<uint32_t>(TextureType::f16Depth))
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texture->getID(), 0);
 		else
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + id, texture->getID(), 0);
+			glFramebufferTexture(GL_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + id), texture->getID(), 0);
 
-		_attachments[id] = texture;
+		_attachments[static_cast<GLuint>(id)] = texture;
 
 		return *this;
 	}
@@ -52,7 +52,7 @@ public:
 		std::vector<GLenum> buffers;
 		for (auto it = _attachments.begin(); it != _attachments.end(); ++it)
 			buffers.push_back(GL_COLOR_ATTACHMENT0 + it->first);
-		glDrawBuffers(buffers.size(), &buffers[0]);
+		glDrawBuffers(static_cast<GLsizei>(buffers.size()), &buffers[0]);
 
 		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if (status != GL_FRAMEBUFFER_COMPLETE)
@@ -70,7 +70,7 @@ public:
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _resolverFramebuffer);
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, _framebuffer);
-		glReadBuffer(GL_COLOR_ATTACHMENT0 + idx);
+		glReadBuffer(static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + idx));
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 		glBlitFramebuffer(0, 0, _size.x, _size.y, 0, 0, _size.x, _size.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
@@ -78,7 +78,7 @@ public:
 	}
 
 	std::shared_ptr<ITexture> operator[](size_t idx) final {
-		return _attachments[idx];
+		return _attachments[static_cast<GLuint>(idx)];
 	}
 
 private:

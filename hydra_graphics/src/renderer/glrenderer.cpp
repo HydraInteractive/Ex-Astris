@@ -74,7 +74,7 @@ public:
 				glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
 				glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &kv.second[i]);
 				glBindVertexArray(mesh->getID());
-				glDrawElementsInstanced(GL_TRIANGLES, mesh->getIndicesCount(), GL_UNSIGNED_INT, NULL, amount);
+				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
 			}
 		}
 	}

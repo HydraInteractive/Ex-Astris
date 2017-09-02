@@ -42,9 +42,9 @@ namespace Hydra::Component {
 		glm::vec3 _position;
 		glm::quat _orientation;
 
-		float _fov = 90;
-		float _zNear = 0.001;
-		float _zFar = 75;
-		float _aspect = 1920.0/1080.0;
+		float _fov = 90.0f;
+		float _zNear = 0.001f;
+		float _zFar = 75.0f;
+		float _aspect = 1920.0f/1080.0f;
 	};
 };

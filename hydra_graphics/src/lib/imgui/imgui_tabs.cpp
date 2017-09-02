@@ -207,7 +207,7 @@ void ImGui::TabBar::_drawTabBarTop(const char *label) {
                              (_EdgeType) (EDGE_LEFT | EDGE_RIGHT | EDGE_TOP), GetColorU32(ImGuiUserCol_TabBorderShadow));
             // Draw the text
             const ImVec2 text_size = CalcTextSize(tabTitles[i]);
-            const ImVec2 text_pos = pos + ImVec2(offs+((xr-xl) - text_size.x)/2.0f,((text_size.y*0.6 - frame_padding.y*2.0f)/2.0f));
+            const ImVec2 text_pos = pos + ImVec2(offs+((xr-xl) - text_size.x)/2.0f,((text_size.y*0.6f - frame_padding.y*2.0f)/2.0f));
             dl->AddText(text_pos,GetColorU32(ImGuiUserCol_TabTitleTextNormal),tabTitles[i]);
 
 
@@ -240,7 +240,7 @@ void ImGui::TabBar::_drawTabBarTop(const char *label) {
                      true,selected_shadow_edges);
     // Draw the text
     const ImVec2 text_size = CalcTextSize(tabTitles[selected_idx]);
-    const ImVec2 text_pos = pos + ImVec2(selected_offset+((xr-xl) - text_size.x)/2.0f - selected_expands.x,((text_size.y*0.6 - frame_padding.y*2.0f)/2.0f));
+    const ImVec2 text_pos = pos + ImVec2(selected_offset+((xr-xl) - text_size.x)/2.0f - selected_expands.x,((text_size.y*0.6f - frame_padding.y*2.0f)/2.0f));
 		dl->AddText(text_pos+ImVec2(1,1),GetColorU32(ImGuiUserCol_TabTitleTextNormal),tabTitles[selected_idx]); // Shadow
     dl->AddText(text_pos,GetColorU32(ImGuiUserCol_TabTitleTextSelected),tabTitles[selected_idx]);
 

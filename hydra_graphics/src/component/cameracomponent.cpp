@@ -59,10 +59,10 @@ msgpack::packer<msgpack::sbuffer>& CameraComponent::pack(msgpack::packer<msgpack
 
 void CameraComponent::registerUI() {
 	//TODO: Change if dirty flag is added!
-	ImGui::DragFloat3("Position", glm::value_ptr(_position), 0.01);
-	ImGui::DragFloat4("Orientation", glm::value_ptr(_orientation), 0.01);
+	ImGui::DragFloat3("Position", glm::value_ptr(_position), 0.01f);
+	ImGui::DragFloat4("Orientation", glm::value_ptr(_orientation), 0.01f);
 	ImGui::DragFloat("FOV", &_fov);
-	ImGui::DragFloat("Z Near", &_zNear, 0.001);
+	ImGui::DragFloat("Z Near", &_zNear, 0.001f);
 	ImGui::DragFloat("Z Far", &_zFar);
 	float aspect = (_renderTarget->getSize().x*1.0f) / _renderTarget->getSize().y;
 	ImGui::InputFloat("Aspect", &aspect, 0, 0, -1, ImGuiInputTextFlags_ReadOnly);

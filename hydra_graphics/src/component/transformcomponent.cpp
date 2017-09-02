@@ -51,9 +51,9 @@ msgpack::packer<msgpack::sbuffer>& TransformComponent::pack(msgpack::packer<msgp
 }
 
 void TransformComponent::registerUI() {
-	_dirty |= ImGui::DragFloat3("Position", glm::value_ptr(_position), 0.01);
-	_dirty |= ImGui::DragFloat3("Scale", glm::value_ptr(_scale), 0.01);
-	_dirty |= ImGui::DragFloat4("Rotation", glm::value_ptr(_rotation), 0.01);
+	_dirty |= ImGui::DragFloat3("Position", glm::value_ptr(_position), 0.01f);
+	_dirty |= ImGui::DragFloat3("Scale", glm::value_ptr(_scale), 0.01f);
+	_dirty |= ImGui::DragFloat4("Rotation", glm::value_ptr(_rotation), 0.01f);
 }
 
 void TransformComponent::setPosition(const glm::vec3& position) {
@@ -73,7 +73,7 @@ void TransformComponent::setRotation(const glm::quat& rotation) {
 
 void TransformComponent::setDirection(const glm::vec3& direction, glm::vec3 up) {
 	if (direction == up)
-		up.x += 0.0001;
+		up.x += 0.0001f;
 
 	static const glm::vec3 O = {0, 0, 0};
 	glm::mat3 m = glm::lookAt(O, direction, up);

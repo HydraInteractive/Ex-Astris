@@ -90,14 +90,14 @@ public:
 		o.pack(_name);
 
 		o.pack("Components");
-		o.pack_map(_components.size());
+		o.pack_map(static_cast<uint32_t>(_components.size()));
 		for (auto& component : _components) {
 			o.pack(component.second->type());
 			component.second->pack(o);
 		}
 
 		o.pack("Children");
-		o.pack_array(_children.size());
+		o.pack_array(static_cast<uint32_t>(_children.size()));
 		for (auto& child : _children)
 			child->pack(o);
 
