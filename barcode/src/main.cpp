@@ -20,6 +20,18 @@
 
 #include <cstdio>
 
+#ifdef _WIN32
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
+static inline void reportMemoryLeaks() {
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+}
+#else
+static inline void reportMemoryLeaks() {}
+#endif
+
 using namespace Hydra;
 using namespace Hydra::World;
 
@@ -28,13 +40,13 @@ public:
 	Engine() {
 		Hydra::IEngine::getInstance() = this;
 
-		_world = Hydra::World::World::create();
-
 		_view = View::SDLView::create();
 		_renderer = Renderer::GLRenderer::create(*_view);
 		_uiRenderer = Renderer::UIRenderer::create(*_view);
 		_textureLoader = IO::GLTextureLoader::create();
 		_meshLoader = IO::GLMeshLoader::create(_renderer.get());
+
+		_world = Hydra::World::World::create();
 
 		_positionWindow = _uiRenderer->addRenderWindow();
 		_positionWindow->enabled = true;
@@ -102,7 +114,7 @@ public:
 		_initEntities();
 	}
 
-	~Engine() final {}
+	~Engine() final { }
 
 	void run() final {
 		while (!_view->isClosed()) {
@@ -131,9 +143,11 @@ public:
 				_geometryBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
 				_geometryBatch.pipeline->setValue(2, cameraPos = _cc->getPosition());
 
-				_geometryBatch.batch.objects.clear();
+				//_geometryBatch.batch.objects.clear();
+				for (auto& kv : _geometryBatch.batch.objects)
+					kv.second.clear();
 
-				for (DrawObject* drawObj : _renderer->activeDrawObjects())
+				for (auto& drawObj : _renderer->activeDrawObjects())
 					if (!drawObj->disable && drawObj->mesh)
 						_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
@@ -201,13 +215,14 @@ private:
 		std::shared_ptr<Renderer::IFramebuffer> output;
 		Renderer::Batch batch;
 	};
-	std::shared_ptr<IWorld> _world;
 
 	std::unique_ptr<View::IView> _view;
 	std::unique_ptr<Renderer::IRenderer> _renderer;
 	std::unique_ptr<Renderer::IUIRenderer> _uiRenderer;
 	std::unique_ptr<IO::ITextureLoader> _textureLoader;
 	std::unique_ptr<IO::IMeshLoader> _meshLoader;
+
+	std::shared_ptr<IWorld> _world;
 
 	Renderer::UIRenderWindow* _positionWindow;
 	Renderer::UIRenderWindow* _diffuseWindow;
@@ -244,13 +259,9 @@ private:
 	}
 };
 
-#define _CRTDBG_MAP_ALLOC  
-#include <stdlib.h>  
-#include <crtdbg.h> 
-
 #undef main
 int main(int argc, char** argv) {
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	reportMemoryLeaks();
 	Engine().run();
 	return 0;
 }

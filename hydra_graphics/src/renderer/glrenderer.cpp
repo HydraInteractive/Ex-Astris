@@ -80,24 +80,28 @@ public:
 	}
 
 	DrawObject* aquireDrawObject() final {
-		DrawObject* drawObj;
+		std::unique_ptr<DrawObject> drawObj;
+		DrawObject* drawObjPtr;
+
 		if (_inactiveDrawObjects.empty())
-			drawObj = new DrawObject();
+			drawObj = std::make_unique<DrawObject>();
 		else {
-			drawObj = _inactiveDrawObjects.back();
+			drawObj = std::move(_inactiveDrawObjects.back());
 			_inactiveDrawObjects.pop_back();
 		}
-		_activeDrawObjects.push_back(drawObj);
-		return drawObj;
+
+		drawObjPtr = drawObj.get();
+		_activeDrawObjects.push_back(std::move(drawObj));
+		return drawObjPtr;
 	}
 
-	std::vector<DrawObject*> activeDrawObjects() final { return _activeDrawObjects; }
+	const std::vector<std::unique_ptr<DrawObject>>& activeDrawObjects() final { return _activeDrawObjects; }
 
 	void cleanup() final {
-		auto isInactive = [this](DrawObject* drawObj) {
+		auto isInactive = [this](auto& drawObj) {
 			if (drawObj->refCounter)
 				return false;
-			_inactiveDrawObjects.push_back(drawObj);
+			_inactiveDrawObjects.push_back(std::move(drawObj));
 			return true;
 		};
 
@@ -109,8 +113,8 @@ public:
 private:
 	SDL_Window* _window;
 	SDL_GLContext _glContext;
-	std::vector<DrawObject*> _activeDrawObjects;
-	std::vector<DrawObject*> _inactiveDrawObjects;
+	std::vector<std::unique_ptr<DrawObject>> _activeDrawObjects;
+	std::vector<std::unique_ptr<DrawObject>> _inactiveDrawObjects;
 
 	const size_t _modelMatrixSize = sizeof(glm::mat4) * 128; // max 128 mesh instances per draw call
 	GLuint _modelMatrixBuffer;

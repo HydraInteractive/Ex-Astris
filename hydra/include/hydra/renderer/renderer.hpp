@@ -139,7 +139,7 @@ namespace Hydra::Renderer {
 
 		virtual DrawObject* aquireDrawObject() = 0;
 
-		virtual std::vector<DrawObject*> activeDrawObjects() = 0;
+		virtual const std::vector<std::unique_ptr<DrawObject>>& activeDrawObjects() = 0;
 
 		virtual void cleanup() = 0;
 
