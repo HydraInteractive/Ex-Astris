@@ -28,7 +28,7 @@
 *.out
 *.app
 .reggae
-/examplegame
+/barcodegame
 *.ninja
 .ninja_*
 compile_commands.json
