@@ -57,6 +57,7 @@ namespace Hydra::Renderer {
 		virtual IUILog* getLog() = 0;
 
 		virtual bool usingKeyboard() = 0;
+		virtual bool isDraging() = 0;
 	};
 	inline IUIRenderer::~IUIRenderer() {}
 

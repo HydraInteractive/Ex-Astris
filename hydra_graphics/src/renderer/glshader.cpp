@@ -125,7 +125,6 @@ private:
 	GLuint _program;
 };
 
-
 std::unique_ptr<IShader> GLShader::createFromSource(PipelineStage stage, const std::string& file) {
 	return std::unique_ptr<IShader>(new ::GLShaderImpl(stage, file));
 }

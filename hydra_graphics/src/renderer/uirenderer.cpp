@@ -280,6 +280,8 @@ public:
 
 	bool usingKeyboard() final { return ImGui::GetIO().WantCaptureKeyboard; }
 
+	bool isDraging() final { return ImGui::IsMouseDragging(); }
+
 private:
 	Hydra::View::IView* _view;
 	SDL_Window* _window;

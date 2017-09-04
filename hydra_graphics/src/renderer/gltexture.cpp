@@ -179,7 +179,6 @@ private:
 			glTexParameteri(_textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		}
 
-		// TODO: Remove Alpha component?
 		if (_textureType == GL_TEXTURE_2D)
 			glTexImage2D(_textureType, 0, toGLInternal(_format), _size.x, _size.y, 0, toGLBase(_format), toGLDataType(_format), pixels);
 		else if (_textureType == GL_TEXTURE_2D_MULTISAMPLE)
