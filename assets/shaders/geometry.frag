@@ -16,6 +16,6 @@ layout (location = 3) out vec3 glow;
 void main() {
 	position = inData.position;
 	diffuse = inData.color;
-	glow = diffuse * 0.09;
 	normal = inData.normal;
+	glow = diffuse;
 }

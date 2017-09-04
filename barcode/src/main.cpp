@@ -106,6 +106,7 @@ public:
 			batch.output = Renderer::GLFramebuffer::create(_positionWindow->size, 0);
 			batch.output
 				->addTexture(0, TextureType::u8RGB)
+				.addTexture(1, TextureType::u8RGB)
 				.finalize();
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
@@ -196,11 +197,6 @@ public:
 			{ // Glow
 				_glowBatch.output->resize(_glowWindow->size);
 				// Setting uniforms/textures for the pipeline.
-
-				(*_geometryBatch.output)[3]->bind(1);
-				_glowBatch.pipeline->setValue(1, 1);
-				_glowBatch.pipeline->setValue(2, true);
-
 				for (auto& kv : _glowBatch.batch.objects)
 					kv.second.clear();
 
@@ -208,7 +204,30 @@ public:
 					if (!drawObj->disable && drawObj->mesh && drawObj->mesh->getIndicesCount() == 6)
 						_glowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
-				_renderer->render(_glowBatch.batch);
+				// fix shitty code XXX:/Dan
+				bool horizontal = true, firstPass = true;
+				for (int i = 0; i < 24; i++) {
+					if (firstPass) {
+						_geometryBatch.output->resolve(3, _glowWindow->image);
+						_glowWindow->image->bind(1);
+					}
+					else if (!horizontal) {
+						(*_glowBatch.output)[0]->bind(1);
+						(*_glowBatch.output)[1]->bind(0);
+					}
+					else {
+						(*_glowBatch.output)[1]->bind(1);
+						(*_glowBatch.output)[0]->bind(0);
+					}
+					
+					_glowBatch.pipeline->setValue(0, 0);
+					_glowBatch.pipeline->setValue(1, 1);
+					_glowBatch.pipeline->setValue(2, horizontal);
+					
+					horizontal = !horizontal;
+				}
+
+
 			}
 
 			{ // Update UI & views
@@ -301,7 +320,7 @@ private:
 			}
 		}
 		auto quad = _world->createEntity("Quad");
-		quad->addComponent<Component::MeshComponent>("assets/objects/quad.fbx");
+		quad->addComponent<Component::MeshComponent>("assets/objects/boi.obj");
 		auto rot = quad->addComponent<Component::TransformComponent>(glm::vec3(0));
 		rot->setRotation(glm::angleAxis(glm::radians(90.f), glm::vec3(1, 0, 0)));
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world);

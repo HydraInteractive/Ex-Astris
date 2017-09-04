@@ -34,7 +34,6 @@ public:
 	}
 
 	void bind(size_t idx) final {
-		glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 		// TO-DO: Find purpose.
 	}
 
