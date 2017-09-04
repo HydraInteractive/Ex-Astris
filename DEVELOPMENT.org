@@ -23,9 +23,12 @@ future.
 - The header extension should be *hpp* not *h*.
 - Make sure the file is in the right folder according to the namespace
 - Insert a file description according to the following template to the begining
-  of each file.
+  of each file
+*.cpp:*
 #+BEGIN_SRC cpp
-/*
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+/**
  * Description of the file.
  *
  * License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
@@ -34,7 +37,17 @@ future.
  *  - Author 2
  */
 #+END_SRC
-
+*.hpp:*
+#+BEGIN_SRC cpp
+/**
+ * Description of the file.
+ *
+ * License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
+ * Authors:
+ *  - Author 1
+ *  - Author 2
+ */
+#+END_SRC
 
 ** Indentation
 
