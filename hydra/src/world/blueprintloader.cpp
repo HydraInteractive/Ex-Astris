@@ -23,13 +23,15 @@ std::unique_ptr<Blueprint> BlueprintLoader::load(const std::string& file) {
 	{
 		FILE* fp = fopen(file.c_str(), "rb");
 		if (!fp)
-			return bp;
+			return bp; // -V614
 
 		fseek(fp, 0, SEEK_END);
 		len = ftell(fp);
 		fseek(fp, 0, SEEK_SET);
 
 		data = static_cast<char*>(malloc(len));
+		if (!data)
+			return bp;
 		fread(data, len, 1, fp);
 
 		fclose(fp);

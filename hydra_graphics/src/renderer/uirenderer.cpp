@@ -28,7 +28,7 @@ using namespace Hydra::World;
 
 class UILogImpl final : public IUILog {
 public:
-	UILogImpl(IUIRenderer* uiRenderer) : _uiRenderer(uiRenderer) {
+	UILogImpl(IUIRenderer* uiRenderer) : _uiRenderer(uiRenderer), _scrollToBottom(false) {
 		_buffer.append("Log initialized");
 		_lineInfo.push_back(Line{0, (size_t)_buffer.size() - 1, Hydra::LogLevel::normal, 1});
 	}

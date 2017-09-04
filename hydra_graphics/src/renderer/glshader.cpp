@@ -50,6 +50,10 @@ public:
 		fseek(fp, 0, SEEK_SET);
 
 		char* data = static_cast<char*>(malloc(length + 1));
+		if (!data) {
+			IEngine::getInstance()->log(LogLevel::error, "Failed malloc");
+			return;
+		}
 		fread(data, length, 1, fp);
 		fclose(fp);
 		data[length] = '\0';

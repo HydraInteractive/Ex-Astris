@@ -55,7 +55,7 @@ msgpack::packer<msgpack::sbuffer>& TransformComponent::pack(msgpack::packer<msgp
 	o.pack_float(_rotation.x);
 	o.pack_float(_rotation.y);
 	o.pack_float(_rotation.z);
-	o.pack_float(_rotation.z);
+	o.pack_float(_rotation.w);
 
 	return o;
 }

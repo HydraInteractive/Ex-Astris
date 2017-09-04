@@ -63,7 +63,7 @@ std::string Hydra::Ext::getStackTrace() {
 
 		*openP = '\0';
 		ss << "\t" << symbol << '(' << ret << '+' << (plus + 1) << "\n";
-		*openP = '(';
+		*openP = '('; // -V519
 		continue;
 
 	notFound:
