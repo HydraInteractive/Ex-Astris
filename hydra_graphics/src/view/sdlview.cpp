@@ -4,6 +4,8 @@
 
 #include <hydra/renderer/uirenderer.hpp>
 
+#include <glad/glad.h>
+
 using namespace Hydra::View;
 
 class SDLViewImpl final : public IView {
@@ -68,6 +70,7 @@ public:
 	// IRenderTarget
 	void finalize() final {
 		SDL_GL_SwapWindow(_window);
+		glFlush();
 	}
 
 private:

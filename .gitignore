@@ -44,3 +44,5 @@ hydra/Debug/*
 !bin/*
 Debug
 *.pdb
+\#*\#
+.\#*

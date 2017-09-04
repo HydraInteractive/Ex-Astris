@@ -28,6 +28,9 @@ public:
 		_size = size;
 		for (auto& attachment : _attachments)
 			attachment.second->resize(size);
+
+		if (_depth)
+			_depth->resize(size);
 	}
 
 	glm::ivec2 getSize() final { return _size; }
@@ -37,12 +40,13 @@ public:
 	IFramebuffer& addTexture(size_t id, TextureType type) final {
 		auto texture = GLTexture::createEmpty(_size.x, _size.y, type, _samples);
 
-		if (static_cast<uint32_t>(type) >= static_cast<uint32_t>(TextureType::f16Depth))
+		if (static_cast<uint32_t>(type) >= static_cast<uint32_t>(TextureType::f16Depth)) {
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texture->getID(), 0);
-		else
+			_depth = texture;
+		} else {
 			glFramebufferTexture(GL_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + id), texture->getID(), 0);
-
-		_attachments[static_cast<GLuint>(id)] = texture;
+			_attachments[static_cast<GLuint>(id)] = texture;
+		}
 
 		return *this;
 	}
@@ -85,6 +89,7 @@ private:
 	GLuint _framebuffer;
 	GLuint _resolverFramebuffer;
 	std::map<GLuint, std::shared_ptr<ITexture>> _attachments;
+	std::shared_ptr<ITexture> _depth;
 	glm::ivec2 _size;
 	size_t _samples;
 };
