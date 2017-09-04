@@ -1,0 +1,49 @@
+/*
+ * Description of the component.
+ *
+ * License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
+ * Authors:
+ *  - Dan Printzell
+ */
+
+#include <hydra/component/NAMEcomponent.hpp>
+
+#include <imgui/imgui.h>
+
+using namespace Hydra::World;
+using namespace Hydra::Component;
+
+NAMEComponent::NAMEComponent(IEntity* entity) : IComponent(entity) { }
+
+NAMEComponent::~NAMEComponent() final { }
+
+void NAMEComponent::tick(TickAction action) {
+	// If you only have one TickAction in 'wantTick' you don't need to check the tickaction here.
+}
+
+msgpack::packer<msgpack::sbuffer>& NAMEComponent::pack(msgpack::packer<msgpack::sbuffer>& o) const {
+	/*
+	 * // Optional code, not really needed
+	 *
+	 * o.pack_map(3); // The amount of variables to be written
+	 *
+	 * // The variables:
+	 * o.pack("a");
+	 * o.pack(_a);
+	 *
+	 * o.pack("b");
+	 * o.pack(_b);
+	 *
+	 * o.pack("c");
+	 * o.pack(_c);
+	 */
+	return o;
+}
+
+// Register UI buttons in the debug UI
+// Note: This function won't always be called
+void NAMEComponent::registerUI() {
+	ImGui::InputInt("A", &_a);
+	ImGui::Checkbox("B", &_b);
+	ImGui::DragFloat("C", &_c);
+}

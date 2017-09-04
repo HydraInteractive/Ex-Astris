@@ -1,0 +1,251 @@
+#+TITLE: Development handbook
+
+* Introduction
+This handbook will explain how the code is structured.
+
+Unanswered question?
+Ask Dan to add them here!
+
+* Components
+Component headers should be located at '*/include/hydra/components' and
+code file should be located at '*/src/components'.
+
+A component template is located in the *basecode* directory, in the root folder
+of the project.
+
+The *pack* function can be left as is, it will probably be removed in the
+future.
+
+* Codestyle
+
+** Files
+
+- The header extension should be *hpp* not *h*.
+- Make sure the file is in the right folder according to the namespace
+- Insert a file description according to the following template to the begining
+  of each file.
+#+BEGIN_SRC cpp
+/*
+ * Description of the file.
+ *
+ * License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
+ * Authors:
+ *  - Author 1
+ *  - Author 2
+ */
+#+END_SRC
+
+
+** Indentation
+
+- Indent using tabs.
+- Align using spaces.
+- Tabs are 2 spaces.
+- Never have more than 5 indentations, if you need more your code is wrong and should be refactored!
+
+~case~ in ~switch~ statements should not be indented.
+#+begin_src cpp
+inline const char* toString(ShaderType shader) {
+	switch (shader) {
+	case ShaderType::vertex:
+		return "Vertex";
+	case ShaderType::fragment:
+		return "Fragment";
+	case ShaderType::geometry:
+		return "Geometry";
+	}
+}
+#+end_src
+
+~public~, ~protected~ and ~private~ should not be indented.
+#+begin_src cpp
+struct DataStructure {
+public:
+	int a;
+
+protected:
+	int b;
+
+private:
+	int c;
+
+};
+#+end_src
+
+Don't put multiple statements on a single line.
+#+begin_src cpp
+// Do:
+if (condition)
+	do_something;
+
+// Don't:
+if (condition) do_something;
+#+end_src
+
+Empty braces should be placed on the same line.
+#+begin_src cpp
+World::World() {}
+#+end_src
+
+Empty lines should not be indented.
+
+** Placing Braces
+Braces should *always* be on the same line!
+Braces should only be used if needed!
+
+#+begin_src cpp
+int funcA() {
+	int value;
+
+	if (x) {
+		stuffA();
+		stuffB();
+	} else
+		stuffC();
+
+	switch (y) {
+	case 0:
+	case 1:
+		value = 0;
+	case 2:
+		value = 1;
+	default:
+		value = -1;
+	}
+
+	while (z != 0x1234)
+		modifyZ(&z);
+
+	for (int a = 0; a < 10; a++) {
+		 // ...
+	}
+}
+#+end_src
+
+** Spaces
+Use spaces after these keywords:
+- =if=
+- =switch=
+- =case=
+- =for=
+- =do=
+- =while=
+
+But not for these:
+- =sizeof=
+- =typeof=
+- =alignof=
+- =typeid=
+
+Don't add spaces inside parentheses:
+
+#+begin_src cpp
+// Do:
+int a = func((b << c) & FLAG_BITMAP);
+int size = sizeof(WorldClass);
+
+// Don't:
+int a = func( ( b << c ) & FLAG_BITMAP );
+int size = sizeof( WorldClass );
+#+end_src
+
+Pointer =*= and reference =&= type declarations should be on the on the type.
+
+#+begin_src cpp
+// Do:
+void* varA;
+int** varB;
+
+// Don't:
+void *varA;
+int ** varB;
+#+end_src
+
+
+There should be spaces before and after all binary and ternary operators.
+These include: = + - < > * / % | & ^ <= >= == != ? :
+
+But not for unary operators, =.= or =->=
+
+Example
+#+begin_src cpp
+int a = (a + b) + (c & ~(1 << 4));
+
+objA.run();
+objB->run();
+
+int* addrA = &a;
+int valA = *addrA;
+
+bool isAValueNotZero = !!valA;
+
+a++;
+--a;
+#+end_src
+
+Never have tailing whitespaces at the end of lines.
+
+** Naming conventions
+
+Types always start with a big letter and the following words also uses a bit letter.
+- World
+- GeometryRenderPass
+- LifeSystem
+
+Public functions and variables starts with a small letter and the following words starts with a big letter.
+- void addLife(int amount)
+- void update(float delta)
+- int maxHP;
+
+Private functions and variables starts with a underscore and then a small letter and the following words starts with a
+big letter.
+- _updateMotion()
+- int _currentHP;
+
+Never encoding the type of a function/variable into the name!
+
+Names like =i= and =tmp= are okey to use if you easily can see out of context what they are used for, and what they
+store.
+
+** Typedefs
+
+Never typedef unless really needed, this hides what type it is and makes it just makes it more difficult to find out
+what it is.
+
+** Functions
+
+~Functions should be short and sweet, and do just one thing.~
+It is good to use helper functions with descriptive names. This helps to self document the code.
+
+Early exit is good!
+Don't wrap the code in big if statements, it is much easier to read if you just early exit.
+
+=goto= is a powerful tool, and thous should be handled with care, but not be discarded.
+Use it for help with readability and to exit out of loops that are inside of loops.
+
+** Comments
+
+Comments are only needed to tell the reader what the code should do, if it is unclear from the context.
+But never explain *how* it does it, only *what* it does.
+
+** Hierarchy
+All classes need a virtual destructor!
+
+Functions that can be extended should be tagged with =virtual=, and if needed made pure virtual.
+Functions that extend base functions should use =override= if that function also can be extended,
+or =final= if that is the last time that function can be extended.
+
+#+begin_src c++
+struct Component {
+	virtual void registerImGui();
+
+	virtual int derp();
+};
+
+struct LifeComponent : public Component {
+	// ...
+	void registerImGui() final;
+
+	int derp() override;
+};
+#+end_src
