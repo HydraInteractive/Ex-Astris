@@ -77,10 +77,10 @@ public:
 
 			batch.output = Renderer::GLFramebuffer::create(_positionWindow->size, 4);
 			batch.output
-				->addTexture(0, TextureType::f32RGB)
-				.addTexture(1, TextureType::u8RGB)
-				.addTexture(2, TextureType::u8RGB)
-				.addTexture(3, TextureType::f32Depth)
+				->addTexture(0, TextureType::f32RGB) // Position
+				.addTexture(1, TextureType::u8RGB) // Diffuse
+				.addTexture(2, TextureType::u8RGB) // Normal
+				.addTexture(3, TextureType::f32Depth) // Depth
 				.finalize();
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
