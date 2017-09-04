@@ -175,7 +175,7 @@ public:
 					kv.second.clear();
 
 				for (auto& drawObj : _renderer->activeDrawObjects())
-					if (!drawObj->disable && drawObj->mesh)
+					if (!drawObj->disable && drawObj->mesh && drawObj->mesh->getIndicesCount() != 6)
 						_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
 				// Sort Front to back
@@ -197,15 +197,17 @@ public:
 			{ // Glow
 				_glowBatch.output->resize(_glowWindow->size);
 				// Setting uniforms/textures for the pipeline.
-				//_glowBatch.pipeline->setValue(1, 0);
-				//(*_geometryBatch.output)[4]->bind(0);
-				
-				_glowBatch.batch.objects.clear();
 
-				for (DrawObject* drawObj : _renderer->activeDrawObjects())
-					if (!drawObj->disable && drawObj->mesh && drawObj->mesh->getIndicesCount() == 6) {
-						_glowBatch.batch.objects[drawObj->mesh].push_back(glm::mat4(1));
-					}
+				(*_geometryBatch.output)[4]->bind(1);
+				_glowBatch.pipeline->setValue(1, 1);
+				_glowBatch.pipeline->setValue(2, true);
+
+				for (auto& kv : _glowBatch.batch.objects)
+					kv.second.clear();
+
+				for (auto& drawObj : _renderer->activeDrawObjects())
+					if (!drawObj->disable && drawObj->mesh && drawObj->mesh->getIndicesCount() == 6)
+						_glowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
 				_renderer->render(_glowBatch.batch);
 			}
@@ -302,7 +304,8 @@ private:
 		}
 		auto quad = _world->createEntity("Quad");
 		quad->addComponent<Component::MeshComponent>("assets/objects/quad.fbx");
-		quad->addComponent<Component::TransformComponent>();
+		auto rot = quad->addComponent<Component::TransformComponent>(glm::vec3(0));
+		rot->setRotation(glm::angleAxis(glm::radians(90.f), glm::vec3(1, 0, 0)));
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world);
 	}
 };
