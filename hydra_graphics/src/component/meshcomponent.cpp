@@ -13,6 +13,11 @@ MeshComponent::MeshComponent(IEntity* entity, const std::string& meshFile) : ICo
 	_drawObject->refCounter++;
 }
 
+MeshComponent::MeshComponent(IEntity* entity, const PrimitiveType& type) : IComponent(entity), _drawObject(entity->getDrawObject()) {
+	_mesh = Hydra::IEngine::getInstance()->getMeshLoader()->getQuad();
+	_drawObject->refCounter++;
+}
+
 MeshComponent::~MeshComponent() {
 	_drawObject->mesh = nullptr;
 	_drawObject->refCounter--;

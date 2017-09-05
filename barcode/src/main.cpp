@@ -194,38 +194,33 @@ public:
 				_renderer->render(_geometryBatch.batch);
 			}
 
-			{ // Render transparent objects	(Forward rendering)
-				_world->tick(TickAction::renderTransparent);
-			}
-
 			{ // Glow
 				if (!_uiRenderer->isDraging()) {
 					static glm::ivec2 oldSize = _glowBatch.output->getSize();
-					auto newSize = _positionWindow->size;
+					auto newSize = _glowWindow->size;
 					if (oldSize != newSize) {
 						_glowBatch.output->resize(newSize);
 						oldSize = newSize;
 					}
 				}
-				
+
 				for (auto& kv : _geometryBatch.batch.objects)
 					kv.second.clear();
 
 				for (auto& drawObj : _renderer->activeDrawObjects())
 					if (!drawObj->disable && drawObj->mesh && drawObj->mesh->getIndicesCount() == 6)
-						_glowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+						_glowBatch.batch.objects[drawObj->mesh].push_back(glm::mat4(1));
 
 				// fix shitty code XXX:/Dan
-				bool horizontal = true;
-				bool firstPass = true;
-				
+				//bool horizontal = true;
+				//bool firstPass = true;
+
 				//_geometryBatch.output->resolve(3, _glowWindow->image); // Resolving because MSAA.
 				//_glowWindow->image->bind(1);
 				//_glowBatch.pipeline->setValue(1, 1);
 				//_glowBatch.pipeline->setValue(2, horizontal);
 				//firstPass = false;
 				_renderer->render(_glowBatch.batch);
-				
 
 				//for (int i = 0; i < 2; i++) {
 				//	if (firstPass) {
@@ -257,6 +252,10 @@ public:
 				//}
 			}
 
+			{ // Render transparent objects	(Forward rendering)
+				_world->tick(TickAction::renderTransparent);
+			}
+
 			{ // Update UI & views
 				// Render to view
 				_renderer->render(_viewBatch.batch);
@@ -265,10 +264,10 @@ public:
 				_geometryBatch.output->resolve(0, _positionWindow->image);
 				_geometryBatch.output->resolve(1, _diffuseWindow->image);
 				_geometryBatch.output->resolve(2, _normalWindow->image);
-				_glowBatch.output->resolve(0, _glowWindow->image);
+				_glowWindow->image = (*_glowBatch.output)[0];
+				//_geometryBatch.output->resolve(3, _glowWindow->image);
 				//_geometryBatch.output->resolve(3, _glowWindow->image);
 				//_glowExtraFBO->resolve(0, _glowWindow->image);
-				//_geometryBatch.output->resolve(3, _glowWindow->image);
 				//_glowWindow->image = (*_glowBatch.output)[0];
 
 				_uiRenderer->render();
@@ -356,9 +355,9 @@ private:
 
 		// Adds a quad to the glowbatch, it won't be removed because it'll always use the same quad to render towards.
 		auto quad = _world->createEntity("Quad");
-		quad->addComponent<Component::MeshComponent>("assets/objects/quad.obj");
+		quad->addComponent<Component::MeshComponent>(Hydra::Component::PrimitiveType::quad);
 		auto rot = quad->addComponent<Component::TransformComponent>(glm::vec3(0));
-		rot->setRotation(glm::angleAxis(glm::radians(90.f), glm::vec3(1, 0, 0)));
+		//rot->setRotation(glm::angleAxis(glm::radians(90.f), glm::vec3(1, 0, 0)));
 		
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world);
 	}
