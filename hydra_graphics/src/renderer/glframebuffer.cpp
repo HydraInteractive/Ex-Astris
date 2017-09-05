@@ -1,3 +1,12 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+/**
+ * An implementation for the IFramebuffer, using OpenGL.
+ *
+ * License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
+ * Authors:
+ *  - Dan Printzell
+ */
 #include <hydra/renderer/glrenderer.hpp>
 
 #include <hydra/engine.hpp>
@@ -66,6 +75,8 @@ public:
 		if (status != GL_FRAMEBUFFER_COMPLETE)
 			IEngine::getInstance()->log(LogLevel::error, "Framebuffer failed! Status: %x", status);
 	}
+
+	std::shared_ptr<ITexture> getDepth() final { return _depth; }
 
 	//TODO: Add resolve to FBO and not just a texture
 	std::shared_ptr<ITexture> resolve(size_t idx, std::shared_ptr<ITexture> result) final {

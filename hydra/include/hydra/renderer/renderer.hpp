@@ -1,3 +1,10 @@
+/**
+ * Everything related to rendering, as an interface.
+ *
+ * License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
+ * Authors:
+ *  - Dan Printzell
+ */
 #pragma once
 #include <hydra/ext/api.hpp>
 
@@ -76,6 +83,8 @@ namespace Hydra::Renderer {
 		virtual IFramebuffer& addTexture(size_t id, TextureType type) = 0;
 
 		virtual void finalize() = 0;
+
+		virtual std::shared_ptr<ITexture> getDepth() = 0;
 
 		virtual std::shared_ptr<ITexture> resolve(size_t idx, std::shared_ptr<ITexture> result) = 0;
 

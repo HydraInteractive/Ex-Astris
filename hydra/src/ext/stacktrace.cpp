@@ -1,3 +1,12 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+/**
+ * Functions for getting the amount of RAM that Hydra is using.
+ *
+ * License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
+ * Authors:
+ *  - Dan Printzell
+ */
 #include <hydra/ext/stacktrace.hpp>
 
 #include <cstdint>
@@ -54,7 +63,7 @@ std::string Hydra::Ext::getStackTrace() {
 
 		*openP = '\0';
 		ss << "\t" << symbol << '(' << ret << '+' << (plus + 1) << "\n";
-		*openP = '(';
+		*openP = '('; // -V519
 		continue;
 
 	notFound:

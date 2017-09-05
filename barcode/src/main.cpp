@@ -63,10 +63,16 @@ public:
 		_normalWindow->title = "Normal FBO";
 		_normalWindow->image = Renderer::GLTexture::createFromData(_normalWindow->size.x, _normalWindow->size.y, TextureType::u8RGB, nullptr);
 
+		_depthWindow = _uiRenderer->addRenderWindow();
+		_depthWindow->enabled = true;
+		_depthWindow->title = "Depth FBO";
+		_depthWindow->image = Renderer::GLTexture::createFromData(_depthWindow->size.x, _depthWindow->size.y, TextureType::u8RGB, nullptr);
+
 		_glowWindow = _uiRenderer->addRenderWindow();
 		_glowWindow->enabled = true;
 		_glowWindow->title = "Glow FBO";
 		_glowWindow->image = Renderer::GLTexture::createFromData(_glowWindow->size.x, _glowWindow->size.y, TextureType::u8RGB, nullptr);
+
 		{
 			auto& batch = _geometryBatch;
 			batch.vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/geometry.vert");
@@ -81,10 +87,12 @@ public:
 
 			batch.output = Renderer::GLFramebuffer::create(_positionWindow->size, 4);
 			batch.output
-				->addTexture(0, TextureType::f32RGB)
-				.addTexture(1, TextureType::u8RGB)
-				.addTexture(2, TextureType::u8RGB)
-				.addTexture(3, TextureType::u8RGB)
+				->addTexture(0, TextureType::f32RGB) // Position
+				.addTexture(1, TextureType::u8RGB) // Diffuse
+				.addTexture(2, TextureType::u8RGB) // Normal
+				.addTexture(3, TextureType::f32RGB) // Depth
+				.addTexture(4, TextureType::u8RGB)	// Glow
+				.addTexture(5, TextureType::f32Depth) // Real Depth
 				.finalize();
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
@@ -212,12 +220,12 @@ public:
 				bool horizontal = true;
 				bool firstPass = true;
 
-				_geometryBatch.output->resolve(3, _glowWindow->image); // Resolving because MSAA.
+				_geometryBatch.output->resolve(4, _glowWindow->image); // Resolving because MSAA.
 				_glowWindow->image->bind(1);
 				_glowBatch.pipeline->setValue(1, 1);
 				_glowBatch.pipeline->setValue(2, horizontal);
 				firstPass = false;
-				//_renderer->render(_glowBatch.batch);
+				_renderer->render(_glowBatch.batch);
 				
 
 				//for (int i = 0; i < 2; i++) {
@@ -258,10 +266,11 @@ public:
 				_geometryBatch.output->resolve(0, _positionWindow->image);
 				_geometryBatch.output->resolve(1, _diffuseWindow->image);
 				_geometryBatch.output->resolve(2, _normalWindow->image);
-				//_geometryBatch.output->resolve(3, _normalWindow->image);
+				_geometryBatch.output->resolve(3, _depthWindow->image);
 				_glowBatch.output->resolve(0, _glowWindow->image);
+				//_geometryBatch.output->resolve(4, _glowWindow->image);
+
 				//_glowExtraFBO->resolve(0, _glowWindow->image);
-				//_geometryBatch.output->resolve(3, _glowWindow->image);
 				//_glowWindow->image = (*_glowBatch.output)[0];
 
 				_uiRenderer->render();
@@ -316,6 +325,7 @@ private:
 	Renderer::UIRenderWindow* _diffuseWindow;
 	Renderer::UIRenderWindow* _normalWindow;
 	Renderer::UIRenderWindow* _glowWindow;
+	Renderer::UIRenderWindow* _depthWindow;
 
 	RenderBatch _geometryBatch; // First part of deferred rendering
 	RenderBatch _lightingBatch; // Second part of deferred rendering

@@ -1,3 +1,10 @@
+/**
+ * An implementation for the IView, using SDL.
+ *
+ * License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
+ * Authors:
+ *  - Dan Printzell
+ */
 #pragma once
 #include <hydra/ext/api.hpp>
 #include <hydra/view/view.hpp>
@@ -5,9 +12,7 @@
 #include <memory>
 
 namespace Hydra::View {
-	struct HYDRA_API SDLView final {
-		SDLView() = delete;
-
-		static std::unique_ptr<IView> create();
+	namespace SDLView {
+		HYDRA_API std::unique_ptr<IView> create();
 	};
 }

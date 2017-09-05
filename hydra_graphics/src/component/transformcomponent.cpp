@@ -1,3 +1,13 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+/**
+ * A transform component that specifies that the entity has an position inside the world.
+ * It contains a DrawObject instance from the renderer, to be able to update its location.
+ *
+ * License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
+ * Authors:
+ *  - Dan Printzell
+ */
 #include <hydra/component/transformcomponent.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -45,7 +55,7 @@ msgpack::packer<msgpack::sbuffer>& TransformComponent::pack(msgpack::packer<msgp
 	o.pack_float(_rotation.x);
 	o.pack_float(_rotation.y);
 	o.pack_float(_rotation.z);
-	o.pack_float(_rotation.z);
+	o.pack_float(_rotation.w);
 
 	return o;
 }

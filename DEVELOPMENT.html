@@ -1,0 +1,599 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>Development handbook</title>
+<!-- 2017-09-04 Mon 14:54 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  pre.src-sh:before    { content: 'sh'; }
+  pre.src-bash:before  { content: 'sh'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-R:before     { content: 'R'; }
+  pre.src-perl:before  { content: 'Perl'; }
+  pre.src-java:before  { content: 'Java'; }
+  pre.src-sql:before   { content: 'SQL'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.right  { text-align: center;  }
+  th.left   { text-align: center;   }
+  th.center { text-align: center; }
+  td.right  { text-align: right;  }
+  td.left   { text-align: left;   }
+  td.center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara:nth-child(2) { display: inline; }
+  .footpara { display: block; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Development handbook</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. Introduction</a></li>
+<li><a href="#sec-2">2. Components</a></li>
+<li><a href="#sec-3">3. Codestyle</a>
+<ul>
+<li><a href="#sec-3-1">3.1. Files</a></li>
+<li><a href="#sec-3-2">3.2. Indentation</a></li>
+<li><a href="#sec-3-3">3.3. Placing Braces</a></li>
+<li><a href="#sec-3-4">3.4. Spaces</a></li>
+<li><a href="#sec-3-5">3.5. Naming conventions</a></li>
+<li><a href="#sec-3-6">3.6. Typedefs</a></li>
+<li><a href="#sec-3-7">3.7. Functions</a></li>
+<li><a href="#sec-3-8">3.8. Comments</a></li>
+<li><a href="#sec-3-9">3.9. Hierarchy</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Introduction</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+This handbook will explain how the code is structured.
+</p>
+
+<p>
+Unanswered question?
+Ask Dan to add them here!
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Components</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+Component headers should be located at '*/include/hydra/components' and
+code file should be located at '*/src/components'.
+</p>
+
+<p>
+A component template is located in the <b>basecode</b> directory, in the root folder
+of the project.
+</p>
+
+<p>
+The <b>pack</b> function can be left as is, it will probably be removed in the
+future.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Codestyle</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-sec-3-1" class="outline-3">
+<h3 id="sec-3-1"><span class="section-number-3">3.1</span> Files</h3>
+<div class="outline-text-3" id="text-3-1">
+<ul class="org-ul">
+<li>The header extension should be <b>hpp</b> not <b>h</b>.
+</li>
+<li>Make sure the file is in the right folder according to the namespace
+</li>
+<li>Insert a file description according to the following template to the begining
+of each file
+</li>
+</ul>
+<p>
+<b>.cpp:</b>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-cpp">// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+/*
+ * Description of the file.
+ *
+ * License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
+ * Authors:
+ *  - Author 1
+ *  - Author 2
+ */
+</pre>
+</div>
+<p>
+<b>.hpp:</b>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-cpp">/*
+ * Description of the file.
+ *
+ * License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
+ * Authors:
+ *  - Author 1
+ *  - Author 2
+ */
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-3-2" class="outline-3">
+<h3 id="sec-3-2"><span class="section-number-3">3.2</span> Indentation</h3>
+<div class="outline-text-3" id="text-3-2">
+<ul class="org-ul">
+<li>Indent using tabs.
+</li>
+<li>Align using spaces.
+</li>
+<li>Tabs are 2 spaces.
+</li>
+<li>Never have more than 5 indentations, if you need more your code is wrong and should be refactored!
+</li>
+</ul>
+
+<p>
+<code>case</code> in <code>switch</code> statements should not be indented.
+</p>
+<div class="org-src-container">
+
+<pre class="src src-cpp">inline const char* toString(ShaderType shader) {
+	switch (shader) {
+	case ShaderType::vertex:
+		return "Vertex";
+	case ShaderType::fragment:
+		return "Fragment";
+	case ShaderType::geometry:
+		return "Geometry";
+	}
+}
+</pre>
+</div>
+
+<p>
+<code>public</code>, <code>protected</code> and <code>private</code> should not be indented.
+</p>
+<div class="org-src-container">
+
+<pre class="src src-cpp">struct DataStructure {
+public:
+	int a;
+
+protected:
+	int b;
+
+private:
+	int c;
+
+};
+</pre>
+</div>
+
+<p>
+Don't put multiple statements on a single line.
+</p>
+<div class="org-src-container">
+
+<pre class="src src-cpp">// Do:
+if (condition)
+	do_something;
+
+// Don't:
+if (condition) do_something;
+</pre>
+</div>
+
+<p>
+Empty braces should be placed on the same line.
+</p>
+<div class="org-src-container">
+
+<pre class="src src-cpp">World::World() {}
+</pre>
+</div>
+
+<p>
+Empty lines should not be indented.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-3-3" class="outline-3">
+<h3 id="sec-3-3"><span class="section-number-3">3.3</span> Placing Braces</h3>
+<div class="outline-text-3" id="text-3-3">
+<p>
+Braces should <b>always</b> be on the same line!
+Braces should only be used if needed!
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-cpp">int funcA() {
+	int value;
+
+	if (x) {
+		stuffA();
+		stuffB();
+	} else
+		stuffC();
+
+	switch (y) {
+	case 0:
+	case 1:
+		value = 0;
+	case 2:
+		value = 1;
+	default:
+		value = -1;
+	}
+
+	while (z != 0x1234)
+		modifyZ(&amp;z);
+
+	for (int a = 0; a &lt; 10; a++) {
+		 // ...
+	}
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-3-4" class="outline-3">
+<h3 id="sec-3-4"><span class="section-number-3">3.4</span> Spaces</h3>
+<div class="outline-text-3" id="text-3-4">
+<p>
+Use spaces after these keywords:
+</p>
+<ul class="org-ul">
+<li><code>if</code>
+</li>
+<li><code>switch</code>
+</li>
+<li><code>case</code>
+</li>
+<li><code>for</code>
+</li>
+<li><code>do</code>
+</li>
+<li><code>while</code>
+</li>
+</ul>
+
+<p>
+But not for these:
+</p>
+<ul class="org-ul">
+<li><code>sizeof</code>
+</li>
+<li><code>typeof</code>
+</li>
+<li><code>alignof</code>
+</li>
+<li><code>typeid</code>
+</li>
+</ul>
+
+<p>
+Don't add spaces inside parentheses:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-cpp">// Do:
+int a = func((b &lt;&lt; c) &amp; FLAG_BITMAP);
+int size = sizeof(WorldClass);
+
+// Don't:
+int a = func( ( b &lt;&lt; c ) &amp; FLAG_BITMAP );
+int size = sizeof( WorldClass );
+</pre>
+</div>
+
+<p>
+Pointer <code>*</code> and reference <code>&amp;</code> type declarations should be on the on the type.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-cpp">// Do:
+void* varA;
+int** varB;
+
+// Don't:
+void *varA;
+int ** varB;
+</pre>
+</div>
+
+
+<p>
+There should be spaces before and after all binary and ternary operators.
+These include: = + - &lt; &gt; * / % | &amp; ^ &lt;= &gt;= <code>= !</code> ? :
+</p>
+
+<p>
+But not for unary operators, <code>.</code> or <code>-&gt;</code>
+</p>
+
+<p>
+Example
+</p>
+<div class="org-src-container">
+
+<pre class="src src-cpp">int a = (a + b) + (c &amp; ~(1 &lt;&lt; 4));
+
+objA.run();
+objB-&gt;run();
+
+int* addrA = &amp;a;
+int valA = *addrA;
+
+bool isAValueNotZero = !!valA;
+
+a++;
+--a;
+</pre>
+</div>
+
+<p>
+Never have tailing whitespaces at the end of lines.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-3-5" class="outline-3">
+<h3 id="sec-3-5"><span class="section-number-3">3.5</span> Naming conventions</h3>
+<div class="outline-text-3" id="text-3-5">
+<p>
+Types always start with a big letter and the following words also uses a bit letter.
+</p>
+<ul class="org-ul">
+<li>World
+</li>
+<li>GeometryRenderPass
+</li>
+<li>LifeSystem
+</li>
+</ul>
+
+<p>
+Public functions and variables starts with a small letter and the following words starts with a big letter.
+</p>
+<ul class="org-ul">
+<li>void addLife(int amount)
+</li>
+<li>void update(float delta)
+</li>
+<li>int maxHP;
+</li>
+</ul>
+
+<p>
+Private functions and variables starts with a underscore and then a small letter and the following words starts with a
+big letter.
+</p>
+<ul class="org-ul">
+<li>_updateMotion()
+</li>
+<li>int _currentHP;
+</li>
+</ul>
+
+<p>
+Never encoding the type of a function/variable into the name!
+</p>
+
+<p>
+Names like <code>i</code> and <code>tmp</code> are okey to use if you easily can see out of context what they are used for, and what they
+store.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-3-6" class="outline-3">
+<h3 id="sec-3-6"><span class="section-number-3">3.6</span> Typedefs</h3>
+<div class="outline-text-3" id="text-3-6">
+<p>
+Never typedef unless really needed, this hides what type it is and makes it just makes it more difficult to find out
+what it is.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-3-7" class="outline-3">
+<h3 id="sec-3-7"><span class="section-number-3">3.7</span> Functions</h3>
+<div class="outline-text-3" id="text-3-7">
+<p>
+<code>Functions should be short and sweet, and do just one thing.</code>
+It is good to use helper functions with descriptive names. This helps to self document the code.
+</p>
+
+<p>
+Early exit is good!
+Don't wrap the code in big if statements, it is much easier to read if you just early exit.
+</p>
+
+<p>
+<code>goto</code> is a powerful tool, and thous should be handled with care, but not be discarded.
+Use it for help with readability and to exit out of loops that are inside of loops.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-3-8" class="outline-3">
+<h3 id="sec-3-8"><span class="section-number-3">3.8</span> Comments</h3>
+<div class="outline-text-3" id="text-3-8">
+<p>
+Comments are only needed to tell the reader what the code should do, if it is unclear from the context.
+But never explain <b>how</b> it does it, only <b>what</b> it does.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-3-9" class="outline-3">
+<h3 id="sec-3-9"><span class="section-number-3">3.9</span> Hierarchy</h3>
+<div class="outline-text-3" id="text-3-9">
+<p>
+All classes need a virtual destructor!
+</p>
+
+<p>
+Functions that can be extended should be tagged with <code>virtual</code>, and if needed made pure virtual.
+Functions that extend base functions should use <code>override</code> if that function also can be extended,
+or <code>final</code> if that is the last time that function can be extended.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-c++">struct Component {
+	virtual void registerImGui();
+
+	virtual int derp();
+};
+
+struct LifeComponent : public Component {
+	// ...
+	void registerImGui() final;
+
+	int derp() override;
+};
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Created: 2017-09-04 Mon 14:54</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.2.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

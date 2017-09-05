@@ -1,3 +1,12 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+/**
+ * Everything related to loading and saving Blueprints.
+ *
+ * License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
+ * Authors:
+ *  - Dan Printzell
+ */
 #include <hydra/world/blueprintloader.hpp>
 
 #include <cstdio>
@@ -14,13 +23,15 @@ std::unique_ptr<Blueprint> BlueprintLoader::load(const std::string& file) {
 	{
 		FILE* fp = fopen(file.c_str(), "rb");
 		if (!fp)
-			return bp;
+			return bp; // -V614
 
 		fseek(fp, 0, SEEK_END);
 		len = ftell(fp);
 		fseek(fp, 0, SEEK_SET);
 
 		data = static_cast<char*>(malloc(len));
+		if (!data)
+			return bp;
 		fread(data, len, 1, fp);
 
 		fclose(fp);

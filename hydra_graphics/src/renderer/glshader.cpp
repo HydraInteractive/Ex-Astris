@@ -1,3 +1,12 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+/**
+ * An implementation for the IShader, using OpenGL.
+ *
+ * License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
+ * Authors:
+ *  - Dan Printzell
+ */
 #include <hydra/renderer/glshader.hpp>
 
 #include <cstdio>
@@ -41,6 +50,10 @@ public:
 		fseek(fp, 0, SEEK_SET);
 
 		char* data = static_cast<char*>(malloc(length + 1));
+		if (!data) {
+			IEngine::getInstance()->log(LogLevel::error, "Failed malloc");
+			return;
+		}
 		fread(data, length, 1, fp);
 		fclose(fp);
 		data[length] = '\0';
