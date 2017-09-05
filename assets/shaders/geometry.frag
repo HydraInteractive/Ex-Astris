@@ -17,5 +17,5 @@ void main() {
 	position = inData.position;
 	diffuse = inData.color;
 	normal = inData.normal;
-	depth = vec3((gl_FragCoord.z / gl_FragCoord.w)/ 2 + 0.5);
+	depth = vec3(gl_FragCoord.z / gl_FragCoord.w);
 }

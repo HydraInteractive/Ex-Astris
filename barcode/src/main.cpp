@@ -82,11 +82,11 @@ public:
 
 			batch.output = Renderer::GLFramebuffer::create(_positionWindow->size, 4);
 			batch.output
-				->addTexture(0, TextureType::f32RGB)
-				.addTexture(1, TextureType::u8RGB)
-				.addTexture(2, TextureType::u8RGB)
-				.addTexture(3, TextureType::f32RGB)
-				.addTexture(4, TextureType::f32Depth)
+				->addTexture(0, TextureType::f32RGB) // Position
+				.addTexture(1, TextureType::u8RGB) // Diffuse
+				.addTexture(2, TextureType::u8RGB) // Normal
+				.addTexture(3, TextureType::f32RGB) // Depth
+				.addTexture(4, TextureType::f32Depth) // Real Depth
 				.finalize();
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
@@ -178,7 +178,7 @@ public:
 				// Render to view
 				_renderer->render(_viewBatch.batch);
 
-				// Resolve gemoetryFBO into the geometry window in the UI
+				// Resolve geometryFBO into the geometry window in the UI
 				_geometryBatch.output->resolve(0, _positionWindow->image);
 				_geometryBatch.output->resolve(1, _diffuseWindow->image);
 				_geometryBatch.output->resolve(2, _normalWindow->image);
