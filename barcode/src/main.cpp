@@ -199,7 +199,14 @@ public:
 			}
 
 			{ // Glow
-				_glowBatch.output->resize(_glowWindow->size);
+				if (!_uiRenderer->isDraging()) {
+					static glm::ivec2 oldSize = _glowBatch.output->getSize();
+					auto newSize = _positionWindow->size;
+					if (oldSize != newSize) {
+						_glowBatch.output->resize(newSize);
+						oldSize = newSize;
+					}
+				}
 				
 				for (auto& kv : _geometryBatch.batch.objects)
 					kv.second.clear();
@@ -211,13 +218,13 @@ public:
 				// fix shitty code XXX:/Dan
 				bool horizontal = true;
 				bool firstPass = true;
-
-				_geometryBatch.output->resolve(3, _glowWindow->image); // Resolving because MSAA.
-				_glowWindow->image->bind(1);
-				_glowBatch.pipeline->setValue(1, 1);
-				_glowBatch.pipeline->setValue(2, horizontal);
-				firstPass = false;
-				//_renderer->render(_glowBatch.batch);
+				
+				//_geometryBatch.output->resolve(3, _glowWindow->image); // Resolving because MSAA.
+				//_glowWindow->image->bind(1);
+				//_glowBatch.pipeline->setValue(1, 1);
+				//_glowBatch.pipeline->setValue(2, horizontal);
+				//firstPass = false;
+				_renderer->render(_glowBatch.batch);
 				
 
 				//for (int i = 0; i < 2; i++) {
@@ -258,8 +265,8 @@ public:
 				_geometryBatch.output->resolve(0, _positionWindow->image);
 				_geometryBatch.output->resolve(1, _diffuseWindow->image);
 				_geometryBatch.output->resolve(2, _normalWindow->image);
-				//_geometryBatch.output->resolve(3, _normalWindow->image);
 				_glowBatch.output->resolve(0, _glowWindow->image);
+				//_geometryBatch.output->resolve(3, _glowWindow->image);
 				//_glowExtraFBO->resolve(0, _glowWindow->image);
 				//_geometryBatch.output->resolve(3, _glowWindow->image);
 				//_glowWindow->image = (*_glowBatch.output)[0];
@@ -349,7 +356,7 @@ private:
 
 		// Adds a quad to the glowbatch, it won't be removed because it'll always use the same quad to render towards.
 		auto quad = _world->createEntity("Quad");
-		quad->addComponent<Component::MeshComponent>("assets/objects/boi.obj");
+		quad->addComponent<Component::MeshComponent>("assets/objects/quad.obj");
 		auto rot = quad->addComponent<Component::TransformComponent>(glm::vec3(0));
 		rot->setRotation(glm::angleAxis(glm::radians(90.f), glm::vec3(1, 0, 0)));
 		
