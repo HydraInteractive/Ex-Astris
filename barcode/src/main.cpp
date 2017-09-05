@@ -103,10 +103,14 @@ public:
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 
-			batch.output = Renderer::GLFramebuffer::create(_positionWindow->size, 0);
+			batch.output = Renderer::GLFramebuffer::create(_glowWindow->size, 0);
 			batch.output
 				->addTexture(0, TextureType::u8RGB)
-				.addTexture(1, TextureType::u8RGB)
+				.finalize();
+
+			_glowExtraFBO = Renderer::GLFramebuffer::create(_glowWindow->size, 0);
+			_glowExtraFBO
+				->addTexture(0, TextureType::u8RGB)
 				.finalize();
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
@@ -196,8 +200,8 @@ public:
 
 			{ // Glow
 				_glowBatch.output->resize(_glowWindow->size);
-				// Setting uniforms/textures for the pipeline.
-				for (auto& kv : _glowBatch.batch.objects)
+				
+				for (auto& kv : _geometryBatch.batch.objects)
 					kv.second.clear();
 
 				for (auto& drawObj : _renderer->activeDrawObjects())
@@ -205,29 +209,45 @@ public:
 						_glowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
 				// fix shitty code XXX:/Dan
-				bool horizontal = true, firstPass = true;
-				for (int i = 0; i < 24; i++) {
-					if (firstPass) {
-						_geometryBatch.output->resolve(3, _glowWindow->image);
-						_glowWindow->image->bind(1);
-					}
-					else if (!horizontal) {
-						(*_glowBatch.output)[0]->bind(1);
-						(*_glowBatch.output)[1]->bind(0);
-					}
-					else {
-						(*_glowBatch.output)[1]->bind(1);
-						(*_glowBatch.output)[0]->bind(0);
-					}
-					
-					_glowBatch.pipeline->setValue(0, 0);
-					_glowBatch.pipeline->setValue(1, 1);
-					_glowBatch.pipeline->setValue(2, horizontal);
-					
-					horizontal = !horizontal;
-				}
+				bool horizontal = true;
+				bool firstPass = true;
 
+				_geometryBatch.output->resolve(3, _glowWindow->image); // Resolving because MSAA.
+				_glowWindow->image->bind(1);
+				_glowBatch.pipeline->setValue(1, 1);
+				_glowBatch.pipeline->setValue(2, horizontal);
+				firstPass = false;
+				//_renderer->render(_glowBatch.batch);
+				
 
+				//for (int i = 0; i < 2; i++) {
+				//	if (firstPass) {
+				//		_geometryBatch.output->resolve(3, _glowWindow->image); // Resolving because MSAA.
+				//		_glowWindow->image->bind(1);
+				//		_glowBatch.pipeline->setValue(1, 1);
+				//		_glowBatch.pipeline->setValue(2, horizontal);
+				//		firstPass = false;
+				//		_renderer->render(_glowBatch.batch);
+				//	}
+				//	else if (!horizontal) {
+				//		_glowBatch.output->resolve(0, _glowWindow->image);
+				//		_glowWindow->image->bind(1);
+				//		_glowBatch.pipeline->setValue(1, 1);
+				//		_glowBatch.pipeline->setValue(2, horizontal);
+				//		_glowBatch.batch.renderTarget = _glowExtraFBO.get();
+				//		_renderer->render(_glowBatch.batch);
+				//	}
+				//	else {
+				//		_glowExtraFBO->resolve(0, _glowWindow->image);
+				//		_glowWindow->image->bind(1);
+				//		_glowBatch.pipeline->setValue(1, 1);
+				//		_glowBatch.pipeline->setValue(2, horizontal);
+				//		_glowBatch.batch.renderTarget = _glowBatch.output.get();
+				//		_renderer->render(_glowBatch.batch);
+				//	}
+				//
+				//	horizontal = !horizontal;
+				//}
 			}
 
 			{ // Update UI & views
@@ -238,7 +258,11 @@ public:
 				_geometryBatch.output->resolve(0, _positionWindow->image);
 				_geometryBatch.output->resolve(1, _diffuseWindow->image);
 				_geometryBatch.output->resolve(2, _normalWindow->image);
+				//_geometryBatch.output->resolve(3, _normalWindow->image);
 				_glowBatch.output->resolve(0, _glowWindow->image);
+				//_glowExtraFBO->resolve(0, _glowWindow->image);
+				//_geometryBatch.output->resolve(3, _glowWindow->image);
+				//_glowWindow->image = (*_glowBatch.output)[0];
 
 				_uiRenderer->render();
 
@@ -298,6 +322,9 @@ private:
 	RenderBatch _glowBatch;
 	RenderBatch _viewBatch;
 
+	// Extra frambuffers for glow/bloom/blur
+	std::shared_ptr<Renderer::IFramebuffer> _glowExtraFBO;
+
 	Component::CameraComponent* _cc = nullptr;
 
 	void _initEntities() {
@@ -319,10 +346,13 @@ private:
 				}
 			}
 		}
+
+		// Adds a quad to the glowbatch, it won't be removed because it'll always use the same quad to render towards.
 		auto quad = _world->createEntity("Quad");
 		quad->addComponent<Component::MeshComponent>("assets/objects/boi.obj");
 		auto rot = quad->addComponent<Component::TransformComponent>(glm::vec3(0));
 		rot->setRotation(glm::angleAxis(glm::radians(90.f), glm::vec3(1, 0, 0)));
+		
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world);
 	}
 };
