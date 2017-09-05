@@ -63,6 +63,11 @@ public:
 		_normalWindow->title = "Normal FBO";
 		_normalWindow->image = Renderer::GLTexture::createFromData(_normalWindow->size.x, _normalWindow->size.y, TextureType::u8RGB, nullptr);
 
+		_depthWindow = _uiRenderer->addRenderWindow();
+		_depthWindow->enabled = true;
+		_depthWindow->title = "Depth FBO";
+		_depthWindow->image = Renderer::GLTexture::createFromData(_depthWindow->size.x, _depthWindow->size.y, TextureType::u8RGB, nullptr);
+
 		{
 			auto& batch = _geometryBatch;
 			batch.vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/geometry.vert");
@@ -77,10 +82,11 @@ public:
 
 			batch.output = Renderer::GLFramebuffer::create(_positionWindow->size, 4);
 			batch.output
-				->addTexture(0, TextureType::f32RGB) // Position
-				.addTexture(1, TextureType::u8RGB) // Diffuse
-				.addTexture(2, TextureType::u8RGB) // Normal
-				.addTexture(3, TextureType::f32Depth) // Depth
+				->addTexture(0, TextureType::f32RGB)
+				.addTexture(1, TextureType::u8RGB)
+				.addTexture(2, TextureType::u8RGB)
+				.addTexture(3, TextureType::f32RGB)
+				.addTexture(4, TextureType::f32Depth)
 				.finalize();
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
@@ -176,6 +182,7 @@ public:
 				_geometryBatch.output->resolve(0, _positionWindow->image);
 				_geometryBatch.output->resolve(1, _diffuseWindow->image);
 				_geometryBatch.output->resolve(2, _normalWindow->image);
+				_geometryBatch.output->resolve(3, _depthWindow->image);
 				_uiRenderer->render();
 
 				_view->finalize();
@@ -227,6 +234,7 @@ private:
 	Renderer::UIRenderWindow* _positionWindow;
 	Renderer::UIRenderWindow* _diffuseWindow;
 	Renderer::UIRenderWindow* _normalWindow;
+	Renderer::UIRenderWindow* _depthWindow;
 
 	RenderBatch _geometryBatch; // First part of deferred rendering
 	RenderBatch _lightingBatch; // Second part of deferred rendering
