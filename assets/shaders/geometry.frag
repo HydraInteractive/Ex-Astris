@@ -18,6 +18,10 @@ void main() {
 	position = inData.position;
 	diffuse = inData.color;
 	normal = inData.normal;
-	glow = diffuse;
+	glow = diffuse * 0.9f;
+	//float brightness = dot(vec3(diffuse), vec3(0.2126f, 0.7152f, 0.0722f));
+    //if(brightness > 0.9f)
+    //    glow = diffuse;
+
 	depth = vec3(gl_FragCoord.z / gl_FragCoord.w);
 }
