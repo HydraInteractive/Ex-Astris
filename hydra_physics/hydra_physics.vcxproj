@@ -91,9 +91,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\empty.cpp" />
+    <ClCompile Include="src\player\playercomponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\empty_physics.hpp" />
+    <ClInclude Include="include\player\playercomponent.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
