@@ -277,7 +277,6 @@ public:
 				_glowBatch.batch.pipeline = _glowBatch.pipeline.get();
 			}
 
-
 			{ // Render transparent objects	(Forward rendering)
 				_world->tick(TickAction::renderTransparent);
 			}
@@ -292,7 +291,6 @@ public:
 				_geometryBatch.output->resolve(2, _normalWindow->image);
 				_geometryBatch.output->resolve(3, _depthWindow->image);
 				_glowWindow->image = (*_glowBatch.output)[0];
-				//_glowWindow->image = (*_blurredTexturesFBO)[2];
 
 				_uiRenderer->render();
 

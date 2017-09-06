@@ -43,6 +43,11 @@ public:
 		return mesh;
 	}
 
+	std::shared_ptr<IMesh> getQuad() {
+		std::shared_ptr<IMesh> mesh;
+		mesh = Hydra::Renderer::GLMesh::createQuad(_renderer);
+		return mesh;
+	}
 
 	std::shared_ptr<IMesh> getErrorMesh() final { return _errorMesh; }
 
