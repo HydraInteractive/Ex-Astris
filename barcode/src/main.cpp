@@ -125,19 +125,20 @@ public:
 				.finalize();
 
 			// Extra buffer for ping-ponging the texture for two-pass gaussian blur.
-			_blurrExtraFBO = Renderer::GLFramebuffer::create(_glowWindow->size, 0);
-			_blurrExtraFBO
+			_blurrExtraFBO1 = Renderer::GLFramebuffer::create(_glowWindow->size, 0);
+			_blurrExtraFBO1
+				->addTexture(0, TextureType::u8RGB)
+				.finalize();
+			_blurrExtraFBO2 = Renderer::GLFramebuffer::create(_glowWindow->size, 0);
+			_blurrExtraFBO2
 				->addTexture(0, TextureType::u8RGB)
 				.finalize();
 
-			// 3 Blurred Textures.
-			_blurredTexturesFBO = Renderer::GLFramebuffer::create(_glowWindow->size, 0);
-			_blurredTexturesFBO
-				->addTexture(0, TextureType::u8RGB)
-				.addTexture(1, TextureType::u8RGB)
-				.addTexture(2, TextureType::u8RGB)
-				.addTexture(3, TextureType::u8RGB)
-				.finalize();
+			// 3 Blurred Textures and one original.
+			_blurredOriginal = Renderer::GLTexture::createEmpty(_glowWindow->size.x, _glowWindow->size.y, TextureType::u8RGB);
+			_blurredIMG1 = Renderer::GLTexture::createEmpty(_glowWindow->size.x, _glowWindow->size.y, TextureType::u8RGB);
+			_blurredIMG2 = Renderer::GLTexture::createEmpty(_glowWindow->size.x, _glowWindow->size.y, TextureType::u8RGB);
+			_blurredIMG3 = Renderer::GLTexture::createEmpty(_glowWindow->size.x, _glowWindow->size.y, TextureType::u8RGB);
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
 			batch.batch.clearFlags = ClearFlags::color | ClearFlags::depth;
@@ -226,7 +227,8 @@ public:
 					auto newSize = _glowWindow->size;
 					if (oldSize != newSize) {
 						_glowBatch.output->resize(newSize);
-						_blurredTexturesFBO->resize(newSize);
+						_blurrExtraFBO1->resize(newSize);
+						_blurrExtraFBO2->resize(newSize);
 						oldSize = newSize;
 					}
 				}
@@ -246,34 +248,37 @@ public:
 				int nrOfTimes = 1;
 				glm::vec2 size = _glowWindow->size;
 
-				//_geometryBatch.output->resolve(1, (*_blurredTexturesFBO)[0]);
+				_geometryBatch.output->resolve(1, _blurredOriginal);
+				_geometryBatch.output->resolve(4, (*_glowBatch.output)[0]);
 
-				_blurGlowTexture(_geometryBatch.output->resolve(4, (*_blurredTexturesFBO)[0]), nrOfTimes, size *= 0.5f)
-					->resolve(0, (*_blurredTexturesFBO)[1]);
+				//printf("%i, %i\n", _blurredOriginal->getSize().x, _blurredOriginal->getSize().y);
+				//printf("%i, %i\n", _blurredIMG1->getSize().x, _blurredOriginal->getSize().y);
+				//printf("%i, %i\n", _blurredIMG2->getSize().x, _blurredOriginal->getSize().y);
+				//printf("%i, %i\n", _blurredIMG3->getSize().x, _blurredOriginal->getSize().y);
+				//printf("\n\n");
 
-				//_blurGlowTexture(_geometryBatch.output->resolve(4, (*_glowBatch.output)[0]), nrOfTimes, size *= 0.5f)
-				//		->resolve(0, (*_blurredTexturesFBO)[1]);
+				_blurGlowTexture((*_glowBatch.output)[0], nrOfTimes, size *= 0.5f)
+					->resolve(0, _blurredIMG1);
 
-				_blurGlowTexture((*_blurredTexturesFBO)[1], nrOfTimes, size *= 0.5f)
-					->resolve(0, (*_blurredTexturesFBO)[2]);
+				_blurGlowTexture(_blurredIMG1, nrOfTimes, size *= 0.5f)
+					->resolve(0, _blurredIMG2);
 
-				_blurGlowTexture((*_blurredTexturesFBO)[2], nrOfTimes, size *= 0.5f)
-					->resolve(0, (*_blurredTexturesFBO)[3]);
+				_blurGlowTexture(_blurredIMG2, nrOfTimes, size *= 0.5f)
+					->resolve(0, _blurredIMG3);
 
 				_glowBatch.batch.pipeline = _glowPipeline.get();
 
-				(*_blurredTexturesFBO)[0]->bind(1);
-				(*_blurredTexturesFBO)[1]->bind(2);
-				(*_blurredTexturesFBO)[2]->bind(3);
-				(*_blurredTexturesFBO)[3]->bind(4);
+				_glowBatch.batch.pipeline->setValue(1, 1);
+				_glowBatch.batch.pipeline->setValue(2, 2);
+				_glowBatch.batch.pipeline->setValue(3, 3);
+				_glowBatch.batch.pipeline->setValue(4, 4);
 
-				_glowPipeline->setValue(1, 1);
-				_glowPipeline->setValue(2, 2);
-				_glowPipeline->setValue(3, 3);
-				_glowPipeline->setValue(4, 4);
+				_blurredOriginal->bind(1);
+				_blurredIMG1->bind(2);
+				_blurredIMG2->bind(3);
+				_blurredIMG3->bind(4);
 
 				_renderer->render(_glowBatch.batch);
-
 				_glowBatch.batch.pipeline = _glowBatch.pipeline.get();
 			}
 
@@ -290,7 +295,8 @@ public:
 				_geometryBatch.output->resolve(1, _diffuseWindow->image);
 				_geometryBatch.output->resolve(2, _normalWindow->image);
 				_geometryBatch.output->resolve(3, _depthWindow->image);
-				_glowWindow->image = (*_glowBatch.output)[0];
+				//_glowWindow->image = _blurredIMG3;
+				_glowBatch.output->resolve(0, _glowWindow->image);
 
 				_uiRenderer->render();
 
@@ -352,8 +358,12 @@ private:
 	RenderBatch _viewBatch;
 
 	// Extra framebuffers, pipeline and shaders for glow/bloom/blur
-	std::shared_ptr<Renderer::IFramebuffer> _blurrExtraFBO;
-	std::shared_ptr<Renderer::IFramebuffer> _blurredTexturesFBO;
+	std::shared_ptr<Renderer::IFramebuffer> _blurrExtraFBO1;
+	std::shared_ptr<Renderer::IFramebuffer> _blurrExtraFBO2;
+	std::shared_ptr<Renderer::ITexture> _blurredOriginal;
+	std::shared_ptr<Renderer::ITexture> _blurredIMG1;
+	std::shared_ptr<Renderer::ITexture> _blurredIMG2;
+	std::shared_ptr<Renderer::ITexture> _blurredIMG3;
 
 	std::shared_ptr<Renderer::IPipeline> _glowPipeline;
 	std::unique_ptr<Renderer::IShader> _glowVertexShader;
@@ -395,28 +405,29 @@ private:
 		_glowBatch.pipeline->setValue(1, 1); // This bind will never change
 		bool horizontal = true;
 		bool firstPass = true;
-		_glowBatch.output->resize(size);
-		_blurrExtraFBO->resize(size);
+		_blurrExtraFBO1->resize(size);
+		_blurrExtraFBO2->resize(size);
 		for (int i = 0; i < nrOfTimes * 2; i++) {
 			if (firstPass) {
-				_glowBatch.batch.renderTarget = _blurrExtraFBO.get();
+				_glowBatch.batch.renderTarget = _blurrExtraFBO2.get();
 				texture->bind(1);
 				firstPass = false;
 			}
 			else if (horizontal) {
-				_glowBatch.batch.renderTarget = _blurrExtraFBO.get();
-				(*_glowBatch.output)[0]->bind(1);
+				_glowBatch.batch.renderTarget = _blurrExtraFBO2.get();
+				(*_blurrExtraFBO1)[0]->bind(1);
 			}
 			else {
-				_glowBatch.batch.renderTarget = _glowBatch.output.get();
-				(*_blurrExtraFBO)[0]->bind(1);
+				_glowBatch.batch.renderTarget = _blurrExtraFBO1.get();
+				(*_blurrExtraFBO2)[0]->bind(1);
 			}
 			_glowBatch.pipeline->setValue(2, horizontal);
 			_renderer->render(_glowBatch.batch);
 			horizontal = !horizontal;
 		}
-
-		return _glowBatch.output;
+		// Change back to normal rendertarget.
+		_glowBatch.batch.renderTarget = _glowBatch.output.get();
+		return _blurrExtraFBO1;
 	}
 
 
