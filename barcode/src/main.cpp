@@ -15,6 +15,7 @@
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
+#include <player/playercomponent.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
 
@@ -191,6 +192,7 @@ public:
 			{ // Sync with network
 				_world->tick(TickAction::network);
 			}
+
 		}
 	}
 
@@ -245,6 +247,11 @@ private:
 	void _initEntities() {
 		auto cameraEntity = _world->createEntity("Camera");
 		_cc = cameraEntity->addComponent<Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{0, 0, -3});
+
+		auto player = _world->createEntity("Player");
+		player->addComponent<Component::TransformComponent>(glm::vec3(10, 0, 0));
+		player->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
+
 
 		auto boxes = _world->createEntity("Boxes");
 		boxes->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0));
