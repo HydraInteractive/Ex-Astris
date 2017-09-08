@@ -10,8 +10,10 @@
 #pragma once
 #include <hydra/ext/api.hpp>
 #include <SDL2/SDL_keyboard.h>
+#include <SDL2/SDL.h>
 #include <glm/glm.hpp>
 #include <hydra/world/world.hpp>
+#include <hydra/component/transformcomponent.hpp>
 
 using namespace Hydra::World;
 

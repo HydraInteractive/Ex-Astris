@@ -63,7 +63,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)/lib;$(SolutionDir)/x64/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hydra.lib;hydra_graphics.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>hydra.lib;hydra_graphics.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>NotSet</SubSystem>
     </Link>
   </ItemDefinitionGroup>

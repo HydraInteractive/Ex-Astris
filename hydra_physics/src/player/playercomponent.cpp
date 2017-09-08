@@ -1,7 +1,7 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /**
-* Description of the component.
+* Player stuff
 *
 * License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
 * Authors:
@@ -16,7 +16,9 @@ using namespace Hydra::World;
 using namespace Hydra::Component;
 
 PlayerComponent::PlayerComponent(IEntity* entity) : IComponent(entity) {
-
+	velocityX = 0;
+	velocityY = 0;
+	velocityZ = 0;
 }
 
 PlayerComponent::~PlayerComponent() { }
@@ -24,6 +26,35 @@ PlayerComponent::~PlayerComponent() { }
 void PlayerComponent::tick(TickAction action) {
 	// If you only have one TickAction in 'wantTick' you don't need to check the tickaction here.
 	
+	velocityX = 0;
+	velocityY = 0;
+	velocityZ = 0;
+
+	// Extract players position
+	auto player = entity->getComponent<Component::TransformComponent>();
+	playerPos = player->getPosition();
+
+	Uint8* keysArray;
+	keysArray = const_cast <Uint8*> (SDL_GetKeyboardState(NULL));
+	if (keysArray[SDL_SCANCODE_UP]) {
+		velocityZ = -1.0f;
+	}
+	if (keysArray[SDL_SCANCODE_DOWN]) {
+		velocityZ = 1.0f;
+	}
+	if (keysArray[SDL_SCANCODE_LEFT]) {
+		velocityX = -1.0f;
+	}
+	if (keysArray[SDL_SCANCODE_RIGHT]) {
+		velocityX = 1.0f;
+	}
+	
+
+	playerPos = playerPos + glm::vec3(velocityX, velocityY, velocityZ);
+
+	player->setPosition(playerPos);
+
+
 }
 
 msgpack::packer<msgpack::sbuffer>& PlayerComponent::pack(msgpack::packer<msgpack::sbuffer>& o) const {

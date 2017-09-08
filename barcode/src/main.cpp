@@ -118,6 +118,7 @@ public:
 	~Engine() final { }
 
 	void run() final {
+
 		while (!_view->isClosed()) {
 			{ // Remove old dead objects
 				_world->tick(TickAction::checkDead);
@@ -243,14 +244,16 @@ private:
 	RenderBatch _viewBatch;
 
 	Component::CameraComponent* _cc = nullptr;
+	Component::PlayerComponent* player = nullptr;
 
 	void _initEntities() {
 		auto cameraEntity = _world->createEntity("Camera");
 		_cc = cameraEntity->addComponent<Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{0, 0, -3});
 
-		auto player = _world->createEntity("Player");
-		player->addComponent<Component::TransformComponent>(glm::vec3(10, 0, 0));
-		player->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
+		auto playerEntity = _world->createEntity("Player");
+		player = playerEntity->addComponent<Component::PlayerComponent>();
+		playerEntity->addComponent<Component::TransformComponent>(glm::vec3(10, 0, 0));
+		playerEntity->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
 
 
 		auto boxes = _world->createEntity("Boxes");
