@@ -14,7 +14,7 @@
 #include <vector>
 #include <typeinfo>
 #include <typeindex>
-#include <msgpack.hpp>
+#include <json.hpp>
 
 namespace Hydra::Renderer { struct HYDRA_API DrawObject; }
 
@@ -35,6 +35,7 @@ namespace Hydra::World {
 
 	class HYDRA_API IEntity {
 	public:
+		inline IEntity(size_t id) : id(id) {}
 		virtual ~IEntity() = 0;
 
 		virtual void tick(TickAction action) = 0;
@@ -65,16 +66,21 @@ namespace Hydra::World {
 
 		virtual std::shared_ptr<IEntity> spawn(std::shared_ptr<IEntity> entity) = 0;
 		virtual std::shared_ptr<IEntity> spawn(Blueprint& blueprint) = 0;
-		virtual std::shared_ptr<IEntity> createEntity(const std::string& name) = 0;
+		virtual std::shared_ptr<IEntity> createEntity(size_t id, const std::string& name) = 0;
+
+		inline size_t getID() { return id; }
 
 		virtual IEntity* getParent() = 0;
 		virtual const std::vector<std::shared_ptr<IEntity>>& getChildren() = 0;
 
-		virtual msgpack::packer<msgpack::sbuffer>& pack(msgpack::packer<msgpack::sbuffer>& o) const = 0;
+		virtual void serialize(nlohmann::json& json) const = 0;
+		virtual void deserialize(nlohmann::json& json) = 0;
 
 		virtual const std::string& getName() const = 0;
 		virtual Hydra::Renderer::DrawObject* getDrawObject() = 0;
 		virtual bool isDead() const = 0;
+	protected:
+		size_t id;
 	};
 	inline IEntity::~IEntity() {}
 
@@ -88,7 +94,8 @@ namespace Hydra::World {
 
 		virtual const std::string type() const = 0;
 
-		virtual msgpack::packer<msgpack::sbuffer>& pack(msgpack::packer<msgpack::sbuffer>& o) const = 0;
+		virtual void serialize(nlohmann::json& json) const = 0;
+		virtual void deserialize(nlohmann::json& json) = 0;
 		virtual void registerUI() = 0;
 
 		// TODO?: IComponent* getParent();
@@ -99,10 +106,10 @@ namespace Hydra::World {
 	inline IComponent::~IComponent() {}
 
 	struct HYDRA_API Blueprint final {
-		msgpack::object_handle objectHandle;
+		std::string name; // Blueprint Name
+		nlohmann::json& json;
 
-		std::string name;
-		msgpack::object_map* data;
+		nlohmann::json _root;
 	};
 
 	class HYDRA_API IWorld : public virtual IEntity {

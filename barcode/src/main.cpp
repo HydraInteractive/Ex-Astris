@@ -18,6 +18,12 @@
 
 #include <hydra/world/blueprintloader.hpp>
 
+#include <hydra/component/componentmanager.hpp>
+#include <hydra/component/componentmanager_graphics.hpp>
+#include <hydra/component/componentmanager_network.hpp>
+#include <hydra/component/componentmanager_physics.hpp>
+#include <hydra/component/componentmanager_sound.hpp>
+
 #include <cstdio>
 
 #ifdef _WIN32
@@ -39,6 +45,8 @@ class Engine final : public Hydra::IEngine {
 public:
 	Engine() {
 		Hydra::IEngine::getInstance() = this;
+
+		_setupComponents();
 
 		_view = View::SDLView::create();
 		_renderer = Renderer::GLRenderer::create(*_view);
@@ -242,20 +250,30 @@ private:
 
 	Component::CameraComponent* _cc = nullptr;
 
+	void _setupComponents() {
+		using namespace Hydra::Component::ComponentManager;
+		auto& map = createOrGetComponentMap();
+		registerComponents_graphics(map);
+		registerComponents_network(map);
+		registerComponents_physics(map);
+		registerComponents_sound(map);
+	}
+
 	void _initEntities() {
-		auto cameraEntity = _world->createEntity("Camera");
+		size_t id = 1;
+		auto cameraEntity = _world->createEntity(id++, "Camera");
 		_cc = cameraEntity->addComponent<Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{0, 0, -3});
 
-		auto boxes = _world->createEntity("Boxes");
+		auto boxes = _world->createEntity(id++, "Boxes");
 		boxes->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0));
 		for (int x = 0; x < 3; x++) {
-			auto xLevel = boxes->createEntity("X Level");
+			auto xLevel = boxes->createEntity(id++, "X Level");
 			xLevel->addComponent<Component::TransformComponent>(glm::vec3(x-1.5, 0, 0), glm::vec3(x*0.5 + 1, 1, 1));
 			for (int y = 0; y < 3; y++) {
-				auto yLevel = xLevel->createEntity("Y Level");
+				auto yLevel = xLevel->createEntity(id++, "Y Level");
 				yLevel->addComponent<Component::TransformComponent>(glm::vec3(0, y-1.5, 0), glm::vec3(1, y*0.5 + 1, 1));
 				for (int z = 0; z < 3; z++) {
-					auto zLevel = yLevel->createEntity("Z Level");
+					auto zLevel = yLevel->createEntity(id++, "Z Level");
 					zLevel->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
 					zLevel->addComponent<Component::TransformComponent>(glm::vec3(0, 0, z-1.5), glm::vec3(0.25, 0.25, z*0.125 + 0.25));
 				}
@@ -263,6 +281,10 @@ private:
 		}
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world);
+		_world = Hydra::World::World::create();
+
+		auto bp = BlueprintLoader::load("world.blueprint");
+		//TODO: Deserialize
 	}
 };
 

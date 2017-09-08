@@ -315,7 +315,7 @@ private:
 		auto world = Hydra::IEngine::getInstance()->getWorld();
 
 		// This doesn't use _renderEntity, because I want a globe instad of a user
-		if (ImGui::TreeNode(world, ICON_FA_GLOBE " %s ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", world->getName().c_str(), world->getComponents().size(), world->getChildren().size())) {
+		if (ImGui::TreeNode(world, ICON_FA_GLOBE " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", world->getName().c_str(), world->getID(), world->getComponents().size(), world->getChildren().size())) {
 			for (auto& component : world->getComponents())
 				_renderComponent(component.second.get());
 
@@ -328,7 +328,7 @@ private:
 	}
 
 	void _renderEntity(IEntity* entity) {
-		if (!ImGui::TreeNode(entity, ICON_FA_USER_O " %s ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", entity->getName().c_str(), entity->getComponents().size(), entity->getChildren().size()))
+		if (!ImGui::TreeNode(entity, ICON_FA_USER_O " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", entity->getName().c_str(), entity->getID(), entity->getComponents().size(), entity->getChildren().size()))
 			return;
 
 		for (auto& component : entity->getComponents())

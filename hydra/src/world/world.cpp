@@ -12,14 +12,16 @@
 #include <algorithm>
 #include <hydra/renderer/renderer.hpp>
 #include <hydra/engine.hpp>
+#include <hydra/component/componentmanager.hpp>
 
 using namespace Hydra::World;
+using namespace Hydra::Component;
 
 // Is is 'virtual public' because WorldImpl needs it like that
 class EntityImpl : virtual public IEntity {
 public:
-	EntityImpl() : _name("") {}
-	EntityImpl(const std::string& name, IEntity* parent) : _name(name), _parent(parent) {}
+	EntityImpl(size_t id) : IEntity(id),  _name("") {}
+	EntityImpl(size_t id, const std::string& name, IEntity* parent) : IEntity(id), _name(name), _parent(parent) {}
 
 	virtual ~EntityImpl() {
 		if (_drawObject)
@@ -81,36 +83,64 @@ public:
 	std::shared_ptr<IEntity> spawn(Blueprint& blueprint) final {
 		_wantDirty = true;
 		// TODO:
-		std::shared_ptr<IEntity> entity;
-		_children.push_back(entity = std::shared_ptr<IEntity>(new EntityImpl(blueprint.name, this)));
+		std::shared_ptr<IEntity> entity = createEntity(0, "");
+		entity->deserialize(blueprint.json);
 		return entity;
 	}
-	std::shared_ptr<IEntity> createEntity(const std::string& name) final {
-		return spawn(std::shared_ptr<IEntity>(new EntityImpl(name, this)));
+	std::shared_ptr<IEntity> createEntity(size_t id, const std::string& name) final {
+		return spawn(std::shared_ptr<IEntity>(new EntityImpl(id, name, this)));
 	}
 
 	IEntity* getParent() final { return _parent; }
 	const std::vector<std::shared_ptr<IEntity>>& getChildren() final { return _children; }
 
-	msgpack::packer<msgpack::sbuffer>& pack(msgpack::packer<msgpack::sbuffer>& o) const final {
-		o.pack_map(3);
+	void serialize(nlohmann::json& json) const final {
+		json["id"] = id;
+		json["name"] = _name;
 
-		o.pack("Name");
-		o.pack(_name);
-
-		o.pack("Components");
-		o.pack_map(static_cast<uint32_t>(_components.size()));
-		for (auto& component : _components) {
-			o.pack(component.second->type());
-			component.second->pack(o);
+		{
+			auto& c = json["components"];
+			for (auto& component : _components)
+				component.second->serialize(c[component.second->type()]);
 		}
 
-		o.pack("Children");
-		o.pack_array(static_cast<uint32_t>(_children.size()));
-		for (auto& child : _children)
-			child->pack(o);
+		{
+			auto& children = json["children"];
+			for (size_t i = 0; i < _children.size(); i++)
+				_children[i]->serialize(children[std::to_string(_children[i]->getID())]);
+		}
+	}
 
-		return o;
+	void deserialize(nlohmann::json& json) final {
+		id = json["id"];
+		_name = json["name"];
+
+		{
+			auto& components = json["components"];
+			auto it = components.begin();
+			for (size_t i = 0; i < components.size(); i++, it++) {
+				try {
+					auto* c = ComponentManager::createOrGetComponentMap().at(it.key())(this);
+					c->deserialize(components[i]);
+				} catch (const std::out_of_range&)	{
+					Hydra::IEngine::getInstance()->log(Hydra::LogLevel::error, "Component type '%s' not found!", it.key().c_str());
+				}
+			}
+		}
+
+		{
+			auto& children = json["children"];
+			for (size_t i = 0; i < children.size(); i++) {
+				size_t id = children[i]["id"].get<size_t>();
+				auto childIt = std::find_if(_children.begin(), _children.end(), [id](std::shared_ptr<IEntity>& e) { return e->getID() == id; });
+				std::shared_ptr<IEntity> child;
+				if (childIt == _children.end())
+					child = createEntity(0, "");
+				else
+					child = *childIt;
+				child->deserialize(children[i]);
+			}
+		}
 	}
 
 	const std::string& getName() const final { return _name; }
@@ -138,10 +168,12 @@ public:
 // EntityImpl defines the code for all the IEntity functions, that is why it is like it is.
 class WorldImpl final : virtual public IWorld, public EntityImpl {
 public:
-	WorldImpl() : EntityImpl("World", nullptr) {}
+	WorldImpl() : IEntity(0), EntityImpl(0, "World", nullptr) {}
 	~WorldImpl() final {}
 };
 
 std::shared_ptr<IWorld> World::create() {
 	return std::shared_ptr<IWorld>(new WorldImpl());
 }
+
+#undef DO_COMPONENTS
