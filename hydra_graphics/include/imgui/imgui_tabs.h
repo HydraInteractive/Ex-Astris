@@ -100,13 +100,13 @@ namespace ImGui
     };
 
     /// Defines our user style attributes that don't fit within the standard ImGui stack
-    IMGUI_API struct ImGuiUserStyle
+    struct IMGUI_API ImGuiUserStyle
     {
         ImVec4      Colors[ImGuiUserCol_COUNT];
         ImGuiUserStyle();
     };
 
-    IMGUI_API static ImGuiUserStyle UserStyle;
+    static ImGuiUserStyle UserStyle;
 
     /// Additional prototype to retrieve user-defined colors in this header (to prevent foward compatilibity conflicts)
     IMGUI_API const ImU32 GetColorU32(ImGuiUserCol_ idx, float alpha_mul = 0.0f);
@@ -211,7 +211,7 @@ namespace ImGui
     };
 
     /// Static instantiation of the TabBarStack
-    IMGUI_API static TabBarStack TabStack;
+    static TabBarStack TabStack;
 
 // FIXME : unused ?
     /// Outwardly accessible way to set the active tab of the current stack.
