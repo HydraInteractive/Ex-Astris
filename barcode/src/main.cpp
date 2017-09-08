@@ -247,13 +247,14 @@ private:
 	Component::PlayerComponent* player = nullptr;
 
 	void _initEntities() {
-		auto cameraEntity = _world->createEntity("Camera");
-		_cc = cameraEntity->addComponent<Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{0, 0, -3});
+		//auto cameraEntity = _world->createEntity("Camera");
+		//_cc = cameraEntity->addComponent<Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{0, 0, -3});
 
 		auto playerEntity = _world->createEntity("Player");
 		player = playerEntity->addComponent<Component::PlayerComponent>();
 		playerEntity->addComponent<Component::TransformComponent>(glm::vec3(10, 0, 0));
 		playerEntity->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
+		_cc = playerEntity->addComponent<Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{ 0, 0, -3 });
 
 
 		auto boxes = _world->createEntity("Boxes");

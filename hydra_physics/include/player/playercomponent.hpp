@@ -14,6 +14,7 @@
 #include <glm/glm.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/component/transformcomponent.hpp>
+#include <hydra/component/cameracomponent.hpp>
 
 using namespace Hydra::World;
 

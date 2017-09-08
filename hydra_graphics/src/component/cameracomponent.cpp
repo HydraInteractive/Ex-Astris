@@ -36,6 +36,25 @@ CameraComponent& CameraComponent::yaw(float angle) { rotation(angle, {0, 1, 0});
 CameraComponent& CameraComponent::pitch(float angle) { rotation(angle, {1, 0, 0}); return *this; }
 CameraComponent& CameraComponent::roll(float angle) { rotation(angle, {0, 0, 1}); return *this; }
 
+void Hydra::Component::CameraComponent::setPosition(const glm::vec3 & position)
+{
+	auto cam = entity->getComponent<Component::TransformComponent>();
+	cam->setPosition(position);
+	_position = position;
+}
+
+void Hydra::Component::CameraComponent::setScale(const glm::vec3 & scale)
+{
+	auto cam = entity->getComponent<Component::TransformComponent>();
+	cam->setScale(scale);
+}
+
+void Hydra::Component::CameraComponent::setRotation(const glm::quat & rotation)
+{
+	auto cam = entity->getComponent<Component::TransformComponent>();
+	cam->setRotation(rotation);
+}
+
 msgpack::packer<msgpack::sbuffer>& CameraComponent::pack(msgpack::packer<msgpack::sbuffer>& o) const {
 	o.pack_map(6);
 
