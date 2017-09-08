@@ -384,7 +384,7 @@ private:
 
 		// Adds a quad to the glowbatch, it won't be removed because it'll always use the same quad to render towards.
 		auto quad = _world->createEntity("Quad");
-		quad->addComponent<Component::MeshComponent>("assets/objects/quad.obj");
+		quad->addComponent<Component::MeshComponent>("assets/objects/boi.obj");
 		auto rot = quad->addComponent<Component::TransformComponent>(glm::vec3(0));
 		rot->setRotation(glm::angleAxis(glm::radians(90.f), glm::vec3(1, 0, 0)));
 		

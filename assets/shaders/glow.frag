@@ -22,10 +22,5 @@ void main() {
 
 	vec3 result = vec3(1.0) - exp(-hdrColor * 1.0);
 	result = pow(result, vec3(1.0 / gamma));
-
-	//vec3 result = texture(originalImage, texCoords).rgb;
-	//result += texture(blurrImage1, texCoords).rgb;
-	//result += texture(blurrImage2, texCoords).rgb;
-	//result += texture(blurrImage3, texCoords).rgb;
 	finalOutput = result;
 }
