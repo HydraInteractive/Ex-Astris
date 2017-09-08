@@ -251,18 +251,10 @@ public:
 				_geometryBatch.output->resolve(1, _blurredOriginal);
 				_geometryBatch.output->resolve(4, (*_glowBatch.output)[0]);
 
-				//printf("%i, %i\n", _blurredOriginal->getSize().x, _blurredOriginal->getSize().y);
-				//printf("%i, %i\n", _blurredIMG1->getSize().x, _blurredOriginal->getSize().y);
-				//printf("%i, %i\n", _blurredIMG2->getSize().x, _blurredOriginal->getSize().y);
-				//printf("%i, %i\n", _blurredIMG3->getSize().x, _blurredOriginal->getSize().y);
-				//printf("\n\n");
-
 				_blurGlowTexture((*_glowBatch.output)[0], nrOfTimes, size *= 0.5f)
 					->resolve(0, _blurredIMG1);
-
 				_blurGlowTexture(_blurredIMG1, nrOfTimes, size *= 0.5f)
 					->resolve(0, _blurredIMG2);
-
 				_blurGlowTexture(_blurredIMG2, nrOfTimes, size *= 0.5f)
 					->resolve(0, _blurredIMG3);
 
@@ -295,7 +287,6 @@ public:
 				_geometryBatch.output->resolve(1, _diffuseWindow->image);
 				_geometryBatch.output->resolve(2, _normalWindow->image);
 				_geometryBatch.output->resolve(3, _depthWindow->image);
-				//_glowWindow->image = _blurredIMG3;
 				_glowBatch.output->resolve(0, _glowWindow->image);
 
 				_uiRenderer->render();
@@ -393,7 +384,7 @@ private:
 
 		// Adds a quad to the glowbatch, it won't be removed because it'll always use the same quad to render towards.
 		auto quad = _world->createEntity("Quad");
-		quad->addComponent<Component::MeshComponent>("assets/objects/boi.obj");
+		quad->addComponent<Component::MeshComponent>("assets/objects/quad.obj");
 		auto rot = quad->addComponent<Component::TransformComponent>(glm::vec3(0));
 		rot->setRotation(glm::angleAxis(glm::radians(90.f), glm::vec3(1, 0, 0)));
 		
