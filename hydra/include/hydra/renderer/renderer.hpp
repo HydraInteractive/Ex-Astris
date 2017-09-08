@@ -42,6 +42,7 @@ namespace Hydra::Renderer {
 		virtual ~ITexture() = 0;
 
 		virtual void resize(glm::ivec2 size) = 0;
+		virtual void bind(size_t idx) = 0;
 
 		virtual glm::ivec2 getSize() = 0;
 		virtual uint32_t getID() const = 0;
@@ -86,6 +87,7 @@ namespace Hydra::Renderer {
 		virtual std::shared_ptr<ITexture> getDepth() = 0;
 
 		virtual std::shared_ptr<ITexture> resolve(size_t idx, std::shared_ptr<ITexture> result) = 0;
+		virtual void clear() = 0;
 
 		// Remember this texture is a MULTISAMPLE texture, and thus need to be resolve
 		// before being rendered as a standard texture
@@ -116,7 +118,7 @@ namespace Hydra::Renderer {
 		int refCounter = 0;
 		bool disable = false; // Temporarily disable object
 		IMesh* mesh = nullptr; // & Material // TODO: Change to something else than IMesh?
-		glm::mat4 modelMatrix;
+		glm::mat4 modelMatrix = glm::mat4(1);
 	};
 
 	struct HYDRA_API Camera final {

@@ -42,6 +42,16 @@ public:
 			_depth->resize(size);
 	}
 
+	void bind(size_t idx) final {
+		// TO-DO: Find purpose.
+	}
+
+	void clear() { // TO-DO: Make you able to decide clear flags.
+		glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+		glClearColor(0, 0, 0, 1);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+
 	glm::ivec2 getSize() final { return _size; }
 	uint32_t getID() const final { return _framebuffer; }
 

@@ -114,6 +114,7 @@ public:
 
 	GLTextureImpl(uint32_t width, uint32_t height, TextureType format, size_t samples) : _own(true), _format(format), _samples(samples), _size(glm::ivec2{width, height}) {
 		_textureType = samples ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+		printf("%s \n", std::to_string(_textureType).c_str());
 		_setData(nullptr);
 	}
 
@@ -157,6 +158,11 @@ public:
 			glTexImage2D(GL_TEXTURE_2D, 0, toGLInternal(_format), size.x, size.y, 0, toGLBase(_format), toGLDataType(_format), nullptr);
 		else if (_textureType == GL_TEXTURE_2D_MULTISAMPLE)
 			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, (GLsizei)_samples, toGLBase(_format), (GLsizei)_size.x, (GLsizei)_size.y, GL_FALSE);
+	}
+
+	void bind(size_t idx) final {
+		glActiveTexture(GL_TEXTURE0 + idx);
+		glBindTexture(GL_TEXTURE_2D, _texture);
 	}
 
 	glm::ivec2 getSize() final { return _size; }
