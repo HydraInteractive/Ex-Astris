@@ -312,7 +312,7 @@ private:
 		ImGui::SetNextWindowSize(ImVec2(480, 640), ImGuiSetCond_Once);
 		ImGui::Begin("Entity List", &_entityWindow);
 
-		auto world = Hydra::IEngine::getInstance()->getWorld();
+		auto world = Hydra::IEngine::getInstance()->getWorld()->getWorldRoot().get();
 
 		// This doesn't use _renderEntity, because I want a globe instad of a user
 		if (ImGui::TreeNode(world, ICON_FA_GLOBE " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", world->getName().c_str(), world->getID(), world->getComponents().size(), world->getChildren().size())) {

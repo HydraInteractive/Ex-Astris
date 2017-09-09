@@ -40,6 +40,10 @@ namespace Hydra::Component {
 		CameraComponent& pitch(float angle);
 		CameraComponent& roll(float angle);
 
+
+		inline Hydra::Renderer::IRenderTarget* getRenderTarget() { return _renderTarget; }
+		inline void setRenderTarget(Hydra::Renderer::IRenderTarget* renderTarget) { _renderTarget = renderTarget; }
+
 		inline const glm::vec3& getPosition() const { return _position; }
 
 		// TODO: Cache these?

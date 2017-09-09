@@ -13,6 +13,8 @@
 #include <cstdlib>
 #include <fstream>
 
+#include <hydra/world/world.hpp>
+
 using namespace Hydra::World;
 
 std::unique_ptr<Blueprint> BlueprintLoader::load(const std::string& file) {
@@ -21,10 +23,11 @@ std::unique_ptr<Blueprint> BlueprintLoader::load(const std::string& file) {
 	std::ifstream i(file);
 	if (!i.good())
 		return bp;
+
+	bp = std::make_unique<Blueprint>();
 	i >> bp->_root;
 
 	bp->name = bp->_root["name"].get<std::string>();
-	bp->json = bp->_root["data"];
 
 	return bp;
 }

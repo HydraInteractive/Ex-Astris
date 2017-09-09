@@ -8,6 +8,6 @@ namespace Hydra::Component::ComponentManager {
 	void registerComponents_graphics(std::map<std::string, createOrGetComponent_f>& creators) {
 		creators["CameraComponent"] = &createOrGetComponentHelper<CameraComponent>;
 		creators["MeshComponent"] = &createOrGetComponentHelper<MeshComponent>;
-		creators["TranformComponent"] = &createOrGetComponentHelper<TransformComponent>;
+		creators["TransformComponent"] = &createOrGetComponentHelper<TransformComponent>;
 	}
 }

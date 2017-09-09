@@ -54,8 +54,6 @@ public:
 		_textureLoader = IO::GLTextureLoader::create();
 		_meshLoader = IO::GLMeshLoader::create(_renderer.get());
 
-		_world = Hydra::World::World::create();
-
 		_positionWindow = _uiRenderer->addRenderWindow();
 		_positionWindow->enabled = true;
 		_positionWindow->title = "Position FBO";
@@ -237,7 +235,7 @@ private:
 	std::unique_ptr<IO::ITextureLoader> _textureLoader;
 	std::unique_ptr<IO::IMeshLoader> _meshLoader;
 
-	std::shared_ptr<IWorld> _world;
+	std::unique_ptr<IWorld> _world;
 
 	Renderer::UIRenderWindow* _positionWindow;
 	Renderer::UIRenderWindow* _diffuseWindow;
@@ -260,31 +258,39 @@ private:
 	}
 
 	void _initEntities() {
-		size_t id = 1;
-		auto cameraEntity = _world->createEntity(id++, "Camera");
-		_cc = cameraEntity->addComponent<Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{0, 0, -3});
+		_world = Hydra::World::World::create();
+		auto cameraEntity = _world->createEntity("Camera");
+		/*_cc = */ cameraEntity->addComponent<Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{0, 0, -3});
 
-		auto boxes = _world->createEntity(id++, "Boxes");
+		auto boxes = _world->createEntity("Boxes");
 		boxes->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0));
 		for (int x = 0; x < 3; x++) {
-			auto xLevel = boxes->createEntity(id++, "X Level");
+			auto xLevel = boxes->createEntity("X Level");
 			xLevel->addComponent<Component::TransformComponent>(glm::vec3(x-1.5, 0, 0), glm::vec3(x*0.5 + 1, 1, 1));
 			for (int y = 0; y < 3; y++) {
-				auto yLevel = xLevel->createEntity(id++, "Y Level");
+				auto yLevel = xLevel->createEntity("Y Level");
 				yLevel->addComponent<Component::TransformComponent>(glm::vec3(0, y-1.5, 0), glm::vec3(1, y*0.5 + 1, 1));
 				for (int z = 0; z < 3; z++) {
-					auto zLevel = yLevel->createEntity(id++, "Z Level");
+					auto zLevel = yLevel->createEntity("Z Level");
 					zLevel->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
 					zLevel->addComponent<Component::TransformComponent>(glm::vec3(0, 0, z-1.5), glm::vec3(0.25, 0.25, z*0.125 + 0.25));
 				}
 			}
 		}
 
-		BlueprintLoader::save("world.blueprint", "World Blueprint", _world);
-		_world = Hydra::World::World::create();
-
+		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
 		auto bp = BlueprintLoader::load("world.blueprint");
-		//TODO: Deserialize
+		_world->setWorldRoot(bp->spawn(_world.get()));
+
+		{
+			auto& world = _world->getWorldRoot()->getChildren();
+			auto it = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Camera"; });
+			if (it != world.end()) {
+				_cc = (*it)->getComponent<Component::CameraComponent>();
+				_cc->setRenderTarget(_geometryBatch.output.get());
+			} else
+				log(LogLevel::error, "Camera not found!");
+		}
 	}
 };
 

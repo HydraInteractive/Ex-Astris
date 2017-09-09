@@ -14,7 +14,7 @@ namespace Hydra::Component {
 		static IComponent* createOrGetComponentHelper(IEntity* entity) {
 			T* c = entity->getComponent<T>();
 			if (!c)
-				entity->addComponent<T>();
+				c = entity->addComponent<T>();
 			return c;
 		}
 
