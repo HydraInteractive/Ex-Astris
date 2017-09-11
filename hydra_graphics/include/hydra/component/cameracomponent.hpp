@@ -43,8 +43,6 @@ namespace Hydra::Component {
 		inline const glm::vec3& getPosition() const { return _position; }
 
 		void setPosition(const glm::vec3& position);
-		void setScale(const glm::vec3& scale);
-		void setRotation(const glm::quat& rotation);
 
 		// TODO: Cache these?
 		inline glm::mat4 getViewMatrix() const { return glm::translate(glm::mat4_cast(_orientation), _position); }

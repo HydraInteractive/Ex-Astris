@@ -21,7 +21,6 @@ CameraComponent::~CameraComponent() {}
 void CameraComponent::tick(TickAction action) {
 	// assert(action == TickAction::physics); // Can only be this due to wantTick
 	_position += glm::vec3{0, 0, 0};
-
 }
 
 void CameraComponent::translate(const glm::vec3& transform) {
@@ -38,21 +37,9 @@ CameraComponent& CameraComponent::roll(float angle) { rotation(angle, {0, 0, 1})
 
 void Hydra::Component::CameraComponent::setPosition(const glm::vec3 & position)
 {
-	auto cam = entity->getComponent<Component::TransformComponent>();
-	cam->setPosition(position);
+	//auto model = entity->getComponent<Component::TransformComponent>();
+	//model->setPosition(position);
 	_position = position;
-}
-
-void Hydra::Component::CameraComponent::setScale(const glm::vec3 & scale)
-{
-	auto cam = entity->getComponent<Component::TransformComponent>();
-	cam->setScale(scale);
-}
-
-void Hydra::Component::CameraComponent::setRotation(const glm::quat & rotation)
-{
-	auto cam = entity->getComponent<Component::TransformComponent>();
-	cam->setRotation(rotation);
 }
 
 msgpack::packer<msgpack::sbuffer>& CameraComponent::pack(msgpack::packer<msgpack::sbuffer>& o) const {

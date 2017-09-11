@@ -33,10 +33,10 @@ namespace Hydra::Component {
 		virtual msgpack::packer<msgpack::sbuffer>& pack(msgpack::packer<msgpack::sbuffer>& o) const final;
 		void registerUI() final;
 	private:
-		glm::vec3 playerPos;
-		float velocityX;
-		float velocityY;
-		float velocityZ;
+		glm::vec3 _playerPos;
+		float _velocityX;
+		float _velocityY;
+		float _velocityZ;
 
 		int _a = 0;
 		bool _b = false;

@@ -16,9 +16,9 @@ using namespace Hydra::World;
 using namespace Hydra::Component;
 
 PlayerComponent::PlayerComponent(IEntity* entity) : IComponent(entity) {
-	velocityX = 0;
-	velocityY = 0;
-	velocityZ = 0;
+	_velocityX = 0;
+	_velocityY = 0;
+	_velocityZ = 0;
 }
 
 PlayerComponent::~PlayerComponent() { }
@@ -27,47 +27,48 @@ void PlayerComponent::tick(TickAction action) {
 	// If you only have one TickAction in 'wantTick' you don't need to check the tickaction here.
 
 	// Extract players position
-	//auto player = entity->getComponent<Component::TransformComponent>();
+	auto player = entity->getComponent<Component::TransformComponent>();
+	// Extract cameras position
 	auto camera = entity->getComponent<Component::CameraComponent>();
-
-	playerPos = camera->getPosition();
 	
 	Uint8* keysArray;
 	keysArray = const_cast <Uint8*> (SDL_GetKeyboardState(NULL));
 
 	if (keysArray[SDL_SCANCODE_UP]) {
-		velocityZ = 0.5f;
+		_velocityZ = 0.5f;
 	}
 	if (keysArray[SDL_SCANCODE_DOWN]) {
-		velocityZ = -0.5f;
+		_velocityZ = -0.5f;
 	}
 	if (keysArray[SDL_SCANCODE_LEFT]) {
-		velocityX = 0.5f;
+		_velocityX = 0.5f;
 	}
 	if (keysArray[SDL_SCANCODE_RIGHT]) {
-		velocityX = -0.5f;
+		_velocityX = -0.5f;
 	}
 	
 	if (keysArray[SDL_SCANCODE_LEFT] == 0 && keysArray[SDL_SCANCODE_RIGHT] == 0) {
-		velocityX = 0.0f;
+		_velocityX = 0.0f;
 	}
 
 	if (keysArray[SDL_SCANCODE_UP] == 0 && keysArray[SDL_SCANCODE_DOWN] == 0) {
-		velocityZ = 0.0f;
+		_velocityZ = 0.0f;
 	}
 
 	if (keysArray[SDL_SCANCODE_SPACE] == 0)
 	{
-		//velocityY = 0.1f;
+		//_velocityY = 0.1f;
 	}
 	if (keysArray[SDL_SCANCODE_SPACE] == 1)
 	{
-		//velocityY = -0.1f;
+		//_velocityY = -0.1f;
 	}
 
-	playerPos = playerPos + glm::vec3(velocityX, velocityY, velocityZ);
+	_playerPos = camera->getPosition();
+	_playerPos = _playerPos + glm::vec3(_velocityX, _velocityY, _velocityZ);
 
-	camera->setPosition(playerPos);
+	player->setPosition(glm::vec3(-_playerPos.x, -_playerPos.y+2, -_playerPos.z-4));
+	camera->setPosition(_playerPos);
 
 
 }
@@ -97,7 +98,7 @@ void PlayerComponent::registerUI() {
 
 	
 	ImGui::InputFloat("X", &playerPos.x);
-	ImGui::InputInt("A", &_a);
-	ImGui::Checkbox("B", &_b);
-	ImGui::DragFloat("C", &_c);
+	ImGui::InputFloat("Y", &playerPos.y);
+	ImGui::InputFloat("Z", &playerPos.z);
+
 }
