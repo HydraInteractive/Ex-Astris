@@ -10,6 +10,7 @@
 #include <hydra/renderer/uirenderer.hpp>
 
 #include <imgui/imgui.h>
+#include <imgui/icons.hpp>
 #include <imgui/imgui_impl_sdl_gl3.h>
 #include <imgui/icons.hpp>
 #include <glad/glad.h>

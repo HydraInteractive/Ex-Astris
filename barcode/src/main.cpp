@@ -1,8 +1,16 @@
 #include <hydra/engine.hpp>
 
 #include <SDL2/SDL.h>
+#include <thread>
 
 #include <memory>
+#include <imgui/imgui.h>
+#include <imgui/icons.hpp>
+#include <../hydra_network/include/networkmanager.hpp>
+
+#include <../hydra_network/include/TCPConnection.hpp>
+#include <../hydra_network/include/TCPHost.hpp>
+#include <../hydra_network/include/TCPClient.hpp>
 
 #include <hydra/world/world.hpp>
 #include <hydra/view/sdlview.hpp>
@@ -22,6 +30,7 @@
 
 #ifdef _WIN32
 #define _CRTDBG_MAP_ALLOC
+
 #include <stdlib.h>
 #include <crtdbg.h>
 
@@ -35,10 +44,16 @@ static inline void reportMemoryLeaks() {}
 using namespace Hydra;
 using namespace Hydra::World;
 
+TCPClient* network;
+std::thread* server = nullptr;
+
 class Engine final : public Hydra::IEngine {
 public:
 	Engine() {
+
 		Hydra::IEngine::getInstance() = this;
+
+
 
 		_view = View::SDLView::create();
 		_renderer = Renderer::GLRenderer::create(*_view);
@@ -126,6 +141,47 @@ public:
 			{ // Fetch new events
 				_view->update(_uiRenderer.get());
 				_uiRenderer->newFrame();
+			}
+
+			{
+				if (!network) {
+					ImGui::Begin("Net");
+					static char portInput[30] = {};
+					ImGui::InputText("Port:", portInput, sizeof(portInput));
+					if (ImGui::Button("Host", { 100, 50 })) {
+
+						std::string tmpstr = portInput;
+						IPaddress ip;
+						ip.port = std::stoi(tmpstr);
+						
+						server = new std::thread(startServer, ip.port);
+						ip.host = INADDR_ANY;
+						network = new TCPClient();
+						while (network->initiate(ip, "localhost") != true);
+
+					}
+
+					static char ipInput[30] = {};
+					ImGui::InputText("IP:", ipInput, sizeof(ipInput));
+
+					if (ImGui::Button("Connect", { 100, 50 })) {
+						IPaddress ip;
+						std::string tmpstr = portInput;
+						ip.port = std::stoi(tmpstr);
+						network = new TCPClient();
+						//ip = network->resolveHost(ipInput, ip.port);
+
+						//ip.host = ipstr.c_str;
+						if (!network->initiate(ip, ipInput)) {
+							delete network;
+							network = nullptr;
+						}
+
+
+					}
+					ImGui::End();
+				}
+
 			}
 
 			{ // Update physics

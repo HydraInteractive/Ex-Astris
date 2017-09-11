@@ -10,6 +10,7 @@
 #include <hydra/view/sdlview.hpp>
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_net.h>
 
 #include <hydra/renderer/uirenderer.hpp>
 
@@ -21,6 +22,7 @@ class SDLViewImpl final : public IView {
 public:
 	SDLViewImpl() {
 		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER);
+		SDLNet_Init();
 
 		_size = glm::ivec2(1920, 1080);
 		_wantToClose = false;
@@ -30,6 +32,7 @@ public:
 
 	~SDLViewImpl() final {
 		SDL_DestroyWindow(_window);
+		SDLNet_Quit();
 		SDL_Quit();
 	}
 
