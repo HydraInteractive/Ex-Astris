@@ -234,7 +234,7 @@ public:
 					kv.second.clear();
 
 				for (auto& drawObj : _renderer->activeDrawObjects())
-					if (!drawObj->disable && drawObj->mesh && drawObj->mesh->getIndicesCount() != 6)
+					if (!drawObj->disable && drawObj->mesh)
 						_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
 				// Sort Front to back
@@ -259,14 +259,6 @@ public:
 					}
 				}
 
-				for (auto& kv : _lightingBatch.batch.objects)
-					kv.second.clear();
-
-				for (auto& drawObj : _renderer->activeDrawObjects())
-					if (!drawObj->disable && drawObj->mesh && drawObj->mesh->getIndicesCount() == 6) {
-						_lightingBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-					}
-
 				_lightingBatch.pipeline->setValue(0, 0);
 				_lightingBatch.pipeline->setValue(1, 1);
 				_lightingBatch.pipeline->setValue(2, 2);
@@ -276,7 +268,7 @@ public:
 				(*_geometryBatch.output)[1]->bind(1);
 				(*_geometryBatch.output)[2]->bind(2);
 
-				_renderer->render(_lightingBatch.batch);
+				_renderer->postProcessing(_lightingBatch.batch);
 			}
 
 
@@ -291,17 +283,6 @@ public:
 						oldSize = newSize;
 					}
 				}
-			
-				for (auto& kv : _glowBatch.batch.objects)
-					kv.second.clear();
-			
-				for (auto& drawObj : _renderer->activeDrawObjects())
-					if (!drawObj->disable && drawObj->mesh && drawObj->mesh->getIndicesCount() == 6) {
-						_glowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-						// Uncomment the line below to get a quad for the view render pass.
-						//_viewBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-					}
-			
 				// Resolves the glow texture from geomtrybatch which returns an image, that then is
 				// put into the function which returns a framebuffer that is then put into position 0 in blurredTexturesFBO
 				// Not sure why I can't copy textures from different framebuffers to eachother, have to look into it later.
@@ -330,7 +311,7 @@ public:
 				_blurredIMG2->bind(3);
 				_blurredIMG3->bind(4);
 				
-				_renderer->render(_glowBatch.batch);
+				_renderer->postProcessing(_glowBatch.batch);
 				_glowBatch.batch.pipeline = _glowBatch.pipeline.get();
 			}
 
@@ -456,11 +437,6 @@ private:
 				}
 			}
 		}
-
-		auto quad = _world->createEntity("Quad");
-		quad->addComponent<Component::MeshComponent>("assets/objects/quad.obj");
-		auto rot = quad->addComponent<Component::TransformComponent>(glm::vec3(0));
-		rot->setRotation(glm::angleAxis(glm::radians(90.f), glm::vec3(1, 0, 0)));
 		
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
 		auto bp = BlueprintLoader::load("world.blueprint");
