@@ -475,7 +475,7 @@ private:
 				(*_blurrExtraFBO2)[0]->bind(1);
 			}
 			_glowBatch.pipeline->setValue(2, horizontal);
-			_renderer->render(_glowBatch.batch);
+			_renderer->postProcessing(_glowBatch.batch);
 			horizontal = !horizontal;
 		}
 		// Change back to normal rendertarget.
