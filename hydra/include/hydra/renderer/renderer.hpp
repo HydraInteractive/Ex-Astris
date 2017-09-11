@@ -136,7 +136,6 @@ namespace Hydra::Renderer {
 		ClearFlags clearFlags;
 		IRenderTarget* renderTarget;
 		IPipeline* pipeline;
-		// Camera* camera;
 		std::map<IMesh*, std::vector<glm::mat4 /* Model matrix */>> objects;
 	};
 
@@ -145,6 +144,8 @@ namespace Hydra::Renderer {
 		virtual ~IRenderer() = 0;
 
 		virtual void render(Batch& batch) = 0;
+		// Note: this will ignore batch.objects
+		virtual void postProcessing(Batch& batch) = 0;
 
 		virtual DrawObject* aquireDrawObject() = 0;
 
