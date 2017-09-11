@@ -22,6 +22,11 @@ using namespace Hydra::Renderer;
 
 class GLMeshImpl final : public IMesh {
 public:
+	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices) {
+		_makeBuffers();
+		_uploadData(vertices, indices, 0);
+	}
+
 	GLMeshImpl(const std::string& file, GLuint modelMatrixBuffer) {
 		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
@@ -100,11 +105,13 @@ private:
 		glVertexAttribPointer(VertexLocation::uv, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, uv));
 		glVertexAttribPointer(VertexLocation::tangent, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, tangent));
 
-		glBindBuffer(GL_ARRAY_BUFFER, modelMatrixBuffer);
-		for (int i = 0; i < 4; i++) {
-			glEnableVertexAttribArray(VertexLocation::modelMatrix + i);
-			glVertexAttribPointer(VertexLocation::modelMatrix + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(sizeof(glm::vec4) * i));
-			glVertexAttribDivisor(VertexLocation::modelMatrix + i, 1);
+		if (modelMatrixBuffer) {
+			glBindBuffer(GL_ARRAY_BUFFER, modelMatrixBuffer);
+			for (int i = 0; i < 4; i++) {
+				glEnableVertexAttribArray(VertexLocation::modelMatrix + i);
+				glVertexAttribPointer(VertexLocation::modelMatrix + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(sizeof(glm::vec4) * i));
+				glVertexAttribDivisor(VertexLocation::modelMatrix + i, 1);
+			}
 		}
 	}
 
@@ -216,4 +223,15 @@ std::unique_ptr<IMesh> GLMesh::create(const std::string& file, IRenderer* render
 std::unique_ptr<IMesh> GLMesh::createQuad(IRenderer* renderer) {
 	std::unique_ptr<IMesh> mesh = std::unique_ptr<IMesh>(new::GLMeshImpl(*static_cast<GLuint*>(renderer->getModelMatrixBuffer())));
 	return mesh;
+}
+
+std::unique_ptr<IMesh> GLMesh::createFullscreenQuad() {
+	std::vector<Vertex> vertices{
+		Vertex{glm::vec3{-1, -1, 0}, glm::vec3{0, 0, 1}, glm::vec3{1, 1, 1}, glm::vec2{-1, -1}, glm::vec3{0, 0, 0}},
+		Vertex{glm::vec3{-1, 1, 0}, glm::vec3{0, 0, 1}, glm::vec3{1, 1, 1}, glm::vec2{-1, 1}, glm::vec3{0, 0, 0}},
+		Vertex{glm::vec3{1, 1, 0}, glm::vec3{0, 0, 1}, glm::vec3{1, 1, 1}, glm::vec2{1, 1}, glm::vec3{0, 0, 0}},
+		Vertex{glm::vec3{1, -1, 0}, glm::vec3{0, 0, 1}, glm::vec3{1, 1, 1}, glm::vec2{1, -1}, glm::vec3{0, 0, 0}}
+	};
+	std::vector<GLuint> indices{0, 1, 2, 2, 3, 0};
+	return std::unique_ptr<IMesh>(new ::GLMeshImpl(vertices, indices));
 }

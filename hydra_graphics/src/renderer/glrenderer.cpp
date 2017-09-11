@@ -49,6 +49,8 @@ public:
 
 		SDL_GL_SetSwapInterval(0);
 
+		_fullscreenQuad = Hydra::Renderer::GLMesh::createFullscreenQuad();
+
 		glGenBuffers(1, &_modelMatrixBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
 		glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, NULL, GL_STREAM_DRAW);
@@ -89,6 +91,24 @@ public:
 		}
 	}
 
+	void postProcessing(Batch& batch) final {
+		SDL_GL_MakeCurrent(_window, _glContext);
+		glBindFramebuffer(GL_FRAMEBUFFER, batch.renderTarget->getID());
+		const auto& size = batch.renderTarget->getSize();
+		glViewport(0, 0, size.x, size.y);
+
+		glClearColor(batch.clearColor.r, batch.clearColor.g, batch.clearColor.b, batch.clearColor.a);
+		GLenum clearFlags = 0;
+		clearFlags |= (batch.clearFlags & ClearFlags::color) == ClearFlags::color ? GL_COLOR_BUFFER_BIT : 0;
+		clearFlags |= (batch.clearFlags & ClearFlags::depth) == ClearFlags::depth ? GL_DEPTH_BUFFER_BIT : 0;
+		glClear(clearFlags);
+
+		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
+
+		glBindVertexArray(_fullscreenQuad->getID());
+		glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(_fullscreenQuad->getIndicesCount()), GL_UNSIGNED_INT, nullptr, 1);
+	}
+
 	DrawObject* aquireDrawObject() final {
 		std::unique_ptr<DrawObject> drawObj;
 		DrawObject* drawObjPtr;
@@ -125,6 +145,7 @@ private:
 	SDL_GLContext _glContext;
 	std::vector<std::unique_ptr<DrawObject>> _activeDrawObjects;
 	std::vector<std::unique_ptr<DrawObject>> _inactiveDrawObjects;
+	std::unique_ptr<IMesh> _fullscreenQuad;
 
 	const size_t _modelMatrixSize = sizeof(glm::mat4) * 128; // max 128 mesh instances per draw call
 	GLuint _modelMatrixBuffer;
