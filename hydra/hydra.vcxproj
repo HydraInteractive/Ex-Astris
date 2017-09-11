@@ -90,6 +90,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\hydra\component\componentmanager.hpp" />
     <ClInclude Include="include\hydra\engine.hpp" />
     <ClInclude Include="include\hydra\ext\api.hpp" />
     <ClInclude Include="include\hydra\ext\ram.hpp" />
@@ -101,7 +102,7 @@
     <ClInclude Include="include\hydra\view\view.hpp" />
     <ClInclude Include="include\hydra\world\blueprintloader.hpp" />
     <ClInclude Include="include\hydra\world\world.hpp" />
-    <ClInclude Include="include\msgpack.hpp" />
+    <ClInclude Include="include\json.hpp" />
     <ClInclude Include="include\msgpack\adaptor\adaptor_base.hpp" />
     <ClInclude Include="include\msgpack\adaptor\adaptor_base_decl.hpp" />
     <ClInclude Include="include\msgpack\adaptor\array_ref.hpp" />
@@ -754,6 +755,7 @@
     <ClInclude Include="include\msgpack\zone_decl.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\components\componentmanager.cpp" />
     <ClCompile Include="src\engine.cpp" />
     <ClCompile Include="src\ext\ram.cpp" />
     <ClCompile Include="src\ext\stacktrace.cpp" />

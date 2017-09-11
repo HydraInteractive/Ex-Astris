@@ -90,14 +90,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\network.cpp" />
-    <ClCompile Include="src\networkmanager.cpp" />
-  </ItemGroup>
-  <ItemGroup>
+    <ClInclude Include="include\hydra\component\componentmanager_network.hpp" />
     <ClInclude Include="include\networkmanager.hpp" />
     <ClInclude Include="include\TCPClient.hpp" />
     <ClInclude Include="include\TCPConnection.hpp" />
     <ClInclude Include="include\TCPHost.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\component\componentmanager_network.cpp" />
+    <ClCompile Include="src\network.cpp" />
+    <ClCompile Include="src\networkmanager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

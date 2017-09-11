@@ -35,29 +35,24 @@ void TransformComponent::tick(TickAction action) {
 	_drawObject->modelMatrix = getMatrix();
 }
 
-msgpack::packer<msgpack::sbuffer>& TransformComponent::pack(msgpack::packer<msgpack::sbuffer>& o) const {
-	o.pack_map(3);
 
-	o.pack("position");
-	o.pack_array(3);
-	o.pack_float(_position.x);
-	o.pack_float(_position.y);
-	o.pack_float(_position.z);
+void TransformComponent::serialize(nlohmann::json& json) const {
+	json = {
+		{"position", {_position.x, _position.y, _position.z}},
+		{"scale", {_scale.x, _scale.y, _scale.z}},
+		{"rotation", {_rotation.x, _rotation.y, _rotation.z, _rotation.w}}
+	};
+}
 
-	o.pack("scale");
-	o.pack_array(3);
-	o.pack_float(_scale.x);
-	o.pack_float(_scale.y);
-	o.pack_float(_scale.z);
+void TransformComponent::deserialize(nlohmann::json& json) {
+	auto& pos = json["position"];
+	_position = glm::vec3{pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>()};
 
-	o.pack("rotation");
-	o.pack_array(4);
-	o.pack_float(_rotation.x);
-	o.pack_float(_rotation.y);
-	o.pack_float(_rotation.z);
-	o.pack_float(_rotation.w);
+	auto& scale = json["scale"];
+	_scale = glm::vec3{scale[0].get<float>(), scale[1].get<float>(), scale[2].get<float>()};
 
-	return o;
+	auto& rotation = json["rotation"];
+	_rotation = glm::quat{rotation[0].get<float>(), rotation[1].get<float>(), rotation[2].get<float>(), rotation[3].get<float>()};
 }
 
 void TransformComponent::registerUI() {

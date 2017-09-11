@@ -26,6 +26,12 @@
 
 #include <hydra/world/blueprintloader.hpp>
 
+#include <hydra/component/componentmanager.hpp>
+#include <hydra/component/componentmanager_graphics.hpp>
+#include <hydra/component/componentmanager_network.hpp>
+#include <hydra/component/componentmanager_physics.hpp>
+#include <hydra/component/componentmanager_sound.hpp>
+
 #include <cstdio>
 
 #ifdef _WIN32
@@ -50,18 +56,15 @@ std::thread* server = nullptr;
 class Engine final : public Hydra::IEngine {
 public:
 	Engine() {
-
 		Hydra::IEngine::getInstance() = this;
 
-
+		_setupComponents();
 
 		_view = View::SDLView::create();
 		_renderer = Renderer::GLRenderer::create(*_view);
 		_uiRenderer = Renderer::UIRenderer::create(*_view);
 		_textureLoader = IO::GLTextureLoader::create();
 		_meshLoader = IO::GLMeshLoader::create(_renderer.get());
-
-		_world = Hydra::World::World::create();
 
 		_positionWindow = _uiRenderer->addRenderWindow();
 		_positionWindow->enabled = true;
@@ -285,7 +288,7 @@ private:
 	std::unique_ptr<IO::ITextureLoader> _textureLoader;
 	std::unique_ptr<IO::IMeshLoader> _meshLoader;
 
-	std::shared_ptr<IWorld> _world;
+	std::unique_ptr<IWorld> _world;
 
 	Renderer::UIRenderWindow* _positionWindow;
 	Renderer::UIRenderWindow* _diffuseWindow;
@@ -298,9 +301,19 @@ private:
 
 	Component::CameraComponent* _cc = nullptr;
 
+	void _setupComponents() {
+		using namespace Hydra::Component::ComponentManager;
+		auto& map = createOrGetComponentMap();
+		registerComponents_graphics(map);
+		registerComponents_network(map);
+		registerComponents_physics(map);
+		registerComponents_sound(map);
+	}
+
 	void _initEntities() {
+		_world = Hydra::World::World::create();
 		auto cameraEntity = _world->createEntity("Camera");
-		_cc = cameraEntity->addComponent<Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{0, 0, -3});
+		/*_cc = */ cameraEntity->addComponent<Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{0, 0, -3});
 
 		auto boxes = _world->createEntity("Boxes");
 		boxes->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0));
@@ -318,7 +331,19 @@ private:
 			}
 		}
 
-		BlueprintLoader::save("world.blueprint", "World Blueprint", _world);
+		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
+		auto bp = BlueprintLoader::load("world.blueprint");
+		_world->setWorldRoot(bp->spawn(_world.get()));
+
+		{
+			auto& world = _world->getWorldRoot()->getChildren();
+			auto it = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Camera"; });
+			if (it != world.end()) {
+				_cc = (*it)->getComponent<Component::CameraComponent>();
+				_cc->setRenderTarget(_geometryBatch.output.get());
+			} else
+				log(LogLevel::error, "Camera not found!");
+		}
 	}
 };
 

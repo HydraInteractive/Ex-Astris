@@ -10,6 +10,14 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\empty_physics.hpp" />
+    <ClInclude Include="include\hydra\component\componentmanager_physics.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\component\componentmanager_physics.cpp" />
+    <ClCompile Include="src\empty.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{B7CE4AD1-7A40-44C6-B3B2-87072101411A}</ProjectGuid>
@@ -89,12 +97,6 @@
       <SubSystem>NotSet</SubSystem>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="src\empty.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="include\empty_physics.hpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
