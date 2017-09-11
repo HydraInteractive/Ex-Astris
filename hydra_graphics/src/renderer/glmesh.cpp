@@ -87,6 +87,7 @@ private:
 	}
 
 	void _uploadData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, GLuint modelMatrixBuffer) {
+		_indicesCount = indices.size();
 		glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
@@ -175,8 +176,6 @@ private:
 			}
 			counterVertices += assimpMesh->mNumVertices;
 		}
-
-		_indicesCount = indices.size();
 
 		_makeBuffers();
 		_uploadData(vertices, indices, modelMatrixBuffer);
