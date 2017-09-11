@@ -92,6 +92,7 @@
   <ItemGroup>
     <ClInclude Include="include\glad\glad.h" />
     <ClInclude Include="include\hydra\component\cameracomponent.hpp" />
+    <ClInclude Include="include\hydra\component\componentmanager_graphics.hpp" />
     <ClInclude Include="include\hydra\component\meshcomponent.hpp" />
     <ClInclude Include="include\hydra\component\transformcomponent.hpp" />
     <ClInclude Include="include\hydra\io\glmeshloader.hpp" />
@@ -114,6 +115,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\component\cameracomponent.cpp" />
+    <ClCompile Include="src\component\componentmanager_graphics.cpp" />
     <ClCompile Include="src\component\meshcomponent.cpp" />
     <ClCompile Include="src\component\transformcomponent.cpp" />
     <ClCompile Include="src\io\meshloader.cpp" />

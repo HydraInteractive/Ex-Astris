@@ -40,7 +40,7 @@ class EntityImpl : public IEntity {
 public:
 	EntityImpl(IWorld* world, const std::string& name = "", IEntity* parent = nullptr) : IEntity(world), _name(name), _parent(parent) {}
 	EntityImpl(IWorld* world, nlohmann::json& json, IEntity* parent = nullptr) : IEntity(world), _parent(parent) {
-		_name = json["name"];
+		_name = json["name"].get<std::string>();
 
 		{
 			auto& components = json["components"];
@@ -149,7 +149,7 @@ public:
 	}
 
 	void deserialize(nlohmann::json& json) final {
-		_name = json["name"];
+		_name = json["name"].get<std::string>();
 
 		{
 			auto& components = json["components"];

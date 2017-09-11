@@ -14,6 +14,8 @@
 #include <vector>
 #include <typeinfo>
 #include <typeindex>
+#undef min
+#undef max
 #include <json.hpp>
 
 namespace Hydra::Renderer { struct HYDRA_API DrawObject; }

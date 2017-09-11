@@ -1,4 +1,4 @@
-#include <hydra/component/componentmanager_network.hpp>
+#include <hydra/component/componentmanager_graphics.hpp>
 
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/meshcomponent.hpp>
