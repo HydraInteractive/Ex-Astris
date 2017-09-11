@@ -7,7 +7,7 @@ layout (location = 3) in vec2 uv;
 layout (location = 4) in vec3 tangent;
 layout (location = 5) in mat4 m;
 
-out vec2 texCoords
+out vec2 texCoords;
 
 void main() {
 	texCoords = uv;

@@ -6,7 +6,7 @@ layout(location = 0) out vec3 blurOutput;
 layout(location = 1) uniform sampler2D prevGlowImage;
 layout(location = 2) uniform bool horizontal;
 
-uniform float weight[5] = float[] (0.153388, 0.221461, 0.250301, 0.221461, 0.153388); // Precalculated from a 5x5 kernel.
+uniform float weight[5] = float[] (0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216); // Precalculated from a 5x5 kernel.
 
 void main() {
 	vec2 tex_offset = 1.0 / textureSize(prevGlowImage, 0); // gets size of single texel

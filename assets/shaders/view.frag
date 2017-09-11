@@ -4,7 +4,10 @@ in vec2 texCoords;
 
 out vec4 fragColor;
 
+layout(location = 0) uniform sampler2D finalImage;
+
 void main() {
-	
-	fragColor = vec4(1, 0, 0, 1);
+	vec3 pixel = texture(finalImage, texCoords).rgb;
+		
+	fragColor = vec4(pixel, 1);
 }

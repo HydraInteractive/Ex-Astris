@@ -10,7 +10,7 @@ layout(location = 3) uniform sampler2D blurrImage2;
 layout(location = 4) uniform sampler2D blurrImage3;
 
 void main() {
-	float gamma = 1.2f;
+	float gamma = 1.0f;
 	vec3 hdrColor = texture(originalImage, texCoords).rgb;
 	vec3 bloomColor1 = texture(blurrImage1, texCoords).rgb;
 	vec3 bloomColor2 = texture(blurrImage2, texCoords).rgb;

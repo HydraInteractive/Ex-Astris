@@ -84,8 +84,8 @@ public:
 			batch.pipeline->attachStage(*batch.geometryShader);
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
-
-			batch.output = Renderer::GLFramebuffer::create(_positionWindow->size, 4);
+			
+			batch.output = Renderer::GLFramebuffer::create(_positionWindow->size, 0);
 			batch.output
 				->addTexture(0, TextureType::f32RGB) // Position
 				.addTexture(1, TextureType::u8RGB) // Diffuse
@@ -100,7 +100,7 @@ public:
 			batch.batch.pipeline = batch.pipeline.get();
 		}
 
-		{
+		{ // Lighting pass batch
 			auto& batch = _lightingBatch;
 			batch.vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/lighting.vert");
 			batch.fragmentShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::fragment, "assets/shaders/lighting.frag");
@@ -113,6 +113,7 @@ public:
 			batch.output = Renderer::GLFramebuffer::create(_glowWindow->size, 0);
 			batch.output
 				->addTexture(0, TextureType::u8RGB)
+				.addTexture(1, TextureType::u8RGB)
 				.finalize();
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
@@ -244,7 +245,7 @@ public:
 
 			{ // Lighting pass
 				if (!_uiRenderer->isDraging()) {
-					static glm::ivec2 oldSize = _glowBatch.output->getSize();
+					static glm::ivec2 oldSize = _lightingBatch.output->getSize();
 					auto newSize = _glowWindow->size;
 					if (oldSize != newSize) {
 						_lightingBatch.output->resize(newSize);
@@ -252,7 +253,7 @@ public:
 					}
 				}
 
-				for (auto& kv : _glowBatch.batch.objects)
+				for (auto& kv : _lightingBatch.batch.objects)
 					kv.second.clear();
 
 				for (auto& drawObj : _renderer->activeDrawObjects())
@@ -260,14 +261,14 @@ public:
 						_lightingBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 					}
 
+				_lightingBatch.pipeline->setValue(0, 0);
 				_lightingBatch.pipeline->setValue(1, 1);
 				_lightingBatch.pipeline->setValue(2, 2);
-				_lightingBatch.pipeline->setValue(3, 3);
-				_lightingBatch.pipeline->setValue(4, _cc->getPosition());
+				_lightingBatch.pipeline->setValue(3, _cc->getPosition());
 
-				(*_geometryBatch.output)[0]->bind(1);
-				(*_geometryBatch.output)[1]->bind(2);
-				(*_geometryBatch.output)[2]->bind(3);
+				(*_geometryBatch.output)[0]->bind(0);
+				(*_geometryBatch.output)[1]->bind(1);
+				(*_geometryBatch.output)[2]->bind(2);
 
 				_renderer->render(_lightingBatch.batch);
 			}
@@ -284,31 +285,33 @@ public:
 						oldSize = newSize;
 					}
 				}
-
+			
 				for (auto& kv : _glowBatch.batch.objects)
 					kv.second.clear();
-
+			
 				for (auto& drawObj : _renderer->activeDrawObjects())
 					if (!drawObj->disable && drawObj->mesh && drawObj->mesh->getIndicesCount() == 6) {
 						_glowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+						// Uncomment the line below to get a quad for the view render pass.
+						//_viewBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 					}
-
+			
 				// Resolves the glow texture from geomtrybatch which returns an image, that then is
 				// put into the function which returns a framebuffer that is then put into position 0 in blurredTexturesFBO
 				// Not sure why I can't copy textures from different framebuffers to eachother, have to look into it later.
 				int nrOfTimes = 1;
 				glm::vec2 size = _glowWindow->size;
-
-				_geometryBatch.output->resolve(1, _blurredOriginal);
-				_lightingBatch.output->resolve(0, (*_glowBatch.output)[0]);
-
+			
+				_lightingBatch.output->resolve(0, _blurredOriginal);
+				_lightingBatch.output->resolve(1, (*_glowBatch.output)[0]);
+			
 				_blurGlowTexture((*_glowBatch.output)[0], nrOfTimes, size *= 0.5f)
 					->resolve(0, _blurredIMG1);
 				_blurGlowTexture(_blurredIMG1, nrOfTimes, size *= 0.5f)
 					->resolve(0, _blurredIMG2);
 				_blurGlowTexture(_blurredIMG2, nrOfTimes, size *= 0.5f)
 					->resolve(0, _blurredIMG3);
-
+			
 				_glowBatch.batch.pipeline = _glowPipeline.get();
 				
 				_glowBatch.batch.pipeline->setValue(1, 1);
@@ -330,6 +333,10 @@ public:
 			}
 
 			{ // Update UI & views
+				// If you wanna see the final image, uncomment the two rows below.
+				//_viewBatch.batch.pipeline->setValue(0, 0);
+				//(*_glowBatch.output)[0]->bind(0);
+				
 				// Render to view
 				_renderer->render(_viewBatch.batch);
 
@@ -339,7 +346,8 @@ public:
 				_geometryBatch.output->resolve(2, _normalWindow->image);
 				_geometryBatch.output->resolve(3, _depthWindow->image);
 				_glowBatch.output->resolve(0, _glowWindow->image);
-
+				//_lightingBatch.output->resolve(0, _glowWindow->image);
+				//_lightingBatch.output->resolve(1, _glowWindow->image);
 				_uiRenderer->render();
 
 				_view->finalize();
@@ -433,7 +441,6 @@ private:
 			}
 		}
 
-		// Adds a quad to the glowbatch, it won't be removed because it'll always use the same quad to render towards.
 		auto quad = _world->createEntity("Quad");
 		quad->addComponent<Component::MeshComponent>("assets/objects/quad.obj");
 		auto rot = quad->addComponent<Component::TransformComponent>(glm::vec3(0));
