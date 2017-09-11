@@ -97,6 +97,14 @@
       <SubSystem>NotSet</SubSystem>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\component\componentmanager_physics.cpp" />
+    <ClCompile Include="src\empty.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\empty_physics.hpp" />
+    <ClInclude Include="include\hydra\component\componentmanager_physics.hpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -92,6 +92,7 @@
   <ItemGroup>
     <ClInclude Include="include\glad\glad.h" />
     <ClInclude Include="include\hydra\component\cameracomponent.hpp" />
+    <ClInclude Include="include\hydra\component\componentmanager_graphics.hpp" />
     <ClInclude Include="include\hydra\component\meshcomponent.hpp" />
     <ClInclude Include="include\hydra\component\transformcomponent.hpp" />
     <ClInclude Include="include\hydra\io\glmeshloader.hpp" />
