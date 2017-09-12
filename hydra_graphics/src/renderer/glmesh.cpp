@@ -226,11 +226,11 @@ std::unique_ptr<IMesh> GLMesh::createQuad(IRenderer* renderer) {
 
 std::unique_ptr<IMesh> GLMesh::createFullscreenQuad() {
 	std::vector<Vertex> vertices{
-		Vertex{glm::vec3{-1, -1, 0}, glm::vec3{0, 0, 1}, glm::vec3{1, 1, 1}, glm::vec2{-1, -1}, glm::vec3{0, 0, 0}},
-		Vertex{glm::vec3{-1, 1, 0}, glm::vec3{0, 0, 1}, glm::vec3{1, 1, 1}, glm::vec2{-1, 1}, glm::vec3{0, 0, 0}},
-		Vertex{glm::vec3{1, 1, 0}, glm::vec3{0, 0, 1}, glm::vec3{1, 1, 1}, glm::vec2{1, 1}, glm::vec3{0, 0, 0}},
-		Vertex{glm::vec3{1, -1, 0}, glm::vec3{0, 0, 1}, glm::vec3{1, 1, 1}, glm::vec2{1, -1}, glm::vec3{0, 0, 0}}
+		Vertex{glm::vec3{-1, 1, 0}, glm::vec3{0, 0, -1}, glm::vec3{1, 1, 1}, glm::vec2{0, 1}, glm::vec3{0, 0, 0}},
+		Vertex{glm::vec3{1, 1, 0}, glm::vec3{0, 0, -1}, glm::vec3{1, 1, 1}, glm::vec2{1, 1}, glm::vec3{0, 0, 0}},
+		Vertex{glm::vec3{1, -1, 0}, glm::vec3{0, 0, -1}, glm::vec3{1, 1, 1}, glm::vec2{1, 0}, glm::vec3{0, 0, 0}},
+		Vertex{glm::vec3{-1, -1, 0}, glm::vec3{0, 0, -1}, glm::vec3{1, 1, 1}, glm::vec2{0, 0}, glm::vec3{0, 0, 0}}
 	};
-	std::vector<GLuint> indices{0, 1, 2, 2, 3, 0};
+	std::vector<GLuint> indices{0, 2, 1, 2, 0, 3};
 	return std::unique_ptr<IMesh>(new ::GLMeshImpl(vertices, indices));
 }
