@@ -53,6 +53,10 @@ struct meshInfo {
 
 class GLMeshImpl final : public IMesh {
 public:
+	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices) {
+		_makeBuffers();
+		_uploadData(vertices, indices, 0);
+	}
 
 	GLMeshImpl(const std::string& file, GLuint modelMatrixBuffer) {
 		std::vector<Vertex> vertices;
@@ -75,6 +79,17 @@ public:
 		//_material.normal = Hydra::IEngine::getInstance()->getTextureLoader()->getTexture("assets/textures/errorNormal.png");	
 	}
 
+	GLMeshImpl(GLuint modelMatrixBuffer) {
+		std::vector<Vertex> vertices = {
+			Vertex{ glm::vec3{ -1, 1, 0 }, glm::vec3{ 0, 0, -1 },{ 1.0, 1.0, 1.0 },{ 0, 1 } }, Vertex{ glm::vec3{ 1, 1, 0 }, glm::vec3{ 0, 0, -1 },{ 1.0, 1.0, 1.0 },{ 1, 1 } },
+			Vertex{ glm::vec3{ 1, -1, 0 }, glm::vec3{ 0, 0, -1 },{ 1.0, 1.0, 1.0 },{ 1, 0 } }, Vertex{ glm::vec3{ -1, -1, 0 }, glm::vec3{ 0, 0, -1 },{ 1.0, 1.0, 1.0 },{ 0, 0 } },
+		};
+		std::vector<GLuint> indices = { 0, 2, 1, 2, 0, 3 };
+		_indicesCount = indices.size();
+		_makeBuffers();
+		_uploadData(vertices, indices, modelMatrixBuffer);
+	}
+
 	~GLMeshImpl() final {
 		GLuint buffers[2] = {_vbo, _ibo};
 		glDeleteBuffers(sizeof(buffers) / sizeof(*buffers), buffers);
@@ -86,7 +101,6 @@ public:
 
 	GLuint getID() const final { return _vao; }
 	size_t getIndicesCount() const final { return _indicesCount; }
-
 private:
 	Material _material;
 	GLuint _vao; // Vertex Array
@@ -106,6 +120,7 @@ private:
 	}
 
 	void _uploadData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, GLuint modelMatrixBuffer) {
+		_indicesCount = indices.size();
 		glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
@@ -124,11 +139,13 @@ private:
 		glVertexAttribPointer(VertexLocation::uv, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, uv));
 		glVertexAttribPointer(VertexLocation::tangent, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, tangent));
 
-		glBindBuffer(GL_ARRAY_BUFFER, modelMatrixBuffer);
-		for (int i = 0; i < 4; i++) {
-			glEnableVertexAttribArray(VertexLocation::modelMatrix + i);
-			glVertexAttribPointer(VertexLocation::modelMatrix + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(sizeof(glm::vec4) * i));
-			glVertexAttribDivisor(VertexLocation::modelMatrix + i, 1);
+		if (modelMatrixBuffer) {
+			glBindBuffer(GL_ARRAY_BUFFER, modelMatrixBuffer);
+			for (int i = 0; i < 4; i++) {
+				glEnableVertexAttribArray(VertexLocation::modelMatrix + i);
+				glVertexAttribPointer(VertexLocation::modelMatrix + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(sizeof(glm::vec4) * i));
+				glVertexAttribDivisor(VertexLocation::modelMatrix + i, 1);
+			}
 		}
 	}
 
@@ -192,8 +209,6 @@ private:
 			}
 			counterVertices += assimpMesh->mNumVertices;
 		}
-
-		_indicesCount = indices.size();
 
 		_makeBuffers();
 		_uploadData(vertices, indices, modelMatrixBuffer);
@@ -393,3 +408,18 @@ std::unique_ptr<IMesh> GLMesh::create(const std::string& file, IRenderer* render
 	return std::unique_ptr<IMesh>(new ::GLMeshImpl(file, *static_cast<GLuint*>(renderer->getModelMatrixBuffer())));
 }
 
+std::unique_ptr<IMesh> GLMesh::createQuad(IRenderer* renderer) {
+	std::unique_ptr<IMesh> mesh = std::unique_ptr<IMesh>(new::GLMeshImpl(*static_cast<GLuint*>(renderer->getModelMatrixBuffer())));
+	return mesh;
+}
+
+std::unique_ptr<IMesh> GLMesh::createFullscreenQuad() {
+	std::vector<Vertex> vertices{
+		Vertex{{-1, 1, 0}, {0, 0, -1}, {1, 1, 1}, {0, 1}, {0, 0, 0}},
+		Vertex{{1, 1, 0}, {0, 0, -1}, {1, 1, 1}, {1, 1}, {0, 0, 0}},
+		Vertex{{1, -1, 0}, {0, 0, -1}, {1, 1, 1}, {1, 0}, {0, 0, 0}},
+		Vertex{{-1, -1, 0}, {0, 0, -1}, {1, 1, 1}, {0, 0}, {0, 0, 0}}
+	};
+	std::vector<GLuint> indices{0, 2, 1, 2, 0, 3};
+	return std::unique_ptr<IMesh>(new ::GLMeshImpl(vertices, indices));
+}

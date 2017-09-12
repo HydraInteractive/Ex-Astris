@@ -41,6 +41,7 @@ public:
 
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_MULTISAMPLE);
+		glEnable(GL_SAMPLE_SHADING);
 
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -48,6 +49,8 @@ public:
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 
 		SDL_GL_SetSwapInterval(0);
+
+		_fullscreenQuad = Hydra::Renderer::GLMesh::createFullscreenQuad();
 
 		glGenBuffers(1, &_modelMatrixBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
@@ -89,6 +92,26 @@ public:
 		}
 	}
 
+	void postProcessing(Batch& batch) final {
+		SDL_GL_MakeCurrent(_window, _glContext);
+		glBindFramebuffer(GL_FRAMEBUFFER, batch.renderTarget->getID());
+		const auto& size = batch.renderTarget->getSize();
+		glViewport(0, 0, size.x, size.y);
+
+		glClearColor(batch.clearColor.r, batch.clearColor.g, batch.clearColor.b, batch.clearColor.a);
+		GLenum clearFlags = 0;
+		clearFlags |= (batch.clearFlags & ClearFlags::color) == ClearFlags::color ? GL_COLOR_BUFFER_BIT : 0;
+		clearFlags |= (batch.clearFlags & ClearFlags::depth) == ClearFlags::depth ? GL_DEPTH_BUFFER_BIT : 0;
+		glClear(clearFlags);
+
+		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
+
+		glDisable(GL_CULL_FACE);
+		glBindVertexArray(_fullscreenQuad->getID());
+		glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(_fullscreenQuad->getIndicesCount()), GL_UNSIGNED_INT, nullptr, 1);
+		glEnable(GL_CULL_FACE);
+	}
+
 	DrawObject* aquireDrawObject() final {
 		std::unique_ptr<DrawObject> drawObj;
 		DrawObject* drawObjPtr;
@@ -125,6 +148,7 @@ private:
 	SDL_GLContext _glContext;
 	std::vector<std::unique_ptr<DrawObject>> _activeDrawObjects;
 	std::vector<std::unique_ptr<DrawObject>> _inactiveDrawObjects;
+	std::unique_ptr<IMesh> _fullscreenQuad;
 
 	const size_t _modelMatrixSize = sizeof(glm::mat4) * 128; // max 128 mesh instances per draw call
 	GLuint _modelMatrixBuffer;
@@ -143,8 +167,8 @@ std::unique_ptr<IRenderer> GLRenderer::create(Hydra::View::IView& view) {
 }
 
 void glDebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
-	if(id == 4 || id == 8 || id == 20 || id == 131169 || id == 131185 || id == 131218 || id == 131204)
-		return;
+	/*if(id == 4 || id == 8 || id == 20 || id == 131169 || id == 131185 || id == 131218 || id == 131204)
+		return;*/
 
 	if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
 		return;
@@ -205,4 +229,6 @@ void glDebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei 
 	std::string stackTrace = Hydra::Ext::getStackTrace();
 
 	Hydra::IEngine::getInstance()->log(level, "GL error: Source %s, Type: %s, ID: %d, Severity: %s\n%s%s%s", sourceStr.c_str(), typeStr.c_str(), id, severityStr.c_str(), message, stackTrace.length() ? "\n" : "", stackTrace.c_str());
+	if (level == Hydra::LogLevel::error)
+		exit(0);
 }

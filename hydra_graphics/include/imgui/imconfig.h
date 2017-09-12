@@ -12,10 +12,12 @@
 #include <hydra/ext/api.hpp>
 
 //---- Define attributes of all API symbols declarations, e.g. for DLL under Windows.
+#ifdef _WIN32
 #ifdef HYDRA_GRAPHICS_EXPORTS
 #define IMGUI_API __declspec( dllexport )
 #else
 #define IMGUI_API __declspec( dllimport )
+#endif
 #endif
 
 //---- Include imgui_user.h at the end of imgui.h

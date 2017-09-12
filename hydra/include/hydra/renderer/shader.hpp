@@ -40,7 +40,8 @@ namespace Hydra::Renderer {
 
 		virtual void finalize() = 0;
 
-		virtual void setValue(int32_t id, int value) = 0;
+		virtual void setValue(int32_t id, int32_t value) = 0;
+		virtual void setValue(int32_t id, uint32_t value) = 0;
 		virtual void setValue(int32_t id, float value) = 0;
 		virtual void setValue(int32_t id, const glm::ivec2& value) = 0;
 		virtual void setValue(int32_t id, const glm::ivec3& value) = 0;

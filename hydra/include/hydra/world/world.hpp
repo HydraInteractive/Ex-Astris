@@ -14,11 +14,14 @@
 #include <vector>
 #include <typeinfo>
 #include <typeindex>
-#include <msgpack.hpp>
+#undef min
+#undef max
+#include <json.hpp>
 
 namespace Hydra::Renderer { struct HYDRA_API DrawObject; }
 
 namespace Hydra::World {
+	class HYDRA_API IEntity;
 	class HYDRA_API IComponent;
 	struct HYDRA_API Blueprint;
 
@@ -33,8 +36,24 @@ namespace Hydra::World {
 	inline TickAction operator| (TickAction a, TickAction b) { return static_cast<TickAction>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b)); }
 	inline TickAction operator& (TickAction a, TickAction b) { return static_cast<TickAction>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b)); }
 
+	class HYDRA_API IWorld {
+	public:
+		virtual ~IWorld() = 0;
+
+		virtual size_t getFreeID() = 0;
+
+		// To emulate a IEntity, kinda
+		virtual std::shared_ptr<IEntity> createEntity(const std::string& name) = 0;
+		virtual void tick(TickAction action) = 0;
+
+		virtual void setWorldRoot(std::shared_ptr<IEntity> root) = 0;
+		virtual std::shared_ptr<IEntity> getWorldRoot() = 0;
+	};
+	inline IWorld::~IWorld() {}
+
 	class HYDRA_API IEntity {
 	public:
+		inline IEntity(IWorld* world) : world(world), id(world->getFreeID()) {}
 		virtual ~IEntity() = 0;
 
 		virtual void tick(TickAction action) = 0;
@@ -64,17 +83,24 @@ namespace Hydra::World {
 		}
 
 		virtual std::shared_ptr<IEntity> spawn(std::shared_ptr<IEntity> entity) = 0;
-		virtual std::shared_ptr<IEntity> spawn(Blueprint& blueprint) = 0;
 		virtual std::shared_ptr<IEntity> createEntity(const std::string& name) = 0;
+		virtual std::shared_ptr<IEntity> createEntity(nlohmann::json& json) = 0;
 
+		inline size_t getID() { return id; }
+
+		virtual void setParent(IEntity* parent) = 0;
 		virtual IEntity* getParent() = 0;
 		virtual const std::vector<std::shared_ptr<IEntity>>& getChildren() = 0;
 
-		virtual msgpack::packer<msgpack::sbuffer>& pack(msgpack::packer<msgpack::sbuffer>& o) const = 0;
+		virtual void serialize(nlohmann::json& json, bool serializeChildren = true) const = 0;
+		virtual void deserialize(nlohmann::json& json) = 0;
 
 		virtual const std::string& getName() const = 0;
 		virtual Hydra::Renderer::DrawObject* getDrawObject() = 0;
 		virtual bool isDead() const = 0;
+	protected:
+		IWorld* world;
+		size_t id;
 	};
 	inline IEntity::~IEntity() {}
 
@@ -88,7 +114,8 @@ namespace Hydra::World {
 
 		virtual const std::string type() const = 0;
 
-		virtual msgpack::packer<msgpack::sbuffer>& pack(msgpack::packer<msgpack::sbuffer>& o) const = 0;
+		virtual void serialize(nlohmann::json& json) const = 0;
+		virtual void deserialize(nlohmann::json& json) = 0;
 		virtual void registerUI() = 0;
 
 		// TODO?: IComponent* getParent();
@@ -99,19 +126,21 @@ namespace Hydra::World {
 	inline IComponent::~IComponent() {}
 
 	struct HYDRA_API Blueprint final {
-		msgpack::object_handle objectHandle;
+		std::string name; // Blueprint Name
 
-		std::string name;
-		msgpack::object_map* data;
+		inline nlohmann::json& getData() { return _root["data"]; }
+
+		std::shared_ptr<IEntity> spawn(IWorld* world);
+
+		nlohmann::json _root;
 	};
 
-	class HYDRA_API IWorld : public virtual IEntity {
-	public:
-		virtual ~IWorld() = 0;
+	namespace World {
+		HYDRA_API std::unique_ptr<IWorld> create();
 	};
-	inline IWorld::~IWorld() {}
 
-	struct HYDRA_API World final {
-		static std::shared_ptr<IWorld> create();
+	namespace Entity {
+		HYDRA_API std::shared_ptr<IEntity> createEmpty(IWorld* world, const std::string& name);
+		HYDRA_API std::shared_ptr<IEntity> createFromBlueprint(IWorld* world, nlohmann::json& json);
 	};
 };
