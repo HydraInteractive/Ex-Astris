@@ -24,6 +24,7 @@ using namespace Hydra::World;
 namespace Hydra::Component {
 	class HYDRA_API CameraComponent final : public IComponent {
 	public:
+		CameraComponent(IEntity* entity);
 		CameraComponent(IEntity* entity, Hydra::Renderer::IRenderTarget* renderTarget, const glm::vec3& position = {0, 0, 0});
 		~CameraComponent() final;
 
@@ -32,7 +33,8 @@ namespace Hydra::Component {
 
 		inline const std::string type() const final { return "CameraComponent"; }
 
-		virtual msgpack::packer<msgpack::sbuffer>& pack(msgpack::packer<msgpack::sbuffer>& o) const final;
+		void serialize(nlohmann::json& json) const final;
+		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
 
 		void translate(const glm::vec3& transform);
@@ -41,6 +43,10 @@ namespace Hydra::Component {
 		CameraComponent& yaw(float angle);
 		CameraComponent& pitch(float angle);
 		CameraComponent& roll(float angle);
+
+
+		inline Hydra::Renderer::IRenderTarget* getRenderTarget() { return _renderTarget; }
+		inline void setRenderTarget(Hydra::Renderer::IRenderTarget* renderTarget) { _renderTarget = renderTarget; }
 
 		inline const glm::vec3& getPosition() const { return _position; }
 

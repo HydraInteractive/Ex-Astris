@@ -120,7 +120,8 @@ public:
 		}
 	}
 
-	void setValue(int32_t id, int value) final { glProgramUniform1i(_program, id, value); }
+	void setValue(int32_t id, int32_t value) final { glProgramUniform1i(_program, id, value); }
+	void setValue(int32_t id, uint32_t value) final { glProgramUniform1ui(_program, id, value); }
 	void setValue(int32_t id, float value) final { glProgramUniform1f(_program, id, value); }
 	void setValue(int32_t id, const glm::ivec2& value) final { glProgramUniform2iv(_program, id, 1, glm::value_ptr(value)); }
 	void setValue(int32_t id, const glm::ivec3& value) final { glProgramUniform3iv(_program, id, 1, glm::value_ptr(value)); }

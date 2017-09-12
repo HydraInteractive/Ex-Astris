@@ -14,12 +14,12 @@
 
 using namespace Hydra::Component;
 
+CameraComponent::CameraComponent(IEntity* entity) : IComponent(entity), _renderTarget(nullptr) {}
 CameraComponent::CameraComponent(IEntity* entity, Hydra::Renderer::IRenderTarget* renderTarget, const glm::vec3& position) : IComponent(entity), _renderTarget(renderTarget), _position(position) {}
 
 CameraComponent::~CameraComponent() {}
 
 void CameraComponent::tick(TickAction action) {
-	// assert(action == TickAction::physics); // Can only be this due to wantTick
 	_position += glm::vec3{0, 0, 0};
 
 	if (_mouseControl) {
@@ -52,7 +52,6 @@ CameraComponent& CameraComponent::yaw(float angle) { rotation(angle, {0, 1, 0});
 CameraComponent& CameraComponent::pitch(float angle) { rotation(angle, {1, 0, 0}); return *this; }
 CameraComponent& CameraComponent::roll(float angle) { rotation(angle, {0, 0, 1}); return *this; }
 
-
 void Hydra::Component::CameraComponent::setPosition(const glm::vec3 & position)
 {
 	auto model = entity->getComponent<Component::TransformComponent>();
@@ -60,35 +59,26 @@ void Hydra::Component::CameraComponent::setPosition(const glm::vec3 & position)
 	_position = position;
 }
 
-msgpack::packer<msgpack::sbuffer>& CameraComponent::pack(msgpack::packer<msgpack::sbuffer>& o) const {
-	o.pack_map(6);
+void CameraComponent::serialize(nlohmann::json& json) const {
+	json = {
+		{"position", {_position.x, _position.y, _position.z}},
+		{"orientation", {_orientation.x, _orientation.y, _orientation.z, _orientation.w}},
+		{"fov", _fov},
+		{"zNear", _zNear},
+		{"zFar", _zFar}
+	};
+}
 
-	o.pack("position");
-	o.pack_array(3);
-	o.pack_float(_position.x);
-	o.pack_float(_position.y);
-	o.pack_float(_position.z);
+void CameraComponent::deserialize(nlohmann::json& json) {
+	auto& pos = json["position"];
+	_position = glm::vec3{pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>()};
 
-	o.pack("orientation");
-	o.pack_array(4);
-	o.pack_float(_orientation.x);
-	o.pack_float(_orientation.y);
-	o.pack_float(_orientation.z);
-	o.pack_float(_orientation.w);
+	auto& orientation = json["orientation"];
+	_orientation = glm::quat{orientation[0].get<float>(), orientation[1].get<float>(), orientation[2].get<float>(), orientation[3].get<float>()};
 
-	o.pack("fov");
-	o.pack_float(_fov);
-
-	o.pack("zNear");
-	o.pack_float(_zNear);
-
-	o.pack("zFar");
-	o.pack_float(_zFar);
-
-	o.pack("aspect");
-	o.pack_float(_aspect);
-
-	return o;
+	_fov = json["fov"].get<float>();
+	_zNear = json["zNear"].get<float>();
+	_zFar = json["zFar"].get<float>();
 }
 
 void CameraComponent::registerUI() {
@@ -98,6 +88,7 @@ void CameraComponent::registerUI() {
 	ImGui::DragFloat("FOV", &_fov);
 	ImGui::DragFloat("Z Near", &_zNear, 0.001f);
 	ImGui::DragFloat("Z Far", &_zFar);
+
 	float aspect = (_renderTarget->getSize().x*1.0f) / _renderTarget->getSize().y;
 	ImGui::InputFloat("Aspect", &aspect, 0, 0, -1, ImGuiInputTextFlags_ReadOnly);
 	ImGui::Checkbox("Mouse Control", &_mouseControl);
