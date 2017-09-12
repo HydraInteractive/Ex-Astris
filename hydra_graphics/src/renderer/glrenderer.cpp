@@ -41,6 +41,7 @@ public:
 
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_MULTISAMPLE);
+		glEnable(GL_SAMPLE_SHADING);
 
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -164,8 +165,8 @@ std::unique_ptr<IRenderer> GLRenderer::create(Hydra::View::IView& view) {
 }
 
 void glDebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
-	if(id == 4 || id == 8 || id == 20 || id == 131169 || id == 131185 || id == 131218 || id == 131204)
-		return;
+	/*if(id == 4 || id == 8 || id == 20 || id == 131169 || id == 131185 || id == 131218 || id == 131204)
+		return;*/
 
 	if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
 		return;
@@ -226,4 +227,6 @@ void glDebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei 
 	std::string stackTrace = Hydra::Ext::getStackTrace();
 
 	Hydra::IEngine::getInstance()->log(level, "GL error: Source %s, Type: %s, ID: %d, Severity: %s\n%s%s%s", sourceStr.c_str(), typeStr.c_str(), id, severityStr.c_str(), message, stackTrace.length() ? "\n" : "", stackTrace.c_str());
+	if (level == Hydra::LogLevel::error)
+		exit(0);
 }

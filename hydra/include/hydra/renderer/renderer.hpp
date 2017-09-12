@@ -42,8 +42,10 @@ namespace Hydra::Renderer {
 		virtual ~ITexture() = 0;
 
 		virtual void resize(glm::ivec2 size) = 0;
+		virtual void bind(size_t position) = 0;
 
 		virtual glm::ivec2 getSize() = 0;
+		virtual size_t getSamples() = 0;
 		virtual uint32_t getID() const = 0;
 	};
 	inline ITexture::~ITexture() {}
@@ -82,6 +84,7 @@ namespace Hydra::Renderer {
 		virtual IFramebuffer& addTexture(size_t id, TextureType type) = 0;
 
 		virtual void finalize() = 0;
+		inline void bind(size_t position) final {}
 
 		virtual std::shared_ptr<ITexture> getDepth() = 0;
 

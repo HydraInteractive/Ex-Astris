@@ -74,6 +74,11 @@ public:
 		_depthWindow->title = "Depth FBO";
 		_depthWindow->image = Renderer::GLTexture::createFromData(_depthWindow->size.x, _depthWindow->size.y, TextureType::u8RGB, nullptr);
 
+		_postTestWindow = _uiRenderer->addRenderWindow();
+		_postTestWindow->enabled = true;
+		_postTestWindow->title = "PostTest FBO";
+		_postTestWindow->image = Renderer::GLTexture::createFromData(_postTestWindow->size.x, _postTestWindow->size.y, TextureType::u8RGB, nullptr);
+
 		{
 			auto& batch = _geometryBatch;
 			batch.vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/geometry.vert");
@@ -115,6 +120,27 @@ public:
 			batch.batch.clearFlags = ClearFlags::color | ClearFlags::depth;
 			batch.batch.renderTarget = _view.get();
 			batch.batch.pipeline = batch.pipeline.get(); // TODO: Change to "null" pipeline
+		}
+
+		{
+			auto& batch = _postTestBatch;
+			batch.vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/postTest.vert");
+			batch.fragmentShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::fragment, "assets/shaders/postTest.frag");
+
+			batch.pipeline = Renderer::GLPipeline::create();
+			batch.pipeline->attachStage(*batch.vertexShader);
+			batch.pipeline->attachStage(*batch.fragmentShader);
+			batch.pipeline->finalize();
+
+			batch.output = Renderer::GLFramebuffer::create(_positionWindow->size, 4);
+			batch.output
+				->addTexture(0, TextureType::u8RGB) // Position
+				.finalize();
+
+			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
+			batch.batch.clearFlags = ClearFlags::color | ClearFlags::depth;
+			batch.batch.renderTarget = batch.output.get();
+			batch.batch.pipeline = batch.pipeline.get();
 		}
 
 		_initEntities();
@@ -180,6 +206,21 @@ public:
 				_world->tick(TickAction::renderTransparent);
 			}
 
+			{
+				if (!_uiRenderer->isDraging()) {
+					static glm::ivec2 oldSize = _postTestBatch.output->getSize();
+					auto newSize = _positionWindow->size;
+					if (oldSize != newSize) {
+						_postTestBatch.output->resize(newSize);
+						oldSize = newSize;
+					}
+				}
+				(*_geometryBatch.output)[0]->bind(0);
+				_postTestBatch.pipeline->setValue(0, 0);
+				_postTestBatch.pipeline->setValue(1, (int)_geometryBatch.output->getSamples());
+				_renderer->postProcessing(_postTestBatch.batch);
+			}
+
 			{ // Update UI & views
 				// Render to view
 				_renderer->render(_viewBatch.batch);
@@ -189,6 +230,7 @@ public:
 				_geometryBatch.output->resolve(1, _diffuseWindow->image);
 				_geometryBatch.output->resolve(2, _normalWindow->image);
 				_geometryBatch.output->resolve(3, _depthWindow->image);
+				_postTestBatch.output->resolve(0, _postTestWindow->image);
 				_uiRenderer->render();
 
 				_view->finalize();
@@ -241,10 +283,12 @@ private:
 	Renderer::UIRenderWindow* _diffuseWindow;
 	Renderer::UIRenderWindow* _normalWindow;
 	Renderer::UIRenderWindow* _depthWindow;
+	Renderer::UIRenderWindow* _postTestWindow;
 
 	RenderBatch _geometryBatch; // First part of deferred rendering
 	RenderBatch _lightingBatch; // Second part of deferred rendering
 	RenderBatch _viewBatch;
+	RenderBatch _postTestBatch;
 
 	Component::CameraComponent* _cc = nullptr;
 

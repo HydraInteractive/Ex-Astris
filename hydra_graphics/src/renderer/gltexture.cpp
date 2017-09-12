@@ -159,6 +159,15 @@ public:
 			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, (GLsizei)_samples, toGLBase(_format), (GLsizei)_size.x, (GLsizei)_size.y, GL_FALSE);
 	}
 
+	void bind(size_t position) final {
+		glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + position));
+		if (!_samples)
+			glBindTexture(GL_TEXTURE_2D, _texture);
+		else
+			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, _texture);
+	}
+
+	size_t getSamples() final { return _samples; }
 	glm::ivec2 getSize() final { return _size; }
 	uint32_t getID() const final { return _texture; }
 

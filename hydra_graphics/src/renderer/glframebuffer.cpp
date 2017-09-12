@@ -42,6 +42,7 @@ public:
 			_depth->resize(size);
 	}
 
+	size_t getSamples() final { return _samples; }
 	glm::ivec2 getSize() final { return _size; }
 	uint32_t getID() const final { return _framebuffer; }
 
