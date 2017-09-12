@@ -11,6 +11,7 @@
 #include <hydra/renderer/uirenderer.hpp>
 #include <hydra/io/glmeshloader.hpp>
 #include <hydra/io/gltextureloader.hpp>
+#include <hydra/io/Input.hpp>
 
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
@@ -45,6 +46,7 @@ public:
 		_uiRenderer = Renderer::UIRenderer::create(*_view);
 		_textureLoader = IO::GLTextureLoader::create();
 		_meshLoader = IO::GLMeshLoader::create(_renderer.get());
+		_input.setWindowSize(_view.get()->getSize().x, _view.get()->getSize().y);
 
 		_world = Hydra::World::World::create();
 
@@ -128,6 +130,18 @@ public:
 				_uiRenderer->newFrame();
 			}
 
+			if (_input.getKey(SDL_SCANCODE_W))
+				_cc->translate(glm::vec3(0, 0, 0.1));
+			if (_input.getKey(SDL_SCANCODE_A))
+				_cc->translate(glm::vec3(0.1, 0, 0));
+			if (_input.getKey(SDL_SCANCODE_S))
+				_cc->translate(glm::vec3(0, 0, -0.1));
+			if (_input.getKey(SDL_SCANCODE_D))
+				_cc->translate(glm::vec3(-0.1, 0, 0));
+			
+			_input.update();
+			_cc->rotation(0.01, glm::vec3(0, 1, 0));
+			
 			{ // Update physics
 				_world->tick(TickAction::physics);
 			}
@@ -149,7 +163,7 @@ public:
 				_geometryBatch.pipeline->setValue(0, _cc->getViewMatrix());
 				_geometryBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
 				_geometryBatch.pipeline->setValue(2, cameraPos = _cc->getPosition());
-
+				
 				//_geometryBatch.batch.objects.clear();
 				for (auto& kv : _geometryBatch.batch.objects)
 					kv.second.clear();
@@ -228,7 +242,8 @@ private:
 	std::unique_ptr<Renderer::IUIRenderer> _uiRenderer;
 	std::unique_ptr<IO::ITextureLoader> _textureLoader;
 	std::unique_ptr<IO::IMeshLoader> _meshLoader;
-
+	Input _input;
+	
 	std::shared_ptr<IWorld> _world;
 
 	Renderer::UIRenderWindow* _positionWindow;

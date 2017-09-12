@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -14,7 +14,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{DC6ED591-6DFA-429F-A1E9-CBCB849C94F3}</ProjectGuid>
     <RootNamespace>hydra</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -94,6 +94,7 @@
     <ClInclude Include="include\hydra\ext\api.hpp" />
     <ClInclude Include="include\hydra\ext\ram.hpp" />
     <ClInclude Include="include\hydra\ext\stacktrace.hpp" />
+    <ClInclude Include="include\hydra\io\Input.hpp" />
     <ClInclude Include="include\hydra\io\meshloader.hpp" />
     <ClInclude Include="include\hydra\io\textureloader.hpp" />
     <ClInclude Include="include\hydra\renderer\renderer.hpp" />
@@ -754,6 +755,7 @@
     <ClInclude Include="include\msgpack\zone_decl.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="include\hydra\io\Input.cpp" />
     <ClCompile Include="src\engine.cpp" />
     <ClCompile Include="src\ext\ram.cpp" />
     <ClCompile Include="src\ext\stacktrace.cpp" />
