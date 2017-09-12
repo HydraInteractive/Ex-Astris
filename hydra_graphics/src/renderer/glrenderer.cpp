@@ -106,8 +106,10 @@ public:
 
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
 
+		glDisable(GL_CULL_FACE);
 		glBindVertexArray(_fullscreenQuad->getID());
 		glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(_fullscreenQuad->getIndicesCount()), GL_UNSIGNED_INT, nullptr, 1);
+		glEnable(GL_CULL_FACE);
 	}
 
 	DrawObject* aquireDrawObject() final {

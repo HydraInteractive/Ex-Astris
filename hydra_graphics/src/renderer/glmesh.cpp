@@ -43,7 +43,18 @@ public:
 
 		_loadModel(scene, modelMatrixBuffer);
 		_material.diffuse = _getTexture(scene, file);
-		_material.normal = Hydra::IEngine::getInstance()->getTextureLoader()->getTexture("assets/textures/errorNormal.png");	
+		_material.normal = Hydra::IEngine::getInstance()->getTextureLoader()->getTexture("assets/textures/errorNormal.png");
+	}
+
+	GLMeshImpl(GLuint modelMatrixBuffer) {
+		std::vector<Vertex> vertices = {
+			Vertex{ glm::vec3{ -1, 1, 0 }, glm::vec3{ 0, 0, -1 },{ 1.0, 1.0, 1.0 },{ 0, 1 } }, Vertex{ glm::vec3{ 1, 1, 0 }, glm::vec3{ 0, 0, -1 },{ 1.0, 1.0, 1.0 },{ 1, 1 } },
+			Vertex{ glm::vec3{ 1, -1, 0 }, glm::vec3{ 0, 0, -1 },{ 1.0, 1.0, 1.0 },{ 1, 0 } }, Vertex{ glm::vec3{ -1, -1, 0 }, glm::vec3{ 0, 0, -1 },{ 1.0, 1.0, 1.0 },{ 0, 0 } },
+		};
+		std::vector<GLuint> indices = { 0, 2, 1, 2, 0, 3 };
+		_indicesCount = indices.size();
+		_makeBuffers();
+		_uploadData(vertices, indices, modelMatrixBuffer);
 	}
 
 	~GLMeshImpl() final {
@@ -57,7 +68,6 @@ public:
 
 	GLuint getID() const final { return _vao; }
 	size_t getIndicesCount() const final { return _indicesCount; }
-
 private:
 	Material _material;
 	GLuint _vao; // Vertex Array
@@ -207,6 +217,11 @@ private:
 
 std::unique_ptr<IMesh> GLMesh::create(const std::string& file, IRenderer* renderer) {
 	return std::unique_ptr<IMesh>(new ::GLMeshImpl(file, *static_cast<GLuint*>(renderer->getModelMatrixBuffer())));
+}
+
+std::unique_ptr<IMesh> GLMesh::createQuad(IRenderer* renderer) {
+	std::unique_ptr<IMesh> mesh = std::unique_ptr<IMesh>(new::GLMeshImpl(*static_cast<GLuint*>(renderer->getModelMatrixBuffer())));
+	return mesh;
 }
 
 std::unique_ptr<IMesh> GLMesh::createFullscreenQuad() {

@@ -93,7 +93,7 @@ public:
 		return result;
 	}
 
-	std::shared_ptr<ITexture> operator[](size_t idx) final {
+	std::shared_ptr<ITexture>& operator[](size_t idx) final {
 		return _attachments[static_cast<GLuint>(idx)];
 	}
 
