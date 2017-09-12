@@ -91,7 +91,7 @@ public:
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 			
-			batch.output = Renderer::GLFramebuffer::create(_positionWindow->size, 0);
+			batch.output = Renderer::GLFramebuffer::create(_positionWindow->size, 4);
 			batch.output
 				->addTexture(0, TextureType::f32RGB) // Position
 				.addTexture(1, TextureType::u8RGB) // Diffuse
