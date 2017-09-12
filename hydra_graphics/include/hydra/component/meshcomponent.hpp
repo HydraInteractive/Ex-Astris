@@ -19,7 +19,7 @@ using namespace Hydra::World;
 // TODO: Implement LOD
 
 namespace Hydra::Component {
-	enum PrimitiveType : int {quad = 0};
+	enum PrimitiveType : int {Quad = 0};
 	class HYDRA_API MeshComponent final : public IComponent {
 	public:
 		MeshComponent(IEntity* entity);

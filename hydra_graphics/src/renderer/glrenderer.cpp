@@ -79,14 +79,14 @@ public:
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
 
+			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
+			glBindVertexArray(mesh->getID());
 			size_t size = kv.second.size();
 			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
 			for (size_t i = 0; i < size; i += maxPerLoop) {
 				size_t amount = std::min(size - i, maxPerLoop);
-				glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
 				glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
 				glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &kv.second[i]);
-				glBindVertexArray(mesh->getID());
 				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
 			}
 		}
@@ -167,8 +167,8 @@ std::unique_ptr<IRenderer> GLRenderer::create(Hydra::View::IView& view) {
 }
 
 void glDebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
-	/*if(id == 4 || id == 8 || id == 20 || id == 131169 || id == 131185 || id == 131218 || id == 131204)
-		return;*/
+	if(id == 4 || id == 8 || id == 20 || id == 131169 || id == 131185 || id == 131218 || id == 131204)
+		return;
 
 	if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
 		return;

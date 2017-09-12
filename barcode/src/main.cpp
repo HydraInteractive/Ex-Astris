@@ -343,6 +343,7 @@ public:
 
 			{ // Render transparent objects	(Forward rendering)
 				_world->tick(TickAction::renderTransparent);
+
 			}
 
 			{
