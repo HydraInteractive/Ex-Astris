@@ -35,16 +35,16 @@ void PlayerComponent::tick(TickAction action) {
 	keysArray = const_cast <Uint8*> (SDL_GetKeyboardState(NULL));
 
 	if (keysArray[SDL_SCANCODE_UP]) {
-		_velocityZ = 0.5f;
-	}
-	if (keysArray[SDL_SCANCODE_DOWN]) {
 		_velocityZ = -0.5f;
 	}
+	if (keysArray[SDL_SCANCODE_DOWN]) {
+		_velocityZ = 0.5f;
+	}
 	if (keysArray[SDL_SCANCODE_LEFT]) {
-		_velocityX = 0.5f;
+		_velocityX = -0.5f;
 	}
 	if (keysArray[SDL_SCANCODE_RIGHT]) {
-		_velocityX = -0.5f;
+		_velocityX = 0.5f;
 	}
 	
 	if (keysArray[SDL_SCANCODE_LEFT] == 0 && keysArray[SDL_SCANCODE_RIGHT] == 0) {
@@ -67,7 +67,7 @@ void PlayerComponent::tick(TickAction action) {
 	_playerPos = camera->getPosition();
 	_playerPos = _playerPos + glm::vec3(_velocityX, _velocityY, _velocityZ);
 
-	player->setPosition(glm::vec3(-_playerPos.x, -_playerPos.y+2, -_playerPos.z-4));
+	player->setPosition(glm::vec3(_playerPos.x, _playerPos.y+2, _playerPos.z-4));
 	camera->setPosition(_playerPos);
 
 
@@ -95,10 +95,7 @@ msgpack::packer<msgpack::sbuffer>& PlayerComponent::pack(msgpack::packer<msgpack
 // Register UI buttons in the debug UI
 // Note: This function won't always be called
 void PlayerComponent::registerUI() {
-
-	
-	ImGui::InputFloat("X", &playerPos.x);
-	ImGui::InputFloat("Y", &playerPos.y);
-	ImGui::InputFloat("Z", &playerPos.z);
-
+	ImGui::InputFloat("X", &_playerPos.x);
+	ImGui::InputFloat("Y", &_playerPos.y);
+	ImGui::InputFloat("Z", &_playerPos.z);
 }
