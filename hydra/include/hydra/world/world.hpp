@@ -40,7 +40,7 @@ namespace Hydra::World {
 	public:
 		virtual ~IWorld() = 0;
 
-		virtual size_t getFreeID() = 0;
+		virtual int64_t getFreeID() = 0;
 
 		// To emulate a IEntity, kinda
 		virtual std::shared_ptr<IEntity> createEntity(const std::string& name) = 0;

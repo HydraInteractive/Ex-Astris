@@ -1,5 +1,5 @@
 /**
- * Everything related to engine, as an interface.
+ * Everything related to engine, as an interfaces.
  *
  * License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
  * Authors:
@@ -35,13 +35,30 @@ namespace Hydra {
 		return name[static_cast<int>(level)];
 	}
 
+	class HYDRA_API IState {
+	public:
+		virtual ~IState() = 0;
+
+		/// Load data
+		virtual void onEnter(IState* oldState) = 0;
+
+		/// Update and render a frame
+		virtual void runFrame() = 0;
+
+		/// Unload data
+		virtual void onLeave(IState* newState) = 0;
+
+		virtual World::IWorld* getWorld() = 0;
+	};
+	inline IState::~IState() final {}
+
 	class HYDRA_API IEngine {
 	public:
 		virtual ~IEngine() = 0;
 
 		virtual void run() = 0;
 
-		virtual World::IWorld* getWorld() = 0;
+		virtual IState* getState() = 0;
 		virtual Renderer::IRenderer* getRenderer() = 0;
 		virtual IO::ITextureLoader* getTextureLoader() = 0;
 		virtual IO::IMeshLoader* getMeshLoader() = 0;
