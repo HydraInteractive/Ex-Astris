@@ -8,7 +8,7 @@
 
 #pragma once
 #include <hydra/ext/api.hpp>
-#include <glm\glm.hpp>
+#include <glm/glm.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/component/transformcomponent.hpp>
 
