@@ -4,6 +4,7 @@
 #include <hydra/component/componentmanager.hpp>
 
 #include <hydra/component/playercomponent.hpp>
+#include <hydra/component/aicomponent.hpp>
 
 namespace Hydra::Component {
 	namespace ComponentManager {
