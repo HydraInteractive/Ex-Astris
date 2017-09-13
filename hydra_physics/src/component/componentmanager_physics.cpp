@@ -4,6 +4,6 @@ using namespace Hydra::Component::ComponentManager;
 
 namespace Hydra::Component::ComponentManager {
 	void registerComponents_physics(std::map<std::string, createOrGetComponent_f>& creators) {
-		// TODO: Fill in
+		creators["PlayerComponent"] = &createOrGetComponentHelper<PlayerComponent>;
 	}
 }

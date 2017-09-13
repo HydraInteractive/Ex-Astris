@@ -63,7 +63,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)/lib;$(SolutionDir)/x64/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hydra.lib;hydra_graphics.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>hydra.lib;hydra_graphics.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>NotSet</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -92,9 +92,11 @@
   <ItemGroup>
     <ClCompile Include="src\component\componentmanager_physics.cpp" />
     <ClCompile Include="src\empty.cpp" />
+    <ClCompile Include="src\component\playercomponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\empty_physics.hpp" />
+    <ClInclude Include="include\hydra\component\playercomponent.hpp" />
     <ClInclude Include="include\hydra\component\componentmanager_physics.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

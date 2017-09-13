@@ -3,6 +3,8 @@
 
 #include <hydra/component/componentmanager.hpp>
 
+#include <hydra/component/playercomponent.hpp>
+
 namespace Hydra::Component {
 	namespace ComponentManager {
 		HYDRA_API void registerComponents_physics(std::map<std::string, createOrGetComponent_f>& creators);
