@@ -26,7 +26,7 @@ public:
 	size_t getFreeID() final { return _id++; }
 
 	std::shared_ptr<IEntity> createEntity(const std::string& name) final { return _root->createEntity(name); }
-	void tick(TickAction action) final { _root->tick(action); }
+	void tick(TickAction action, float delta) final { _root->tick(action, delta); }
 
 	void setWorldRoot(std::shared_ptr<IEntity> root) final { _root = root; }
 	std::shared_ptr<IEntity> getWorldRoot() final { return _root; }
@@ -68,18 +68,18 @@ public:
 			_drawObject->refCounter--;
 	}
 
-	void tick(TickAction action) final {
+	void tick(TickAction action, float delta) final {
 		if (action == TickAction::checkDead) {
 			auto it = std::remove_if(_children.begin(), _children.end(), [](const std::shared_ptr<IEntity>& e) { return e->isDead(); });
 			_children.erase(it, _children.end());
 		} else
 			for (auto& component : _components)
 				if ((action & component.second->wantTick()) == action)
-					component.second->tick(action);
+					component.second->tick(action, delta);
 
 		for (auto& child : _children)
 			if ((action & child->wantTick()) == action)
-				child->tick(action);
+				child->tick(action, delta);
 	}
 
 	TickAction wantTick() final {

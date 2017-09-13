@@ -24,7 +24,7 @@ namespace Hydra::Component {
 		CameraComponent(IEntity* entity, Hydra::Renderer::IRenderTarget* renderTarget, const glm::vec3& position = {0, 0, 0});
 		~CameraComponent() final;
 
-		void tick(TickAction action) final;
+		void tick(TickAction action, float delta) final;
 		inline TickAction wantTick() const final { return TickAction::physics; }
 
 		inline const std::string type() const final { return "CameraComponent"; }

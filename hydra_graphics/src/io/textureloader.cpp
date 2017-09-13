@@ -11,6 +11,8 @@
 
 #include <hydra/renderer/glrenderer.hpp>
 #include <hydra/engine.hpp>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 #include <exception>
 
@@ -19,7 +21,11 @@ using namespace Hydra::IO;
 
 class HYDRA_API TextureLoaderImpl final : public ITextureLoader {
 public:
-	TextureLoaderImpl() : _errorTexture(_loadErrorTexture()) {}
+	TextureLoaderImpl() : _errorTexture(_loadErrorTexture()) {
+		if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)){
+			printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
+		}
+	}
 
 	~TextureLoaderImpl() final {
 		_storage.clear();

@@ -28,7 +28,7 @@ TransformComponent::~TransformComponent() {
 	_drawObject->refCounter--;
 }
 
-void TransformComponent::tick(TickAction action) {
+void TransformComponent::tick(TickAction action, float delta) {
 	// assert(action == TickAction::physics); // Can only be this due to wantTick
 	_rotation *= glm::angleAxis(0.005f, glm::vec3(0, 1, 0) * _rotation);
 	_dirty = true;

@@ -27,7 +27,7 @@ namespace Hydra::Component {
 		MeshComponent(IEntity* entity, const PrimitiveType& type);
 		~MeshComponent() final;
 
-		void tick(TickAction action) final;
+		void tick(TickAction action, float delta) final;
 		inline TickAction wantTick() const final { return TickAction::render; }
 
 		inline const std::string type() const final { return "MeshComponent"; }

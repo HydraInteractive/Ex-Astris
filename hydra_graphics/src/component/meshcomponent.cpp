@@ -39,8 +39,8 @@ MeshComponent::~MeshComponent() {
 	_drawObject->refCounter--;
 }
 
-void MeshComponent::tick(TickAction action) {
-	// _drawObject->mesh = _mesh.get();
+void MeshComponent::tick(TickAction action, float delta) {
+
 }
 
 void MeshComponent::serialize(nlohmann::json& json) const {

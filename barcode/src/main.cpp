@@ -15,6 +15,7 @@
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
+#include <hydra/component/particlecomponent.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
 
@@ -25,6 +26,7 @@
 #include <hydra/component/componentmanager_sound.hpp>
 
 #include <cstdio>
+#include <ctime>
 
 #ifdef _WIN32
 #define _CRTDBG_MAP_ALLOC
@@ -179,6 +181,25 @@ public:
 			batch.batch.pipeline = batch.pipeline.get();
 		}
 
+		{ // PARTICLES
+			auto& batch = _particleBatch;
+			batch.vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/particles.vert");
+			batch.fragmentShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::fragment, "assets/shaders/particles.frag");
+
+			batch.pipeline = Renderer::GLPipeline::create();
+			batch.pipeline->attachStage(*batch.vertexShader);
+			batch.pipeline->attachStage(*batch.fragmentShader);
+			batch.pipeline->finalize();
+
+			_particleAtlases = Renderer::GLTexture::createFromFile("assets/textures/fireAtlas.png");
+
+			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
+			batch.batch.clearFlags = ClearFlags::none;
+			batch.batch.renderTarget = _view.get();
+			batch.batch.pipeline = batch.pipeline.get();
+
+		}
+
 		{
 			auto& batch = _viewBatch;
 			batch.vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/view.vert");
@@ -222,9 +243,14 @@ public:
 	~Engine() final { }
 
 	void run() final {
+		std::clock_t lastTime = std::clock();
+
 		while (!_view->isClosed()) {
+			float delta = (clock() - lastTime) / 1000.f;
+			lastTime = clock();
+
 			{ // Remove old dead objects
-				_world->tick(TickAction::checkDead);
+				_world->tick(TickAction::checkDead, delta);
 				_renderer->cleanup();
 			}
 
@@ -234,12 +260,12 @@ public:
 			}
 
 			{ // Update physics
-				_world->tick(TickAction::physics);
+				_world->tick(TickAction::physics, delta);
 			}
 
 			{ // Render objects (Deferred rendering)
 				glm::vec3 cameraPos;
-				_world->tick(TickAction::render);
+				_world->tick(TickAction::render, delta);
 
 				// Render to geometryFBO
 				if (!_uiRenderer->isDraging()) {
@@ -342,8 +368,12 @@ public:
 			}
 
 			{ // Render transparent objects	(Forward rendering)
-				_world->tick(TickAction::renderTransparent);
+				_world->tick(TickAction::renderTransparent, delta);
 
+			}
+
+			{ // Particle pass.
+				
 			}
 
 			{
@@ -384,7 +414,7 @@ public:
 			}
 
 			{ // Sync with network
-				_world->tick(TickAction::network);
+				_world->tick(TickAction::network, delta);
 			}
 		}
 	}
@@ -438,6 +468,7 @@ private:
 	RenderBatch _glowBatch; // Glow batch.
 	RenderBatch _viewBatch;
 	RenderBatch _postTestBatch;
+	RenderBatch _particleBatch;
 
 	// Extra framebuffers, pipeline and shaders for glow/bloom/blur
 	std::shared_ptr<Renderer::IFramebuffer> _blurrExtraFBO1;
@@ -451,7 +482,8 @@ private:
 	std::unique_ptr<Renderer::IShader> _glowVertexShader;
 	std::unique_ptr<Renderer::IShader> _glowFragmentShader;
 
-	Component::CameraComponent* _cc = nullptr;
+	// Particle texture
+	std::shared_ptr<Renderer::ITexture> _particleAtlases;	Component::CameraComponent* _cc = nullptr;
 
 	void _setupComponents() {
 		using namespace Hydra::Component::ComponentManager;
@@ -483,6 +515,9 @@ private:
 			}
 		}
 
+		auto particleEmitter = _world->createEntity("ParticleEmitter");
+		particleEmitter->addComponent<Component::ParticleComponent>(Component::EmitterBehaviour::PerSecond, 10);
+
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
 		auto bp = BlueprintLoader::load("world.blueprint");
 		_world->setWorldRoot(bp->spawn(_world.get()));
@@ -499,7 +534,6 @@ private:
 	}
 
 	std::shared_ptr<Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<ITexture>& texture, int &nrOfTimes, glm::vec2 size) { // TO-DO: Make it agile so it can blur any texture
-
 		_glowBatch.pipeline->setValue(1, 1); // This bind will never change
 		bool horizontal = true;
 		bool firstPass = true;
@@ -534,6 +568,7 @@ private:
 #undef main
 int main(int argc, char** argv) {
 	reportMemoryLeaks();
+	srand(time(NULL));
 	Engine().run();
 	return 0;
 }
