@@ -31,6 +31,13 @@ void CameraComponent::tick(TickAction action) {
 		_cameraYaw += mouseX * _sensitivity;;
 		_cameraPitch -= mouseY *_sensitivity;
 
+		if (_cameraPitch > glm::radians(89.0f)){
+			_cameraPitch = glm::radians(89.0f);
+		}
+		else if(_cameraPitch < glm::radians(-89.0f)){
+			_cameraPitch = glm::radians(-89.0f);
+		}
+
 		glm::quat qPitch = glm::angleAxis(_cameraPitch, glm::vec3(1, 0, 0));
 		glm::quat qYaw = glm::angleAxis(_cameraYaw, glm::vec3(0, 1, 0));
 
