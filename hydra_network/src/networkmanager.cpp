@@ -14,9 +14,51 @@ NetworkManager::~NetworkManager() { // TODO
 }
 
 void NetworkManager::update() {
-	TCPsocket tmpsock = this->_conn->checkForClient();
-	if (tmpsock != NULL) {
-		this->_clients.push_back(tmpsock);
+
+	//---------------CHECK FOR INCOMING CLIENTS/CONNECTIONS --------------
+	{
+		TCPsocket tmpsock = this->_conn->checkForClient();
+		if (tmpsock != NULL) {
+			//ADD PLAYER/SOCKET / SEND HELLOWORLDPACKET
+			PacketHelloWorld phw;
+			phw.yourID = 0;
+		}
+	}
+
+	
+	//---------------CHECK FOR INCOMING PACKETS (Handle one packet per update())--------------
+	{
+		int nrOfPackets = SDLNet_CheckSockets(this->_conn->getSocketSet(), 0);
+		if (nrOfPackets > 0) {
+			for (int i = 0; i < nrOfPackets; i++) {
+				NetPacket* np = this->_conn->receivePacket();
+				if (np != nullptr) {
+					//DECODE / DO ACTIONS THAT ARE RELEVANT :S
+					switch (np->header.type) {
+					case PacketType::ChangeID:
+						break;
+					case PacketType::ClientUpdate:
+						break;
+					case PacketType::SpawnEntity:
+						break;
+					}
+
+
+
+				}
+			}
+		}
+	}
+
+
+
+	//---------------UPDATE WORLD--------------
+	{
+	}
+
+
+	//---------------SEND UPDATED WORLD TO CLIENTS---------------
+	{
 	}
 
 }

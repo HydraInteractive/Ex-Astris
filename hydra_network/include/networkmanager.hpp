@@ -11,7 +11,6 @@ HYDRA_API void startServer(int port);
 HYDRA_API class NetworkManager {
 private:
 	TCPHost* _conn;
-	std::vector<TCPsocket> _clients;
 	bool _running;
 	int _port;
 	//std::map<int, Hydra::World::IEntity*> _netEntities;

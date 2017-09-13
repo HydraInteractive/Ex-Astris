@@ -1,6 +1,7 @@
 #pragma once
 
 #include <../hydra_network/include/TCPConnection.hpp>
+#include <../hydra_network/include/Packets.h>
 HYDRA_API class TCPClient : public TCPConnection {
 private:
 	TCPsocket _socket;
@@ -11,6 +12,6 @@ public:
 	HYDRA_API void close();
 	HYDRA_API void update();
 
-	HYDRA_API void receivePacket();
-	HYDRA_API void sendEntity(std::shared_ptr<Hydra::World::IEntity> entity);
+	HYDRA_API void sendPacket(char* data, int length);
+	HYDRA_API NetPacket* receivePacket();
 };
