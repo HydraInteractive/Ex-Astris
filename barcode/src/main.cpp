@@ -472,11 +472,14 @@ private:
 
 		auto playerEntity = _world->createEntity("Player");
 		player = playerEntity->addComponent<Component::PlayerComponent>();
-		playerEntity->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0));
-		playerEntity->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
 		_cc = playerEntity->addComponent<Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{ 5, 0, -3 });
+		playerEntity->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0));
+		auto weaponEntity = playerEntity->createEntity("Weapon");
+		weaponEntity->addComponent<Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+		weaponEntity->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(1,1,1), glm::quat(0,0,0,0));
 
 
+		/*
 		auto alienEntity = _world->createEntity("Enemy Alien");
 		_enemy = alienEntity->addComponent<Component::EnemyComponent>(Component::EnemyTypes::Alien);
 		alienEntity->addComponent<Component::TransformComponent>(glm::vec3(-10, 0, 0));
@@ -491,8 +494,9 @@ private:
 		_enemy = bossEntity->addComponent<Component::EnemyComponent>(Component::EnemyTypes::AlienBoss);
 		bossEntity->addComponent<Component::TransformComponent>(glm::vec3(0, -10, 0));
 		bossEntity->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
-
-
+		*/
+		
+		/*
 		auto boxes = _world->createEntity("Boxes");
 		boxes->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0));
 		///Draw out multible geometry
@@ -512,6 +516,7 @@ private:
 		//}
 		boxes->addComponent<Component::MeshComponent>("assets/objects/model1.ATTIC");
 		boxes->addComponent<Component::TransformComponent>(glm::vec3(1), glm::vec3(0.25));
+		*/
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
 		auto bp = BlueprintLoader::load("world.blueprint");
