@@ -11,6 +11,7 @@
 #include <hydra/component/playercomponent.hpp>
 
 #include <imgui/imgui.h>
+#include <glm/gtc/type_ptr.hpp>
 
 using namespace Hydra::World;
 using namespace Hydra::Component;
@@ -35,48 +36,68 @@ void PlayerComponent::tick(TickAction action) {
 		Uint8* keysArray;
 		keysArray = const_cast <Uint8*> (SDL_GetKeyboardState(NULL));
 
-		if (keysArray[SDL_SCANCODE_UP]) {
+		if (keysArray[SDL_SCANCODE_W]) {
 			_velocityZ = -_movementSpeed;
 		}
 
-		if (keysArray[SDL_SCANCODE_DOWN]) {
+		if (keysArray[SDL_SCANCODE_S]) {
 			_velocityZ = _movementSpeed;
 		}
 
-		if (keysArray[SDL_SCANCODE_LEFT]) {
+		if (keysArray[SDL_SCANCODE_A]) {
 			_velocityX = -_movementSpeed;
 		}
 
-		if (keysArray[SDL_SCANCODE_RIGHT]) {
+		if (keysArray[SDL_SCANCODE_D]) {
 			_velocityX = _movementSpeed;
 		}
 
-		if (keysArray[SDL_SCANCODE_LEFT] == 0 && keysArray[SDL_SCANCODE_RIGHT] == 0) {
+		if (keysArray[SDL_SCANCODE_A] == 0 && keysArray[SDL_SCANCODE_D] == 0) {
 			_velocityX = 0.0f;
 		}
 
-		if (keysArray[SDL_SCANCODE_UP] == 0 && keysArray[SDL_SCANCODE_DOWN] == 0) {
+		if (keysArray[SDL_SCANCODE_W] == 0 && keysArray[SDL_SCANCODE_S] == 0) {
 			_velocityZ = 0.0f;
 		}
+
+		if (keysArray[SDL_SCANCODE_SPACE] && _onGround){
+			_accelerationY -= 0.3f;
+			_onGround = false;
+		}
 	}
+
+	_accelerationY += 0.01f;
 
 	glm::mat4 viewMat = camera->getViewMatrix();
 	glm::vec3 forward(viewMat[0][2], viewMat[1][2], viewMat[2][2]);
 	glm::vec3 strafe(viewMat[0][0], viewMat[1][0], viewMat[2][0]);
 
 	glm::vec3 movementVector = (_velocityZ * forward + _velocityX * strafe);
-	movementVector.y = 0.0f;
+	movementVector.y = _accelerationY;
+	_debug = _accelerationY;
 
-	_playerPos += movementVector;
+	_position += movementVector;
 
-	camera->setPosition(_playerPos);
-	player->setPosition(_playerPos + glm::vec3(0, 3, 0) + (forward * glm::vec3(-4, 0, -4)));
+	
+	if (_position.y > 0) {
+		_position.y = 0;
+		_accelerationY = 0;
+		_onGround = true;
+	}
+
+	player->setPosition(_position);
+	if (_firstPerson){
+		camera->setPosition(_position);
+	}
+	else{
+		camera->setPosition(_position + glm::vec3(0, -3, 0) + (forward * glm::vec3(4, 0, 4)));
+	}
 	player->setRotation(glm::angleAxis(-camera->getYaw(), glm::vec3(0, 1, 0)));
 }
 
 void PlayerComponent::serialize(nlohmann::json& json) const {
 	json = {
-		{ "position",{ _playerPos.x, _playerPos.y, _playerPos.z } },
+		{ "position",{ _position.x, _position.y, _position.z } },
 		{ "velocityX", _velocityX },
 		{ "velocityY", _velocityY },
 		{ "velocityZ", _velocityZ },
@@ -85,7 +106,7 @@ void PlayerComponent::serialize(nlohmann::json& json) const {
 
 void PlayerComponent::deserialize(nlohmann::json& json) {
 	auto& pos = json["position"];
-	_playerPos = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
+	_position = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
 
 	_velocityX = json["velocityX"].get<float>();
 	_velocityY = json["velocityY"].get<float>();
@@ -95,8 +116,7 @@ void PlayerComponent::deserialize(nlohmann::json& json) {
 // Register UI buttons in the debug UI
 // Note: This function won't always be called
 void PlayerComponent::registerUI() {
-	ImGui::InputFloat("X", &_playerPos.x);
-	ImGui::InputFloat("Y", &_playerPos.y);
-	ImGui::InputFloat("Z", &_playerPos.z);
+	ImGui::DragFloat3("Position", glm::value_ptr(_position),0.01f);
 	ImGui::InputFloat("DEBUG", &_debug);
+	ImGui::Checkbox("First Person", &_firstPerson);
 }
