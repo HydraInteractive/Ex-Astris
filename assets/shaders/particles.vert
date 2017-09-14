@@ -9,7 +9,10 @@ layout (location = 5) in mat4 m;
 
 out vec2 texCoords;
 
+layout (location = 0) uniform mat4 v;
+layout (location = 1) uniform mat4 p;
+
 void main() {
 	texCoords = uv;
-	gl_Position = vec4(position, 1);
+	gl_Position = p * v * m * vec4(position, 1);
 }

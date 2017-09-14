@@ -4,8 +4,9 @@
 #include <hydra/renderer/renderer.hpp>
 
 #include <memory>
-
-#include "glm/gtx/transform.hpp"
+#include <glm/gtx/transform.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 using namespace Hydra::World;
 
@@ -13,7 +14,7 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 	enum EmitterBehaviour : int {PerSecond = 0, Explosion};
-
+	
 	HYDRA_API struct Particle {
 		glm::mat4 m;
 		glm::vec3 pos;
@@ -37,7 +38,7 @@ namespace Hydra::Component {
 			// Gonna fix rotation soon...
 			this->m = glm::translate(pos) * glm::scale(scale);
 		}
-		void fixMX() { m = glm::translate(pos) * glm::scale(scale); }
+		void fixMX(glm::quat& rot) { m = glm::translate(pos) * glm::mat4_cast(rot) * glm::scale(scale); }
 		void setDead() { dead = true; }
 
 	};
@@ -56,10 +57,14 @@ namespace Hydra::Component {
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
+		const std::vector<std::shared_ptr<Particle>>& getParticles() { return _particles; }
+		const Hydra::Renderer::DrawObject* getDrawObject() { return _drawObject; }
 
 	private:
 		int _pps; // Particles per second.
 		float _accumulator;
+		glm::quat _tempRotation;
+		std::string _particleFile;
 		EmitterBehaviour _behaviour;
 		Hydra::Renderer::DrawObject* _drawObject;
 		std::vector<std::shared_ptr<Particle>> _particles;

@@ -30,6 +30,18 @@ public:
 
 	void setWorldRoot(std::shared_ptr<IEntity> root) final { _root = root; }
 	std::shared_ptr<IEntity> getWorldRoot() final { return _root; }
+	
+	std::shared_ptr<IEntity> getEntity(std::shared_ptr<IEntity>& root, const size_t id) final {
+		if (root->getID() == id)
+			return root;
+
+		for (auto child : root->getChildren())
+			if (auto e = getEntity(child, id)) {
+				return e;
+			}
+
+		return std::shared_ptr<IEntity>();
+	}
 
 private:
 	std::shared_ptr<IEntity> _root;

@@ -191,13 +191,12 @@ public:
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 
-			_particleAtlases = Renderer::GLTexture::createFromFile("assets/textures/fireAtlas.png");
-
+			_particleAtlases = Renderer::GLTexture::createFromFile("assets/textures/ParticleAtlases.png");
+			
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
 			batch.batch.clearFlags = ClearFlags::none;
 			batch.batch.renderTarget = _view.get();
 			batch.batch.pipeline = batch.pipeline.get();
-
 		}
 
 		{
@@ -373,7 +372,22 @@ public:
 			}
 
 			{ // Particle pass.
-				
+				for (auto& kv : _particleBatch.batch.objects)
+					kv.second.clear();
+
+				auto p = _world->getEntity(_world->getWorldRoot(), 85)->getComponent<Component::ParticleComponent>();
+				auto drawObj = p->getDrawObject();
+				for (auto particle : p->getParticles()) {
+					if (!drawObj->disable && drawObj->mesh) {
+						_particleBatch.batch.objects[drawObj->mesh].push_back(particle->m);
+						printf("%d, ", _particleBatch.batch.objects[drawObj->mesh].size());
+					}
+				}
+
+				_particleBatch.pipeline->setValue(0, _cc->getViewMatrix());
+				_particleBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
+
+				_renderer->render(_particleBatch.batch);
 			}
 
 			{
@@ -406,8 +420,6 @@ public:
 				_geometryBatch.output->resolve(3, _depthWindow->image);
 				_postTestBatch.output->resolve(0, _postTestWindow->image);
 				_glowBatch.output->resolve(0, _glowWindow->image);
-				//_lightingBatch.output->resolve(0, _glowWindow->image);
-				//_lightingBatch.output->resolve(1, _glowWindow->image);
 				_uiRenderer->render();
 
 				_view->finalize();
@@ -517,7 +529,6 @@ private:
 
 		auto particleEmitter = _world->createEntity("ParticleEmitter");
 		particleEmitter->addComponent<Component::ParticleComponent>(Component::EmitterBehaviour::PerSecond, 10);
-
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
 		auto bp = BlueprintLoader::load("world.blueprint");
 		_world->setWorldRoot(bp->spawn(_world.get()));
