@@ -16,7 +16,8 @@ using namespace Hydra::World;
 namespace Hydra::Component {
 	class HYDRA_API NAMEComponent final : public IComponent {
 	public:
-		NAMEComponent(IEntity* entity);
+		NAMEComponent(IEntity* entity); // This one must exist
+		NAMEComponent(IEntity* entity, int a, bool b, float c);
 		~NAMEComponent() final;
 
 		void tick(TickAction action) final;
@@ -25,11 +26,13 @@ namespace Hydra::Component {
 
 		inline const std::string type() const final { return "NAMEComponent"; }
 
-		virtual msgpack::packer<msgpack::sbuffer>& pack(msgpack::packer<msgpack::sbuffer>& o) const final;
+		void serialize(nlohmann::json& json) const final;
+		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
 	private:
+		// Set default values here, on in the constructor
 		int _a = 0;
 		bool _b = false;
-		float _c = 0.0f;
+		float _c; // This default value is set in the constructor
 	};
 };
