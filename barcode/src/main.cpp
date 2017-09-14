@@ -130,18 +130,23 @@ public:
 				_uiRenderer->newFrame();
 			}
 
-			if (_input.getKey(SDL_SCANCODE_W))
-				_cc->translate(glm::vec3(0, 0, 0.1));
-			if (_input.getKey(SDL_SCANCODE_A))
-				_cc->translate(glm::vec3(0.1, 0, 0));
-			if (_input.getKey(SDL_SCANCODE_S))
-				_cc->translate(glm::vec3(0, 0, -0.1));
-			if (_input.getKey(SDL_SCANCODE_D))
-				_cc->translate(glm::vec3(-0.1, 0, 0));
+			{
+				if (_input.getKey(SDL_SCANCODE_W))
+					_cc->translate(glm::vec3(0, 0, 0.1));
+				if (_input.getKey(SDL_SCANCODE_A))
+					_cc->translate(glm::vec3(0.1, 0, 0));
+				if (_input.getKey(SDL_SCANCODE_S))
+					_cc->translate(glm::vec3(0, 0, -0.1));
+				if (_input.getKey(SDL_SCANCODE_D))
+					_cc->translate(glm::vec3(-0.1, 0, 0));
 			
-			_input.update();
-			_cc->rotation(0.01, glm::vec3(0, 1, 0));
-			
+				_input.update();
+				glm::vec2 cameraRotation = _input.getXYDiff();
+				cameraRotation /= 100;
+				_cc->rotation(-cameraRotation.x, glm::vec3(0, 1, 0));
+				_cc->rotation(cameraRotation.y, glm::vec3(1, 0, 0));
+			}
+
 			{ // Update physics
 				_world->tick(TickAction::physics);
 			}

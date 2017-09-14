@@ -21,5 +21,5 @@ public:
 	bool getKey(SDL_Scancode key) { return _kbState[key]; }
 	void setWindowSize(int x, int y);
 	void update();
-	
+	glm::ivec2 getXYDiff() { return _xyDiff; }
 };
