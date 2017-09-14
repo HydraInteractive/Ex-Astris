@@ -200,6 +200,10 @@ public:
 		ImGui_ImplSdlGL3_NewFrame(_window);
 	}
 
+	void reset() final {
+		_renderWindows.reset();
+	}
+
 	UIRenderWindow* addRenderWindow() final {
 		auto window = std::make_unique<UIRenderWindow>();
 		UIRenderWindow* output = window.get();
@@ -222,6 +226,15 @@ public:
 				ImGui::EndMenu();
 			}
 
+			if (ImGui::BeginMenu("States")) {
+				auto engine = Hydra::IEngine::getInstance();
+				auto state = engine->getState();
+				if (ImGui::MenuItem("MenuState", NULL, typeid(state) == typeid(MenuState)))
+					engine->setState<MenuState>();
+				if (ImGui::MenuItem("GameState", NULL, typeid(state) == typeid(GameState)))
+					engine->setState<GameState>();
+			}
+
 			static char buf[64];
 			snprintf(buf, sizeof(buf), "Application average %.3f ms/frame (%.1f FPS) - RAM: %.2fMiB", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate, Hydra::Ext::getCurrentRSS()/(1024.0f*1024.0f));
 
@@ -238,25 +251,26 @@ public:
 			ImGui::Begin("Render Windows");
 			ImGuiWindow* wind = ImGui::GetCurrentWindow();
 			ImGuiStyle& style = ImGui::GetStyle();
+			if (_renderWindows.size()) {
+				pushFont(UIFont::normalBold);
+				ImGui::BeginTabBar("#RenderWindows");
+				popFont();
+				ImGui::DrawTabsBackground();
+				for (auto& window : _renderWindows) {
+					if (!window->enabled)
+						continue;
 
-			pushFont(UIFont::normalBold);
-			ImGui::BeginTabBar("#RenderWindows");
-			popFont();
-			ImGui::DrawTabsBackground();
-			for (auto& window : _renderWindows) {
-				if (!window->enabled)
-					continue;
+					if (!ImGui::AddTab(window->title.c_str()))
+						continue;
 
-				if (!ImGui::AddTab(window->title.c_str()))
-					continue;
-
-				auto iSize = wind->Size - style.WindowPadding - ImVec2(24, 72);
-				if (iSize.x <= 2) iSize.x = 2;
-				if (iSize.y <= 2) iSize.y = 2;
-				window->size = glm::ivec2{iSize.x, iSize.y};
-				ImGui::Image(reinterpret_cast<ImTextureID>((size_t)window->image->getID()), iSize);
+					auto iSize = wind->Size - style.WindowPadding - ImVec2(24, 72);
+					if (iSize.x <= 2) iSize.x = 2;
+					if (iSize.y <= 2) iSize.y = 2;
+					window->size = glm::ivec2{iSize.x, iSize.y};
+					ImGui::Image(reinterpret_cast<ImTextureID>((size_t)window->image->getID()), iSize);
+				}
+				ImGui::EndTabBar();
 			}
-			ImGui::EndTabBar();
 			ImGui::End();
 		}
 
@@ -312,7 +326,7 @@ private:
 		ImGui::SetNextWindowSize(ImVec2(480, 640), ImGuiSetCond_Once);
 		ImGui::Begin("Entity List", &_entityWindow);
 
-		auto world = Hydra::IEngine::getInstance()->getWorld()->getWorldRoot().get();
+		auto world = Hydra::IEngine::getInstance()->getState()->getWorld()->getWorldRoot().get();
 
 		// This doesn't use _renderEntity, because I want a globe instad of a user
 		if (ImGui::TreeNode(world, ICON_FA_GLOBE " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", world->getName().c_str(), world->getID(), world->getComponents().size(), world->getChildren().size())) {

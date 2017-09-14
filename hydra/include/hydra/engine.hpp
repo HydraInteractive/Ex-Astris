@@ -11,6 +11,7 @@
 #include <memory>
 
 #include <hydra/renderer/renderer.hpp>
+#include <hydra/renderer/uirenderer.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/io/textureloader.hpp>
 #include <hydra/io/meshloader.hpp>
@@ -22,6 +23,8 @@
 #define PRINTFARGS(FMT)
 #endif
 #endif
+
+namespace Hydra::View { class IView; }
 
 namespace Hydra {
 	enum class HYDRA_API LogLevel {
@@ -39,18 +42,16 @@ namespace Hydra {
 	public:
 		virtual ~IState() = 0;
 
-		/// Load data
-		virtual void onEnter(IState* oldState) = 0;
+		virtual void load() = 0;
 
 		/// Update and render a frame
 		virtual void runFrame() = 0;
 
-		/// Unload data
-		virtual void onLeave(IState* newState) = 0;
-
 		virtual World::IWorld* getWorld() = 0;
+		virtual IO::ITextureLoader* getTextureLoader() = 0;
+		virtual IO::IMeshLoader* getMeshLoader() = 0;
 	};
-	inline IState::~IState() final {}
+	inline IState::~IState() {}
 
 	class HYDRA_API IEngine {
 	public:
@@ -58,10 +59,19 @@ namespace Hydra {
 
 		virtual void run() = 0;
 
+		virtual void quit() = 0;
+
+		template <typename T, typename... Args, typename std::enable_if<std::is_base_of<IState, T>::value>::type* = nullptr>
+		T* setState(Args... args) {
+			T* ptr = new T(args...);
+			setState_(std::unique_ptr<IState>(ptr));
+			return ptr;
+		}
+		virtual void setState_(std::unique_ptr<IState> state) = 0;
 		virtual IState* getState() = 0;
+		virtual View::IView* getView() = 0;
 		virtual Renderer::IRenderer* getRenderer() = 0;
-		virtual IO::ITextureLoader* getTextureLoader() = 0;
-		virtual IO::IMeshLoader* getMeshLoader() = 0;
+		virtual Renderer::IUIRenderer* getUIRenderer() = 0;
 
 		virtual void log(LogLevel level, const char* fmt, ...) PRINTFARGS(3) = 0;
 

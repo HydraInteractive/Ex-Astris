@@ -16,6 +16,7 @@
 
 using namespace Hydra;
 using namespace Hydra::IO;
+using namespace Hydra::Renderer;
 
 class MeshLoaderImpl final : public IMeshLoader {
 public:
@@ -32,7 +33,7 @@ public:
 		if (!mesh) {
 			try {
 				IEngine::getInstance()->log(LogLevel::verbose, "Loading mesh: %s", file.c_str());
-				mesh = _storage[file] = Hydra::Renderer::GLMesh::create(file, _renderer);
+				mesh = _storage[file] = GLMesh::create(file, _renderer);
 			}
 			catch (const std::exception& e) {
 				IEngine::getInstance()->log(LogLevel::error, "FAILED TO LOAD MESH: %s", e.what());
@@ -45,7 +46,7 @@ public:
 
 	std::shared_ptr<IMesh> getQuad() {
 		std::shared_ptr<IMesh> mesh;
-		mesh = Hydra::Renderer::GLMesh::createQuad(_renderer);
+		mesh = GLMesh::createQuad(_renderer);
 		return mesh;
 	}
 
@@ -57,7 +58,7 @@ private:
 	std::shared_ptr<IMesh> _errorMesh;
 
 	std::shared_ptr<IMesh> _loadErrorMesh() {
-		//return Hydra::Renderer::GLMesh::create("assets/meshs/error.fbx");
+		//return GLMesh::create("assets/meshs/error.fbx");
 		return std::shared_ptr<IMesh>(); // XXX: 
 	}
 };

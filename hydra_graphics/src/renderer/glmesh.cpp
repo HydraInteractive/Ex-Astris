@@ -43,7 +43,7 @@ public:
 
 		_loadModel(scene, modelMatrixBuffer);
 		_material.diffuse = _getTexture(scene, file);
-		_material.normal = Hydra::IEngine::getInstance()->getTextureLoader()->getTexture("assets/textures/errorNormal.png");
+		_material.normal = Hydra::IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/errorNormal.png");
 	}
 
 	GLMeshImpl(GLuint modelMatrixBuffer) {
@@ -183,21 +183,21 @@ private:
 
 	std::shared_ptr<ITexture> _getTexture(const aiScene* scene, const std::string& filename) {
 		if (scene->mNumMaterials == 0)
-			return Hydra::IEngine::getInstance()->getTextureLoader()->getErrorTexture();
+			return Hydra::IEngine::getInstance()->getState()->getTextureLoader()->getErrorTexture();
 		const aiMaterial* pMaterial = scene->mMaterials[0];
 		if (pMaterial->GetTextureCount(aiTextureType_DIFFUSE) == 0)
-			return Hydra::IEngine::getInstance()->getTextureLoader()->getErrorTexture();
+			return Hydra::IEngine::getInstance()->getState()->getTextureLoader()->getErrorTexture();
 
 		aiString path;
 
 		if (pMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &path, NULL, NULL, NULL, NULL, NULL) != AI_SUCCESS)
-			return Hydra::IEngine::getInstance()->getTextureLoader()->getErrorTexture();
+			return Hydra::IEngine::getInstance()->getState()->getTextureLoader()->getErrorTexture();
 
 		if (path.data[0] == '*') {
 			unsigned int id = atoi(path.data + 1);
 			IEngine::getInstance()->log(LogLevel::verbose, "Embedded texture: %u(%s)", id, path.data);
 			if (scene->mNumTextures < id)
-				return Hydra::IEngine::getInstance()->getTextureLoader()->getErrorTexture();
+				return Hydra::IEngine::getInstance()->getState()->getTextureLoader()->getErrorTexture();
 			aiTexture* tex = scene->mTextures[id];
 
 			IEngine::getInstance()->log(LogLevel::verbose, "Texture:\n\tmWidth: %u\n\tmHeight: %u\n\tachFormatHint: %s\n\tpcData: %p", tex->mWidth, tex->mHeight, tex->achFormatHint, (void*)tex->pcData);
@@ -210,7 +210,7 @@ private:
 		} else {
 			std::string fullPath = filename.substr(0, filename.find_last_of("/\\") + 1) + path.data; // TODO: fix path
 			IEngine::getInstance()->log(LogLevel::verbose, "External texture: %s", fullPath.c_str());
-			return Hydra::IEngine::getInstance()->getTextureLoader()->getTexture(fullPath);
+			return Hydra::IEngine::getInstance()->getState()->getTextureLoader()->getTexture(fullPath);
 		}
 	}
 };
