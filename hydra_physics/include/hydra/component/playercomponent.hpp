@@ -34,13 +34,13 @@ namespace Hydra::Component {
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
 	private:
-		glm::vec3 _playerPos;
+		glm::vec3 _playerPos = glm::vec3(0,-2,3);
 		float _velocityX;
 		float _velocityY;
 		float _velocityZ;
 
-		int _a = 0;
-		bool _b = false;
-		float _c = 0.0f;
+		float _movementSpeed = 0.2f;
+
+		float _debug;
 	};
 };

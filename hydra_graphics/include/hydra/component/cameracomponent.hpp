@@ -22,7 +22,7 @@
 using namespace Hydra::World;
 
 namespace Hydra::Component {
-	class HYDRA_API CameraComponent final : public IComponent {
+	class HYDRA_API CameraComponent final : public IComponent{
 	public:
 		CameraComponent(IEntity* entity);
 		CameraComponent(IEntity* entity, Hydra::Renderer::IRenderTarget* renderTarget, const glm::vec3& position = {0, 0, 0});
@@ -44,13 +44,14 @@ namespace Hydra::Component {
 		CameraComponent& pitch(float angle);
 		CameraComponent& roll(float angle);
 
-
 		inline Hydra::Renderer::IRenderTarget* getRenderTarget() { return _renderTarget; }
 		inline void setRenderTarget(Hydra::Renderer::IRenderTarget* renderTarget) { _renderTarget = renderTarget; }
 
 		inline const glm::vec3& getPosition() const { return _position; }
 
 		void setPosition(const glm::vec3& position);
+
+		inline const float& getYaw() const { return _cameraYaw; }
 
 		// TODO: Cache these?
 		inline glm::mat4 getViewMatrix() const { return glm::translate(glm::mat4_cast(_orientation), -_position); }
@@ -69,6 +70,6 @@ namespace Hydra::Component {
 		float _sensitivity = 0.005f;
 		float _cameraYaw = 0.0f;
 		float _cameraPitch = 0.0f;
-		bool _mouseControl = false;
+		bool _mouseControl = true;
 	};
 };

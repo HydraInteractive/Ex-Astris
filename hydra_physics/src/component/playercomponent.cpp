@@ -31,46 +31,47 @@ void PlayerComponent::tick(TickAction action) {
 	// Extract cameras position
 	auto camera = entity->getComponent<Component::CameraComponent>();
 	
-	Uint8* keysArray;
-	keysArray = const_cast <Uint8*> (SDL_GetKeyboardState(NULL));
-
-	if (keysArray[SDL_SCANCODE_UP]) {
-		_velocityZ = -0.5f;
-	}
-	if (keysArray[SDL_SCANCODE_DOWN]) {
-		_velocityZ = 0.5f;
-	}
-	if (keysArray[SDL_SCANCODE_LEFT]) {
-		_velocityX = -0.5f;
-	}
-	if (keysArray[SDL_SCANCODE_RIGHT]) {
-		_velocityX = 0.5f;
-	}
-	
-	if (keysArray[SDL_SCANCODE_LEFT] == 0 && keysArray[SDL_SCANCODE_RIGHT] == 0) {
-		_velocityX = 0.0f;
-	}
-
-	if (keysArray[SDL_SCANCODE_UP] == 0 && keysArray[SDL_SCANCODE_DOWN] == 0) {
-		_velocityZ = 0.0f;
-	}
-
-	if (keysArray[SDL_SCANCODE_SPACE] == 0)
 	{
-		//_velocityY = 0.1f;
-	}
-	if (keysArray[SDL_SCANCODE_SPACE] == 1)
-	{
-		//_velocityY = -0.1f;
+		Uint8* keysArray;
+		keysArray = const_cast <Uint8*> (SDL_GetKeyboardState(NULL));
+
+		if (keysArray[SDL_SCANCODE_UP]) {
+			_velocityZ = -_movementSpeed;
+		}
+
+		if (keysArray[SDL_SCANCODE_DOWN]) {
+			_velocityZ = _movementSpeed;
+		}
+
+		if (keysArray[SDL_SCANCODE_LEFT]) {
+			_velocityX = -_movementSpeed;
+		}
+
+		if (keysArray[SDL_SCANCODE_RIGHT]) {
+			_velocityX = _movementSpeed;
+		}
+
+		if (keysArray[SDL_SCANCODE_LEFT] == 0 && keysArray[SDL_SCANCODE_RIGHT] == 0) {
+			_velocityX = 0.0f;
+		}
+
+		if (keysArray[SDL_SCANCODE_UP] == 0 && keysArray[SDL_SCANCODE_DOWN] == 0) {
+			_velocityZ = 0.0f;
+		}
 	}
 
-	_playerPos = camera->getPosition();
-	_playerPos = _playerPos + glm::vec3(_velocityX, _velocityY, _velocityZ);
+	glm::mat4 viewMat = camera->getViewMatrix();
+	glm::vec3 forward(viewMat[0][2], viewMat[1][2], viewMat[2][2]);
+	glm::vec3 strafe(viewMat[0][0], viewMat[1][0], viewMat[2][0]);
 
-	player->setPosition(glm::vec3(_playerPos.x, _playerPos.y+2, _playerPos.z-4));
+	glm::vec3 movementVector = (_velocityZ * forward + _velocityX * strafe);
+	movementVector.y = 0.0f;
+
+	_playerPos += movementVector;
+
 	camera->setPosition(_playerPos);
-
-
+	player->setPosition(_playerPos + glm::vec3(0, 3, 0) + (forward * glm::vec3(-4, 0, -4)));
+	player->setRotation(glm::angleAxis(-camera->getYaw(), glm::vec3(0, 1, 0)));
 }
 
 void PlayerComponent::serialize(nlohmann::json& json) const {
@@ -97,4 +98,5 @@ void PlayerComponent::registerUI() {
 	ImGui::InputFloat("X", &_playerPos.x);
 	ImGui::InputFloat("Y", &_playerPos.y);
 	ImGui::InputFloat("Z", &_playerPos.z);
+	ImGui::InputFloat("DEBUG", &_debug);
 }
