@@ -21,6 +21,30 @@ CameraComponent::~CameraComponent() {}
 
 void CameraComponent::tick(TickAction action) {
 	_position += glm::vec3{0, 0, 0};
+
+	if (_mouseControl) {
+		SDL_SetRelativeMouseMode(SDL_TRUE);
+		
+		int mouseX, mouseY;
+		SDL_GetRelativeMouseState(&mouseX, &mouseY);
+
+		_cameraYaw += mouseX * _sensitivity;;
+		_cameraPitch -= mouseY *_sensitivity;
+
+		if (_cameraPitch > glm::radians(89.0f)){
+			_cameraPitch = glm::radians(89.0f);
+		}
+		else if(_cameraPitch < glm::radians(-89.0f)){
+			_cameraPitch = glm::radians(-89.0f);
+		}
+
+		glm::quat qPitch = glm::angleAxis(_cameraPitch, glm::vec3(1, 0, 0));
+		glm::quat qYaw = glm::angleAxis(_cameraYaw, glm::vec3(0, 1, 0));
+
+		_orientation = qPitch * qYaw;
+		_orientation = glm::normalize(_orientation);
+	}
+
 }
 
 void CameraComponent::translate(const glm::vec3& transform) {
@@ -34,6 +58,13 @@ void CameraComponent::rotation(float angle, const glm::vec3& axis) {
 CameraComponent& CameraComponent::yaw(float angle) { rotation(angle, {0, 1, 0}); return *this; }
 CameraComponent& CameraComponent::pitch(float angle) { rotation(angle, {1, 0, 0}); return *this; }
 CameraComponent& CameraComponent::roll(float angle) { rotation(angle, {0, 0, 1}); return *this; }
+
+void Hydra::Component::CameraComponent::setPosition(const glm::vec3 & position)
+{
+	auto model = entity->getComponent<Component::TransformComponent>();
+	model->setPosition(position - glm::vec3(0,0,3));
+	_position = position;
+}
 
 void CameraComponent::serialize(nlohmann::json& json) const {
 	json = {
@@ -67,4 +98,5 @@ void CameraComponent::registerUI() {
 
 	float aspect = (_renderTarget->getSize().x*1.0f) / _renderTarget->getSize().y;
 	ImGui::InputFloat("Aspect", &aspect, 0, 0, -1, ImGuiInputTextFlags_ReadOnly);
+	ImGui::Checkbox("Mouse Control", &_mouseControl);
 }
