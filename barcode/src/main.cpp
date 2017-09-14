@@ -495,19 +495,23 @@ private:
 
 		auto boxes = _world->createEntity("Boxes");
 		boxes->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0));
-		for (int x = 0; x < 3; x++) {
-			auto xLevel = boxes->createEntity("X Level");
-			xLevel->addComponent<Component::TransformComponent>(glm::vec3(x-1.5, 0, 0), glm::vec3(x*0.5 + 1, 1, 1));
-			for (int y = 0; y < 3; y++) {
-				auto yLevel = xLevel->createEntity("Y Level");
-				yLevel->addComponent<Component::TransformComponent>(glm::vec3(0, y-1.5, 0), glm::vec3(1, y*0.5 + 1, 1));
-				for (int z = 0; z < 3; z++) {
-					auto zLevel = yLevel->createEntity("Z Level");
-					zLevel->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
-					zLevel->addComponent<Component::TransformComponent>(glm::vec3(0, 0, z-1.5), glm::vec3(0.25, 0.25, z*0.125 + 0.25));
-				}
-			}
-		}
+		///Draw out multible geometry
+		//for (int x = 0; x < 3; x++) {
+		//	auto xLevel = boxes->createEntity("X Level");
+		//	xLevel->addComponent<Component::TransformComponent>(glm::vec3(x-1.5, 0, 0), glm::vec3(0.75));
+		//	for (int y = 0; y < 3; y++) {
+		//		auto yLevel = xLevel->createEntity("Y Level");
+		//		yLevel->addComponent<Component::TransformComponent>(glm::vec3(0, y-1.5, 0), glm::vec3(0.75));
+		//		for (int z = 0; z < 3; z++) {
+		//			auto zLevel = yLevel->createEntity("Z Level");
+		//			zLevel->addComponent<Component::MeshComponent>("C:/Users/BTH/Desktop/model.ATTIC");
+		//			//zLevel->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
+		//			zLevel->addComponent<Component::TransformComponent>(glm::vec3(0, 0, z-1.5), glm::vec3(0.75));
+		//		}
+		//	}
+		//}
+		boxes->addComponent<Component::MeshComponent>("assets/objects/model1.ATTIC");
+		boxes->addComponent<Component::TransformComponent>(glm::vec3(1), glm::vec3(0.25));
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
 		auto bp = BlueprintLoader::load("world.blueprint");
