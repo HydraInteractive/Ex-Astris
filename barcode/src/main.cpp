@@ -16,6 +16,7 @@
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/playercomponent.hpp>
+#include <hydra/component/aicomponent.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
 
@@ -455,6 +456,7 @@ private:
 
 	Component::CameraComponent* _cc = nullptr;
 	Component::PlayerComponent* player = nullptr;
+	Component::EnemyComponent* _enemy = nullptr;
 
 	void _setupComponents() {
 		using namespace Hydra::Component::ComponentManager;
@@ -473,6 +475,23 @@ private:
 		playerEntity->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0));
 		playerEntity->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
 		_cc = playerEntity->addComponent<Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{ 5, 0, -3 });
+
+
+		auto alienEntity = _world->createEntity("Enemy Alien");
+		_enemy = alienEntity->addComponent<Component::EnemyComponent>(Component::EnemyTypes::Alien);
+		alienEntity->addComponent<Component::TransformComponent>(glm::vec3(-10, 0, 0));
+		alienEntity->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
+
+		auto robotEntity = _world->createEntity("Enemy Robot");
+		_enemy = robotEntity->addComponent<Component::EnemyComponent>(Component::EnemyTypes::Robot);
+		robotEntity->addComponent<Component::TransformComponent>(glm::vec3(15, 0, 0));
+		robotEntity->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
+
+		auto bossEntity = _world->createEntity("Enemy Boss");
+		_enemy = bossEntity->addComponent<Component::EnemyComponent>(Component::EnemyTypes::AlienBoss);
+		bossEntity->addComponent<Component::TransformComponent>(glm::vec3(0, -10, 0));
+		bossEntity->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
+
 
 		auto boxes = _world->createEntity("Boxes");
 		boxes->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0));
