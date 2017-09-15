@@ -375,13 +375,12 @@ public:
 				for (auto& kv : _particleBatch.batch.objects)
 					kv.second.clear();
 
-				auto vecto = _world->getActiveComponents<Component::ParticleComponent>();
-
-				auto p = _world->getEntity(_world->getWorldRoot(), 85)->getComponent<Component::ParticleComponent>();
-				auto drawObj = p->getDrawObject();
-				for (auto particle : p->getParticles()) {
-					if (!drawObj->disable && drawObj->mesh) {
-						_particleBatch.batch.objects[drawObj->mesh].push_back(particle->m);
+				for (auto entity : _world->getActiveComponents<Component::ParticleComponent>()) {
+					auto pc = entity->getComponent<Component::ParticleComponent>();
+					for (auto particle : pc->getParticles()) {
+						auto drawObj = entity->getDrawObject();
+						if (!drawObj->disable && drawObj->mesh)
+							_particleBatch.batch.objects[drawObj->mesh].push_back(particle->m);
 					}
 				}
 

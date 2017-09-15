@@ -31,18 +31,6 @@ public:
 	std::shared_ptr<IEntity> getWorldRoot() final { return _root; }
 	std::map<std::type_index, std::vector<IEntity*>>& getActiveComponentMap() { return _activeComponents; }
 
-	std::shared_ptr<IEntity> getEntity(std::shared_ptr<IEntity>& root, const size_t id) final {
-		if (root->getID() == id)
-			return root;
-
-		for (auto child : root->getChildren())
-			if (auto e = getEntity(child, id)) {
-				return e;
-			}
-
-		return std::shared_ptr<IEntity>();
-	}
-
 private:
 	std::shared_ptr<IEntity> _root;
 	std::map<std::type_index, std::vector<IEntity*>> _activeComponents;
