@@ -47,5 +47,6 @@ namespace Hydra::Component {
 		float _movementSpeed = 0.2f;
 
 		float _debug;
+		glm::vec3 _debugPos;
 	};
 };

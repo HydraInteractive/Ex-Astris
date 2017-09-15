@@ -476,7 +476,7 @@ private:
 		playerEntity->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0));
 		auto weaponEntity = playerEntity->createEntity("Weapon");
 		weaponEntity->addComponent<Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
-		weaponEntity->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(1,1,1), glm::quat(0,0,0,0));
+		weaponEntity->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(1,1,1), glm::quat(0,0,-1,0));
 
 
 		/*

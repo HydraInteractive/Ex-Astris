@@ -85,14 +85,18 @@ void PlayerComponent::tick(TickAction action) {
 		_onGround = true;
 	}
 
-	player->setPosition(_position);
 	if (_firstPerson){
 		camera->setPosition(_position);
 	}
 	else{
 		camera->setPosition(_position + glm::vec3(0, -3, 0) + (forward * glm::vec3(4, 0, 4)));
 	}
+	player->setPosition(_position);
+	player->setRotation(glm::angleAxis(-camera->getYaw(), glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->getPitch(), glm::vec3(1, 0, 0))));
 	player->setRotation(glm::angleAxis(-camera->getYaw(), glm::vec3(0, 1, 0)));
+	//player->setRotation(glm::angleAxis(-camera->getPitch(), glm::vec3(1, 0, 0)));
+	player->setPosition(_position + glm::vec3(0, 0.75, 0) + glm::vec3(-1, 0, -1) * forward + glm::vec3(1, 0, 1)*strafe);
+	_debugPos = forward*glm::vec3(-2, 0, -2);
 }
 
 void PlayerComponent::serialize(nlohmann::json& json) const {
@@ -118,5 +122,6 @@ void PlayerComponent::deserialize(nlohmann::json& json) {
 void PlayerComponent::registerUI() {
 	ImGui::DragFloat3("Position", glm::value_ptr(_position),0.01f);
 	ImGui::InputFloat("DEBUG", &_debug);
+	ImGui::DragFloat3("DEBUG POS", glm::value_ptr(_debugPos), 0.01f);
 	ImGui::Checkbox("First Person", &_firstPerson);
 }
