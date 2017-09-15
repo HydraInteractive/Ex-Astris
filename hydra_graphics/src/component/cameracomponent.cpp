@@ -34,7 +34,7 @@ void CameraComponent::tick(TickAction action) {
 			_cameraPitch = glm::radians(-89.0f);
 		}
 	}
-	
+
 	glm::quat qPitch = glm::angleAxis(_cameraPitch, glm::vec3(1, 0, 0));
 	glm::quat qYaw = glm::angleAxis(_cameraYaw, glm::vec3(0, 1, 0));
 
@@ -55,8 +55,7 @@ CameraComponent& CameraComponent::yaw(float angle) { rotation(angle, {0, 1, 0});
 CameraComponent& CameraComponent::pitch(float angle) { rotation(angle, {1, 0, 0}); return *this; }
 CameraComponent& CameraComponent::roll(float angle) { rotation(angle, {0, 0, 1}); return *this; }
 
-void Hydra::Component::CameraComponent::setPosition(const glm::vec3 & position)
-{
+void Hydra::Component::CameraComponent::setPosition(const glm::vec3 & position) {
 	_position = position;
 }
 

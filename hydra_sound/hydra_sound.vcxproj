@@ -91,10 +91,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\component\componentmanager_sound.cpp" />
-    <ClCompile Include="src\empty.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\empty_sound.hpp" />
     <ClInclude Include="include\hydra\component\componentmanager_sound.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

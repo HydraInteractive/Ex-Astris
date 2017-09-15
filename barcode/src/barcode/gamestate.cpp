@@ -351,46 +351,6 @@ namespace Barcode {
 		weaponEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 		weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(1,1,1), glm::quat(0,0,-1,0));
 
-		/*
-		auto alienEntity = _world->createEntity("Enemy Alien");
-		_enemy = alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien);
-		alienEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-10, 0, 0));
-		alienEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/test.fbx");
-
-		auto robotEntity = _world->createEntity("Enemy Robot");
-		_enemy = robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot);
-		robotEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(15, 0, 0));
-		robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/test.fbx");
-
-		auto bossEntity = _world->createEntity("Enemy Boss");
-		_enemy = bossEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss);
-		bossEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, -10, 0));
-		bossEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/test.fbx");
-		*/
-
-
-		/*
-		auto boxes = _world->createEntity("Boxes");
-		boxes->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0));
-		///Draw out multible geometry
-		//for (int x = 0; x < 3; x++) {
-		//	auto xLevel = boxes->createEntity("X Level");
-		//	xLevel->addComponent<Component::TransformComponent>(glm::vec3(x-1.5, 0, 0), glm::vec3(0.75));
-		//	for (int y = 0; y < 3; y++) {
-		//		auto yLevel = xLevel->createEntity("Y Level");
-		//		yLevel->addComponent<Component::TransformComponent>(glm::vec3(0, y-1.5, 0), glm::vec3(0.75));
-		//		for (int z = 0; z < 3; z++) {
-		//			auto zLevel = yLevel->createEntity("Z Level");
-		//			zLevel->addComponent<Component::MeshComponent>("C:/Users/BTH/Desktop/model.ATTIC");
-		//			//zLevel->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
-		//			zLevel->addComponent<Component::TransformComponent>(glm::vec3(0, 0, z-1.5), glm::vec3(0.75));
-		//		}
-		//	}
-		//}
-		boxes->addComponent<Component::MeshComponent>("assets/objects/model1.ATTIC");
-		boxes->addComponent<Component::TransformComponent>(glm::vec3(1), glm::vec3(0.25));
-		*/
-
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
 		auto bp = BlueprintLoader::load("world.blueprint");
 		_world->setWorldRoot(bp->spawn(_world.get()));

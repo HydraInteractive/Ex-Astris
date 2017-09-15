@@ -91,10 +91,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\component\componentmanager_network.cpp" />
-    <ClCompile Include="src\empty.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\empty_network.hpp" />
     <ClInclude Include="include\hydra\component\componentmanager_network.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

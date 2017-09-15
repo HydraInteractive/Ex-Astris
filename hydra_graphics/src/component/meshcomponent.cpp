@@ -29,11 +29,6 @@ MeshComponent::MeshComponent(IEntity* entity, const std::string& meshFile) : ICo
 	_drawObject->mesh = _mesh.get();
 }
 
-MeshComponent::MeshComponent(IEntity* entity, const PrimitiveType& type) : IComponent(entity), _drawObject(entity->getDrawObject()) {
-	_mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getQuad();
-	_drawObject->refCounter++;
-}
-
 MeshComponent::~MeshComponent() {
 	_drawObject->mesh = nullptr;
 	_drawObject->refCounter--;
