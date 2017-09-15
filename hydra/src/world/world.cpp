@@ -27,10 +27,10 @@ public:
 
 	std::shared_ptr<IEntity> createEntity(const std::string& name) final { return _root->createEntity(name); }
 	void tick(TickAction action, float delta) final { _root->tick(action, delta); }
-
 	void setWorldRoot(std::shared_ptr<IEntity> root) final { _root = root; }
 	std::shared_ptr<IEntity> getWorldRoot() final { return _root; }
-	
+	std::map<std::type_index, std::vector<IEntity*>>& getActiveComponentMap() { return _activeComponents; }
+
 	std::shared_ptr<IEntity> getEntity(std::shared_ptr<IEntity>& root, const size_t id) final {
 		if (root->getID() == id)
 			return root;
@@ -45,6 +45,7 @@ public:
 
 private:
 	std::shared_ptr<IEntity> _root;
+	std::map<std::type_index, std::vector<IEntity*>> _activeComponents;
 	size_t _id;
 };
 
@@ -117,6 +118,7 @@ public:
 		_wantDirty = true;
 		IComponent* ptr = component.get();
 		_components[id] = std::move(component);
+		world->getActiveComponentMap()[id].push_back(this);
 		return ptr;
 	}
 

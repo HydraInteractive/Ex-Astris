@@ -49,6 +49,13 @@ namespace Hydra::World {
 		virtual void setWorldRoot(std::shared_ptr<IEntity> root) = 0;
 		virtual std::shared_ptr<IEntity> getWorldRoot() = 0;
 		virtual std::shared_ptr<IEntity> getEntity(std::shared_ptr<IEntity>& root, const size_t id) = 0;
+		virtual std::map<std::type_index, std::vector<IEntity*>>& getActiveComponentMap() = 0;
+
+		template <typename T>
+		T& getActiveComponents() {
+			return getActiveComponentMap()[std::type_index(typeid(T))];
+		}
+
 	};
 	inline IWorld::~IWorld() {}
 
