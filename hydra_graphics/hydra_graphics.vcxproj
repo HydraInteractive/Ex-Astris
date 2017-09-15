@@ -113,6 +113,7 @@
     <ClInclude Include="include\imgui\stb_textedit.h" />
     <ClInclude Include="include\imgui\stb_truetype.h" />
     <ClInclude Include="include\KHR\khrplatform.h" />
+    <ClInclude Include="include\hydra\renderer\ImporterMenu.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\component\animationComponent.cpp" />
@@ -134,6 +135,7 @@
     <ClCompile Include="src\renderer\glrenderer.cpp" />
     <ClCompile Include="src\renderer\glshader.cpp" />
     <ClCompile Include="src\renderer\gltexture.cpp" />
+    <ClCompile Include="src\renderer\ImporterMenu.cpp" />
     <ClCompile Include="src\renderer\uirenderer.cpp" />
     <ClCompile Include="src\view\sdlview.cpp" />
   </ItemGroup>

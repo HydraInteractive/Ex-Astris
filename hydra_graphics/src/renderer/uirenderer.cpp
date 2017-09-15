@@ -19,6 +19,7 @@
 #include <hydra/world/world.hpp>
 #include <hydra/renderer/renderer.hpp>
 #include <hydra/ext/ram.hpp>
+#include <hydra/renderer/ImporterMenu.hpp>
 
 #include <iomanip>
 #include <sstream>
@@ -129,6 +130,7 @@ public:
     ImGui_ImplSdlGL3_Init(_window = static_cast<SDL_Window*>(view.getHandler()));
 
 		_log = std::unique_ptr<IUILog>(new UILogImpl(this));
+		_importerMenu = std::unique_ptr<ImporterMenu>(new ImporterMenu());
 
 		ImGuiIO& io = ImGui::GetIO();
 		_normalFont = io.Fonts->AddFontFromFileTTF("assets/fonts/DroidSans.ttf", 18.0f);
@@ -211,17 +213,22 @@ public:
     if (ImGui::BeginMainMenuBar()) {
 			if (ImGui::BeginMenu("File")) {
 				ImGui::MenuItem("Log", nullptr, &_logWindow);
-				ImGui::MenuItem("Entity List", nullptr, &_entityWindow);
+				//ImGui::MenuItem("Entity List", nullptr, &_entityWindow);
 				ImGui::Separator();
 				ImGui::MenuItem("ImGui Test Window", nullptr, &_testWindow);
-
 				ImGui::Separator();
-
 				if (ImGui::MenuItem("Quit"))
 						_view->quit();
 				ImGui::EndMenu();
 			}
-
+			if (ImGui::BeginMenu("Entity")) {
+				ImGui::MenuItem("Entity List", nullptr, &_entityWindow);
+				ImGui::Separator();
+				ImGui::MenuItem("Static Object...", nullptr, &_importerWindow);
+				ImGui::MenuItem("Dynamic Object...", nullptr, nullptr);
+				ImGui::MenuItem("Special Entity...", nullptr, nullptr);
+				ImGui::EndMenu();
+			}
 			static char buf[64];
 			snprintf(buf, sizeof(buf), "Application average %.3f ms/frame (%.1f FPS) - RAM: %.2fMiB", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate, Hydra::Ext::getCurrentRSS()/(1024.0f*1024.0f));
 
@@ -269,6 +276,10 @@ public:
 		if (_testWindow)
 			ImGui::ShowTestWindow(&_testWindow);
 
+		if (_importerWindow)
+			_importerMenu->render(_importerWindow);
+
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0); // Bind the screen (0)
 		ImGui::Render();
 	}
@@ -295,12 +306,14 @@ private:
 	Hydra::View::IView* _view;
 	SDL_Window* _window;
 	std::unique_ptr<IUILog> _log;
+	std::unique_ptr<ImporterMenu> _importerMenu;
 
 	std::vector<std::unique_ptr<UIRenderWindow>> _renderWindows;
 
 	bool _logWindow = true;
 	bool _entityWindow = true;
 	bool _testWindow = false;
+	bool _importerWindow = false;
 
 	ImFont* _normalFont;
 	ImFont* _normalBoldFont;
