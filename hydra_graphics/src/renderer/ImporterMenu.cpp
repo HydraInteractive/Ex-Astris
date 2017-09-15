@@ -58,7 +58,7 @@ ImporterMenu::Node::~Node()
 }
 std::string ImporterMenu::Node::getFileName()
 {
-	uint i = path.find_last_of('/');
+	unsigned int i = path.find_last_of('/');
 	if (i == std::string::npos)
 	{
 		return path;
