@@ -15,6 +15,10 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/transform.hpp>
 
+#include <hydra/component/transformcomponent.hpp>
+
+#include <SDL2/SDL.h>
+
 using namespace Hydra::World;
 
 namespace Hydra::Component {
@@ -46,8 +50,10 @@ namespace Hydra::Component {
 
 		inline const glm::vec3& getPosition() const { return _position; }
 
+		void setPosition(const glm::vec3& position);
+
 		// TODO: Cache these?
-		inline glm::mat4 getViewMatrix() const { return glm::translate(glm::mat4_cast(_orientation), _position); }
+		inline glm::mat4 getViewMatrix() const { return glm::translate(glm::mat4_cast(_orientation), -_position); }
 		inline glm::mat4 getProjectionMatrix() const { return glm::perspective(glm::radians(_fov), (_renderTarget->getSize().x*1.0f) / _renderTarget->getSize().y, _zNear, _zFar); }
 
 	private:
@@ -58,5 +64,11 @@ namespace Hydra::Component {
 		float _fov = 90.0f;
 		float _zNear = 0.001f;
 		float _zFar = 75.0f;
+		float _aspect = 1920.0f/1080.0f;
+
+		float _sensitivity = 0.005f;
+		float _cameraYaw = 0.0f;
+		float _cameraPitch = 0.0f;
+		bool _mouseControl = false;
 	};
 };

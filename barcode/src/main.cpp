@@ -15,6 +15,8 @@
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
+#include <hydra/component/playercomponent.hpp>
+#include <hydra/component/aicomponent.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
 
@@ -222,6 +224,7 @@ public:
 	~Engine() final { }
 
 	void run() final {
+
 		while (!_view->isClosed()) {
 			{ // Remove old dead objects
 				_world->tick(TickAction::checkDead);
@@ -385,6 +388,7 @@ public:
 			{ // Sync with network
 				_world->tick(TickAction::network);
 			}
+
 		}
 	}
 
@@ -451,6 +455,8 @@ private:
 	std::unique_ptr<Renderer::IShader> _glowFragmentShader;
 
 	Component::CameraComponent* _cc = nullptr;
+	Component::PlayerComponent* player = nullptr;
+	Component::EnemyComponent* _enemy = nullptr;
 
 	void _setupComponents() {
 		using namespace Hydra::Component::ComponentManager;
@@ -463,8 +469,29 @@ private:
 
 	void _initEntities() {
 		_world = Hydra::World::World::create();
-		auto cameraEntity = _world->createEntity("Camera");
-		/*_cc = */ cameraEntity->addComponent<Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{0, 0, -3});
+
+		auto playerEntity = _world->createEntity("Player");
+		player = playerEntity->addComponent<Component::PlayerComponent>();
+		playerEntity->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0));
+		playerEntity->addComponent<Component::MeshComponent>("assets/objects/model1.ATTIC");
+		_cc = playerEntity->addComponent<Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{ 5, 0, -3 });
+
+
+		//auto alienEntity = _world->createEntity("Enemy Alien");
+		//_enemy = alienEntity->addComponent<Component::EnemyComponent>(Component::EnemyTypes::Alien);
+		//alienEntity->addComponent<Component::TransformComponent>(glm::vec3(-10, 0, 0));
+		//alienEntity->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
+
+		//auto robotEntity = _world->createEntity("Enemy Robot");
+		//_enemy = robotEntity->addComponent<Component::EnemyComponent>(Component::EnemyTypes::Robot);
+		//robotEntity->addComponent<Component::TransformComponent>(glm::vec3(15, 0, 0));
+		//robotEntity->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
+
+		//auto bossEntity = _world->createEntity("Enemy Boss");
+		//_enemy = bossEntity->addComponent<Component::EnemyComponent>(Component::EnemyTypes::AlienBoss);
+		//bossEntity->addComponent<Component::TransformComponent>(glm::vec3(0, -10, 0));
+		//bossEntity->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
+
 
 		auto boxes = _world->createEntity("Boxes");
 		boxes->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0));
@@ -492,7 +519,7 @@ private:
 
 		{
 			auto& world = _world->getWorldRoot()->getChildren();
-			auto it = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Camera"; });
+			auto it = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Player"; });
 			if (it != world.end()) {
 				_cc = (*it)->getComponent<Component::CameraComponent>();
 				_cc->setRenderTarget(_geometryBatch.output.get());

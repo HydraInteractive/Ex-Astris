@@ -15,7 +15,9 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-NAMEComponent::NAMEComponent(IEntity* entity) : IComponent(entity) { }
+NAMEComponent::NAMEComponent(IEntity* entity) : IComponent(entity), _c(0) { }
+
+NAMEComponent::NAMEComponent(IEntity* entity, int a, bool b, float c) : IComponent(entity), _a(a), _b(b), _c(c) { }
 
 NAMEComponent::~NAMEComponent() final { }
 
@@ -23,23 +25,18 @@ void NAMEComponent::tick(TickAction action) {
 	// If you only have one TickAction in 'wantTick' you don't need to check the tickaction here.
 }
 
-msgpack::packer<msgpack::sbuffer>& NAMEComponent::pack(msgpack::packer<msgpack::sbuffer>& o) const {
-	/*
-	 * // Optional code, not really needed
-	 *
-	 * o.pack_map(3); // The amount of variables to be written
-	 *
-	 * // The variables:
-	 * o.pack("a");
-	 * o.pack(_a);
-	 *
-	 * o.pack("b");
-	 * o.pack(_b);
-	 *
-	 * o.pack("c");
-	 * o.pack(_c);
-	 */
-	return o;
+void MeshComponent::serialize(nlohmann::json& json) const {
+	json = {
+		{"a", _a},
+		{"b", _b},
+		{"c", _c}
+	};
+}
+
+void MeshComponent::deserialize(nlohmann::json& json) {
+	_a = json["a"].get<int>();
+	_b = json["b"].get<bool>();
+	_c = json["c"].get<float>();
 }
 
 // Register UI buttons in the debug UI

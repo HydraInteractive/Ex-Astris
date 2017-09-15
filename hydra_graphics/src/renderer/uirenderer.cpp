@@ -47,7 +47,7 @@ public:
 		}
 
 		size_t oldSize = _buffer.size();
-		_buffer.append(tmp);
+		_buffer.append("%s", tmp);
 
 		_lineInfo.push_back(Line{oldSize, (size_t)_buffer.size() - 1, level, 1});
 		_scrollToBottom = true;
@@ -235,7 +235,7 @@ public:
 			auto indent = _view->getSize().x / 2 - ImGui::CalcTextSize(buf).x / 2 - /* File */4 / 2;
 
 			ImGui::Indent(indent);
-			ImGui::Text(buf);
+			ImGui::Text("%s", buf);
 			ImGui::Unindent(indent);
 
 			ImGui::EndMainMenuBar();
