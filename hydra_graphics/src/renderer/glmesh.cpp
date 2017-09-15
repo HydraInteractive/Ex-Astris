@@ -337,7 +337,7 @@ private:
 			info->diffuse = diffuse;
 			info->specular = glm::vec3(specular);
 			
-			for (int d = 0; d < vertices.size(); d++) {
+			for (uint d = 0; d < vertices.size(); d++) {
 				vertices[d].color = diffuse;
 			}
 

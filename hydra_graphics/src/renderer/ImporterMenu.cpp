@@ -2,7 +2,6 @@
 ImporterMenu::ImporterMenu()
 {
 	rootPath = _getExecutableDir();
-	int hello = 32423;
 	//refresh();
 }
 ImporterMenu::~ImporterMenu()
@@ -23,14 +22,15 @@ void ImporterMenu::refresh()
 
 std::string ImporterMenu::_getExecutableDir()
 {	
-	char unicodePath[MAX_PATH];
-#ifdef _WIN32
 	std::string path;
+#ifdef _WIN32
+	char unicodePath[MAX_PATH];
 	int bytes = GetModuleFileName(NULL, unicodePath, 500);
 #else
+	char unicodePath[1000];
 	char tempStr[32];
 	sprintf(tempStr, "/proc/%d/exe", getpid());
-	int bytes = MIN(readlink(tempStr, unicodePath, 500), len - 1);
+	int bytes = std::min((int)readlink(tempStr, unicodePath, 500), 500 - 1);
 	if (bytes >= 0)
 		unicodePath[bytes] = '\0';
 #endif
@@ -47,7 +47,6 @@ ImporterMenu::Node::Node(std::string path)
 	std::vector<std::string> files;
 	std::vector<std::string> folders;
 	_getContentsOfDir(path, files, folders);
-	int hello = 2;
 }
 ImporterMenu::Node::Node(std::string path, std::string children)
 {
@@ -59,7 +58,7 @@ ImporterMenu::Node::~Node()
 }
 std::string ImporterMenu::Node::getFileName()
 {
-	int i = path.find_last_of('/');
+	uint i = path.find_last_of('/');
 	if (i == std::string::npos)
 	{
 		return path;
@@ -109,24 +108,28 @@ void ImporterMenu::Node::_getContentsOfDir(const std::string &directory, std::ve
 	class dirent *ent;
 	class stat st;
 
-	dir = opendir(directory);
+	dir = opendir(directory.c_str());
 	while ((ent = readdir(dir)) != NULL)
 	{
-		const string fileName = ent->d_name;
-		const string fullFileName = directory + "/" + fileName;
+		const std::string fileName = ent->d_name;
+		const std::string fullFileName = directory + "/" + fileName;
 
-		if (fileName[0] == '.')
-			continue;
+		if (fileName[0] == '.'){
+
+		}
 
 		if (stat(fullFileName.c_str(), &st) == -1)
 			continue;
 
 		const bool isDir = (st.st_mode & S_IFDIR) != 0;
 
-		if (isDir)
-			continue;
-
-		out.push_back(fullFileName);
+		if (isDir){
+			folders.push_back(fullFileName);
+		}
+		else{
+			files.push_back(fullFileName);
+		}
+		
 	}
 	closedir(dir);
 #endif
