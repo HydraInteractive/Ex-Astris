@@ -317,6 +317,13 @@ namespace Barcode {
 			_world->tick(TickAction::renderTransparent, delta);
 		}
 
+		{ // Particle batch
+			int i = 0;
+			for (auto entity : _world->getActiveComponents<Hydra::Component::ParticleComponent>()) {
+				printf("%d", i);
+			}
+		}
+
 		{
 			if (!_engine->getUIRenderer()->isDraging()) {
 				static glm::ivec2 oldSize = _postTestBatch.output->getSize();
@@ -368,6 +375,9 @@ namespace Barcode {
 		auto weaponEntity = playerEntity->createEntity("Weapon");
 		weaponEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 		weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(1,1,1), glm::quat(0,0,-1,0));
+		
+		auto particleEmitter = _world->createEntity("ParticleEmitter");
+		particleEmitter->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, 10);
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
 		auto bp = BlueprintLoader::load("world.blueprint");
@@ -382,6 +392,7 @@ namespace Barcode {
 			} else
 				_engine->log(Hydra::LogLevel::error, "Camera not found!");
 		}
+
 	}
 
 	std::shared_ptr<Hydra::Renderer::IFramebuffer> GameState::_blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int &nrOfTimes, glm::vec2 size) { // TO-DO: Make it agile so it can blur any texture

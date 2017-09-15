@@ -44,6 +44,11 @@ public:
 		return mesh;
 	}
 
+	std::shared_ptr<IMesh> getQuad() final{
+		std::shared_ptr<IMesh> mesh = GLMesh::createFullscreenQuad();
+		return mesh;
+	}
+
 	std::shared_ptr<IMesh> getErrorMesh() final { return _errorMesh; }
 
 private:

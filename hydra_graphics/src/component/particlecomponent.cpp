@@ -13,9 +13,9 @@ ParticleComponent::ParticleComponent(IEntity* entity) : IComponent(entity), _dra
 }
 
 ParticleComponent::ParticleComponent(IEntity* entity, EmitterBehaviour behaviour, int nrOfParticles) : IComponent(entity), _drawObject(entity->getDrawObject()), 
-_pps(nrOfParticles), _behaviour(behaviour), _accumulator(0.f), _particleFile("assets/objects/quad.fbx"){
+_pps(nrOfParticles), _behaviour(behaviour), _accumulator(0.f){
 	_drawObject->refCounter++;
-	_drawObject->mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(_particleFile).get();
+	_drawObject->mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getQuad().get();
 	_tempRotation = glm::mat4(1);
 	_tempRotation *= glm::angleAxis(glm::radians(90.f), glm::vec3(1,0,0));
 }
@@ -105,7 +105,6 @@ void ParticleComponent::serialize(nlohmann::json & json) const{
 		{ "accumulator", _accumulator},
 		{ "behaviour", (int)_behaviour}
 	};
-	json["particleFile"] = _particleFile;
 }
 
 void ParticleComponent::deserialize(nlohmann::json & json){
@@ -117,8 +116,6 @@ void ParticleComponent::deserialize(nlohmann::json & json){
 
 	auto& behaviour = json["behaviour"];
 	_behaviour = (EmitterBehaviour)behaviour.get<int>();
-
-	_drawObject->mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(json["particleFile"].get<std::string>()).get();
 }
 
 void ParticleComponent::registerUI(){

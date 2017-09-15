@@ -64,7 +64,6 @@ namespace Hydra::Component {
 		int _pps; // Particles per second.
 		float _accumulator;
 		glm::quat _tempRotation;
-		std::string _particleFile;
 		EmitterBehaviour _behaviour;
 		Hydra::Renderer::DrawObject* _drawObject;
 		std::vector<std::shared_ptr<Particle>> _particles;
