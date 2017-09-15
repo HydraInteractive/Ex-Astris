@@ -91,6 +91,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\glad\glad.h" />
+    <ClInclude Include="include\hydra\component\animationComponent.hpp" />
     <ClInclude Include="include\hydra\component\cameracomponent.hpp" />
     <ClInclude Include="include\hydra\component\componentmanager_graphics.hpp" />
     <ClInclude Include="include\hydra\component\meshcomponent.hpp" />
@@ -114,6 +115,7 @@
     <ClInclude Include="include\KHR\khrplatform.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\component\animationComponent.cpp" />
     <ClCompile Include="src\component\cameracomponent.cpp" />
     <ClCompile Include="src\component\componentmanager_graphics.cpp" />
     <ClCompile Include="src\component\meshcomponent.cpp" />
