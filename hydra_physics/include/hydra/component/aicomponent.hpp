@@ -20,6 +20,7 @@ namespace Hydra::Component {
 		AlienBoss = 2,
 
 	};
+
 	class HYDRA_API EnemyComponent final : public IComponent{
 	public:
 		EnemyComponent(IEntity* entity);
@@ -31,6 +32,9 @@ namespace Hydra::Component {
 		inline TickAction wantTick() const final { return TickAction::physics; }
 
 		inline const std::string type() const final { return "EnemyComponent"; }
+
+		glm::vec3 getPosition();
+		float getRadius();
 
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
@@ -44,9 +48,5 @@ namespace Hydra::Component {
 		bool _falling;
 		bool _patrolPointReached;
 		EnemyTypes _enemyID = EnemyTypes::Alien;
-
-		int _a = 0;
-		bool _b = false;
-		float _c = 0.0f;
 	};
 };

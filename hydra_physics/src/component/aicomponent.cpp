@@ -13,7 +13,7 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-Hydra::Component::EnemyComponent::EnemyComponent(IEntity* entity) : IComponent(entity){}
+EnemyComponent::EnemyComponent(IEntity* entity) : IComponent(entity), _enemyID(EnemyTypes::Alien) {}
 
 EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID) : IComponent(entity), _enemyID(enemyID) {
 	_velocityX = 0;
@@ -127,12 +127,26 @@ void EnemyComponent::tick(TickAction action) {
 	}
 }
 
+glm::vec3 Hydra::Component::EnemyComponent::getPosition()
+{
+	auto enemy = entity->getComponent<Component::TransformComponent>();
+
+	return enemy->getPosition();
+}
+
+float Hydra::Component::EnemyComponent::getRadius()
+{
+	return 1.5f;
+}
+
 void EnemyComponent::serialize(nlohmann::json& json) const {
 	json = {
 		{ "position",{ _position.x, _position.y, _position.z } },
+		{ "startPosition",{ _startPosition.x, _startPosition.y, _startPosition.z } },
 		{ "velocityX", _velocityX },
 		{ "velocityY", _velocityY },
 		{ "velocityZ", _velocityZ },
+		{ "enemyID", (int)_enemyID },
 	};
 }
 
@@ -140,9 +154,14 @@ void EnemyComponent::deserialize(nlohmann::json& json) {
 	auto& pos = json["position"];
 	_position = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
 
+	auto& startpos = json["startPosition"];
+	_startPosition = glm::vec3{ startpos[0].get<float>(), startpos[1].get<float>(), startpos[2].get<float>() };
+
 	_velocityX = json["velocityX"].get<float>();
 	_velocityY = json["velocityY"].get<float>();
 	_velocityZ = json["velocityZ"].get<float>();
+
+	_enemyID = (EnemyTypes)json["enemyID"].get<int>();
 }
 
 // Register UI buttons in the debug UI
