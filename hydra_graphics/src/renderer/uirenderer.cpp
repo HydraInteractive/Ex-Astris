@@ -46,7 +46,7 @@ public:
 		}
 
 		size_t oldSize = _buffer.size();
-		_buffer.append(tmp);
+		_buffer.append("%s", tmp);
 
 		_lineInfo.push_back(Line{oldSize, (size_t)_buffer.size() - 1, level, 1});
 		_scrollToBottom = true;
@@ -125,7 +125,7 @@ private:
 
 class UIRendererImpl final : public IUIRenderer {
 public:
-	UIRendererImpl(Hydra::View::IView& view) : _view(&view) {
+	UIRendererImpl(Hydra::View::IView& view) : _engine(Hydra::IEngine::getInstance()), _view(&view) {
     ImGui_ImplSdlGL3_Init(_window = static_cast<SDL_Window*>(view.getHandler()));
 
 		_log = std::unique_ptr<IUILog>(new UILogImpl(this));
@@ -200,6 +200,10 @@ public:
 		ImGui_ImplSdlGL3_NewFrame(_window);
 	}
 
+	void reset() final {
+		_renderWindows.clear();
+	}
+
 	UIRenderWindow* addRenderWindow() final {
 		auto window = std::make_unique<UIRenderWindow>();
 		UIRenderWindow* output = window.get();
@@ -222,13 +226,15 @@ public:
 				ImGui::EndMenu();
 			}
 
-			static char buf[64];
-			snprintf(buf, sizeof(buf), "Application average %.3f ms/frame (%.1f FPS) - RAM: %.2fMiB", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate, Hydra::Ext::getCurrentRSS()/(1024.0f*1024.0f));
+			_engine->onMainMenu();
 
-			auto indent = _view->getSize().x / 2 - ImGui::CalcTextSize(buf).x / 2 - /* File */4 / 2;
+			static char buf[128];
+			snprintf(buf, sizeof(buf), "Application average %.3f ms/frame (%.1f FPS) - RAM: %.2fMiB / Peak %.2fMiB", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate, Hydra::Ext::getCurrentRSS()/(1024.0f*1024.0f), Hydra::Ext::getPeakRSS()/(1024.0f*1024.0f));
+
+			auto indent = _view->getSize().x / 2 - ImGui::CalcTextSize(buf).x / 2;
 
 			ImGui::Indent(indent);
-			ImGui::Text(buf);
+			ImGui::Text("%s", buf);
 			ImGui::Unindent(indent);
 
 			ImGui::EndMainMenuBar();
@@ -238,25 +244,26 @@ public:
 			ImGui::Begin("Render Windows");
 			ImGuiWindow* wind = ImGui::GetCurrentWindow();
 			ImGuiStyle& style = ImGui::GetStyle();
+			if (_renderWindows.size()) {
+				pushFont(UIFont::normalBold);
+				ImGui::BeginTabBar("#RenderWindows");
+				popFont();
+				ImGui::DrawTabsBackground();
+				for (auto& window : _renderWindows) {
+					if (!window->enabled)
+						continue;
 
-			pushFont(UIFont::normalBold);
-			ImGui::BeginTabBar("#RenderWindows");
-			popFont();
-			ImGui::DrawTabsBackground();
-			for (auto& window : _renderWindows) {
-				if (!window->enabled)
-					continue;
+					if (!ImGui::AddTab(window->title.c_str()))
+						continue;
 
-				if (!ImGui::AddTab(window->title.c_str()))
-					continue;
-
-				auto iSize = wind->Size - style.WindowPadding - ImVec2(24, 72);
-				if (iSize.x <= 2) iSize.x = 2;
-				if (iSize.y <= 2) iSize.y = 2;
-				window->size = glm::ivec2{iSize.x, iSize.y};
-				ImGui::Image(reinterpret_cast<ImTextureID>((size_t)window->image->getID()), iSize);
+					auto iSize = wind->Size - style.WindowPadding - ImVec2(24, 72);
+					if (iSize.x <= 2) iSize.x = 2;
+					if (iSize.y <= 2) iSize.y = 2;
+					window->size = glm::ivec2{iSize.x, iSize.y};
+					ImGui::Image(reinterpret_cast<ImTextureID>((size_t)window->image->getID()), iSize);
+				}
+				ImGui::EndTabBar();
 			}
-			ImGui::EndTabBar();
 			ImGui::End();
 		}
 
@@ -292,6 +299,7 @@ public:
 	bool isDraging() final { return ImGui::IsMouseDragging(); }
 
 private:
+	Hydra::IEngine* _engine;
 	Hydra::View::IView* _view;
 	SDL_Window* _window;
 	std::unique_ptr<IUILog> _log;
@@ -312,7 +320,7 @@ private:
 		ImGui::SetNextWindowSize(ImVec2(480, 640), ImGuiSetCond_Once);
 		ImGui::Begin("Entity List", &_entityWindow);
 
-		auto world = Hydra::IEngine::getInstance()->getWorld()->getWorldRoot().get();
+		auto world = _engine->getState()->getWorld()->getWorldRoot().get();
 
 		// This doesn't use _renderEntity, because I want a globe instad of a user
 		if (ImGui::TreeNode(world, ICON_FA_GLOBE " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", world->getName().c_str(), world->getID(), world->getComponents().size(), world->getChildren().size())) {

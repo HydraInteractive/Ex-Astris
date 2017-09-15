@@ -24,14 +24,9 @@ MeshComponent::MeshComponent(IEntity* entity) : IComponent(entity), _meshFile(""
 }
 
 MeshComponent::MeshComponent(IEntity* entity, const std::string& meshFile) : IComponent(entity), _meshFile(meshFile), _drawObject(entity->getDrawObject()) {
-	_mesh = Hydra::IEngine::getInstance()->getMeshLoader()->getMesh(meshFile);
+	_mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(meshFile);
 	_drawObject->refCounter++;
 	_drawObject->mesh = _mesh.get();
-}
-
-MeshComponent::MeshComponent(IEntity* entity, const PrimitiveType& type) : IComponent(entity), _drawObject(entity->getDrawObject()) {
-	_mesh = Hydra::IEngine::getInstance()->getMeshLoader()->getQuad();
-	_drawObject->refCounter++;
 }
 
 MeshComponent::~MeshComponent() {
@@ -48,7 +43,7 @@ void MeshComponent::serialize(nlohmann::json& json) const {
 }
 
 void MeshComponent::deserialize(nlohmann::json& json) {
-	_mesh = Hydra::IEngine::getInstance()->getMeshLoader()->getMesh(json["meshFile"].get<std::string>());
+	_mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(json["meshFile"].get<std::string>());
 	_drawObject->mesh = _mesh.get();
 }
 

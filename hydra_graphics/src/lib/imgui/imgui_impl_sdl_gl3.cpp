@@ -390,7 +390,7 @@ void ImGui_ImplSdlGL3_NewFrame(SDL_Window* window)
     g_MouseWheel = 0.0f;
 
     // Hide OS mouse cursor if ImGui is drawing it
-    SDL_ShowCursor(io.MouseDrawCursor ? 0 : 1);
+    //SDL_ShowCursor(io.MouseDrawCursor ? 0 : 1);
 
     // Start the frame
     ImGui::NewFrame();

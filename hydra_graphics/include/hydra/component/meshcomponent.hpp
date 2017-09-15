@@ -24,7 +24,6 @@ namespace Hydra::Component {
 	public:
 		MeshComponent(IEntity* entity);
 		MeshComponent(IEntity* entity, const std::string& meshFile);
-		MeshComponent(IEntity* entity, const PrimitiveType& type);
 		~MeshComponent() final;
 
 		void tick(TickAction action, float delta) final;
