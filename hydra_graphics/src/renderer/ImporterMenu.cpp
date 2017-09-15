@@ -22,25 +22,23 @@ void ImporterMenu::refresh()
 }
 
 std::string ImporterMenu::_getExecutableDir()
-{
-#ifdef _WIN32
+{	
 	char unicodePath[MAX_PATH];
+#ifdef _WIN32
 	std::string path;
 	int bytes = GetModuleFileName(NULL, unicodePath, 500);
+#else
+	sprintf(szTmp, "/proc/%d/exe", getpid());
+	int bytes = MIN(readlink("/proc/self/exe", unicodePath, 500), len - 1);
+	if (bytes >= 0)
+		unicodePath[bytes] = '\0';
+#endif
 	if (bytes == 0)
 		return "/";
 	else
 		//TODO: Will break if the path has unicode characters
 		path = std::string(unicodePath);
-		return path;
-#else
-	char szTmp[32];
-	sprintf(szTmp, "/proc/%d/exe", getpid());
-	int bytes = MIN(readlink(szTmp, pBuf, len), len - 1);
-	if (bytes >= 0)
-		pBuf[bytes] = '\0';
-	
-#endif
+	return path;
 }
 
 ImporterMenu::Node::Node(std::string path)

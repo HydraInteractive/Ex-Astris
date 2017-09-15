@@ -6,6 +6,7 @@
 #else
 #include <dirent.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #endif
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_sdl_gl3.h>
