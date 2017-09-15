@@ -2,6 +2,7 @@
 ImporterMenu::ImporterMenu()
 {
 	rootPath = _getExecutableDir();
+	int hello = 32423;
 	//refresh();
 }
 ImporterMenu::~ImporterMenu()
@@ -23,9 +24,9 @@ void ImporterMenu::refresh()
 std::string ImporterMenu::_getExecutableDir()
 {
 #ifdef _WIN32
-	LPTSTR unicodePath;
+	char unicodePath[MAX_PATH];
 	std::string path;
-	int bytes = GetModuleFileName(NULL, unicodePath, INT_MAX);
+	int bytes = GetModuleFileName(NULL, unicodePath, 500);
 	if (bytes == 0)
 		return "/";
 	else
