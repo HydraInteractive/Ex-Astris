@@ -125,7 +125,7 @@ private:
 
 class UIRendererImpl final : public IUIRenderer {
 public:
-	UIRendererImpl(Hydra::View::IView& view) : _view(&view) {
+	UIRendererImpl(Hydra::View::IView& view) : _engine(Hydra::IEngine::getInstance()), _view(&view) {
     ImGui_ImplSdlGL3_Init(_window = static_cast<SDL_Window*>(view.getHandler()));
 
 		_log = std::unique_ptr<IUILog>(new UILogImpl(this));
@@ -201,7 +201,7 @@ public:
 	}
 
 	void reset() final {
-		_renderWindows.reset();
+		_renderWindows.clear();
 	}
 
 	UIRenderWindow* addRenderWindow() final {
@@ -226,19 +226,12 @@ public:
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::BeginMenu("States")) {
-				auto engine = Hydra::IEngine::getInstance();
-				auto state = engine->getState();
-				if (ImGui::MenuItem("MenuState", NULL, typeid(state) == typeid(MenuState)))
-					engine->setState<MenuState>();
-				if (ImGui::MenuItem("GameState", NULL, typeid(state) == typeid(GameState)))
-					engine->setState<GameState>();
-			}
+			_engine->onMainMenu();
 
 			static char buf[64];
 			snprintf(buf, sizeof(buf), "Application average %.3f ms/frame (%.1f FPS) - RAM: %.2fMiB", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate, Hydra::Ext::getCurrentRSS()/(1024.0f*1024.0f));
 
-			auto indent = _view->getSize().x / 2 - ImGui::CalcTextSize(buf).x / 2 - /* File */4 / 2;
+			auto indent = _view->getSize().x / 2 - ImGui::CalcTextSize(buf).x / 2;
 
 			ImGui::Indent(indent);
 			ImGui::Text("%s", buf);
@@ -306,6 +299,7 @@ public:
 	bool isDraging() final { return ImGui::IsMouseDragging(); }
 
 private:
+	Hydra::IEngine* _engine;
 	Hydra::View::IView* _view;
 	SDL_Window* _window;
 	std::unique_ptr<IUILog> _log;
@@ -326,7 +320,7 @@ private:
 		ImGui::SetNextWindowSize(ImVec2(480, 640), ImGuiSetCond_Once);
 		ImGui::Begin("Entity List", &_entityWindow);
 
-		auto world = Hydra::IEngine::getInstance()->getState()->getWorld()->getWorldRoot().get();
+		auto world = _engine->getState()->getWorld()->getWorldRoot().get();
 
 		// This doesn't use _renderEntity, because I want a globe instad of a user
 		if (ImGui::TreeNode(world, ICON_FA_GLOBE " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", world->getName().c_str(), world->getID(), world->getComponents().size(), world->getChildren().size())) {

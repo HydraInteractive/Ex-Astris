@@ -60,18 +60,6 @@ namespace Barcode {
 				}
 
 				_state->runFrame();
-
-				if (ImGui::BeginMainMenuBar()) {
-					if (ImGui::BeginMenu("States")) {
-						auto engine = Hydra::IEngine::getInstance();
-						auto state = engine->getState();
-						if (ImGui::MenuItem("MenuState", NULL, typeid(state) == typeid(MenuState)))
-							engine->setState<MenuState>();
-						if (ImGui::MenuItem("GameState", NULL, typeid(state) == typeid(GameState)))
-							engine->setState<GameState>();
-					}
-				}
-
 				_uiRenderer->render();
 				_view->finalize();
 
@@ -84,6 +72,16 @@ namespace Barcode {
 		}
 
 		void quit() final { _quit = true; }
+
+		void onMainMenu() final {
+			if (ImGui::BeginMenu("States")) {
+				if (ImGui::MenuItem("MenuState", NULL, typeid(*_state) == typeid(MenuState)))
+					setState<MenuState>();
+				if (ImGui::MenuItem("GameState", NULL, typeid(*_state) == typeid(GameState)))
+					setState<GameState>();
+				ImGui::EndMenu();
+			}
+		}
 
 		void setState_(std::unique_ptr<IState> state) final {
 			_newState = std::move(state);

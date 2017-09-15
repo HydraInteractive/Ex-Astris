@@ -61,6 +61,8 @@ namespace Hydra {
 
 		virtual void quit() = 0;
 
+		virtual void onMainMenu() = 0;
+
 		template <typename T, typename... Args, typename std::enable_if<std::is_base_of<IState, T>::value>::type* = nullptr>
 		T* setState(Args... args) {
 			T* ptr = new T(args...);
