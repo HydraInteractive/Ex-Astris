@@ -15,11 +15,16 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/transform.hpp>
 
+#include <hydra/component/transformcomponent.hpp>
+
+#include <SDL2/SDL.h>
+
 using namespace Hydra::World;
 
 namespace Hydra::Component {
-	class HYDRA_API CameraComponent final : public IComponent {
+	class HYDRA_API CameraComponent final : public IComponent{
 	public:
+		CameraComponent(IEntity* entity);
 		CameraComponent(IEntity* entity, Hydra::Renderer::IRenderTarget* renderTarget, const glm::vec3& position = {0, 0, 0});
 		~CameraComponent() final;
 
@@ -28,7 +33,8 @@ namespace Hydra::Component {
 
 		inline const std::string type() const final { return "CameraComponent"; }
 
-		virtual msgpack::packer<msgpack::sbuffer>& pack(msgpack::packer<msgpack::sbuffer>& o) const final;
+		void serialize(nlohmann::json& json) const final;
+		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
 
 		void translate(const glm::vec3& transform);
@@ -38,10 +44,18 @@ namespace Hydra::Component {
 		CameraComponent& pitch(float angle);
 		CameraComponent& roll(float angle);
 
+		inline Hydra::Renderer::IRenderTarget* getRenderTarget() { return _renderTarget; }
+		inline void setRenderTarget(Hydra::Renderer::IRenderTarget* renderTarget) { _renderTarget = renderTarget; }
+
 		inline const glm::vec3& getPosition() const { return _position; }
 
+		void setPosition(const glm::vec3& position);
+
+		inline const float& getYaw() const { return _cameraYaw; }
+		inline const float& getPitch() const { return _cameraPitch; }
+
 		// TODO: Cache these?
-		inline glm::mat4 getViewMatrix() const { return glm::translate(glm::mat4_cast(_orientation), _position); }
+		inline glm::mat4 getViewMatrix() const { return glm::translate(glm::mat4_cast(_orientation), -_position); }
 		inline glm::mat4 getProjectionMatrix() const { return glm::perspective(glm::radians(_fov), (_renderTarget->getSize().x*1.0f) / _renderTarget->getSize().y, _zNear, _zFar); }
 
 	private:
@@ -53,5 +67,10 @@ namespace Hydra::Component {
 		float _zNear = 0.001f;
 		float _zFar = 75.0f;
 		float _aspect = 1920.0f/1080.0f;
+
+		float _sensitivity = 0.003f;
+		float _cameraYaw = 0.0f;
+		float _cameraPitch = 0.0f;
+		bool _mouseControl = true;
 	};
 };

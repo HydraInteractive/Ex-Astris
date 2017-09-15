@@ -18,9 +18,15 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-MeshComponent::MeshComponent(IEntity* entity, const std::string& meshFile) : IComponent(entity), _meshFile(meshFile), _drawObject(entity->getDrawObject()) {
-	_mesh = Hydra::IEngine::getInstance()->getMeshLoader()->getMesh(meshFile);
+MeshComponent::MeshComponent(IEntity* entity) : IComponent(entity), _meshFile(""), _drawObject(entity->getDrawObject()) {
 	_drawObject->refCounter++;
+	_drawObject->mesh = nullptr;
+}
+
+MeshComponent::MeshComponent(IEntity* entity, const std::string& meshFile) : IComponent(entity), _meshFile(meshFile), _drawObject(entity->getDrawObject()) {
+	_mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(meshFile);
+	_drawObject->refCounter++;
+	_drawObject->mesh = _mesh.get();
 }
 
 MeshComponent::~MeshComponent() {
@@ -29,16 +35,16 @@ MeshComponent::~MeshComponent() {
 }
 
 void MeshComponent::tick(TickAction action) {
-	// assert(action == TickAction::render); // Can only be this due to wantTick
-	_drawObject->mesh = _mesh.get();
+	// _drawObject->mesh = _mesh.get();
 }
 
-msgpack::packer<msgpack::sbuffer>& MeshComponent::pack(msgpack::packer<msgpack::sbuffer>& o) const {
-	o.pack_map(1);
-	o.pack("meshFile");
-	o.pack(_meshFile);
+void MeshComponent::serialize(nlohmann::json& json) const {
+	json["meshFile"] = _meshFile;
+}
 
-	return o;
+void MeshComponent::deserialize(nlohmann::json& json) {
+	_mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(json["meshFile"].get<std::string>());
+	_drawObject->mesh = _mesh.get();
 }
 
 void MeshComponent::registerUI() {

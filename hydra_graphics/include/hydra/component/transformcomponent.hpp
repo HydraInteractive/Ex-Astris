@@ -29,7 +29,8 @@ namespace Hydra::Component {
 
 		inline const std::string type() const final { return "TransformComponent"; }
 
-		msgpack::packer<msgpack::sbuffer>& pack(msgpack::packer<msgpack::sbuffer>& o) const final;
+		void serialize(nlohmann::json& json) const final;
+		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
 
 		inline bool isDirty() { return _dirty; }

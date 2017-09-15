@@ -359,6 +359,9 @@ const bool ImGui::AddTab(const char *title) {
     if (!bar->hasBeenInitialized) {
         bar->tabTitles.push_back(title);
         bar->tabHashes.push_back(ImHash(std::string(title + std::to_string(bar->idxCounter)).c_str(),0));
+    } else {
+        bar->tabTitles[bar->idxCounter - 1] = title;
+        bar->tabHashes[bar->idxCounter - 1] = ImHash(std::string(title + std::to_string(bar->idxCounter)).c_str(),0);
     }
 
     if (bar->activeTab != (bar->idxCounter-1))

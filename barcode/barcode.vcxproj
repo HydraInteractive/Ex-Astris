@@ -10,6 +10,15 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\barcode\gamestate.hpp" />
+    <ClInclude Include="include\barcode\menustate.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\barcode\gamestate.cpp" />
+    <ClCompile Include="src\barcode\menustate.cpp" />
+    <ClCompile Include="src\main.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{8FC1725E-C34D-4954-A12E-8DAF009357BF}</ProjectGuid>
@@ -94,9 +103,6 @@ xcopy /sy "$(SolutionDir)assets" "$(SolutionDir)\x64\$(Configuration)\assets"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="src\main.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
