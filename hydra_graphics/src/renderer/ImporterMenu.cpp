@@ -28,8 +28,9 @@ std::string ImporterMenu::_getExecutableDir()
 	std::string path;
 	int bytes = GetModuleFileName(NULL, unicodePath, 500);
 #else
-	sprintf(szTmp, "/proc/%d/exe", getpid());
-	int bytes = MIN(readlink("/proc/self/exe", unicodePath, 500), len - 1);
+	char tempStr[32];
+	sprintf(tempStr, "/proc/%d/exe", getpid());
+	int bytes = MIN(readlink(tempStr, unicodePath, 500), len - 1);
 	if (bytes >= 0)
 		unicodePath[bytes] = '\0';
 #endif
