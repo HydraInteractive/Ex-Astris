@@ -341,13 +341,16 @@ namespace Barcode {
 	void GameState::_initWorld() {
 		_world = Hydra::World::World::create();
 
+
 		auto playerEntity = _world->createEntity("Player");
-		player = playerEntity->addComponent<Hydra::Component::PlayerComponent>();
-		playerEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
-		playerEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/test.fbx");
-		_cc = playerEntity->addComponent<Hydra::Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{ 5, 0, -3 });
+		player = playerEntity->addComponent<Component::PlayerComponent>();
+		_cc = playerEntity->addComponent<Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{ 5, 0, -3 });
+		playerEntity->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0));
+		auto weaponEntity = playerEntity->createEntity("Weapon");
+		weaponEntity->addComponent<Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+		weaponEntity->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(1,1,1), glm::quat(0,0,-1,0));
 
-
+		/*
 		auto alienEntity = _world->createEntity("Enemy Alien");
 		_enemy = alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien);
 		alienEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-10, 0, 0));
@@ -362,23 +365,30 @@ namespace Barcode {
 		_enemy = bossEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss);
 		bossEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, -10, 0));
 		bossEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/test.fbx");
+		*/
 
 
+		/*
 		auto boxes = _world->createEntity("Boxes");
-		boxes->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
-		for (int x = 0; x < 3; x++) {
-			auto xLevel = boxes->createEntity("X Level");
-			xLevel->addComponent<Hydra::Component::TransformComponent>(glm::vec3(x-1.5, 0, 0), glm::vec3(x*0.5 + 1, 1, 1));
-			for (int y = 0; y < 3; y++) {
-				auto yLevel = xLevel->createEntity("Y Level");
-				yLevel->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, y-1.5, 0), glm::vec3(1, y*0.5 + 1, 1));
-				for (int z = 0; z < 3; z++) {
-					auto zLevel = yLevel->createEntity("Z Level");
-					zLevel->addComponent<Hydra::Component::MeshComponent>("assets/objects/test.fbx");
-					zLevel->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, z-1.5), glm::vec3(0.25, 0.25, z*0.125 + 0.25));
-				}
-			}
-		}
+		boxes->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0));
+		///Draw out multible geometry
+		//for (int x = 0; x < 3; x++) {
+		//	auto xLevel = boxes->createEntity("X Level");
+		//	xLevel->addComponent<Component::TransformComponent>(glm::vec3(x-1.5, 0, 0), glm::vec3(0.75));
+		//	for (int y = 0; y < 3; y++) {
+		//		auto yLevel = xLevel->createEntity("Y Level");
+		//		yLevel->addComponent<Component::TransformComponent>(glm::vec3(0, y-1.5, 0), glm::vec3(0.75));
+		//		for (int z = 0; z < 3; z++) {
+		//			auto zLevel = yLevel->createEntity("Z Level");
+		//			zLevel->addComponent<Component::MeshComponent>("C:/Users/BTH/Desktop/model.ATTIC");
+		//			//zLevel->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
+		//			zLevel->addComponent<Component::TransformComponent>(glm::vec3(0, 0, z-1.5), glm::vec3(0.75));
+		//		}
+		//	}
+		//}
+		boxes->addComponent<Component::MeshComponent>("assets/objects/model1.ATTIC");
+		boxes->addComponent<Component::TransformComponent>(glm::vec3(1), glm::vec3(0.25));
+		*/
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
 		auto bp = BlueprintLoader::load("world.blueprint");
