@@ -232,7 +232,7 @@ namespace Barcode {
 				kv.second.clear();
 
 			for (auto& drawObj : _engine->getRenderer()->activeDrawObjects())
-				if (!drawObj->disable && drawObj->mesh)
+				if (!drawObj->disable && drawObj->mesh && drawObj->mesh->getIndicesCount() != 6)
 					_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
 			// Sort Front to back
@@ -319,13 +319,10 @@ namespace Barcode {
 		{ // Particle batch
 			int i = 0;
 			for (auto entity : _world->getActiveComponents<Hydra::Component::ParticleComponent>()) {
-				printf("%d\n", i);
-				i++;
-				//auto pc = entity->getComponent<Hydra::Component::ParticleComponent>();
-				//
-				//auto drawObj = entity->getDrawObject();
-				//for (auto particle : pc->getParticles())
-				//	_particleBatch.batch.objects[drawObj->mesh].push_back(particle->m);
+				auto pc = entity->getComponent<Hydra::Component::ParticleComponent>();
+				auto drawObj = entity->getDrawObject();
+				for (auto particle : pc->getParticles())
+					_particleBatch.batch.objects[drawObj->mesh].push_back(particle->m);
 			}
 		}
 

@@ -23,6 +23,10 @@ public:
 		_root = Entity::createEmpty(this, "World");
 	}
 
+	~WorldImpl() final {
+		_root.reset();
+	}
+
 	size_t getFreeID() final { return _id++; }
 
 	std::shared_ptr<IEntity> createEntity(const std::string& name) final { return _root->createEntity(name); }
@@ -67,6 +71,18 @@ public:
 	virtual ~EntityImpl() {
 		if (_drawObject)
 			_drawObject->refCounter--;
+
+		for (auto& map : world->getActiveComponentMap())
+			world->getActiveComponentMap()[map.first].erase(
+				std::remove_if(
+					world->getActiveComponentMap()[map.first].begin(),
+					world->getActiveComponentMap()[map.first].end(),
+					[this](const IEntity* e) {
+						return e == this;
+					}
+				),
+				world->getActiveComponentMap()[map.first].end()
+			);
 	}
 
 	void tick(TickAction action, float delta) final {
@@ -113,7 +129,16 @@ public:
 	void removeComponent_(const std::type_index& id) final {
 		_wantDirty = true;
 		_components.erase(id);
-		world->getActiveComponentMap().erase(id);
+		world->getActiveComponentMap()[id].erase(
+			std::remove_if(
+				world->getActiveComponentMap()[id].begin(),
+				world->getActiveComponentMap()[id].end(),
+				[this](const IEntity* e) {
+					return e == this;
+				}
+			),
+			world->getActiveComponentMap()[id].end()
+		);
 	}
 
 	std::map<std::type_index, std::unique_ptr<IComponent>>& getComponents() final { return _components; }

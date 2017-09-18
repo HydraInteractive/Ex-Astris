@@ -21,6 +21,8 @@ _pps(nrOfParticles), _behaviour(behaviour), _accumulator(0.f){
 }
 
 ParticleComponent::~ParticleComponent() {
+	_drawObject->refCounter--;
+	_drawObject->mesh = nullptr;
 	_particles.clear();
 }
 
