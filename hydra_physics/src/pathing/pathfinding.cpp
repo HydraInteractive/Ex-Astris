@@ -8,7 +8,7 @@
 *  - Dan Printzell
 */
 
-#include "hydra\pathing\pathfinding.hpp"
+#include <hydra/pathing/pathfinding.hpp>
 
 PathFinding::PathFinding(void){
 	m_intializedStartGoal = false;
@@ -24,19 +24,19 @@ void PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 	if (!m_intializedStartGoal) 
 	{
 
-		for (int i = 0; i < _m_openList.size(); i++)
+		for (size_t i = 0; i < _m_openList.size(); i++)
 		{
 			delete _m_openList[i];
 		}
 		_m_openList.clear();
 
-		for (int i = 0; i < _m_visitedList.size(); i++) 
+		for (size_t i = 0; i < _m_visitedList.size(); i++) 
 		{
 			delete _m_visitedList[i];
 		}
 		_m_visitedList.clear();
 
-		for (int i = 0; i < _m_pathToEnd.size(); i++)
+		for (size_t i = 0; i < _m_pathToEnd.size(); i++)
 		{
 			delete _m_pathToEnd[i];
 		}
@@ -64,7 +64,7 @@ void PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 
 glm::vec3 PathFinding::nextPathPos(Hydra::Component::EnemyComponent ai)
 {
-	int index = 1;
+	size_t index = 1;
 
 	glm::vec3 nextPos;
 	nextPos.x = _m_pathToEnd[_m_pathToEnd.size() - index]->x;
@@ -103,9 +103,9 @@ void PathFinding::_pathOpened(int x, int z, float newCost, SearchCell * parent)
 	}*/
 
 	int id = z * WORLD_SIZE + x;
-	for (int i = 0; i < _m_visitedList.size(); i++)
+	for (size_t i = 0; i < _m_visitedList.size(); i++)
 	{
-		if (id = _m_visitedList[i]->m_id)
+		if (id == _m_visitedList[i]->m_id)
 		{
 			return;
 		}
@@ -116,7 +116,7 @@ void PathFinding::_pathOpened(int x, int z, float newCost, SearchCell * parent)
 	newCell->G = newCost;
 	newCell->H = parent->manHattanDistance(_m_endCell);
 
-	for (int i = 0; i < _m_openList.size(); i++)
+	for (size_t i = 0; i < _m_openList.size(); i++)
 	{
 		if (id == _m_openList[i]->m_id)
 		{
@@ -144,7 +144,7 @@ SearchCell * PathFinding::_getNextCell()
 	int cellID = -1;
 	SearchCell* nextCell = NULL;
 
-	for (int i = 0; i < _m_openList.size(); i++)
+	for (size_t i = 0; i < _m_openList.size(); i++)
 	{
 		if (_m_openList[i]->getF() < bestF)
 		{
@@ -164,7 +164,7 @@ SearchCell * PathFinding::_getNextCell()
 
 void PathFinding::_continuePath()
 {
-	for (int i = 0; i < 4; i++)
+	for (size_t i = 0; i < 4; i++)
 	{
 		if (_m_openList.empty())
 		{
@@ -205,7 +205,7 @@ void PathFinding::_continuePath()
 			//right-down diagonal
 			_pathOpened(currentCell->m_xcoord + 1, currentCell->m_zcoord - 1, currentCell->G + 1.414f, currentCell);
 
-			for (int i = 0; i < _m_openList.size(); i++)
+			for (size_t i = 0; i < _m_openList.size(); i++)
 			{
 				if (currentCell->m_id == _m_openList[i]->m_id)
 				{

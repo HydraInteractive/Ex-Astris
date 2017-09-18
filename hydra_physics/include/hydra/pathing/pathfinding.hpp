@@ -7,10 +7,10 @@
 */
 
 #pragma once
-#include <glm\glm.hpp>
+#include <glm/glm.hpp>
 #include <vector>
-#include <hydra\pathing\SearchCell.hpp>
-#include <hydra\component\aicomponent.hpp>
+#include <hydra/pathing/SearchCell.hpp>
+#include <hydra/component/aicomponent.hpp>
 
 class PathFinding
 {
