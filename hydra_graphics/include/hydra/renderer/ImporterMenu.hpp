@@ -11,6 +11,10 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_sdl_gl3.h>
 #include <imgui/icons.hpp>
+#include <algorithm>
+static std::string executableDir;
+static std::string assetsDir;
+static std::string modelsDir;
 class ImporterMenu
 {
 public:
@@ -21,13 +25,17 @@ public:
 	class Node
 	{
 	public:
-		std::vector<Node*> children;
+		std::vector<Node*> subfolders;
+		std::vector<Node*> files;
 		Node* parent;
 		std::string path;
+
 		Node(std::string path);
 		Node(std::string path, std::string children);
 		~Node();
-		std::string getFileName();
+
+		std::string name();
+		void render();
 	private:
 		void _getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders) const;
 	};

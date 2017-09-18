@@ -2,7 +2,10 @@
 ImporterMenu::ImporterMenu()
 {
 	rootPath = _getExecutableDir();
-	//refresh();
+	executableDir = rootPath;
+	assetsDir = rootPath + "/assets";
+	modelsDir = rootPath + "/assets/objects";
+	refresh();
 }
 ImporterMenu::~ImporterMenu()
 {
@@ -12,16 +15,17 @@ void ImporterMenu::render(bool &closeBool)
 {
 	ImGui::SetNextWindowSize(ImVec2(480, 640), ImGuiSetCond_Once);
 	ImGui::Begin("Static model", &closeBool);
+	root->render();
 	ImGui::End();
 }
 void ImporterMenu::refresh()
 {
 	delete root;
-	root = new Node(rootPath);
+	root = new Node(assetsDir);
 }
 
 std::string ImporterMenu::_getExecutableDir()
-{	
+{
 	std::string path;
 #ifdef _WIN32
 	char unicodePath[MAX_PATH];
@@ -37,16 +41,26 @@ std::string ImporterMenu::_getExecutableDir()
 	if (bytes == 0)
 		return "/";
 	else
-		//TODO: Will break if the path has unicode characters
 		path = std::string(unicodePath);
+		std::replace(path.begin(), path.end(), '\\', '/');
+		int index = path.find_last_of('/');
+		path.erase(path.begin() + index, path.end());
 	return path;
 }
-
 ImporterMenu::Node::Node(std::string path)
 {
-	std::vector<std::string> files;
-	std::vector<std::string> folders;
-	_getContentsOfDir(path, files, folders);
+	std::vector<std::string> inFiles;
+	std::vector<std::string> inFolders;
+	this->path = path;
+	_getContentsOfDir(path, inFiles, inFolders);
+	for (int i = 0; i < inFolders.size(); i++)
+	{
+		this->subfolders.push_back(new Node(inFolders[i]));
+	}
+	for (int i = 0; i < inFiles.size(); i++)
+	{
+		this->files.push_back(new Node(inFiles[i]));
+	}
 }
 ImporterMenu::Node::Node(std::string path, std::string children)
 {
@@ -56,7 +70,7 @@ ImporterMenu::Node::~Node()
 {
 
 }
-std::string ImporterMenu::Node::getFileName()
+std::string ImporterMenu::Node::name()
 {
 	unsigned int i = path.find_last_of('/');
 	if (i == std::string::npos)
@@ -68,6 +82,21 @@ std::string ImporterMenu::Node::getFileName()
 		return path.substr(i + 1);
 	}
 }
+void ImporterMenu::Node::render()
+{
+	if (ImGui::TreeNode(name().c_str()))
+	{
+		for (int i = 0; i < this->subfolders.size(); i++)
+		{
+			subfolders[i]->render();
+		}
+		for (int i = 0; i < this->files.size(); i++)
+		{
+			ImGui::Text(files[i]->name().c_str());
+		}
+		ImGui::TreePop();
+	}
+}
 void ImporterMenu::Node::_getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders) const
 {
 #ifdef _WIN32 ///Windows
@@ -76,7 +105,7 @@ void ImporterMenu::Node::_getContentsOfDir(const std::string &directory, std::ve
 
 	if ((dir = FindFirstFile((directory + "/*").c_str(), &fileData)) == INVALID_HANDLE_VALUE)
 	{
-		//No files found
+		//No files found or is not directory
 		files.empty();
 		folders.empty();
 		return;
@@ -114,22 +143,22 @@ void ImporterMenu::Node::_getContentsOfDir(const std::string &directory, std::ve
 		const std::string fileName = ent->d_name;
 		const std::string fullFileName = directory + "/" + fileName;
 
-		if (fileName[0] == '.'){
+		if (fileName[0] == '.')
+		{
 
 		}
-
-		if (stat(fullFileName.c_str(), &st) == -1)
-			continue;
-
-		const bool isDir = (st.st_mode & S_IFDIR) != 0;
-
-		if (isDir){
-			folders.push_back(fullFileName);
+		else if(stat(fullFileName.c_str(), &st) != -1)
+		{
+			const bool isDir = (st.st_mode & S_IFDIR) != 0;
+			if (isDir)
+			{
+				folders.push_back(fullFileName);
+			}
+			else
+			{
+				files.push_back(fullFileName);
+			}
 		}
-		else{
-			files.push_back(fullFileName);
-		}
-		
 	}
 	closedir(dir);
 #endif
