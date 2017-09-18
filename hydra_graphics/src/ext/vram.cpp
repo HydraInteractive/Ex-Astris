@@ -1,5 +1,5 @@
 #include <hydra/ext/vram.hpp>
-
+#include <memory>
 #ifdef __linux__
 size_t Hydra::Ext::getCurrentVRAM() {
 	return 0;
@@ -15,9 +15,9 @@ size_t Hydra::Ext::getMaxVRAM() {
 #include <dxgi1_4.h>
 
 static IDXGIAdapter3* getDXGIAdapter3() {
-	static std::unique_ptr<IDXGIAdapter3, &SafeRelease> adapter;
+	static IDXGIAdapter3* adapter;
 	if (adapter)
-		return adapter.get();
+		return adapter;
 
 	IDXGIFactory* dxgifactory = nullptr;
 	IDXGIAdapter* firstAdapter = nullptr;
@@ -30,17 +30,17 @@ static IDXGIAdapter3* getDXGIAdapter3() {
 
 	if (!SUCCEEDED(firstAdapter->QueryInterface(__uuidof(IDXGIAdapter3), (void**)&dxgiAdapter3)))
 		return nullptr;
-	adapter.reset(dxgiAdapter3);
+	adapter = dxgiAdapter3;
 
-	return adapter.get();
+	return adapter;
 }
 
 size_t Hydra::Ext::getCurrentVRAM() {
 	auto adapter = getDXGIAdapter3();
-	if (adapter)
+	if (!adapter)
 		return 0;
 	DXGI_QUERY_VIDEO_MEMORY_INFO info;
-	if (!SUCCEEDED(dxgiAdapter3->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info)))
+	if (!SUCCEEDED(adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info)))
 		return 0;
 
 	return info.CurrentUsage;
@@ -48,10 +48,10 @@ size_t Hydra::Ext::getCurrentVRAM() {
 
 size_t Hydra::Ext::getMaxVRAM() {
 	auto adapter = getDXGIAdapter3();
-	if (adapter)
+	if (!adapter)
 		return 0;
 	DXGI_QUERY_VIDEO_MEMORY_INFO info;
-	if (!SUCCEEDED(dxgiAdapter3->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info)))
+	if (!SUCCEEDED(adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info)))
 		return 0;
 
 	return info.Budget;

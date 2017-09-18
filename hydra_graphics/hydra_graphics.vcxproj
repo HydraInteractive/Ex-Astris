@@ -17,6 +17,7 @@
     <ClInclude Include="include\hydra\component\componentmanager_graphics.hpp" />
     <ClInclude Include="include\hydra\component\meshcomponent.hpp" />
     <ClInclude Include="include\hydra\component\transformcomponent.hpp" />
+    <ClInclude Include="include\hydra\ext\vram.hpp" />
     <ClInclude Include="include\hydra\io\glmeshloader.hpp" />
     <ClInclude Include="include\hydra\io\gltextureloader.hpp" />
     <ClInclude Include="include\hydra\io\input.hpp" />
@@ -41,6 +42,7 @@
     <ClCompile Include="src\component\componentmanager_graphics.cpp" />
     <ClCompile Include="src\component\meshcomponent.cpp" />
     <ClCompile Include="src\component\transformcomponent.cpp" />
+    <ClCompile Include="src\ext\vram.cpp" />
     <ClCompile Include="src\io\input.cpp" />
     <ClCompile Include="src\io\meshloader.cpp" />
     <ClCompile Include="src\io\textureloader.cpp" />
