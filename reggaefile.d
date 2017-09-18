@@ -7,8 +7,8 @@ enum string[] SubProjects = ["hydra", "hydra_graphics", "hydra_network", "hydra_
 enum string SubProjectsInclude = SubProjects.map!((string x) => "-I" ~ x ~ "/include").joiner(" ").array.to!string;
 enum string SubProjectsLink = SubProjects.map!((string x) => "-l" ~ x).joiner(" ").array.to!string;
 
-enum string CFlagsLib = "-O0 -std=c++14 -ffat-lto-objects -ggdb -Wall -Werror -fdiagnostics-color=always -fopenmp -fPIC " ~ SubProjectsInclude;
-enum string CFlagsExec = "-O0 -std=c++14 -ffat-lto-objects -ggdb -Wall -Werror -fdiagnostics-color=always -fopenmp -fPIC -Ibarcode/include " ~ SubProjectsInclude;
+enum string CFlagsLib = "-O0 -std=c++14 -ffat-lto-objects -ggdb -Wall -Wextra -Werror -fdiagnostics-color=always -fopenmp -fPIC " ~ SubProjectsInclude;
+enum string CFlagsExec = "-O0 -std=c++14 -ffat-lto-objects -ggdb -Wall -Wextra -Werror -fdiagnostics-color=always -fopenmp -fPIC -Ibarcode/include " ~ SubProjectsInclude;
 
 enum LFlagsHydraLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -lm -ldl -lSDL2";
 enum LFlagsGraphicsLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -ldl -lhydra -lGL -lSDL2 -lSDL2_image -lSDL2_ttf -lassimp";

@@ -166,7 +166,7 @@ std::unique_ptr<IRenderer> GLRenderer::create(Hydra::View::IView& view) {
 	return std::unique_ptr<IRenderer>(new ::GLRendererImpl(view));
 }
 
-void glDebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+void glDebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei /*length*/, const GLchar* message, const void* /*userParam*/) {
 	if(id == 4 || id == 8 || id == 20 || id == 131169 || id == 131185 || id == 131218 || id == 131204)
 		return;
 

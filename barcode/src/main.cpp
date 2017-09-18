@@ -125,6 +125,8 @@ namespace Barcode {
 
 #undef main
 int main(int argc, char** argv) {
+	(void)argc;
+	(void)argv;
 	reportMemoryLeaks();
 	Barcode::Engine engine;
 	engine.setState<Barcode::MenuState>();
