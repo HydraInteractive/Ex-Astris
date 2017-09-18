@@ -269,7 +269,6 @@ namespace Barcode {
 			_engine->getRenderer()->postProcessing(_lightingBatch.batch);
 		}
 
-
 		{ // Glow
 			if (!_engine->getUIRenderer()->isDraging()) {
 				static glm::ivec2 oldSize = _glowBatch.output->getSize();
@@ -320,7 +319,13 @@ namespace Barcode {
 		{ // Particle batch
 			int i = 0;
 			for (auto entity : _world->getActiveComponents<Hydra::Component::ParticleComponent>()) {
-				printf("%d", i);
+				printf("%d\n", i);
+				i++;
+				//auto pc = entity->getComponent<Hydra::Component::ParticleComponent>();
+				//
+				//auto drawObj = entity->getDrawObject();
+				//for (auto particle : pc->getParticles())
+				//	_particleBatch.batch.objects[drawObj->mesh].push_back(particle->m);
 			}
 		}
 
@@ -396,7 +401,6 @@ namespace Barcode {
 	}
 
 	std::shared_ptr<Hydra::Renderer::IFramebuffer> GameState::_blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int &nrOfTimes, glm::vec2 size) { // TO-DO: Make it agile so it can blur any texture
-
 		_glowBatch.pipeline->setValue(1, 1); // This bind will never change
 		bool horizontal = true;
 		bool firstPass = true;

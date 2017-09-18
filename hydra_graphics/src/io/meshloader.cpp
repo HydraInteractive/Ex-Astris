@@ -45,7 +45,9 @@ public:
 	}
 
 	std::shared_ptr<IMesh> getQuad() final{
-		std::shared_ptr<IMesh> mesh = GLMesh::createFullscreenQuad();
+		std::shared_ptr<IMesh> mesh = _storage["particleQuad"];
+		if (!mesh)
+			mesh = _storage["particleQuad"] = GLMesh::createQuad(_renderer);
 		return mesh;
 	}
 

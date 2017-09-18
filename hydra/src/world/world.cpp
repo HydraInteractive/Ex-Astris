@@ -113,6 +113,7 @@ public:
 	void removeComponent_(const std::type_index& id) final {
 		_wantDirty = true;
 		_components.erase(id);
+		world->getActiveComponentMap().erase(id);
 	}
 
 	std::map<std::type_index, std::unique_ptr<IComponent>>& getComponents() final { return _components; }

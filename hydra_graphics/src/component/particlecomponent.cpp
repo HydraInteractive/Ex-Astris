@@ -57,10 +57,13 @@ void ParticleComponent::_emmitParticle() {
 }
 
 void ParticleComponent::_particlePhysics(float delta) {
+	bool anyDead = false;
 	for (int i = 0; i < _particles.size(); i++) {
 		auto p = _particles[i];
-		if (p->life <= p->elapsedTime)
+		if (p->life <= p->elapsedTime) {
 			p->setDead();
+			anyDead = true;
+		}
 		if (p->dead)
 			continue;
 		p->vel += p->grav * delta;
@@ -69,7 +72,8 @@ void ParticleComponent::_particlePhysics(float delta) {
 		p->elapsedTime += delta;
 		p->fixMX(_tempRotation);
 	}
-	_clearDeadParticles();
+	if(anyDead)
+		_clearDeadParticles();
 }
 
 void ParticleComponent::_updateTextureCoordInfo(std::shared_ptr<Particle>& p, float delta) {
@@ -116,6 +120,8 @@ void ParticleComponent::deserialize(nlohmann::json & json){
 
 	auto& behaviour = json["behaviour"];
 	_behaviour = (EmitterBehaviour)behaviour.get<int>();
+	
+	_drawObject->mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getQuad().get();
 }
 
 void ParticleComponent::registerUI(){
