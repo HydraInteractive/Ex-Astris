@@ -214,7 +214,7 @@ public:
 
 	void render() final {
 		constexpr float MiB = 1024.0f*1024.0f;
-    if (ImGui::BeginMainMenuBar()) {
+		if (ImGui::BeginMainMenuBar()) {
 			if (ImGui::BeginMenu("File")) {
 				ImGui::MenuItem("Log", nullptr, &_logWindow);
 				ImGui::MenuItem("Entity List", nullptr, &_entityWindow);
@@ -231,7 +231,16 @@ public:
 			_engine->onMainMenu();
 
 			static char buf[128];
-			snprintf(buf, sizeof(buf), "Application average %.3f ms/frame (%.1f FPS) - RAM: %.2fMiB (Real: %.2fMiB / Peak %.2fMiB) - VRAM: %.2fMiB / %.2fMiB", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate, (Hydra::Ext::getCurrentRSS() - Hydra::Ext::getCurrentVRAM())/MiB, Hydra::Ext::getCurrentRSS()/MiB, Hydra::Ext::getPeakRSS()/MiB, Hydra::Ext::getCurrentVRAM()/MiB, Hydra::Ext::getMaxVRAM()/MiB);
+			float fps = ImGui::GetIO().Framerate;
+
+			const float ramReal = Hydra::Ext::getCurrentRSS() / MiB;
+			const float ramPeak = Hydra::Ext::getPeakRSS() / MiB;
+			const float vram = Hydra::Ext::getCurrentVRAM() / MiB;
+			const float vramMax = Hydra::Ext::getMaxVRAM() / MiB;
+			float ram = ramReal - vram;
+			if (Hydra::Ext::isVRAMDedicated())
+				ram = ramReal;
+			snprintf(buf, sizeof(buf), "Application average %.3f ms/frame (%.1f FPS) - RAM: %.2fMiB (Real: %.2fMiB / Peak %.2fMiB) - VRAM: %.2fMiB / %.2fMiB", 1000.0f / fps, fps, ram, ramReal, ramPeak, vram, vramMax);
 
 			auto indent = _view->getSize().x / 2 - ImGui::CalcTextSize(buf).x / 2;
 
