@@ -14,7 +14,7 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 	enum EmitterBehaviour : int {PerSecond = 0, Explosion};
-	
+
 	HYDRA_API struct Particle {
 		glm::mat4 m;
 		glm::vec3 pos;

@@ -7,13 +7,12 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-ParticleComponent::ParticleComponent(IEntity* entity) : IComponent(entity), _drawObject(entity->getDrawObject()), _pps(1), _behaviour(EmitterBehaviour::PerSecond), _accumulator(0.f){
+ParticleComponent::ParticleComponent(IEntity* entity) : IComponent(entity), _pps(1), _accumulator(0.f), _tempRotation(glm::quat{}), _behaviour(EmitterBehaviour::PerSecond), _drawObject(entity->getDrawObject()) {
 	_drawObject->refCounter++;
 	_drawObject->mesh = nullptr;
 }
 
-ParticleComponent::ParticleComponent(IEntity* entity, EmitterBehaviour behaviour, int nrOfParticles) : IComponent(entity), _drawObject(entity->getDrawObject()), 
-_pps(nrOfParticles), _behaviour(behaviour), _accumulator(0.f){
+ParticleComponent::ParticleComponent(IEntity* entity, EmitterBehaviour behaviour, int nrOfParticles) : IComponent(entity), _pps(nrOfParticles), _accumulator(0.f), _tempRotation(glm::quat{}), _behaviour(behaviour), _drawObject(entity->getDrawObject()) {
 	_drawObject->refCounter++;
 	_drawObject->mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getQuad().get();
 	_tempRotation = glm::mat4(1);
@@ -60,7 +59,7 @@ void ParticleComponent::_emmitParticle() {
 
 void ParticleComponent::_particlePhysics(float delta) {
 	bool anyDead = false;
-	for (int i = 0; i < _particles.size(); i++) {
+	for (size_t i = 0; i < _particles.size(); i++) {
 		auto p = _particles[i];
 		if (p->life <= p->elapsedTime) {
 			p->setDead();
