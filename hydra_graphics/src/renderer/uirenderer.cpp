@@ -19,6 +19,7 @@
 #include <hydra/world/world.hpp>
 #include <hydra/renderer/renderer.hpp>
 #include <hydra/ext/ram.hpp>
+#include <hydra/ext/vram.hpp>
 
 #include <iomanip>
 #include <sstream>
@@ -229,7 +230,8 @@ public:
 			_engine->onMainMenu();
 
 			static char buf[128];
-			snprintf(buf, sizeof(buf), "Application average %.3f ms/frame (%.1f FPS) - RAM: %.2fMiB / Peak %.2fMiB", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate, Hydra::Ext::getCurrentRSS()/(1024.0f*1024.0f), Hydra::Ext::getPeakRSS()/(1024.0f*1024.0f));
+			const float MiB = 1024.0f*1024.0f;
+			snprintf(buf, sizeof(buf), "Application average %.3f ms/frame (%.1f FPS) - RAM: %.2fMiB / Peak %.2fMiB - VRAM: %.2fMiB / %.2fMiB", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate, Hydra::Ext::getCurrentRSS()/MiB, Hydra::Ext::getPeakRSS()/MiB, Hydra::Ext::getCurrentVRAM()/MiB, Hydra::Ext::getMaxVRAM()/MiB);
 
 			auto indent = _view->getSize().x / 2 - ImGui::CalcTextSize(buf).x / 2;
 
