@@ -1,7 +1,7 @@
 #pragma once
-#include <../hydra_network/include/Packets.h>
-#include <../hydra_network/include/TCPClient.hpp>
-#include <../hydra_network/include/NetPlayer.hpp>
+#include <Packets.h>
+#include <TCPClient.hpp>
+#include <NetPlayer.hpp>
 
 class NetClient {
 private:
@@ -12,7 +12,7 @@ private:
 public:
 	HYDRA_API NetClient();
 	HYDRA_API ~NetClient();
-	HYDRA_API bool initialize(unsigned int port, char* ip);
+	HYDRA_API bool initialize(unsigned int port, const char* ip);
 	HYDRA_API void update(Hydra::World::IWorld* world);
 
 	HYDRA_API int decodeNewPackets(Hydra::World::IWorld* world);

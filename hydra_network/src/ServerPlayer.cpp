@@ -1,4 +1,4 @@
-#include "..\include\Server\ServerPlayer.hpp"
+#include <Server/ServerPlayer.hpp>
 
 ServerPlayer::ServerPlayer() {
 }

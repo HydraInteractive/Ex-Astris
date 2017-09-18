@@ -1,6 +1,6 @@
 #pragma once
-#include <../hydra_network/include/Packets.h>
-#include <../hydra_network/include/TCPClient.hpp>
+#include <Packets.h>
+#include <TCPClient.hpp>
 #include <hydra/world/world.hpp>
 #include <glm/vec3.hpp>
 #include <glm/gtc/quaternion.hpp>

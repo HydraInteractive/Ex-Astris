@@ -1,5 +1,5 @@
-#include <../hydra_network/include/Server/ServerWorld.hpp>
-#include <../hydra_network/include/Server/TCPHost.hpp>
+#include <Server/ServerWorld.hpp>
+#include <Server/TCPHost.hpp>
 #include <hydra/component/transformcomponent.hpp>
 
 using namespace Hydra;
@@ -18,7 +18,7 @@ void ServerWorld::initialize() {
 
 HYDRA_API void ServerWorld::sendPlayers(TCPHost * _conn, int64_t target) {
 	TCPsocket tmp = nullptr;
-	for (int i = 0; i < this->_players.size(); i++) {
+	for (size_t i = 0; i < this->_players.size(); i++) {
 		if (this->_players[i].getID() == target) {
 			tmp = this->_players[i].getSocket();
 		}
@@ -30,10 +30,10 @@ HYDRA_API void ServerWorld::sendPlayers(TCPHost * _conn, int64_t target) {
 	pes.header.type = PacketType::SpawnEntityServer;
 	std::vector<std::shared_ptr<Hydra::World::IEntity>> ents = this->_world->getWorldRoot()->getChildren();
 	Hydra::Component::TransformComponent* tc;
-	for (int i = 0; i < this->_players.size(); i++) {
+	for (size_t i = 0; i < this->_players.size(); i++) {
 		if (this->_players[i].getID() != target) {
 			pes.id = this->_players[i].getID();
-			for (int j = 0; j < ents.size(); j++) {
+			for (size_t j = 0; j < ents.size(); j++) {
 				if (ents[i]->getID() == this->_players[i].getID()) {
 					tc = ents[i]->getComponent<Hydra::Component::TransformComponent>();
 					pes.ti.position = tc->getPosition();
@@ -68,7 +68,7 @@ int64_t ServerWorld::addPlayer(const glm::vec3 & pos, const glm::quat & rot, TCP
 
 HYDRA_API void ServerWorld::updateEntityTransform(TransformInfo pi, int64_t id) {
 	const std::vector<std::shared_ptr<Hydra::World::IEntity>> children = this->_world->getWorldRoot()->getChildren();
-	for (int i = 0; i < children.size(); i++) {
+	for (size_t i = 0; i < children.size(); i++) {
 		if (children[i]->getID() == id) {
 			Hydra::Component::TransformComponent* tc = children[i]->getComponent<Hydra::Component::TransformComponent>();
 			tc->setPosition(pi.position);
@@ -87,7 +87,7 @@ void ServerWorld::sendCurrentWorld(TCPHost* conn) {
 
 	std::vector<std::shared_ptr<Hydra::World::IEntity>> entities;
 	//FILL WITH ALL ENTITES THAT SHOULD BE SENT OVER NETWORK
-	for (int i = 0; i < children.size(); i++) {
+	for (size_t i = 0; i < children.size(); i++) {
 		entities.push_back(children[i]);
 	}
 

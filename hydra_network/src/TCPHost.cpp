@@ -1,4 +1,4 @@
-#include "..\include\Server\TCPHost.hpp"
+#include <Server/TCPHost.hpp>
 
 TCPHost::TCPHost() {
 }
@@ -6,7 +6,7 @@ TCPHost::TCPHost() {
 TCPHost::~TCPHost() {
 }
 
-bool TCPHost::initiate(IPaddress ip, char* c) {
+bool TCPHost::initiate(IPaddress ip, const char* c) {
 	this->_ip = ip;
 	if (SDLNet_ResolveHost(&_ip, INADDR_ANY, _ip.port) == -1) {
 		printf("SDLNet_ResolveHost: %s\n", SDLNet_GetError());
@@ -17,12 +17,12 @@ bool TCPHost::initiate(IPaddress ip, char* c) {
 	this->_socket = SDLNet_TCP_Open(&_ip);
 	if (!_socket) {
 		//printf("SDLNet_TCP_Open: %s\n", SDLNet_GetError());
-		const char* c = SDLNet_GetError();
+		/*const char* c = */SDLNet_GetError();
 		return false;
 	}
 	this->_clientSocketset = SDLNet_AllocSocketSet(MAX_PLAYERS);
 	this->_clients = new TCPsocket[MAX_PLAYERS];
-	for (int i = 0; i < MAX_PLAYERS; i++) {
+	for (size_t i = 0; i < MAX_PLAYERS; i++) {
 		this->_clients[i] = nullptr;
 	}
 	this->_clientNr = 0;
@@ -46,7 +46,7 @@ HYDRA_API TCPsocket TCPHost::checkForClient() {
 	new_tcpsock = SDLNet_TCP_Accept(this->_socket);
 	if (new_tcpsock) {
 		SDLNet_TCP_AddSocket(this->_clientSocketset, new_tcpsock);
-		for (int i = 0; i < MAX_PLAYERS; i++) {
+		for (size_t i = 0; i < MAX_PLAYERS; i++) {
 			if (this->_clients[i] == nullptr) {
 				this->_clients[i] = new_tcpsock;
 				this->_clientNr++;
@@ -67,7 +67,7 @@ HYDRA_API void TCPHost::sendToClient(char * data, int length, TCPsocket sock) {
 }
 
 HYDRA_API void TCPHost::sendToAllClients(char * data, int length) {
-	for (int i = 0; i < this->_clientNr; i++) {
+	for (int64_t i = 0; i < this->_clientNr; i++) {
 		if (this->_clients[i] != nullptr) {
 			SDLNet_TCP_Send(this->_clients[i], data, length);
 		}
@@ -75,7 +75,7 @@ HYDRA_API void TCPHost::sendToAllClients(char * data, int length) {
 }
 
 HYDRA_API void TCPHost::sendToAllExceptOne(char * data, int length, TCPsocket foreverAlone) {
-	for (int i = 0; i < this->_clientNr; i++) {
+	for (int64_t i = 0; i < this->_clientNr; i++) {
 		if (this->_clients[i] != nullptr && this->_clients[i] != foreverAlone) {
 			int nr = SDLNet_TCP_Send(this->_clients[i], data, length);
 			nr = nr;
@@ -93,12 +93,12 @@ HYDRA_API SDLNet_SocketSet TCPHost::getSocketSet() {
 HYDRA_API std::vector<NetPacket*> TCPHost::receivePacket() {
 
 
-	int nrOfPackets = SDLNet_CheckSockets(this->_clientSocketset, 0);
+	/*int nrOfPackets = */SDLNet_CheckSockets(this->_clientSocketset, 0);
 	std::vector<NetPacket*> packets;
 	int result;
 	int packetIndex = 0;
 	char msg[NETWORK_MAX_LENGTH];
-	for (int j = 0; j < this->_clientNr; j++) {
+	for (int64_t j = 0; j < this->_clientNr; j++) {
 		if (SDLNet_SocketReady(this->_clients[j])) {
 			result = SDLNet_TCP_Recv(this->_clients[j], (char*)(msg + packetIndex), NETWORK_MAX_LENGTH - packetIndex);
 			if (result > 0) {
@@ -119,6 +119,8 @@ HYDRA_API std::vector<NetPacket*> TCPHost::receivePacket() {
 				case PacketType::SpawnEntityClient: //TODO
 					packets.push_back(np);
 					packetIndex += sizeof(PacketSpawnEntityClient);
+					break;
+				default:
 					break;
 				}
 			}

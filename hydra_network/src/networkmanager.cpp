@@ -1,5 +1,5 @@
-#include <../hydra_network/include/Server/networkmanager.hpp>
-#include <hydra\world\world.hpp>
+#include <Server/networkmanager.hpp>
+#include <hydra/world/world.hpp>
 #include <thread>
 #include <chrono>
 
@@ -61,7 +61,7 @@ void NetworkManager::update() {
 	//---------------CHECK FOR INCOMING PACKETS (handle every packet before proceeding)--------------
 	{
 		std::vector<NetPacket*> packets = this->_conn->receivePacket();
-		for (int i = 0; i < packets.size(); i++) {
+		for (size_t i = 0; i < packets.size(); i++) {
 			NetPacket* np = packets[i];
 			if (np != nullptr) {
 
@@ -78,6 +78,8 @@ void NetworkManager::update() {
 					pi.rot = ((PacketClientUpdate*)np)->ti.rot;
 					pi.scale = ((PacketClientUpdate*)np)->ti.scale;
 					this->_serverw.updateEntityTransform(pi, ((PacketClientUpdate*)np)->owner);
+					break;
+				default:
 					break;
 				}
 			}
@@ -113,6 +115,7 @@ HYDRA_API bool NetworkManager::host(IPaddress ip) {
 		this->_serverw.initialize();
 		return true;
 	}
+	return false;
 }
 
 HYDRA_API void NetworkManager::quit() { // TODO

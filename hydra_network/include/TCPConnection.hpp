@@ -11,7 +11,7 @@ public:
 	TCPConnection() {}
 	virtual ~TCPConnection() {}
 	
-	virtual bool initiate(IPaddress ip, char* c) = 0;
+	virtual bool initiate(IPaddress ip, const char* c) = 0;
 	virtual void update() = 0;
 	virtual void close() = 0;
 	//virtual void sendEntity(std::shared_ptr<Hydra::World::IEntity> entity) = 0;

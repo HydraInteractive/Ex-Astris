@@ -1,6 +1,6 @@
-#include "TCPConnection.hpp"
+#include <TCPConnection.hpp>
 #include <hydra/engine.hpp>
-#include "TCPClient.hpp"
+#include <TCPClient.hpp>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_net.h>
 
@@ -26,7 +26,7 @@ TCPClient::~TCPClient() {
 	delete[] _msg;
 }
 
-bool TCPClient::initiate(IPaddress ip, char* s) {
+bool TCPClient::initiate(IPaddress ip, const char* s) {
 	_msg = new char[NETWORK_MAX_LENGTH];
 	this->_ip = ip;
 	if (SDLNet_ResolveHost(&_ip, s, ip.port) == -1) {

@@ -1,7 +1,7 @@
 #pragma once
-#include <../hydra_network/include/TCPConnection.hpp>
-#include <../hydra_network/include/Packets.h>
-#include <SDL2\SDL_net.h>
+#include <TCPConnection.hpp>
+#include <Packets.h>
+#include <SDL2/SDL_net.h>
 #define MAX_PLAYERS 4
 
 HYDRA_API class TCPHost : public TCPConnection {
@@ -13,7 +13,7 @@ private:
 public:
 	HYDRA_API TCPHost();
 	HYDRA_API ~TCPHost();
-	HYDRA_API bool initiate(IPaddress ip, char* s = "");
+	HYDRA_API bool initiate(IPaddress ip, const char* s = "");
 	HYDRA_API void close();
 	HYDRA_API TCPsocket checkForClient();
 

@@ -1,4 +1,4 @@
-#include "..\include\NetPlayer.hpp"
+#include <NetPlayer.hpp>
 #include <hydra/component/transformcomponent.hpp>
 
 NetPlayer::NetPlayer() {

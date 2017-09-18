@@ -1,10 +1,10 @@
 #pragma once
 #include <hydra/world/world.hpp>
-#include <../hydra_network/include/NetPlayer.hpp>
+#include <NetPlayer.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <../hydra_network/include/Server/ServerPlayer.hpp>
-#include <../hydra_network/include/Server/TCPHost.hpp>
+#include <Server/ServerPlayer.hpp>
+#include <Server/TCPHost.hpp>
 
 
 class ServerWorld {

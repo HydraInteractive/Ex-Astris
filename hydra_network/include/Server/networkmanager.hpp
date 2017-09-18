@@ -1,11 +1,11 @@
 #pragma once
 
-#include <../hydra_network/include/TCPConnection.hpp>
-#include <../hydra_network/include/Server/TCPHost.hpp>
-#include <../hydra_network/include/TCPClient.hpp>
+#include <TCPConnection.hpp>
+#include <Server/TCPHost.hpp>
+#include <TCPClient.hpp>
 #include <SDL2/SDL_net.h>
 #include <hydra/world/world.hpp>
-#include <../hydra_network/include/Server/ServerWorld.hpp>
+#include <Server/ServerWorld.hpp>
 
 HYDRA_API void startServer(int port);
 

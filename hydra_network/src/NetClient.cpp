@@ -1,5 +1,5 @@
-#include <../hydra_network/include/NetClient.h>
-#include <hydra\component\meshcomponent.hpp>
+#include <NetClient.h>
+#include <hydra/component/meshcomponent.hpp>
 
 NetClient::NetClient() {
 }
@@ -7,7 +7,7 @@ NetClient::NetClient() {
 NetClient::~NetClient() {
 }
 
-bool NetClient::initialize(unsigned int port, char* ip) {
+bool NetClient::initialize(unsigned int port, const char* ip) {
 	this->_hasSentUpdate = false;
 	this->_player.setID(-1);
 	IPaddress tmp;
@@ -22,7 +22,7 @@ void NetClient::_updateEntity(Hydra::World::IWorld* world, NetEntityInfo* psu) {
 
 	std::shared_ptr<Hydra::World::IEntity> root = world->getWorldRoot();
 	std::vector <std::shared_ptr<Hydra::World::IEntity>> children = root->getChildren();
-	for (int i = 0; i < children.size(); i++) {
+	for (size_t i = 0; i < children.size(); i++) {
 		if (children[i]->getID() == psu->id) {
 			Hydra::Component::TransformComponent* tc = children[i]->getComponent<Hydra::Component::TransformComponent>();
 			tc->setPosition(psu->ti.position);
@@ -42,7 +42,7 @@ void NetClient::update(Hydra::World::IWorld* world) {
 
 int NetClient::decodeNewPackets(Hydra::World::IWorld* world) {
 	std::vector<NetPacket*> np = this->_tcp.receivePacket();
-	for (int i = 0; i < np.size(); i++) {
+	for (size_t i = 0; i < np.size(); i++) {
 		std::shared_ptr<Hydra::World::IEntity> ent;
 		Hydra::Component::TransformComponent* tc;
 		switch (np[i]->header.type) {
@@ -74,7 +74,7 @@ int NetClient::decodeNewPackets(Hydra::World::IWorld* world) {
 			ent->addComponent<Hydra::Component::MeshComponent>("assets/objects/model1.ATTIC");
 			break;
 		case PacketType::ServerUpdate:
-			for (int j = 0; j < ((PacketServerUpdate*)np[i])->nrOfEntity; j++) {
+			for (int64_t j = 0; j < ((PacketServerUpdate*)np[i])->nrOfEntity; j++) {
 				this->_updateEntity(world, &((NetEntityInfo*)(((char*)np[i] + sizeof(PacketServerUpdate))))[j]);
 			}
 			this->_hasSentUpdate = false;
