@@ -17,7 +17,7 @@ _pps(nrOfParticles), _behaviour(behaviour), _accumulator(0.f){
 	_drawObject->refCounter++;
 	_drawObject->mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getQuad().get();
 	_tempRotation = glm::mat4(1);
-	_tempRotation *= glm::angleAxis(glm::radians(90.f), glm::vec3(1,0,0));
+	_tempRotation *= glm::angleAxis(glm::radians(90.f), glm::vec3(0,0,1));
 }
 
 ParticleComponent::~ParticleComponent() {

@@ -152,7 +152,7 @@ namespace Barcode {
 			_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/ParticleAtlases.png");
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
-			batch.batch.clearFlags = ClearFlags::none;
+			batch.batch.clearFlags = ClearFlags::color | ClearFlags::depth;
 			batch.batch.renderTarget = _engine->getView();
 			batch.batch.pipeline = batch.pipeline.get();
 		}
@@ -317,13 +317,17 @@ namespace Barcode {
 		}
 
 		{ // Particle batch
-			int i = 0;
+			for (auto& kv : _particleBatch.batch.objects)
+				kv.second.clear();
+
 			for (auto entity : _world->getActiveComponents<Hydra::Component::ParticleComponent>()) {
 				auto pc = entity->getComponent<Hydra::Component::ParticleComponent>();
 				auto drawObj = entity->getDrawObject();
-				for (auto particle : pc->getParticles())
+				for (auto particle : pc->getParticles()) {
 					_particleBatch.batch.objects[drawObj->mesh].push_back(particle->m);
+				}
 			}
+			_engine->getRenderer()->render(_particleBatch.batch);
 		}
 
 		{
@@ -347,7 +351,7 @@ namespace Barcode {
 			//(*_glowBatch.output)[0]->bind(0);
 
 			// Render to view
-			_engine->getRenderer()->render(_viewBatch.batch);
+			//_engine->getRenderer()->render(_viewBatch.batch);
 
 			// Resolve geometryFBO into the geometry window in the UI
 			_geometryBatch.output->resolve(0, _positionWindow->image);
@@ -379,7 +383,7 @@ namespace Barcode {
 		weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(1,1,1), glm::quat(0,0,-1,0));
 		
 		auto particleEmitter = _world->createEntity("ParticleEmitter");
-		particleEmitter->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, 10);
+		particleEmitter->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, 1);
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
 		auto bp = BlueprintLoader::load("world.blueprint");

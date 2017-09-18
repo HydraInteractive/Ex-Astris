@@ -14,5 +14,5 @@ layout (location = 1) uniform mat4 p;
 
 void main() {
 	texCoords = uv;
-	gl_Position = p * v * m * vec4(position, 1);
+	gl_Position = m * vec4(position, 1);
 }
