@@ -31,7 +31,6 @@ public:
 		std::string path;
 
 		Node(std::string path);
-		Node(std::string path, std::string children);
 		~Node();
 
 		std::string name();

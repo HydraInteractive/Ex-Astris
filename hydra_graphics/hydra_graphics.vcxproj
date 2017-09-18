@@ -58,6 +58,7 @@
     <ClCompile Include="src\renderer\glrenderer.cpp" />
     <ClCompile Include="src\renderer\glshader.cpp" />
     <ClCompile Include="src\renderer\gltexture.cpp" />
+    <ClCompile Include="src\renderer\ImporterMenu.cpp" />
     <ClCompile Include="src\renderer\uirenderer.cpp" />
     <ClCompile Include="src\view\sdlview.cpp" />
   </ItemGroup>

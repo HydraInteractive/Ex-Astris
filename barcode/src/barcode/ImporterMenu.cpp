@@ -1,4 +1,4 @@
-#include "hydra/renderer/ImporterMenu.hpp"
+#include "barcode/ImporterMenu.hpp"
 ImporterMenu::ImporterMenu()
 {
 	rootPath = _getExecutableDir();
@@ -62,13 +62,18 @@ ImporterMenu::Node::Node(std::string path)
 		this->files.push_back(new Node(inFiles[i]));
 	}
 }
-ImporterMenu::Node::Node(std::string path, std::string children)
-{
-
-}
 ImporterMenu::Node::~Node()
 {
-
+	//for (int i = 0; i < subfolders.size(); i++)
+	//{
+	//	delete subfolders[i];
+	//}
+	//subfolders.clear();
+	//for (int i = 0; i < files.size(); i++)
+	//{
+	//	delete files[i];
+	//}
+	//files.clear();
 }
 std::string ImporterMenu::Node::name()
 {

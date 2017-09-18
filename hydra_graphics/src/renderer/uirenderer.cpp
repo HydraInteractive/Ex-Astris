@@ -130,7 +130,6 @@ public:
     ImGui_ImplSdlGL3_Init(_window = static_cast<SDL_Window*>(view.getHandler()));
 
 		_log = std::unique_ptr<IUILog>(new UILogImpl(this));
-		_importerMenu = std::unique_ptr<ImporterMenu>(new ImporterMenu());
 
 		ImGuiIO& io = ImGui::GetIO();
 		_normalFont = io.Fonts->AddFontFromFileTTF("assets/fonts/DroidSans.ttf", 18.0f);
@@ -277,10 +276,6 @@ public:
 		if (_testWindow)
 			ImGui::ShowTestWindow(&_testWindow);
 
-		if (_importerWindow)
-			_importerMenu->render(_importerWindow);
-
-
 		glBindFramebuffer(GL_FRAMEBUFFER, 0); // Bind the screen (0)
 		ImGui::Render();
 	}
@@ -308,14 +303,12 @@ private:
 	Hydra::View::IView* _view;
 	SDL_Window* _window;
 	std::unique_ptr<IUILog> _log;
-	std::unique_ptr<ImporterMenu> _importerMenu;
 
 	std::vector<std::unique_ptr<UIRenderWindow>> _renderWindows;
 
 	bool _logWindow = true;
 	bool _entityWindow = true;
 	bool _testWindow = false;
-	bool _importerWindow = false;
 
 	ImFont* _normalFont;
 	ImFont* _normalBoldFont;
