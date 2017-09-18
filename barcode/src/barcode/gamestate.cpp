@@ -6,6 +6,7 @@
 #include <hydra/io/glmeshloader.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
+#include <imgui/imgui.h>
 
 namespace Barcode {
 	GameState::GameState() : _engine(Hydra::IEngine::getInstance()) {}
@@ -312,6 +313,12 @@ namespace Barcode {
 			_postTestBatch.pipeline->setValue(0, 0);
 			_postTestBatch.pipeline->setValue(1, (int)_geometryBatch.output->getSamples());
 			_engine->getRenderer()->postProcessing(_postTestBatch.batch);
+		}
+
+		{ // Hud windows
+			static float f = 0.0f;
+			ImGui::Text("Hello, world!");
+			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
 		}
 
 		{ // Update UI & views
