@@ -109,7 +109,7 @@ namespace ImGui
     static ImGuiUserStyle UserStyle;
 
     /// Additional prototype to retrieve user-defined colors in this header (to prevent foward compatilibity conflicts)
-    IMGUI_API const ImU32 GetColorU32(ImGuiUserCol_ idx, float alpha_mul = 0.0f);
+    IMGUI_API ImU32 GetColorU32(ImGuiUserCol_ idx, float alpha_mul = 0.0f);
 
     ///Bitmask flags for telling _drawPartialRect() what edges to draw
     enum _EdgeType : char {
@@ -172,7 +172,7 @@ namespace ImGui
         void setActiveTab(const unsigned idx);
 
         /// Returns the currently active tab
-        const int getActiveTab();
+        int getActiveTab();
 
         /// Useful enums
         enum _TabType : char {LEFTMOST_TAB, MIDDLE_TAB, RIGHTMOST_TAB};
@@ -204,10 +204,10 @@ namespace ImGui
         void clearIdxCountCurrentTabBar();
 
         /// Returns true if the tab bar already exists, pass idx if you want a return index value
-        const bool doesTabBarExist(const ImU32 hash, unsigned* const idx = NULL);
+        bool doesTabBarExist(const ImU32 hash, unsigned* const idx = NULL);
 
         /// Returns true if the tab bar already exists (computes hash), pass idx if you want a return index value
-        const bool doesTabBarExist(const char* id, unsigned* const idx = NULL);
+        bool doesTabBarExist(const char* id, unsigned* const idx = NULL);
     };
 
     /// Static instantiation of the TabBarStack
@@ -221,13 +221,13 @@ namespace ImGui
     IMGUI_API void BeginTabBar(const char *label, const ImVec2 size = ImVec2(0, 0));
 
     /// Returns true when the tab is active. To use, implement with if(ImGui::AddTab(...)){}
-    IMGUI_API const bool AddTab(const char* title);
+    IMGUI_API bool AddTab(const char* title);
 
     /// To use, implement with if(ImGui::DrawTabsBackground(...)){} just after ImGui::BeginTabBar();
     IMGUI_API void DrawTabsBackground();
 
     /// Call this after you are done adding tabs
     IMGUI_API void  EndTabBar();
-    
+
 } // namespace ImGui
 #endif //IMGUI_TABS_HPP

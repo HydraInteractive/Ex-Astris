@@ -85,6 +85,9 @@ namespace Barcode {
 					setState<GameState>();
 				ImGui::EndMenu();
 			}
+
+			if (_state)
+				_state->onMainMenu();
 		}
 
 		void setState_(std::unique_ptr<IState> state) final {
@@ -129,6 +132,8 @@ namespace Barcode {
 
 #undef main
 int main(int argc, char** argv) {
+	(void)argc;
+	(void)argv;
 	reportMemoryLeaks();
 	srand(time(NULL));
 	Barcode::Engine engine;

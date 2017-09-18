@@ -26,6 +26,7 @@ namespace Barcode {
 		GameState();
 		~GameState() final;
 
+		void onMainMenu() final;
 		void load() final;
 
 		void runFrame(float delta) final;

@@ -43,6 +43,7 @@ namespace Hydra {
 		virtual ~IState() = 0;
 
 		virtual void load() = 0;
+		virtual void onMainMenu() = 0;
 
 		/// Update and render a frame
 		virtual void runFrame(float delta) = 0;
