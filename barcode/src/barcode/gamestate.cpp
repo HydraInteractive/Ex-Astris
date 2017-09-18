@@ -317,8 +317,12 @@ namespace Barcode {
 
 		{ // Hud windows
 			static float f = 0.0f;
+			const ImVec2 pos = ImVec2(11,10);
+			ImGui::SetNextWindowPos(pos);
+			ImGui::Begin("Another Window", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 			ImGui::Text("Hello, world!");
 			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+			ImGui::End();
 		}
 
 		{ // Update UI & views
