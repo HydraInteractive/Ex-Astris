@@ -10,37 +10,37 @@
 
 #include <hydra/pathing/pathfinding.hpp>
 
-PathFinding::PathFinding(void){
-	m_intializedStartGoal = false;
-	m_foundGoal = false;
+PathFinding::PathFinding(){
+	intializedStartGoal = false;
+	foundGoal = false;
 }
 
-PathFinding::~PathFinding(void){
+PathFinding::~PathFinding(){
 
 }
 
 void PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 {
-	if (!m_intializedStartGoal) 
+	if (!intializedStartGoal) 
 	{
 
-		for (size_t i = 0; i < _m_openList.size(); i++)
+		for (size_t i = 0; i < _openList.size(); i++)
 		{
-			delete _m_openList[i];
+			delete _openList[i];
 		}
-		_m_openList.clear();
+		_openList.clear();
 
-		for (size_t i = 0; i < _m_visitedList.size(); i++) 
+		for (size_t i = 0; i < _visitedList.size(); i++) 
 		{
-			delete _m_visitedList[i];
+			delete _visitedList[i];
 		}
-		_m_visitedList.clear();
+		_visitedList.clear();
 
-		for (size_t i = 0; i < _m_pathToEnd.size(); i++)
+		for (size_t i = 0; i < _pathToEnd.size(); i++)
 		{
-			delete _m_pathToEnd[i];
+			delete _pathToEnd[i];
 		}
-		_m_pathToEnd.clear();
+		_pathToEnd.clear();
 
 		// Initialize start
 		SearchCell start;
@@ -53,10 +53,10 @@ void PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 		end.m_zcoord = targetPos.z;
 
 		_setStartAndGoal(start, end);
-		m_intializedStartGoal = true;
+		intializedStartGoal = true;
 	}
 
-	if (m_intializedStartGoal)
+	if (intializedStartGoal)
 	{
 		_continuePath();
 	}
@@ -67,16 +67,16 @@ glm::vec3 PathFinding::nextPathPos(Hydra::Component::EnemyComponent ai)
 	size_t index = 1;
 
 	glm::vec3 nextPos;
-	nextPos.x = _m_pathToEnd[_m_pathToEnd.size() - index]->x;
-	nextPos.z = _m_pathToEnd[_m_pathToEnd.size() - index]->z;
+	nextPos.x = _pathToEnd[_pathToEnd.size() - index]->x;
+	nextPos.z = _pathToEnd[_pathToEnd.size() - index]->z;
 
 	glm::vec3 distance = nextPos - ai.getPosition();
 
-	if (index < _m_pathToEnd.size())
+	if (index < _pathToEnd.size())
 	{
 		if (distance.length() < ai.getRadius())
 		{
-			_m_pathToEnd.erase(_m_pathToEnd.end() - index);
+			_pathToEnd.erase(_pathToEnd.end() - index);
 		}
 	}
 
@@ -85,14 +85,14 @@ glm::vec3 PathFinding::nextPathPos(Hydra::Component::EnemyComponent ai)
 
 void PathFinding::_setStartAndGoal(SearchCell start, SearchCell end)
 {
-	_m_startCell = new SearchCell(start.m_xcoord, start.m_zcoord, 0);
-	_m_endCell = new SearchCell(end.m_xcoord, end.m_zcoord, &end);
+	_startCell = new SearchCell(start.m_xcoord, start.m_zcoord, 0);
+	_endCell = new SearchCell(end.m_xcoord, end.m_zcoord, &end);
 
-	_m_startCell->G = 0;
-	_m_startCell->H = _m_startCell->manHattanDistance(_m_endCell);
-	_m_startCell->parent = 0;
+	_startCell->G = 0;
+	_startCell->H = _startCell->manHattanDistance(_endCell);
+	_startCell->parent = 0;
 
-	_m_openList.push_back(_m_startCell);
+	_openList.push_back(_startCell);
 }
 
 void PathFinding::_pathOpened(int x, int z, float newCost, SearchCell * parent)
@@ -103,9 +103,9 @@ void PathFinding::_pathOpened(int x, int z, float newCost, SearchCell * parent)
 	}*/
 
 	int id = z * WORLD_SIZE + x;
-	for (size_t i = 0; i < _m_visitedList.size(); i++)
+	for (size_t i = 0; i < _visitedList.size(); i++)
 	{
-		if (id == _m_visitedList[i]->m_id)
+		if (id == _visitedList[i]->m_id)
 		{
 			return;
 		}
@@ -114,18 +114,18 @@ void PathFinding::_pathOpened(int x, int z, float newCost, SearchCell * parent)
 	SearchCell* newCell = new SearchCell(x, z, parent);
 
 	newCell->G = newCost;
-	newCell->H = parent->manHattanDistance(_m_endCell);
+	newCell->H = parent->manHattanDistance(_endCell);
 
-	for (size_t i = 0; i < _m_openList.size(); i++)
+	for (size_t i = 0; i < _openList.size(); i++)
 	{
-		if (id == _m_openList[i]->m_id)
+		if (id == _openList[i]->m_id)
 		{
-			float newF = newCell->G + newCost + _m_openList[i]->H;
+			float newF = newCell->G + newCost + _openList[i]->H;
 			
-			if (_m_openList[i]->getF() > newF)
+			if (_openList[i]->getF() > newF)
 			{
-				_m_openList[i]->G = newCell->G + newCost;
-				_m_openList[i]->parent = newCell;
+				_openList[i]->G = newCell->G + newCost;
+				_openList[i]->parent = newCell;
 			}
 			else // if the F-value is not better
 			{
@@ -135,7 +135,7 @@ void PathFinding::_pathOpened(int x, int z, float newCost, SearchCell * parent)
 		}
 	}
 
-	_m_openList.push_back(newCell);
+	_openList.push_back(newCell);
 }
 
 SearchCell * PathFinding::_getNextCell()
@@ -144,19 +144,19 @@ SearchCell * PathFinding::_getNextCell()
 	int cellID = -1;
 	SearchCell* nextCell = NULL;
 
-	for (size_t i = 0; i < _m_openList.size(); i++)
+	for (size_t i = 0; i < _openList.size(); i++)
 	{
-		if (_m_openList[i]->getF() < bestF)
+		if (_openList[i]->getF() < bestF)
 		{
-			bestF = _m_openList[i]->getF();
+			bestF = _openList[i]->getF();
 		}
 	}
 
 	if (cellID >= 0)
 	{
-		nextCell = _m_openList[cellID];
-		_m_visitedList.push_back(nextCell);
-		_m_openList.erase(_m_openList.begin() + cellID);
+		nextCell = _openList[cellID];
+		_visitedList.push_back(nextCell);
+		_openList.erase(_openList.begin() + cellID);
 	}
 
 	return nextCell;
@@ -166,24 +166,24 @@ void PathFinding::_continuePath()
 {
 	for (size_t i = 0; i < 4; i++)
 	{
-		if (_m_openList.empty())
+		if (_openList.empty())
 		{
 			return;
 		}
 
 		SearchCell* currentCell = _getNextCell();
 
-		if (currentCell->m_id == _m_endCell->m_id)
+		if (currentCell->m_id == _endCell->m_id)
 		{
-			_m_endCell->parent = currentCell->parent;
+			_endCell->parent = currentCell->parent;
 
 			SearchCell* getPath;
 
-			for (getPath = _m_endCell; getPath != NULL; getPath = getPath->parent)
+			for (getPath = _endCell; getPath != NULL; getPath = getPath->parent)
 			{
-				_m_pathToEnd.push_back(new glm::vec3(getPath->m_xcoord, 0, getPath->m_zcoord));
+				_pathToEnd.push_back(new glm::vec3(getPath->m_xcoord, 0, getPath->m_zcoord));
 			}
-			m_foundGoal = true;
+			foundGoal = true;
 			return;
 		}
 		else
@@ -205,11 +205,11 @@ void PathFinding::_continuePath()
 			//right-down diagonal
 			_pathOpened(currentCell->m_xcoord + 1, currentCell->m_zcoord - 1, currentCell->G + 1.414f, currentCell);
 
-			for (size_t i = 0; i < _m_openList.size(); i++)
+			for (size_t i = 0; i < _openList.size(); i++)
 			{
-				if (currentCell->m_id == _m_openList[i]->m_id)
+				if (currentCell->m_id == _openList[i]->m_id)
 				{
-					_m_openList.erase(_m_openList.begin() + i);
+					_openList.erase(_openList.begin() + i);
 				}
 			}
 		}

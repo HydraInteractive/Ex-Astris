@@ -40,6 +40,18 @@ void EnemyComponent::tick(TickAction action) {
 		_startPosition = enemy->getPosition();
 	}
 
+	switch (_pathState)
+	{
+		case SEARCHING:
+		{
+
+		}
+		case FOUND_GOAL:
+		{
+
+		}
+	}
+
 	if (_enemyID == EnemyTypes::Alien)
 	{
 		_position = enemy->getPosition();

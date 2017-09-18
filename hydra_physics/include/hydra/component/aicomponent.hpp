@@ -14,11 +14,22 @@
 
 using namespace Hydra::World;
 namespace Hydra::Component {
+
+	class PathFinding;
+
 	enum class EnemyTypes {
 		Alien = 0,
 		Robot = 1,
 		AlienBoss = 2,
 	};
+
+	enum PathState
+	{
+		SEARCHING,
+		FOUND_GOAL,
+	};
+	PathState _pathState;
+	PathFinding* _pathFinding;
 
 	class HYDRA_API EnemyComponent final : public IComponent{
 	public:
@@ -34,8 +45,6 @@ namespace Hydra::Component {
 
 		glm::vec3 getPosition();
 		float getRadius();
-
-
 
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;

@@ -15,25 +15,25 @@
 class PathFinding
 {
 public:
-	PathFinding(void);
-	~PathFinding(void);
+	PathFinding();
+	~PathFinding();
 
 	void findPath(glm::vec3 currentPos, glm::vec3 targetPos);
 	glm::vec3 nextPathPos(Hydra::Component::EnemyComponent ai);
-	void clearOpenList() { _m_openList.clear(); }
-	void clearVisitedList() { _m_visitedList.clear(); }
-	void clearPathToGoal() { _m_pathToEnd.clear(); }
-	bool m_intializedStartGoal;
-	bool m_foundGoal;
+	void clearOpenList() { _openList.clear(); }
+	void clearVisitedList() { _visitedList.clear(); }
+	void clearPathToGoal() { _pathToEnd.clear(); }
+	bool intializedStartGoal;
+	bool foundGoal;
 private:
 	void _setStartAndGoal(SearchCell start, SearchCell end);
 	void _pathOpened(int x, int z, float newCost, SearchCell *parent);
 	SearchCell *_getNextCell();
 	void _continuePath();
 
-	SearchCell *_m_startCell;
-	SearchCell *_m_endCell;
-	std::vector<SearchCell*> _m_openList;
-	std::vector<SearchCell*> _m_visitedList;
-	std::vector<glm::vec3*> _m_pathToEnd;
+	SearchCell *_startCell;
+	SearchCell *_endCell;
+	std::vector<SearchCell*> _openList;
+	std::vector<SearchCell*> _visitedList;
+	std::vector<glm::vec3*> _pathToEnd;
 };
