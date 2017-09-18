@@ -1,12 +1,24 @@
 #pragma once
-#include <hydra\component\transformcomponent.hpp>
+#include <hydra/component/transformcomponent.hpp>
 
 enum class PacketType {
 	HelloWorld,
 	ChangeID,
 	ClientUpdate,
-	SpawnEntity
+	SpawnEntityClient,
+	SpawnEntityServer,
+	ServerUpdate
 	// ...
+};
+
+struct TransformInfo {
+	glm::vec3 position;
+	glm::vec3 scale;
+	glm::quat rot;
+};
+
+struct PacketHeader {
+	PacketType type;
 };
 
 class NetPacket {
@@ -14,11 +26,30 @@ public:
 	PacketHeader header;
 };
 
-struct PacketHeader {
-	PacketType type;
+struct NetEntityInfo {
+	int64_t id;
+	TransformInfo ti;
 };
 
+//TEMPORARY
+struct PacketSpawnEntityClient : NetPacket {
+	int64_t prevID;
+	TransformInfo ti;
+};
 
+//TEMPORARY
+struct PacketSpawnEntityServer : NetPacket {
+	int64_t id;
+	TransformInfo ti;
+};
+
+struct PacketServerUpdate : NetPacket {
+	int nrOfEntity;
+
+	size_t getPacketSize() {
+		return sizeof(PacketServerUpdate) + sizeof(NetEntityInfo) * nrOfEntity;
+	}
+};
 // When a player connects, or the world changes
 struct PacketHelloWorld : public NetPacket {
 	int64_t yourID;

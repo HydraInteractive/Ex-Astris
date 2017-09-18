@@ -1,10 +1,11 @@
 #pragma once
 
 #include <../hydra_network/include/TCPConnection.hpp>
-#include <../hydra_network/include/TCPHost.hpp>
+#include <../hydra_network/include/Server/TCPHost.hpp>
 #include <../hydra_network/include/TCPClient.hpp>
 #include <SDL2/SDL_net.h>
 #include <hydra/world/world.hpp>
+#include <../hydra_network/include/Server/ServerWorld.hpp>
 
 HYDRA_API void startServer(int port);
 
@@ -13,8 +14,10 @@ private:
 	TCPHost* _conn;
 	bool _running;
 	int _port;
+	ServerWorld _serverw;
 	//std::map<int, Hydra::World::IEntity*> _netEntities;
 	//bool _connected;
+	
 	HYDRA_API int _generateEntityID();
 public:
 	HYDRA_API NetworkManager();

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -91,13 +91,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\hydra\component\componentmanager_network.hpp" />
-    <ClInclude Include="include\networkmanager.hpp" />
+    <ClInclude Include="include\NetClient.h" />
+    <ClInclude Include="include\NetPlayer.hpp" />
+    <ClInclude Include="include\Server\networkmanager.hpp" />
     <ClInclude Include="include\Packets.h" />
+    <ClInclude Include="include\Server\ServerPlayer.hpp" />
+    <ClInclude Include="include\Server\ServerWorld.hpp" />
     <ClInclude Include="include\TCPClient.hpp" />
     <ClInclude Include="include\TCPConnection.hpp" />
-    <ClInclude Include="include\TCPHost.hpp" />
+    <ClInclude Include="include\Server\TCPHost.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\NetClient.cpp" />
+    <ClCompile Include="src\NetPlayer.cpp" />
+    <ClCompile Include="src\ServerPlayer.cpp" />
+    <ClCompile Include="src\ServerWorld.cpp" />
     <ClCompile Include="src\component\componentmanager_network.cpp" />
     <ClCompile Include="src\TCPClient.cpp" />
     <ClCompile Include="src\networkmanager.cpp" />

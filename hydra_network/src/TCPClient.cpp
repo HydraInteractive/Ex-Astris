@@ -1,4 +1,5 @@
 #include "TCPConnection.hpp"
+#include <hydra/engine.hpp>
 #include "TCPClient.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_net.h>
@@ -22,9 +23,11 @@ TCPClient::TCPClient() {
 }
 
 TCPClient::~TCPClient() {
+	delete[] _msg;
 }
 
 bool TCPClient::initiate(IPaddress ip, char* s) {
+	_msg = new char[NETWORK_MAX_LENGTH];
 	this->_ip = ip;
 	if (SDLNet_ResolveHost(&_ip, s, ip.port) == -1) {
 		printf("SDLNet_ResolveHost: %s\n", SDLNet_GetError());
@@ -37,6 +40,8 @@ bool TCPClient::initiate(IPaddress ip, char* s) {
 		printf("SDLNet_TCP_Open: %s\n", SDLNet_GetError());
 		return false;
 	}
+	this->_ss = SDLNet_AllocSocketSet(1);
+	SDLNet_TCP_AddSocket(this->_ss, this->_socket);
 	return true;
 }
 
@@ -53,27 +58,48 @@ void TCPClient::close() {
 	}
  }
 
- NetPacket* TCPClient::receivePacket() {
+ std::vector<NetPacket*> TCPClient::receivePacket() {
 	int result;
-	char msg[NETWORK_MAX_LENGTH];
-	result = SDLNet_TCP_Recv(_socket, msg, NETWORK_MAX_LENGTH);
-	if (result <= 0) {
-		NetPacket* np = (NetPacket*)msg;
+	std::vector<NetPacket*> packets;
+	if (SDLNet_CheckSockets(this->_ss, 0) <= 0)
+		return packets;
+	//if (SDLNet_CheckSockets(this->_ss, 0) == -1) {
+	//	return nullptr;
+	//}
+
+	result = SDLNet_TCP_Recv(_socket, _msg, NETWORK_MAX_LENGTH);
+	int max = result;
+	while(result > 0) {
+		NetPacket* np = (NetPacket*)((char*)(&_msg[max - result]));
 		switch (np->header.type) {
 		case PacketType::HelloWorld:
-			return reinterpret_cast<PacketHelloWorld*>(msg);
+			result -= sizeof(PacketHelloWorld);
+			packets.push_back((PacketHelloWorld*)np);
 			break;
 		case PacketType::ChangeID: //TODO
-			return reinterpret_cast<PacketChangeID*>(msg);
+			result -= sizeof(PacketChangeID);
+			packets.push_back((PacketChangeID*)np);
 			break;
 		case PacketType::ClientUpdate: //TODO
-			return reinterpret_cast<PacketClientUpdate*>(msg);
+			result -= sizeof(PacketClientUpdate);
+			packets.push_back((PacketClientUpdate*)np);
 			break;
-		case PacketType::SpawnEntity: //TODO
-			return reinterpret_cast<PacketSpawnEntity*>(msg);
+		case PacketType::SpawnEntityClient: //TODO
+			result -= sizeof(PacketSpawnEntityClient);
+			packets.push_back((PacketSpawnEntityClient*)np);
+			break;
+		case PacketType::ServerUpdate: 
+			result -= ((PacketServerUpdate*)np)->getPacketSize();
+			packets.push_back((PacketServerUpdate*)np);
+			break;
+
+		default:
+			//Hydra::IEngine::getInstance()->log(Hydra::LogLevel::warning, "Network Error: Packet(s) not recognized.");
+			result = 0;
 			break;
 		}
 	}
+	return packets;
 }
 
 

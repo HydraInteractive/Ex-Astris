@@ -42,8 +42,10 @@ namespace Hydra::Renderer {
 		virtual ~ITexture() = 0;
 
 		virtual void resize(glm::ivec2 size) = 0;
+		virtual void bind(size_t position) = 0;
 
 		virtual glm::ivec2 getSize() = 0;
+		virtual size_t getSamples() = 0;
 		virtual uint32_t getID() const = 0;
 	};
 	inline ITexture::~ITexture() {}
@@ -82,6 +84,7 @@ namespace Hydra::Renderer {
 		virtual IFramebuffer& addTexture(size_t id, TextureType type) = 0;
 
 		virtual void finalize() = 0;
+		inline void bind(size_t position) final {}
 
 		virtual std::shared_ptr<ITexture> getDepth() = 0;
 
@@ -89,7 +92,7 @@ namespace Hydra::Renderer {
 
 		// Remember this texture is a MULTISAMPLE texture, and thus need to be resolve
 		// before being rendered as a standard texture
-		virtual std::shared_ptr<ITexture> operator[](size_t idx) = 0;
+		virtual std::shared_ptr<ITexture>& operator[](size_t idx) = 0;
 	};
 	inline IFramebuffer::~IFramebuffer() {}
 
@@ -116,7 +119,7 @@ namespace Hydra::Renderer {
 		int refCounter = 0;
 		bool disable = false; // Temporarily disable object
 		IMesh* mesh = nullptr; // & Material // TODO: Change to something else than IMesh?
-		glm::mat4 modelMatrix;
+		glm::mat4 modelMatrix = glm::mat4(1);
 	};
 
 	struct HYDRA_API Camera final {
@@ -136,7 +139,6 @@ namespace Hydra::Renderer {
 		ClearFlags clearFlags;
 		IRenderTarget* renderTarget;
 		IPipeline* pipeline;
-		// Camera* camera;
 		std::map<IMesh*, std::vector<glm::mat4 /* Model matrix */>> objects;
 	};
 
@@ -145,6 +147,8 @@ namespace Hydra::Renderer {
 		virtual ~IRenderer() = 0;
 
 		virtual void render(Batch& batch) = 0;
+		// Note: this will ignore batch.objects
+		virtual void postProcessing(Batch& batch) = 0;
 
 		virtual DrawObject* aquireDrawObject() = 0;
 

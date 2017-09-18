@@ -6,11 +6,12 @@
 #include <memory>
 #include <imgui/imgui.h>
 #include <imgui/icons.hpp>
-#include <../hydra_network/include/networkmanager.hpp>
+#include <../hydra_network/include/Server/networkmanager.hpp>
 
 #include <../hydra_network/include/TCPConnection.hpp>
-#include <../hydra_network/include/TCPHost.hpp>
+#include <../hydra_network/include/Server/TCPHost.hpp>
 #include <../hydra_network/include/TCPClient.hpp>
+#include <../hydra_network/include/NetClient.h>
 
 #include <hydra/world/world.hpp>
 #include <hydra/view/sdlview.hpp>
@@ -50,7 +51,7 @@ static inline void reportMemoryLeaks() {}
 using namespace Hydra;
 using namespace Hydra::World;
 
-TCPClient* network;
+NetClient* network;
 std::thread* server = nullptr;
 
 class Engine final : public Hydra::IEngine {
@@ -86,6 +87,16 @@ public:
 		_depthWindow->title = "Depth FBO";
 		_depthWindow->image = Renderer::GLTexture::createFromData(_depthWindow->size.x, _depthWindow->size.y, TextureType::u8RGB, nullptr);
 
+		_postTestWindow = _uiRenderer->addRenderWindow();
+		_postTestWindow->enabled = true;
+		_postTestWindow->title = "PostTest FBO";
+		_postTestWindow->image = Renderer::GLTexture::createFromData(_postTestWindow->size.x, _postTestWindow->size.y, TextureType::u8RGB, nullptr);
+
+		_glowWindow = _uiRenderer->addRenderWindow();
+		_glowWindow->enabled = true;
+		_glowWindow->title = "Glow FBO";
+		_glowWindow->image = Renderer::GLTexture::createFromData(_glowWindow->size.x, _glowWindow->size.y, TextureType::u8RGB, nullptr);
+
 		{
 			auto& batch = _geometryBatch;
 			batch.vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/geometry.vert");
@@ -113,6 +124,74 @@ public:
 			batch.batch.pipeline = batch.pipeline.get();
 		}
 
+		{ // Lighting pass batch
+			auto& batch = _lightingBatch;
+			batch.vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/lighting.vert");
+			batch.fragmentShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::fragment, "assets/shaders/lighting.frag");
+
+			batch.pipeline = Renderer::GLPipeline::create();
+			batch.pipeline->attachStage(*batch.vertexShader);
+			batch.pipeline->attachStage(*batch.fragmentShader);
+			batch.pipeline->finalize();
+
+			batch.output = Renderer::GLFramebuffer::create(_glowWindow->size, 0);
+			batch.output
+				->addTexture(0, TextureType::u8RGB)
+				.addTexture(1, TextureType::u8RGB)
+				.finalize();
+
+			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
+			batch.batch.clearFlags = ClearFlags::color | ClearFlags::depth;
+			batch.batch.renderTarget = batch.output.get();
+			batch.batch.pipeline = batch.pipeline.get(); // TODO: Change to "null" pipeline
+		}
+
+
+		{
+			auto& batch = _glowBatch;
+			batch.vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/blur.vert");
+			batch.fragmentShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::fragment, "assets/shaders/blur.frag");
+
+			_glowVertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/glow.vert");
+			_glowFragmentShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::fragment, "assets/shaders/glow.frag");
+
+			batch.pipeline = Renderer::GLPipeline::create();
+			batch.pipeline->attachStage(*batch.vertexShader);
+			batch.pipeline->attachStage(*batch.fragmentShader);
+			batch.pipeline->finalize();
+
+			_glowPipeline = Renderer::GLPipeline::create();
+			_glowPipeline->attachStage(*_glowVertexShader);
+			_glowPipeline->attachStage(*_glowFragmentShader);
+			_glowPipeline->finalize();
+
+			batch.output = Renderer::GLFramebuffer::create(_glowWindow->size, 0);
+			batch.output
+				->addTexture(0, TextureType::u8RGB)
+				.finalize();
+
+			// Extra buffer for ping-ponging the texture for two-pass gaussian blur.
+			_blurrExtraFBO1 = Renderer::GLFramebuffer::create(_glowWindow->size, 0);
+			_blurrExtraFBO1
+				->addTexture(0, TextureType::u8RGB)
+				.finalize();
+			_blurrExtraFBO2 = Renderer::GLFramebuffer::create(_glowWindow->size, 0);
+			_blurrExtraFBO2
+				->addTexture(0, TextureType::u8RGB)
+				.finalize();
+
+			// 3 Blurred Textures and one original.
+			_blurredOriginal = Renderer::GLTexture::createEmpty(_glowWindow->size.x, _glowWindow->size.y, TextureType::u8RGB);
+			_blurredIMG1 = Renderer::GLTexture::createEmpty(_glowWindow->size.x, _glowWindow->size.y, TextureType::u8RGB);
+			_blurredIMG2 = Renderer::GLTexture::createEmpty(_glowWindow->size.x, _glowWindow->size.y, TextureType::u8RGB);
+			_blurredIMG3 = Renderer::GLTexture::createEmpty(_glowWindow->size.x, _glowWindow->size.y, TextureType::u8RGB);
+
+			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
+			batch.batch.clearFlags = ClearFlags::color | ClearFlags::depth;
+			batch.batch.renderTarget = batch.output.get();
+			batch.batch.pipeline = batch.pipeline.get();
+		}
+
 		{
 			auto& batch = _viewBatch;
 			batch.vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/view.vert");
@@ -123,10 +202,31 @@ public:
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 
-			batch.batch.clearColor = glm::vec4(0, 0.05, 0.05, 1);
+			batch.batch.clearColor = glm::vec4(0, 0.0, 0.0, 1);
 			batch.batch.clearFlags = ClearFlags::color | ClearFlags::depth;
 			batch.batch.renderTarget = _view.get();
 			batch.batch.pipeline = batch.pipeline.get(); // TODO: Change to "null" pipeline
+		}
+
+		{
+			auto& batch = _postTestBatch;
+			batch.vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/postTest.vert");
+			batch.fragmentShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::fragment, "assets/shaders/postTest.frag");
+
+			batch.pipeline = Renderer::GLPipeline::create();
+			batch.pipeline->attachStage(*batch.vertexShader);
+			batch.pipeline->attachStage(*batch.fragmentShader);
+			batch.pipeline->finalize();
+
+			batch.output = Renderer::GLFramebuffer::create(_positionWindow->size, 4);
+			batch.output
+				->addTexture(0, TextureType::u8RGB) // Position
+				.finalize();
+
+			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
+			batch.batch.clearFlags = ClearFlags::color | ClearFlags::depth;
+			batch.batch.renderTarget = batch.output.get();
+			batch.batch.pipeline = batch.pipeline.get();
 		}
 
 		_initEntities();
@@ -159,8 +259,8 @@ public:
 						
 						server = new std::thread(startServer, ip.port);
 						ip.host = INADDR_ANY;
-						network = new TCPClient();
-						while (network->initiate(ip, "localhost") != true);
+						network = new NetClient();
+						while (network->initialize(ip.port, "localhost") != true);
 
 					}
 
@@ -171,11 +271,11 @@ public:
 						IPaddress ip;
 						std::string tmpstr = portInput;
 						ip.port = std::stoi(tmpstr);
-						network = new TCPClient();
+						network = new NetClient();
 						//ip = network->resolveHost(ipInput, ip.port);
 
 						//ip.host = ipstr.c_str;
-						if (!network->initiate(ip, ipInput)) {
+						if (!network->initialize(ip.port, ipInput)) {
 							delete network;
 							network = nullptr;
 						}
@@ -229,11 +329,96 @@ public:
 				_renderer->render(_geometryBatch.batch);
 			}
 
+			{ // Lighting pass
+				if (!_uiRenderer->isDraging()) {
+					static glm::ivec2 oldSize = _lightingBatch.output->getSize();
+					auto newSize = _glowWindow->size;
+					if (oldSize != newSize) {
+						_lightingBatch.output->resize(newSize);
+						oldSize = newSize;
+					}
+				}
+
+				_lightingBatch.pipeline->setValue(0, 0);
+				_lightingBatch.pipeline->setValue(1, 1);
+				_lightingBatch.pipeline->setValue(2, 2);
+				_lightingBatch.pipeline->setValue(3, _cc->getPosition());
+
+				(*_geometryBatch.output)[0]->bind(0);
+				(*_geometryBatch.output)[1]->bind(1);
+				(*_geometryBatch.output)[2]->bind(2);
+
+				_renderer->postProcessing(_lightingBatch.batch);
+			}
+
+
+			{ // Glow
+				if (!_uiRenderer->isDraging()) {
+					static glm::ivec2 oldSize = _glowBatch.output->getSize();
+					auto newSize = _glowWindow->size;
+					if (oldSize != newSize) {
+						_glowBatch.output->resize(newSize);
+						_blurrExtraFBO1->resize(newSize);
+						_blurrExtraFBO2->resize(newSize);
+						oldSize = newSize;
+					}
+				}
+				// Resolves the glow texture from geomtrybatch which returns an image, that then is
+				// put into the function which returns a framebuffer that is then put into position 0 in blurredTexturesFBO
+				// Not sure why I can't copy textures from different framebuffers to eachother, have to look into it later.
+				int nrOfTimes = 1;
+				glm::vec2 size = _glowWindow->size;
+
+				_lightingBatch.output->resolve(0, _blurredOriginal);
+				_lightingBatch.output->resolve(1, (*_glowBatch.output)[0]);
+
+				_blurGlowTexture((*_glowBatch.output)[0], nrOfTimes, size *= 0.5f)
+					->resolve(0, _blurredIMG1);
+				_blurGlowTexture(_blurredIMG1, nrOfTimes, size *= 0.5f)
+					->resolve(0, _blurredIMG2);
+				_blurGlowTexture(_blurredIMG2, nrOfTimes, size *= 0.5f)
+					->resolve(0, _blurredIMG3);
+
+				_glowBatch.batch.pipeline = _glowPipeline.get();
+
+				_glowBatch.batch.pipeline->setValue(1, 1);
+				_glowBatch.batch.pipeline->setValue(2, 2);
+				_glowBatch.batch.pipeline->setValue(3, 3);
+				_glowBatch.batch.pipeline->setValue(4, 4);
+
+				_blurredOriginal->bind(1);
+				_blurredIMG1->bind(2);
+				_blurredIMG2->bind(3);
+				_blurredIMG3->bind(4);
+
+				_renderer->postProcessing(_glowBatch.batch);
+				_glowBatch.batch.pipeline = _glowBatch.pipeline.get();
+			}
+
 			{ // Render transparent objects	(Forward rendering)
 				_world->tick(TickAction::renderTransparent);
 			}
 
+			{
+				if (!_uiRenderer->isDraging()) {
+					static glm::ivec2 oldSize = _postTestBatch.output->getSize();
+					auto newSize = _positionWindow->size;
+					if (oldSize != newSize) {
+						_postTestBatch.output->resize(newSize);
+						oldSize = newSize;
+					}
+				}
+				(*_geometryBatch.output)[0]->bind(0);
+				_postTestBatch.pipeline->setValue(0, 0);
+				_postTestBatch.pipeline->setValue(1, (int)_geometryBatch.output->getSamples());
+				_renderer->postProcessing(_postTestBatch.batch);
+			}
+
 			{ // Update UI & views
+				// If you wanna see the final image, uncomment the two rows below.
+				//_viewBatch.batch.pipeline->setValue(0, 0);
+				//(*_glowBatch.output)[0]->bind(0);
+
 				// Render to view
 				_renderer->render(_viewBatch.batch);
 
@@ -242,12 +427,19 @@ public:
 				_geometryBatch.output->resolve(1, _diffuseWindow->image);
 				_geometryBatch.output->resolve(2, _normalWindow->image);
 				_geometryBatch.output->resolve(3, _depthWindow->image);
+				_postTestBatch.output->resolve(0, _postTestWindow->image);
+				_glowBatch.output->resolve(0, _glowWindow->image);
+				//_lightingBatch.output->resolve(0, _glowWindow->image);
+				//_lightingBatch.output->resolve(1, _glowWindow->image);
 				_uiRenderer->render();
 
 				_view->finalize();
 			}
 
 			{ // Sync with network
+				if (network) {
+					network->update(_world.get());
+				}
 				_world->tick(TickAction::network);
 			}
 		}
@@ -293,11 +485,27 @@ private:
 	Renderer::UIRenderWindow* _positionWindow;
 	Renderer::UIRenderWindow* _diffuseWindow;
 	Renderer::UIRenderWindow* _normalWindow;
+	Renderer::UIRenderWindow* _glowWindow;
 	Renderer::UIRenderWindow* _depthWindow;
+	Renderer::UIRenderWindow* _postTestWindow;
 
 	RenderBatch _geometryBatch; // First part of deferred rendering
 	RenderBatch _lightingBatch; // Second part of deferred rendering
+	RenderBatch _glowBatch; // Glow batch.
 	RenderBatch _viewBatch;
+	RenderBatch _postTestBatch;
+
+	// Extra framebuffers, pipeline and shaders for glow/bloom/blur
+	std::shared_ptr<Renderer::IFramebuffer> _blurrExtraFBO1;
+	std::shared_ptr<Renderer::IFramebuffer> _blurrExtraFBO2;
+	std::shared_ptr<Renderer::ITexture> _blurredOriginal;
+	std::shared_ptr<Renderer::ITexture> _blurredIMG1;
+	std::shared_ptr<Renderer::ITexture> _blurredIMG2;
+	std::shared_ptr<Renderer::ITexture> _blurredIMG3;
+
+	std::shared_ptr<Renderer::IPipeline> _glowPipeline;
+	std::unique_ptr<Renderer::IShader> _glowVertexShader;
+	std::unique_ptr<Renderer::IShader> _glowFragmentShader;
 
 	Component::CameraComponent* _cc = nullptr;
 
@@ -311,7 +519,7 @@ private:
 	}
 
 	void _initEntities() {
-		_world = Hydra::World::World::create();
+		_world = Hydra::World::World::create(false);
 		auto cameraEntity = _world->createEntity("Camera");
 		/*_cc = */ cameraEntity->addComponent<Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{0, 0, -3});
 
@@ -345,6 +553,38 @@ private:
 				log(LogLevel::error, "Camera not found!");
 		}
 	}
+
+	std::shared_ptr<Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<ITexture>& texture, int &nrOfTimes, glm::vec2 size) { // TO-DO: Make it agile so it can blur any texture
+
+		_glowBatch.pipeline->setValue(1, 1); // This bind will never change
+		bool horizontal = true;
+		bool firstPass = true;
+		_blurrExtraFBO1->resize(size);
+		_blurrExtraFBO2->resize(size);
+		for (int i = 0; i < nrOfTimes * 2; i++) {
+			if (firstPass) {
+				_glowBatch.batch.renderTarget = _blurrExtraFBO2.get();
+				texture->bind(1);
+				firstPass = false;
+			}
+			else if (horizontal) {
+				_glowBatch.batch.renderTarget = _blurrExtraFBO2.get();
+				(*_blurrExtraFBO1)[0]->bind(1);
+			}
+			else {
+				_glowBatch.batch.renderTarget = _blurrExtraFBO1.get();
+				(*_blurrExtraFBO2)[0]->bind(1);
+			}
+			_glowBatch.pipeline->setValue(2, horizontal);
+			_renderer->postProcessing(_glowBatch.batch);
+			horizontal = !horizontal;
+		}
+		// Change back to normal rendertarget.
+		_glowBatch.batch.renderTarget = _glowBatch.output.get();
+		return _blurrExtraFBO1;
+	}
+
+
 };
 
 #undef main

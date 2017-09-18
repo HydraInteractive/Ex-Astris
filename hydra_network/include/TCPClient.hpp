@@ -2,9 +2,12 @@
 
 #include <../hydra_network/include/TCPConnection.hpp>
 #include <../hydra_network/include/Packets.h>
+
 HYDRA_API class TCPClient : public TCPConnection {
 private:
+	char* _msg;
 	TCPsocket _socket;
+	SDLNet_SocketSet _ss;
 public:
 	HYDRA_API TCPClient();
 	HYDRA_API ~TCPClient();
@@ -13,5 +16,5 @@ public:
 	HYDRA_API void update();
 
 	HYDRA_API void sendPacket(char* data, int length);
-	HYDRA_API NetPacket* receivePacket();
+	HYDRA_API std::vector<NetPacket*> receivePacket();
 };

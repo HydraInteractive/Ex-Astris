@@ -21,6 +21,7 @@ public:
 
 	HYDRA_API void sendToClient(char* data, int length, TCPsocket sock);
 	HYDRA_API void sendToAllClients(char* data, int length);
+	HYDRA_API void sendToAllExceptOne(char* data, int length, TCPsocket foreverAlone);
 	HYDRA_API void sendEntites(std::vector<std::shared_ptr<Hydra::World::IEntity>> list);
 	HYDRA_API SDLNet_SocketSet getSocketSet();
 	HYDRA_API NetPacket* receivePacket();

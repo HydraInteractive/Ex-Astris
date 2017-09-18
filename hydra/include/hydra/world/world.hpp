@@ -40,7 +40,7 @@ namespace Hydra::World {
 	public:
 		virtual ~IWorld() = 0;
 
-		virtual size_t getFreeID() = 0;
+		virtual int64_t getFreeID() = 0;
 
 		// To emulate a IEntity, kinda
 		virtual std::shared_ptr<IEntity> createEntity(const std::string& name) = 0;
@@ -86,7 +86,8 @@ namespace Hydra::World {
 		virtual std::shared_ptr<IEntity> createEntity(const std::string& name) = 0;
 		virtual std::shared_ptr<IEntity> createEntity(nlohmann::json& json) = 0;
 
-		inline size_t getID() { return id; }
+		inline int64_t getID() { return id; }
+		inline void setID(int64_t id) { this->id = id; }
 
 		virtual void setParent(IEntity* parent) = 0;
 		virtual IEntity* getParent() = 0;
@@ -100,7 +101,7 @@ namespace Hydra::World {
 		virtual bool isDead() const = 0;
 	protected:
 		IWorld* world;
-		size_t id;
+		int64_t id;
 	};
 	inline IEntity::~IEntity() {}
 
@@ -136,7 +137,7 @@ namespace Hydra::World {
 	};
 
 	namespace World {
-		HYDRA_API std::unique_ptr<IWorld> create();
+		HYDRA_API std::unique_ptr<IWorld> create(bool isServer);
 	};
 
 	namespace Entity {

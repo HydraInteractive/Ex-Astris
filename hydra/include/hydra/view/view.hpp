@@ -29,6 +29,8 @@ namespace Hydra::View {
 
 		virtual void* getHandler() = 0;
 		virtual void finalize() = 0;
+		inline void bind(size_t position) final {}
+		inline size_t getSamples() final { return 1; }
 
 		/// Did it get a close event, and hid itself
 		virtual bool isClosed() = 0;

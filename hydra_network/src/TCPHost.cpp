@@ -1,4 +1,4 @@
-#include <TCPHost.hpp>
+#include "..\include\Server\TCPHost.hpp"
 
 TCPHost::TCPHost() {
 }
@@ -25,7 +25,7 @@ bool TCPHost::initiate(IPaddress ip, char* c) {
 	for (int i = 0; i < MAX_PLAYERS; i++) {
 		this->_clients[i] = nullptr;
 	}
-	this->_clientNr++;
+	this->_clientNr = 0;
 	return true;
 }
 
@@ -62,13 +62,24 @@ void TCPHost::update() {
 }
 
 HYDRA_API void TCPHost::sendToClient(char * data, int length, TCPsocket sock) {
-	SDLNet_TCP_Send(sock, data, length);
+	int nr = SDLNet_TCP_Send(sock, data, length);
+	nr = nr;
 }
 
 HYDRA_API void TCPHost::sendToAllClients(char * data, int length) {
-	//for (int i = 0; i < this->_clients.size(); i++) {
-	//	SDLNet_TCP_Send(this->_clients[i], data, length);
-	//}
+	for (int i = 0; i < this->_clientNr; i++) {
+		if (this->_clients[i] != nullptr) {
+			SDLNet_TCP_Send(this->_clients[i], data, length);
+		}
+	}
+}
+
+HYDRA_API void TCPHost::sendToAllExceptOne(char * data, int length, TCPsocket foreverAlone) {
+	for (int i = 0; i < this->_clientNr; i++) {
+		if (this->_clients[i] != nullptr && this->_clients[i] != foreverAlone) {
+			SDLNet_TCP_Send(this->_clients[i], data, length);
+		}
+	}
 }
 
 void TCPHost::sendEntites(std::vector<std::shared_ptr<Hydra::World::IEntity>> list) {
@@ -84,7 +95,7 @@ HYDRA_API NetPacket * TCPHost::receivePacket() {
 	char msg[NETWORK_MAX_LENGTH];
 	for (int i = 0; i < this->_clientNr; i++) {
 		result = SDLNet_TCP_Recv(this->_clients[i], msg, NETWORK_MAX_LENGTH);
-		if (result <= 0) {
+		if (result > 0) {
 			NetPacket* np = (NetPacket*)msg;
 			switch (np->header.type) {
 			case PacketType::HelloWorld:
@@ -96,11 +107,12 @@ HYDRA_API NetPacket * TCPHost::receivePacket() {
 			case PacketType::ClientUpdate: //TODO
 				return reinterpret_cast<PacketClientUpdate*>(msg);
 				break;
-			case PacketType::SpawnEntity: //TODO
+			case PacketType::SpawnEntityClient: //TODO
 				return reinterpret_cast<PacketSpawnEntity*>(msg);
 				break;
 			}
 		}
+		return nullptr;
 	} 
 	//else if (numready == -1) {
 	//	//printf("Crash");

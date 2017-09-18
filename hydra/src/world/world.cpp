@@ -19,11 +19,11 @@ using namespace Hydra::Component;
 
 class WorldImpl : public IWorld {
 public:
-	WorldImpl() : _id(0) {
+	WorldImpl(bool isServer) : _id(0), _isServer(isServer) {
 		_root = Entity::createEmpty(this, "World");
 	}
 
-	size_t getFreeID() final { return _id++; }
+	int64_t getFreeID() final { return _isServer ? _id++ : _id--; }
 
 	std::shared_ptr<IEntity> createEntity(const std::string& name) final { return _root->createEntity(name); }
 	void tick(TickAction action) final { _root->tick(action); }
@@ -33,7 +33,8 @@ public:
 
 private:
 	std::shared_ptr<IEntity> _root;
-	size_t _id;
+	int64_t _id;
+	bool _isServer;
 };
 
 class EntityImpl : public IEntity {
@@ -191,8 +192,8 @@ std::shared_ptr<IEntity> Blueprint::spawn(IWorld* world) {
 	return Entity::createFromBlueprint(world, getData());
 }
 
-std::unique_ptr<IWorld> World::create() {
-	return std::unique_ptr<IWorld>(new WorldImpl());
+std::unique_ptr<IWorld> World::create(bool isServer) {
+	return std::unique_ptr<IWorld>(new WorldImpl(isServer));
 }
 
 std::shared_ptr<IEntity> Entity::createEmpty(IWorld* world, const std::string& name) {
