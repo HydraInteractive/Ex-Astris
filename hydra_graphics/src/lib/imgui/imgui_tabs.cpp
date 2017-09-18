@@ -42,7 +42,7 @@ ImGui::ImGuiUserStyle::ImGuiUserStyle(){
     Colors[ImGuiUserCol_TabHover] = Colors[ImGuiUserCol_TabNormal] * ImVec4(1.15f,1.15f,1.15f,1.0f);
 }
 
-const ImU32 ImGui::GetColorU32(ImGuiUserCol_ idx, float alpha_mul) {
+ImU32 ImGui::GetColorU32(ImGuiUserCol_ idx, float alpha_mul) {
     ImVec4 c = UserStyle.Colors[idx];
     if (alpha_mul > 0.0f)
         c.w *= GImGui->Style.Alpha * alpha_mul;
@@ -125,7 +125,7 @@ void ImGui::TabBar::setActiveTab(const unsigned idx) {
     activeTab = (int)idx; // This get's checked at the beginning of
 }
 
-const int ImGui::TabBar::getActiveTab() {
+int ImGui::TabBar::getActiveTab() {
     return activeTab;
 }
 
@@ -306,7 +306,7 @@ void ImGui::TabBarStack::clearIdxCountCurrentTabBar() {
     TabBars[CurrentTabBar].idxCounter = 0;
 }
 
-const bool ImGui::TabBarStack::doesTabBarExist(const ImU32 hash, unsigned int *const idx) {
+bool ImGui::TabBarStack::doesTabBarExist(const ImU32 hash, unsigned int *const idx) {
     for (unsigned i = 0; i < TabBarCount; i++)
         if (hash == TabBars[i].hash) {
             if (idx)
@@ -316,7 +316,7 @@ const bool ImGui::TabBarStack::doesTabBarExist(const ImU32 hash, unsigned int *c
     return false;
 }
 
-const bool ImGui::TabBarStack::doesTabBarExist(const char *id, unsigned int *const idx) {
+bool ImGui::TabBarStack::doesTabBarExist(const char *id, unsigned int *const idx) {
     const ImU32 hash = ImHash(id,0);
     for (unsigned i = 0; i < TabBarCount; i++)
         if (hash == TabBars[i].hash) {
@@ -345,7 +345,7 @@ void ImGui::BeginTabBar(const char *label, const ImVec2 size) {
     TabStack.getCurrentTabBar()->_drawTabBarTop(label);
 }
 
-const bool ImGui::AddTab(const char *title) {
+bool ImGui::AddTab(const char *title) {
     // Get current TabBar;
     TabBar* bar = TabStack.getCurrentTabBar();
     // Check to make sure there aren't any null pointers
@@ -359,6 +359,9 @@ const bool ImGui::AddTab(const char *title) {
     if (!bar->hasBeenInitialized) {
         bar->tabTitles.push_back(title);
         bar->tabHashes.push_back(ImHash(std::string(title + std::to_string(bar->idxCounter)).c_str(),0));
+    } else {
+        bar->tabTitles[bar->idxCounter - 1] = title;
+        bar->tabHashes[bar->idxCounter - 1] = ImHash(std::string(title + std::to_string(bar->idxCounter)).c_str(),0);
     }
 
     if (bar->activeTab != (bar->idxCounter-1))

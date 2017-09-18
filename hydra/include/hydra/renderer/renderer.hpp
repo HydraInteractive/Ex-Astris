@@ -84,7 +84,7 @@ namespace Hydra::Renderer {
 		virtual IFramebuffer& addTexture(size_t id, TextureType type) = 0;
 
 		virtual void finalize() = 0;
-		inline void bind(size_t position) final {}
+		inline void bind(size_t) final {}
 
 		virtual std::shared_ptr<ITexture> getDepth() = 0;
 

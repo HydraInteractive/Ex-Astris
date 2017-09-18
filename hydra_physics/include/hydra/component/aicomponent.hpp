@@ -18,8 +18,8 @@ namespace Hydra::Component {
 		Alien = 0,
 		Robot = 1,
 		AlienBoss = 2,
-
 	};
+
 	class HYDRA_API EnemyComponent final : public IComponent{
 	public:
 		EnemyComponent(IEntity* entity);
@@ -32,6 +32,11 @@ namespace Hydra::Component {
 
 		inline const std::string type() const final { return "EnemyComponent"; }
 
+		glm::vec3 getPosition();
+		float getRadius();
+
+
+
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
@@ -41,12 +46,9 @@ namespace Hydra::Component {
 		float _velocityZ;
 		glm::vec3 _position;
 		glm::vec3 _startPosition;
+		glm::quat _rotation;
 		bool _falling;
 		bool _patrolPointReached;
 		EnemyTypes _enemyID = EnemyTypes::Alien;
-
-		int _a = 0;
-		bool _b = false;
-		float _c = 0.0f;
 	};
 };
