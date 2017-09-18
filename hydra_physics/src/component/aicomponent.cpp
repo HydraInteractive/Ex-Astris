@@ -44,6 +44,7 @@ void EnemyComponent::tick(TickAction action) {
 	{
 		_position = enemy->getPosition();
 
+
 		if (_position.z < _startPosition.z - 10)
 		{
 			_patrolPointReached = true;
@@ -125,6 +126,9 @@ void EnemyComponent::tick(TickAction action) {
 
 		enemy->setPosition(_position);
 	}
+	
+	glm::quat rotation = glm::angleAxis(atan2(-_velocityX, -_velocityZ), glm::vec3(0, 1, 0)) * glm::angleAxis(glm::radians(180.0f), glm::vec3(1, 0, 0));
+	enemy->setRotation(rotation);
 }
 
 glm::vec3 Hydra::Component::EnemyComponent::getPosition()

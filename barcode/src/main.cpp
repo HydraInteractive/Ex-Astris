@@ -478,23 +478,21 @@ private:
 		weaponEntity->addComponent<Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 		weaponEntity->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(1,1,1), glm::quat(0,0,-1,0));
 
-
-		/*
 		auto alienEntity = _world->createEntity("Enemy Alien");
 		_enemy = alienEntity->addComponent<Component::EnemyComponent>(Component::EnemyTypes::Alien);
 		alienEntity->addComponent<Component::TransformComponent>(glm::vec3(-10, 0, 0));
-		alienEntity->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
+		alienEntity->addComponent<Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
 		auto robotEntity = _world->createEntity("Enemy Robot");
 		_enemy = robotEntity->addComponent<Component::EnemyComponent>(Component::EnemyTypes::Robot);
 		robotEntity->addComponent<Component::TransformComponent>(glm::vec3(15, 0, 0));
-		robotEntity->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
+		robotEntity->addComponent<Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
 		auto bossEntity = _world->createEntity("Enemy Boss");
 		_enemy = bossEntity->addComponent<Component::EnemyComponent>(Component::EnemyTypes::AlienBoss);
 		bossEntity->addComponent<Component::TransformComponent>(glm::vec3(0, -10, 0));
-		bossEntity->addComponent<Component::MeshComponent>("assets/objects/test.fbx");
-		*/
+		bossEntity->addComponent<Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+		
 		
 		/*
 		auto boxes = _world->createEntity("Boxes");
