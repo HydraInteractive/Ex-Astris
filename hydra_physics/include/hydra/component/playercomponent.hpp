@@ -15,6 +15,7 @@
 #include <hydra/world/world.hpp>
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
+#include <hydra/component/bulletcomponent.hpp>
 
 using namespace Hydra::World;
 
@@ -30,15 +31,16 @@ namespace Hydra::Component {
 
 		inline const std::string type() const final { return "PlayerComponent"; }
 
+		void shoot();
+		std::shared_ptr<Hydra::World::IEntity> getBullets();
+
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
 	private:
 		glm::vec3 _position = glm::vec3(0,-2,3);
-		float _velocityX;
-		float _velocityY;
-		float _velocityZ;
-		float _accelerationY;
+		glm::vec3 _velocity;
+		glm::vec3 _acceleration;
 
 		bool _onGround = false;
 

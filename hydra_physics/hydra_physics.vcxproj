@@ -91,6 +91,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\hydra\component\aicomponent.hpp" />
+    <ClInclude Include="include\hydra\component\bulletcomponent.hpp" />
     <ClInclude Include="include\hydra\component\componentmanager_physics.hpp" />
     <ClInclude Include="include\hydra\component\playercomponent.hpp" />
     <ClInclude Include="include\hydra\pathing\pathfinding.hpp" />
@@ -98,6 +99,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\component\aicomponent.cpp" />
+    <ClCompile Include="src\component\bulletcomponent.cpp" />
     <ClCompile Include="src\component\componentmanager_physics.cpp" />
     <ClCompile Include="src\component\playercomponent.cpp" />
     <ClCompile Include="src\pathing\pathfinding.cpp" />
