@@ -20,6 +20,7 @@ namespace Barcode {
 		MenuState();
 		~MenuState() final;
 
+		void onMainMenu() final;
 		void load() final;
 
 		void runFrame() final;

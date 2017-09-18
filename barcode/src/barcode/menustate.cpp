@@ -36,6 +36,8 @@ namespace Barcode {
 
 	MenuState::~MenuState() { }
 
+	void MenuState::onMainMenu() {}
+
 	void MenuState::runFrame() {
 		{ // Fetch new events
 			_engine->getView()->update(_engine->getUIRenderer());

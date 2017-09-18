@@ -181,6 +181,8 @@ namespace Barcode {
 
 	GameState::~GameState() { }
 
+	void GameState::onMainMenu() { }
+
 	void GameState::runFrame() {
 		{ // Fetch new events
 			_engine->getView()->update(_engine->getUIRenderer());

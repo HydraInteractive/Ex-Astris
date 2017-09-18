@@ -81,6 +81,9 @@ namespace Barcode {
 					setState<GameState>();
 				ImGui::EndMenu();
 			}
+
+			if (_state)
+				_state->onMainMenu();
 		}
 
 		void setState_(std::unique_ptr<IState> state) final {
