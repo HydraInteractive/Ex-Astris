@@ -54,7 +54,7 @@ void ParticleComponent::_emmitParticle() {
 	float dirX = (1 * 2.f - 1.f);
 	float dirY = (frand() * 3) * 2.f - 1.f;
 	float dirZ = (frand() * 5) * 2.f - 1.f;
-	p->spawn(glm::vec3(0), glm::vec3(dirX, dirY, dirZ), frand() * 3.0f);
+	p->spawn(glm::vec3(0), glm::normalize(glm::vec3(dirX, dirY, dirZ)), frand() * 3.0f);
 	_particles.push_back(p);
 }
 
