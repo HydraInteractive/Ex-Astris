@@ -8,6 +8,7 @@ NetClient::~NetClient() {
 }
 
 bool NetClient::initialize(unsigned int port, char* ip) {
+	this->_hasSentUpdate = false;
 	this->_player.setID(-1);
 	IPaddress tmp;
 	tmp.port = port;
@@ -43,6 +44,7 @@ int NetClient::decodeNewPackets(Hydra::World::IWorld* world) {
 	std::vector<NetPacket*> np = this->_tcp.receivePacket();
 	for (int i = 0; i < np.size(); i++) {
 		std::shared_ptr<Hydra::World::IEntity> ent;
+		Hydra::Component::TransformComponent* tc;
 		switch (np[i]->header.type) {
 			//CREATE THE PLAYER!!!!!!!!!!!!!!!!!!!!!!!
 		case PacketType::HelloWorld:
@@ -53,7 +55,7 @@ int NetClient::decodeNewPackets(Hydra::World::IWorld* world) {
 			//this->_player.setIsDead(false);
 			this->_player.addPlayer(ent);
 			ent->addComponent<Hydra::Component::TransformComponent>();
-			ent->addComponent<Hydra::Component::MeshComponent>("assets/objects/test.fbx");
+			ent->addComponent<Hydra::Component::MeshComponent>("assets/objects/model1.ATTIC");
 			break;
 		case PacketType::ChangeID:
 			break;
@@ -61,10 +63,21 @@ int NetClient::decodeNewPackets(Hydra::World::IWorld* world) {
 			break;
 		case PacketType::SpawnEntityClient:
 			break;
+		case PacketType::SpawnEntityServer:
+			ent = world->createEntity("Server Created");
+			ent->setID(((PacketSpawnEntityServer*)np[i])->id);
+			ent->addComponent<Hydra::Component::TransformComponent>();
+			tc = ent->getComponent<Hydra::Component::TransformComponent>();
+			tc->setPosition(((PacketSpawnEntityServer*)np[i])->ti.position);
+			tc->setRotation(((PacketSpawnEntityServer*)np[i])->ti.rot);
+			tc->setScale(((PacketSpawnEntityServer*)np[i])->ti.scale);
+			ent->addComponent<Hydra::Component::MeshComponent>("assets/objects/model1.ATTIC");
+			break;
 		case PacketType::ServerUpdate:
 			for (int j = 0; j < ((PacketServerUpdate*)np[i])->nrOfEntity; j++) {
 				this->_updateEntity(world, &((NetEntityInfo*)(((char*)np[i] + sizeof(PacketServerUpdate))))[j]);
 			}
+			this->_hasSentUpdate = false;
 			//((NetEntityInfo*)(char*)(packet + sizeof(PacketServerUpdate)))
 			break;
 		}
@@ -74,12 +87,16 @@ int NetClient::decodeNewPackets(Hydra::World::IWorld* world) {
 }
 
 HYDRA_API void NetClient::sendClientUpdatePacket() {
-	PacketClientUpdate pcu;
-	TransformInfo pi = this->_player.getPlayerInfo();
-	pcu.header.type = PacketType::ClientUpdate;
-	pcu.owner = this->_player.getID();
-	pcu.position = pi.position;
-	pcu.rotation = pi.rot;
+	if (!this->_hasSentUpdate) {
+		PacketClientUpdate pcu;
+		TransformInfo pi = this->_player.getPlayerInfo();
+		pcu.header.type = PacketType::ClientUpdate;
+		pcu.owner = this->_player.getID();
+		pcu.ti.position = pi.position;
+		pcu.ti.rot = pi.rot;
+		pcu.ti.scale = pi.scale;
 
-	this->_tcp.sendPacket((char*)&pcu, sizeof(PacketClientUpdate));
+		this->_tcp.sendPacket((char*)&pcu, sizeof(PacketClientUpdate));
+		this->_hasSentUpdate = true;
+	}
 }

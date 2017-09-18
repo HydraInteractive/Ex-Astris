@@ -75,11 +75,11 @@ namespace Hydra::World {
 		void removeComponent() { removeComponent_(std::type_index(typeid(T))); }
 		template <typename T, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
 		T* getComponent() {
-			try {
-				return static_cast<T*>(getComponents().at(std::type_index(typeid(T))).get());
-			} catch (std::out_of_range) {
-				return nullptr;
-			}
+			auto& components = getComponents();
+			auto it = components.find(typeid(T));
+			if (it != components.end())
+				return (T*)it->second.get();
+			return nullptr;
 		}
 
 		virtual std::shared_ptr<IEntity> spawn(std::shared_ptr<IEntity> entity) = 0;

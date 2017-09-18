@@ -77,7 +77,8 @@ HYDRA_API void TCPHost::sendToAllClients(char * data, int length) {
 HYDRA_API void TCPHost::sendToAllExceptOne(char * data, int length, TCPsocket foreverAlone) {
 	for (int i = 0; i < this->_clientNr; i++) {
 		if (this->_clients[i] != nullptr && this->_clients[i] != foreverAlone) {
-			SDLNet_TCP_Send(this->_clients[i], data, length);
+			int nr = SDLNet_TCP_Send(this->_clients[i], data, length);
+			nr = nr;
 		}
 	}
 }
@@ -89,31 +90,41 @@ HYDRA_API SDLNet_SocketSet TCPHost::getSocketSet() {
 	return this->_clientSocketset;
 }
 
-HYDRA_API NetPacket * TCPHost::receivePacket() {
-	
+HYDRA_API std::vector<NetPacket*> TCPHost::receivePacket() {
+
+
+	int nrOfPackets = SDLNet_CheckSockets(this->_clientSocketset, 0);
+	std::vector<NetPacket*> packets;
 	int result;
+	int packetIndex = 0;
 	char msg[NETWORK_MAX_LENGTH];
-	for (int i = 0; i < this->_clientNr; i++) {
-		result = SDLNet_TCP_Recv(this->_clients[i], msg, NETWORK_MAX_LENGTH);
-		if (result > 0) {
-			NetPacket* np = (NetPacket*)msg;
-			switch (np->header.type) {
-			case PacketType::HelloWorld:
-				return reinterpret_cast<PacketHelloWorld*>(msg);
-				break;
-			case PacketType::ChangeID: //TODO
-				return reinterpret_cast<PacketChangeID*>(msg);
-				break;
-			case PacketType::ClientUpdate: //TODO
-				return reinterpret_cast<PacketClientUpdate*>(msg);
-				break;
-			case PacketType::SpawnEntityClient: //TODO
-				return reinterpret_cast<PacketSpawnEntity*>(msg);
-				break;
+	for (int j = 0; j < this->_clientNr; j++) {
+		if (SDLNet_SocketReady(this->_clients[j])) {
+			result = SDLNet_TCP_Recv(this->_clients[j], (char*)(msg + packetIndex), NETWORK_MAX_LENGTH - packetIndex);
+			if (result > 0) {
+				NetPacket* np = (NetPacket*)(char*)(msg +  packetIndex);
+				switch (np->header.type) {
+				case PacketType::HelloWorld:
+					packets.push_back(np);
+					packetIndex += sizeof(PacketHelloWorld);
+					break;
+				case PacketType::ChangeID: //TODO
+					packets.push_back(np);
+					packetIndex += sizeof(PacketChangeID);
+					break;
+				case PacketType::ClientUpdate: //TODO
+					packets.push_back(np);
+					packetIndex += sizeof(PacketClientUpdate);
+					break;
+				case PacketType::SpawnEntityClient: //TODO
+					packets.push_back(np);
+					packetIndex += sizeof(PacketSpawnEntityClient);
+					break;
+				}
 			}
 		}
-		return nullptr;
-	} 
+	}
+	return packets;
 	//else if (numready == -1) {
 	//	//printf("Crash");
 	//}

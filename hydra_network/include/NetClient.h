@@ -7,7 +7,7 @@ class NetClient {
 private:
 	TCPClient _tcp;
 	NetPlayer _player;
-
+	bool _hasSentUpdate;
 	void _updateEntity(Hydra::World::IWorld* world, NetEntityInfo* nei);
 public:
 	HYDRA_API NetClient();

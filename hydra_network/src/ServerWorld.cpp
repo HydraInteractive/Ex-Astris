@@ -16,6 +16,38 @@ void ServerWorld::initialize() {
 	this->_world = Hydra::World::World::create(true);
 }
 
+HYDRA_API void ServerWorld::sendPlayers(TCPHost * _conn, int64_t target) {
+	TCPsocket tmp = nullptr;
+	for (int i = 0; i < this->_players.size(); i++) {
+		if (this->_players[i].getID() == target) {
+			tmp = this->_players[i].getSocket();
+		}
+	}
+	if (tmp == nullptr)
+		return;
+
+	PacketSpawnEntityServer pes;
+	pes.header.type = PacketType::SpawnEntityServer;
+	std::vector<std::shared_ptr<Hydra::World::IEntity>> ents = this->_world->getWorldRoot()->getChildren();
+	Hydra::Component::TransformComponent* tc;
+	for (int i = 0; i < this->_players.size(); i++) {
+		if (this->_players[i].getID() != target) {
+			pes.id = this->_players[i].getID();
+			for (int j = 0; j < ents.size(); j++) {
+				if (ents[i]->getID() == this->_players[i].getID()) {
+					tc = ents[i]->getComponent<Hydra::Component::TransformComponent>();
+					pes.ti.position = tc->getPosition();
+					pes.ti.rot = tc->getRotation();
+					pes.ti.scale = tc->getScale();
+					break;
+				}
+			}
+			_conn->sendToClient((char*)&pes, sizeof(PacketSpawnEntityServer), tmp);
+		}
+	}
+
+}
+
 int ServerWorld::getNewEntityID() {
 	return this->_world->getFreeID();
 }
@@ -24,9 +56,13 @@ void ServerWorld::addEntity() {
 	this->_world->createEntity("Bäst i test");
 }
 
-int64_t ServerWorld::addPlayer(const glm::vec3 & pos, const glm::quat & rot) {
+int64_t ServerWorld::addPlayer(const glm::vec3 & pos, const glm::quat & rot, TCPsocket pSocket) {
 	std::shared_ptr<Hydra::World::IEntity> ent = this->_world->createEntity("Best i test");
 	ent->addComponent<Component::TransformComponent>(pos, glm::vec3{ 1, 1, 1 }, rot);
+	ServerPlayer p;
+	p.initialize(ent->getID(), pSocket);
+	this->_players.push_back(p);
+
 	return ent->getID();
 }
 

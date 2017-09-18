@@ -69,8 +69,7 @@ struct PacketChangeID : public NetPacket {
 // Client sends this
 struct PacketClientUpdate : public NetPacket{
 	int64_t owner;
-	glm::vec3 position;
-	glm::quat rotation;
+	TransformInfo ti;
 	// ...
 };
 
