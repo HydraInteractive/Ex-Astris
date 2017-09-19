@@ -1,10 +1,10 @@
 /**
- * Mainmenu state
- *
- * License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
- * Authors:
- *  - Dan Printzell
- */
+* Mainmenu state
+*
+* License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
+* Authors:
+*  - Dan Printzell
+*/
 #pragma once
 
 #include <hydra/engine.hpp>
@@ -13,12 +13,13 @@
 #include <hydra/renderer/uirenderer.hpp>
 #include <hydra/io/meshloader.hpp>
 #include <hydra/io/textureloader.hpp>
+#include <barcode/ImporterMenu.hpp>
 
 namespace Barcode {
-	class MenuState final : public Hydra::IState {
+	class EditorState final : public Hydra::IState {
 	public:
-		MenuState();
-		~MenuState() final;
+		EditorState();
+		~EditorState() final;
 
 		void onMainMenu() final;
 		void load() final;
@@ -39,6 +40,9 @@ namespace Barcode {
 			std::shared_ptr<Hydra::Renderer::IFramebuffer> output;
 			Hydra::Renderer::Batch batch;
 		};
+
+		ImporterMenu _importerMenu;
+		bool _importStatic = false;
 
 		Hydra::IEngine* _engine;
 		std::unique_ptr<Hydra::World::IWorld> _world;

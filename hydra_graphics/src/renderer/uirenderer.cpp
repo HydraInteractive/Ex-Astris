@@ -306,8 +306,8 @@ private:
 
 	std::vector<std::unique_ptr<UIRenderWindow>> _renderWindows;
 
-	bool _logWindow = true;
-	bool _entityWindow = true;
+	bool _logWindow = false;
+	bool _entityWindow = false;
 	bool _testWindow = false;
 
 	ImFont* _normalFont;

@@ -20,7 +20,10 @@ void ImporterMenu::render(bool &closeBool)
 }
 void ImporterMenu::refresh()
 {
-	delete root;
+	if (root != nullptr)
+	{
+		delete root;
+	}
 	root = new Node(assetsDir);
 }
 
@@ -47,33 +50,44 @@ std::string ImporterMenu::_getExecutableDir()
 		path.erase(path.begin() + index, path.end());
 	return path;
 }
-ImporterMenu::Node::Node(std::string path)
+ImporterMenu::Node::Node()
 {
+	this->path = "";
+	this->subfolders = std::vector<Node*>();
+	this->files = std::vector<Node*>();
+	this->parent = nullptr;
+}
+ImporterMenu::Node::Node(std::string path, Node* parent)
+{
+	this->path = path;
+	this->subfolders = std::vector<Node*>();
+	this->files = std::vector<Node*>();
+	this->parent = parent;
+
 	std::vector<std::string> inFiles;
 	std::vector<std::string> inFolders;
-	this->path = path;
 	_getContentsOfDir(path, inFiles, inFolders);
 	for (int i = 0; i < inFolders.size(); i++)
 	{
-		this->subfolders.push_back(new Node(inFolders[i]));
+		this->subfolders.push_back(new Node(inFolders[i], this));
 	}
 	for (int i = 0; i < inFiles.size(); i++)
 	{
-		this->files.push_back(new Node(inFiles[i]));
+		this->files.push_back(new Node(inFiles[i], this));
 	}
 }
 ImporterMenu::Node::~Node()
 {
-	//for (int i = 0; i < subfolders.size(); i++)
-	//{
-	//	delete subfolders[i];
-	//}
-	//subfolders.clear();
-	//for (int i = 0; i < files.size(); i++)
-	//{
-	//	delete files[i];
-	//}
-	//files.clear();
+	for (int i = 0; i < subfolders.size(); i++)
+	{
+		delete subfolders[i];
+	}
+	subfolders.clear();
+	for (int i = 0; i < files.size(); i++)
+	{
+		delete files[i];
+	}
+	files.clear();
 }
 std::string ImporterMenu::Node::name()
 {

@@ -30,7 +30,8 @@ public:
 		Node* parent;
 		std::string path;
 
-		Node(std::string path);
+		Node();
+		Node(std::string path, Node* parent = nullptr);
 		~Node();
 
 		std::string name();
