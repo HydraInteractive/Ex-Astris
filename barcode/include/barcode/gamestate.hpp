@@ -59,6 +59,7 @@ namespace Barcode {
 		Hydra::Renderer::UIRenderWindow* _postTestWindow;
 
 		RenderBatch _geometryBatch; // First part of deferred rendering
+		RenderBatch _animationBatch; // AnimationBatch
 		RenderBatch _lightingBatch; // Second part of deferred rendering
 		RenderBatch _glowBatch; // Glow batch.
 		RenderBatch _viewBatch;
