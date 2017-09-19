@@ -9,42 +9,34 @@
 
 #pragma once
 #include <hydra/ext/api.hpp>
-#include <SDL2/SDL_keyboard.h>
-#include <SDL2/SDL.h>
 #include <glm/glm.hpp>
+#include <SDL2/SDL.h>
 #include <hydra/world/world.hpp>
 #include <hydra/component/transformcomponent.hpp>
-#include <hydra/component/cameracomponent.hpp>
-#include <hydra/component/weaponcomponent.hpp>
+#include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
 
 using namespace Hydra::World;
 
 namespace Hydra::Component {
-	class HYDRA_API PlayerComponent final : public IComponent{
+	class HYDRA_API WeaponComponent final : public IComponent{
 	public:
-		PlayerComponent(IEntity* entity);
-		~PlayerComponent() final;
+		WeaponComponent(IEntity* entity);
+		WeaponComponent(IEntity* entity, glm::vec3 position, glm::vec3 direction, float velocity);
+		~WeaponComponent() final;
 
 		void tick(TickAction action) final;
 		inline TickAction wantTick() const final { return TickAction::physics; }
 
-		std::shared_ptr<Hydra::World::IEntity> getWeapon();
+		void shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity);
+		std::shared_ptr<Hydra::World::IEntity> getBullets();
 
-		inline const std::string type() const final { return "PlayerComponent"; }
+		inline const std::string type() const final { return "WeaponComponent"; }
+
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
 	private:
-		glm::vec3 _position = glm::vec3(0,-2,3);
-		glm::vec3 _velocity;
-		glm::vec3 _acceleration;
-		float _movementSpeed = 0.2f;
-		bool _onGround = false;
-
-		bool _firstPerson = true;
-
-		float _debug;
-		glm::vec3 _debugPos;
+		unsigned int _fireRateTimer = 0;
 	};
 };

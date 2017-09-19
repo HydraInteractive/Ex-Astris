@@ -94,6 +94,7 @@
     <ClInclude Include="include\hydra\component\bulletcomponent.hpp" />
     <ClInclude Include="include\hydra\component\componentmanager_physics.hpp" />
     <ClInclude Include="include\hydra\component\playercomponent.hpp" />
+    <ClInclude Include="include\hydra\component\weaponcomponent.hpp" />
     <ClInclude Include="include\hydra\pathing\pathfinding.hpp" />
     <ClInclude Include="include\hydra\pathing\SearchCell.hpp" />
   </ItemGroup>
@@ -102,6 +103,7 @@
     <ClCompile Include="src\component\bulletcomponent.cpp" />
     <ClCompile Include="src\component\componentmanager_physics.cpp" />
     <ClCompile Include="src\component\playercomponent.cpp" />
+    <ClCompile Include="src\component\weaponcomponent.cpp" />
     <ClCompile Include="src\pathing\pathfinding.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

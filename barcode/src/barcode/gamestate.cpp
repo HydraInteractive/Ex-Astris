@@ -346,11 +346,12 @@ namespace Barcode {
 		player = playerEntity->addComponent<Hydra::Component::PlayerComponent>();
 		_cc = playerEntity->addComponent<Hydra::Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{ 5, 0, -3 });
 		playerEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
-		playerEntity->createEntity("Bullets");
 
 		auto weaponEntity = playerEntity->createEntity("Weapon");
+		weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
 		weaponEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 		weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(1,1,1), glm::quat(0,0,-1,0));
+		weaponEntity->createEntity("Bullets");
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
 		auto bp = BlueprintLoader::load("world.blueprint");

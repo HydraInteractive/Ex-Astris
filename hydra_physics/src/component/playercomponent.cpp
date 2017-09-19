@@ -23,13 +23,16 @@ PlayerComponent::PlayerComponent(IEntity* entity) : IComponent(entity) {
 PlayerComponent::~PlayerComponent() { }
 
 void PlayerComponent::tick(TickAction action) {
-	// If you only have one TickAction in 'wantTick' you don't need to check the tickaction here.
-
-	// Extract players position
 	auto player = entity->getComponent<Component::TransformComponent>();
-	// Extract cameras position
+
 	auto camera = entity->getComponent<Component::CameraComponent>();
+
+	auto weapon = getWeapon()->getComponent<Component::WeaponComponent>();
 	
+	glm::mat4 viewMat = camera->getViewMatrix();
+	glm::vec3 forward(viewMat[0][2], viewMat[1][2], viewMat[2][2]);
+	glm::vec3 strafe(viewMat[0][0], viewMat[1][0], viewMat[2][0]);
+
 	{
 		Uint8* keysArray;
 		keysArray = const_cast <Uint8*> (SDL_GetKeyboardState(NULL));
@@ -63,16 +66,13 @@ void PlayerComponent::tick(TickAction action) {
 			_onGround = false;
 		}
 
-		if (SDL_GetRelativeMouseState(nullptr, nullptr) == SDL_BUTTON(2)) {
-			shoot();
+		if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_MIDDLE)) {
+			glm::quat bulletOrientation = glm::angleAxis(-camera->getYaw(), glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->getPitch(), glm::vec3(1, 0, 0)));
+			weapon->shoot(_position, forward, bulletOrientation, 0.5f);
 		}
 	}
 
 	_acceleration.y += 0.01f;
-
-	glm::mat4 viewMat = camera->getViewMatrix();
-	glm::vec3 forward(viewMat[0][2], viewMat[1][2], viewMat[2][2]);
-	glm::vec3 strafe(viewMat[0][0], viewMat[1][0], viewMat[2][0]);
 
 	glm::vec3 movementVector = (_velocity.z * forward + _velocity.x * strafe);
 	movementVector.y = _acceleration.y;
@@ -100,37 +100,24 @@ void PlayerComponent::tick(TickAction action) {
 	_debugPos = forward*glm::vec3(-2, 0, -2);
 }
 
-void PlayerComponent::shoot()
-{
-	std::shared_ptr<Hydra::World::IEntity> bullet = getBullets()->createEntity("Bullet");
-	bullet->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
-	
-	auto camera = entity->getComponent<Component::CameraComponent>();
-	glm::mat4 viewMat = camera->getViewMatrix();
-	glm::vec3 forward(viewMat[0][2], viewMat[1][2], viewMat[2][2]);
-	bullet->addComponent<Hydra::Component::BulletComponent>(_position, -forward, 0.5f);
-	
-	auto transform = bullet->addComponent<Hydra::Component::TransformComponent>(_position);
-	transform->setRotation(glm::angleAxis(-camera->getYaw(), glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->getPitch(), glm::vec3(1, 0, 0))));
-}
-
-std::shared_ptr<Hydra::World::IEntity> PlayerComponent::getBullets() {
-	std::shared_ptr<Hydra::World::IEntity> bullets;
+std::shared_ptr<Hydra::World::IEntity> PlayerComponent::getWeapon() {
+	std::shared_ptr<Hydra::World::IEntity> weapon;
 	std::vector<std::shared_ptr<Hydra::World::IEntity>> children = entity->getChildren();
 
 	for (size_t i = 0; i < children.size(); i++) {
-		if (children[i]->getName() == "Bullets") {
-			bullets = children[i];
+		if (children[i]->getName() == "Weapon") {
+			weapon = children[i];
+			i = children.size();
 		}
 	}
 
-	return bullets;
+	return weapon;
 }
 
 void PlayerComponent::serialize(nlohmann::json& json) const {
 	json = {
 		{ "position",{ _position.x, _position.y, _position.z } },
-		{ "position",{ _velocity.x, _velocity.y, _velocity.z } }
+		{ "velocity",{ _velocity.x, _velocity.y, _velocity.z } }
 	};
 }
 
@@ -138,7 +125,7 @@ void PlayerComponent::deserialize(nlohmann::json& json) {
 	auto& pos = json["position"];
 	_position = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
 	
-	auto& vel = json["position"];
+	auto& vel = json["velocity"];
 	_position = glm::vec3{ vel[0].get<float>(), vel[1].get<float>(), vel[2].get<float>() };
 }
 

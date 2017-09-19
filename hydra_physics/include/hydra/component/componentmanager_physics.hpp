@@ -5,6 +5,7 @@
 
 #include <hydra/component/playercomponent.hpp>
 #include <hydra/component/aicomponent.hpp>
+#include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
 
 namespace Hydra::Component {
