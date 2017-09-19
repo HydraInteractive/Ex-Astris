@@ -38,22 +38,22 @@ namespace Barcode {
 
 	void MenuState::onMainMenu() {}
 
-	void MenuState::runFrame() {
+	void MenuState::runFrame(float delta) {
 		{ // Fetch new events
 			_engine->getView()->update(_engine->getUIRenderer());
 			_engine->getUIRenderer()->newFrame();
 		}
 
 		{ // Update physics
-			_world->tick(Hydra::World::TickAction::physics);
+			_world->tick(Hydra::World::TickAction::physics, delta);
 		}
 
 		{ // Render objects (Deferred rendering)
-			_world->tick(Hydra::World::TickAction::render);
+			_world->tick(Hydra::World::TickAction::render, delta);
 		}
 
 		{ // Render transparent objects	(Forward rendering)
-			_world->tick(Hydra::World::TickAction::renderTransparent);
+			_world->tick(Hydra::World::TickAction::renderTransparent, delta);
 		}
 
 		{ // Update UI & views
@@ -69,7 +69,7 @@ namespace Barcode {
 		}
 
 		{ // Sync with network
-			_world->tick(Hydra::World::TickAction::network);
+			_world->tick(Hydra::World::TickAction::network, delta);
 		}
 	}
 

@@ -213,7 +213,8 @@ public:
 	}
 
 	void render() final {
-    if (ImGui::BeginMainMenuBar()) {
+		constexpr float MiB = 1024.0f*1024.0f;
+		if (ImGui::BeginMainMenuBar()) {
 			if (ImGui::BeginMenu("File")) {
 				ImGui::MenuItem("Log", nullptr, &_logWindow);
 				//ImGui::MenuItem("Entity List", nullptr, &_entityWindow);
@@ -228,8 +229,16 @@ public:
 			_engine->onMainMenu();
 
 			static char buf[128];
-			const float MiB = 1024.0f*1024.0f;
-			snprintf(buf, sizeof(buf), "Application average %.3f ms/frame (%.1f FPS) - RAM: %.2fMiB / Peak %.2fMiB - VRAM: %.2fMiB / %.2fMiB", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate, Hydra::Ext::getCurrentRSS()/MiB, Hydra::Ext::getPeakRSS()/MiB, Hydra::Ext::getCurrentVRAM()/MiB, Hydra::Ext::getMaxVRAM()/MiB);
+			float fps = ImGui::GetIO().Framerate;
+
+			const float ramReal = Hydra::Ext::getCurrentRSS() / MiB;
+			const float ramPeak = Hydra::Ext::getPeakRSS() / MiB;
+			const float vram = Hydra::Ext::getCurrentVRAM() / MiB;
+			const float vramMax = Hydra::Ext::getMaxVRAM() / MiB;
+			float ram = ramReal - vram;
+			if (Hydra::Ext::isVRAMDedicated())
+				ram = ramReal;
+			snprintf(buf, sizeof(buf), "Application average %.3f ms/frame (%.1f FPS) - RAM: %.2fMiB (Real: %.2fMiB / Peak %.2fMiB) - VRAM: %.2fMiB / %.2fMiB", 1000.0f / fps, fps, ram, ramReal, ramPeak, vram, vramMax);
 
 			auto indent = _view->getSize().x / 2 - ImGui::CalcTextSize(buf).x / 2;
 
@@ -265,6 +274,30 @@ public:
 				ImGui::EndTabBar();
 			}
 			ImGui::End();
+		}
+
+		{
+			constexpr int valueLen = 128;
+			static float fpsValues[valueLen] = {0};
+			static float ramValues[valueLen] = {0};
+			static float vramValues[valueLen] = {0};
+
+			memmove(&fpsValues[0], &fpsValues[1], (valueLen - 1) * sizeof(float));
+			fpsValues[valueLen - 1] = ImGui::GetIO().Framerate;
+
+			memmove(&ramValues[0], &ramValues[1], (valueLen - 1) * sizeof(float));
+			ramValues[valueLen - 1] = (Hydra::Ext::getCurrentRSS() - Hydra::Ext::getCurrentVRAM()) / MiB;
+
+			memmove(&vramValues[0], &vramValues[1], (valueLen - 1) * sizeof(float));
+			vramValues[valueLen - 1] = Hydra::Ext::getCurrentVRAM() / MiB;
+
+			if (_performanceWindow) {
+				ImGui::Begin("Performance monitor", &_performanceWindow);
+				ImGui::PlotHistogram("#FPS", fpsValues, valueLen, 0, "FPS2", 20, 150, ImVec2(0, 200));
+				ImGui::PlotHistogram("#RAM", ramValues, valueLen, 0, "RAM2", 20, 150, ImVec2(0, 200));
+				ImGui::PlotHistogram("#VRAM", vramValues, valueLen, 0, "VRAM2", 20, 150, ImVec2(0, 200));
+				ImGui::End();
+			}
 		}
 
 		if (_logWindow)
@@ -306,8 +339,9 @@ private:
 
 	std::vector<std::unique_ptr<UIRenderWindow>> _renderWindows;
 
-	bool _logWindow = false;
-	bool _entityWindow = false;
+	bool _logWindow = true;
+	bool _entityWindow = true;
+	bool _performanceWindow = true;
 	bool _testWindow = false;
 
 	ImFont* _normalFont;

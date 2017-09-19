@@ -44,10 +44,17 @@ namespace Hydra::World {
 
 		// To emulate a IEntity, kinda
 		virtual std::shared_ptr<IEntity> createEntity(const std::string& name) = 0;
-		virtual void tick(TickAction action) = 0;
+		virtual void tick(TickAction action, float delta) = 0;
 
 		virtual void setWorldRoot(std::shared_ptr<IEntity> root) = 0;
 		virtual std::shared_ptr<IEntity> getWorldRoot() = 0;
+		virtual std::map<std::type_index, std::vector<IEntity*>>& getActiveComponentMap() = 0;
+
+		template <typename T>
+		std::vector<IEntity*>& getActiveComponents() {
+			return getActiveComponentMap()[std::type_index(typeid(T))];
+		}
+
 	};
 	inline IWorld::~IWorld() {}
 
@@ -56,7 +63,7 @@ namespace Hydra::World {
 		inline IEntity(IWorld* world) : world(world), id(world->getFreeID()) {}
 		virtual ~IEntity() = 0;
 
-		virtual void tick(TickAction action) = 0;
+		virtual void tick(TickAction action, float delta) = 0;
 		virtual TickAction wantTick() = 0;
 
 		virtual void markDead() = 0;
@@ -109,7 +116,7 @@ namespace Hydra::World {
 		inline IComponent(IEntity* entity) : entity(entity) {}
 		virtual ~IComponent() = 0;
 
-		virtual void tick(TickAction action) = 0;
+		virtual void tick(TickAction action, float delta) = 0;
 		virtual TickAction wantTick() const = 0;
 
 		virtual const std::string type() const = 0;

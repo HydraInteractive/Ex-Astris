@@ -22,6 +22,7 @@ namespace Hydra::IO {
 		virtual ~IMeshLoader() = 0;
 
 		virtual std::shared_ptr<IMesh> getMesh(const std::string& file) = 0;
+		virtual std::shared_ptr<IMesh> getQuad() = 0;
 		virtual std::shared_ptr<IMesh> getErrorMesh() = 0;
 	};
 	inline IMeshLoader::~IMeshLoader() {}

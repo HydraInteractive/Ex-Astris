@@ -46,7 +46,7 @@ namespace Hydra {
 		virtual void onMainMenu() = 0;
 
 		/// Update and render a frame
-		virtual void runFrame() = 0;
+		virtual void runFrame(float delta) = 0;
 
 		virtual World::IWorld* getWorld() = 0;
 		virtual IO::ITextureLoader* getTextureLoader() = 0;

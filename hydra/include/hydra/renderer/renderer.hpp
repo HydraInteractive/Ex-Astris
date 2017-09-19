@@ -128,8 +128,9 @@ namespace Hydra::Renderer {
 	};
 
 	enum class HYDRA_API ClearFlags {
+		none = 0,
 		color = 1 << 0,
-		depth = 1 << 1,
+		depth = 1 << 1
 	};
 	inline ClearFlags operator| (ClearFlags a, ClearFlags b) { return static_cast<ClearFlags>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b)); }
 	inline ClearFlags operator& (ClearFlags a, ClearFlags b) { return static_cast<ClearFlags>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b)); }

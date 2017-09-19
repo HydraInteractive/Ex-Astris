@@ -18,6 +18,7 @@
 #include <barcode/editorstate.hpp>
 
 #include <cstdio>
+#include <ctime>
 #include <imgui/imgui.h>
 
 #ifdef _WIN32
@@ -49,18 +50,21 @@ namespace Barcode {
 		~Engine() final { setState_(nullptr); }
 
 		void run() final {
+			std::clock_t lastTime = std::clock();
 			_state = std::move(_newState);
 			_uiRenderer->reset();
 			_state->load();
 			_quit = false;
 
 			while (!_quit && _state && !_view->isClosed()) {
+				float delta = (clock() - lastTime) / 1000.f;
+				lastTime = clock();
 				{ // Remove old dead objects
-					_state->getWorld()->tick(TickAction::checkDead);
+					_state->getWorld()->tick(TickAction::checkDead, delta);
 					_renderer->cleanup();
 				}
 
-				_state->runFrame();
+				_state->runFrame(delta);
 				_uiRenderer->render();
 				_view->finalize();
 
@@ -133,6 +137,7 @@ int main(int argc, char** argv) {
 	(void)argc;
 	(void)argv;
 	reportMemoryLeaks();
+	srand(time(NULL));
 	Barcode::Engine engine;
 	engine.setState<Barcode::MenuState>();
 	engine.run();

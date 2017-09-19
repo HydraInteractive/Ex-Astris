@@ -27,7 +27,7 @@ EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID) : IComponent
 
 EnemyComponent::~EnemyComponent() { }
 
-void EnemyComponent::tick(TickAction /*action*/) {
+void EnemyComponent::tick(TickAction action, float delta) {
 	// If you only have one TickAction in 'wantTick' you don't need to check the tickaction here.
 
 	_velocityX = 0;

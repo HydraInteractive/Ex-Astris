@@ -24,7 +24,7 @@ namespace Barcode {
 		void onMainMenu() final;
 		void load() final;
 
-		void runFrame() final;
+		void runFrame(float delta) final;
 
 		inline Hydra::World::IWorld* getWorld() final { return _world.get(); };
 		inline Hydra::IO::ITextureLoader* getTextureLoader() final { return _textureLoader.get(); }
