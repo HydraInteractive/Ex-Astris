@@ -317,11 +317,11 @@ namespace Barcode {
 
 		{ // Hud windows
 			static float f = 0.0f;
-			const ImVec2 pos = ImVec2(11,10);
+			static bool b = false;
+			const ImVec2 pos = ImVec2(_engine->getView()->getSize().x/2, _engine->getView()->getSize().y/2);
 			ImGui::SetNextWindowPos(pos);
 			ImGui::Begin("Another Window", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-			ImGui::Text("Hello, world!");
-			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+			ImGui::Text("Crosshair to be");
 			ImGui::End();
 		}
 
