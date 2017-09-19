@@ -99,6 +99,7 @@
     <ClInclude Include="include\hydra\io\textureloader.hpp" />
     <ClInclude Include="include\hydra\renderer\renderer.hpp" />
     <ClInclude Include="include\hydra\renderer\shader.hpp" />
+    <ClInclude Include="include\hydra\renderer\uirenderer.hpp" />
     <ClInclude Include="include\hydra\view\view.hpp" />
     <ClInclude Include="include\hydra\world\blueprintloader.hpp" />
     <ClInclude Include="include\hydra\world\world.hpp" />

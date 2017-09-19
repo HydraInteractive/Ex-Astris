@@ -11,15 +11,22 @@
 
 #include <hydra/renderer/glrenderer.hpp>
 #include <hydra/engine.hpp>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 #include <exception>
 
 using namespace Hydra;
-using namespace Hydra::IO;
+using namespace IO;
+using namespace Renderer;
 
 class HYDRA_API TextureLoaderImpl final : public ITextureLoader {
 public:
-	TextureLoaderImpl() : _errorTexture(_loadErrorTexture()) {}
+	TextureLoaderImpl() : _errorTexture(_loadErrorTexture()) {
+		if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)){
+			printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
+		}
+	}
 
 	~TextureLoaderImpl() final {
 		_storage.clear();
@@ -32,7 +39,7 @@ public:
 		if (!texture) {
 			try {
 				IEngine::getInstance()->log(LogLevel::verbose, "Loading texture: %s", file.c_str());
-				texture = _storage[file] = Hydra::Renderer::GLTexture::createFromFile(file);
+				texture = _storage[file] = GLTexture::createFromFile(file);
 			}
 			catch (const std::exception& e) {
 				IEngine::getInstance()->log(LogLevel::error, "FAILED TO LOAD TEXTURE: %s", e.what());
@@ -52,7 +59,7 @@ private:
 
 
 	std::shared_ptr<ITexture> _loadErrorTexture() {
-		return Hydra::Renderer::GLTexture::createFromFile("assets/textures/error.png");
+		return GLTexture::createFromFile("assets/textures/error.png");
 	}
 };
 

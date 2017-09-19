@@ -32,21 +32,21 @@ public:
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+		SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 		_glContext = SDL_GL_CreateContext(_window = static_cast<SDL_Window*>(view.getHandler()));
 		_loadGLAD();
 
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_BACK);
 
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_MULTISAMPLE);
 		glEnable(GL_SAMPLE_SHADING);
 
-    glEnable(GL_DEBUG_OUTPUT);
-    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    glDebugMessageCallback(&glDebugLog, nullptr);
-    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+		glDebugMessageCallback(&glDebugLog, nullptr);
+		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 
 		SDL_GL_SetSwapInterval(0);
 
@@ -79,19 +79,14 @@ public:
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
 
-			//for (int i = 0; i < 100; i++) {
-			//	glUniformMatrix4fv(glGetUniformLocation(*static_cast<GLuint*>(batch.pipeline->getHandler()), ("currentSkeletonTransformation[" + std::to_string(i) + "]").c_str()), 
-			//		1, GL_FALSE, &mesh->getTransformationMatrices[i]);
-			//}
-
+			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
+			glBindVertexArray(mesh->getID());
 			size_t size = kv.second.size();
 			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
 			for (size_t i = 0; i < size; i += maxPerLoop) {
 				size_t amount = std::min(size - i, maxPerLoop);
-				glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
 				glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
 				glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &kv.second[i]);
-				glBindVertexArray(mesh->getID());
 				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
 			}
 		}
@@ -201,7 +196,7 @@ std::unique_ptr<IRenderer> GLRenderer::create(Hydra::View::IView& view) {
 	return std::unique_ptr<IRenderer>(new ::GLRendererImpl(view));
 }
 
-void glDebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+void glDebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei /*length*/, const GLchar* message, const void* /*userParam*/) {
 	if(id == 4 || id == 8 || id == 20 || id == 131169 || id == 131185 || id == 131218 || id == 131204)
 		return;
 
@@ -264,4 +259,6 @@ void glDebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei 
 	std::string stackTrace = Hydra::Ext::getStackTrace();
 
 	Hydra::IEngine::getInstance()->log(level, "GL error: Source %s, Type: %s, ID: %d, Severity: %s\n%s%s%s", sourceStr.c_str(), typeStr.c_str(), id, severityStr.c_str(), message, stackTrace.length() ? "\n" : "", stackTrace.c_str());
+	//if (level == Hydra::LogLevel::error)
+	//	exit(0);
 }

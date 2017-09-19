@@ -11,6 +11,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\barcode\gamestate.hpp" />
+    <ClInclude Include="include\barcode\menustate.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\barcode\gamestate.cpp" />
+    <ClCompile Include="src\barcode\menustate.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
