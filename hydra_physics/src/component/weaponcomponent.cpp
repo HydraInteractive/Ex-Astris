@@ -24,7 +24,7 @@ WeaponComponent::WeaponComponent(IEntity* entity, glm::vec3 position, glm::vec3 
 
 WeaponComponent::~WeaponComponent() { }
 
-void WeaponComponent::tick(TickAction action) {
+void WeaponComponent::tick(TickAction action, float delta) {
 	// If you only have one TickAction in 'wantTick' you don't need to check the tickaction here.
 
 }

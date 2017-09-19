@@ -24,7 +24,7 @@ namespace Hydra::Component {
 		TransformComponent(IEntity* entity, const glm::vec3& position = glm::vec3(), const glm::vec3& scale = glm::vec3(1), const glm::quat& rotation = glm::quat());
 		~TransformComponent() final;
 
-		void tick(TickAction action) final;
+		void tick(TickAction action, float delta) final;
 		inline TickAction wantTick() const final { return TickAction::physics; }
 
 		inline const std::string type() const final { return "TransformComponent"; }

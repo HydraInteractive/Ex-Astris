@@ -58,6 +58,11 @@ public:
 		_loadATTICModel(file.c_str(), modelMatrixBuffer);
 	}
 
+	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices, GLuint modelMatrixBuffer) {
+		_makeBuffers();
+		_uploadData(vertices, indices, modelMatrixBuffer);
+	}
+
 	~GLMeshImpl() final {
 		GLuint buffers[2] = {_vbo, _ibo};
 		glDeleteBuffers(sizeof(buffers) / sizeof(*buffers), buffers);
@@ -273,6 +278,18 @@ private:
 std::unique_ptr<IMesh> GLMesh::create(const std::string& file, IRenderer* renderer) {
 	return std::unique_ptr<IMesh>(new ::GLMeshImpl(file, *static_cast<GLuint*>(renderer->getModelMatrixBuffer())));
 }
+
+std::unique_ptr<IMesh> GLMesh::createQuad(IRenderer* renderer) {
+	std::vector<Vertex> vertices{
+		Vertex{ { -1, 1, 0 },{ 0, 0, -1 },{ 1, 1, 1 },{ 0, 1 },{ 0, 0, 0 } },
+		Vertex{ { 1, 1, 0 },{ 0, 0, -1 },{ 1, 1, 1 },{ 1, 1 },{ 0, 0, 0 } },
+		Vertex{ { 1, -1, 0 },{ 0, 0, -1 },{ 1, 1, 1 },{ 1, 0 },{ 0, 0, 0 } },
+		Vertex{ { -1, -1, 0 },{ 0, 0, -1 },{ 1, 1, 1 },{ 0, 0 },{ 0, 0, 0 } }
+	};
+	std::vector<GLuint> indices{ 0, 2, 1, 2, 0, 3 };
+	return std::unique_ptr<IMesh>(new ::GLMeshImpl(vertices, indices, *static_cast<GLuint*>(renderer->getModelMatrixBuffer())));
+}
+
 std::unique_ptr<IMesh> GLMesh::createFullscreenQuad() {
 	std::vector<Vertex> vertices{
 		Vertex{{-1, 1, 0}, {0, 0, -1}, {1, 1, 1}, {0, 1}, {0, 0, 0}},

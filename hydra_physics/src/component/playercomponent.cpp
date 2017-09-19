@@ -22,7 +22,7 @@ PlayerComponent::PlayerComponent(IEntity* entity) : IComponent(entity) {
 
 PlayerComponent::~PlayerComponent() { }
 
-void PlayerComponent::tick(TickAction action) {
+void PlayerComponent::tick(TickAction action, float delta) {
 	auto player = entity->getComponent<Component::TransformComponent>();
 
 	auto camera = entity->getComponent<Component::CameraComponent>();

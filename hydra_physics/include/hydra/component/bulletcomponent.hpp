@@ -23,7 +23,7 @@ namespace Hydra::Component {
 		BulletComponent(IEntity* entity, glm::vec3 position, glm::vec3 direction, float velocity);
 		~BulletComponent() final;
 
-		void tick(TickAction action) final;
+		void tick(TickAction action, float delta) final;
 		inline TickAction wantTick() const final { return TickAction::physics; }
 
 		inline const std::string type() const final { return "BulletComponent"; }

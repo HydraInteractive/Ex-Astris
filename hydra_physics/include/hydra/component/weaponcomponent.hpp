@@ -25,7 +25,7 @@ namespace Hydra::Component {
 		WeaponComponent(IEntity* entity, glm::vec3 position, glm::vec3 direction, float velocity);
 		~WeaponComponent() final;
 
-		void tick(TickAction action) final;
+		void tick(TickAction action, float delta) final;
 		inline TickAction wantTick() const final { return TickAction::physics; }
 
 		void shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity);

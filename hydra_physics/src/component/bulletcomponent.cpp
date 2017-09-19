@@ -27,7 +27,7 @@ BulletComponent::BulletComponent(IEntity* entity, glm::vec3 position, glm::vec3 
 
 BulletComponent::~BulletComponent() { }
 
-void BulletComponent::tick(TickAction action) {
+void BulletComponent::tick(TickAction action, float delta) {
 	// If you only have one TickAction in 'wantTick' you don't need to check the tickaction here.
 	_position += _velocity * _direction;
 	
