@@ -31,7 +31,7 @@ void WeaponComponent::tick(TickAction action, float delta) {
 
 void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity)
 {
-	if (SDL_GetTicks() > _fireRateTimer + 1000/(_firerateRPM/60)){
+	if (SDL_GetTicks() > _fireRateTimer + 1000/(_fireRateRPM/60)){
 		std::shared_ptr<Hydra::World::IEntity> bullet = getBullets()->createEntity("Bullet");
 		
 		bullet->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
@@ -59,14 +59,16 @@ std::shared_ptr<Hydra::World::IEntity> WeaponComponent::getBullets() {
 
 void WeaponComponent::serialize(nlohmann::json& json) const {
 	json = {
-		{ "firerateTimer", _fireRateTimer }
+		{ "fireRateTimer", _fireRateTimer },
+		{ "fireRateRPM", _fireRateRPM }
 	};
 }
 
 void WeaponComponent::deserialize(nlohmann::json& json) {
-	_fireRateTimer = json["firerateTimer"].get<unsigned int>();
+	_fireRateTimer = json["fireRateTimer"].get<unsigned int>();
+	_fireRateRPM = json["fireRateRPM"].get<int>();
 }
 
 void WeaponComponent::registerUI() {
-	ImGui::InputInt("Debug", &_debug);
+	ImGui::InputInt("Fire Rate RPM", &_fireRateRPM);
 }

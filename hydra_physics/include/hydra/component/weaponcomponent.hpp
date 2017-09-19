@@ -38,8 +38,6 @@ namespace Hydra::Component {
 		void registerUI() final;
 	private:
 		unsigned int _fireRateTimer = 0;
-		int _firerateRPM = 600;
-
-		int _debug = 1000/(1200/60);
+		int _fireRateRPM = 600;
 	};
 };
