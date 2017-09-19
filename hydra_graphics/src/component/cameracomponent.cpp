@@ -19,7 +19,7 @@ CameraComponent::CameraComponent(IEntity* entity, Hydra::Renderer::IRenderTarget
 
 CameraComponent::~CameraComponent() {}
 
-void CameraComponent::tick(TickAction action) {
+void CameraComponent::tick(TickAction action, float delta) {
 	_position += glm::vec3{0, 0, 0};
 
 	int mouseX, mouseY;

@@ -27,7 +27,7 @@ EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID) : IComponent
 
 EnemyComponent::~EnemyComponent() { }
 
-void EnemyComponent::tick(TickAction action) {
+void EnemyComponent::tick(TickAction action, float delta) {
 	// If you only have one TickAction in 'wantTick' you don't need to check the tickaction here.
 
 	_velocityX = 0;
@@ -43,6 +43,7 @@ void EnemyComponent::tick(TickAction action) {
 	if (_enemyID == EnemyTypes::Alien)
 	{
 		_position = enemy->getPosition();
+
 
 		if (_position.z < _startPosition.z - 10)
 		{
@@ -125,6 +126,9 @@ void EnemyComponent::tick(TickAction action) {
 
 		enemy->setPosition(_position);
 	}
+	
+	glm::quat rotation = glm::angleAxis(atan2(-_velocityX, -_velocityZ), glm::vec3(0, 1, 0)) * glm::angleAxis(glm::radians(180.0f), glm::vec3(1, 0, 0));
+	enemy->setRotation(rotation);
 }
 
 glm::vec3 Hydra::Component::EnemyComponent::getPosition()

@@ -17,10 +17,8 @@ void Input::setWindowSize(int x, int y) {
 }
 
 void Input::update(){
-	auto& engine = Hydra::IEngine::getInstance();
-	
 	int x, y;
-	int buttonState = SDL_GetMouseState(&x, &y);
+	/*int buttonState = */SDL_GetMouseState(&x, &y);
 
 	if (getKey(SDL_SCANCODE_L))
 		_lockMouseCenter = true;
@@ -33,5 +31,4 @@ void Input::update(){
 	}
 	//else
 		//SDL_ShowCursor(true);
-		
 }
