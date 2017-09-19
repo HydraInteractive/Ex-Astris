@@ -326,11 +326,11 @@ private:
 			_makeBuffers();
 
 			if (hasAnimation) {
+				//HardCoded for now
 				_loadWeight("assets/objects/animatedCubeWeights.ATTIC", vertices);
 				_loadSkeleton("assets/objects/animatedCubeSkeleton.ATTIC", vertices);
 				_meshHasAnimation = true;
 				_uploadData(vertices, indices, true, modelMatrixBuffer);
-				
 			}
 			else {
 				_meshHasAnimation = false;
