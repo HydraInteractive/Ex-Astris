@@ -52,6 +52,7 @@ namespace Hydra::Renderer {
 		virtual void setValue(int32_t id, const glm::mat2& value) = 0;
 		virtual void setValue(int32_t id, const glm::mat3& value) = 0;
 		virtual void setValue(int32_t id, const glm::mat4& value) = 0;
+		virtual void setValue(int32_t id, const glm::mat4& value, int i, std::string path) = 0;
 
 		virtual void* getHandler() = 0;
 	};

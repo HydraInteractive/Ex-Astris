@@ -62,7 +62,7 @@ public:
 		SDL_GL_DeleteContext(_glContext);
 	}
 
-	void render(Batch& batch) final {
+	void renderAnimation(Batch& batch) final {
 		SDL_GL_MakeCurrent(_window, _glContext);
 		glBindFramebuffer(GL_FRAMEBUFFER, batch.renderTarget->getID());
 		const auto& size = batch.renderTarget->getSize();
@@ -79,6 +79,41 @@ public:
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
 
+			//for (int i = 0; i < 100; i++) {
+			//	glUniformMatrix4fv(glGetUniformLocation(*static_cast<GLuint*>(batch.pipeline->getHandler()), ("currentSkeletonTransformation[" + std::to_string(i) + "]").c_str()), 
+			//		1, GL_FALSE, &mesh->getTransformationMatrices[i]);
+			//}
+
+			size_t size = kv.second.size();
+			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
+			for (size_t i = 0; i < size; i += maxPerLoop) {
+				size_t amount = std::min(size - i, maxPerLoop);
+				glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
+				glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
+				glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &kv.second[i]);
+				glBindVertexArray(mesh->getID());
+				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
+			}
+		}
+	}
+
+	void render(Batch& batch) final {
+		SDL_GL_MakeCurrent(_window, _glContext);
+		glBindFramebuffer(GL_FRAMEBUFFER, batch.renderTarget->getID());
+		const auto& size = batch.renderTarget->getSize();
+		glViewport(0, 0, size.x, size.y);
+
+		glClearColor(batch.clearColor.r, batch.clearColor.g, batch.clearColor.b, batch.clearColor.a);
+		GLenum clearFlags = 0;
+		clearFlags |= (batch.clearFlags & ClearFlags::color) == ClearFlags::color ? GL_COLOR_BUFFER_BIT : 0;
+		clearFlags |= (batch.clearFlags & ClearFlags::depth) == ClearFlags::depth ? GL_DEPTH_BUFFER_BIT : 0;
+		glClear(clearFlags);
+
+		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
+		
+		for (auto& kv : batch.objects) {
+			auto& mesh = kv.first;
+			
 			size_t size = kv.second.size();
 			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
 			for (size_t i = 0; i < size; i += maxPerLoop) {
@@ -229,6 +264,4 @@ void glDebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei 
 	std::string stackTrace = Hydra::Ext::getStackTrace();
 
 	Hydra::IEngine::getInstance()->log(level, "GL error: Source %s, Type: %s, ID: %d, Severity: %s\n%s%s%s", sourceStr.c_str(), typeStr.c_str(), id, severityStr.c_str(), message, stackTrace.length() ? "\n" : "", stackTrace.c_str());
-	if (level == Hydra::LogLevel::error)
-		exit(0);
 }

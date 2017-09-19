@@ -111,6 +111,24 @@ public:
 			batch.batch.pipeline = batch.pipeline.get();
 		}
 
+		{
+			auto& batch = _animationBatch;
+			batch.vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/animationGeometry.vert");
+			batch.geometryShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::geometry, "assets/shaders/animationGeometry.geom");
+			batch.fragmentShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::fragment, "assets/shaders/animationGeometry.frag");
+
+			batch.pipeline = Renderer::GLPipeline::create();
+			batch.pipeline->attachStage(*batch.vertexShader);
+			batch.pipeline->attachStage(*batch.geometryShader);
+			batch.pipeline->attachStage(*batch.fragmentShader);
+			batch.pipeline->finalize();;
+
+			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
+			batch.batch.clearFlags = ClearFlags::none;
+			batch.batch.renderTarget = _geometryBatch.output.get();
+			batch.batch.pipeline = batch.pipeline.get();
+		}
+
 		{ // Lighting pass batch
 			auto& batch = _lightingBatch;
 			batch.vertexShader = Renderer::GLShader::createFromSource(Renderer::PipelineStage::vertex, "assets/shaders/lighting.vert");
@@ -220,7 +238,7 @@ public:
 	}
 
 	~Engine() final { }
-
+	int currentFrame = 0;
 	void run() final {
 		while (!_view->isClosed()) {
 			{ // Remove old dead objects
@@ -255,24 +273,61 @@ public:
 				_geometryBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
 				_geometryBatch.pipeline->setValue(2, cameraPos = _cc->getPosition());
 
+				_animationBatch.pipeline->setValue(0, _cc->getViewMatrix());
+				_animationBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
+				_animationBatch.pipeline->setValue(2, cameraPos = _cc->getPosition());
+
 				//_geometryBatch.batch.objects.clear();
 				for (auto& kv : _geometryBatch.batch.objects)
 					kv.second.clear();
 
-				for (auto& drawObj : _renderer->activeDrawObjects())
-					if (!drawObj->disable && drawObj->mesh)
-						_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+				for (auto& kv : _animationBatch.batch.objects)
+					kv.second.clear();
 
+				for (auto& drawObj : _renderer->activeDrawObjects()) {
+
+					if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false)
+						_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+					else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
+						_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+
+						//Get number of keyframes. Also hardcoded for now
+						if (currentFrame < 75) {
+							currentFrame++;
+						}
+						else {
+							currentFrame = 1;
+						}
+
+						std::vector<glm::mat4> tempMats;
+						//i == nrOfJoints. Hardcoded for now
+						for (int i = 0; i < 4; i++) {
+							tempMats.push_back(drawObj->mesh->getTransformationMatrices(0, i, currentFrame - 1));
+							_animationBatch.pipeline->setValue(11 + i, tempMats[i]);
+						}
+					}
+				}
+				
 				// Sort Front to back
 				for (auto& kv : _geometryBatch.batch.objects) {
 					std::vector<glm::mat4>& list = kv.second;
-
+					
 					std::sort(list.begin(), list.end(), [cameraPos](const glm::mat4& a, const glm::mat4& b) {
 							return glm::distance(glm::vec3(a[3]), cameraPos) < glm::distance(glm::vec3(b[3]), cameraPos);
 					});
 				}
+				// Sort Front to back for animation
+				for (auto& kv : _animationBatch.batch.objects) {
+					std::vector<glm::mat4>& list = kv.second;
+				
+					std::sort(list.begin(), list.end(), [cameraPos](const glm::mat4& a, const glm::mat4& b) {
+						return glm::distance(glm::vec3(a[3]), cameraPos) < glm::distance(glm::vec3(b[3]), cameraPos);
+					});
+				}
 
 				_renderer->render(_geometryBatch.batch);
+
+				_renderer->render(_animationBatch.batch);
 			}
 
 			{ // Lighting pass
@@ -294,7 +349,8 @@ public:
 				(*_geometryBatch.output)[1]->bind(1);
 				(*_geometryBatch.output)[2]->bind(2);
 
-				_renderer->postProcessing(_lightingBatch.batch);
+				_renderer->postProcessing(_lightingBatch.batch);	//Get _animationPass as well????
+
 			}
 
 
@@ -433,6 +489,7 @@ private:
 	Renderer::UIRenderWindow* _postTestWindow;
 
 	RenderBatch _geometryBatch; // First part of deferred rendering
+	RenderBatch _animationBatch; // Geometry batch
 	RenderBatch _lightingBatch; // Second part of deferred rendering
 	RenderBatch _glowBatch; // Glow batch.
 	RenderBatch _viewBatch;
@@ -483,8 +540,12 @@ private:
 		//		}
 		//	}
 		//}
-		boxes->addComponent<Component::MeshComponent>("assets/objects/model1.ATTIC");
+		boxes->addComponent<Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 		boxes->addComponent<Component::TransformComponent>(glm::vec3(1), glm::vec3(0.25));
+
+		auto player = _world->createEntity("Player");
+		player->addComponent<Component::MeshComponent>("assets/objects/animatedCube.ATTIC");
+		player->addComponent<Component::TransformComponent>(glm::vec3(0, 0, 0));
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
 		auto bp = BlueprintLoader::load("world.blueprint");
