@@ -10,6 +10,7 @@
 #pragma once
 #include <hydra/ext/api.hpp>
 #include <glm/glm.hpp>
+#include <SDL2/SDL.h>
 #include <hydra/world/world.hpp>
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/meshcomponent.hpp>
@@ -35,6 +36,6 @@ namespace Hydra::Component {
 		glm::vec3 _position;
 		glm::vec3 _direction;
 		float _velocity;
-
+		int _deleteTimer;
 	};
 };

@@ -23,6 +23,7 @@ BulletComponent::BulletComponent(IEntity* entity, glm::vec3 position, glm::vec3 
 	_position = position;
 	_direction = direction;
 	_velocity = velocity;
+	_deleteTimer = SDL_GetTicks();
 }
 
 BulletComponent::~BulletComponent() { }
@@ -33,6 +34,9 @@ void BulletComponent::tick(TickAction action, float delta) {
 	
 	auto transform = entity->getComponent<Component::TransformComponent>();
 	transform->setPosition(_position);
+	if (SDL_GetTicks() > _deleteTimer + 2*1000){
+		entity->markDead();
+	}
 }
 
 void BulletComponent::serialize(nlohmann::json& json) const {

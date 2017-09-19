@@ -31,13 +31,15 @@ void WeaponComponent::tick(TickAction action, float delta) {
 
 void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity)
 {
-	if (SDL_GetTicks() > _fireRateTimer + 50)
-	{
+	if (SDL_GetTicks() > _fireRateTimer + 1000/(_firerateRPM/60)){
 		std::shared_ptr<Hydra::World::IEntity> bullet = getBullets()->createEntity("Bullet");
+		
 		bullet->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 		bullet->addComponent<Hydra::Component::BulletComponent>(position, -direction, 0.1f);
-		auto transform = bullet->addComponent<Hydra::Component::TransformComponent>(position);
+		
+		auto transform = bullet->addComponent<Hydra::Component::TransformComponent>(position,glm::vec3(0.1,0.1,0.1));
 		transform->setRotation(bulletOrientation);
+		
 		_fireRateTimer = SDL_GetTicks();
 	}
 }
@@ -45,7 +47,7 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 std::shared_ptr<Hydra::World::IEntity> WeaponComponent::getBullets() {
 	std::shared_ptr<Hydra::World::IEntity> bullets;
 	std::vector<std::shared_ptr<Hydra::World::IEntity>> children = entity->getChildren();
-
+	
 	for (size_t i = 0; i < children.size(); i++) {
 		if (children[i]->getName() == "Bullets") {
 			bullets = children[i];
@@ -66,5 +68,5 @@ void WeaponComponent::deserialize(nlohmann::json& json) {
 }
 
 void WeaponComponent::registerUI() {
-
+	ImGui::InputInt("Debug", &_debug);
 }
