@@ -12,36 +12,51 @@
 #include <imgui/imgui_impl_sdl_gl3.h>
 #include <imgui/icons.hpp>
 #include <algorithm>
-static std::string executableDir;
-static std::string assetsDir;
-static std::string modelsDir;
+#include <hydra/world/world.hpp>
+#include <hydra/component/meshcomponent.hpp>
+#include <hydra/component/transformcomponent.hpp>
+#include <stack>
+
 class ImporterMenu
 {
 public:
+	std::string executableDir;
+
 	ImporterMenu();
+	ImporterMenu(Hydra::World::IEntity* editor);
 	~ImporterMenu();
+
 	void render(bool &closeBool);
 	void refresh();
+
 	class Node
 	{
 	public:
-		std::vector<Node*> subfolders;
-		std::vector<Node*> files;
-		Node* parent;
-		std::string path;
+
 
 		Node();
-		Node(std::string path, Node* parent = nullptr);
+		Node(std::string path, Node* parent = nullptr, bool isFile = false);
 		~Node();
-
 		std::string name();
-		void render();
+		std::string pathToName(std::string path);
+		std::string reverseEngineerPath();
+		int numberOfFiles();
+		void clean();
+		void render(int index, Hydra::World::IEntity* editor);
 	private:
+		std::string _name;
+		static Hydra::World::IWorld* _world;
+		std::vector<Node*> subfolders;
+		std::vector<Node*> files;
+		bool isAllowedFile;
+		Node* parent;
+
 		void _getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders) const;
 	};
 private:
-	std::string rootPath;
 	Node* root;
+
+	Hydra::World::IEntity* _editor;
 	std::string _getExecutableDir();
 };
 

@@ -32,8 +32,6 @@ namespace Barcode {
 			batch.batch.pipeline = batch.pipeline.get();
 		}
 		_initWorld();
-
-		int hello = 32434;
 	}
 
 	EditorState::~EditorState() { }
@@ -72,7 +70,7 @@ namespace Barcode {
 
 			_engine->getRenderer()->render(_viewBatch.batch);
 			if (_importStatic)
-				_importerMenu.render(_importStatic);
+				_importerMenu->render(_importStatic);
 		}
 
 		{ // Sync with network
@@ -82,7 +80,7 @@ namespace Barcode {
 
 	void EditorState::_initWorld() {
 		_world = Hydra::World::World::create();
-		auto a = _world->createEntity("Editor entity");
+		this->_importerMenu = new ImporterMenu(_world->createEntity("Editor").get());
 	}
 
 }

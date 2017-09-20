@@ -1,5 +1,5 @@
 /**
-* Mainmenu state
+* Editor state
 *
 * License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
 * Authors:
@@ -41,7 +41,7 @@ namespace Barcode {
 			Hydra::Renderer::Batch batch;
 		};
 
-		ImporterMenu _importerMenu;
+		ImporterMenu* _importerMenu;
 		bool _importStatic = false;
 
 		Hydra::IEngine* _engine;
