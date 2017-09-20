@@ -18,6 +18,7 @@ out GeometryData {
 	vec3 color;
 	vec2 uv;
 	mat3 tbn;
+	vec3 light;
 } outData;
 
 out gl_PerVertex {
@@ -31,6 +32,9 @@ layout(location = 1) uniform mat4 p;
 layout(location = 2) uniform vec3 cameraPos;
 
 layout(location = 3) uniform bool setting_doBackFaceCulling = false;
+layout(location = 4) uniform mat4 lightView;
+layout(location = 5) uniform mat4 lightProj;
+//layout(location = 6) uniform vec3 lightPos;
 
 #define M_PI 3.1415
 
@@ -72,6 +76,7 @@ void main() {
 		outData.tbn = calcTBN(normalMatrix, inData[i].normal, i);
 
 		gl_Position = p * v * pos;
+		outData.light = (lightProj * lightView * pos).rgb;
 		EmitVertex();
 	}
 	EndPrimitive();

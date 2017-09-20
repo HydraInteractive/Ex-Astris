@@ -229,6 +229,6 @@ void glDebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei 
 	std::string stackTrace = Hydra::Ext::getStackTrace();
 
 	Hydra::IEngine::getInstance()->log(level, "GL error: Source %s, Type: %s, ID: %d, Severity: %s\n%s%s%s", sourceStr.c_str(), typeStr.c_str(), id, severityStr.c_str(), message, stackTrace.length() ? "\n" : "", stackTrace.c_str());
-	if (level == Hydra::LogLevel::error)
-		exit(0);
+	//if (level == Hydra::LogLevel::error)
+	//	exit(0);
 }

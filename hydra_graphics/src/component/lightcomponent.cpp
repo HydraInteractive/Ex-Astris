@@ -1,0 +1,70 @@
+#include "hydra/component/lightcomponent.hpp"
+#include <imgui/imgui.h>
+#include <glm/gtc/type_ptr.hpp>
+
+using namespace Hydra::Component;
+
+LightComponent::LightComponent(IEntity* entity) : IComponent(entity) {
+	_position = glm::vec3(0, 0, 0);
+}
+
+LightComponent::LightComponent(IEntity* entity, Hydra::Renderer::IRenderTarget* renderTarget, const glm::vec3& position) : IComponent(entity), _position(position) {
+
+}
+
+LightComponent::~LightComponent() {
+
+}
+
+void LightComponent::setPosition(const glm::vec3& position) {
+	_position = position;
+}
+
+void LightComponent::setDirection(const glm::vec3& direction) {
+	_direction = direction;
+}
+
+void LightComponent::translate(const glm::vec3& transform) {
+	_position += transform * _orientation;
+}
+
+void LightComponent::tick(TickAction action) {
+	this->_position = this->entity->getComponent<Hydra::Component::TransformComponent>()->getPosition();
+}
+
+void LightComponent::serialize(nlohmann::json& json) const {
+	json = {
+		{ "position",{ _position.x, _position.y, _position.z } },
+		//{ "orientation",{ _orientation.x, _orientation.y, _orientation.z, _orientation.w } },
+		{ "direction", { _direction.x, _direction.y, _direction.z } },
+		{ "fov", _fov },
+		{ "zNear", _zNear },
+		{ "zFar", _zFar }
+	};
+}
+
+void LightComponent::deserialize(nlohmann::json& json) {
+	auto& pos = json["position"];
+	_position = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
+	
+	//auto& orientation = json["orientation"];
+	//_orientation = glm::quat{ orientation[0].get<float>(), orientation[1].get<float>(), orientation[2].get<float>(), orientation[3].get<float>() };
+	
+	auto& direction = json["direction"];
+	_direction = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
+
+	_fov = json["fov"].get<float>();
+	_zNear = json["zNear"].get<float>();
+	_zFar = json["zFar"].get<float>();
+}
+
+void LightComponent::registerUI() {
+	ImGui::DragFloat3("Position", glm::value_ptr(_position), 0.01f);
+	ImGui::DragFloat4("Orientation", glm::value_ptr(_orientation), 0.01f);
+	ImGui::DragFloat("FOV", &_fov);
+	ImGui::DragFloat("Z Near", &_zNear, 0.001f);
+	ImGui::DragFloat("Z Far", &_zFar);
+	
+	//float aspect = (_renderTarget->getSize().x*1.0f) / _renderTarget->getSize().y;
+	//ImGui::InputFloat("Aspect", &aspect, 0, 0, -1, ImGuiInputTextFlags_ReadOnly);
+}
