@@ -33,33 +33,37 @@ void NetworkManager::update() {
 			this->_conn->sendToClient((char*)(&phw), sizeof(phw), tmpsock);
 
 			for (size_t l = 0; l < this->_serverw.getPlayers().size(); l++) {
-				nlohmann::json j;
-				this->_serverw.getPlayers()[l].getEntity()->serialize(j);
-				std::string str = j.dump();
-				PacketSpawnEntityServer* pse = (PacketSpawnEntityServer*)malloc(sizeof(PacketSpawnEntity) + str.size() + 1);
-				pse->header.type = PacketType::SpawnEntityServer;
-				pse->id = this->_serverw.getPlayers()[l].getID();
-				pse->len = str.size() + 1;
-				memcpy(pse->data, str.c_str(), str.size());
-				pse->data[str.size()] = '\0';
-				this->_conn->sendToClient((char*)(pse), pse->packetLength(), tmpsock);
+				//SEND CURRENT PLAYERS(ENTITIES) TO NEWLY CONNECTED PLAYER
+				if (p.getID() != this->_serverw.getPlayers()[l].getID()) {
+					nlohmann::json j;
+					this->_serverw.getPlayers()[l].getEntity()->serialize(j);
+					std::string str = j.dump();
+					PacketSpawnEntityServer* pse = (PacketSpawnEntityServer*)malloc(sizeof(PacketSpawnEntity) + str.size() + 1);
+					pse->header.type = PacketType::SpawnEntityServer;
+					pse->id = this->_serverw.getPlayers()[l].getID();
+					pse->len = str.size() + 1;
+					memcpy(pse->data, str.c_str(), str.size());
+					pse->data[str.size()] = '\0';
+					this->_conn->sendToClient((char*)(pse), pse->packetLength(), tmpsock);
 
-				free(pse);
+					free(pse);
+				}
 			}
 
-			//nlohmann::json j;
-			//p.getEntity()->serialize(j);
-			//std::string str = j.dump();
-			//PacketSpawnEntityServer* pse = (PacketSpawnEntityServer*)malloc(sizeof(PacketSpawnEntity) + str.size() + 1);
-			//pse->header.type = PacketType::SpawnEntityServer;
-			//pse->id = p.getID();
-			//pse->len = str.size() + 1;
-			//memcpy(pse->data, str.c_str(), str.size());
-			//pse->data[str.size()] = '\0';
-			//this->_conn->sendToAllClients((char*)(&pse), pse->packetLength());
-			//
-			//free(pse);
-			 //this->_serverw.sendPlayers(this->_conn, phw.yourID);
+			//SEND NEW ENTITY TO CURRENTLY EXISITNG PLAYERS
+			nlohmann::json j;
+			p.getEntity()->serialize(j);
+			std::string str = j.dump();
+			PacketSpawnEntityServer* pse = (PacketSpawnEntityServer*)malloc(sizeof(PacketSpawnEntity) + str.size() + 1);
+			pse->header.type = PacketType::SpawnEntityServer;
+			pse->id = p.getID();
+			pse->len = str.size() + 1;
+			memcpy(pse->data, str.c_str(), str.size());
+			pse->data[str.size()] = '\0';
+			this->_conn->sendToAllExceptOne((char*)(pse), pse->packetLength(), tmpsock);
+			
+			free(pse);
+			//this->_serverw.sendPlayers(this->_conn, phw.yourID);
 			
 
 			//Update new player about current world?
@@ -110,7 +114,7 @@ void NetworkManager::update() {
 
 	//---------------SEND UPDATED WORLD TO CLIENTS---------------
 	{
-		//this->_serverw.sendCurrentWorld(this->_conn);
+		this->_serverw.sendCurrentWorld(this->_conn);
 	}
 
 }

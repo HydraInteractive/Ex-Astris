@@ -3,6 +3,7 @@
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/playercomponent.hpp>
+#include <hydra/component/meshcomponent.hpp>
 #include "json.hpp"
 
 using namespace Hydra;
@@ -63,7 +64,7 @@ ServerPlayer& ServerWorld::addPlayer(const glm::vec3 & pos, const glm::quat & ro
 	std::shared_ptr<Hydra::World::IEntity> ent = this->_world->createEntity("Best i test");
 	ent->addComponent<Component::TransformComponent>(pos, glm::vec3{ 1, 1, 1 }, rot);
 	ent->addComponent<Component::CameraComponent>();
-	ent->addComponent<Component::PlayerComponent>();
+	ent->addComponent<Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 	ServerPlayer p;
 	p.initialize(ent->getID(), pSocket, ent);
 	this->_players.push_back(p);

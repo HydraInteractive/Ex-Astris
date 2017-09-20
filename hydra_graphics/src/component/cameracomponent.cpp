@@ -88,8 +88,9 @@ void CameraComponent::registerUI() {
 	ImGui::DragFloat("FOV", &_fov);
 	ImGui::DragFloat("Z Near", &_zNear, 0.001f);
 	ImGui::DragFloat("Z Far", &_zFar);
-
-	float aspect = (_renderTarget->getSize().x*1.0f) / _renderTarget->getSize().y;
-	ImGui::InputFloat("Aspect", &aspect, 0, 0, -1, ImGuiInputTextFlags_ReadOnly);
-	ImGui::Checkbox("Mouse Control", &_mouseControl);
+	if (_renderTarget) {
+		float aspect = (_renderTarget->getSize().x*1.0f) / _renderTarget->getSize().y;
+		ImGui::InputFloat("Aspect", &aspect, 0, 0, -1, ImGuiInputTextFlags_ReadOnly);
+		ImGui::Checkbox("Mouse Control", &_mouseControl);
+	}
 }

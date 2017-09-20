@@ -71,7 +71,7 @@ int NetClient::decodeNewPackets(Hydra::World::IWorld* world) {
 		case PacketType::SpawnEntityClient:
 			break;
 		case PacketType::SpawnEntityServer:
-			ent = world->createEntity("Server Created");
+			ent = world->createEntity("ERROR: SHIT PROBABLY FAILED");
 			ent->deserialize(nlohmann::json::parse((char*)((PacketSpawnEntityServer*)np[i])->data));
 			ent->setID(((PacketSpawnEntityServer*)np[i])->id);
 			//ent->addComponent<Hydra::Component::TransformComponent>();
