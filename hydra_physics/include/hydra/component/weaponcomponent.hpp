@@ -22,7 +22,6 @@ namespace Hydra::Component {
 	class HYDRA_API WeaponComponent final : public IComponent{
 	public:
 		WeaponComponent(IEntity* entity);
-		WeaponComponent(IEntity* entity, glm::vec3 position, glm::vec3 direction, float velocity);
 		~WeaponComponent() final;
 
 		void tick(TickAction action, float delta) final;
@@ -38,6 +37,9 @@ namespace Hydra::Component {
 		void registerUI() final;
 	private:
 		unsigned int _fireRateTimer = 0;
-		int _fireRateRPM = 600;
+		int _fireRateRPM = 60;
+		float _bulletSize = 0.1;
+		int _bulletsPerShot = 200;
+		glm::vec3 _debug;
 	};
 };

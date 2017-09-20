@@ -34,7 +34,7 @@ void BulletComponent::tick(TickAction action, float delta) {
 	
 	auto transform = entity->getComponent<Component::TransformComponent>();
 	transform->setPosition(_position);
-	if (SDL_GetTicks() > _deleteTimer + 2*1000){
+	if (SDL_GetTicks() > _deleteTimer + 4*1000){
 		entity->markDead();
 	}
 }
