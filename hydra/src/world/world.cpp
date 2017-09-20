@@ -31,6 +31,8 @@ public:
 	void setWorldRoot(std::shared_ptr<IEntity> root) final { _root = root; }
 	std::shared_ptr<IEntity> getWorldRoot() final { return _root; }
 
+	bool isServer() final { return _isServer; }
+
 private:
 	std::shared_ptr<IEntity> _root;
 	int64_t _id;
@@ -159,7 +161,7 @@ public:
 			for (size_t i = 0; i < components.size(); i++, it++) {
 				try {
 					auto* c = createMap.at(it.key())(this);
-					c->deserialize(components[i]);
+					c->deserialize(it.value());
 				} catch (const std::out_of_range&)	{
 					Hydra::IEngine::getInstance()->log(Hydra::LogLevel::error, "Component type '%s' not found!", it.key().c_str());
 				}
@@ -169,7 +171,7 @@ public:
 
 	const std::string& getName() const final { return _name; }
 	Hydra::Renderer::DrawObject* getDrawObject() final {
-		if (!_drawObject) {
+		if (!_drawObject && !world->isServer()) {
 			_drawObject = Hydra::IEngine::getInstance()->getRenderer()->aquireDrawObject();
 			_drawObject->refCounter++;
 		}

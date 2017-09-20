@@ -18,42 +18,56 @@ NetworkManager::~NetworkManager() { // TODO
 
 void NetworkManager::update() {
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(1000/10));
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000/30));
 
 	//---------------CHECK FOR INCOMING CLIENTS/CONNECTIONS --------------
 	{
 		TCPsocket tmpsock = this->_conn->checkForClient();
 		if (tmpsock != NULL) {
 			//ADD PLAYER/SOCKET / SEND HELLOWORLDPACKET
+			
 			PacketHelloWorld phw;
 			phw.header.type = PacketType::HelloWorld;
-			phw.yourID = this->_serverw.addPlayer(glm::vec3(0, 0, 0), glm::quat(), tmpsock);
+			ServerPlayer& p = this->_serverw.addPlayer(glm::vec3(0, 0, 0), glm::quat(), tmpsock);
+			phw.yourID = p.getID();
 			this->_conn->sendToClient((char*)(&phw), sizeof(phw), tmpsock);
-			//SAVE PlAYER ID SOMEWHERE COLD
 
-			this->_serverw.sendPlayers(this->_conn, phw.yourID);
-			//Update new player about current world?
-			//TMP FIX
-			//PacketSpawnEntityServer pse2;
-			//pse2.header.type = PacketType::SpawnEntityServer;
-			//pse2.id = 1;
-			//pse2.ti.position = glm::vec3(0, 0, 0);
-			//pse2.ti.scale = glm::vec3(1, 1, 1);
-			//pse2.ti.rot = glm::quat();
+			for (size_t l = 0; l < this->_serverw.getPlayers().size(); l++) {
+				nlohmann::json j;
+				this->_serverw.getPlayers()[l].getEntity()->serialize(j);
+				std::string str = j.dump();
+				PacketSpawnEntityServer* pse = (PacketSpawnEntityServer*)malloc(sizeof(PacketSpawnEntity) + str.size() + 1);
+				pse->header.type = PacketType::SpawnEntityServer;
+				pse->id = this->_serverw.getPlayers()[l].getID();
+				pse->len = str.size() + 1;
+				memcpy(pse->data, str.c_str(), str.size());
+				pse->data[str.size()] = '\0';
+				this->_conn->sendToClient((char*)(pse), pse->packetLength(), tmpsock);
+
+				free(pse);
+			}
+
+			//nlohmann::json j;
+			//p.getEntity()->serialize(j);
+			//std::string str = j.dump();
+			//PacketSpawnEntityServer* pse = (PacketSpawnEntityServer*)malloc(sizeof(PacketSpawnEntity) + str.size() + 1);
+			//pse->header.type = PacketType::SpawnEntityServer;
+			//pse->id = p.getID();
+			//pse->len = str.size() + 1;
+			//memcpy(pse->data, str.c_str(), str.size());
+			//pse->data[str.size()] = '\0';
+			//this->_conn->sendToAllClients((char*)(&pse), pse->packetLength());
+			//
+			//free(pse);
+			 //this->_serverw.sendPlayers(this->_conn, phw.yourID);
 			
-			//this->_conn->sendToClient((char*)(&pse2), sizeof(pse2), tmpsock);
-			//TMP FIX
+
+			//Update new player about current world?
+
 			//??
 
 			//Create new player for other players
-			PacketSpawnEntityServer pse;
-			pse.header.type = PacketType::SpawnEntityServer;
-			pse.id = phw.yourID;
-			pse.ti.position = glm::vec3(0, 0, 0);
-			pse.ti.scale = glm::vec3(1, 1, 1);
-			pse.ti.rot = glm::quat();
 
-			this->_conn->sendToAllExceptOne((char*)(&pse), sizeof(pse), tmpsock);
 		}
 	}
 
@@ -96,7 +110,7 @@ void NetworkManager::update() {
 
 	//---------------SEND UPDATED WORLD TO CLIENTS---------------
 	{
-		this->_serverw.sendCurrentWorld(this->_conn);
+		//this->_serverw.sendCurrentWorld(this->_conn);
 	}
 
 }

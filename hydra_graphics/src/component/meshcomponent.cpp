@@ -19,19 +19,25 @@ using namespace Hydra::World;
 using namespace Hydra::Component;
 
 MeshComponent::MeshComponent(IEntity* entity) : IComponent(entity), _meshFile(""), _drawObject(entity->getDrawObject()) {
-	_drawObject->refCounter++;
-	_drawObject->mesh = nullptr;
+	if (_drawObject) {
+		_drawObject->refCounter++;
+		_drawObject->mesh = nullptr;
+	}
 }
 
 MeshComponent::MeshComponent(IEntity* entity, const std::string& meshFile) : IComponent(entity), _meshFile(meshFile), _drawObject(entity->getDrawObject()) {
-	_mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(meshFile);
-	_drawObject->refCounter++;
-	_drawObject->mesh = _mesh.get();
+	if (_drawObject) {
+		_mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(meshFile);
+		_drawObject->refCounter++;
+		_drawObject->mesh = _mesh.get();
+	}
 }
 
 MeshComponent::~MeshComponent() {
-	_drawObject->mesh = nullptr;
-	_drawObject->refCounter--;
+	if (_drawObject) {
+		_drawObject->mesh = nullptr;
+		_drawObject->refCounter--;
+	}
 }
 
 void MeshComponent::tick(TickAction action) {
@@ -43,8 +49,10 @@ void MeshComponent::serialize(nlohmann::json& json) const {
 }
 
 void MeshComponent::deserialize(nlohmann::json& json) {
-	_mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(json["meshFile"].get<std::string>());
-	_drawObject->mesh = _mesh.get();
+	if (_drawObject) {
+		_mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(json["meshFile"].get<std::string>());
+		_drawObject->mesh = _mesh.get();
+	}
 }
 
 void MeshComponent::registerUI() {

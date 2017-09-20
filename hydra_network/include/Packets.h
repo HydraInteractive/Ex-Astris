@@ -37,11 +37,21 @@ struct PacketSpawnEntityClient : NetPacket {
 	TransformInfo ti;
 };
 
-//TEMPORARY
 struct PacketSpawnEntityServer : NetPacket {
+	size_t len;
 	int64_t id;
-	TransformInfo ti;
+	uint8_t data[0];
+
+	size_t packetLength() {
+		return sizeof(PacketSpawnEntityServer) + len;
+	}
 };
+
+//TEMPORARY
+//struct PacketSpawnEntityServer : NetPacket {
+//	int64_t id;
+//	TransformInfo ti;
+//};
 
 struct PacketServerUpdate : NetPacket {
 	int nrOfEntity;

@@ -48,6 +48,8 @@ namespace Hydra::World {
 
 		virtual void setWorldRoot(std::shared_ptr<IEntity> root) = 0;
 		virtual std::shared_ptr<IEntity> getWorldRoot() = 0;
+
+		virtual bool isServer() = 0;
 	};
 	inline IWorld::~IWorld() {}
 

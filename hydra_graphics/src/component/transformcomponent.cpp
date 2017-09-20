@@ -21,18 +21,23 @@ using namespace Hydra::World;
 using namespace Hydra::Component;
 
 TransformComponent::TransformComponent(IEntity* entity, const glm::vec3& position, const glm::vec3& scale, const glm::quat& rotation) : IComponent(entity), _drawObject(entity->getDrawObject()), _dirty(true), _position(position), _scale(scale), _rotation(rotation) {
-	_drawObject->refCounter++;
+	if (_drawObject) {
+		_drawObject->refCounter++;
+	}
 }
 TransformComponent::~TransformComponent() {
-	_drawObject->modelMatrix = glm::mat4(1);
-	_drawObject->refCounter--;
+	if (_drawObject) {
+		_drawObject->modelMatrix = glm::mat4(1);
+		_drawObject->refCounter--;
+	}
 }
 
 void TransformComponent::tick(TickAction action) {
 	// assert(action == TickAction::physics); // Can only be this due to wantTick
 	//_rotation *= glm::angleAxis(0.005f, glm::vec3(0, 1, 0) * _rotation);
 	_dirty = true;
-	_drawObject->modelMatrix = getMatrix();
+	if (_drawObject)
+		_drawObject->modelMatrix = getMatrix();
 }
 
 

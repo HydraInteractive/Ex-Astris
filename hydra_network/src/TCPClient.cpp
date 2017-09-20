@@ -88,8 +88,8 @@ void TCPClient::close() {
 			result -= sizeof(PacketSpawnEntityClient);
 			packets.push_back((PacketSpawnEntityClient*)np);
 			break;
-		case PacketType::SpawnEntityServer: //TODO
-			result -= sizeof(PacketSpawnEntityServer);
+		case PacketType::SpawnEntityServer:
+			result -= (((PacketSpawnEntityServer*)np)->packetLength());
 			packets.push_back((PacketSpawnEntityServer*)np);
 			break;
 		case PacketType::ServerUpdate: 
