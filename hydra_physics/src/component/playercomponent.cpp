@@ -24,7 +24,8 @@ PlayerComponent::PlayerComponent(IEntity* entity) : IComponent(entity) {
 
 PlayerComponent::~PlayerComponent() { }
 
-void PlayerComponent::tick(TickAction action) {
+
+void PlayerComponent::tick(TickAction action, float delta) {
 	// If you only have one TickAction in 'wantTick' you don't need to check the tickaction here.
 
 	// Extract players position

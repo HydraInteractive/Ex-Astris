@@ -40,7 +40,7 @@ MeshComponent::~MeshComponent() {
 	}
 }
 
-void MeshComponent::tick(TickAction action) {
+void MeshComponent::tick(TickAction action, float delta) {
 	// _drawObject->mesh = _mesh.get();
 }
 

@@ -23,18 +23,23 @@ public:
 		_root = Entity::createEmpty(this, "World");
 	}
 
+	~WorldImpl() final {
+		_root.reset();
+	}
+
 	int64_t getFreeID() final { return _isServer ? _id++ : _id--; }
 
 	std::shared_ptr<IEntity> createEntity(const std::string& name) final { return _root->createEntity(name); }
-	void tick(TickAction action) final { _root->tick(action); }
-
+	void tick(TickAction action, float delta) final { _root->tick(action, delta); }
 	void setWorldRoot(std::shared_ptr<IEntity> root) final { _root = root; }
 	std::shared_ptr<IEntity> getWorldRoot() final { return _root; }
+	std::map<std::type_index, std::vector<IEntity*>>& getActiveComponentMap() { return _activeComponents; }
 
 	bool isServer() final { return _isServer; }
 
 private:
 	std::shared_ptr<IEntity> _root;
+	std::map<std::type_index, std::vector<IEntity*>> _activeComponents;
 	int64_t _id;
 	bool _isServer;
 };
@@ -69,20 +74,32 @@ public:
 	virtual ~EntityImpl() {
 		if (_drawObject)
 			_drawObject->refCounter--;
+
+		for (auto& map : world->getActiveComponentMap())
+			world->getActiveComponentMap()[map.first].erase(
+				std::remove_if(
+					world->getActiveComponentMap()[map.first].begin(),
+					world->getActiveComponentMap()[map.first].end(),
+					[this](const IEntity* e) {
+						return e == this;
+					}
+				),
+				world->getActiveComponentMap()[map.first].end()
+			);
 	}
 
-	void tick(TickAction action) final {
+	void tick(TickAction action, float delta) final {
 		if (action == TickAction::checkDead) {
 			auto it = std::remove_if(_children.begin(), _children.end(), [](const std::shared_ptr<IEntity>& e) { return e->isDead(); });
 			_children.erase(it, _children.end());
 		} else
 			for (auto& component : _components)
 				if ((action & component.second->wantTick()) == action)
-					component.second->tick(action);
+					component.second->tick(action, delta);
 
 		for (auto& child : _children)
 			if ((action & child->wantTick()) == action)
-				child->tick(action);
+				child->tick(action, delta);
 	}
 
 	TickAction wantTick() final {
@@ -108,12 +125,23 @@ public:
 		_wantDirty = true;
 		IComponent* ptr = component.get();
 		_components[id] = std::move(component);
+		world->getActiveComponentMap()[id].push_back(this);
 		return ptr;
 	}
 
 	void removeComponent_(const std::type_index& id) final {
 		_wantDirty = true;
 		_components.erase(id);
+		world->getActiveComponentMap()[id].erase(
+			std::remove_if(
+				world->getActiveComponentMap()[id].begin(),
+				world->getActiveComponentMap()[id].end(),
+				[this](const IEntity* e) {
+					return e == this;
+				}
+			),
+			world->getActiveComponentMap()[id].end()
+		);
 	}
 
 	std::map<std::type_index, std::unique_ptr<IComponent>>& getComponents() final { return _components; }
