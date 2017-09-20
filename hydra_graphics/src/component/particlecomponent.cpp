@@ -33,16 +33,26 @@ void ParticleComponent::tick(TickAction action, float delta){
 		_accumulator += delta;
 		_generateParticles();
 	}
+	printf("---------------\n");
+	for (int i = 0; i < _particles.size(); i++) {
+		printf("%i\n", i);
+	}
+	printf("---------------\n");
+	_clearDeadParticles();
+	printf("---------------\n");
+	for (int i = 0; i < _particles.size(); i++) {
+		printf("%i\n", i);
+	}
+	printf("---------------\n");
 }
 
 void ParticleComponent::_generateParticles() {
 	switch (_behaviour) {
-	case EmitterBehaviour::PerSecond: {
+	case EmitterBehaviour::PerSecond:
 		if (_accumulator > 1.0f / _pps) {
 			_emmitParticle();
 			_accumulator -= 1.0f / _pps;
 		}
-	}
 		break;
 	case EmitterBehaviour::Explosion:
 		break;
@@ -51,31 +61,28 @@ void ParticleComponent::_generateParticles() {
 
 void ParticleComponent::_emmitParticle() {
 	std::shared_ptr<Particle> p = std::make_shared<Particle>();
-	float dirX = (1 * 2.f - 1.f);
-	float dirY = (frand() * 3) * 2.f - 1.f;
-	float dirZ = (frand() * 5) * 2.f - 1.f;
-	p->spawn(glm::vec3(0), glm::normalize(glm::vec3(dirX, dirY, dirZ)), frand() * 3.0f);
+	float dirX = 0;
+	float dirY = 1.f;
+	float dirZ = 0;
+	p->spawn(glm::vec3(0), glm::normalize(glm::vec3(dirX, dirY, dirZ)), 5.0f);
 	_particles.push_back(p);
 }
 
 void ParticleComponent::_particlePhysics(float delta) {
-	bool anyDead = false;
-	for (int i = 0; i < _particles.size(); i++) {
-		auto p = _particles[i];
+	for (auto& p : _particles) {
+		printf("Particle's life time: %f, It's elapsed time: %f\n", p->life, p->elapsedTime);
 		if (p->life <= p->elapsedTime) {
-			p->setDead();
-			anyDead = true;
+			p->dead = true;
 		}
 		if (p->dead)
 			continue;
-		p->vel += p->grav * delta;
+
+		p->vel += p->vel * delta;
 		p->pos += p->vel * delta;
 		_updateTextureCoordInfo(p, delta);
 		p->elapsedTime += delta;
 		p->fixMX(_tempRotation);
 	}
-	if(anyDead)
-		_clearDeadParticles();
 }
 
 void ParticleComponent::_updateTextureCoordInfo(std::shared_ptr<Particle>& p, float delta) {
@@ -98,11 +105,14 @@ void ParticleComponent::_setTextureOffset(glm::vec2& offset, int index) {
 
 void ParticleComponent::_clearDeadParticles() {
 	_particles.erase(std::remove_if(
-			_particles.begin(), _particles.end(),
-			[](const std::shared_ptr<Particle>& p) {
+			_particles.begin(),
+			_particles.end(),
+			[](std::shared_ptr<Particle>& p) {
 				return p->dead;
-		}), 
-	_particles.end());
+			}
+		), 
+	_particles.end()
+	);
 }
 
 void ParticleComponent::serialize(nlohmann::json & json) const{
@@ -124,6 +134,8 @@ void ParticleComponent::deserialize(nlohmann::json & json){
 	_behaviour = (EmitterBehaviour)behaviour.get<int>();
 	
 	_drawObject->mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getQuad().get();
+	_tempRotation = glm::mat4(1);
+	_tempRotation *= glm::angleAxis(glm::radians(90.f), glm::vec3(0, 0, 1));
 }
 
 void ParticleComponent::registerUI(){

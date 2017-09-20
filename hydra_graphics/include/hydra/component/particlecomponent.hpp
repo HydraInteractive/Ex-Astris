@@ -39,8 +39,6 @@ namespace Hydra::Component {
 			this->m = glm::translate(pos) * glm::scale(scale);
 		}
 		void fixMX(glm::quat& rot) { m = glm::translate(pos) * glm::mat4_cast(rot) * glm::scale(scale); }
-		void setDead() { dead = true; }
-
 	};
 
 	class HYDRA_API ParticleComponent final : public IComponent{

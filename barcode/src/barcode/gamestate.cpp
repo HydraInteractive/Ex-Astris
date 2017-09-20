@@ -149,7 +149,7 @@ namespace Barcode {
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 
-			_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/ParticleAtlases.png");
+			_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/fireAtlas.png");
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
 			batch.batch.clearFlags = ClearFlags::color | ClearFlags::depth;
@@ -319,16 +319,24 @@ namespace Barcode {
 		}
 
 		{ // Particle batch
-			for (auto& kv : _particleBatch.batch.objects)
+			for (auto& kv : _particleBatch.batch.objects) {
+				_particleBatch.batch.textureInfo.clear();
 				kv.second.clear();
+			}
 
-			for (auto entity : _world->getActiveComponents<Hydra::Component::ParticleComponent>()) {
+			for (auto& entity : _world->getActiveComponents<Hydra::Component::ParticleComponent>()) {
 				auto pc = entity->getComponent<Hydra::Component::ParticleComponent>();
 				auto drawObj = entity->getDrawObject();
-				for (auto particle : pc->getParticles()) {
-					_particleBatch.batch.objects[drawObj->mesh].push_back(particle->m);
-				}
+				auto& particles = pc->getParticles();
+				if(particles.size() > 0)
+					for (auto& particle : particles) {
+						_particleBatch.batch.objects[drawObj->mesh].push_back(particle->m);
+						_particleBatch.batch.textureInfo.push_back(particle->texOffset1);
+						_particleBatch.batch.textureInfo.push_back(particle->texOffset2);
+						_particleBatch.batch.textureInfo.push_back(particle->texCoordInfo);
+					}
 			}
+			_particleAtlases->bind(0);
 			_engine->getRenderer()->render(_particleBatch.batch);
 		}
 

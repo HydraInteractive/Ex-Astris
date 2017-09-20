@@ -46,6 +46,16 @@ namespace Barcode {
 			Hydra::Renderer::Batch batch;
 		};
 
+		struct ParticleRenderBatch final {
+			std::unique_ptr<Hydra::Renderer::IShader> vertexShader;
+			std::unique_ptr<Hydra::Renderer::IShader> geometryShader;
+			std::unique_ptr<Hydra::Renderer::IShader> fragmentShader;
+			std::unique_ptr<Hydra::Renderer::IPipeline> pipeline;
+
+			std::shared_ptr<Hydra::Renderer::IFramebuffer> output;
+			Hydra::Renderer::ParticleBatch batch;
+		};
+
 		Hydra::IEngine* _engine;
 		std::unique_ptr<Hydra::World::IWorld> _world;
 		std::unique_ptr<Hydra::IO::ITextureLoader> _textureLoader;
@@ -63,7 +73,7 @@ namespace Barcode {
 		RenderBatch _glowBatch; // Glow batch.
 		RenderBatch _viewBatch;
 		RenderBatch _postTestBatch;
-		RenderBatch _particleBatch;
+		ParticleRenderBatch _particleBatch;
 
 		// ParticleTexture
 		std::shared_ptr<Hydra::Renderer::ITexture> _particleAtlases;

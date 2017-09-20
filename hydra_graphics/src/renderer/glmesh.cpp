@@ -51,16 +51,16 @@ class GLMeshImpl final : public IMesh {
 public:
 	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices) {
 		_makeBuffers();
-		_uploadData(vertices, indices, 0);
+		_uploadData(vertices, indices, 0, 0);
 	}
 
 	GLMeshImpl(const std::string& file, GLuint modelMatrixBuffer) {
 		_loadATTICModel(file.c_str(), modelMatrixBuffer);
 	}
 
-	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices, GLuint modelMatrixBuffer) {
+	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices, GLuint modelMatrixBuffer, GLuint particleExtraBuffer) {
 		_makeBuffers();
-		_uploadData(vertices, indices, modelMatrixBuffer);
+		_uploadData(vertices, indices, modelMatrixBuffer, particleExtraBuffer);
 	}
 
 	~GLMeshImpl() final {
@@ -92,7 +92,7 @@ private:
 		_ibo = buffers[1];
 	}
 
-	void _uploadData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, GLuint modelMatrixBuffer) {
+	void _uploadData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, GLuint modelMatrixBuffer, GLuint particleExtraBuffer) {
 		_indicesCount = indices.size();
 		glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
@@ -118,6 +118,14 @@ private:
 				glEnableVertexAttribArray(VertexLocation::modelMatrix + i);
 				glVertexAttribPointer(VertexLocation::modelMatrix + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(sizeof(glm::vec4) * i));
 				glVertexAttribDivisor(VertexLocation::modelMatrix + i, 1);
+			}
+		}
+		if (particleExtraBuffer) {
+			glBindBuffer(GL_ARRAY_BUFFER, particleExtraBuffer);
+			for (int i = 0; i < 3; i++) {
+				glEnableVertexAttribArray(VertexLocation::textureOffset1 + i);
+				glVertexAttribPointer(VertexLocation::textureOffset1 + i, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (GLvoid*)(sizeof(glm::vec2) * i));
+				glVertexAttribDivisor(VertexLocation::textureOffset1 + i, 1);
 			}
 		}
 	}
@@ -268,7 +276,7 @@ private:
 			//ATTICMeshes.push_back(info);
 
 			_makeBuffers();
-			_uploadData(vertices, indices, modelMatrixBuffer);
+			_uploadData(vertices, indices, modelMatrixBuffer, 0);
 
 			//delete info;
 		}
@@ -287,7 +295,7 @@ std::unique_ptr<IMesh> GLMesh::createQuad(IRenderer* renderer) {
 		Vertex{ { -1, -1, 0 },{ 0, 0, -1 },{ 1, 1, 1 },{ 0, 0 },{ 0, 0, 0 } }
 	};
 	std::vector<GLuint> indices{ 0, 2, 1, 2, 0, 3 };
-	return std::unique_ptr<IMesh>(new ::GLMeshImpl(vertices, indices, *static_cast<GLuint*>(renderer->getModelMatrixBuffer())));
+	return std::unique_ptr<IMesh>(new ::GLMeshImpl(vertices, indices, *static_cast<GLuint*>(renderer->getModelMatrixBuffer()), *static_cast<GLuint*>(renderer->getParticleExtraBuffer())));
 }
 
 std::unique_ptr<IMesh> GLMesh::createFullscreenQuad() {

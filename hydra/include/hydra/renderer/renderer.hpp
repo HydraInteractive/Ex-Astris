@@ -26,7 +26,10 @@ namespace Hydra::Renderer {
 		modelMatrix = 5,
 		_modelMatrix1 = 6,
 		_modelMatrix2 = 7,
-		_modelMatrix3 = 8
+		_modelMatrix3 = 8,
+		textureOffset1 = 9,
+		textureOffset2 = 10,
+		textureCoordInfo = 11
 	};
 
 	struct HYDRA_API Vertex final {
@@ -143,11 +146,21 @@ namespace Hydra::Renderer {
 		std::map<IMesh*, std::vector<glm::mat4 /* Model matrix */>> objects;
 	};
 
+	struct HYDRA_API ParticleBatch {
+		glm::vec4 clearColor;
+		ClearFlags clearFlags;
+		IRenderTarget* renderTarget;
+		IPipeline* pipeline;
+		std::map<IMesh*, std::vector<glm::mat4 /* Model matrix */>> objects;
+		std::vector<glm::vec2> textureInfo;
+	};
+
 	class HYDRA_API IRenderer {
 	public:
 		virtual ~IRenderer() = 0;
 
 		virtual void render(Batch& batch) = 0;
+		virtual void render(ParticleBatch& batch) = 0;
 		// Note: this will ignore batch.objects
 		virtual void postProcessing(Batch& batch) = 0;
 
@@ -158,6 +171,7 @@ namespace Hydra::Renderer {
 		virtual void cleanup() = 0;
 
 		virtual void* getModelMatrixBuffer() = 0;
+		virtual void* getParticleExtraBuffer() = 0;
 	};
 	inline IRenderer::~IRenderer() {}
 }
