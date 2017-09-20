@@ -254,13 +254,15 @@ namespace Barcode {
 			//	}
 			//}
 
-			for (int y = 0; y < 4; y++) {
-				for (int x = 0; x < 4; x++) {
-					printf("%f, ", _light->getViewMatrix()[y][x]);
-				}
-				printf("\n");
-			}
-			printf("\n");
+			//for (int y = 0; y < 4; y++) {
+			//	for (int x = 0; x < 4; x++) {
+			//		printf("%f, ", _light->getViewMatrix()[y][x]);
+			//	}
+			//	printf("\n");
+			//}
+			//printf("\n");
+
+			//printf("%f, %f, %f\n", _light->getPosition().x, _light->getPosition().y, _light->getPosition().z);
 
 			_geometryBatch.pipeline->setValue(0, _cc->getViewMatrix());
 			_geometryBatch.pipeline->setValue(1, _cc->getProjectionMatrix());

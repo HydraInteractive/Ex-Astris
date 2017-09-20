@@ -51,7 +51,7 @@ void LightComponent::deserialize(nlohmann::json& json) {
 	//_orientation = glm::quat{ orientation[0].get<float>(), orientation[1].get<float>(), orientation[2].get<float>(), orientation[3].get<float>() };
 	
 	auto& direction = json["direction"];
-	_direction = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
+	_direction = glm::vec3{ direction[0].get<float>(), direction[1].get<float>(), direction[2].get<float>() };
 
 	_fov = json["fov"].get<float>();
 	_zNear = json["zNear"].get<float>();
