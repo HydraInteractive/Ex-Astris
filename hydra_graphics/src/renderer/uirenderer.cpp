@@ -217,12 +217,10 @@ public:
 		if (ImGui::BeginMainMenuBar()) {
 			if (ImGui::BeginMenu("File")) {
 				ImGui::MenuItem("Log", nullptr, &_logWindow);
-				ImGui::MenuItem("Entity List", nullptr, &_entityWindow);
+				//ImGui::MenuItem("Entity List", nullptr, &_entityWindow);
 				ImGui::Separator();
 				ImGui::MenuItem("ImGui Test Window", nullptr, &_testWindow);
-
 				ImGui::Separator();
-
 				if (ImGui::MenuItem("Quit"))
 						_view->quit();
 				ImGui::EndMenu();
