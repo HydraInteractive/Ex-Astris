@@ -215,6 +215,10 @@ void ImporterMenu::Node::_getContentsOfDir(const std::string &directory, std::ve
 			{
 				files.push_back(fullFilePath);
 			}
+			else if (fileExt == ".json")
+			{
+				files.push_back(fullFilePath);
+			}
 		}
 	}
 	while (FindNextFile(dir, &fileData));
