@@ -30,26 +30,41 @@ void WeaponComponent::tick(TickAction action, float delta) {
 void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity)
 {
 	if (SDL_GetTicks() > _fireRateTimer + 1000/(_fireRateRPM/60)){
-		for (int i = 0; i < _bulletsPerShot; i++){
+		if (_bulletSpread == 0.0f){
 			std::shared_ptr<Hydra::World::IEntity> bullet = getBullets()->createEntity("Bullet");
-
-			bullet->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
-			//bullet->addComponent<Hydra::Component::BulletComponent>(position, -direction, 0.1f);
-
-			glm::vec3 bulletDirection = direction;
 			
-			std::random_device rd;
-			std::mt19937 gen(rd());
-			std::uniform_real_distribution<>dis(-0.2, 0.2);
-			_debug = glm::vec3(dis(gen), dis(gen), dis(gen));
-			_debug = -direction + _debug;
-			_debug = glm::normalize(_debug);
-			bullet->addComponent<Hydra::Component::BulletComponent>(position, _debug, 0.1f);
-
+			bullet->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+			bullet->addComponent<Hydra::Component::BulletComponent>(position, -direction, 0.1f);
 			auto transform = bullet->addComponent<Hydra::Component::TransformComponent>(position, glm::vec3(_bulletSize));
-			transform->setRotation(_debug);
+
+			transform->setRotation(bulletOrientation);
 		}
-		
+		else {
+			for (int i = 0; i < _bulletsPerShot; i++) {
+				std::shared_ptr<Hydra::World::IEntity> bullet = getBullets()->createEntity("Bullet");
+				bullet->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+
+				std::random_device rd;
+				std::mt19937 gen(rd());
+				std::uniform_real_distribution<>dis(0, 2 * 3.14);
+				float phi = dis(gen);
+				dis = std::uniform_real_distribution<>(0, 1.0);
+				float distance = dis(gen) * _bulletSpread;
+				dis = std::uniform_real_distribution<>(0, 3.14);
+				float theta = dis(gen);
+
+				glm::vec3 bulletDirection = -direction;
+				bulletDirection.x += distance * sin(theta) * cos(phi);
+				bulletDirection.y += distance * sin(theta) * sin(phi);
+				bulletDirection.z += distance * cos(theta);
+				bulletDirection = glm::normalize(bulletDirection);
+
+				bullet->addComponent<Hydra::Component::BulletComponent>(position, bulletDirection, 0.1f);
+
+				auto transform = bullet->addComponent<Hydra::Component::TransformComponent>(position, glm::vec3(_bulletSize));
+				transform->setRotation(bulletOrientation);
+			}
+		}
 		_fireRateTimer = SDL_GetTicks();
 	}
 }
@@ -69,23 +84,24 @@ std::shared_ptr<Hydra::World::IEntity> WeaponComponent::getBullets() {
 
 void WeaponComponent::serialize(nlohmann::json& json) const {
 	json = {
-		{ "fireRateTimer", _fireRateTimer },
 		{ "fireRateRPM", _fireRateRPM },
 		{ "bulletSize", _bulletSize},
+		{ "bulletSpread", _bulletSpread},
 		{ "bulletsPerShot", _bulletsPerShot}
 	};
 }
 
 void WeaponComponent::deserialize(nlohmann::json& json) {
-	_fireRateTimer = json["fireRateTimer"].get<unsigned int>();
 	_fireRateRPM = json["fireRateRPM"].get<int>();
 	_bulletSize = json["bulletSize"].get<float>();
+	_bulletSpread = json["bulletSpread"].get<float>();
 	_bulletsPerShot = json["bulletsPerShot"].get<int>();
 }
 
 void WeaponComponent::registerUI() {
 	ImGui::InputInt("Fire Rate RPM", &_fireRateRPM);
-	ImGui::DragFloat("Bullet Size", &_bulletSize);
+	ImGui::DragFloat("Bullet Size", &_bulletSize, 0.001f);
+	ImGui::DragFloat("Bullet Spread", &_bulletSpread, 0.001f);
 	ImGui::InputInt("Bullets Per Shot", &_bulletsPerShot);
 	ImGui::DragFloat3("DEBUG", glm::value_ptr(_debug));
 }
