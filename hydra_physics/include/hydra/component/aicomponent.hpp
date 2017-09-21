@@ -11,11 +11,12 @@
 #include <glm/glm.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/component/transformcomponent.hpp>
+#include <hydra/pathing/pathfinding.hpp>
+#include <hydra/component/playercomponent.hpp>
+#include <math.h>
 
 using namespace Hydra::World;
 namespace Hydra::Component {
-
-	class PathFinding;
 
 	enum class EnemyTypes {
 		Alien = 0,
@@ -28,8 +29,6 @@ namespace Hydra::Component {
 		SEARCHING,
 		FOUND_GOAL,
 	};
-	PathState _pathState;
-	PathFinding* _pathFinding;
 
 	class HYDRA_API EnemyComponent final : public IComponent{
 	public:
@@ -45,11 +44,15 @@ namespace Hydra::Component {
 
 		glm::vec3 getPosition();
 		float getRadius();
+		std::shared_ptr<Hydra::World::IEntity> getPlayerComponent();
 
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
 	private:
+		PathState _pathState;
+		PathFinding* _pathFinding = new PathFinding();
+
 		float _velocityX;
 		float _velocityY;
 		float _velocityZ;

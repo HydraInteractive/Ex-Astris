@@ -21,7 +21,7 @@ struct SearchCell
 
 		SearchCell() : parent(0) {}
 		SearchCell(int x, int z, SearchCell *_parent = 0) : m_xcoord(x), m_zcoord(z),
-			m_id(z * WORLD_SIZE + x), parent(_parent), G(0), H(0) {}
+			parent(_parent), m_id(z * WORLD_SIZE + x), G(0), H(0) {}
 
 		float getF() { return G + H; }
 		float manHattanDistance(SearchCell *nodeEnd)

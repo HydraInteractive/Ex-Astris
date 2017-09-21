@@ -10,7 +10,6 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <hydra/pathing/SearchCell.hpp>
-#include <hydra/component/aicomponent.hpp>
 
 class PathFinding
 {
@@ -19,7 +18,7 @@ public:
 	~PathFinding();
 
 	void findPath(glm::vec3 currentPos, glm::vec3 targetPos);
-	glm::vec3 nextPathPos(Hydra::Component::EnemyComponent ai);
+	glm::vec3 nextPathPos(glm::vec3 pos, int radius);
 	void clearOpenList() { _openList.clear(); }
 	void clearVisitedList() { _visitedList.clear(); }
 	void clearPathToGoal() { _pathToEnd.clear(); }

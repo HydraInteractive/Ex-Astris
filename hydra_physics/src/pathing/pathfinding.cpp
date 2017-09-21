@@ -62,19 +62,19 @@ void PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 	}
 }
 
-glm::vec3 PathFinding::nextPathPos(Hydra::Component::EnemyComponent ai)
+glm::vec3 PathFinding::nextPathPos(glm::vec3 pos, int radius)
 {
-	size_t index = 1;
+	int index = 1;
 
 	glm::vec3 nextPos;
 	nextPos.x = _pathToEnd[_pathToEnd.size() - index]->x;
 	nextPos.z = _pathToEnd[_pathToEnd.size() - index]->z;
 
-	glm::vec3 distance = nextPos - ai.getPosition();
+	glm::vec3 distance = nextPos - pos;
 
 	if (index < _pathToEnd.size())
 	{
-		if (distance.length() < ai.getRadius())
+		if (distance.length() < radius)
 		{
 			_pathToEnd.erase(_pathToEnd.end() - index);
 		}
@@ -97,7 +97,7 @@ void PathFinding::_setStartAndGoal(SearchCell start, SearchCell end)
 
 void PathFinding::_pathOpened(int x, int z, float newCost, SearchCell * parent)
 {
-	/*if (x * z = wall)
+	/*if ()
 	{
 		return;
 	}*/
@@ -149,6 +149,7 @@ SearchCell * PathFinding::_getNextCell()
 		if (_openList[i]->getF() < bestF)
 		{
 			bestF = _openList[i]->getF();
+			cellID = i;
 		}
 	}
 
@@ -184,7 +185,6 @@ void PathFinding::_continuePath()
 				_pathToEnd.push_back(new glm::vec3(getPath->m_xcoord, 0, getPath->m_zcoord));
 			}
 			foundGoal = true;
-			return;
 		}
 		else
 		{

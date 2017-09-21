@@ -30,11 +30,12 @@ namespace Hydra::Component {
 
 		inline const std::string type() const final { return "PlayerComponent"; }
 
+		glm::vec3 getPosition();
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
 	private:
-		glm::vec3 _position = glm::vec3(0,-2,3);
+		glm::vec3 _position;
 		float _velocityX;
 		float _velocityY;
 		float _velocityZ;

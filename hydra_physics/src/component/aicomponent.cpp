@@ -23,6 +23,7 @@ EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID) : IComponent
 	_startPosition = glm::vec3(0, 0, 0);
 	_patrolPointReached = false;
 	_falling = false;
+	_pathState = SEARCHING;
 }
 
 EnemyComponent::~EnemyComponent() { }
@@ -35,29 +36,57 @@ void EnemyComponent::tick(TickAction action) {
 	_velocityZ = 0;
 
 	auto enemy = entity->getComponent<Component::TransformComponent>();
+	std::shared_ptr<Hydra::World::IEntity> playerEntity = getPlayerComponent();
+	auto player = playerEntity->getComponent<Component::PlayerComponent>();
 	if (_startPosition == glm::vec3(0, 0, 0))
 	{
 		_startPosition = enemy->getPosition();
-	}
-
-	switch (_pathState)
-	{
-		case SEARCHING:
-		{
-
-		}
-		case FOUND_GOAL:
-		{
-
-		}
 	}
 
 	if (_enemyID == EnemyTypes::Alien)
 	{
 		_position = enemy->getPosition();
 
+		/*switch (_pathState)
+		{
+			case SEARCHING:
+			{
+				_pathFinding->findPath(enemy->getPosition(), glm::vec3(1.0f, 0.0f, 1.0f));
+				if (_pathFinding->foundGoal)
+				{
+					_pathState = FOUND_GOAL;
+				}
+			}
+			case FOUND_GOAL:
+			{
+				glm::vec3 targetDistance = _pathFinding->nextPathPos(enemy->getPosition(), getRadius()) - enemy->getPosition();
+				float angle = glm::degrees(atan2(targetDistance.x, targetDistance.z));
+				enemy->setRotation(glm::angleAxis(angle, glm::vec3(0, 1, 0)));
+				_position.x -= 0.1f * sinf(angle * 3.14159 / 180);
+				_position.z += 0.1f * cosf(angle * 3.14159 / 180);
+			}
+		}*/
 
-		if (_position.z < _startPosition.z - 10)
+		if (_pathState == SEARCHING)
+		{
+			_pathFinding->findPath(enemy->getPosition(), player->getPosition());
+			/*_pathFinding->findPath(enemy->getPosition(), glm::vec3(1.0f, 0.0f, 1.0f));*/
+			if (_pathFinding->foundGoal)
+			{
+				_pathState = FOUND_GOAL;
+			}
+		}
+		if (_pathState == FOUND_GOAL)
+		{
+			glm::vec3 targetDistance = _pathFinding->nextPathPos(enemy->getPosition(), getRadius()) - enemy->getPosition();
+			float angle = glm::degrees(atan2(targetDistance.x, targetDistance.z));
+			enemy->setRotation(glm::angleAxis(angle, glm::vec3(0, 1, 0)));
+			_position.x -= 0.1f * cos(angle);
+			_position.z += 0.1f * sin(angle);
+		}
+
+
+		/*if (_position.z < _startPosition.z - 10)
 		{
 			_patrolPointReached = true;
 
@@ -74,7 +103,7 @@ void EnemyComponent::tick(TickAction action) {
 		else if (_patrolPointReached == true)
 		{
 			_velocityZ += 0.1f;
-		}
+		}*/
 
 		_position = _position + glm::vec3(_velocityX, _velocityY, _velocityZ);
 
@@ -106,6 +135,8 @@ void EnemyComponent::tick(TickAction action) {
 		_position = _position + glm::vec3(_velocityX, _velocityY, _velocityZ);
 
 		enemy->setPosition(_position);
+		glm::quat rotation = glm::angleAxis(atan2(-_velocityX, -_velocityZ), glm::vec3(0, 1, 0)) * glm::angleAxis(glm::radians(180.0f), glm::vec3(1, 0, 0));
+		enemy->setRotation(rotation);
 	}
 	else if (_enemyID == EnemyTypes::AlienBoss)
 	{
@@ -137,22 +168,35 @@ void EnemyComponent::tick(TickAction action) {
 		_position = _position + glm::vec3(_velocityX, _velocityY, _velocityZ);
 
 		enemy->setPosition(_position);
+		glm::quat rotation = glm::angleAxis(atan2(-_velocityX, -_velocityZ), glm::vec3(0, 1, 0)) * glm::angleAxis(glm::radians(180.0f), glm::vec3(1, 0, 0));
+		enemy->setRotation(rotation);
 	}
 	
-	glm::quat rotation = glm::angleAxis(atan2(-_velocityX, -_velocityZ), glm::vec3(0, 1, 0)) * glm::angleAxis(glm::radians(180.0f), glm::vec3(1, 0, 0));
-	enemy->setRotation(rotation);
+	
 }
 
-glm::vec3 Hydra::Component::EnemyComponent::getPosition()
+glm::vec3 EnemyComponent::getPosition()
 {
 	auto enemy = entity->getComponent<Component::TransformComponent>();
 
 	return enemy->getPosition();
 }
 
-float Hydra::Component::EnemyComponent::getRadius()
+float EnemyComponent::getRadius()
 {
-	return 1.5f;
+	return 10.0f;
+}
+
+std::shared_ptr<Hydra::World::IEntity> EnemyComponent::getPlayerComponent()
+{
+	std::shared_ptr<Hydra::World::IEntity> player;
+	auto world = entity->getParent()->getChildren();
+	for (size_t i = 0; i < world.size(); i++) {
+		if (world[i]->getName() == "Player") {
+			player = world[i];
+		}
+	}
+	return player;
 }
 
 void EnemyComponent::serialize(nlohmann::json& json) const {
