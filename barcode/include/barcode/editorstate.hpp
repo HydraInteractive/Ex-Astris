@@ -21,6 +21,8 @@
 #include <hydra/component/playercomponent.hpp>
 #include <hydra/component/particlecomponent.hpp>
 #include <hydra/component/aicomponent.hpp>
+#include <fstream>
+#include <json.hpp>
 
 namespace Barcode {
 	class EditorState final : public Hydra::IState {
