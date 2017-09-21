@@ -88,7 +88,7 @@ namespace Barcode {
 			batch.batch.pipeline = batch.pipeline.get();
 		}
 
-		{
+		/*		{
 			auto& batch = _animationBatch;
 			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/animationGeometry.vert");
 			batch.geometryShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::geometry, "assets/shaders/animationGeometry.geom");
@@ -104,7 +104,7 @@ namespace Barcode {
 			batch.batch.clearFlags = ClearFlags::none;
 			batch.batch.renderTarget = _geometryBatch.output.get();
 			batch.batch.pipeline = batch.pipeline.get();
-		}
+			}*/
 
 		{ // Lighting pass batch
 			auto& batch = _lightingBatch;
@@ -309,23 +309,23 @@ namespace Barcode {
 			_geometryBatch.pipeline->setValue(2, cameraPos = _cc->getPosition());
 
 
-			_animationBatch.pipeline->setValue(0, _cc->getViewMatrix());
-			_animationBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
-			_animationBatch.pipeline->setValue(2, cameraPos = _cc->getPosition());
+			//			_animationBatch.pipeline->setValue(0, _cc->getViewMatrix());
+			//			_animationBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
+			//			_animationBatch.pipeline->setValue(2, cameraPos = _cc->getPosition());
 
 			//_geometryBatch.batch.objects.clear();
 			for (auto& kv : _geometryBatch.batch.objects)
 				kv.second.clear();
 
-			for (auto& kv : _animationBatch.batch.objects)
-				kv.second.clear();
+			/*			for (auto& kv : _animationBatch.batch.objects)
+				kv.second.clear();*/
 
 			for (auto& drawObj : _engine->getRenderer()->activeDrawObjects()) {
 
 				if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false)
 					_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 				else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
-					_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+					; //_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
 					//Get number of keyframes. Also hardcoded for now
 					if (currentFrame < 75) {
@@ -339,7 +339,7 @@ namespace Barcode {
 					//i == nrOfJoints. Hardcoded for now
 					for (int i = 0; i < 4; i++) {
 						tempMats.push_back(drawObj->mesh->getTransformationMatrices(0, i, currentFrame - 1));
-						_animationBatch.pipeline->setValue(11 + i, tempMats[i]);
+						//_animationBatch.pipeline->setValue(11 + i, tempMats[i]);
 					}
 				}
 			}
@@ -353,17 +353,17 @@ namespace Barcode {
 					});
 			}
 			// Sort Front to back for animation
-			for (auto& kv : _animationBatch.batch.objects) {
+			/*for (auto& kv : _animationBatch.batch.objects) {
 				std::vector<glm::mat4>& list = kv.second;
 
 				std::sort(list.begin(), list.end(), [cameraPos](const glm::mat4& a, const glm::mat4& b) {
 					return glm::distance(glm::vec3(a[3]), cameraPos) < glm::distance(glm::vec3(b[3]), cameraPos);
 				});
-			}
+				}*/
 
 			_engine->getRenderer()->render(_geometryBatch.batch);
 
-			_engine->getRenderer()->render(_animationBatch.batch);
+			//_engine->getRenderer()->render(_animationBatch.batch);
 		}
 
 		{ // Lighting pass
@@ -500,9 +500,9 @@ namespace Barcode {
 		_cc = playerEntity->addComponent<Hydra::Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{ 5, 0, -3 });
 		playerEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
 
-		auto animatedEntity = _world->createEntity("AnimatedCube");
-		animatedEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/animatedCube.ATTIC");
-		animatedEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-10, 0, -10));
+		//		auto animatedEntity = _world->createEntity("AnimatedCube");
+		//		animatedEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/animatedCube.ATTIC");
+		//animatedEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-10, 0, -10));
 
 
 		auto weaponEntity = playerEntity->createEntity("Weapon");

@@ -8,7 +8,7 @@ layout (location = 4) in vec3 tangent;
 layout (location = 5) in mat4 m;
 layout (location = 9) in vec4 influences;
 layout (location = 10) in ivec4 controllers;
-layout (location = 11) uniform mat4 currentSkeletonTransformation[100]; //Maximum of 100 joints per skeleton
+layout (location = 11) uniform mat4 currentSkeletonTransformation[16]; //Maximum of 100 joints per skeleton
 
 out VertexData {
 	vec3 position;

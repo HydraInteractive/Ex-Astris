@@ -1,5 +1,5 @@
-#include <../hydra_network/include/NetClient.h>
-#include <hydra\component\meshcomponent.hpp>
+#include <NetClient.h>
+#include <hydra/component/meshcomponent.hpp>
 
 NetClient::NetClient() {
 }
@@ -72,7 +72,10 @@ int NetClient::decodeNewPackets(Hydra::World::IWorld* world) {
 			break;
 		case PacketType::SpawnEntityServer:
 			ent = world->createEntity("ERROR: SHIT PROBABLY FAILED");
-			ent->deserialize(nlohmann::json::parse((char*)((PacketSpawnEntityServer*)np[i])->data));
+			{
+				auto j = nlohmann::json::parse((char*)((PacketSpawnEntityServer*)np[i])->data);
+				ent->deserialize(j);
+			}
 			ent->setID(((PacketSpawnEntityServer*)np[i])->id);
 			//ent->addComponent<Hydra::Component::TransformComponent>();
 			//tc = ent->getComponent<Hydra::Component::TransformComponent>();
