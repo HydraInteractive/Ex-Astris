@@ -23,7 +23,7 @@ public:
 	std::string executableDir;
 
 	ImporterMenu();
-	ImporterMenu(Hydra::World::IEntity* editor);
+	ImporterMenu(Hydra::World::IWorld* world);
 	~ImporterMenu();
 
 	void render(bool &closeBool);
@@ -42,10 +42,9 @@ public:
 		std::string reverseEngineerPath();
 		int numberOfFiles();
 		void clean();
-		void render(int index, Hydra::World::IEntity* editor);
+		void render(int index, Hydra::World::IWorld* world);
 	private:
 		std::string _name;
-		static Hydra::World::IWorld* _world;
 		std::vector<Node*> subfolders;
 		std::vector<Node*> files;
 		bool isAllowedFile;
@@ -56,7 +55,7 @@ public:
 private:
 	Node* root;
 
-	Hydra::World::IEntity* _editor;
+	Hydra::World::IWorld* _world;
 	std::string _getExecutableDir();
 };
 
