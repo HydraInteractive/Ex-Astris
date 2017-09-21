@@ -14,6 +14,13 @@
 #include <hydra/io/meshloader.hpp>
 #include <hydra/io/textureloader.hpp>
 #include <barcode/ImporterMenu.hpp>
+#include <hydra/world/blueprintloader.hpp>
+
+#include <hydra/component/meshcomponent.hpp>
+#include <hydra/component/cameracomponent.hpp>
+#include <hydra/component/playercomponent.hpp>
+#include <hydra/component/particlecomponent.hpp>
+#include <hydra/component/aicomponent.hpp>
 
 namespace Barcode {
 	class EditorState final : public Hydra::IState {
@@ -23,7 +30,7 @@ namespace Barcode {
 
 		void onMainMenu() final;
 		void load() final;
-
+		int currentFrame = 0;
 		void runFrame(float delta) final;
 
 		inline Hydra::World::IWorld* getWorld() final { return _world.get(); };
@@ -49,8 +56,42 @@ namespace Barcode {
 		std::unique_ptr<Hydra::IO::ITextureLoader> _textureLoader;
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
 
+		Hydra::Renderer::UIRenderWindow* _positionWindow;
+		Hydra::Renderer::UIRenderWindow* _diffuseWindow;
+		Hydra::Renderer::UIRenderWindow* _normalWindow;
+		Hydra::Renderer::UIRenderWindow* _glowWindow;
+		Hydra::Renderer::UIRenderWindow* _depthWindow;
+		Hydra::Renderer::UIRenderWindow* _postTestWindow;
+
+		RenderBatch _geometryBatch; // First part of deferred rendering
+		RenderBatch _animationBatch; // AnimationBatch
+		RenderBatch _lightingBatch; // Second part of deferred rendering
+		RenderBatch _glowBatch; // Glow batch.
 		RenderBatch _viewBatch;
+		RenderBatch _postTestBatch;
+		RenderBatch _particleBatch;
+
+		// ParticleTexture
+		std::shared_ptr<Hydra::Renderer::ITexture> _particleAtlases;
+
+		// Extra framebuffers, pipeline and shaders for glow/bloom/blur
+		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurrExtraFBO1;
+		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurrExtraFBO2;
+		std::shared_ptr<Hydra::Renderer::ITexture> _blurredOriginal;
+		std::shared_ptr<Hydra::Renderer::ITexture> _blurredIMG1;
+		std::shared_ptr<Hydra::Renderer::ITexture> _blurredIMG2;
+		std::shared_ptr<Hydra::Renderer::ITexture> _blurredIMG3;
+
+		std::shared_ptr<Hydra::Renderer::IPipeline> _glowPipeline;
+		std::unique_ptr<Hydra::Renderer::IShader> _glowVertexShader;
+		std::unique_ptr<Hydra::Renderer::IShader> _glowFragmentShader;
+
+		Hydra::Component::CameraComponent* _cc = nullptr;
+		Hydra::Component::PlayerComponent* player = nullptr;
+		Hydra::Component::EnemyComponent* _enemy = nullptr;
 
 		void _initWorld();
+
+		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int &nrOfTimes, glm::vec2 size);
 	};
 }

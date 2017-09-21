@@ -5,11 +5,11 @@ ImporterMenu::ImporterMenu()
 	this->executableDir = "";
 	this->root = nullptr;
 }
-ImporterMenu::ImporterMenu(Hydra::World::IEntity* editor)
+ImporterMenu::ImporterMenu(Hydra::World::IWorld* world)
 {
 	this->executableDir = _getExecutableDir();
 	this->root = nullptr;
-	this->_editor = editor;
+	this->_world = world;
 	refresh();
 }
 ImporterMenu::~ImporterMenu()
@@ -22,7 +22,7 @@ void ImporterMenu::render(bool &closeBool)
 	ImGui::SetNextWindowSize(ImVec2(480, 640), ImGuiSetCond_Once);
 	ImGui::Begin("Static model", &closeBool);
 	if(root != nullptr)
-	root->render(0, _editor);
+	root->render(0, _world);
 	ImGui::End();
 }
 void ImporterMenu::refresh()
@@ -155,7 +155,7 @@ void ImporterMenu::Node::clean()
 		}
 	}
 }
-void ImporterMenu::Node::render(int index, Hydra::World::IEntity* editor)
+void ImporterMenu::Node::render(int index, Hydra::World::IWorld* world)
 {
 	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 	//TODO: Folder icon opening
@@ -163,7 +163,7 @@ void ImporterMenu::Node::render(int index, Hydra::World::IEntity* editor)
 	{	
 		for (int i = 0; i < this->subfolders.size(); i++)
 		{
-			subfolders[i]->render(i, editor);
+			subfolders[i]->render(i, world);
 		}
 		for (int i = 0; i < this->files.size(); i++)
 		{
@@ -171,9 +171,9 @@ void ImporterMenu::Node::render(int index, Hydra::World::IEntity* editor)
 			{
 				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
 				{
-					auto newEntity = editor->createEntity(files[i]->name());
+					Hydra::World::IEntity* newEntity = world->createEntity(files[i]->name()).get();
 					newEntity->addComponent<Hydra::Component::MeshComponent>(files[i]->reverseEngineerPath());
-					newEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 10, 0));
+					newEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
 				}
 			}
 		}
