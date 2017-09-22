@@ -289,10 +289,10 @@ std::unique_ptr<IMesh> GLMesh::create(const std::string& file, IRenderer* render
 
 std::unique_ptr<IMesh> GLMesh::createQuad(IRenderer* renderer) {
 	std::vector<Vertex> vertices{
-		Vertex{ { -1, 1, 0 },{ 0, 0, -1 },{ 1, 1, 1 },{ 0, 1 },{ 0, 0, 0 } },
-		Vertex{ { 1, 1, 0 },{ 0, 0, -1 },{ 1, 1, 1 },{ 1, 1 },{ 0, 0, 0 } },
-		Vertex{ { 1, -1, 0 },{ 0, 0, -1 },{ 1, 1, 1 },{ 1, 0 },{ 0, 0, 0 } },
-		Vertex{ { -1, -1, 0 },{ 0, 0, -1 },{ 1, 1, 1 },{ 0, 0 },{ 0, 0, 0 } }
+		Vertex{ { -0.5, 0.5, 0 },{ 0, 0, -1 },{ 1, 1, 1 },{ 0, 1 },{ 0, 0, 0 } },
+		Vertex{ { 0.5, 0.5, 0 },{ 0, 0, -1 },{ 1, 1, 1 },{ 1, 1 },{ 0, 0, 0 } },
+		Vertex{ { 0.5, -0.5, 0 },{ 0, 0, -1 },{ 1, 1, 1 },{ 1, 0 },{ 0, 0, 0 } },
+		Vertex{ { -0.5, -0.5, 0 },{ 0, 0, -1 },{ 1, 1, 1 },{ 0, 0 },{ 0, 0, 0 } }
 	};
 	std::vector<GLuint> indices{ 0, 2, 1, 2, 0, 3 };
 	return std::unique_ptr<IMesh>(new ::GLMeshImpl(vertices, indices, *static_cast<GLuint*>(renderer->getModelMatrixBuffer()), *static_cast<GLuint*>(renderer->getParticleExtraBuffer())));
