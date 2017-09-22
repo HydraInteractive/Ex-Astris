@@ -13,6 +13,5 @@ void main() {
 	vec4 color2 = texture(atlas, textureCoords2);
 
 	//fragColor = vec4(1,0,0,1);
-	//fragColor = mix(color1, color2, blend);
-	fragColor = vec4(textureCoords1, textureCoords2);
+	fragColor = mix(color1, color2, blend);
 }
