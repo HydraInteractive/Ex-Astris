@@ -20,7 +20,7 @@ PlayerComponent::PlayerComponent(IEntity* entity) : IComponent(entity) {
 	_velocityX = 0;
 	_velocityY = 0;
 	_velocityZ = 0;
-	_position = glm::vec3(0, -2, 5);
+	_position = glm::vec3(0, -2, 20);
 }
 
 PlayerComponent::~PlayerComponent() { }

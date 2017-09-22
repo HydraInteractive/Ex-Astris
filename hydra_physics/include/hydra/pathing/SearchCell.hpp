@@ -7,7 +7,7 @@
 */
 
 #pragma once
-#define WORLD_SIZE 64
+#define WORLD_SIZE 50
 #include <math.h>
 
 struct SearchCell

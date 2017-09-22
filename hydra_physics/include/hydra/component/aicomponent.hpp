@@ -14,6 +14,7 @@
 #include <hydra/pathing/pathfinding.hpp>
 #include <hydra/component/playercomponent.hpp>
 #include <math.h>
+#include <SDL2\SDL.h>
 
 using namespace Hydra::World;
 namespace Hydra::Component {
@@ -24,10 +25,10 @@ namespace Hydra::Component {
 		AlienBoss = 2,
 	};
 
-	enum PathState
-	{
-		SEARCHING,
-		FOUND_GOAL,
+	enum PathState{
+		SEARCHING = 0,
+		FOUND_GOAL = 1,
+		ATTACKING = 2,
 	};
 
 	class HYDRA_API EnemyComponent final : public IComponent{
@@ -52,13 +53,19 @@ namespace Hydra::Component {
 	private:
 		PathState _pathState;
 		PathFinding* _pathFinding = new PathFinding();
+		int _debugState;
+		unsigned int lastTime, currentTime;
+		float angle;
+		glm::quat rotation;
 
 		float _velocityX;
 		float _velocityY;
 		float _velocityZ;
+		glm::vec3 _targetPos;
 		glm::vec3 _position;
 		glm::vec3 _startPosition;
 		glm::quat _rotation;
+		bool _isAtGoal;
 		bool _falling;
 		bool _patrolPointReached;
 		EnemyTypes _enemyID = EnemyTypes::Alien;
