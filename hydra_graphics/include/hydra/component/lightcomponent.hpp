@@ -24,7 +24,7 @@ namespace Hydra::Component {
 
 		float _fov = 90.0f;
 		float _zNear = 0.001f;
-		float _zFar = 75.0f;
+		float _zFar = 200.0f;
 		float _aspect = 1920.0f / 1080.0f;
 	public:
 		LightComponent(IEntity* entity);
@@ -34,6 +34,7 @@ namespace Hydra::Component {
 		void setPosition(const glm::vec3& position);
 		void setDirection(const glm::vec3& direction);
 		inline const glm::vec3& getPosition() { return _position; }
+		inline const glm::vec3& getDirection() { return _direction; }
 		void translate(const glm::vec3& transform);
 
 		//inline Hydra::Renderer::IRenderTarget* getRenderTarget() { return _renderTarget; }
@@ -41,7 +42,7 @@ namespace Hydra::Component {
 
 		//inline glm::mat4 getViewMatrix() const { return glm::translate(glm::mat4_cast(_orientation), -_position); }
 		//inline glm::mat4 getProjectionMatrix() const { return glm::perspective(glm::radians(_fov), _aspect, _zNear, _zFar); }
-		inline glm::mat4 getProjectionMatrix() const { return glm::ortho(-1024.0f, 1024.0f, -1024.0f, 1024.0f, _zNear, _zFar); }
+		inline glm::mat4 getProjectionMatrix() const { return glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, _zNear, _zFar); }
 		inline glm::mat4 getViewMatrix() const {
 			return glm::lookAt(glm::vec3(_position.x, _position.y, _position.z),
 				   glm::vec3(_position + _direction),
@@ -49,7 +50,7 @@ namespace Hydra::Component {
 			//return glm::translate(glm::mat4_cast(_orientation), -_position);
 		}
 
-		void tick(TickAction action);
+		void tick(TickAction action, float delta);
 		TickAction wantTick() const { return TickAction::physics; }
 
 		const std::string type() const final { return "LightComponent"; }

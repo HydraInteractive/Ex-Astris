@@ -79,8 +79,8 @@ static GLenum toGLDataType(TextureType type) {
 		/* [_(TextureType::f32RGB)] = */ GL_FLOAT,
 		/* [_(TextureType::f32RGBA)] = */ GL_FLOAT,
 
-		/* [_(TextureType::f16Depth)] = */ GL_UNSIGNED_BYTE,
-		/* [_(TextureType::f32Depth)] = */ GL_UNSIGNED_BYTE
+		/* [_(TextureType::f16Depth)] = */ GL_FLOAT,
+		/* [_(TextureType::f32Depth)] = */ GL_FLOAT
 	};
 	return translate[static_cast<int>(type)];
 }
@@ -185,7 +185,14 @@ private:
 		glBindTexture(_textureType, _texture);
 
 		// TODO: be able to change this
-		if (_textureType == GL_TEXTURE_2D) {
+		if (_format == TextureType::f16Depth) {
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		}
+		
+		else if (_textureType == GL_TEXTURE_2D) {
 			glTexParameteri(_textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(_textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(_textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

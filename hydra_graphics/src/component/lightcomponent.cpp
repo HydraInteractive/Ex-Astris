@@ -25,10 +25,10 @@ void LightComponent::setDirection(const glm::vec3& direction) {
 }
 
 void LightComponent::translate(const glm::vec3& transform) {
-	_position += transform * _orientation;
+	_position += transform;
 }
 
-void LightComponent::tick(TickAction action) {
+void LightComponent::tick(TickAction action, float delta) {
 	this->_position = this->entity->getComponent<Hydra::Component::TransformComponent>()->getPosition();
 }
 
@@ -60,7 +60,7 @@ void LightComponent::deserialize(nlohmann::json& json) {
 
 void LightComponent::registerUI() {
 	ImGui::DragFloat3("Position", glm::value_ptr(_position), 0.01f);
-	ImGui::DragFloat4("Orientation", glm::value_ptr(_orientation), 0.01f);
+	ImGui::DragFloat3("Direction", glm::value_ptr(_direction), 0.01f);
 	ImGui::DragFloat("FOV", &_fov);
 	ImGui::DragFloat("Z Near", &_zNear, 0.001f);
 	ImGui::DragFloat("Z Far", &_zFar);

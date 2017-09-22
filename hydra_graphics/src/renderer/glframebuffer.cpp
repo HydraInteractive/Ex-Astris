@@ -51,6 +51,15 @@ public:
 		auto texture = GLTexture::createEmpty(_size.x, _size.y, type, _samples);
 
 		if (static_cast<uint32_t>(type) >= static_cast<uint32_t>(TextureType::f16Depth)) {
+			// The imager will be bound because of createEmpty
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+			GLfloat border[4] = { 1, 0, 0, 0 };
+			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border);
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texture->getID(), 0);
 			_depth = texture;
 		} else {
@@ -66,7 +75,8 @@ public:
 		std::vector<GLenum> buffers;
 		for (auto it = _attachments.begin(); it != _attachments.end(); ++it)
 			buffers.push_back(GL_COLOR_ATTACHMENT0 + it->first);
-		glDrawBuffers(static_cast<GLsizei>(buffers.size()), &buffers[0]);
+
+		glDrawBuffers(static_cast<GLsizei>(buffers.size()), buffers.data());
 
 		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if (status != GL_FRAMEBUFFER_COMPLETE)

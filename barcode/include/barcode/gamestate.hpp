@@ -17,6 +17,7 @@
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/playercomponent.hpp>
+#include <hydra/component/particlecomponent.hpp>
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
 
@@ -28,9 +29,10 @@ namespace Barcode {
 		GameState();
 		~GameState() final;
 
+		void onMainMenu() final;
 		void load() final;
 
-		void runFrame() final;
+		void runFrame(float delta) final;
 
 		inline Hydra::World::IWorld* getWorld() final { return _world.get(); };
 		inline Hydra::IO::ITextureLoader* getTextureLoader() final { return _textureLoader.get(); }
@@ -57,14 +59,19 @@ namespace Barcode {
 		Hydra::Renderer::UIRenderWindow* _normalWindow;
 		Hydra::Renderer::UIRenderWindow* _glowWindow;
 		Hydra::Renderer::UIRenderWindow* _depthWindow;
-		Hydra::Renderer::UIRenderWindow* _postTestWindow;
+		Hydra::Renderer::UIRenderWindow* _shadowWindow;
 
 		RenderBatch _geometryBatch; // First part of deferred rendering
+		RenderBatch _animationBatch; // AnimationBatch
 		RenderBatch _lightingBatch; // Second part of deferred rendering
 		RenderBatch _glowBatch; // Glow batch.
 		RenderBatch _viewBatch;
 		RenderBatch _postTestBatch;
 		RenderBatch _shadowBatch;
+		RenderBatch _particleBatch;
+
+		// ParticleTexture
+		std::shared_ptr<Hydra::Renderer::ITexture> _particleAtlases;
 
 		// Extra framebuffers, pipeline and shaders for glow/bloom/blur
 		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurrExtraFBO1;
