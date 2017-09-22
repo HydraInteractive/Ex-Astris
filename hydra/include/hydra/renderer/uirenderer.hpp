@@ -55,7 +55,7 @@ namespace Hydra::Renderer {
 		virtual void newFrame() = 0;
 
 		virtual void reset() = 0;
-		virtual void render() = 0; // TODO: Move to IRenderer(?)
+		virtual void render(float delta) = 0; // TODO: Move to IRenderer(?)
 
 		virtual UIRenderWindow* addRenderWindow() = 0;
 
