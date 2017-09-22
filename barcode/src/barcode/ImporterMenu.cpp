@@ -1,4 +1,4 @@
-#include "barcode/ImporterMenu.hpp"
+#include <barcode/ImporterMenu.hpp>
 
 ImporterMenu::ImporterMenu()
 {
@@ -51,11 +51,11 @@ std::string ImporterMenu::_getExecutableDir()
 #endif
 	if (bytes == 0)
 		return "/";
-	else
-		path = std::string(unicodePath);
-		std::replace(path.begin(), path.end(), '\\', '/');
-		int index = path.find_last_of('/');
-		path.erase(path.begin() + index, path.end());
+
+	path = std::string(unicodePath);
+	std::replace(path.begin(), path.end(), '\\', '/');
+	int index = path.find_last_of('/');
+	path.erase(path.begin() + index, path.end());
 	return path;
 }
 ImporterMenu::Node::Node()
@@ -76,23 +76,23 @@ ImporterMenu::Node::Node(std::string path, Node* parent, bool isFile)
 	std::vector<std::string> inFiles;
 	std::vector<std::string> inFolders;
 	_getContentsOfDir(path, inFiles, inFolders);
-	for (int i = 0; i < inFolders.size(); i++)
+	for (size_t i = 0; i < inFolders.size(); i++)
 	{
 		this->subfolders.push_back(new Node(inFolders[i], this));
 	}
-	for (int i = 0; i < inFiles.size(); i++)
+	for (size_t i = 0; i < inFiles.size(); i++)
 	{
 		this->files.push_back(new Node(inFiles[i], this));
 	}
 }
 ImporterMenu::Node::~Node()
 {
-	for (int i = 0; i < subfolders.size(); i++)
+	for (size_t i = 0; i < subfolders.size(); i++)
 	{
 		delete subfolders[i];
 	}
 	subfolders.clear();
-	for (int i = 0; i < files.size(); i++)
+	for (size_t i = 0; i < files.size(); i++)
 	{
 		delete files[i];
 	}
@@ -104,7 +104,7 @@ std::string ImporterMenu::Node::name()
 }
 std::string ImporterMenu::Node::pathToName(std::string path)
 {
-	unsigned int i = path.find_last_of('/');
+	size_t i = path.find_last_of('/');
 	if (i == std::string::npos)
 	{
 		return path;
@@ -130,7 +130,7 @@ int ImporterMenu::Node::numberOfFiles()
 	if (!isAllowedFile)
 	{
 		int allFiles = files.size();
-		for (int i = 0; i < subfolders.size(); i++)
+		for (size_t i = 0; i < subfolders.size(); i++)
 		{
 			allFiles += subfolders[i]->numberOfFiles();
 		}
@@ -141,7 +141,7 @@ int ImporterMenu::Node::numberOfFiles()
 //Removes all folders that do not have any files
 void ImporterMenu::Node::clean()
 {
-	for (int i = 0; i < subfolders.size(); i++)
+	for (size_t i = 0; i < subfolders.size(); i++)
 	{
 		if (subfolders[i]->numberOfFiles() == 0)
 		{
@@ -161,11 +161,11 @@ void ImporterMenu::Node::render(int index, Hydra::World::IWorld* world)
 	//TODO: Folder icon opening
 	if (ImGui::TreeNodeEx((void*)(intptr_t)index, node_flags, ICON_FA_FOLDER " %s", _name.c_str()))
 	{	
-		for (int i = 0; i < this->subfolders.size(); i++)
+		for (size_t i = 0; i < this->subfolders.size(); i++)
 		{
 			subfolders[i]->render(i, world);
 		}
-		for (int i = 0; i < this->files.size(); i++)
+		for (size_t i = 0; i < this->files.size(); i++)
 		{
 			if (ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_CUBE " %s", files[i]->_name.c_str()))
 			{
