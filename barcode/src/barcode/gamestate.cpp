@@ -351,11 +351,58 @@ namespace Barcode {
 		{ // Hud windows
 			static float f = 0.0f;
 			static bool b = false;
-			const ImVec2 pos = ImVec2(_engine->getView()->getSize().x/2, _engine->getView()->getSize().y/2);
-			ImGui::SetNextWindowPos(pos);
-			ImGui::Begin("Another Window", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-			ImGui::Text("Crosshair to be");
+			static float invisF[3] = { 0, 0, 0 };
+			float hpP = 100;
+			float ammoP = 100;
+			
+			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0));
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, float(0.0f));
+
+			const ImVec2 pos = ImVec2(_engine->getView()->getSize().x / 2, _engine->getView()->getSize().y / 2);
+
+			ImGui::SetNextWindowPos(pos + ImVec2(-10, 1));
+			ImGui::SetNextWindowSize(ImVec2(20, 20));
+			ImGui::Begin("Crosshair", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Crosshair.png")->getID()), ImVec2(20, 20));
 			ImGui::End();
+
+			ImGui::SetNextWindowPos(pos + ImVec2(-51, -42));
+			ImGui::SetNextWindowSize(ImVec2(120, 120));
+			ImGui::Begin("AimRing", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/AimRing.png")->getID()), ImVec2(100, 100));
+			ImGui::End();
+
+			float offsetHpF = 72 * hpP * 0.01;
+			int offsetHp = offsetHpF;
+			ImGui::SetNextWindowPos(pos + ImVec2(-47, -26 + 72 - offsetHp));
+			ImGui::SetNextWindowSize(ImVec2(100, 100));
+			ImGui::Begin("HpOnRing", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HpOnRing.png")->getID()), ImVec2(22, offsetHp), ImVec2(0, 1 - hpP * 0.01), ImVec2(1, 1));
+			ImGui::End();
+
+			float offsetAmmoF = 72 * ammoP * 0.01;
+			int offsetAmmo = offsetAmmoF;
+			ImGui::SetNextWindowPos(pos + ImVec2(+25, -26 + 72 - offsetAmmo));
+			ImGui::SetNextWindowSize(ImVec2(100, 100));
+			ImGui::Begin("AmmoOnRing", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/AmmoOnRing.png")->getID()), ImVec2(22, offsetAmmo), ImVec2(0, 1 - ammoP * 0.01), ImVec2(1, 1));
+			ImGui::End();
+
+			float degres = 0;
+			float degresP = ((float(100) / float(360) * degres)/100);
+			float degresO = float(1000) * degresP;
+			ImGui::SetNextWindowPos(ImVec2(pos.x - 275, + 70));
+			ImGui::SetNextWindowSize(ImVec2(600, 20));
+			ImGui::Begin("Compass", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Compass.png")->getID()), ImVec2(550, 20), ImVec2(degresO / float(1550), 0), ImVec2((float(1) - ((float(1000) - degresO) / float(1550))), 1));
+			_textureLoader->getTexture("assets/hud/Compass.png")->setRepeat();
+			ImGui::End();
+
+			ImGui::PopStyleColor();
+			ImGui::PopStyleVar();
+			ImGui::PopStyleVar();
+
 		}
 
 		{ // Update UI & views
