@@ -1,7 +1,7 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /**
-* Player stuff
+* Bullet stuff
 *
 * License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
 * Authors:
@@ -30,7 +30,7 @@ BulletComponent::~BulletComponent() { }
 
 void BulletComponent::tick(TickAction action, float delta) {
 	// If you only have one TickAction in 'wantTick' you don't need to check the tickaction here.
-	_position += _velocity * _direction;
+	_position += _velocity * _direction * delta;
 	
 	auto transform = entity->getComponent<Component::TransformComponent>();
 	transform->setPosition(_position);

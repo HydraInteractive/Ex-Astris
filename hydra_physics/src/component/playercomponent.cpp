@@ -62,8 +62,22 @@ void PlayerComponent::tick(TickAction action, float delta) {
 		}
 
 		if (keysArray[SDL_SCANCODE_SPACE] && _onGround){
-			_acceleration.y -= 0.3f;
+			_acceleration.y -= 6.0f;
 			_onGround = false;
+		}
+		if (keysArray[SDL_SCANCODE_G]){
+
+			std::shared_ptr<Hydra::World::IEntity> grenades;
+			std::vector<std::shared_ptr<Hydra::World::IEntity>> children = entity->getChildren();
+
+			for (size_t i = 0; i < children.size(); i++) {
+				if (children[i]->getName() == "Grenades") {
+					grenades = children[i];
+				}
+			}
+
+			auto grenade = grenades->createEntity("grenade");
+			grenade->addComponent<Component::GrenadeComponent>(_position, -forward);
 		}
 
 		if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_MIDDLE)) {
@@ -72,13 +86,13 @@ void PlayerComponent::tick(TickAction action, float delta) {
 		}
 	}
 
-	_acceleration.y += 0.01f;
+	_acceleration.y += 10.0f * delta;
 
 	glm::vec3 movementVector = (_velocity.z * forward + _velocity.x * strafe);
 	movementVector.y = _acceleration.y;
 	_debug = _acceleration.y;
 
-	_position += movementVector;
+	_position += movementVector * delta;
 
 	
 	if (_position.y > 0) {

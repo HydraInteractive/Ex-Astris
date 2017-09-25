@@ -17,6 +17,7 @@
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
+#include <hydra/component/grenadecomponent.hpp>
 
 using namespace Hydra::World;
 
@@ -40,7 +41,7 @@ namespace Hydra::Component {
 		glm::vec3 _position = glm::vec3(0,-2,3);
 		glm::vec3 _velocity;
 		glm::vec3 _acceleration;
-		float _movementSpeed = 0.2f;
+		float _movementSpeed = 5.0f;
 		bool _onGround = false;
 
 		bool _firstPerson = true;

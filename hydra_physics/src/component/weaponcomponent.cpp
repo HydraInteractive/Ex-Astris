@@ -1,7 +1,7 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /**
-* Player stuff
+* Weapon stuff
 *
 * License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
 * Authors:
@@ -31,18 +31,18 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 {
 	if (SDL_GetTicks() > _fireRateTimer + 1000/(_fireRateRPM/60)){
 		if (_bulletSpread == 0.0f){
-			std::shared_ptr<Hydra::World::IEntity> bullet = getBullets()->createEntity("Bullet");
+			auto bullet = getBullets()->createEntity("Bullet");
 			
-			bullet->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
-			bullet->addComponent<Hydra::Component::BulletComponent>(position, -direction, 0.1f);
+			bullet->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
+			bullet->addComponent<Hydra::Component::BulletComponent>(position, -direction, 2.0f);
 			auto transform = bullet->addComponent<Hydra::Component::TransformComponent>(position, glm::vec3(_bulletSize));
 
 			transform->setRotation(bulletOrientation);
 		}
 		else {
 			for (int i = 0; i < _bulletsPerShot; i++) {
-				std::shared_ptr<Hydra::World::IEntity> bullet = getBullets()->createEntity("Bullet");
-				bullet->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+				auto bullet = getBullets()->createEntity("Bullet");
+				bullet->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
 
 				std::random_device rd;
 				std::mt19937 gen(rd());
@@ -59,7 +59,7 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 				bulletDirection.z += distance * cos(theta);
 				bulletDirection = glm::normalize(bulletDirection);
 
-				bullet->addComponent<Hydra::Component::BulletComponent>(position, bulletDirection, 0.1f);
+				bullet->addComponent<Hydra::Component::BulletComponent>(position, bulletDirection, 2.0f);
 
 				auto transform = bullet->addComponent<Hydra::Component::TransformComponent>(position, glm::vec3(_bulletSize));
 				transform->setRotation(bulletOrientation);

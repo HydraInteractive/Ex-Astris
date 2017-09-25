@@ -8,5 +8,6 @@ namespace Hydra::Component::ComponentManager {
 		creators["EnemyComponent"] = &createOrGetComponentHelper<EnemyComponent>;
 		creators["WeaponComponent"] = &createOrGetComponentHelper<WeaponComponent>;
 		creators["BulletComponent"] = &createOrGetComponentHelper<BulletComponent>;
+		creators["GrenadeComponent"] = &createOrGetComponentHelper<GrenadeComponent>;
 	}
 }
