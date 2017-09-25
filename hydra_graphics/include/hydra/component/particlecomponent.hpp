@@ -31,7 +31,7 @@ namespace Hydra::Component {
 			this->pos = pos;
 			this->vel = vel;
 			this->life = life;
-			this->scale = glm::vec3(1.0f);
+			this->scale = glm::vec3(0.1f);
 			this->elapsedTime = 0.f;
 			this->dead = false;
 			this->grav = -3.14159265357989f;
@@ -73,6 +73,7 @@ namespace Hydra::Component {
 		void _clearDeadParticles();
 		void _emmitParticle();
 		void _updateTextureCoordInfo(std::shared_ptr<Particle>& p, float delta);
+		void _sortParticles();
 		void _setTextureOffset(glm::vec2& offset, int index);
 	};
 };

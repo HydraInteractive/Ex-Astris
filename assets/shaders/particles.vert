@@ -17,11 +17,10 @@ out float blend;
 
 void main() {
 	texCoords = uv.xy;
-	//texCoords = uv.xy + vec2(0.5, 0.5);
-	//texCoords.y = 1.0 - uv.y;
-	//texCoords /= textureCoordInfo.x;
-	//textureCoords1 = texCoords + textureOffset1;
-	//textureCoords2 = texCoords + textureOffset2;
+	texCoords.y = 1.0 - uv.y;
+	texCoords /= textureCoordInfo.x;
+	textureCoords1 = texCoords + textureOffset1;
+	textureCoords2 = texCoords + textureOffset2;
 	blend = textureCoordInfo.y;
 
 	gl_Position = m * vec4(position, 1);

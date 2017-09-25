@@ -18,7 +18,6 @@ _pps(nrOfParticles), _behaviour(behaviour), _accumulator(0.f){
 	_drawObject->refCounter++;
 	_drawObject->mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getQuad().get();
 	_tempRotation = glm::mat4(1);
-	//_tempRotation *= glm::angleAxis(glm::radians(90.f), glm::vec3(0,0,1));
 }
 
 ParticleComponent::~ParticleComponent() {
@@ -52,16 +51,15 @@ void ParticleComponent::_generateParticles() {
 
 void ParticleComponent::_emmitParticle() {
 	std::shared_ptr<Particle> p = std::make_shared<Particle>();
-	float dirX = 0;
-	float dirY = 0;
+	float dirX = frand() * 2 - 1;
+	float dirY = frand() * 2 - 1;
 	float dirZ = 0;
-	p->spawn(glm::vec3(0), glm::normalize(glm::vec3(dirX, dirY, dirZ)), 10.0f);
-	p->vel = glm::normalize(p->vel);
+	p->spawn(glm::vec3(0), glm::normalize(glm::vec3(dirX, dirY, dirZ)) * glm::vec3(0.1), 1.0f);
 	_particles.push_back(p);
 }
 
 void ParticleComponent::_particlePhysics(float delta) {
-	for (auto p : _particles) {
+	for (auto& p : _particles) {
 		if (p->life <= p->elapsedTime)
 			p->dead = true;
 
@@ -90,8 +88,8 @@ void ParticleComponent::_updateTextureCoordInfo(std::shared_ptr<Particle>& p, fl
 void ParticleComponent::_setTextureOffset(glm::vec2& offset, int index) {
 	int column = index % ROW;
 	int row = index / ROW;
-	offset.x = (float)column / ROW;
-	offset.y = (float)row / ROW;
+	offset.x = column / (float)ROW;
+	offset.y = row / (float)ROW;
 }
 
 void ParticleComponent::_clearDeadParticles() {
@@ -104,6 +102,10 @@ void ParticleComponent::_clearDeadParticles() {
 		), 
 	_particles.end()
 	);
+}
+
+void ParticleComponent::_sortParticles() {
+	//std::sort(_particles.begin(), _particles.end(), );
 }
 
 void ParticleComponent::serialize(nlohmann::json & json) const{

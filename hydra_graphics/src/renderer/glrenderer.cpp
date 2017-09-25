@@ -116,7 +116,6 @@ public:
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
 			size_t sizeMatrix = kv.second.size();
-
 			glBindVertexArray(mesh->getID());
 
 			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
