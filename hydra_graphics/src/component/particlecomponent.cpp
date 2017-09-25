@@ -28,13 +28,16 @@ ParticleComponent::~ParticleComponent() {
 }
 
 void ParticleComponent::tick(TickAction action, float delta){
-	if (action == TickAction::physics && _particles.size() > 0)
+	if (action == TickAction::physics && _particles.size() > 0) {
 		_particlePhysics(delta);
-	if (action == TickAction::renderTransparent) {
+		printf("doing this\n");
+	}
+	if (action == TickAction::renderTransparent && _particles.size() == 0) {
 		_accumulator += delta;
+		printf("Doing taht\n");
 		_generateParticles();
 	}
-	_clearDeadParticles();
+	//_clearDeadParticles();
 }
 
 void ParticleComponent::_generateParticles() {
@@ -53,17 +56,18 @@ void ParticleComponent::_generateParticles() {
 void ParticleComponent::_emmitParticle() {
 	std::shared_ptr<Particle> p = std::make_shared<Particle>();
 	float dirX = 0;
-	float dirY = 0.01f;
+	float dirY = 0;
 	float dirZ = 0;
 	p->spawn(glm::vec3(0), glm::normalize(glm::vec3(dirX, dirY, dirZ)), 10.0f);
+	p->vel = glm::normalize(p->vel);
 	_particles.push_back(p);
 }
 
 void ParticleComponent::_particlePhysics(float delta) {
-	for (auto& p : _particles) {
-		if (p->life <= p->elapsedTime) {
+	for (auto p : _particles) {
+		if (p->life <= p->elapsedTime)
 			p->dead = true;
-		}
+
 		if (p->dead)
 			continue;
 

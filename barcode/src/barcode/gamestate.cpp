@@ -149,7 +149,7 @@ namespace Barcode {
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 
-			_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/error.png");
+			_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/fireAtlas.png");
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
 			batch.batch.clearFlags = ClearFlags::color | ClearFlags::depth;
@@ -319,9 +319,10 @@ namespace Barcode {
 		}
 
 		{ // Particle batch
-			_particleBatch.batch.textureInfo.clear();
-			for (auto& kv : _particleBatch.batch.objects)
+			for (auto& kv : _particleBatch.batch.objects) {
 				kv.second.clear();
+				_particleBatch.batch.textureInfo.clear();
+			}
 
 			bool anyParticles = false;
 			for (auto& entity : _world->getActiveComponents<Hydra::Component::ParticleComponent>()) {

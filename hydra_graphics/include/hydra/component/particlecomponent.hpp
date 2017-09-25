@@ -31,10 +31,13 @@ namespace Hydra::Component {
 			this->pos = pos;
 			this->vel = vel;
 			this->life = life;
-			this->scale = glm::vec3(0.1f);
+			this->scale = glm::vec3(1.0f);
 			this->elapsedTime = 0.f;
 			this->dead = false;
 			this->grav = -3.14159265357989f;
+			this->texOffset1 = glm::vec2(0);
+			this->texOffset2 = glm::vec2(0);
+			this->texCoordInfo = glm::vec2(0);
 			// Gonna fix rotation soon...
 			this->m = glm::translate(pos) * glm::scale(scale);
 		}

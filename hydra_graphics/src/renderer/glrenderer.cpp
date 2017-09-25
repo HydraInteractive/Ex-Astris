@@ -124,7 +124,7 @@ public:
 			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeMatrix * sizeof(glm::mat4), &kv.second[0]);
 
 			glBindBuffer(GL_ARRAY_BUFFER, _particleBuffer);
-			//glBufferData(GL_ARRAY_BUFFER, sizeParticles * sizeof(glm::vec2), nullptr, GL_STREAM_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeParticles * sizeof(glm::vec2), nullptr, GL_STREAM_DRAW);
 			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeParticles * sizeof(glm::vec2), &particles[0]);
 			glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(sizeMatrix));
 		}
