@@ -7,13 +7,15 @@ enum string[] SubProjects = ["hydra", "hydra_graphics", "hydra_network", "hydra_
 enum string SubProjectsInclude = SubProjects.map!((string x) => "-I" ~ x ~ "/include").joiner(" ").array.to!string;
 enum string SubProjectsLink = SubProjects.map!((string x) => "-l" ~ x).joiner(" ").array.to!string;
 
-enum string CFlagsLib = "-O0 -std=c++14 -ffat-lto-objects -ggdb -Wall -Wextra -Werror -fdiagnostics-color=always -fopenmp -fPIC " ~ SubProjectsInclude;
-enum string CFlagsExec = "-O0 -std=c++14 -ffat-lto-objects -ggdb -Wall -Wextra -Werror -fdiagnostics-color=always -fopenmp -fPIC -Ibarcode/include " ~ SubProjectsInclude;
+enum warnings = "-Wall -Wextra -Werror -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wrestrict -Wnull-dereference -Wformat=2 -Wno-error=unused-parameter -Wno-error=format-nonliteral";
+
+enum string CFlagsLib = "-O0 -std=c++14 -ffat-lto-objects -ggdb " ~ warnings ~ " -fdiagnostics-color=always -fopenmp -fPIC " ~ SubProjectsInclude;
+enum string CFlagsExec = "-O0 -std=c++14 -ffat-lto-objects -ggdb -Wall " ~ warnings ~ " -fdiagnostics-color=always -fopenmp -fPIC -Ibarcode/include " ~ SubProjectsInclude;
 
 enum LFlagsHydraLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -lm -ldl -lSDL2";
 enum LFlagsGraphicsLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -ldl -lhydra -lGL -lSDL2 -lSDL2_image -lSDL2_ttf -lassimp";
 enum LFlagsNetworkLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -lhydra -lhydra_graphics -lSDL2_net";
-enum LFlagsPhysicsLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -lhydra -lhydra_graphics -lSDL2";
+enum LFlagsPhysicsLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -lhydra -lhydra_graphics -lSDL2 -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath";
 enum LFlagsSoundLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -lhydra -lhydra_graphics -lSDL2_mixer";
 enum LFlagsExec = "-O0 -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp " ~ SubProjectsLink;
 

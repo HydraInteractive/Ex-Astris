@@ -23,6 +23,8 @@ EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID) : IComponent
 	_startPosition = glm::vec3(0, 0, 0);
 	_patrolPointReached = false;
 	_falling = false;
+	_pathState = SEARCHING;
+	lastTime = 0;
 }
 
 EnemyComponent::~EnemyComponent() { }
@@ -33,8 +35,11 @@ void EnemyComponent::tick(TickAction action, float delta) {
 	_velocityX = 0;
 	_velocityY = 0;
 	_velocityZ = 0;
+	_debugState = _pathState;
 
 	auto enemy = entity->getComponent<Component::TransformComponent>();
+	std::shared_ptr<Hydra::World::IEntity> playerEntity = getPlayerComponent();
+	auto player = playerEntity->getComponent<Component::PlayerComponent>();
 	if (_startPosition == glm::vec3(0, 0, 0))
 	{
 		_startPosition = enemy->getPosition();
@@ -44,8 +49,85 @@ void EnemyComponent::tick(TickAction action, float delta) {
 	{
 		_position = enemy->getPosition();
 
+		/*switch (_pathState)
+		{
+			case SEARCHING:
+			{
+				_pathFinding->findPath(enemy->getPosition(), glm::vec3(1.0f, 0.0f, 1.0f));
+				if (_pathFinding->foundGoal)
+				{
+					_pathState = FOUND_GOAL;
+				}
+			}
+			case FOUND_GOAL:
+			{
+				glm::vec3 targetDistance = _pathFinding->nextPathPos(enemy->getPosition(), getRadius()) - enemy->getPosition();
+				float angle = glm::degrees(atan2(targetDistance.x, targetDistance.z));
+				enemy->setRotation(glm::angleAxis(angle, glm::vec3(0, 1, 0)));
+				_position.x -= 0.1f * sinf(angle * 3.14159 / 180);
+				_position.z += 0.1f * cosf(angle * 3.14159 / 180);
+			}
+		}*/
 
-		if (_position.z < _startPosition.z - 10)
+		if (_pathState == SEARCHING)
+		{
+			_pathFinding->findPath(enemy->getPosition(), player->getPosition());
+			_isAtGoal = false;
+			_targetPos = player->getPosition();
+			if (_pathFinding->foundGoal)
+			{
+				_pathState = FOUND_GOAL;
+			}
+		}
+		if (_pathState == FOUND_GOAL)
+		{
+			if (glm::length(enemy->getPosition() - player->getPosition()) < 8)
+			{
+				_isAtGoal = true;
+				_pathState = ATTACKING;
+			}
+
+			if (!_isAtGoal)
+			{
+				glm::vec3 targetDistance = _pathFinding->nextPathPos(enemy->getPosition(), getRadius()) - enemy->getPosition();
+				angle = glm::degrees(atan2(targetDistance.x, targetDistance.z));
+				rotation = glm::angleAxis(glm::radians(angle), glm::vec3(0, 1, 0));
+				_velocityX -= 0.2f * cos(angle);
+				_velocityZ += 0.2f * sin(angle);
+				if (glm::length(_targetPos - enemy->getPosition()) < 8)
+				{
+					if (glm::length(enemy->getPosition() - player->getPosition()) > 5)
+					{
+						_pathFinding->intializedStartGoal = false;
+						_pathFinding->foundGoal = false;
+						_pathFinding->clearPathToGoal();
+						_pathState = SEARCHING;
+					}
+				}
+			}
+		}
+		if (_pathState == ATTACKING)
+		{
+			if (glm::length(enemy->getPosition() - player->getPosition()) > 8)
+			{
+				_pathFinding->intializedStartGoal = false;
+				_pathFinding->foundGoal = false;
+				_pathFinding->clearPathToGoal();
+				_pathState = SEARCHING;
+			}
+			else
+			{
+				glm::vec3 playerDir = enemy->getPosition() - player->getPosition();
+				angle = glm::degrees(atan2(playerDir.x, playerDir.z));
+				rotation = glm::angleAxis(glm::radians(angle), glm::vec3(0, 1, 0));
+			}
+		}
+
+
+
+
+
+		/*if (_position.z < _startPosition.z - 10)
 		{
 			_patrolPointReached = true;
 
@@ -62,11 +144,13 @@ void EnemyComponent::tick(TickAction action, float delta) {
 		else if (_patrolPointReached == true)
 		{
 			_velocityZ += 0.1f;
-		}
+		}*/
 
 		_position = _position + glm::vec3(_velocityX, _velocityY, _velocityZ);
-
 		enemy->setPosition(_position);
+		//glm::quat rotation = glm::angleAxis(atan2(-_velocityX, -_velocityZ), glm::vec3(0, 1, 0)) * glm::angleAxis(glm::radians(180.0f), glm::vec3(1, 0, 0));
+		enemy->setRotation(rotation);
+		
 	}
 	else if (_enemyID == EnemyTypes::Robot)
 	{
@@ -94,6 +178,8 @@ void EnemyComponent::tick(TickAction action, float delta) {
 		_position = _position + glm::vec3(_velocityX, _velocityY, _velocityZ);
 
 		enemy->setPosition(_position);
+		glm::quat rotation = glm::angleAxis(atan2(-_velocityX, -_velocityZ), glm::vec3(0, 1, 0)) * glm::angleAxis(glm::radians(180.0f), glm::vec3(1, 0, 0));
+		enemy->setRotation(rotation);
 	}
 	else if (_enemyID == EnemyTypes::AlienBoss)
 	{
@@ -125,22 +211,35 @@ void EnemyComponent::tick(TickAction action, float delta) {
 		_position = _position + glm::vec3(_velocityX, _velocityY, _velocityZ);
 
 		enemy->setPosition(_position);
+		glm::quat rotation = glm::angleAxis(atan2(-_velocityX, -_velocityZ), glm::vec3(0, 1, 0)) * glm::angleAxis(glm::radians(180.0f), glm::vec3(1, 0, 0));
+		enemy->setRotation(rotation);
 	}
 	
-	glm::quat rotation = glm::angleAxis(atan2(-_velocityX, -_velocityZ), glm::vec3(0, 1, 0)) * glm::angleAxis(glm::radians(180.0f), glm::vec3(1, 0, 0));
-	enemy->setRotation(rotation);
+	
 }
 
-glm::vec3 Hydra::Component::EnemyComponent::getPosition()
+glm::vec3 EnemyComponent::getPosition()
 {
 	auto enemy = entity->getComponent<Component::TransformComponent>();
 
 	return enemy->getPosition();
 }
 
-float Hydra::Component::EnemyComponent::getRadius()
+float EnemyComponent::getRadius()
 {
-	return 1.5f;
+	return 5.0f;
+}
+
+std::shared_ptr<Hydra::World::IEntity> EnemyComponent::getPlayerComponent()
+{
+	std::shared_ptr<Hydra::World::IEntity> player;
+	auto world = entity->getParent()->getChildren();
+	for (size_t i = 0; i < world.size(); i++) {
+		if (world[i]->getName() == "Player") {
+			player = world[i];
+		}
+	}
+	return player;
 }
 
 void EnemyComponent::serialize(nlohmann::json& json) const {
@@ -151,6 +250,7 @@ void EnemyComponent::serialize(nlohmann::json& json) const {
 		{ "velocityY", _velocityY },
 		{ "velocityZ", _velocityZ },
 		{ "enemyID", (int)_enemyID },
+		{ "pathState", (int)_pathState },
 	};
 }
 
@@ -166,6 +266,7 @@ void EnemyComponent::deserialize(nlohmann::json& json) {
 	_velocityZ = json["velocityZ"].get<float>();
 
 	_enemyID = (EnemyTypes)json["enemyID"].get<int>();
+	_pathState = (PathState)json["pathState"].get<int>();
 }
 
 // Register UI buttons in the debug UI
@@ -175,4 +276,10 @@ void EnemyComponent::registerUI() {
 	ImGui::InputFloat("Y", &_position.y);
 	ImGui::InputFloat("Z", &_position.z);
 	ImGui::InputFloat("startY", &_startPosition.y);
+	ImGui::InputInt("pathState", &_debugState);
+	ImGui::InputFloat("targetX", &_targetPos.x);
+	ImGui::InputFloat("targetY", &_targetPos.y);
+	ImGui::InputFloat("targetZ", &_targetPos.z);
+	
 }
+

@@ -28,16 +28,13 @@ ParticleComponent::~ParticleComponent() {
 }
 
 void ParticleComponent::tick(TickAction action, float delta){
-	if (action == TickAction::physics && _particles.size() > 0) {
+	if (action == TickAction::physics && _particles.size() > 0)
 		_particlePhysics(delta);
-		printf("doing this\n");
-	}
-	if (action == TickAction::renderTransparent && _particles.size() == 0) {
+	if (action == TickAction::renderTransparent) {
 		_accumulator += delta;
-		printf("Doing taht\n");
 		_generateParticles();
 	}
-	//_clearDeadParticles();
+	_clearDeadParticles();
 }
 
 void ParticleComponent::_generateParticles() {
