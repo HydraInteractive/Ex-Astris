@@ -30,7 +30,7 @@ namespace Barcode {
 
 		void onMainMenu() final;
 		void load() final;
-
+		int currentFrame = 0;
 		void runFrame(float delta) final;
 
 		inline Hydra::World::IWorld* getWorld() final { return _world.get(); };

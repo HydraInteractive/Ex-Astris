@@ -23,6 +23,7 @@ GrenadeComponent::GrenadeComponent(IEntity* entity, glm::vec3 position, glm::vec
 	_position = position;
 	_direction = direction;
 	_velocity = 20.0f;
+	_fallingVelocity = 20.0f;
 	entity->addComponent<Component::MeshComponent>("assets/objects/Fridge.ATTIC");
 	entity->addComponent<Component::TransformComponent>(_position);
 }
@@ -31,13 +32,29 @@ GrenadeComponent::GrenadeComponent(IEntity* entity, glm::vec3 position, glm::vec
 GrenadeComponent::~GrenadeComponent() { }
 
 void GrenadeComponent::tick(TickAction action, float delta) {
-	// If you only have one TickAction in 'wantTick' you don't need to check the tickaction here.
-	//_direction -= 0.1f * delta;
-	_direction.y += 0.8f * delta;
-	_position += (_direction * _velocity) * delta;
+	
+	_direction.y += 0.8 * delta;
+	
+	_velocity -= 2.0f * delta;
+
+	if (_velocity < 0){
+		_velocity = 0;
+	}
+	if (_fallingVelocity < 0){
+		_fallingVelocity = 0;
+	}
+
+	glm::vec3 temp(_velocity, _fallingVelocity, _velocity);
+
+	_position += _direction * temp * delta;
+
 	if (_position.y > 0.0f) {
 		_position.y = 0.0f;
+		_direction.y = -_direction.y;
+		_fallingVelocity -= 10.0f;
+		_velocity -= 5.0f;
 	}
+
 	auto transform = entity->getComponent<Component::TransformComponent>();
 	transform->setPosition(_position);
 }
@@ -54,6 +71,5 @@ void GrenadeComponent::deserialize(nlohmann::json& json) {
 // Note: This function won't always be called
 void GrenadeComponent::registerUI() {
 	ImGui::DragFloat3("Position", glm::value_ptr(_position));
-	ImGui::DragFloat3("Direction", glm::value_ptr(_direction));
-	ImGui::DragFloat("Velocity", &_velocity);
+	//ImGui::DragFloat("Velocity", &_velocity);
 }

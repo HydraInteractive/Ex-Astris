@@ -220,7 +220,7 @@ namespace Barcode {
 	void GameState::onMainMenu() { }
 
 	//Global variable to maintain a keyframe for now
-	int currentFrame = 0;
+
 
 	void GameState::runFrame(float delta) {
 		{ // Fetch new events

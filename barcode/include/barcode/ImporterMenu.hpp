@@ -15,37 +15,35 @@
 #include <hydra/world/world.hpp>
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
-#include <stack>
 
 class ImporterMenu
 {
 public:
 	std::string executableDir;
-
 	ImporterMenu();
-	ImporterMenu(Hydra::World::IEntity* editor);
+	ImporterMenu(Hydra::World::IWorld* world);
 	~ImporterMenu();
 
 	void render(bool &closeBool);
 	void refresh();
+private:
 
 	class Node
 	{
 	public:
-
-
 		Node();
 		Node(std::string path, Node* parent = nullptr, bool isFile = false);
 		~Node();
+
 		std::string name();
+		std::string getExt();
 		std::string pathToName(std::string path);
 		std::string reverseEngineerPath();
 		int numberOfFiles();
 		void clean();
-		void render(int index, Hydra::World::IEntity* editor);
+		void render(int index, Hydra::World::IWorld* world);
 	private:
 		std::string _name;
-		static Hydra::World::IWorld* _world;
 		std::vector<Node*> subfolders;
 		std::vector<Node*> files;
 		bool isAllowedFile;
@@ -53,10 +51,8 @@ public:
 
 		void _getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders) const;
 	};
-private:
 	Node* root;
-
-	Hydra::World::IEntity* _editor;
+	Hydra::World::IWorld* _world;
 	std::string _getExecutableDir();
 };
 

@@ -34,19 +34,23 @@ namespace Hydra::Component {
 		std::shared_ptr<Hydra::World::IEntity> getWeapon();
 
 		inline const std::string type() const final { return "PlayerComponent"; }
+		const glm::vec3 getPosition() { return _position; };
+
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
 	private:
+
 		glm::vec3 _position = glm::vec3(0,-2,3);
 		glm::vec3 _velocity;
 		glm::vec3 _acceleration;
-		float _movementSpeed = 5.0f;
+		float _movementSpeed = 20.0f;
 		bool _onGround = false;
-
 		bool _firstPerson = true;
 
 		float _debug;
 		glm::vec3 _debugPos;
+
+
 	};
 };

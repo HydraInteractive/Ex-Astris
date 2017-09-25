@@ -1,15 +1,16 @@
-#include "barcode/ImporterMenu.hpp"
+#include <barcode/ImporterMenu.hpp>
 
 ImporterMenu::ImporterMenu()
 {
 	this->executableDir = "";
 	this->root = nullptr;
+	this->_world = nullptr;
 }
-ImporterMenu::ImporterMenu(Hydra::World::IEntity* editor)
+ImporterMenu::ImporterMenu(Hydra::World::IWorld* world)
 {
 	this->executableDir = _getExecutableDir();
 	this->root = nullptr;
-	this->_editor = editor;
+	this->_world = world;
 	refresh();
 }
 ImporterMenu::~ImporterMenu()
@@ -20,9 +21,9 @@ ImporterMenu::~ImporterMenu()
 void ImporterMenu::render(bool &closeBool)
 {
 	ImGui::SetNextWindowSize(ImVec2(480, 640), ImGuiSetCond_Once);
-	ImGui::Begin("Static model", &closeBool);
+	ImGui::Begin("Import", &closeBool);
 	if(root != nullptr)
-	root->render(0, _editor);
+	root->render(0, _world);
 	ImGui::End();
 }
 void ImporterMenu::refresh()
@@ -34,7 +35,6 @@ void ImporterMenu::refresh()
 	root = new Node(executableDir + "/assets");
 	root->clean();
 }
-
 std::string ImporterMenu::_getExecutableDir()
 {
 	std::string path;
@@ -51,13 +51,14 @@ std::string ImporterMenu::_getExecutableDir()
 #endif
 	if (bytes == 0)
 		return "/";
-	else
-		path = std::string(unicodePath);
-		std::replace(path.begin(), path.end(), '\\', '/');
-		int index = path.find_last_of('/');
-		path.erase(path.begin() + index, path.end());
+
+	path = std::string(unicodePath);
+	std::replace(path.begin(), path.end(), '\\', '/');
+	int index = path.find_last_of('/');
+	path.erase(path.begin() + index, path.end());
 	return path;
 }
+
 ImporterMenu::Node::Node()
 {
 	this->_name = "";
@@ -76,23 +77,23 @@ ImporterMenu::Node::Node(std::string path, Node* parent, bool isFile)
 	std::vector<std::string> inFiles;
 	std::vector<std::string> inFolders;
 	_getContentsOfDir(path, inFiles, inFolders);
-	for (int i = 0; i < inFolders.size(); i++)
+	for (size_t i = 0; i < inFolders.size(); i++)
 	{
 		this->subfolders.push_back(new Node(inFolders[i], this));
 	}
-	for (int i = 0; i < inFiles.size(); i++)
+	for (size_t i = 0; i < inFiles.size(); i++)
 	{
 		this->files.push_back(new Node(inFiles[i], this));
 	}
 }
 ImporterMenu::Node::~Node()
 {
-	for (int i = 0; i < subfolders.size(); i++)
+	for (size_t i = 0; i < subfolders.size(); i++)
 	{
 		delete subfolders[i];
 	}
 	subfolders.clear();
-	for (int i = 0; i < files.size(); i++)
+	for (size_t i = 0; i < files.size(); i++)
 	{
 		delete files[i];
 	}
@@ -102,9 +103,15 @@ std::string ImporterMenu::Node::name()
 {
 	return _name;
 }
+std::string ImporterMenu::Node::getExt()
+{
+	int i = _name.find_last_of('.');
+	std::string fileExt = _name.substr(i, _name.size() - i);
+	return fileExt;
+}
 std::string ImporterMenu::Node::pathToName(std::string path)
 {
-	unsigned int i = path.find_last_of('/');
+	size_t i = path.find_last_of('/');
 	if (i == std::string::npos)
 	{
 		return path;
@@ -130,7 +137,7 @@ int ImporterMenu::Node::numberOfFiles()
 	if (!isAllowedFile)
 	{
 		int allFiles = files.size();
-		for (int i = 0; i < subfolders.size(); i++)
+		for (size_t i = 0; i < subfolders.size(); i++)
 		{
 			allFiles += subfolders[i]->numberOfFiles();
 		}
@@ -141,7 +148,7 @@ int ImporterMenu::Node::numberOfFiles()
 //Removes all folders that do not have any files
 void ImporterMenu::Node::clean()
 {
-	for (int i = 0; i < subfolders.size(); i++)
+	for (size_t i = 0; i < subfolders.size(); i++)
 	{
 		if (subfolders[i]->numberOfFiles() == 0)
 		{
@@ -155,25 +162,43 @@ void ImporterMenu::Node::clean()
 		}
 	}
 }
-void ImporterMenu::Node::render(int index, Hydra::World::IEntity* editor)
+void ImporterMenu::Node::render(int index, Hydra::World::IWorld* world)
 {
 	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 	//TODO: Folder icon opening
 	if (ImGui::TreeNodeEx((void*)(intptr_t)index, node_flags, ICON_FA_FOLDER " %s", _name.c_str()))
 	{	
-		for (int i = 0; i < this->subfolders.size(); i++)
+		for (size_t i = 0; i < this->subfolders.size(); i++)
 		{
-			subfolders[i]->render(i, editor);
+			subfolders[i]->render(i, world);
 		}
-		for (int i = 0; i < this->files.size(); i++)
+		for (size_t i = 0; i < this->files.size(); i++)
 		{
-			if (ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_CUBE " %s", files[i]->_name.c_str()))
+			std::string ext = this->files[i]->getExt();
+			if (ext == ".attic" || ext == ".ATTIC")
 			{
+				ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_CUBE " %s", files[i]->_name.c_str());
 				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
 				{
-					auto newEntity = editor->createEntity(files[i]->name());
+					Hydra::World::IEntity* newEntity = world->createEntity(files[i]->name()).get();
 					newEntity->addComponent<Hydra::Component::MeshComponent>(files[i]->reverseEngineerPath());
-					newEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 10, 0));
+					newEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
+				}
+			}
+			else if (ext == ".json" || ext == ".JSON")
+			{
+				ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_CUBES " %s", files[i]->_name.c_str());
+				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
+				{
+					//Load map
+				}
+			}
+			else if (ext == ".png" || ext == ".PNG")
+			{
+				ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_FILE_IMAGE_O " %s", files[i]->_name.c_str());
+				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
+				{
+					//Do whatever we do with images
 				}
 			}
 		}
@@ -212,6 +237,10 @@ void ImporterMenu::Node::_getContentsOfDir(const std::string &directory, std::ve
 			int i = fileName.find_last_of('.');
 			std::string fileExt = fileName.substr(i, fileName.size() - i);
 			if (fileExt == ".ATTIC")
+			{
+				files.push_back(fullFilePath);
+			}
+			else if (fileExt == ".json")
 			{
 				files.push_back(fullFilePath);
 			}

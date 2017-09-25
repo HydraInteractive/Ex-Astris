@@ -20,19 +20,18 @@ out VertexData {
 } outData;
 
 void main() {
-
 	vec4 finalVertexPos = vec4(0.0);
 	vec4 finalNormal = vec4(0.0);
 
 	for (int i = 0; i < 4; i++) {
-		
-		mat4 jointTrans = currentSkeletonTransformation[controllers[i]];
+		int j = controllers[i];
+		mat4 jointTrans = currentSkeletonTransformation[j];
+
 		vec4 posePos = jointTrans * vec4(position, 1.0);
 		finalVertexPos += posePos * influences[i];
-	
+
 		vec4 worldNormal = jointTrans * vec4(normal, 0.0);
 		finalNormal += worldNormal * influences[i];
-	
 	}
 
 	outData.position = finalVertexPos.xyz;

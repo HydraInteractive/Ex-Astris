@@ -65,6 +65,10 @@ void PlayerComponent::tick(TickAction action, float delta) {
 			_acceleration.y -= 6.0f;
 			_onGround = false;
 		}
+		if (keysArray[SDL_SCANCODE_F]) {
+
+			
+		}
 		if (keysArray[SDL_SCANCODE_G]){
 
 			std::shared_ptr<Hydra::World::IEntity> grenades;
