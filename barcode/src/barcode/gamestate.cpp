@@ -351,8 +351,8 @@ namespace Barcode {
 		weaponEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 		weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(1,1,1), glm::quat(0,0,-1,0));
 		
-		auto particleEmitter = _world->createEntity("ParticleEmitter");
-		particleEmitter->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, 1);
+		//auto particleEmitter = _world->createEntity("ParticleEmitter");
+		//particleEmitter->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, 1);
 
 		auto alienEntity = _world->createEntity("Enemy Alien");
 		_enemy = alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien);
