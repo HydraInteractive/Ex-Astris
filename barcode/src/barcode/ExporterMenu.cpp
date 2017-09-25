@@ -1,32 +1,38 @@
-#include <barcode/ImporterMenu.hpp>
-
-ImporterMenu::ImporterMenu()
-{
+#include "barcode/ExporterMenu.hpp"
+ExporterMenu::ExporterMenu()
+{	
 	this->executableDir = "";
 	this->root = nullptr;
 	this->_world = nullptr;
 }
-ImporterMenu::ImporterMenu(Hydra::World::IWorld* world)
+ExporterMenu::ExporterMenu(Hydra::World::IWorld* world)
 {
 	this->executableDir = _getExecutableDir();
 	this->root = nullptr;
 	this->_world = world;
 	refresh();
 }
-ImporterMenu::~ImporterMenu()
+ExporterMenu::~ExporterMenu()
 {
-	if(root != nullptr)
-	delete root;
+	if (root != nullptr)
+		delete root;
 }
-void ImporterMenu::render(bool &closeBool)
+void ExporterMenu::render(bool &closeBool)
 {
-	ImGui::SetNextWindowSize(ImVec2(480, 640), ImGuiSetCond_Once);
-	ImGui::Begin("Import", &closeBool);
-	if(root != nullptr)
-	root->render(0, _world);
+	ImGui::SetNextWindowSize(ImVec2(500, 800), ImGuiSetCond_Once);
+	ImGui::Begin("Export", &closeBool);
+	ImGui::BeginChild("Test", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y));
+	if (root != nullptr)
+		root->render(0, _world);
+	ImGui::EndChild();
+	ImGui::SameLine();
+	ImGui::BeginChild("Test", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y));
+	ImGui::SameLine(); 
+	ImGui::Text("Hello");
+	ImGui::EndChild();
 	ImGui::End();
 }
-void ImporterMenu::refresh()
+void ExporterMenu::refresh()
 {
 	if (root != nullptr)
 	{
@@ -35,7 +41,7 @@ void ImporterMenu::refresh()
 	root = new Node(executableDir + "/assets");
 	root->clean();
 }
-std::string ImporterMenu::_getExecutableDir()
+std::string ExporterMenu::_getExecutableDir()
 {
 	std::string path;
 #ifdef _WIN32
@@ -51,22 +57,22 @@ std::string ImporterMenu::_getExecutableDir()
 #endif
 	if (bytes == 0)
 		return "/";
-
-	path = std::string(unicodePath);
+	else
+		path = std::string(unicodePath);
 	std::replace(path.begin(), path.end(), '\\', '/');
 	int index = path.find_last_of('/');
 	path.erase(path.begin() + index, path.end());
 	return path;
 }
 
-ImporterMenu::Node::Node()
+ExporterMenu::Node::Node()
 {
 	this->_name = "";
 	this->subfolders = std::vector<Node*>(0);
 	this->files = std::vector<Node*>(0);
 	this->parent = nullptr;
 }
-ImporterMenu::Node::Node(std::string path, Node* parent, bool isFile)
+ExporterMenu::Node::Node(std::string path, Node* parent, bool isFile)
 {
 	this->_name = pathToName(path);
 	this->subfolders = std::vector<Node*>();
@@ -77,41 +83,41 @@ ImporterMenu::Node::Node(std::string path, Node* parent, bool isFile)
 	std::vector<std::string> inFiles;
 	std::vector<std::string> inFolders;
 	_getContentsOfDir(path, inFiles, inFolders);
-	for (size_t i = 0; i < inFolders.size(); i++)
+	for (int i = 0; i < inFolders.size(); i++)
 	{
 		this->subfolders.push_back(new Node(inFolders[i], this));
 	}
-	for (size_t i = 0; i < inFiles.size(); i++)
+	for (int i = 0; i < inFiles.size(); i++)
 	{
 		this->files.push_back(new Node(inFiles[i], this));
 	}
 }
-ImporterMenu::Node::~Node()
+ExporterMenu::Node::~Node()
 {
-	for (size_t i = 0; i < subfolders.size(); i++)
+	for (int i = 0; i < subfolders.size(); i++)
 	{
 		delete subfolders[i];
 	}
 	subfolders.clear();
-	for (size_t i = 0; i < files.size(); i++)
+	for (int i = 0; i < files.size(); i++)
 	{
 		delete files[i];
 	}
 	files.clear();
 }
-std::string ImporterMenu::Node::name()
+std::string ExporterMenu::Node::name()
 {
 	return _name;
 }
-std::string ImporterMenu::Node::getExt()
+std::string ExporterMenu::Node::getExt()
 {
 	int i = _name.find_last_of('.');
 	std::string fileExt = _name.substr(i, _name.size() - i);
 	return fileExt;
 }
-std::string ImporterMenu::Node::pathToName(std::string path)
+std::string ExporterMenu::Node::pathToName(std::string path)
 {
-	size_t i = path.find_last_of('/');
+	unsigned int i = path.find_last_of('/');
 	if (i == std::string::npos)
 	{
 		return path;
@@ -121,7 +127,7 @@ std::string ImporterMenu::Node::pathToName(std::string path)
 		return path.substr(i + 1);
 	}
 }
-std::string ImporterMenu::Node::reverseEngineerPath()
+std::string ExporterMenu::Node::reverseEngineerPath()
 {
 	std::string upperPath = "";
 	if (this->parent != nullptr)
@@ -132,12 +138,12 @@ std::string ImporterMenu::Node::reverseEngineerPath()
 	return this->_name;
 }
 //Returns all files in this folder and subfolders
-int ImporterMenu::Node::numberOfFiles()
-{	
+int ExporterMenu::Node::numberOfFiles()
+{
 	if (!isAllowedFile)
 	{
 		int allFiles = files.size();
-		for (size_t i = 0; i < subfolders.size(); i++)
+		for (int i = 0; i < subfolders.size(); i++)
 		{
 			allFiles += subfolders[i]->numberOfFiles();
 		}
@@ -146,9 +152,9 @@ int ImporterMenu::Node::numberOfFiles()
 	return -1;
 }
 //Removes all folders that do not have any files
-void ImporterMenu::Node::clean()
+void ExporterMenu::Node::clean()
 {
-	for (size_t i = 0; i < subfolders.size(); i++)
+	for (int i = 0; i < subfolders.size(); i++)
 	{
 		if (subfolders[i]->numberOfFiles() == 0)
 		{
@@ -162,17 +168,17 @@ void ImporterMenu::Node::clean()
 		}
 	}
 }
-void ImporterMenu::Node::render(int index, Hydra::World::IWorld* world)
+void ExporterMenu::Node::render(int index, Hydra::World::IWorld* world)
 {
 	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 	//TODO: Folder icon opening
 	if (ImGui::TreeNodeEx((void*)(intptr_t)index, node_flags, ICON_FA_FOLDER " %s", _name.c_str()))
-	{	
-		for (size_t i = 0; i < this->subfolders.size(); i++)
+	{
+		for (int i = 0; i < this->subfolders.size(); i++)
 		{
 			subfolders[i]->render(i, world);
 		}
-		for (size_t i = 0; i < this->files.size(); i++)
+		for (int i = 0; i < this->files.size(); i++)
 		{
 			std::string ext = this->files[i]->getExt();
 			if (ext == ".attic" || ext == ".ATTIC")
@@ -180,9 +186,7 @@ void ImporterMenu::Node::render(int index, Hydra::World::IWorld* world)
 				ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_CUBE " %s", files[i]->_name.c_str());
 				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
 				{
-					Hydra::World::IEntity* newEntity = world->createEntity(files[i]->name()).get();
-					newEntity->addComponent<Hydra::Component::MeshComponent>(files[i]->reverseEngineerPath());
-					newEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
+					
 				}
 			}
 			else if (ext == ".json" || ext == ".JSON")
@@ -190,7 +194,7 @@ void ImporterMenu::Node::render(int index, Hydra::World::IWorld* world)
 				ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_CUBES " %s", files[i]->_name.c_str());
 				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
 				{
-					//Load map
+					
 				}
 			}
 			else if (ext == ".png" || ext == ".PNG")
@@ -198,14 +202,14 @@ void ImporterMenu::Node::render(int index, Hydra::World::IWorld* world)
 				ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_FILE_IMAGE_O " %s", files[i]->_name.c_str());
 				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
 				{
-					//Do whatever we do with images
+					
 				}
 			}
 		}
 		ImGui::TreePop();
 	}
 }
-void ImporterMenu::Node::_getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders) const
+void ExporterMenu::Node::_getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders) const
 {
 #ifdef _WIN32 ///Windows
 	HANDLE dir;
@@ -233,7 +237,7 @@ void ImporterMenu::Node::_getContentsOfDir(const std::string &directory, std::ve
 			folders.push_back(fullFilePath);
 		}
 		else
-		{	
+		{
 			int i = fileName.find_last_of('.');
 			std::string fileExt = fileName.substr(i, fileName.size() - i);
 			if (fileExt == ".ATTIC")
@@ -245,8 +249,7 @@ void ImporterMenu::Node::_getContentsOfDir(const std::string &directory, std::ve
 				files.push_back(fullFilePath);
 			}
 		}
-	}
-	while (FindNextFile(dir, &fileData));
+	} while (FindNextFile(dir, &fileData));
 
 	FindClose(dir);
 #else ///Unix
@@ -264,7 +267,7 @@ void ImporterMenu::Node::_getContentsOfDir(const std::string &directory, std::ve
 		{
 
 		}
-		else if(stat(fullFileName.c_str(), &st) != -1)
+		else if (stat(fullFileName.c_str(), &st) != -1)
 		{
 			const bool isDir = (st.st_mode & S_IFDIR) != 0;
 			if (isDir)

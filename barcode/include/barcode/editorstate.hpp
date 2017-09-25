@@ -13,14 +13,23 @@
 #include <hydra/renderer/uirenderer.hpp>
 #include <hydra/io/meshloader.hpp>
 #include <hydra/io/textureloader.hpp>
-#include <barcode/ImporterMenu.hpp>
 #include <hydra/world/blueprintloader.hpp>
+
+#include <hydra/renderer/glrenderer.hpp>
+#include <hydra/renderer/glshader.hpp>
+#include <hydra/io/gltextureloader.hpp>
+#include <hydra/io/glmeshloader.hpp>
+
+#include <imgui/imgui.h>
+#include <barcode/ImporterMenu.hpp>
+#include <barcode/ExporterMenu.hpp>
 
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/playercomponent.hpp>
 #include <hydra/component/particlecomponent.hpp>
 #include <hydra/component/aicomponent.hpp>
+
 #include <fstream>
 #include <json.hpp>
 
@@ -51,13 +60,18 @@ namespace Barcode {
 		};
 
 		ImporterMenu* _importerMenu;
-		bool _importStatic = false;
+		ExporterMenu* _exporterMenu;
+		bool _showImporter = false;
+		bool _showExporter = false;
+
+		std::string selectedPath;
 
 		Hydra::IEngine* _engine;
 		std::unique_ptr<Hydra::World::IWorld> _world;
 		std::unique_ptr<Hydra::IO::ITextureLoader> _textureLoader;
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
 
+		//////////////Render Windows/////////////////////////
 		Hydra::Renderer::UIRenderWindow* _positionWindow;
 		Hydra::Renderer::UIRenderWindow* _diffuseWindow;
 		Hydra::Renderer::UIRenderWindow* _normalWindow;
@@ -87,6 +101,7 @@ namespace Barcode {
 		std::shared_ptr<Hydra::Renderer::IPipeline> _glowPipeline;
 		std::unique_ptr<Hydra::Renderer::IShader> _glowVertexShader;
 		std::unique_ptr<Hydra::Renderer::IShader> _glowFragmentShader;
+		//////////////////////////////////////////////////////
 
 		Hydra::Component::CameraComponent* _cc = nullptr;
 		Hydra::Component::PlayerComponent* player = nullptr;

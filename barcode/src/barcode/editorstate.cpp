@@ -1,12 +1,5 @@
 #include <barcode/editorstate.hpp>
 
-#include <hydra/renderer/glrenderer.hpp>
-#include <hydra/renderer/glshader.hpp>
-#include <hydra/io/gltextureloader.hpp>
-#include <hydra/io/glmeshloader.hpp>
-
-#include <imgui/imgui.h>
-
 namespace Barcode {
 	EditorState::EditorState() : _engine(Hydra::IEngine::getInstance()) {}
 
@@ -15,8 +8,7 @@ namespace Barcode {
 		_textureLoader = Hydra::IO::GLTextureLoader::create();
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
 		
-
-
+		////////////////////Add renderwindows//////////////////////////
 		_positionWindow = _engine->getUIRenderer()->addRenderWindow();
 		_positionWindow->enabled = true;
 		_positionWindow->title = "Position FBO";
@@ -199,6 +191,7 @@ namespace Barcode {
 
 		_initWorld();
 		this->_importerMenu = new ImporterMenu(_world.get());
+		this->_exporterMenu = new ExporterMenu(_world.get());
 	}
 
 	EditorState::~EditorState() { }
@@ -209,16 +202,19 @@ namespace Barcode {
 		{
 			if (ImGui::MenuItem("Import..."))
 			{
-				_importStatic = !_importStatic;
+				_showImporter = !_showImporter;
+				if(_showImporter)
+				_importerMenu->refresh();
 			}
 			if (ImGui::MenuItem("Export..."))
 			{
-				std::ofstream outFile;
-				nlohmann::json json;
-				_world->getWorldRoot()->serialize(json, true);
-				outFile.open("assets/rooms/testroom.json");
-				outFile << json;
-				outFile.close();
+				_showExporter = !_showExporter;
+				//std::ofstream outFile;
+				//nlohmann::json json;
+				//_world->getWorldRoot()->serialize(json, true);
+				//outFile.open("assets/rooms/testroom.json");
+				//outFile << json;
+				//outFile.close();
 			}
 			ImGui::EndMenu();
 		}
@@ -395,10 +391,11 @@ namespace Barcode {
 		}
 
 		{ // Update UI & views
-
 			_engine->getRenderer()->render(_viewBatch.batch);
-			if (_importStatic)
-				_importerMenu->render(_importStatic);
+			if (_showImporter)
+				_importerMenu->render(_showImporter);
+			if (_showExporter)
+				_exporterMenu->render(_showExporter);
 			// Resolve geometryFBO into the geometry window in the UI
 			_geometryBatch.output->resolve(0, _positionWindow->image);
 			_geometryBatch.output->resolve(1, _diffuseWindow->image);

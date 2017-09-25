@@ -1,4 +1,9 @@
 #pragma once
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_sdl_gl3.h>
+#include <imgui/icons.hpp>
+#include <hydra/world/world.hpp>
+
 #include <string>
 #include <vector>
 #ifdef _WIN32
@@ -8,26 +13,20 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #endif
-#include <imgui/imgui.h>
-#include <imgui/imgui_impl_sdl_gl3.h>
-#include <imgui/icons.hpp>
-#include <algorithm>
-#include <hydra/world/world.hpp>
+
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
-
-class ImporterMenu
+class ExporterMenu
 {
 public:
 	std::string executableDir;
-	ImporterMenu();
-	ImporterMenu(Hydra::World::IWorld* world);
-	~ImporterMenu();
+	ExporterMenu();
+	ExporterMenu(Hydra::World::IWorld* world);
+	~ExporterMenu();
 
 	void render(bool &closeBool);
 	void refresh();
 private:
-
 	class Node
 	{
 	public:
@@ -55,4 +54,3 @@ private:
 	Hydra::World::IWorld* _world;
 	std::string _getExecutableDir();
 };
-
