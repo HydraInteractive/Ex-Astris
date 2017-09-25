@@ -40,7 +40,7 @@ private:
 		std::string reverseEngineerPath();
 		int numberOfFiles();
 		void clean();
-		void render(int index, Hydra::World::IWorld* world);
+		void render(int index, Hydra::World::IWorld* world, Node* selectedNode);
 	private:
 		std::string _name;
 		std::vector<Node*> subfolders;

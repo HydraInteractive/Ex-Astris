@@ -21,15 +21,23 @@ void ExporterMenu::render(bool &closeBool)
 {
 	ImGui::SetNextWindowSize(ImVec2(500, 800), ImGuiSetCond_Once);
 	ImGui::Begin("Export", &closeBool);
-	ImGui::BeginChild("Test", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y));
+
+	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 30));
+	Node* selectedNode = nullptr;
 	if (root != nullptr)
-		root->render(0, _world);
+		root->render(0, _world, selectedNode);
 	ImGui::EndChild();
+
 	ImGui::SameLine();
-	ImGui::BeginChild("Test", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y));
-	ImGui::SameLine(); 
-	ImGui::Text("Hello");
+
+	ImGui::BeginChild("File", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 30));
+	if (selectedNode != nullptr)
+	{
+		ImGui::Text("Path: "); ImGui::SameLine(); ImGui::Text(selectedNode->reverseEngineerPath().c_str());
+	}
+
 	ImGui::EndChild();
+
 	ImGui::End();
 }
 void ExporterMenu::refresh()
@@ -168,43 +176,36 @@ void ExporterMenu::Node::clean()
 		}
 	}
 }
-void ExporterMenu::Node::render(int index, Hydra::World::IWorld* world)
+void ExporterMenu::Node::render(int index, Hydra::World::IWorld* world, Node* selectedNode)
 {
-	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_DefaultOpen;
 	//TODO: Folder icon opening
 	if (ImGui::TreeNodeEx((void*)(intptr_t)index, node_flags, ICON_FA_FOLDER " %s", _name.c_str()))
-	{
+	{	
+		if (ImGui::IsItemActive())
+		{
+			selectedNode = this;
+		}
 		for (int i = 0; i < this->subfolders.size(); i++)
 		{
-			subfolders[i]->render(i, world);
+			subfolders[i]->render(i, world, selectedNode);
 		}
 		for (int i = 0; i < this->files.size(); i++)
 		{
-			std::string ext = this->files[i]->getExt();
-			if (ext == ".attic" || ext == ".ATTIC")
+			ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBE " %s", files[i]->_name.c_str());
+			if (ImGui::IsItemActive())
 			{
-				ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_CUBE " %s", files[i]->_name.c_str());
-				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
+				selectedNode = files[i];
+			}
+			if (ImGui::IsItemClicked())
+			{
+				std::string ext = this->files[i]->getExt();
+				if (ImGui::IsMouseDoubleClicked(0))
 				{
-					
+					//ImGui::TreeNodeBehavior(files[i], node_flags, ICON_FA_FOLDER " %s", _name.c_str());
 				}
 			}
-			else if (ext == ".json" || ext == ".JSON")
-			{
-				ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_CUBES " %s", files[i]->_name.c_str());
-				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
-				{
-					
-				}
-			}
-			else if (ext == ".png" || ext == ".PNG")
-			{
-				ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_FILE_IMAGE_O " %s", files[i]->_name.c_str());
-				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
-				{
-					
-				}
-			}
+			ImGui::TreePop();
 		}
 		ImGui::TreePop();
 	}
