@@ -352,7 +352,7 @@ private:
 		int nrOfCtrlPoints = 0;
 		in.read(reinterpret_cast<char*>(&nrOfCtrlPoints), sizeof(int));
 
-		int polygonIndex[3];
+		//int polygonIndex[3];
 
 		glm::ivec3 polygonVertexIndex;
 		glm::ivec4 controllers;

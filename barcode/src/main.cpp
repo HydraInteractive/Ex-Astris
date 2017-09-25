@@ -18,7 +18,7 @@
 #include <barcode/editorstate.hpp>
 
 #include <cstdio>
-#include <ctime>
+#include <chrono>
 #include <imgui/imgui.h>
 
 #ifdef _WIN32
@@ -50,22 +50,23 @@ namespace Barcode {
 		~Engine() final { setState_(nullptr); }
 
 		void run() final {
-			std::clock_t lastTime = std::clock();
+			auto lastTime = std::chrono::high_resolution_clock::now();
 			_state = std::move(_newState);
 			_uiRenderer->reset();
 			_state->load();
 			_quit = false;
 
 			while (!_quit && _state && !_view->isClosed()) {
-				float delta = (clock() - lastTime) / 1000.f;
-				lastTime = clock();
+				auto nowTime = std::chrono::high_resolution_clock::now();
+				float delta = std::chrono::duration<float, std::chrono::milliseconds::period>(nowTime - lastTime).count() / 1000.f;
+				lastTime = nowTime;
 				{ // Remove old dead objects
 					_state->getWorld()->tick(TickAction::checkDead, delta);
 					_renderer->cleanup();
 				}
 
 				_state->runFrame(delta);
-				_uiRenderer->render();
+				_uiRenderer->render(delta);
 				_view->finalize();
 
 				if (_newState) {
