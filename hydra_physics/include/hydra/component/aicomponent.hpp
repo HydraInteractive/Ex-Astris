@@ -14,7 +14,7 @@
 #include <hydra/pathing/pathfinding.hpp>
 #include <hydra/component/playercomponent.hpp>
 #include <math.h>
-#include <SDL2\SDL.h>
+#include <SDL2/SDL.h>
 
 using namespace Hydra::World;
 namespace Hydra::Component {

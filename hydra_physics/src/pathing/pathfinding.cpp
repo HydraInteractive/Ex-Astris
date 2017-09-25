@@ -64,7 +64,7 @@ void PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 
 glm::vec3 PathFinding::nextPathPos(glm::vec3 pos, int radius)
 {
-	int index = 1;
+	size_t index = 1;
 
 	glm::vec3 nextPos;
 	nextPos.x = _pathToEnd[_pathToEnd.size() - index]->x;

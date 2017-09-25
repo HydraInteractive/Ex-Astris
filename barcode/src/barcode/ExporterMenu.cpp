@@ -1,4 +1,4 @@
-#include "barcode/ExporterMenu.hpp"
+#include <barcode/ExporterMenu.hpp>
 ExporterMenu::ExporterMenu()
 {	
 	this->executableDir = "";
@@ -83,23 +83,23 @@ ExporterMenu::Node::Node(std::string path, Node* parent, bool isFile)
 	std::vector<std::string> inFiles;
 	std::vector<std::string> inFolders;
 	_getContentsOfDir(path, inFiles, inFolders);
-	for (int i = 0; i < inFolders.size(); i++)
+	for (size_t i = 0; i < inFolders.size(); i++)
 	{
 		this->subfolders.push_back(new Node(inFolders[i], this));
 	}
-	for (int i = 0; i < inFiles.size(); i++)
+	for (size_t i = 0; i < inFiles.size(); i++)
 	{
 		this->files.push_back(new Node(inFiles[i], this));
 	}
 }
 ExporterMenu::Node::~Node()
 {
-	for (int i = 0; i < subfolders.size(); i++)
+	for (size_t i = 0; i < subfolders.size(); i++)
 	{
 		delete subfolders[i];
 	}
 	subfolders.clear();
-	for (int i = 0; i < files.size(); i++)
+	for (size_t i = 0; i < files.size(); i++)
 	{
 		delete files[i];
 	}
@@ -117,7 +117,7 @@ std::string ExporterMenu::Node::getExt()
 }
 std::string ExporterMenu::Node::pathToName(std::string path)
 {
-	unsigned int i = path.find_last_of('/');
+	size_t i = path.find_last_of('/');
 	if (i == std::string::npos)
 	{
 		return path;
@@ -143,7 +143,7 @@ int ExporterMenu::Node::numberOfFiles()
 	if (!isAllowedFile)
 	{
 		int allFiles = files.size();
-		for (int i = 0; i < subfolders.size(); i++)
+		for (size_t i = 0; i < subfolders.size(); i++)
 		{
 			allFiles += subfolders[i]->numberOfFiles();
 		}
@@ -154,7 +154,7 @@ int ExporterMenu::Node::numberOfFiles()
 //Removes all folders that do not have any files
 void ExporterMenu::Node::clean()
 {
-	for (int i = 0; i < subfolders.size(); i++)
+	for (size_t i = 0; i < subfolders.size(); i++)
 	{
 		if (subfolders[i]->numberOfFiles() == 0)
 		{
@@ -168,17 +168,17 @@ void ExporterMenu::Node::clean()
 		}
 	}
 }
-void ExporterMenu::Node::render(int index, Hydra::World::IWorld* world)
+void ExporterMenu::Node::render(size_t index, Hydra::World::IWorld* world)
 {
 	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 	//TODO: Folder icon opening
 	if (ImGui::TreeNodeEx((void*)(intptr_t)index, node_flags, ICON_FA_FOLDER " %s", _name.c_str()))
 	{
-		for (int i = 0; i < this->subfolders.size(); i++)
+		for (size_t i = 0; i < this->subfolders.size(); i++)
 		{
 			subfolders[i]->render(i, world);
 		}
-		for (int i = 0; i < this->files.size(); i++)
+		for (size_t i = 0; i < this->files.size(); i++)
 		{
 			std::string ext = this->files[i]->getExt();
 			if (ext == ".attic" || ext == ".ATTIC")
