@@ -15,8 +15,10 @@
 
 #include <barcode/menustate.hpp>
 #include <barcode/gamestate.hpp>
+#include <barcode/editorstate.hpp>
 
 #include <cstdio>
+#include <chrono>
 #include <imgui/imgui.h>
 
 #ifdef _WIN32
@@ -48,19 +50,23 @@ namespace Barcode {
 		~Engine() final { setState_(nullptr); }
 
 		void run() final {
+			auto lastTime = std::chrono::high_resolution_clock::now();
 			_state = std::move(_newState);
 			_uiRenderer->reset();
 			_state->load();
 			_quit = false;
 
 			while (!_quit && _state && !_view->isClosed()) {
+				auto nowTime = std::chrono::high_resolution_clock::now();
+				float delta = std::chrono::duration<float, std::chrono::milliseconds::period>(nowTime - lastTime).count() / 1000.f;
+				lastTime = nowTime;
 				{ // Remove old dead objects
-					_state->getWorld()->tick(TickAction::checkDead);
+					_state->getWorld()->tick(TickAction::checkDead, delta);
 					_renderer->cleanup();
 				}
 
-				_state->runFrame();
-				_uiRenderer->render();
+				_state->runFrame(delta);
+				_uiRenderer->render(delta);
 				_view->finalize();
 
 				if (_newState) {
@@ -79,8 +85,12 @@ namespace Barcode {
 					setState<MenuState>();
 				if (ImGui::MenuItem("GameState", NULL, typeid(*_state) == typeid(GameState)))
 					setState<GameState>();
+				if (ImGui::MenuItem("EditorState", NULL, typeid(*_state) == typeid(EditorState)))
+					setState<EditorState>();
 				ImGui::EndMenu();
 			}
+			if (_state)
+				_state->onMainMenu();
 		}
 
 		void setState_(std::unique_ptr<IState> state) final {
@@ -125,7 +135,10 @@ namespace Barcode {
 
 #undef main
 int main(int argc, char** argv) {
+	(void)argc;
+	(void)argv;
 	reportMemoryLeaks();
+	srand(time(NULL));
 	Barcode::Engine engine;
 	engine.setState<Barcode::MenuState>();
 	engine.run();

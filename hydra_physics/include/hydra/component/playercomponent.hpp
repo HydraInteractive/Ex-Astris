@@ -24,7 +24,7 @@ namespace Hydra::Component {
 		PlayerComponent(IEntity* entity);
 		~PlayerComponent() final;
 
-		void tick(TickAction action) final;
+		void tick(TickAction action, float delta) final;
 		// If you want to add more than one TickAction, combine them with '|' (The bitwise or operator) 
 		inline TickAction wantTick() const final { return TickAction::physics; }
 
