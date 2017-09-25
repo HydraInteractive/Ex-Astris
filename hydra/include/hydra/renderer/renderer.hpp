@@ -16,6 +16,10 @@
 
 #include <hydra/renderer/shader.hpp>
 
+//Influences is how much a joint transform affect the vertex. Controllers
+//are which joints that influence the vertex. Each vertex has 4 controllers
+//and the summary of all influences should be 1
+
 namespace Hydra::Renderer {
 	enum /*class*/ VertexLocation : uint32_t {
 		position = 0,
@@ -26,7 +30,9 @@ namespace Hydra::Renderer {
 		modelMatrix = 5,
 		_modelMatrix1 = 6,
 		_modelMatrix2 = 7,
-		_modelMatrix3 = 8
+		_modelMatrix3 = 8,
+		influences = 9,
+		controllers = 10
 	};
 
 	struct HYDRA_API Vertex final {
@@ -35,6 +41,8 @@ namespace Hydra::Renderer {
 		glm::vec3 color;
 		glm::vec2 uv;
 		glm::vec3 tangent;
+		glm::vec4 influences{};
+		glm::ivec4 controllers{};
 	};
 
 	class HYDRA_API ITexture {
@@ -111,7 +119,8 @@ namespace Hydra::Renderer {
 		virtual ~IMesh() = 0;
 
 		virtual Material& getMaterial() = 0;
-
+		virtual bool hasAnimation() = 0;
+		virtual glm::mat4 getTransformationMatrices(int animationIndex, int joint, int currentFrame) = 0;
 		virtual uint32_t getID() const = 0;
 		virtual size_t getIndicesCount() const = 0;
 	};
@@ -121,6 +130,7 @@ namespace Hydra::Renderer {
 	// Renderer uses these to know what to render and where
 	// TODO: Maybe add DrawObject for transparent stuff or just field
 	struct HYDRA_API DrawObject final {
+		std::vector<glm::mat4> transfomationMatrices;
 		int refCounter = 0;
 		bool disable = false; // Temporarily disable object
 		IMesh* mesh = nullptr; // & Material // TODO: Change to something else than IMesh?
@@ -153,6 +163,7 @@ namespace Hydra::Renderer {
 		virtual ~IRenderer() = 0;
 
 		virtual void render(Batch& batch) = 0;
+		virtual void renderAnimation(Batch& batch) = 0;
 		// Note: this will ignore batch.objects
 		virtual void postProcessing(Batch& batch) = 0;
 

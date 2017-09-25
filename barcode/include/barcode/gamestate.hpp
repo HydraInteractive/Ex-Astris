@@ -28,7 +28,7 @@ namespace Barcode {
 
 		void onMainMenu() final;
 		void load() final;
-
+		int currentFrame = 0;
 		void runFrame(float delta) final;
 
 		inline Hydra::World::IWorld* getWorld() final { return _world.get(); };
@@ -59,6 +59,7 @@ namespace Barcode {
 		Hydra::Renderer::UIRenderWindow* _postTestWindow;
 
 		RenderBatch _geometryBatch; // First part of deferred rendering
+		RenderBatch _animationBatch; // AnimationBatch
 		RenderBatch _lightingBatch; // Second part of deferred rendering
 		RenderBatch _glowBatch; // Glow batch.
 		RenderBatch _viewBatch;

@@ -47,20 +47,59 @@ struct meshInfo {
 
 };
 
+struct skelInfo {
+
+	int nrOfClusters;
+	std::string jointName;
+	glm::vec4 globalBindPose0;
+	glm::vec4 globalBindPose1;
+	glm::vec4 globalBindPose2;
+	glm::vec4 globalBindPose3;
+
+	glm::mat4 globalBindPosMat;
+
+	std::vector<glm::vec4> transRow0;
+	std::vector<glm::vec4> transRow1;
+	std::vector<glm::vec4> transRow2;
+	std::vector<glm::vec4> transRow3;
+
+	std::vector<glm::vec4> finishedTransRow0;
+	std::vector<glm::vec4> finishedTransRow1;
+	std::vector<glm::vec4> finishedTransRow2;
+	std::vector<glm::vec4> finishedTransRow3;
+
+	std::vector<glm::mat4> transformMat;
+	std::vector<glm::mat4> finishedTransformMat;
+
+	int nrOfKeys;
+};
+std::vector<skelInfo*> skeleton[7];
+int animationIndex;
+
+struct weights {
+	int nrOfIndices;
+	std::vector<int> indexPos;
+	std::vector<glm::vec3> polygonVerteciesIndex;
+	std::vector<glm::ivec4> controllers;
+	std::vector<glm::vec4> weightsInfluence;
+};
+weights weightInfo;
+
 class GLMeshImpl final : public IMesh {
 public:
 	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices) {
 		_makeBuffers();
-		_uploadData(vertices, indices, 0);
+		_uploadData(vertices, indices, false, 0);
 	}
 
 	GLMeshImpl(const std::string& file, GLuint modelMatrixBuffer) {
+
 		_loadATTICModel(file.c_str(), modelMatrixBuffer);
 	}
 
 	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices, GLuint modelMatrixBuffer) {
 		_makeBuffers();
-		_uploadData(vertices, indices, modelMatrixBuffer);
+		_uploadData(vertices, indices, false, modelMatrixBuffer);
 	}
 
 	~GLMeshImpl() final {
@@ -70,8 +109,54 @@ public:
 		glDeleteVertexArrays(1, &_vao);
 	}
 
-	Material& getMaterial() final { return _material; }
+	//void loadWeight(const char* filePath){
+	//	_loadWeight(filePath);
+	//}
+	//void loadAnimation(const char* filePath) {
+	//	_loadSkeleton(filePath);
+	//}
 
+	struct skelInfo {
+
+		int nrOfClusters;
+		std::string jointName;
+		glm::vec4 globalBindPose0;
+		glm::vec4 globalBindPose1;
+		glm::vec4 globalBindPose2;
+		glm::vec4 globalBindPose3;
+
+		glm::mat4 globalBindPosMat;
+
+		std::vector<glm::vec4> transRow0;
+		std::vector<glm::vec4> transRow1;
+		std::vector<glm::vec4> transRow2;
+		std::vector<glm::vec4> transRow3;
+
+		std::vector<glm::vec4> finishedTransRow0;
+		std::vector<glm::vec4> finishedTransRow1;
+		std::vector<glm::vec4> finishedTransRow2;
+		std::vector<glm::vec4> finishedTransRow3;
+
+		std::vector<glm::mat4> transformMat;
+		std::vector<glm::mat4> finishedTransformMat;
+
+		int nrOfKeys;
+	};
+	std::vector<skelInfo*> skeleton[7];
+	int animationIndex;
+
+	struct weights {
+		int nrOfIndices;
+		std::vector<int> indexPos;
+		std::vector<glm::vec3> polygonVerteciesIndex;
+		std::vector<glm::ivec4> controllers;
+		std::vector<glm::vec4> weightsInfluence;
+	};
+	weights weightInfo;
+
+	Material& getMaterial() final { return _material; }
+	bool hasAnimation() final { return _meshHasAnimation; }
+	glm::mat4 getTransformationMatrices(int animationIndex, int joint, int currentFrame) final { return _finishedMatrices[animationIndex][joint]->finishedTransformMat[currentFrame]; }
 	GLuint getID() const final { return _vao; }
 	size_t getIndicesCount() const final { return _indicesCount; }
 private:
@@ -79,8 +164,10 @@ private:
 	GLuint _vao; // Vertex Array
 	GLuint _vbo; // Vertices
 	GLuint _ibo; // Indices
-
 	size_t _indicesCount;
+	
+	std::vector<skelInfo*> _finishedMatrices[7];
+	bool _meshHasAnimation = false;
 
 	void _makeBuffers() {
 		glGenVertexArrays(1, &_vao);
@@ -92,7 +179,7 @@ private:
 		_ibo = buffers[1];
 	}
 
-	void _uploadData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, GLuint modelMatrixBuffer) {
+	void _uploadData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, bool animation, GLuint modelMatrixBuffer) {
 		_indicesCount = indices.size();
 		glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
@@ -105,12 +192,20 @@ private:
 		glEnableVertexAttribArray(VertexLocation::color);
 		glEnableVertexAttribArray(VertexLocation::uv);
 		glEnableVertexAttribArray(VertexLocation::tangent);
+		if (animation) {
+			glEnableVertexAttribArray(VertexLocation::influences);
+			glEnableVertexAttribArray(VertexLocation::controllers);
+		}
 
 		glVertexAttribPointer(VertexLocation::position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, position));
 		glVertexAttribPointer(VertexLocation::normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, normal));
 		glVertexAttribPointer(VertexLocation::color, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, color));
 		glVertexAttribPointer(VertexLocation::uv, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, uv));
 		glVertexAttribPointer(VertexLocation::tangent, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, tangent));
+		if (animation) {
+			glVertexAttribPointer(VertexLocation::influences, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, influences));
+			glVertexAttribPointer(VertexLocation::controllers, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, controllers));
+		}
 
 		if (modelMatrixBuffer) {
 			glBindBuffer(GL_ARRAY_BUFFER, modelMatrixBuffer);
@@ -176,37 +271,6 @@ private:
 				in.read(reinterpret_cast<char*>(&vec2), sizeof(vec2));
 				newVertex.uv = vec2;
 
-				//Read the Vertecies for the primitive
-				//for (int h = 0; h < 3; h++) {
-				//	in.read(reinterpret_cast<char*>(&vec3), sizeof(vec3));
-				//	info->verts.push_back(vec3);
-				//}
-				//
-				////Read the Normals for the primitive
-				//for (int h = 0; h < 3; h++) {
-				//	in.read(reinterpret_cast<char*>(&vec3), sizeof(vec3));
-				//	info->norms.push_back(vec3);
-				//
-				//	//Read the Tangents for the primitive
-				//	in.read(reinterpret_cast<char*>(&vec3), sizeof(vec3));
-				//	info->tangent.push_back(vec3);
-				//
-				//	//Read the BiNormals for the primitive
-				//	in.read(reinterpret_cast<char*>(&vec3), sizeof(vec3));
-				//	info->biNormals.push_back(vec3);
-				//}
-				////Read the UVs for the primitive
-				//for (int h = 0; h < 3; h++) {
-				//	in.read(reinterpret_cast<char*>(&vec2), sizeof(vec2));
-				//	info->uvs.push_back(vec2);
-				//}
-				//
-				//
-				//newVertex->position = info->verts[k];
-				//newVertex->normal = info->norms[info->norms.size() - (3 - q)];
-				//newVertex->tangent = info->tangent[info->tangent.size() - (3 - q)];
-				//newVertex->uv = info->uvs[info->uvs.size() - (3 - q)];
-
 				vertices.push_back(newVertex);
 			}
 
@@ -241,10 +305,6 @@ private:
 			in.read(reinterpret_cast<char*>(&diffuse), sizeof(diffuse));
 			in.read(reinterpret_cast<char*>(&specular), sizeof(specular));
 
-			//info->ambient = glm::vec3(0.15);
-			//info->diffuse = diffuse;
-			//info->specular = glm::vec3(specular);
-
 			for (size_t d = 0; d < vertices.size(); d++)
 				vertices[d].color = diffuse;
 
@@ -262,17 +322,148 @@ private:
 			//do a different type of rendering in the vertex shader
 			in.read(reinterpret_cast<char*>(&hasAnimation), sizeof(bool));
 
+			_indicesCount = indices.size();
+			_makeBuffers();
+
+			if (hasAnimation) {
+				//HardCoded for now
+				_loadWeight("assets/objects/animatedCubeWeights.ATTIC", vertices);
+				_loadSkeleton("assets/objects/animatedCubeSkeleton.ATTIC", vertices);
+				_meshHasAnimation = true;
+				_uploadData(vertices, indices, true, modelMatrixBuffer);
+			}
+			else {
+				_meshHasAnimation = false;
+				_uploadData(vertices, indices, false, modelMatrixBuffer);
+			}
+
 			//const char *test = fileName.c_str();
 			//info->texture = createTexture(test);
 			//glGenVertexArrays(1, &info->VAO);
 			//ATTICMeshes.push_back(info);
 
-			_makeBuffers();
-			_uploadData(vertices, indices, modelMatrixBuffer);
-
-			//delete info;
 		}
+	
 	}
+
+	void _loadWeight(const char* filePath, std::vector<Vertex>& vertices) {
+		std::ifstream in(filePath, std::ios::binary);
+
+		int nrOfCtrlPoints = 0;
+		in.read(reinterpret_cast<char*>(&nrOfCtrlPoints), sizeof(int));
+
+		//int polygonIndex[3];
+
+		glm::ivec3 polygonVertexIndex;
+		glm::ivec4 controllers;
+		glm::vec4 weightInfluences;
+
+		for (int k = 0; k < nrOfCtrlPoints; k++) {
+
+			for (int i = 0; i < 4; i++) {
+				in.read(reinterpret_cast<char*>(&controllers[i]), sizeof(int));
+
+				in.read(reinterpret_cast<char*>(&weightInfluences[i]), sizeof(float));
+			}
+			vertices[k].controllers = controllers;
+			vertices[k].influences = weightInfluences;
+		}
+		
+	}
+
+	void _loadSkeleton(const char* filePath, const std::vector<Vertex>& vertices) {
+		//First nrOfClusters
+		std::ifstream in(filePath, std::ios::binary);
+		int clusterNr = 0;
+		int indexNmr = 0;
+		int nrOfKeyframes = 0;
+
+		in.read(reinterpret_cast<char*>(&indexNmr), sizeof(int));
+		in.read(reinterpret_cast<char*>(&nrOfKeyframes), sizeof(int));
+		in.read(reinterpret_cast<char*>(&clusterNr), sizeof(int));
+
+		for (int i = 0; i < clusterNr; i++) {
+
+			//Get the name
+			std::string name = "";
+			int nrOfChars = 0;
+			in.read(reinterpret_cast<char*>(&nrOfChars), sizeof(int));
+			char *tempName;
+			tempName = new char[nrOfChars];
+			in.read(tempName, nrOfChars);
+			name.append(tempName, nrOfChars);
+
+			delete tempName;
+
+			skelInfo *info = new skelInfo;
+			info->nrOfKeys = nrOfKeyframes;
+			info->jointName = name;
+
+			glm::vec4 globalBindVec0;
+			glm::vec4 globalBindVec1;
+			glm::vec4 globalBindVec2;
+			glm::vec4 globalBindVec3;
+
+			in.read(reinterpret_cast<char*>(&globalBindVec0), sizeof(globalBindVec0));
+			info->globalBindPose0 = globalBindVec0;
+
+			in.read(reinterpret_cast<char*>(&globalBindVec1), sizeof(globalBindVec1));
+			info->globalBindPose1 = globalBindVec1;
+
+			in.read(reinterpret_cast<char*>(&globalBindVec2), sizeof(globalBindVec2));
+			info->globalBindPose2 = globalBindVec2;
+
+			in.read(reinterpret_cast<char*>(&globalBindVec3), sizeof(globalBindVec3));
+			info->globalBindPose3 = globalBindVec3;
+
+			glm::mat4 tempBindMat;
+			tempBindMat = glm::mat4(info->globalBindPose0, info->globalBindPose1,
+				info->globalBindPose2, info->globalBindPose3);
+			info->globalBindPosMat = tempBindMat;
+
+			for (int o = 0; o < nrOfKeyframes; o++) {
+
+				glm::vec4 glmVec0;
+				glm::vec4 glmVec1;
+				glm::vec4 glmVec2;
+				glm::vec4 glmVec3;
+				in.read(reinterpret_cast<char*>(&glmVec0), sizeof(glmVec0));
+				info->transRow0.push_back(glmVec0);
+
+				in.read(reinterpret_cast<char*>(&glmVec1), sizeof(glmVec1));
+				info->transRow1.push_back(glmVec1);
+
+				in.read(reinterpret_cast<char*>(&glmVec2), sizeof(glmVec2));
+				info->transRow2.push_back(glmVec2);
+
+				in.read(reinterpret_cast<char*>(&glmVec3), sizeof(glmVec3));
+				info->transRow3.push_back(glmVec3);
+
+				glm::mat4 tempMap = glm::mat4(glmVec0, glmVec1, glmVec2, glmVec3);
+				info->transformMat.push_back(tempMap);
+
+				in.read(reinterpret_cast<char*>(&glmVec0), sizeof(glmVec0));
+				info->finishedTransRow0.push_back(glmVec0);
+
+				in.read(reinterpret_cast<char*>(&glmVec1), sizeof(glmVec1));
+				info->finishedTransRow1.push_back(glmVec1);
+
+				in.read(reinterpret_cast<char*>(&glmVec2), sizeof(glmVec2));
+				info->finishedTransRow2.push_back(glmVec2);
+
+				in.read(reinterpret_cast<char*>(&glmVec3), sizeof(glmVec3));
+				info->finishedTransRow3.push_back(glmVec3);
+
+				tempMap = glm::mat4(glmVec0, glmVec1, glmVec2, glmVec3);
+				info->finishedTransformMat.push_back(tempMap);
+
+			}
+			_finishedMatrices[indexNmr].push_back(info);
+			skeleton[indexNmr].push_back(info);
+		}
+
+	}
+
 };
 
 std::unique_ptr<IMesh> GLMesh::create(const std::string& file, IRenderer* renderer) {
