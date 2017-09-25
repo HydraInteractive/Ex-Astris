@@ -61,13 +61,6 @@ namespace Barcode {
 		std::unique_ptr<Hydra::IO::ITextureLoader> _textureLoader;
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
 
-		Hydra::Renderer::UIRenderWindow* _positionWindow;
-		Hydra::Renderer::UIRenderWindow* _diffuseWindow;
-		Hydra::Renderer::UIRenderWindow* _normalWindow;
-		Hydra::Renderer::UIRenderWindow* _glowWindow;
-		Hydra::Renderer::UIRenderWindow* _depthWindow;
-		Hydra::Renderer::UIRenderWindow* _postTestWindow;
-
 		RenderBatch _geometryBatch; // First part of deferred rendering
 		RenderBatch _animationBatch; // AnimationBatch
 		RenderBatch _lightingBatch; // Second part of deferred rendering
