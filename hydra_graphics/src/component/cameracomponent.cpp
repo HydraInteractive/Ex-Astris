@@ -14,7 +14,7 @@
 
 using namespace Hydra::Component;
 
-CameraComponent::CameraComponent(IEntity* entity) : IComponent(entity), _renderTarget(nullptr) {}
+CameraComponent::CameraComponent(IEntity* entity) : IComponent(entity), _renderTarget(nullptr) { }
 CameraComponent::CameraComponent(IEntity* entity, Hydra::Renderer::IRenderTarget* renderTarget, const glm::vec3& position) : IComponent(entity), _renderTarget(renderTarget), _position(position) {}
 
 CameraComponent::~CameraComponent() {}
@@ -37,8 +37,9 @@ void CameraComponent::tick(TickAction action, float delta) {
 
 	glm::quat qPitch = glm::angleAxis(_cameraPitch, glm::vec3(1, 0, 0));
 	glm::quat qYaw = glm::angleAxis(_cameraYaw, glm::vec3(0, 1, 0));
+	glm::quat qRoll = glm::angleAxis(glm::radians(180.f), glm::vec3(0, 0, 1));
 
-	_orientation = qPitch * qYaw;
+	_orientation = qPitch * qYaw * qRoll;
 	_orientation = glm::normalize(_orientation);
 
 }
