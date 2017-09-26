@@ -413,9 +413,9 @@ namespace Barcode {
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, float(0.0f));
 
-			for (int i = 0; i < 30; i++)
+			for (int i = 0; i < 40; i++)
 			{
-				for (int j = 0; j < 30; j++)
+				for (int j = 0; j < 40; j++)
 				{
 					if (_enemy != nullptr)
 					{
@@ -429,7 +429,15 @@ namespace Barcode {
 							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(20, 20));
 							ImGui::End();
 						}
-						else
+						else if (_enemy->getWall(i, j) == 2)
+						{
+							ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
+							ImGui::SetNextWindowSize(ImVec2(20, 20));
+							ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Yellow.png")->getID()), ImVec2(20, 20));
+							ImGui::End();
+						}
+						else if (_enemy->getWall(i, j) == 0)
 						{
 							ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
 							ImGui::SetNextWindowSize(ImVec2(20, 20));

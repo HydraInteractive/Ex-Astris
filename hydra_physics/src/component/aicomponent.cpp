@@ -36,7 +36,7 @@ EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID) : IComponent
 
 	for (int i = 0; i < 32; i++)
 	{
-		map[20][20] = 1;
+		map[10][10+i] = 1;
 	}
 }
 
@@ -274,8 +274,15 @@ void EnemyComponent::serialize(nlohmann::json& json) const {
 		{ "velocityY", _velocityY },
 		{ "velocityZ", _velocityZ },
 		{ "enemyID", (int)_enemyID },
-		{ "pathState", (int)_pathState },
+		{ "pathState", (int)_pathState }
 	};
+	for (size_t i = 0; i < 64; i++)
+	{
+		for (size_t j = 0; j < 64; j++)
+		{
+			json["map"][i][j] = map[i][j];
+		}
+	}
 }
 
 void EnemyComponent::deserialize(nlohmann::json& json) {
@@ -291,6 +298,13 @@ void EnemyComponent::deserialize(nlohmann::json& json) {
 
 	_enemyID = (EnemyTypes)json["enemyID"].get<int>();
 	_pathState = (PathState)json["pathState"].get<int>();
+	for (size_t i = 0; i < 64; i++)
+	{
+		for (size_t j = 0; j < 64; j++)
+		{
+			map[i][j] = json["map"][i][j].get<int>();
+		}
+	}
 }
 
 // Register UI buttons in the debug UI
@@ -309,8 +323,15 @@ void EnemyComponent::registerUI() {
 
 int Hydra::Component::EnemyComponent::getWall(int x, int y)
 {
-	int result = _pathFinding->returnWall(x, y);
-
+	int result = 0;
+	if (map[x][y] == 1)
+	{
+		result = 1;
+	}
+	else if (map[x][y] == 2)
+	{
+		result = 2;
+	}
 	return result;
 }
 

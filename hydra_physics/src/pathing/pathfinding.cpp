@@ -82,20 +82,6 @@ glm::vec3 PathFinding::nextPathPos(glm::vec3 pos, int radius)
 	return nextPos;
 }
 
-int PathFinding::returnWall(int x, int y)
-{
-	int result = 0;
-	if (theMap[x][y] == 1)
-	{
-		result = 1;
-	}
-	else if(theMap[x][y] == 2)
-	{
-		result = 2;
-	}
-	return result;
-}
-
 void PathFinding::_setStartAndGoal(SearchCell start, SearchCell end)
 {
 	_startCell = new SearchCell(start.m_xcoord, start.m_zcoord, 0);
