@@ -1,6 +1,7 @@
 #include <hydra/component/particlecomponent.hpp>
 #include <hydra/engine.hpp>
 #include <imgui/imgui.h>
+#include <hydra/component/cameracomponent.hpp>
 #include <algorithm>
 
 #define frand() (float(rand()) / float(RAND_MAX))
@@ -32,8 +33,9 @@ void ParticleComponent::tick(TickAction action, float delta){
 	if (action == TickAction::renderTransparent) {
 		_accumulator += delta;
 		_generateParticles();
+		//if (_particles.size() > 1)
+		//	_sortParticles(_particles.size() - 1, 0);
 	}
-	_clearDeadParticles();
 }
 
 void ParticleComponent::_generateParticles() {
@@ -54,11 +56,15 @@ void ParticleComponent::_emmitParticle() {
 	float dirX = frand() * 2 - 1;
 	float dirY = frand() * 2 - 1;
 	float dirZ = 0;
-	p->spawn(glm::vec3(0), glm::normalize(glm::vec3(dirX, dirY, dirZ)) * glm::vec3(0.1), 1.0f);
+	p->spawn(glm::vec3(0), glm::normalize(glm::vec3(dirX, dirY, dirZ)) * glm::vec3(0.1), 2.f);
 	_particles.push_back(p);
 }
 
 void ParticleComponent::_particlePhysics(float delta) {
+	auto camera = Hydra::IEngine::getInstance()->getState()->getWorld()
+		->getActiveComponents<CameraComponent>()[0]
+		->getComponent<CameraComponent>();
+
 	for (auto& p : _particles) {
 		if (p->life <= p->elapsedTime)
 			p->dead = true;
@@ -66,12 +72,16 @@ void ParticleComponent::_particlePhysics(float delta) {
 		if (p->dead)
 			continue;
 
+		if (camera)
+			p->distanceToCamera = glm::distance(camera->getPosition(), p->pos);
+
 		p->vel += p->vel * delta;
 		p->pos += p->vel * delta;
 		_updateTextureCoordInfo(p, delta);
 		p->elapsedTime += delta;
 		p->fixMX(_tempRotation);
 	}
+	_clearDeadParticles();
 }
 
 void ParticleComponent::_updateTextureCoordInfo(std::shared_ptr<Particle>& p, float delta) {
@@ -104,8 +114,27 @@ void ParticleComponent::_clearDeadParticles() {
 	);
 }
 
-void ParticleComponent::_sortParticles() {
-	//std::sort(_particles.begin(), _particles.end(), );
+void ParticleComponent::_sortParticles(int left, int right) { // Quick sort
+	int i = left, j = right;
+	std::shared_ptr<Particle> tmp;
+	float pivot = _particles[(left + right) / 2]->distanceToCamera;
+	while (i <= j) {
+		while (_particles[i]->distanceToCamera < pivot)
+			i++;
+		while (_particles[j]->distanceToCamera > pivot)
+			j--;
+		if (i >= j) {
+			tmp = _particles[i];
+			_particles[i] = _particles[j];
+			_particles[j] = tmp;
+			i++;
+			j--;
+		}
+	}
+	if (left < j)
+		_sortParticles(left, j);
+	if (i < right)
+		_sortParticles(i, right);
 }
 
 void ParticleComponent::serialize(nlohmann::json & json) const{

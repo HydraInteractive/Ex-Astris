@@ -26,6 +26,7 @@ namespace Hydra::Component {
 		float life;
 		float elapsedTime;
 		float grav;
+		float distanceToCamera;
 		bool dead;
 		void spawn(glm::vec3 pos, glm::vec3 vel, float life) {
 			this->pos = pos;
@@ -38,6 +39,7 @@ namespace Hydra::Component {
 			this->texOffset1 = glm::vec2(0);
 			this->texOffset2 = glm::vec2(0);
 			this->texCoordInfo = glm::vec2(0);
+			this->distanceToCamera = 0;
 			// Gonna fix rotation soon...
 			this->m = glm::translate(pos) * glm::scale(scale);
 		}
@@ -73,7 +75,7 @@ namespace Hydra::Component {
 		void _clearDeadParticles();
 		void _emmitParticle();
 		void _updateTextureCoordInfo(std::shared_ptr<Particle>& p, float delta);
-		void _sortParticles();
+		void _sortParticles(int left, int right); // Quick sort
 		void _setTextureOffset(glm::vec2& offset, int index);
 	};
 };

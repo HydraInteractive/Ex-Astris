@@ -113,6 +113,9 @@ public:
 
 		auto& particles = batch.textureInfo;
 		size_t sizeParticles = particles.size();
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		glDepthMask(GL_FALSE);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
 			size_t sizeMatrix = kv.second.size();
@@ -127,6 +130,8 @@ public:
 			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeParticles * sizeof(glm::vec2), &particles[0]);
 			glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(sizeMatrix));
 		}
+		glDisable(GL_BLEND);
+		glDepthMask(GL_TRUE);
 	}
 
 	void render(Batch& batch) final {
