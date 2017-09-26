@@ -27,7 +27,7 @@ public:
 	void clearPathToGoal() { _pathToEnd.clear(); }
 	bool intializedStartGoal;
 	bool foundGoal;
-	bool returnWall(int x, int y);
+	int returnWall(int x, int y);
 
 private:
 	void _setStartAndGoal(SearchCell start, SearchCell end);

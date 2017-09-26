@@ -50,7 +50,7 @@ namespace Hydra::Component {
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
-		bool getWall(int x, int y);
+		int getWall(int x, int y);
 
 	private:
 		PathState _pathState;

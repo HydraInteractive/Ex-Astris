@@ -421,7 +421,7 @@ namespace Barcode {
 					{
 						char buf[128];
 						snprintf(buf, sizeof(buf), "%d%d", i, j);
-						if (_enemy->getWall(i, j) == true)
+						if (_enemy->getWall(i, j) == 1)
 						{
 							ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
 							ImGui::SetNextWindowSize(ImVec2(20, 20));
