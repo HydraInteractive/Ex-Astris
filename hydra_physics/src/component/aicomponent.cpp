@@ -71,22 +71,22 @@ void EnemyComponent::tick(TickAction action, float delta) {
 
 		if (_pathState == SEARCHING)
 		{
-			_pathFinding->findPath(enemy->getPosition(), player->getPosition());
-			_isAtGoal = false;
-			_targetPos = player->getPosition();
-			if (_pathFinding->foundGoal)
-			{
-				_pathState = FOUND_GOAL;
-			}
-		}
-		if (_pathState == FOUND_GOAL)
-		{
-			if (glm::length(enemy->getPosition() - player->getPosition()) < 8)
+			if (glm::length(enemy->getPosition() - player->getPosition()) < 10.0f)
 			{
 				_isAtGoal = true;
 				_pathState = ATTACKING;
 			}
 
+			_pathFinding->findPath(enemy->getPosition(), player->getPosition());
+			_isAtGoal = false;
+			if (_pathFinding->foundGoal)
+			{
+				_targetPos = player->getPosition();
+				_pathState = FOUND_GOAL;
+			}
+		}
+		if (_pathState == FOUND_GOAL)
+		{
 			if (!_isAtGoal)
 			{
 				glm::vec3 targetDistance = _pathFinding->nextPathPos(enemy->getPosition(), getRadius()) - enemy->getPosition();
@@ -94,21 +94,33 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				rotation = glm::angleAxis(glm::radians(angle), glm::vec3(0, 1, 0));
 				_velocityX -= 0.2f * cos(angle);
 				_velocityZ += 0.2f * sin(angle);
-				if (glm::length(_targetPos - enemy->getPosition()) < 8)
+
+				if (glm::length(_targetPos - enemy->getPosition()) < 10.0f)
 				{
-					if (glm::length(enemy->getPosition() - player->getPosition()) > 5)
-					{
-						_pathFinding->intializedStartGoal = false;
-						_pathFinding->foundGoal = false;
-						_pathFinding->clearPathToGoal();
-						_pathState = SEARCHING;
-					}
+					_pathFinding->intializedStartGoal = false;
+					_pathFinding->foundGoal = false;
+					_pathFinding->clearPathToGoal();
+					_pathState = SEARCHING;
+				}
+
+				if (glm::length(_targetPos - player->getPosition()) > 20.0f)
+				{
+					_pathFinding->intializedStartGoal = false;
+					_pathFinding->foundGoal = false;
+					_pathFinding->clearPathToGoal();
+					_pathState = SEARCHING;
+				}
+
+				if (glm::length(enemy->getPosition() - player->getPosition()) < 10.0f)
+				{
+					_isAtGoal = true;
+					_pathState = ATTACKING;
 				}
 			}
 		}
 		if (_pathState == ATTACKING)
 		{
-			if (glm::length(enemy->getPosition() - player->getPosition()) > 8)
+			if (glm::length(enemy->getPosition() - player->getPosition()) > 10.0f)
 			{
 				_pathFinding->intializedStartGoal = false;
 				_pathFinding->foundGoal = false;
@@ -280,6 +292,7 @@ void EnemyComponent::registerUI() {
 	ImGui::InputFloat("targetX", &_targetPos.x);
 	ImGui::InputFloat("targetY", &_targetPos.y);
 	ImGui::InputFloat("targetZ", &_targetPos.z);
+	ImGui::Checkbox("isAtGoal", &_isAtGoal);
 	
 }
 

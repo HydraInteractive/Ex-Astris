@@ -17,7 +17,7 @@ using namespace Hydra::World;
 using namespace Hydra::Component;
 
 PlayerComponent::PlayerComponent(IEntity* entity) : IComponent(entity) {
-
+	entity->createEntity("Grenades");
 }
 
 PlayerComponent::~PlayerComponent() { }
@@ -67,7 +67,6 @@ void PlayerComponent::tick(TickAction action, float delta) {
 		}
 		if (keysArray[SDL_SCANCODE_F]) {
 
-			
 		}
 		if (keysArray[SDL_SCANCODE_G]){
 
@@ -112,8 +111,9 @@ void PlayerComponent::tick(TickAction action, float delta) {
 		camera->setPosition(_position + glm::vec3(0, -3, 0) + (forward * glm::vec3(4, 0, 4)));
 	}
 	player->setPosition(_position);
-	//player->setRotation(glm::angleAxis(-camera->getYaw(), glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->getPitch(), glm::vec3(1, 0, 0))));
-	player->setRotation(glm::angleAxis(-camera->getYaw(), glm::vec3(0, 1, 0)));
+	
+	player->setRotation(glm::angleAxis(camera->getYaw(), glm::vec3(0, 1, 0)));
+	
 	player->setPosition(_position + glm::vec3(0, 0.75, 0) + glm::vec3(-1, 0, -1) * forward + glm::vec3(1, 0, 1)*strafe);
 	_debugPos = forward*glm::vec3(-2, 0, -2);
 }

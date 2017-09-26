@@ -17,7 +17,7 @@ using namespace Hydra::World;
 using namespace Hydra::Component;
 
 WeaponComponent::WeaponComponent(IEntity* entity) : IComponent(entity) {
-
+	entity->createEntity("Bullets");
 }
 
 WeaponComponent::~WeaponComponent() { }
