@@ -92,8 +92,8 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				glm::vec3 targetDistance = _pathFinding->nextPathPos(enemy->getPosition(), getRadius()) - enemy->getPosition();
 				angle = glm::degrees(atan2(targetDistance.x, targetDistance.z));
 				rotation = glm::angleAxis(glm::radians(angle), glm::vec3(0, 1, 0));
-				_velocityX -= 0.2f * cos(angle);
-				_velocityZ += 0.2f * sin(angle);
+				_velocityX -= 0.1f * cos(angle);
+				_velocityZ += 0.1f * sin(angle);
 
 				if (glm::length(_targetPos - enemy->getPosition()) < 10.0f)
 				{
@@ -103,7 +103,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					_pathState = SEARCHING;
 				}
 
-				if (glm::length(_targetPos - player->getPosition()) > 20.0f)
+				if (glm::length(_targetPos - player->getPosition()) > 10.0f)
 				{
 					_pathFinding->intializedStartGoal = false;
 					_pathFinding->foundGoal = false;
@@ -134,10 +134,6 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				rotation = glm::angleAxis(glm::radians(angle), glm::vec3(0, 1, 0));
 			}
 		}
-
-
-
-
 
 		/*if (_position.z < _startPosition.z - 10)
 		{
@@ -293,6 +289,5 @@ void EnemyComponent::registerUI() {
 	ImGui::InputFloat("targetY", &_targetPos.y);
 	ImGui::InputFloat("targetZ", &_targetPos.z);
 	ImGui::Checkbox("isAtGoal", &_isAtGoal);
-	
 }
 

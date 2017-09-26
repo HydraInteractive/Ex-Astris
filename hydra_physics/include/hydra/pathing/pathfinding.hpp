@@ -11,6 +11,7 @@
 #include <vector>
 #include <hydra/pathing/SearchCell.hpp>
 
+
 class PathFinding
 {
 public:
@@ -24,6 +25,7 @@ public:
 	void clearPathToGoal() { _pathToEnd.clear(); }
 	bool intializedStartGoal;
 	bool foundGoal;
+	int theMap[WORLD_SIZE][WORLD_SIZE];
 private:
 	void _setStartAndGoal(SearchCell start, SearchCell end);
 	void _pathOpened(int x, int z, float newCost, SearchCell *parent);

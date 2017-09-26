@@ -10,9 +10,22 @@
 
 #include <hydra/pathing/pathfinding.hpp>
 
-PathFinding::PathFinding(){
+PathFinding::PathFinding() {
 	intializedStartGoal = false;
 	foundGoal = false;
+
+	for (int i = 0; i < WORLD_SIZE; i++)
+	{
+		for (int j = 0; j < WORLD_SIZE; j++)
+		{
+			theMap[i][j] = 0;
+		}
+	}
+
+	for (int i = 0; i < 50; i++)
+	{
+		theMap[20][10 + i] = 1;
+	}
 }
 
 PathFinding::~PathFinding(){
@@ -44,13 +57,13 @@ void PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 
 		// Initialize start
 		SearchCell start;
-		start.m_xcoord = currentPos.x;
-		start.m_zcoord = currentPos.z;
+		start.m_xcoord = currentPos.x / CELL_SIZE;
+		start.m_zcoord = currentPos.z / CELL_SIZE;
 
 		// Initialize end
 		SearchCell end;
-		end.m_xcoord = targetPos.x;
-		end.m_zcoord = targetPos.z;
+		end.m_xcoord = targetPos.x / CELL_SIZE;
+		end.m_zcoord = targetPos.z / CELL_SIZE;
 
 		_setStartAndGoal(start, end);
 		intializedStartGoal = true;
@@ -67,8 +80,8 @@ glm::vec3 PathFinding::nextPathPos(glm::vec3 pos, int radius)
 	int index = 1;
 
 	glm::vec3 nextPos;
-	nextPos.x = _pathToEnd[_pathToEnd.size() - index]->x;
-	nextPos.z = _pathToEnd[_pathToEnd.size() - index]->z;
+	nextPos.x = _pathToEnd[_pathToEnd.size() - index]->x + (CELL_SIZE/2);
+	nextPos.z = _pathToEnd[_pathToEnd.size() - index]->z + (CELL_SIZE/2);
 
 	glm::vec3 distance = nextPos - pos;
 
@@ -97,10 +110,15 @@ void PathFinding::_setStartAndGoal(SearchCell start, SearchCell end)
 
 void PathFinding::_pathOpened(int x, int z, float newCost, SearchCell * parent)
 {
-	/*if ()
+	if (x > WORLD_SIZE * CELL_SIZE || z > WORLD_SIZE * CELL_SIZE || x < (WORLD_SIZE * -1) * CELL_SIZE || z < (WORLD_SIZE * -1) * CELL_SIZE)
 	{
 		return;
-	}*/
+	}
+
+	if (theMap[x][z] == 1)
+	{
+		return;
+	}
 
 	int id = z * WORLD_SIZE + x;
 	for (size_t i = 0; i < _visitedList.size(); i++)
@@ -182,7 +200,7 @@ void PathFinding::_continuePath()
 
 			for (getPath = _endCell; getPath != NULL; getPath = getPath->parent)
 			{
-				_pathToEnd.push_back(new glm::vec3(getPath->m_xcoord, 0, getPath->m_zcoord));
+				_pathToEnd.push_back(new glm::vec3(getPath->m_xcoord * CELL_SIZE, 0, getPath->m_zcoord * CELL_SIZE));
 			}
 			foundGoal = true;
 		}
