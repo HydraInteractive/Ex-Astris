@@ -9,13 +9,14 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-ParticleComponent::ParticleComponent(IEntity* entity) : IComponent(entity), _drawObject(entity->getDrawObject()), _pps(1), _behaviour(EmitterBehaviour::PerSecond), _accumulator(0.f){
+ParticleComponent::ParticleComponent(IEntity* entity) : IComponent(entity), _drawObject(entity->getDrawObject()), _pps(1), 
+_behaviour(EmitterBehaviour::PerSecond), _accumulator(0.f), _emitterPos(glm::vec3(0)){
 	_drawObject->refCounter++;
 	_drawObject->mesh = nullptr;
 }
 
-ParticleComponent::ParticleComponent(IEntity* entity, EmitterBehaviour behaviour, int nrOfParticles) : IComponent(entity), _drawObject(entity->getDrawObject()), 
-_pps(nrOfParticles), _behaviour(behaviour), _accumulator(0.f){
+ParticleComponent::ParticleComponent(IEntity* entity, EmitterBehaviour behaviour, int nrOfParticles, glm::vec3 pos) : IComponent(entity), _drawObject(entity->getDrawObject()), 
+_pps(nrOfParticles), _behaviour(behaviour), _accumulator(0.f), _emitterPos(pos){
 	_drawObject->refCounter++;
 	_drawObject->mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getQuad().get();
 	_tempRotation = glm::mat4(1);
@@ -33,6 +34,8 @@ void ParticleComponent::tick(TickAction action, float delta){
 	if (action == TickAction::renderTransparent) {
 		_accumulator += delta;
 		_generateParticles();
+		if (_particles.size() > 1)
+			_sortParticles(0, _particles.size() - 1);
 	}
 }
 
@@ -53,8 +56,9 @@ void ParticleComponent::_emmitParticle() {
 	std::shared_ptr<Particle> p = std::make_shared<Particle>();
 	float dirX = frand() * 2 - 1;
 	float dirY = frand() * 2 - 1;
-	float dirZ = 0;
-	p->spawn(glm::vec3(0), glm::normalize(glm::vec3(dirX, dirY, dirZ)) * glm::vec3(0.1), 2.f);
+	float dirZ = frand() * 2 - 1;
+	glm::vec3 a = glm::vec3(frand() * 6.f - 1.5f, frand() * 3.5f + 0.5f, frand() * 3.f - 0.5f);
+	p->spawn(_emitterPos, glm::normalize(glm::vec3(dirX, dirY, dirZ)) * glm::normalize(glm::vec3(0.1)), a, frand() * 6.f - 1.f);
 	_particles.push_back(p);
 }
 
@@ -72,7 +76,7 @@ void ParticleComponent::_particlePhysics(float delta) {
 		if (camera)
 			p->distanceToCamera = glm::distance(camera->getPosition(), p->pos);
 
-		p->vel += p->vel * delta;
+		p->vel += p->acceleration * delta + p->grav * delta;
 		p->pos += p->vel * delta;
 		_updateTextureCoordInfo(p, delta);
 		p->elapsedTime += delta;
@@ -120,7 +124,7 @@ void ParticleComponent::_sortParticles(int left, int right) { // Quick sort
 			i++;
 		while (_particles[j]->distanceToCamera > pivot)
 			j--;
-		if (i >= j) {
+		if (i <= j) {
 			tmp = _particles[i];
 			_particles[i] = _particles[j];
 			_particles[j] = tmp;
@@ -138,7 +142,8 @@ void ParticleComponent::serialize(nlohmann::json & json) const{
 	json = {
 		{ "pps", _pps},
 		{ "accumulator", _accumulator},
-		{ "behaviour", (int)_behaviour}
+		{ "behaviour", (int)_behaviour},
+		{ "emitterPos", { _emitterPos.x, _emitterPos.y, _emitterPos.z } },
 	};
 }
 
@@ -151,6 +156,9 @@ void ParticleComponent::deserialize(nlohmann::json & json){
 
 	auto& behaviour = json["behaviour"];
 	_behaviour = (EmitterBehaviour)behaviour.get<int>();
+
+	auto& pos = json["emitterPos"];
+	_emitterPos = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
 	
 	_drawObject->mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getQuad().get();
 	_tempRotation = glm::mat4(1);

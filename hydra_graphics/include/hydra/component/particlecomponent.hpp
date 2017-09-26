@@ -18,6 +18,7 @@ namespace Hydra::Component {
 	HYDRA_API struct Particle {
 		glm::mat4 m;
 		glm::vec3 pos;
+		glm::vec3 acceleration;
 		glm::vec3 vel;
 		glm::vec3 scale;
 		glm::vec2 texOffset1;
@@ -28,14 +29,15 @@ namespace Hydra::Component {
 		float grav;
 		float distanceToCamera;
 		bool dead;
-		void spawn(glm::vec3 pos, glm::vec3 vel, float life) {
+		void spawn(glm::vec3 pos, glm::vec3 vel, glm::vec3 acceleration, float life) {
 			this->pos = pos;
 			this->vel = vel;
+			this->acceleration = acceleration;
 			this->life = life;
 			this->scale = glm::vec3(1.0f);
 			this->elapsedTime = 0.f;
 			this->dead = false;
-			this->grav = -3.14159265357989f;
+			this->grav = 3.14159265357989f;
 			this->texOffset1 = glm::vec2(0);
 			this->texOffset2 = glm::vec2(0);
 			this->texCoordInfo = glm::vec2(0);
@@ -49,7 +51,7 @@ namespace Hydra::Component {
 	class HYDRA_API ParticleComponent final : public IComponent{
 	public:
 		ParticleComponent(IEntity* entity);
-		ParticleComponent(IEntity* entity, EmitterBehaviour behaviour, int nrOfParticles);
+		ParticleComponent(IEntity* entity, EmitterBehaviour behaviour, int nrOfParticles, glm::vec3 pos);
 		~ParticleComponent() final;
 
 		void tick(TickAction action, float delta) final;
@@ -67,6 +69,7 @@ namespace Hydra::Component {
 		int _pps; // Particles per second.
 		float _accumulator;
 		glm::quat _tempRotation;
+		glm::vec3 _emitterPos;
 		EmitterBehaviour _behaviour;
 		Hydra::Renderer::DrawObject* _drawObject;
 		std::vector<std::shared_ptr<Particle>> _particles;

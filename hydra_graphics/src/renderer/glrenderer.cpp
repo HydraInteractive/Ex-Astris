@@ -36,8 +36,8 @@ public:
 		_glContext = SDL_GL_CreateContext(_window = static_cast<SDL_Window*>(view.getHandler()));
 		_loadGLAD();
 
-		//glEnable(GL_CULL_FACE);
-		//glCullFace(GL_BACK);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_MULTISAMPLE);
@@ -114,8 +114,8 @@ public:
 		auto& particles = batch.textureInfo;
 		size_t sizeParticles = particles.size();
 		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		glDepthMask(GL_FALSE);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		//glDepthMask(GL_FALSE);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
 			size_t sizeMatrix = kv.second.size();
@@ -131,7 +131,7 @@ public:
 			glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(sizeMatrix));
 		}
 		glDisable(GL_BLEND);
-		glDepthMask(GL_TRUE);
+		//glDepthMask(GL_TRUE);
 	}
 
 	void render(Batch& batch) final {

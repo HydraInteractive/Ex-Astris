@@ -207,7 +207,7 @@ namespace Barcode {
 
 			for (auto& drawObj : _engine->getRenderer()->activeDrawObjects()) {
 
-				if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false)
+				if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false && drawObj->mesh->getIndicesCount() != 6)
 					_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 				else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
 					_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
@@ -323,9 +323,14 @@ namespace Barcode {
 				}
 			}
 			if (anyParticles) {
-				_particleBatch.pipeline->setValue(0, _cc->getViewMatrix());
+				auto viewMatrix = _cc->getViewMatrix();
+				glm::vec3 rightVector = {viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0]};
+				glm::vec3 upVector = {viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]};
+				_particleBatch.pipeline->setValue(0, viewMatrix);
 				_particleBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
-				_particleBatch.pipeline->setValue(2, 0);
+				_particleBatch.pipeline->setValue(2, rightVector);
+				_particleBatch.pipeline->setValue(3, upVector);
+				_particleBatch.pipeline->setValue(4, 0);
 				_particleAtlases->bind(0);
 				_engine->getRenderer()->render(_particleBatch.batch);
 			}
@@ -355,7 +360,17 @@ namespace Barcode {
 		weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(1,1,1), glm::quat(0,0,-1,0));
 		
 		auto particleEmitter = _world->createEntity("ParticleEmitter");
-		particleEmitter->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, 1);
+		particleEmitter->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, 1, glm::vec3(-5,0,0));
+
+		auto particleEmitter1 = _world->createEntity("ParticleEmitter1");
+		particleEmitter1->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, 2, glm::vec3(5,0,0));
+
+		auto particleEmitter2 = _world->createEntity("ParticleEmitter2");
+		particleEmitter2->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, 3, glm::vec3(5, -5, 0));
+
+		auto particleEmitter3 = _world->createEntity("ParticleEmitter3");
+		particleEmitter3->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, 8, glm::vec3(-5, -5, 0));
+
 
 		auto alienEntity = _world->createEntity("Enemy Alien");
 		_enemy = alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien);
