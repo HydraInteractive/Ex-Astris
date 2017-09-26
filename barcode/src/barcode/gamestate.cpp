@@ -458,16 +458,18 @@ namespace Barcode {
 			_textureLoader->getTexture("assets/hud/Compass.png")->setRepeat();
 			ImGui::End();
 
-			int amountOfActives = 9;
+			int amountOfActives = 5;
 			float pForEatchDot = float(1) / float(amountOfActives);
 			float stepSize = float(70) * pForEatchDot;
 			for (int i = 0; i < amountOfActives; i++)
 			{
+				char buf[128];
+				snprintf(buf, sizeof(buf), "Cooldown%d", i);
 				float yOffset = float(stepSize * float(i + 1));
 				float xOffset = pow(abs((yOffset - (stepSize / float(2)) - float(35))) * 0.1069, 2);
 				ImGui::SetNextWindowPos(pos + ImVec2(-64 + xOffset , -24 + yOffset - ((stepSize + 10.0) / 2.0)));
 				ImGui::SetNextWindowSize(ImVec2(15, 15));
-				ImGui::Begin("Cooldown"+char(i-1), NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 				ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Green.png")->getID()), ImVec2(10, 10));
 				ImGui::End();
 			}
