@@ -6,6 +6,8 @@
 #include <hydra/io/glmeshloader.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
+#include <imgui/imgui.h>
+#include <hydra/component/aicomponent.hpp>
 
 namespace Barcode {
 	GameState::GameState() : _engine(Hydra::IEngine::getInstance()) {}
@@ -407,11 +409,30 @@ namespace Barcode {
 		}
 
 		{
-			ImGui::SetNextWindowPos(pos + ImVec2(-10, 1));
-			ImGui::SetNextWindowSize(ImVec2(20, 20));
-			ImGui::Begin("Crosshair", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Crosshair.png")->getID()), ImVec2(20, 20));
-			ImGui::End();
+			for (int i = 0; i < WORLD_SIZE; i++)
+			{
+				for (int j = 0; j < WORLD_SIZE; j++)
+				{
+					char buf[128];
+					snprintf(buf, sizeof(buf), "%d%d", i, j);
+					if (/*_enemy->getPathFinder()->returnWall(i, j) ==*/ true)
+					{
+						ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
+						ImGui::SetNextWindowSize(ImVec2(20, 20));
+						ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+						ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(20, 20));
+						ImGui::End();
+					}
+					else
+					{
+						ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
+						ImGui::SetNextWindowSize(ImVec2(20, 20));
+						ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+						ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Green.png")->getID()), ImVec2(20, 20));
+						ImGui::End();
+					}
+				}
+			}
 		}
 		
 		{ // Update UI & views

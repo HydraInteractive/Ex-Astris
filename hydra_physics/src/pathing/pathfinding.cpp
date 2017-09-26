@@ -96,6 +96,16 @@ glm::vec3 PathFinding::nextPathPos(glm::vec3 pos, int radius)
 	return nextPos;
 }
 
+bool PathFinding::returnWall(int x, int y)
+{
+	bool result = false;
+	if (theMap[x][y] == 1)
+	{
+		result = true;
+	}
+	return result;
+}
+
 void PathFinding::_setStartAndGoal(SearchCell start, SearchCell end)
 {
 	_startCell = new SearchCell(start.m_xcoord, start.m_zcoord, 0);
