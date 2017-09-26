@@ -33,8 +33,6 @@ void ParticleComponent::tick(TickAction action, float delta){
 	if (action == TickAction::renderTransparent) {
 		_accumulator += delta;
 		_generateParticles();
-		//if (_particles.size() > 1)
-		//	_sortParticles(_particles.size() - 1, 0);
 	}
 }
 
@@ -66,11 +64,10 @@ void ParticleComponent::_particlePhysics(float delta) {
 		->getComponent<CameraComponent>();
 
 	for (auto& p : _particles) {
-		if (p->life <= p->elapsedTime)
+		if (p->life <= p->elapsedTime) {
 			p->dead = true;
-
-		if (p->dead)
 			continue;
+		}
 
 		if (camera)
 			p->distanceToCamera = glm::distance(camera->getPosition(), p->pos);

@@ -15,6 +15,9 @@ out vec2 textureCoords1;
 out vec2 textureCoords2;
 out float blend;
 
+layout (location = 0) uniform mat4 view;
+layout (location = 1) uniform mat4 proj;
+
 void main() {
 	texCoords = uv.xy;
 	texCoords.y = 1.0 - uv.y;
@@ -22,6 +25,7 @@ void main() {
 	textureCoords1 = texCoords + textureOffset1;
 	textureCoords2 = texCoords + textureOffset2;
 	blend = textureCoordInfo.y;
+	vec3 pos = vec3();
 
-	gl_Position = m * vec4(position, 1);
+	gl_Position = proj * view * m * vec4(position, 1);
 }

@@ -323,7 +323,9 @@ namespace Barcode {
 				}
 			}
 			if (anyParticles) {
-				_particleBatch.pipeline->setValue(0, 0);
+				_particleBatch.pipeline->setValue(0, _cc->getViewMatrix());
+				_particleBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
+				_particleBatch.pipeline->setValue(2, 0);
 				_particleAtlases->bind(0);
 				_engine->getRenderer()->render(_particleBatch.batch);
 			}
