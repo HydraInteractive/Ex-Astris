@@ -59,7 +59,7 @@ namespace Hydra::Component {
 		unsigned int lastTime, currentTime;
 		float angle;
 		glm::quat rotation;
-
+		int map[WORLD_SIZE][WORLD_SIZE];
 		float _velocityX;
 		float _velocityY;
 		float _velocityZ;
