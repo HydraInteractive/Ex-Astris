@@ -96,12 +96,16 @@ glm::vec3 PathFinding::nextPathPos(glm::vec3 pos, int radius)
 	return nextPos;
 }
 
-bool PathFinding::returnWall(int x, int y)
+int PathFinding::returnWall(int x, int y)
 {
-	bool result = false;
+	int result = 0;
 	if (theMap[x][y] == 1)
 	{
-		result = true;
+		result = 1;
+	}
+	else if(theMap[x][y] == 2)
+	{
+		result = 2;
 	}
 	return result;
 }
