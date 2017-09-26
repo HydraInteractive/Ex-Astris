@@ -50,9 +50,13 @@ void GrenadeComponent::tick(TickAction action, float delta) {
 
 	if (_position.y > 0.0f) {
 		_position.y = 0.0f;
-		_direction.y = -_direction.y;
 		_fallingVelocity -= 10.0f;
 		_velocity -= 5.0f;
+		_direction.y = -_direction.y;
+	}
+
+	if (_velocity == 0 && _fallingVelocity == 0){
+		entity->markDead();
 	}
 
 	auto transform = entity->getComponent<Component::TransformComponent>();
