@@ -25,6 +25,19 @@ EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID) : IComponent
 	_falling = false;
 	_pathState = SEARCHING;
 	lastTime = 0;
+
+	for (int i = 0; i < WORLD_SIZE; i++)
+	{
+		for (int j = 0; j < WORLD_SIZE; j++)
+		{
+			map[i][j] = 0;
+		}
+	}
+
+	for (int i = 0; i < 32; i++)
+	{
+		map[20][20] = 1;
+	}
 }
 
 EnemyComponent::~EnemyComponent() { }
@@ -68,6 +81,9 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				_position.z += 0.1f * cosf(angle * 3.14159 / 180);
 			}
 		}*/
+		int tempX = _position.x;
+		int tempZ = _position.z;
+		map[tempX][tempZ] = 2;
 
 		if (_pathState == SEARCHING)
 		{
@@ -77,7 +93,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				_pathState = ATTACKING;
 			}
 
-			_pathFinding->findPath(enemy->getPosition(), player->getPosition());
+			_pathFinding->findPath(enemy->getPosition(), player->getPosition(), map);
 			_isAtGoal = false;
 			if (_pathFinding->foundGoal)
 			{

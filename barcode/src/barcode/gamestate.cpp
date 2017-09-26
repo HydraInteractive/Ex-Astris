@@ -456,7 +456,7 @@ namespace Barcode {
 		alienEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-10, 0, 0));
 		alienEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
-		auto robotEntity = _world->createEntity("Enemy Robot");
+		/*auto robotEntity = _world->createEntity("Enemy Robot");
 		_enemy = robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot);
 		robotEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(15, 0, 0));
 		robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
@@ -464,7 +464,7 @@ namespace Barcode {
 		auto bossEntity = _world->createEntity("Enemy Boss");
 		_enemy = bossEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss);
 		bossEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, -10, 0));
-		bossEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+		bossEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");*/
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
 		auto bp = BlueprintLoader::load("world.blueprint");

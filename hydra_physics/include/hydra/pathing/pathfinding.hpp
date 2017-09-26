@@ -18,19 +18,18 @@ public:
 	PathFinding();
 	~PathFinding();
 
-	void findPath(glm::vec3 currentPos, glm::vec3 targetPos);
+	void findPath(glm::vec3 currentPos, glm::vec3 targetPos, int map[WORLD_SIZE][WORLD_SIZE]);
 	glm::vec3 nextPathPos(glm::vec3 pos, int radius);
 	void clearOpenList() { _openList.clear(); }
 	void clearVisitedList() { _visitedList.clear(); }
 	void clearPathToGoal() { _pathToEnd.clear(); }
 	bool intializedStartGoal;
 	bool foundGoal;
-	int theMap[WORLD_SIZE][WORLD_SIZE];
 private:
 	void _setStartAndGoal(SearchCell start, SearchCell end);
-	void _pathOpened(int x, int z, float newCost, SearchCell *parent);
+	void _pathOpened(int x, int z, float newCost, SearchCell *parent, int map[WORLD_SIZE][WORLD_SIZE]);
 	SearchCell *_getNextCell();
-	void _continuePath();
+	void _continuePath(int map[WORLD_SIZE][WORLD_SIZE]);
 
 	SearchCell *_startCell;
 	SearchCell *_endCell;
