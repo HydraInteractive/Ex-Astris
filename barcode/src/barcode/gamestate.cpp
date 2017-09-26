@@ -406,6 +406,14 @@ namespace Barcode {
 			_engine->getRenderer()->postProcessing(_postTestBatch.batch);
 		}
 
+		{
+			ImGui::SetNextWindowPos(pos + ImVec2(-10, 1));
+			ImGui::SetNextWindowSize(ImVec2(20, 20));
+			ImGui::Begin("Crosshair", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Crosshair.png")->getID()), ImVec2(20, 20));
+			ImGui::End();
+		}
+		
 		{ // Update UI & views
 			// If you wanna see the final image, uncomment the two rows below.
 			//_viewBatch.batch.pipeline->setValue(0, 0);
