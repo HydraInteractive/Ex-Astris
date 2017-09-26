@@ -36,6 +36,7 @@
     <ClInclude Include="include\imgui\stb_textedit.h" />
     <ClInclude Include="include\imgui\stb_truetype.h" />
     <ClInclude Include="include\KHR\khrplatform.h" />
+    <ClInclude Include="include\hydra\component\playerAbilities.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\component\animationComponent.cpp" />

@@ -18,6 +18,19 @@ using namespace Hydra::Component;
 
 PlayerComponent::PlayerComponent(IEntity* entity) : IComponent(entity) {
 	entity->createEntity("Grenades");
+	_activeAbility = 0;
+	_abilityList.push_back(&PlayerComponent::throwGrenade);
+	_abilityList.push_back(&PlayerComponent::throwGrenade);
+	_abilityList.push_back(&PlayerComponent::throwGrenade);
+	_abilityList.push_back(&PlayerComponent::throwGrenade);
+	_abilityList.push_back(&PlayerComponent::throwGrenade);
+	_abilityList.push_back(&PlayerComponent::throwGrenade);
+	_cooldownList.push_back(0);
+	_cooldownList.push_back(0);
+	_cooldownList.push_back(0);
+	_cooldownList.push_back(0);
+	_cooldownList.push_back(0);
+	_cooldownList.push_back(0);
 }
 
 PlayerComponent::~PlayerComponent() { }
@@ -66,21 +79,15 @@ void PlayerComponent::tick(TickAction action, float delta) {
 			_onGround = false;
 		}
 		if (keysArray[SDL_SCANCODE_F]) {
-
-		}
-		if (keysArray[SDL_SCANCODE_G]){
-
-			std::shared_ptr<Hydra::World::IEntity> grenades;
-			std::vector<std::shared_ptr<Hydra::World::IEntity>> children = entity->getChildren();
-
-			for (size_t i = 0; i < children.size(); i++) {
-				if (children[i]->getName() == "Grenades") {
-					grenades = children[i];
+			if (_cooldownList[_activeAbility] == 0)
+			{
+				(this->*_abilityList[_activeAbility])();
+				_cooldownList[_activeAbility] = 5;
+				if (++_activeAbility >= _abilityList.size())
+				{
+					_activeAbility = 0;
 				}
 			}
-
-			auto grenade = grenades->createEntity("grenade");
-			grenade->addComponent<Component::GrenadeComponent>(_position, -forward);
 		}
 
 		if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_MIDDLE)) {
@@ -118,6 +125,24 @@ void PlayerComponent::tick(TickAction action, float delta) {
 	_debugPos = forward*glm::vec3(-2, 0, -2);
 }
 
+void PlayerComponent::throwGrenade()
+{
+	std::shared_ptr<Hydra::World::IEntity> grenades;
+	std::vector<std::shared_ptr<Hydra::World::IEntity>> children = entity->getChildren();
+
+	for (size_t i = 0; i < children.size(); i++) {
+		if (children[i]->getName() == "Grenades") {
+			grenades = children[i];
+		}
+	}
+	
+	auto camera = entity->getComponent<Component::CameraComponent>();
+	glm::mat4 viewMat = camera->getViewMatrix();
+	glm::vec3 forward(viewMat[0][2], viewMat[1][2], viewMat[2][2]);
+
+	auto grenade = grenades->createEntity("grenade");
+	grenade->addComponent<Component::GrenadeComponent>(_position, -forward);
+}
 std::shared_ptr<Hydra::World::IEntity> PlayerComponent::getWeapon() {
 	std::shared_ptr<Hydra::World::IEntity> weapon;
 	std::vector<std::shared_ptr<Hydra::World::IEntity>> children = entity->getChildren();
@@ -154,4 +179,5 @@ void PlayerComponent::registerUI() {
 	ImGui::InputFloat("DEBUG", &_debug);
 	ImGui::DragFloat3("DEBUG POS", glm::value_ptr(_debugPos), 0.01f);
 	ImGui::Checkbox("First Person", &_firstPerson);
+	ImGui::InputInt("ACTIVE ABILITY", &_activeAbility);
 }

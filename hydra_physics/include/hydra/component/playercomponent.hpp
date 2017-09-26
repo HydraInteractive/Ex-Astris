@@ -6,8 +6,6 @@
 * Authors:
 *  - Dan Printzell
 */
-
-#pragma once
 #include <hydra/ext/api.hpp>
 #include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL.h>
@@ -35,18 +33,22 @@ namespace Hydra::Component {
 
 		inline const std::string type() const final { return "PlayerComponent"; }
 		const glm::vec3 getPosition() { return _position; };
+		void throwGrenade();
 
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
 	private:
-
 		glm::vec3 _position = glm::vec3(0,-2,3);
 		glm::vec3 _velocity;
 		glm::vec3 _acceleration;
 		float _movementSpeed = 20.0f;
 		bool _onGround = false;
 		bool _firstPerson = true;
+
+		int _activeAbility;
+		std::vector<void(PlayerComponent::*)()> _abilityList;
+		std::vector<int> _cooldownList;
 
 		float _debug;
 		glm::vec3 _debugPos;
