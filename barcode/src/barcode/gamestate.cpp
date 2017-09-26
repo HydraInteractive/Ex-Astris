@@ -409,30 +409,41 @@ namespace Barcode {
 		}
 
 		{
-			for (int i = 0; i < WORLD_SIZE; i++)
+			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, float(0.0f));
+
+			for (int i = 0; i < 30; i++)
 			{
-				for (int j = 0; j < WORLD_SIZE; j++)
+				for (int j = 0; j < 30; j++)
 				{
-					char buf[128];
-					snprintf(buf, sizeof(buf), "%d%d", i, j);
-					if (/*_enemy->getPathFinder()->returnWall(i, j) ==*/ true)
+					if (_enemy != nullptr)
 					{
-						ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
-						ImGui::SetNextWindowSize(ImVec2(20, 20));
-						ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-						ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(20, 20));
-						ImGui::End();
-					}
-					else
-					{
-						ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
-						ImGui::SetNextWindowSize(ImVec2(20, 20));
-						ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-						ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Green.png")->getID()), ImVec2(20, 20));
-						ImGui::End();
+						char buf[128];
+						snprintf(buf, sizeof(buf), "%d%d", i, j);
+						if (_enemy->getWall(i, j) == true)
+						{
+							ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
+							ImGui::SetNextWindowSize(ImVec2(20, 20));
+							ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(20, 20));
+							ImGui::End();
+						}
+						else
+						{
+							ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
+							ImGui::SetNextWindowSize(ImVec2(20, 20));
+							ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Green.png")->getID()), ImVec2(20, 20));
+							ImGui::End();
+						}
 					}
 				}
 			}
+
+			ImGui::PopStyleColor();
+			ImGui::PopStyleVar();
+			ImGui::PopStyleVar();
 		}
 		
 		{ // Update UI & views
@@ -485,15 +496,15 @@ namespace Barcode {
 		alienEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-10, 0, 0));
 		alienEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
-		auto robotEntity = _world->createEntity("Enemy Robot");
-		_enemy = robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot);
-		robotEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(15, 0, 0));
-		robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+		//auto robotEntity = _world->createEntity("Enemy Robot");
+		//_enemy = robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot);
+		//robotEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(15, 0, 0));
+		//robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
-		auto bossEntity = _world->createEntity("Enemy Boss");
-		_enemy = bossEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss);
-		bossEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, -10, 0));
-		bossEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+		//auto bossEntity = _world->createEntity("Enemy Boss");
+		//_enemy = bossEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss);
+		//bossEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, -10, 0));
+		//bossEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
 		auto bp = BlueprintLoader::load("world.blueprint");
@@ -507,6 +518,7 @@ namespace Barcode {
 				_cc->setRenderTarget(_geometryBatch.output.get());
 			} else
 				_engine->log(Hydra::LogLevel::error, "Camera not found!");
+			_enemy = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Enemy Alien"; })->get()->getComponent<Hydra::Component::EnemyComponent>();
 		}
 
 	}

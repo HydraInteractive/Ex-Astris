@@ -291,3 +291,10 @@ void EnemyComponent::registerUI() {
 	ImGui::Checkbox("isAtGoal", &_isAtGoal);
 }
 
+bool Hydra::Component::EnemyComponent::getWall(int x, int y)
+{
+	bool result = _pathFinding->returnWall(x, y);
+
+	return result;
+}
+
