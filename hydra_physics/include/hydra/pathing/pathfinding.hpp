@@ -15,8 +15,6 @@
 class PathFinding
 {
 public:
-	int theMap[WORLD_SIZE][WORLD_SIZE];
-
 	PathFinding();
 	~PathFinding();
 
