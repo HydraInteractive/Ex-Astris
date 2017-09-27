@@ -38,7 +38,7 @@ namespace Hydra::Component {
 	private:
 		unsigned int _fireRateTimer = 0;
 		int _fireRateRPM = 600;
-		float _bulletSize = 0.01;
+		float _bulletSize = 0.01f;
 		float _bulletSpread = 0.0f;
 		int _bulletsPerShot = 14;
 		glm::vec3 _debug;

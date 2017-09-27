@@ -503,6 +503,7 @@
     <ClInclude Include="include\bullet3\LinearMath\btTransform.h" />
     <ClInclude Include="include\bullet3\LinearMath\btTransformUtil.h" />
     <ClInclude Include="include\bullet3\LinearMath\btVector3.h" />
+    <ClInclude Include="include\hydra\abilities\abilityHandler.hpp" />
     <ClInclude Include="include\hydra\component\aicomponent.hpp" />
     <ClInclude Include="include\hydra\component\bulletcomponent.hpp" />
     <ClInclude Include="include\hydra\component\componentmanager_physics.hpp" />
@@ -513,6 +514,7 @@
     <ClInclude Include="include\hydra\pathing\SearchCell.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\abilities\abilityHandler.cpp" />
     <ClCompile Include="src\component\aicomponent.cpp" />
     <ClCompile Include="src\component\bulletcomponent.cpp" />
     <ClCompile Include="src\component\componentmanager_physics.cpp" />

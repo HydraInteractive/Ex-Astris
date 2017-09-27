@@ -16,6 +16,7 @@
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
 #include <hydra/component/grenadecomponent.hpp>
+#include <hydra/abilities/abilityHandler.hpp>
 
 using namespace Hydra::World;
 
@@ -46,9 +47,7 @@ namespace Hydra::Component {
 		bool _onGround = false;
 		bool _firstPerson = true;
 
-		int _activeAbility;
-		std::vector<void(PlayerComponent::*)()> _abilityList;
-		std::vector<int> _cooldownList;
+		AbilityHandler _activeAbillies;
 
 		float _debug;
 		glm::vec3 _debugPos;

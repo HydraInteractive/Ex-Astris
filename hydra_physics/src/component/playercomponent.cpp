@@ -17,20 +17,7 @@ using namespace Hydra::World;
 using namespace Hydra::Component;
 
 PlayerComponent::PlayerComponent(IEntity* entity) : IComponent(entity) {
-	entity->createEntity("Grenades");
-	_activeAbility = 0;
-	_abilityList.push_back(&PlayerComponent::throwGrenade);
-	_abilityList.push_back(&PlayerComponent::throwGrenade);
-	_abilityList.push_back(&PlayerComponent::throwGrenade);
-	_abilityList.push_back(&PlayerComponent::throwGrenade);
-	_abilityList.push_back(&PlayerComponent::throwGrenade);
-	_abilityList.push_back(&PlayerComponent::throwGrenade);
-	_cooldownList.push_back(0);
-	_cooldownList.push_back(0);
-	_cooldownList.push_back(0);
-	_cooldownList.push_back(0);
-	_cooldownList.push_back(0);
-	_cooldownList.push_back(0);
+	entity->createEntity("Abilities");
 }
 
 PlayerComponent::~PlayerComponent() { }
@@ -79,15 +66,9 @@ void PlayerComponent::tick(TickAction action, float delta) {
 			_onGround = false;
 		}
 		if (keysArray[SDL_SCANCODE_F]) {
-			if (_cooldownList[_activeAbility] == 0)
-			{
-				(this->*_abilityList[_activeAbility])();
-				_cooldownList[_activeAbility] = 5;
-				if (++_activeAbility >= _abilityList.size())
-				{
-					_activeAbility = 0;
-				}
-			}
+			auto& player = entity->getChildren();
+			auto abilitiesEntity = std::find_if(player.begin(), player.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Abilities"; });
+			_activeAbillies.useAbility(abilitiesEntity->get(), _position, -forward);
 		}
 
 		if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_MIDDLE)) {
@@ -143,6 +124,7 @@ void PlayerComponent::throwGrenade()
 	auto grenade = grenades->createEntity("grenade");
 	grenade->addComponent<Component::GrenadeComponent>(_position, -forward);
 }
+
 std::shared_ptr<Hydra::World::IEntity> PlayerComponent::getWeapon() {
 	std::shared_ptr<Hydra::World::IEntity> weapon;
 	std::vector<std::shared_ptr<Hydra::World::IEntity>> children = entity->getChildren();
@@ -179,5 +161,4 @@ void PlayerComponent::registerUI() {
 	ImGui::InputFloat("DEBUG", &_debug);
 	ImGui::DragFloat3("DEBUG POS", glm::value_ptr(_debugPos), 0.01f);
 	ImGui::Checkbox("First Person", &_firstPerson);
-	ImGui::InputInt("ACTIVE ABILITY", &_activeAbility);
 }
