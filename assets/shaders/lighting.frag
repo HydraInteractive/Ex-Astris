@@ -65,7 +65,7 @@ void main() {
 	//if(currentDepth > closestDepth)
 		//fragOutput = vec3(0, 0, 0);
 
-	fragOutput = objectColor * shadow;
+	fragOutput = vec3(1,0,0);
 	//fragOutput = vec3(shadow);
 
 	//fragOutput = (ambient + (1.0 - shadow) * (diffuse + specular)) * objectColor;

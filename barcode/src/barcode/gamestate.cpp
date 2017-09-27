@@ -15,6 +15,7 @@ namespace Barcode {
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
 
 		auto& windowSize = _engine->getView()->getSize();
+		printf("%i %i\n", windowSize.x, windowSize.y);
 		{
 			auto& batch = _geometryBatch;
 			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/geometry.vert");
@@ -412,8 +413,8 @@ namespace Barcode {
 		weaponEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 		weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(1,1,1), glm::quat(0,0,-1,0));
 		
-		//auto particleEmitter = _world->createEntity("ParticleEmitter");
-		//particleEmitter->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, 1);
+		auto particleEmitter = _world->createEntity("ParticleEmitter");
+		particleEmitter->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, 1);
 
 		auto alienEntity = _world->createEntity("Enemy Alien");
 		_enemy = alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien);
