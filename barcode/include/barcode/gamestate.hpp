@@ -31,7 +31,7 @@ namespace Barcode {
 
 		void onMainMenu() final;
 		void load() final;
-
+		int currentFrame = 0;
 		void runFrame(float delta) final;
 
 		inline Hydra::World::IWorld* getWorld() final { return _world.get(); };
@@ -49,17 +49,20 @@ namespace Barcode {
 			Hydra::Renderer::Batch batch;
 		};
 
+		struct ParticleRenderBatch final {
+			std::unique_ptr<Hydra::Renderer::IShader> vertexShader;
+			std::unique_ptr<Hydra::Renderer::IShader> geometryShader;
+			std::unique_ptr<Hydra::Renderer::IShader> fragmentShader;
+			std::unique_ptr<Hydra::Renderer::IPipeline> pipeline;
+
+			std::shared_ptr<Hydra::Renderer::IFramebuffer> output;
+			Hydra::Renderer::ParticleBatch batch;
+		};
+
 		Hydra::IEngine* _engine;
 		std::unique_ptr<Hydra::World::IWorld> _world;
 		std::unique_ptr<Hydra::IO::ITextureLoader> _textureLoader;
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
-
-		Hydra::Renderer::UIRenderWindow* _positionWindow;
-		Hydra::Renderer::UIRenderWindow* _diffuseWindow;
-		Hydra::Renderer::UIRenderWindow* _normalWindow;
-		Hydra::Renderer::UIRenderWindow* _glowWindow;
-		Hydra::Renderer::UIRenderWindow* _depthWindow;
-		Hydra::Renderer::UIRenderWindow* _shadowWindow;
 
 		RenderBatch _geometryBatch; // First part of deferred rendering
 		RenderBatch _animationBatch; // AnimationBatch
@@ -68,7 +71,8 @@ namespace Barcode {
 		RenderBatch _viewBatch;
 		RenderBatch _postTestBatch;
 		RenderBatch _shadowBatch;
-		RenderBatch _particleBatch;
+
+		ParticleRenderBatch _particleBatch;
 
 		// ParticleTexture
 		std::shared_ptr<Hydra::Renderer::ITexture> _particleAtlases;

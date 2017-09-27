@@ -22,7 +22,7 @@ namespace Hydra::Component {
 		glm::vec3 _direction;
 
 		float _fov = 90.0f;
-		float _zNear = 2.0;
+		float _zNear = 0.01f;
 		float _zFar = 50.0f;
 		float _aspect = 1920.0f / 1080.0f;
 	public:

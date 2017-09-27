@@ -30,6 +30,7 @@ out gl_PerVertex {
 layout(location = 0) uniform mat4 v;
 layout(location = 1) uniform mat4 p;
 layout(location = 2) uniform vec3 cameraPos;
+
 layout(location = 3) uniform bool setting_doBackFaceCulling = false;
 layout(location = 4) uniform mat4 lightS;
 
