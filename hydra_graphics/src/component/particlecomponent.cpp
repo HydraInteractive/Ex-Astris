@@ -5,7 +5,7 @@
 #include <algorithm>
 
 #define frand() (float(rand()) / float(RAND_MAX))
-#define ROW 8 // is always going to be a uniformly scaled texture.
+#define OUTERROW 24 // is always going to be a uniformly scaled texture.
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
@@ -15,11 +15,22 @@ _behaviour(EmitterBehaviour::PerSecond), _accumulator(0.f), _emitterPos(glm::vec
 	_drawObject->mesh = nullptr;
 }
 
-ParticleComponent::ParticleComponent(IEntity* entity, EmitterBehaviour behaviour, int nrOfParticles, glm::vec3 pos) : IComponent(entity), _drawObject(entity->getDrawObject()), 
+ParticleComponent::ParticleComponent(IEntity* entity, EmitterBehaviour behaviour, ParticleTexture texture, int nrOfParticles, glm::vec3 pos) : IComponent(entity), _drawObject(entity->getDrawObject()),
 _pps(nrOfParticles), _behaviour(behaviour), _accumulator(0.f), _emitterPos(pos){
 	_drawObject->refCounter++;
 	_drawObject->mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getQuad().get();
 	_tempRotation = glm::mat4(1);
+	switch (texture) {
+	case ParticleTexture::Fire:
+		_innerRow = 4;
+		_offsetToTexture = glm::ivec2(0, 0);
+		break;
+	case ParticleTexture::Knas:
+		break;
+	case ParticleTexture::BogdanDeluxe:
+		break;
+	}
+
 }
 
 ParticleComponent::~ParticleComponent() {
@@ -35,7 +46,7 @@ void ParticleComponent::tick(TickAction action, float delta){
 		_accumulator += delta;
 		_generateParticles();
 		if (_particles.size() > 1)
-			_sortParticles(0, _particles.size() - 1);
+			_sortParticles();
 	}
 }
 
@@ -54,11 +65,11 @@ void ParticleComponent::_generateParticles() {
 
 void ParticleComponent::_emmitParticle() {
 	std::shared_ptr<Particle> p = std::make_shared<Particle>();
-	float dirX = frand() * 2 - 1;
-	float dirY = frand() * 2 - 1;
-	float dirZ = frand() * 2 - 1;
-	glm::vec3 a = glm::vec3(frand() * 6.f - 1.5f, frand() * 3.5f + 0.5f, frand() * 3.f - 0.5f);
-	p->spawn(_emitterPos, glm::normalize(glm::vec3(dirX, dirY, dirZ)) * glm::normalize(glm::vec3(0.1)), a, frand() * 6.f - 1.f);
+	float dirX = frand() * 2 - 2;
+	float dirY = frand() * -6 - 1;
+	float dirZ = 0;
+	glm::vec3 a = glm::vec3(frand() * 2 - 2, frand() * -8.5f, 0);
+	p->spawn(_emitterPos, glm::normalize(glm::vec3(dirX, dirY, dirZ)), a, frand() * 1.f + 1.f);
 	_particles.push_back(p);
 }
 
@@ -76,7 +87,7 @@ void ParticleComponent::_particlePhysics(float delta) {
 		if (camera)
 			p->distanceToCamera = glm::distance(camera->getPosition(), p->pos);
 
-		p->vel += p->acceleration * delta + p->grav * delta;
+		p->vel += p->acceleration * delta;
 		p->pos += p->vel * delta;
 		_updateTextureCoordInfo(p, delta);
 		p->elapsedTime += delta;
@@ -87,20 +98,20 @@ void ParticleComponent::_particlePhysics(float delta) {
 
 void ParticleComponent::_updateTextureCoordInfo(std::shared_ptr<Particle>& p, float delta) {
 	float lifeFactor = p->elapsedTime / p->life;
-	int stageCount = ROW*ROW;
+	int stageCount = _innerRow*_innerRow;
 	float atlasProg = lifeFactor * stageCount;
 	int index1 = (int)floor(atlasProg);
 	int index2 = index1 < stageCount - 1 ? index1 + 1 : index1;
-	p->texCoordInfo = glm::vec2(ROW, fmod(atlasProg, 1));
+	p->texCoordInfo = glm::vec2(OUTERROW, fmod(atlasProg, 1));
 	_setTextureOffset(p->texOffset1, index1);
 	_setTextureOffset(p->texOffset2, index2);
 }
 
 void ParticleComponent::_setTextureOffset(glm::vec2& offset, int index) {
-	int column = index % ROW;
-	int row = index / ROW;
-	offset.x = column / (float)ROW;
-	offset.y = row / (float)ROW;
+	int column = index % OUTERROW;
+	int row = index / OUTERROW;
+	offset.x = column / (float)OUTERROW;
+	offset.y = row / (float)OUTERROW;
 }
 
 void ParticleComponent::_clearDeadParticles() {
@@ -115,27 +126,19 @@ void ParticleComponent::_clearDeadParticles() {
 	);
 }
 
-void ParticleComponent::_sortParticles(int left, int right) { // Quick sort
-	int i = left, j = right;
-	std::shared_ptr<Particle> tmp;
-	float pivot = _particles[(left + right) / 2]->distanceToCamera;
-	while (i <= j) {
-		while (_particles[i]->distanceToCamera < pivot)
-			i++;
-		while (_particles[j]->distanceToCamera > pivot)
-			j--;
-		if (i <= j) {
-			tmp = _particles[i];
-			_particles[i] = _particles[j];
-			_particles[j] = tmp;
-			i++;
+void ParticleComponent::_sortParticles() { // Insertion Sort
+	int j;
+	std::shared_ptr<Particle> temp;
+
+	for (int i = 0; i < _particles.size(); i++) {
+		j = i;
+		while (j > 0 && _particles[j]->distanceToCamera > _particles[j-1]->distanceToCamera) {
+			temp = _particles[j];
+			_particles[j] = _particles[j - 1];
+			_particles[j - 1] = temp;
 			j--;
 		}
 	}
-	if (left < j)
-		_sortParticles(left, j);
-	if (i < right)
-		_sortParticles(i, right);
 }
 
 void ParticleComponent::serialize(nlohmann::json & json) const{

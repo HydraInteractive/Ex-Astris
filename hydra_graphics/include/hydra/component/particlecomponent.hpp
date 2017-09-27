@@ -14,6 +14,7 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 	enum EmitterBehaviour : int {PerSecond = 0, Explosion};
+	enum ParticleTexture : int {Fire = 0, Knas, BogdanDeluxe};
 	
 	HYDRA_API struct Particle {
 		glm::mat4 m;
@@ -37,7 +38,6 @@ namespace Hydra::Component {
 			this->scale = glm::vec3(1.0f);
 			this->elapsedTime = 0.f;
 			this->dead = false;
-			this->grav = 3.14159265357989f;
 			this->texOffset1 = glm::vec2(0);
 			this->texOffset2 = glm::vec2(0);
 			this->texCoordInfo = glm::vec2(0);
@@ -51,7 +51,7 @@ namespace Hydra::Component {
 	class HYDRA_API ParticleComponent final : public IComponent{
 	public:
 		ParticleComponent(IEntity* entity);
-		ParticleComponent(IEntity* entity, EmitterBehaviour behaviour, int nrOfParticles, glm::vec3 pos);
+		ParticleComponent(IEntity* entity, EmitterBehaviour behaviour, ParticleTexture texture, int nrOfParticles, glm::vec3 pos);
 		~ParticleComponent() final;
 
 		void tick(TickAction action, float delta) final;
@@ -73,12 +73,14 @@ namespace Hydra::Component {
 		EmitterBehaviour _behaviour;
 		Hydra::Renderer::DrawObject* _drawObject;
 		std::vector<std::shared_ptr<Particle>> _particles;
+		size_t _innerRow;
+		glm::ivec2 _offsetToTexture;
 		void _generateParticles();
 		void _particlePhysics(float delta);
 		void _clearDeadParticles();
 		void _emmitParticle();
 		void _updateTextureCoordInfo(std::shared_ptr<Particle>& p, float delta);
-		void _sortParticles(int left, int right); // Quick sort
+		void _sortParticles(); // Insertion Sort
 		void _setTextureOffset(glm::vec2& offset, int index);
 	};
 };
