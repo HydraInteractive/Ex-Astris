@@ -380,7 +380,7 @@ namespace Barcode {
 			_textureLoader->getTexture("assets/hud/Compass.png")->setRepeat();
 			ImGui::End();
 
-			int amountOfActives = 5;
+			int amountOfActives = 3;
 			int coolDownList[5] = { 5,5,5,5,5 };
 			float pForEatchDot = float(1) / float(amountOfActives);
 			float stepSize = float(70) * pForEatchDot;
