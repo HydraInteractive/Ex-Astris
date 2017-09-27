@@ -31,8 +31,7 @@ layout(location = 0) uniform mat4 v;
 layout(location = 1) uniform mat4 p;
 layout(location = 2) uniform vec3 cameraPos;
 layout(location = 3) uniform bool setting_doBackFaceCulling = false;
-layout(location = 4) uniform mat4 lightView;
-layout(location = 5) uniform mat4 lightProj;
+layout(location = 4) uniform mat4 lightS;
 
 #define M_PI 3.1415
 
@@ -74,7 +73,8 @@ void main() {
 		outData.tbn = calcTBN(normalMatrix, inData[i].normal, i);
 
 		gl_Position = p * v * pos;
-		outData.light = (lightProj * lightView * pos);
+		
+		outData.light = lightS * pos;
 		EmitVertex();
 	}
 	EndPrimitive();

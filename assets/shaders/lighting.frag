@@ -1,6 +1,8 @@
 #version 440 core
 
 in vec2 texCoords;
+in vec4 lightSpacePos;
+
 
 layout(location = 0) out vec3 fragOutput;
 layout(location = 1) out vec3 brightOutput;
@@ -18,7 +20,7 @@ void main() {
 	vec3 objectColor = vec3(0);
 	vec3 normal = vec3(0);
 	vec4 lightPos = vec4(0);
-	for(int i = 1; i < 5; i++){
+	for(int i = 0; i < 4; i++){
 		pos += texelFetch(positions, iTexCoords, i).rgb;
 		objectColor += texelFetch(colors, iTexCoords, i).rgb;
 		normal += texelFetch(normals, iTexCoords, i).rgb;
@@ -29,8 +31,9 @@ void main() {
 	objectColor /= 4;
 	normal /= 4;
 	lightPos /= 4;
-/*
-	vec3 lightColor = objectColor;//vec3(1,1,1);
+	lightPos = texelFetch(lightPositions, iTexCoords, 0);
+
+	vec3 lightColor = normal;//vec3(1,1,1);
 
 	vec3 lightDirection = normalize(lightDir);
 	float diff = max(dot(normal, lightDirection), 0.0f);
@@ -44,13 +47,28 @@ void main() {
 
 	vec3 ambient = lightColor * 0.3f;
 	// All normal lighting calculations 
-	float inShadow = (lightPos.w > 1) ? textureProj(depthMap, lightPos) : 1;
-	fragOutput = (diffuse + specular) * inShadow + ambient;
-	*/
+	fragOutput = diffuse + specular + ambient;
 
-	//fragOutput *= objectColor;
+	//vec3 projCoords = lightPos.xyz / lightPos.w;
+	//projCoords = projCoords * 0.5 + 0.5;
 
-	fragOutput = vec3(0, 1, 0);//normal; //;vec3(inShadow)*0.75 + *0.25;
+	float shadow = 1;
+	if (lightPos.w > 1)  {
+		shadow = textureProj(depthMap, lightPos);
+	}
+	
+	//float closestDepth = texture(depthMap, projCoords.xy).r;
+	//float currentDepth = projCoords.z;
+	
+	//float shadow = currentDepth >= closestDepth ? 1.0 : 0.0;
+	
+	//if(currentDepth > closestDepth)
+		//fragOutput = vec3(0, 0, 0);
+
+	fragOutput = objectColor * shadow;
+	//fragOutput = vec3(shadow);
+
+	//fragOutput = (ambient + (1.0 - shadow) * (diffuse + specular)) * objectColor;
 
 	// Picking out bright regions for glow.
 	float brightness = dot(fragOutput, vec3(0.7));

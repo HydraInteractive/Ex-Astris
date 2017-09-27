@@ -19,12 +19,11 @@ namespace Hydra::Component {
 	class HYDRA_API LightComponent final : public IComponent{
 	private:
 		glm::vec3 _position;
-		glm::quat _orientation;
 		glm::vec3 _direction;
 
 		float _fov = 90.0f;
-		float _zNear = 0.001f;
-		float _zFar = 200.0f;
+		float _zNear = 2.0;
+		float _zFar = 50.0f;
 		float _aspect = 1920.0f / 1080.0f;
 	public:
 		LightComponent(IEntity* entity);
@@ -42,9 +41,11 @@ namespace Hydra::Component {
 
 		//inline glm::mat4 getViewMatrix() const { return glm::translate(glm::mat4_cast(_orientation), -_position); }
 		//inline glm::mat4 getProjectionMatrix() const { return glm::perspective(glm::radians(_fov), _aspect, _zNear, _zFar); }
-		inline glm::mat4 getProjectionMatrix() const { return glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, _zNear, _zFar); }
+		
+		//inline glm::mat4 getProjectionMatrix() const { return glm::ortho(-40.f, 40.f, -40.f, 40.f, _zNear, _zFar); }
+		inline glm::mat4 getProjectionMatrix() const { return glm::perspective(_fov, _aspect, _zNear, _zFar); }
 		inline glm::mat4 getViewMatrix() const {
-			return glm::lookAt(glm::vec3(_position.x, _position.y, _position.z),
+			return glm::lookAt(glm::vec3(_position),
 				   glm::vec3(_position + _direction),
 				   glm::vec3(0, 1, 0));
 			//return glm::translate(glm::mat4_cast(_orientation), -_position);

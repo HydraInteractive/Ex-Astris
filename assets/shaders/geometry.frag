@@ -20,5 +20,7 @@ void main() {
 	diffuse = inData.color;
 	normal = inData.normal;
 	lightPos = inData.light;
-	depth = vec3(lightPos.xyz / gl_FragCoord.w);
+	depth = gl_FragCoord.xyz / gl_FragCoord.w;
 }
+
+

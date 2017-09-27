@@ -31,7 +31,7 @@ namespace Barcode {
 
 		_depthWindow = _engine->getUIRenderer()->addRenderWindow();
 		_depthWindow->enabled = true;
-		_depthWindow->title = "Depth FBO";
+		_depthWindow->title = "LightSpacePos";
 		_depthWindow->image = Hydra::Renderer::GLTexture::createFromData(_depthWindow->size.x, _depthWindow->size.y, TextureType::u8RGB, nullptr);
 
 		_shadowWindow = _engine->getUIRenderer()->addRenderWindow();
@@ -61,9 +61,9 @@ namespace Barcode {
 				->addTexture(0, Hydra::Renderer::TextureType::f32RGB) // Position
 				.addTexture(1, Hydra::Renderer::TextureType::u8RGB) // Diffuse
 				.addTexture(2, Hydra::Renderer::TextureType::u8RGB) // Normal
-				.addTexture(3, Hydra::Renderer::TextureType::f16RGBA) // Light pos
+				.addTexture(3, Hydra::Renderer::TextureType::f32RGBA) // Light pos
 				.addTexture(4, Hydra::Renderer::TextureType::f16RGB) // Depth
-				.addTexture(5, Hydra::Renderer::TextureType::f32Depth) // real depth
+				.addTexture(5, Hydra::Renderer::TextureType::f16Depth) // real depth
 				.finalize();
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
@@ -153,7 +153,7 @@ namespace Barcode {
 			_blurredIMG3 = Hydra::Renderer::GLTexture::createEmpty(_glowWindow->size.x, _glowWindow->size.y, TextureType::u8RGB);
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
-			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::color | Hydra::Renderer::ClearFlags::depth;
+			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::color;
 			batch.batch.renderTarget = batch.output.get();
 			batch.batch.pipeline = batch.pipeline.get();
 		}
@@ -186,8 +186,8 @@ namespace Barcode {
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 			
-			batch.output = Hydra::Renderer::GLFramebuffer::create(_depthWindow->size, 0);
-			batch.output->addTexture(0, Hydra::Renderer::TextureType::f16Depth).finalize();
+			batch.output = Hydra::Renderer::GLFramebuffer::create(glm::vec2(1024), 0);
+			batch.output->addTexture(0, Hydra::Renderer::TextureType::f24Depth).finalize();
 			_shadowWindow->image = batch.output->getDepth();
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
@@ -270,25 +270,17 @@ namespace Barcode {
 				}
 			}
 
-			std::vector<std::shared_ptr<Hydra::World::IEntity>> children = this->_world->getWorldRoot()->getChildren();
-
-			//for (int i = 0; i < children.size(); i++) {
-			//	if (children[i]->getName() == "Light") {
-			//		_light = (children[i]->getComponent<Hydra::Component::LightComponent>());
-			//		printf("%f, %f, %f", _light->getPosition().x, _light->getPosition().y, _light->getPosition().z);
-			//		//_light = nullptr;
-			//	}
-			//}
 			for (auto& entity : _world->getActiveComponents<Hydra::Component::LightComponent>()) {
 				_light = entity->getComponent<Hydra::Component::LightComponent>();
 			}
 
+			glm::mat4 lightB = glm::scale(glm::translate(glm::mat4(1), glm::vec3(0.5, 0.5, 0.5)), glm::vec3(0.5, 0.5, 0.5));
+			glm::mat4 lightS = lightB * _light->getProjectionMatrix() * _light->getViewMatrix();
+
 			_geometryBatch.pipeline->setValue(0, _cc->getViewMatrix());
 			_geometryBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
 			_geometryBatch.pipeline->setValue(2, cameraPos = _cc->getPosition());
-			_geometryBatch.pipeline->setValue(4, _light->getViewMatrix());
-			_geometryBatch.pipeline->setValue(5, _light->getProjectionMatrix());
-			//_geometryBatch.pipeline->setValue(6, _light->getPosition());
+			_geometryBatch.pipeline->setValue(4, lightS);
 
 
 			_animationBatch.pipeline->setValue(0, _cc->getViewMatrix());
@@ -307,7 +299,7 @@ namespace Barcode {
 					_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 				else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
 					_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-
+				
 					//Get number of keyframes. Also hardcoded for now
 					if (currentFrame < 75) {
 						currentFrame++;
@@ -315,7 +307,7 @@ namespace Barcode {
 					else {
 						currentFrame = 1;
 					}
-
+				
 					std::vector<glm::mat4> tempMats;
 					//i == nrOfJoints. Hardcoded for now
 					for (int i = 0; i < 4; i++) {
@@ -344,7 +336,7 @@ namespace Barcode {
 
 			_engine->getRenderer()->render(_geometryBatch.batch);
 			//_engine->getRenderer()->render(_shadowBatch.batch);
-			_engine->getRenderer()->render(_animationBatch.batch);
+			//_engine->getRenderer()->render(_animationBatch.batch);
 		}
 
 		{
@@ -352,14 +344,12 @@ namespace Barcode {
 				kv.second.clear();
 
 			for (auto& drawObj : _engine->getRenderer()->activeDrawObjects()) {
-
 				if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false)
 					_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-				
 			}
 
-			_shadowBatch.pipeline->setValue(1, _light->getViewMatrix());
-			_shadowBatch.pipeline->setValue(2, _light->getProjectionMatrix());
+			_shadowBatch.pipeline->setValue(0, _light->getViewMatrix());
+			_shadowBatch.pipeline->setValue(1, _light->getProjectionMatrix());
 
 			_engine->getRenderer()->render(_shadowBatch.batch);
 		}
@@ -383,6 +373,9 @@ namespace Barcode {
 
 			_lightingBatch.pipeline->setValue(5, _cc->getPosition());
 			_lightingBatch.pipeline->setValue(6, _light->getDirection());
+			_lightingBatch.pipeline->setValue(7, _light->getViewMatrix());
+			_lightingBatch.pipeline->setValue(8, _light->getProjectionMatrix());
+
 			//_lightingBatch.pipeline->setValue(7, _light->getPosition());
 			
 
@@ -392,12 +385,13 @@ namespace Barcode {
 			(*_geometryBatch.output)[2]->bind(2);
 			(*_geometryBatch.output)[3]->bind(3);
 			_shadowBatch.output->getDepth()->bind(4);
+
 			//(*_geometryBatch.output)[4]->bind(4);
 
 			_engine->getRenderer()->postProcessing(_lightingBatch.batch);
 		}
 
-		{ // Glow
+		if (false) { // Glow
 			if (!_engine->getUIRenderer()->isDraging()) {
 				static glm::ivec2 oldSize = _glowBatch.output->getSize();
 				auto newSize = _positionWindow->size;
@@ -550,7 +544,6 @@ namespace Barcode {
 		_light->setPosition(glm::vec3(0, 0, 0));
 		_light->translate(glm::vec3(10, 0, 0));
 		_light->setDirection(glm::vec3(-1, 0, 0));
-		lightEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/model1.ATTIC");
 		lightEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
