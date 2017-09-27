@@ -4,7 +4,7 @@
 #include <hydra/world/world.hpp>
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
-#include <hydra/component/grenadecomponent.hpp>
+#include <hydra/abilities/grenadecomponent.hpp>
 
 class AbilityHandler
 {

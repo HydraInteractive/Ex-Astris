@@ -8,7 +8,7 @@
 *  - Dan Printzell
 */
 
-#include <hydra/component/grenadecomponent.hpp>
+#include <hydra/abilities/grenadecomponent.hpp>
 #include <imgui/imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 

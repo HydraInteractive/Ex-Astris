@@ -7,7 +7,7 @@
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
-#include <hydra/component/grenadecomponent.hpp>
+#include <hydra/abilities/grenadecomponent.hpp>
 
 namespace Hydra::Component {
 	namespace ComponentManager {

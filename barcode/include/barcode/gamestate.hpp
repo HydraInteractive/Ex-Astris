@@ -17,7 +17,6 @@
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/playercomponent.hpp>
-#include <hydra/component/grenadecomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/particlecomponent.hpp>
 #include <hydra/component/aicomponent.hpp>

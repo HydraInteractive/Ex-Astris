@@ -15,7 +15,6 @@
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
-#include <hydra/component/grenadecomponent.hpp>
 #include <hydra/abilities/abilityHandler.hpp>
 
 using namespace Hydra::World;
