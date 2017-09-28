@@ -112,7 +112,7 @@ public:
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
 
 		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		glDepthMask(GL_FALSE);
 		auto& particles = batch.textureInfo;
 		size_t sizeParticles = particles.size() / 3;

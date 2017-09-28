@@ -67,10 +67,10 @@ void ParticleComponent::_generateParticles() {
 
 void ParticleComponent::_emmitParticle() {
 	std::shared_ptr<Particle> p = std::make_shared<Particle>();
-	float dirX = frand() * 2 - 2;
-	float dirY = frand() * -6 - 1;
-	float dirZ = 0;
-	glm::vec3 a = glm::vec3(frand() * 2 - 2, frand() * -8.5f, 0);
+	float dirX = frand() * 20 - 10;
+	float dirY = frand() * 20 - 10;
+	float dirZ = frand() * 20 - 10;
+	glm::vec3 a = glm::vec3(frand() * 4 - 2, frand() * 19.f - 8.5f, frand() * 6 - 3.f);
 	p->spawn(_emitterPos, glm::normalize(glm::vec3(dirX, dirY, dirZ)), a, frand() * 1.f + 1.f);
 	_particles.push_back(p);
 }
