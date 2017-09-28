@@ -394,7 +394,7 @@ namespace Barcode {
 				glm::mat4 viewMat = _world->getActiveComponents<Hydra::Component::CameraComponent>()[0]->getComponent<Hydra::Component::CameraComponent>()->getViewMatrix();
 				glm::vec3 forward(viewMat[0][2], viewMat[1][2], viewMat[2][2]);
 				float dotPlacment = glm::dot(forward, enemyDir); // -1 - +1
-				dotPlacment = glm::clamp(dotPlacment, float(-0.5), float(0.5)) * 550;
+				dotPlacment = dotPlacment * 550;
 				ImGui::SetNextWindowPos(ImVec2(x + dotPlacment, 75)); //- 275
 				ImGui::SetNextWindowSize(ImVec2(20, 20));
 				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
