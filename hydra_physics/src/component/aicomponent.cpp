@@ -13,13 +13,12 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-EnemyComponent::EnemyComponent(IEntity* entity) : IComponent(entity), _enemyID(EnemyTypes::Alien) {}
+EnemyComponent::EnemyComponent(IEntity* entity) : IComponent(entity), _enemyID(EnemyTypes::Alien), _position(0,0,0) {}
 
-EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID) : IComponent(entity), _enemyID(enemyID) {
+EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID, glm::vec3 pos) : IComponent(entity), _enemyID(enemyID),  _position(pos){
 	_velocityX = 0;
 	_velocityY = 0;
 	_velocityZ = 0;
-
 	_startPosition = glm::vec3(0, 0, 0);
 	_patrolPointReached = false;
 	_falling = false;
@@ -56,6 +55,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 
 	if (_startPosition == glm::vec3(0, 0, 0))
 	{
+		enemy->setPosition(_position);
 		_startPosition = enemy->getPosition();
 	}
 
@@ -304,9 +304,9 @@ void EnemyComponent::tick(TickAction action, float delta) {
 	}
 
 	// debug for pathfinding
-		//int tempX = enemy->getPosition().x;
-		//int tempZ = enemy->getPosition().z;
-		//map[tempX][tempZ] = 2;
+		int tempX = enemy->getPosition().x;
+		int tempZ = enemy->getPosition().z;
+		map[tempX][tempZ] = 2;
 	//	/*for (int i = 0; i < _pathFinding->_visitedList.size(); i++)
 	//	{
 	//		map[(int)_pathFinding->_visitedList[i]->m_xcoord][(int)_pathFinding->_visitedList[i]->m_zcoord] = 3;
@@ -315,10 +315,10 @@ void EnemyComponent::tick(TickAction action, float delta) {
 	//	{
 	//		map[(int)_pathFinding->_openList[i]->m_xcoord][(int)_pathFinding->_openList[i]->m_zcoord] = 3;
 	//	}
-		//for (int i = 0; i < _pathFinding->_pathToEnd.size(); i++)
-		//{
-		//	map[(int)_pathFinding->_pathToEnd[i]->x][(int)_pathFinding->_pathToEnd[i]->z] = 3;
-		//}
+		for (int i = 0; i < _pathFinding->_pathToEnd.size(); i++)
+		{
+			map[(int)_pathFinding->_pathToEnd[i]->x][(int)_pathFinding->_pathToEnd[i]->z] = 3;
+		}
 }
 
 glm::vec3 EnemyComponent::getPosition()
