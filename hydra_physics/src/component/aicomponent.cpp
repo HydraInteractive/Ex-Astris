@@ -106,10 +106,14 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			if (!_isAtGoal)
 			{
 				glm::vec3 targetDistance = _pathFinding->nextPathPos(enemy->getPosition(), getRadius()) - enemy->getPosition();
-				angle = glm::degrees(atan2(targetDistance.x, targetDistance.z));
-				rotation = glm::angleAxis(glm::radians(angle), glm::vec3(0, 1, 0));
-				_velocityX -= 0.2f * cosf(angle);
-				_velocityZ += 0.2f * sinf(angle);
+				
+				angle = atan2(targetDistance.x, targetDistance.z);
+				rotation = glm::angleAxis(angle, glm::vec3(0, 1, 0));
+				
+				glm::vec3 direction = glm::normalize(targetDistance);
+
+				_velocityX = 0.2f * direction.x;
+				_velocityZ = 0.2f * direction.z;
 
 				/*if (glm::length(_targetPos - enemy->getPosition()) < 10.0f)
 				{
@@ -264,7 +268,7 @@ glm::vec3 EnemyComponent::getPosition()
 
 float EnemyComponent::getRadius()
 {
-	return 3.2f;
+	return 1.0f;
 }
 
 std::shared_ptr<Hydra::World::IEntity> EnemyComponent::getPlayerComponent()

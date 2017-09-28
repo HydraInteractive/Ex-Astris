@@ -71,11 +71,11 @@ glm::vec3 PathFinding::nextPathPos(glm::vec3 pos, float radius)
 	nextPos.x = _pathToEnd[_pathToEnd.size() - index]->x + (CELL_SIZE / 2);
 	nextPos.z = _pathToEnd[_pathToEnd.size() - index]->z + (CELL_SIZE / 2);
 	
-	glm::vec3 distance = nextPos - pos;
+	float distance = glm::distance(pos, nextPos);
 
 	if (index < _pathToEnd.size())
 	{
-		if (distance.length() < radius)
+		if (distance < radius)
 		{
 			_pathToEnd.erase(_pathToEnd.end() - index);
 		}
