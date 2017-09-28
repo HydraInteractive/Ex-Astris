@@ -52,6 +52,7 @@ void PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos, int map[WO
 		end.m_xcoord = targetPos.x / CELL_SIZE;
 		end.m_zcoord = targetPos.z / CELL_SIZE;
 
+		foundGoal = false;
 		_setStartAndGoal(start, end);
 		intializedStartGoal = true;
 	}
@@ -62,14 +63,14 @@ void PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos, int map[WO
 	}
 }
 
-glm::vec3 PathFinding::nextPathPos(glm::vec3 pos, int radius)
+glm::vec3 PathFinding::nextPathPos(glm::vec3 pos, float radius)
 {
 	int index = 1;
 
 	glm::vec3 nextPos;
-	nextPos.x = _pathToEnd[_pathToEnd.size() - index]->x + (CELL_SIZE/2);
-	nextPos.z = _pathToEnd[_pathToEnd.size() - index]->z + (CELL_SIZE/2);
-
+	nextPos.x = _pathToEnd[_pathToEnd.size() - index]->x + (CELL_SIZE / 2);
+	nextPos.z = _pathToEnd[_pathToEnd.size() - index]->z + (CELL_SIZE / 2);
+	
 	glm::vec3 distance = nextPos - pos;
 
 	if (index < _pathToEnd.size())
@@ -90,7 +91,6 @@ void PathFinding::_setStartAndGoal(SearchCell start, SearchCell end)
 	_startCell->G = 0;
 	_startCell->H = _startCell->manHattanDistance(_endCell);
 	_startCell->parent = 0;
-
 	_openList.push_back(_startCell);
 }
 

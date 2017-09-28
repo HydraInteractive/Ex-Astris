@@ -34,9 +34,9 @@ EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID) : IComponent
 		}
 	}
 
-	for (int i = 0; i < 32; i++)
+	for (int i = 0; i < 20; i++)
 	{
-		map[10][10+i] = 1;
+		map[10][12+i] = 1;
 	}
 }
 
@@ -108,10 +108,10 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				glm::vec3 targetDistance = _pathFinding->nextPathPos(enemy->getPosition(), getRadius()) - enemy->getPosition();
 				angle = glm::degrees(atan2(targetDistance.x, targetDistance.z));
 				rotation = glm::angleAxis(glm::radians(angle), glm::vec3(0, 1, 0));
-				_velocityX -= 0.1f * cos(angle);
-				_velocityZ += 0.1f * sin(angle);
+				_velocityX -= 0.2f * cosf(angle);
+				_velocityZ += 0.2f * sinf(angle);
 
-				if (glm::length(_targetPos - enemy->getPosition()) < 10.0f)
+				/*if (glm::length(_targetPos - enemy->getPosition()) < 10.0f)
 				{
 					_pathFinding->intializedStartGoal = false;
 					_pathFinding->foundGoal = false;
@@ -125,9 +125,9 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					_pathFinding->foundGoal = false;
 					_pathFinding->clearPathToGoal();
 					_pathState = SEARCHING;
-				}
+				}*/
 
-				if (glm::length(enemy->getPosition() - player->getPosition()) < 10.0f)
+				if (glm::length(enemy->getPosition() - player->getPosition()) < 1.0f)
 				{
 					_isAtGoal = true;
 					_pathState = ATTACKING;
@@ -149,6 +149,19 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				angle = glm::degrees(atan2(playerDir.x, playerDir.z));
 				rotation = glm::angleAxis(glm::radians(angle), glm::vec3(0, 1, 0));
 			}
+		}
+
+	/*	for (int i = 0; i < _pathFinding->_visitedList.size(); i++)
+		{
+			map[(int)_pathFinding->_visitedList[i]->m_xcoord][(int)_pathFinding->_visitedList[i]->m_zcoord] = 3;
+		}*/
+		/*for (int i = 0; i < _pathFinding->_openList.size(); i++)
+		{
+			map[(int)_pathFinding->_openList[i]->m_xcoord][(int)_pathFinding->_openList[i]->m_zcoord] = 3;
+		}*/
+		for (int i = 0; i < _pathFinding->_pathToEnd.size(); i++)
+		{
+			map[(int)_pathFinding->_pathToEnd[i]->x][(int)_pathFinding->_pathToEnd[i]->z] = 3;
 		}
 
 		/*if (_position.z < _startPosition.z - 10)
@@ -251,7 +264,7 @@ glm::vec3 EnemyComponent::getPosition()
 
 float EnemyComponent::getRadius()
 {
-	return 5.0f;
+	return 3.2f;
 }
 
 std::shared_ptr<Hydra::World::IEntity> EnemyComponent::getPlayerComponent()
@@ -331,6 +344,10 @@ int Hydra::Component::EnemyComponent::getWall(int x, int y)
 	else if (map[x][y] == 2)
 	{
 		result = 2;
+	}
+	else if (map[x][y] == 3)
+	{
+		result = 3;
 	}
 	return result;
 }

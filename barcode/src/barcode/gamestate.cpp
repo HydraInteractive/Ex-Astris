@@ -413,9 +413,9 @@ namespace Barcode {
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, float(0.0f));
 
-			for (int i = 0; i < 40; i++)
+			for (int i = 0; i < 30; i++)
 			{
-				for (int j = 0; j < 40; j++)
+				for (int j = 0; j < 30; j++)
 				{
 					if (_enemy != nullptr)
 					{
@@ -430,6 +430,14 @@ namespace Barcode {
 							ImGui::End();
 						}
 						else if (_enemy->getWall(i, j) == 2)
+						{
+							ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
+							ImGui::SetNextWindowSize(ImVec2(20, 20));
+							ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Blue.png")->getID()), ImVec2(20, 20));
+							ImGui::End();
+						}
+						else if (_enemy->getWall(i, j) == 3)
 						{
 							ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
 							ImGui::SetNextWindowSize(ImVec2(20, 20));
@@ -501,7 +509,7 @@ namespace Barcode {
 
 		auto alienEntity = _world->createEntity("Enemy Alien");
 		_enemy = alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien);
-		alienEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-10, 0, 0));
+		alienEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(15, 0, 15));
 		alienEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
 		//auto robotEntity = _world->createEntity("Enemy Robot");
