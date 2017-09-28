@@ -4,6 +4,7 @@
 #include <hydra/renderer/glshader.hpp>
 #include <hydra/io/gltextureloader.hpp>
 #include <hydra/io/glmeshloader.hpp>
+#include <hydra/physics/bulletmanager.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
 
@@ -13,6 +14,7 @@ namespace Barcode {
 	void GameState::load() {
 		_textureLoader = Hydra::IO::GLTextureLoader::create();
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
+		_physicsManager = Hydra::Physics::BulletManager::create();
 
 		_positionWindow = _engine->getUIRenderer()->addRenderWindow();
 		_positionWindow->enabled = true;

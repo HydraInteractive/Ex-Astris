@@ -213,6 +213,7 @@ public:
 	std::vector<std::shared_ptr<IEntity>> _children;
 
 	Hydra::Renderer::DrawObject* _drawObject = nullptr;
+	Hydra::Physics::PhysicsObject* _physicsObject = nullptr;
 };
 
 std::shared_ptr<IEntity> Blueprint::spawn(IWorld* world) {

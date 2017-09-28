@@ -1,4 +1,5 @@
 #include <barcode/editorstate.hpp>
+#include <hydra/physics/bulletmanager.hpp>
 
 namespace Barcode {
 	EditorState::EditorState() : _engine(Hydra::IEngine::getInstance()) {}
@@ -7,6 +8,7 @@ namespace Barcode {
 	{
 		_textureLoader = Hydra::IO::GLTextureLoader::create();
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
+		_physicsManager = Hydra::Physics::BulletManager::create();
 		
 		////////////////////Add renderwindows//////////////////////////
 		_positionWindow = _engine->getUIRenderer()->addRenderWindow();

@@ -19,6 +19,7 @@
 #include <json.hpp>
 
 namespace Hydra::Renderer { struct HYDRA_API DrawObject; }
+namespace Hydra::Physics { struct HYDRA_API PhysicsObject; }
 
 namespace Hydra::World {
 	class HYDRA_API IEntity;
