@@ -7,6 +7,7 @@
 
 #include <hydra/world/blueprintloader.hpp>
 #include <imgui/imgui.h>
+#include <hydra/component/aicomponent.hpp>
 
 namespace Barcode {
 	GameState::GameState() : _engine(Hydra::IEngine::getInstance()) {}
@@ -437,6 +438,54 @@ namespace Barcode {
 			ImGui::PopStyleVar();
 			ImGui::PopStyleVar();
 
+			//Debug for pathfinding
+			/*for (int i = 0; i < 30; i++)
+			{
+				for (int j = 0; j < 30; j++)
+				{
+					if (_enemy != nullptr)
+					{
+						char buf[128];
+						snprintf(buf, sizeof(buf), "%d%d", i, j);
+						if (_enemy->getWall(i, j) == 1)
+						{
+							ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
+							ImGui::SetNextWindowSize(ImVec2(20, 20));
+							ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(20, 20));
+							ImGui::End();
+						}
+						else if (_enemy->getWall(i, j) == 2)
+						{
+							ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
+							ImGui::SetNextWindowSize(ImVec2(20, 20));
+							ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Blue.png")->getID()), ImVec2(20, 20));
+							ImGui::End();
+						}
+						else if (_enemy->getWall(i, j) == 3)
+						{
+							ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
+							ImGui::SetNextWindowSize(ImVec2(20, 20));
+							ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Yellow.png")->getID()), ImVec2(20, 20));
+							ImGui::End();
+						}
+						else if (_enemy->getWall(i, j) == 0)
+						{
+							ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
+							ImGui::SetNextWindowSize(ImVec2(20, 20));
+							ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Green.png")->getID()), ImVec2(20, 20));
+							ImGui::End();
+						}
+					}
+				}
+			}*/
+
+			/*ImGui::PopStyleColor();
+			ImGui::PopStyleVar();
+			ImGui::PopStyleVar();*/
 		}
 
 		{ // Sync with network
@@ -467,7 +516,7 @@ namespace Barcode {
 
 		auto alienEntity = _world->createEntity("Enemy Alien");
 		_enemy = alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien);
-		alienEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-10, 0, 0));
+		alienEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(15, 0, 15));
 		alienEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
 		auto robotEntity = _world->createEntity("Enemy Robot");
@@ -477,7 +526,7 @@ namespace Barcode {
 
 		auto bossEntity = _world->createEntity("Enemy Boss");
 		_enemy = bossEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss);
-		bossEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, -10, 0));
+		bossEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(5, 0, 5));
 		bossEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
@@ -492,6 +541,7 @@ namespace Barcode {
 				_cc->setRenderTarget(_geometryBatch.output.get());
 			} else
 				_engine->log(Hydra::LogLevel::error, "Camera not found!");
+			_enemy = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Enemy Alien"; })->get()->getComponent<Hydra::Component::EnemyComponent>();
 		}
 
 	}

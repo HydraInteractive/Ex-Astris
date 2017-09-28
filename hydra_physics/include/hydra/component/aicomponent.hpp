@@ -50,6 +50,8 @@ namespace Hydra::Component {
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
+		int getWall(int x, int y);
+
 	private:
 		PathState _pathState;
 		PathFinding* _pathFinding = new PathFinding();
@@ -57,7 +59,7 @@ namespace Hydra::Component {
 		unsigned int lastTime, currentTime;
 		float angle;
 		glm::quat rotation;
-
+		int map[WORLD_SIZE][WORLD_SIZE];
 		float _velocityX;
 		float _velocityY;
 		float _velocityZ;
