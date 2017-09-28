@@ -19,7 +19,9 @@ void AbilityHandler::useAbility(Hydra::World::IEntity* abilitiesEntity, glm::vec
 	if (_cooldownList[_activeAbility] == 0)
 	{
 		(this->*_abilityList[_activeAbility])(abilitiesEntity, position, direction);
-		_cooldownList[_activeAbility] = 5;
+		
+		//_cooldownList[_activeAbility] = 5;
+		
 		if (++_activeAbility >= _abilityList.size())
 		{
 			_activeAbility = 0;

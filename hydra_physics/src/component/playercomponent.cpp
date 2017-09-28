@@ -18,15 +18,15 @@ using namespace Hydra::Component;
 
 PlayerComponent::PlayerComponent(IEntity* entity) : IComponent(entity) {
 	entity->createEntity("Abilities");
+	SDL_GetKeyboardState(&keysArrayLength);
+	lastKeysArray = new bool[keysArrayLength];
 }
 
 PlayerComponent::~PlayerComponent() { }
 
 void PlayerComponent::tick(TickAction action, float delta) {
 	auto player = entity->getComponent<Component::TransformComponent>();
-
 	auto camera = entity->getComponent<Component::CameraComponent>();
-
 	auto weapon = getWeapon()->getComponent<Component::WeaponComponent>();
 	
 	glm::mat4 viewMat = camera->getViewMatrix();
@@ -35,7 +35,7 @@ void PlayerComponent::tick(TickAction action, float delta) {
 
 	{
 		Uint8* keysArray;
-		keysArray = const_cast <Uint8*> (SDL_GetKeyboardState(NULL));
+		keysArray = const_cast <Uint8*> (SDL_GetKeyboardState(&keysArrayLength));
 
 		if (keysArray[SDL_SCANCODE_W]) {
 			_velocity.z = -_movementSpeed;
@@ -65,7 +65,7 @@ void PlayerComponent::tick(TickAction action, float delta) {
 			_acceleration.y -= 6.0f;
 			_onGround = false;
 		}
-		if (keysArray[SDL_SCANCODE_F]) {
+		if (keysArray[SDL_SCANCODE_F] && !lastKeysArray[SDL_SCANCODE_F]) {
 			auto& player = entity->getChildren();
 			auto abilitiesEntity = std::find_if(player.begin(), player.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Abilities"; });
 			_activeAbillies.useAbility(abilitiesEntity->get(), _position, -forward);
@@ -75,13 +75,14 @@ void PlayerComponent::tick(TickAction action, float delta) {
 			glm::quat bulletOrientation = glm::angleAxis(-camera->getYaw(), glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->getPitch(), glm::vec3(1, 0, 0)));
 			weapon->shoot(_position, forward, bulletOrientation, 0.5f);
 		}
+		for (size_t i = 0; i < keysArrayLength; i++){
+			lastKeysArray[i] = keysArray[i];
+		}
 	}
 
 	_acceleration.y += 10.0f * delta;
-
 	glm::vec3 movementVector = (_velocity.z * forward + _velocity.x * strafe);
 	movementVector.y = _acceleration.y;
-	_debug = _acceleration.y;
 
 	_position += movementVector * delta;
 
@@ -103,7 +104,6 @@ void PlayerComponent::tick(TickAction action, float delta) {
 	player->setRotation(glm::angleAxis(camera->getYaw(), glm::vec3(0, 1, 0)));
 	
 	player->setPosition(_position + glm::vec3(0, 0.75, 0) + glm::vec3(-1, 0, -1) * forward + glm::vec3(1, 0, 1)*strafe);
-	_debugPos = forward*glm::vec3(-2, 0, -2);
 }
 
 void PlayerComponent::throwGrenade()

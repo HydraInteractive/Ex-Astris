@@ -45,6 +45,9 @@ namespace Hydra::Component {
 		float _movementSpeed = 20.0f;
 		bool _onGround = false;
 		bool _firstPerson = true;
+		
+		int keysArrayLength;
+		bool *lastKeysArray;
 
 		AbilityHandler _activeAbillies;
 
