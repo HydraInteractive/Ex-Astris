@@ -386,12 +386,14 @@ namespace Barcode {
 			for (auto& entity : _world->getActiveComponents<Hydra::Component::EnemyComponent>())
 			{
 				char buf[128];
-				snprintf(buf, sizeof(buf), "Enemy%d", i);
-				auto enemyDir = entity[i].getComponent<Hydra::Component::EnemyComponent>()->getPosition() - player->getPosition();
+				snprintf(buf, sizeof(buf), "Enemy is a scrub here is it's scrubID: %d", i);
+				auto playerP = _cc->getPosition();
+				auto enemyP = entity->getComponent<Hydra::Component::EnemyComponent>()->getPosition();
+				auto enemyDir = normalize(enemyP - playerP);
 				glm::mat4 viewMat = _world->getActiveComponents<Hydra::Component::CameraComponent>()[0]->getComponent<Hydra::Component::CameraComponent>()->getViewMatrix();
 				glm::vec3 forward(viewMat[0][2], viewMat[1][2], viewMat[2][2]);
 				float dotPlacment = glm::dot(forward, enemyDir); // -1 - +1
-				dotPlacment = glm::clamp(dotPlacment, float(-0.6), float(0.6)) * 275;
+				dotPlacment = glm::clamp(dotPlacment, float(-0.5), float(0.5)) * 550;
 				ImGui::SetNextWindowPos(ImVec2(x + dotPlacment, 75)); //- 275
 				ImGui::SetNextWindowSize(ImVec2(20, 20));
 				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
