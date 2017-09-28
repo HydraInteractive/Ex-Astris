@@ -15,37 +15,7 @@ namespace Barcode {
 	void GameState::load() {
 		_textureLoader = Hydra::IO::GLTextureLoader::create();
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
-
-		_positionWindow = _engine->getUIRenderer()->addRenderWindow();
-		_positionWindow->enabled = true;
-		_positionWindow->title = "Position FBO";
-		_positionWindow->image = Hydra::Renderer::GLTexture::createFromData(_positionWindow->size.x, _positionWindow->size.y, TextureType::u8RGB, nullptr);
-
-		_diffuseWindow = _engine->getUIRenderer()->addRenderWindow();
-		_diffuseWindow->enabled = true;
-		_diffuseWindow->title = "Diffuse FBO";
-		_diffuseWindow->image = Hydra::Renderer::GLTexture::createFromData(_diffuseWindow->size.x, _diffuseWindow->size.y, TextureType::u8RGB, nullptr);
-
-		_normalWindow = _engine->getUIRenderer()->addRenderWindow();
-		_normalWindow->enabled = true;
-		_normalWindow->title = "Normal FBO";
-		_normalWindow->image = Hydra::Renderer::GLTexture::createFromData(_normalWindow->size.x, _normalWindow->size.y, TextureType::u8RGB, nullptr);
-
-		_depthWindow = _engine->getUIRenderer()->addRenderWindow();
-		_depthWindow->enabled = true;
-		_depthWindow->title = "Depth FBO";
-		_depthWindow->image = Hydra::Renderer::GLTexture::createFromData(_depthWindow->size.x, _depthWindow->size.y, TextureType::u8RGB, nullptr);
-
-		_postTestWindow = _engine->getUIRenderer()->addRenderWindow();
-		_postTestWindow->enabled = true;
-		_postTestWindow->title = "PostTest FBO";
-		_postTestWindow->image = Hydra::Renderer::GLTexture::createFromData(_postTestWindow->size.x, _postTestWindow->size.y, TextureType::u8RGB, nullptr);
-
-		_glowWindow = _engine->getUIRenderer()->addRenderWindow();
-		_glowWindow->enabled = true;
-		_glowWindow->title = "Glow FBO";
-		_glowWindow->image = Hydra::Renderer::GLTexture::createFromData(_glowWindow->size.x, _glowWindow->size.y, TextureType::u8RGB, nullptr);
-
+		auto& windowSize = _engine->getView()->getSize();
 		{
 			auto& batch = _geometryBatch;
 			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/geometry.vert");
@@ -58,7 +28,7 @@ namespace Barcode {
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 
-			batch.output = Hydra::Renderer::GLFramebuffer::create(_positionWindow->size, 4);
+			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize, 4);
 			batch.output
 				->addTexture(0, Hydra::Renderer::TextureType::f32RGB) // Position
 				.addTexture(1, Hydra::Renderer::TextureType::u8RGB) // Diffuse
@@ -101,7 +71,7 @@ namespace Barcode {
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 
-			batch.output = Hydra::Renderer::GLFramebuffer::create(_glowWindow->size, 0);
+			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize, 0);
 			batch.output
 				->addTexture(0, Hydra::Renderer::TextureType::u8RGB)
 				.addTexture(1, Hydra::Renderer::TextureType::u8RGB)
@@ -132,26 +102,26 @@ namespace Barcode {
 			_glowPipeline->attachStage(*_glowFragmentShader);
 			_glowPipeline->finalize();
 
-			batch.output = Hydra::Renderer::GLFramebuffer::create(_glowWindow->size, 0);
+			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize, 0);
 			batch.output
 				->addTexture(0, Hydra::Renderer::TextureType::u8RGB)
 				.finalize();
 
 			// Extra buffer for ping-ponging the texture for two-pass gaussian blur.
-			_blurrExtraFBO1 = Hydra::Renderer::GLFramebuffer::create(_glowWindow->size, 0);
+			_blurrExtraFBO1 = Hydra::Renderer::GLFramebuffer::create(windowSize, 0);
 			_blurrExtraFBO1
 				->addTexture(0, Hydra::Renderer::TextureType::u8RGB)
 				.finalize();
-			_blurrExtraFBO2 = Hydra::Renderer::GLFramebuffer::create(_glowWindow->size, 0);
+			_blurrExtraFBO2 = Hydra::Renderer::GLFramebuffer::create(windowSize, 0);
 			_blurrExtraFBO2
 				->addTexture(0, Hydra::Renderer::TextureType::u8RGB)
 				.finalize();
 
 			// 3 Blurred Textures and one original.
-			_blurredOriginal = Hydra::Renderer::GLTexture::createEmpty(_glowWindow->size.x, _glowWindow->size.y, TextureType::u8RGB);
-			_blurredIMG1 = Hydra::Renderer::GLTexture::createEmpty(_glowWindow->size.x, _glowWindow->size.y, TextureType::u8RGB);
-			_blurredIMG2 = Hydra::Renderer::GLTexture::createEmpty(_glowWindow->size.x, _glowWindow->size.y, TextureType::u8RGB);
-			_blurredIMG3 = Hydra::Renderer::GLTexture::createEmpty(_glowWindow->size.x, _glowWindow->size.y, TextureType::u8RGB);
+			_blurredOriginal = Hydra::Renderer::GLTexture::createEmpty(windowSize.x, windowSize.y, TextureType::u8RGB);
+			_blurredIMG1 = Hydra::Renderer::GLTexture::createEmpty(windowSize.x, windowSize.y, TextureType::u8RGB);
+			_blurredIMG2 = Hydra::Renderer::GLTexture::createEmpty(windowSize.x, windowSize.y, TextureType::u8RGB);
+			_blurredIMG3 = Hydra::Renderer::GLTexture::createEmpty(windowSize.x, windowSize.y, TextureType::u8RGB);
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
 			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::color | Hydra::Renderer::ClearFlags::depth;
@@ -169,10 +139,10 @@ namespace Barcode {
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 
-			_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/ParticleAtlases.png");
+			_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/fireAtlas.png");
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
-			batch.batch.clearFlags = ClearFlags::color | ClearFlags::depth;
+			batch.batch.clearFlags = ClearFlags::none;
 			batch.batch.renderTarget = _engine->getView();
 			batch.batch.pipeline = batch.pipeline.get();
 		}
@@ -193,27 +163,6 @@ namespace Barcode {
 			batch.batch.pipeline = batch.pipeline.get(); // TODO: Change to "null" pipeline
 		}
 
-		{
-			auto& batch = _postTestBatch;
-			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/postTest.vert");
-			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/postTest.frag");
-
-			batch.pipeline = Hydra::Renderer::GLPipeline::create();
-			batch.pipeline->attachStage(*batch.vertexShader);
-			batch.pipeline->attachStage(*batch.fragmentShader);
-			batch.pipeline->finalize();
-
-			batch.output = Hydra::Renderer::GLFramebuffer::create(_positionWindow->size, 4);
-			batch.output
-				->addTexture(0, Hydra::Renderer::TextureType::u8RGB) // Position
-				.finalize();
-
-			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
-			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::color | Hydra::Renderer::ClearFlags::depth;
-			batch.batch.renderTarget = batch.output.get();
-			batch.batch.pipeline = batch.pipeline.get();
-		}
-
 		_initWorld();
 	}
 
@@ -225,6 +174,7 @@ namespace Barcode {
 
 
 	void GameState::runFrame(float delta) {
+		auto& windowSize = _engine->getView()->getSize();
 		{ // Fetch new events
 			_engine->getView()->update(_engine->getUIRenderer());
 			_engine->getUIRenderer()->newFrame();
@@ -239,14 +189,6 @@ namespace Barcode {
 			_world->tick(TickAction::render, delta);
 
 			// Render to geometryFBO
-			if (!_engine->getUIRenderer()->isDraging()) {
-				static glm::ivec2 oldSize = _geometryBatch.output->getSize();
-				auto newSize = _positionWindow->size;
-				if (oldSize != newSize) {
-					_geometryBatch.output->resize(newSize);
-					oldSize = newSize;
-				}
-			}
 
 			_geometryBatch.pipeline->setValue(0, _cc->getViewMatrix());
 			_geometryBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
@@ -311,14 +253,6 @@ namespace Barcode {
 		}
 
 		{ // Lighting pass
-			if (!_engine->getUIRenderer()->isDraging()) {
-				static glm::ivec2 oldSize = _lightingBatch.output->getSize();
-				auto newSize = _glowWindow->size;
-				if (oldSize != newSize) {
-					_lightingBatch.output->resize(newSize);
-					oldSize = newSize;
-				}
-			}
 
 			_lightingBatch.pipeline->setValue(0, 0);
 			_lightingBatch.pipeline->setValue(1, 1);
@@ -333,21 +267,8 @@ namespace Barcode {
 		}
 
 		{ // Glow
-			if (!_engine->getUIRenderer()->isDraging()) {
-				static glm::ivec2 oldSize = _glowBatch.output->getSize();
-				auto newSize = _glowWindow->size;
-				if (oldSize != newSize) {
-					_glowBatch.output->resize(newSize);
-					_blurrExtraFBO1->resize(newSize);
-					_blurrExtraFBO2->resize(newSize);
-					oldSize = newSize;
-				}
-			}
-			// Resolves the glow texture from geomtrybatch which returns an image, that then is
-			// put into the function which returns a framebuffer that is then put into position 0 in blurredTexturesFBO
-			// Not sure why I can't copy textures from different framebuffers to eachother, have to look into it later.
 			int nrOfTimes = 1;
-			glm::vec2 size = _glowWindow->size;
+			glm::vec2 size = windowSize;
 
 			_lightingBatch.output->resolve(0, _blurredOriginal);
 			_lightingBatch.output->resolve(1, (*_glowBatch.output)[0]);
@@ -371,7 +292,9 @@ namespace Barcode {
 			_blurredIMG2->bind(3);
 			_blurredIMG3->bind(4);
 
+			_glowBatch.batch.renderTarget = _engine->getView();
 			_engine->getRenderer()->postProcessing(_glowBatch.batch);
+			_glowBatch.batch.renderTarget = _glowBatch.output.get();
 			_glowBatch.batch.pipeline = _glowBatch.pipeline.get();
 		}
 
@@ -380,39 +303,117 @@ namespace Barcode {
 		}
 
 		{ // Particle batch
-			for (auto& kv : _particleBatch.batch.objects)
+			for (auto& kv : _particleBatch.batch.objects) {
 				kv.second.clear();
+				_particleBatch.batch.textureInfo.clear();
+			}
 
-			for (auto entity : _world->getActiveComponents<Hydra::Component::ParticleComponent>()) {
+			bool anyParticles = false;
+			for (auto& entity : _world->getActiveComponents<Hydra::Component::ParticleComponent>()) {
 				auto pc = entity->getComponent<Hydra::Component::ParticleComponent>();
 				auto drawObj = entity->getDrawObject();
-				for (auto particle : pc->getParticles()) {
-					_particleBatch.batch.objects[drawObj->mesh].push_back(particle->m);
+				auto& particles = pc->getParticles();
+				if (particles.size() > 0) {
+					for (auto& particle : particles) {
+						_particleBatch.batch.objects[drawObj->mesh].push_back(particle->m);
+						_particleBatch.batch.textureInfo.push_back(particle->texOffset1);
+						_particleBatch.batch.textureInfo.push_back(particle->texOffset2);
+						_particleBatch.batch.textureInfo.push_back(particle->texCoordInfo);
+					}
+					anyParticles = true;
 				}
 			}
-			_engine->getRenderer()->render(_particleBatch.batch);
-		}
-
-		{
-			if (!_engine->getUIRenderer()->isDraging()) {
-				static glm::ivec2 oldSize = _postTestBatch.output->getSize();
-				auto newSize = _positionWindow->size;
-				if (oldSize != newSize) {
-					_postTestBatch.output->resize(newSize);
-					oldSize = newSize;
-				}
+			if (anyParticles) {
+				_particleBatch.pipeline->setValue(0, 0);
+				_particleAtlases->bind(0);
+				_engine->getRenderer()->render(_particleBatch.batch);
 			}
-			(*_geometryBatch.output)[0]->bind(0);
-			_postTestBatch.pipeline->setValue(0, 0);
-			_postTestBatch.pipeline->setValue(1, (int)_geometryBatch.output->getSamples());
-			_engine->getRenderer()->postProcessing(_postTestBatch.batch);
 		}
 
-		{
-			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
+		{ // Hud windows
+			static float f = 0.0f;
+			static bool b = false;
+			static float invisF[3] = { 0, 0, 0 };
+			float hpP = 100;
+			float ammoP = 100;
+			
+			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0));
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, float(0.0f));
 
+			const ImVec2 pos = ImVec2(_engine->getView()->getSize().x / 2, _engine->getView()->getSize().y / 2);
+
+			ImGui::SetNextWindowPos(pos + ImVec2(-10, 1));
+			ImGui::SetNextWindowSize(ImVec2(20, 20));
+			ImGui::Begin("Crosshair", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Crosshair.png")->getID()), ImVec2(20, 20));
+			ImGui::End();
+
+			ImGui::SetNextWindowPos(pos + ImVec2(-51, -42));
+			ImGui::SetNextWindowSize(ImVec2(120, 120));
+			ImGui::Begin("AimRing", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/AimRing.png")->getID()), ImVec2(100, 100));
+			ImGui::End();
+
+			float offsetHpF = 72 * hpP * 0.01;
+			int offsetHp = offsetHpF;
+			ImGui::SetNextWindowPos(pos + ImVec2(-47, -26 + 72 - offsetHp));
+			ImGui::SetNextWindowSize(ImVec2(100, 100));
+			ImGui::Begin("HpOnRing", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HpOnRing.png")->getID()), ImVec2(22, offsetHp), ImVec2(0, 1 - hpP * 0.01), ImVec2(1, 1));
+			ImGui::End();
+
+			float offsetAmmoF = 72 * ammoP * 0.01;
+			int offsetAmmo = offsetAmmoF;
+			ImGui::SetNextWindowPos(pos + ImVec2(+25, -26 + 72 - offsetAmmo));
+			ImGui::SetNextWindowSize(ImVec2(100, 100));
+			ImGui::Begin("AmmoOnRing", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/AmmoOnRing.png")->getID()), ImVec2(22, offsetAmmo), ImVec2(0, 1 - ammoP * 0.01), ImVec2(1, 1));
+			ImGui::End();
+
+			float degres = 0;
+			float degresP = ((float(100) / float(360) * degres)/100);
+			float degresO = float(1000) * degresP;
+			ImGui::SetNextWindowPos(ImVec2(pos.x - 275, + 70));
+			ImGui::SetNextWindowSize(ImVec2(600, 20));
+			ImGui::Begin("Compass", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Compass.png")->getID()), ImVec2(550, 20), ImVec2(degresO / float(1550), 0), ImVec2((float(1) - ((float(1000) - degresO) / float(1550))), 1));
+			_textureLoader->getTexture("assets/hud/Compass.png")->setRepeat();
+			ImGui::End();
+
+			int amountOfActives = 3;
+			int coolDownList[5] = { 5,5,5,5,5 };
+			float pForEatchDot = float(1) / float(amountOfActives);
+			float stepSize = float(70) * pForEatchDot;
+			for (int i = 0; i < amountOfActives; i++)
+			{
+				char buf[128];
+				snprintf(buf, sizeof(buf), "Cooldown%d", i);
+				float yOffset = float(stepSize * float(i + 1));
+				float xOffset = pow(abs((yOffset - (stepSize / float(2)) - float(35))) * 0.1069, 2);
+				ImGui::SetNextWindowPos(pos + ImVec2(-64 + xOffset , -24 + yOffset - ((stepSize + 10.0) / 2.0)));
+				ImGui::SetNextWindowSize(ImVec2(15, 15));
+				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+				if (coolDownList[i] >= 7)
+				{
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(10, 10));
+				}
+				else if (coolDownList[i] <= 0)
+				{
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Green.png")->getID()), ImVec2(10, 10));
+				}
+				else
+				{
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Yellow.png")->getID()), ImVec2(10, 10));
+				}
+				
+				ImGui::End();
+			}
+			//70, 24
+
+			ImGui::PopStyleColor();
+			ImGui::PopStyleVar();
+			ImGui::PopStyleVar();
 
 			//Debug for pathfinding
 			/*for (int i = 0; i < 30; i++)
@@ -459,28 +460,9 @@ namespace Barcode {
 				}
 			}*/
 
-			ImGui::PopStyleColor();
+			/*ImGui::PopStyleColor();
 			ImGui::PopStyleVar();
-			ImGui::PopStyleVar();
-		}
-		
-		{ // Update UI & views
-			// If you wanna see the final image, uncomment the two rows below.
-			//_viewBatch.batch.pipeline->setValue(0, 0);
-			//(*_glowBatch.output)[0]->bind(0);
-
-			// Render to view
-			//_engine->getRenderer()->render(_viewBatch.batch);
-
-			// Resolve geometryFBO into the geometry window in the UI
-			_geometryBatch.output->resolve(0, _positionWindow->image);
-			_geometryBatch.output->resolve(1, _diffuseWindow->image);
-			_geometryBatch.output->resolve(2, _normalWindow->image);
-			_geometryBatch.output->resolve(3, _depthWindow->image);
-			_postTestBatch.output->resolve(0, _postTestWindow->image);
-			_glowBatch.output->resolve(0, _glowWindow->image);
-			//_lightingBatch.output->resolve(0, _glowWindow->image);
-			//_lightingBatch.output->resolve(1, _glowWindow->image);
+			ImGui::PopStyleVar();*/
 		}
 
 		{ // Sync with network
@@ -506,8 +488,8 @@ namespace Barcode {
 		weaponEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 		weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(1,1,1), glm::quat(0,0,-1,0));
 		
-		auto particleEmitter = _world->createEntity("ParticleEmitter");
-		particleEmitter->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, 1);
+		//auto particleEmitter = _world->createEntity("ParticleEmitter");
+		//particleEmitter->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, 1);
 
 		auto alienEntity = _world->createEntity("Enemy Alien");
 		_enemy = alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien);

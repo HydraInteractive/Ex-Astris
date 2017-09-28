@@ -14,7 +14,7 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 	enum EmitterBehaviour : int {PerSecond = 0, Explosion};
-
+	
 	HYDRA_API struct Particle {
 		glm::mat4 m;
 		glm::vec3 pos;
@@ -31,16 +31,17 @@ namespace Hydra::Component {
 			this->pos = pos;
 			this->vel = vel;
 			this->life = life;
-			this->scale = glm::vec3(0.1f);
+			this->scale = glm::vec3(1.0f);
 			this->elapsedTime = 0.f;
 			this->dead = false;
 			this->grav = -3.14159265357989f;
+			this->texOffset1 = glm::vec2(0);
+			this->texOffset2 = glm::vec2(0);
+			this->texCoordInfo = glm::vec2(0);
 			// Gonna fix rotation soon...
 			this->m = glm::translate(pos) * glm::scale(scale);
 		}
-		void fixMX(glm::quat& rot) { m = glm::translate(pos) * glm::mat4_cast(rot) * glm::scale(scale); }
-		void setDead() { dead = true; }
-
+		void fixMX(glm::quat& rot) { m = glm::translate(pos) * glm::scale(scale); }
 	};
 
 	class HYDRA_API ParticleComponent final : public IComponent{
