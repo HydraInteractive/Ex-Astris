@@ -304,9 +304,9 @@ void EnemyComponent::tick(TickAction action, float delta) {
 	}
 
 	// debug for pathfinding
-		int tempX = enemy->getPosition().x;
-		int tempZ = enemy->getPosition().z;
-		map[tempX][tempZ] = 2;
+		//int tempX = enemy->getPosition().x;
+		//int tempZ = enemy->getPosition().z;
+		//map[tempX][tempZ] = 2;
 	//	/*for (int i = 0; i < _pathFinding->_visitedList.size(); i++)
 	//	{
 	//		map[(int)_pathFinding->_visitedList[i]->m_xcoord][(int)_pathFinding->_visitedList[i]->m_zcoord] = 3;
@@ -315,10 +315,10 @@ void EnemyComponent::tick(TickAction action, float delta) {
 	//	{
 	//		map[(int)_pathFinding->_openList[i]->m_xcoord][(int)_pathFinding->_openList[i]->m_zcoord] = 3;
 	//	}
-		for (int i = 0; i < _pathFinding->_pathToEnd.size(); i++)
-		{
-			map[(int)_pathFinding->_pathToEnd[i]->x][(int)_pathFinding->_pathToEnd[i]->z] = 3;
-		}
+		//for (int i = 0; i < _pathFinding->_pathToEnd.size(); i++)
+		//{
+		//	map[(int)_pathFinding->_pathToEnd[i]->x][(int)_pathFinding->_pathToEnd[i]->z] = 3;
+		//}
 }
 
 glm::vec3 EnemyComponent::getPosition()
