@@ -45,17 +45,16 @@ private:
 		void render(int index, Hydra::World::IWorld* world, Node& selectedNode);
 	private:
 		std::string _name;
-		std::vector<Node*> subfolders;
-		std::vector<Node*> files;
-
-		
-		Node* parent;
+		std::vector<Node*> _subfolders;
+		std::vector<Node*> _files;
+		Node* _parent;
 
 		void _getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders) const;
 	};
-	Node* root;
+	Node* _root;
 	Hydra::World::IWorld* _world;
 	std::string _getExecutableDir();
 	std::string _selectedPath;
-	std::string _fileName;
+	char _fileName[128] = "";
+
 };

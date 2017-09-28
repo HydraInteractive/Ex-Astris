@@ -2,22 +2,22 @@
 ExporterMenu::ExporterMenu()
 {	
 	this->executableDir = "";
-	this->root = nullptr;
+	this->_root = nullptr;
 	this->_world = nullptr;
 	this->_selectedPath = "";
 }
 ExporterMenu::ExporterMenu(Hydra::World::IWorld* world)
 {
 	this->executableDir = _getExecutableDir();
-	this->root = nullptr;
+	this->_root = nullptr;
 	this->_world = world;
 	this->_selectedPath = "";
 	refresh();
 }
 ExporterMenu::~ExporterMenu()
 {
-	if (root != nullptr)
-		delete root;
+	if (_root != nullptr)
+		delete _root;
 }
 void ExporterMenu::render(bool &closeBool)
 {
@@ -25,46 +25,48 @@ void ExporterMenu::render(bool &closeBool)
 	ImGui::Begin("Export", &closeBool);
 	Node selectedNode;
 	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 30));
-	if (root != nullptr)
-		root->render(0, _world, selectedNode);
+	if (_root != nullptr)
+		_root->render(0, _world, selectedNode);
 	ImGui::EndChild();
 
 	ImGui::SameLine();
 
 	ImGui::BeginChild("File", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 30));
-	
 	if (selectedNode.name() != "")
 	{
 		_selectedPath = selectedNode.reverseEngineerPath();
 		if (selectedNode.isAllowedFile)
 		{
 			_selectedPath.erase(_selectedPath.end() - selectedNode.name().length(), _selectedPath.end());
-			_fileName = selectedNode.name();
+
+			std::string fileNameWithoutExt = selectedNode.name();
+			fileNameWithoutExt.erase(fileNameWithoutExt.end() - selectedNode.getExt().length(), fileNameWithoutExt.end());
+			strncpy_s(_fileName, fileNameWithoutExt.c_str(), fileNameWithoutExt.length());
 		}
 	}
-	char* fileName = &selectedNode.name()[0u];
+
 	ImGui::Text("Path: "); ImGui::SameLine(); ImGui::Text(_selectedPath.c_str());
-	ImGui::InputText("input text", fileName, 128);
+	ImGui::InputText("", _fileName, 128);
 	ImGui::EndChild();
 
 	ImGui::End();
 }
 void ExporterMenu::refresh()
 {
-	if (root != nullptr)
+	if (_root != nullptr)
 	{
-		delete root;
+		delete _root;
 	}
-	root = new Node(executableDir + "/assets");
-	root->clean();
+	_root = new Node(executableDir + "/assets");
+	_root->clean();
 }
 std::string ExporterMenu::_getExecutableDir()
 {
 	std::string path;
-#ifdef _WIN32
+#ifdef _WIN32 ///Windows
 	char unicodePath[MAX_PATH];
 	int bytes = GetModuleFileName(NULL, unicodePath, 500);
-#else
+#else ///Linux
 	char unicodePath[1000];
 	char tempStr[32];
 	sprintf(tempStr, "/proc/%d/exe", getpid());
@@ -85,16 +87,16 @@ std::string ExporterMenu::_getExecutableDir()
 ExporterMenu::Node::Node()
 {
 	this->_name = "";
-	this->subfolders = std::vector<Node*>(0);
-	this->files = std::vector<Node*>(0);
-	this->parent = nullptr;
+	this->_subfolders = std::vector<Node*>(0);
+	this->_files = std::vector<Node*>(0);
+	this->_parent = nullptr;
 }
 ExporterMenu::Node::Node(std::string path, Node* parent, bool isFile)
 {
 	this->_name = pathToName(path);
-	this->subfolders = std::vector<Node*>();
-	this->files = std::vector<Node*>();
-	this->parent = parent;
+	this->_subfolders = std::vector<Node*>();
+	this->_files = std::vector<Node*>();
+	this->_parent = parent;
 	this->isAllowedFile = isFile;
 
 	std::vector<std::string> inFiles;
@@ -102,36 +104,46 @@ ExporterMenu::Node::Node(std::string path, Node* parent, bool isFile)
 	_getContentsOfDir(path, inFiles, inFolders);
 	for (int i = 0; i < inFolders.size(); i++)
 	{
-		this->subfolders.push_back(new Node(inFolders[i], this));
+		this->_subfolders.push_back(new Node(inFolders[i], this));
 	}
 	for (int i = 0; i < inFiles.size(); i++)
 	{
-		this->files.push_back(new Node(inFiles[i], this));
+		this->_files.push_back(new Node(inFiles[i], this));
+		_files[i]->isAllowedFile = true;
 	}
 }
 ExporterMenu::Node::~Node()
 {
-	for (int i = 0; i < subfolders.size(); i++)
+	for (int i = 0; i < _subfolders.size(); i++)
 	{
-		delete subfolders[i];
+		delete _subfolders[i];
 	}
-	subfolders.clear();
-	for (int i = 0; i < files.size(); i++)
+	_subfolders.clear();
+	for (int i = 0; i < _files.size(); i++)
 	{
-		delete files[i];
+		delete _files[i];
 	}
-	files.clear();
+	_files.clear();
 }
 std::string ExporterMenu::Node::name()
 {
 	return _name;
 }
+//Returns the file extention from a filename
 std::string ExporterMenu::Node::getExt()
 {
 	int i = _name.find_last_of('.');
-	std::string fileExt = _name.substr(i, _name.size() - i);
-	return fileExt;
+	if (i == std::string::npos)
+	{
+		return "";
+	}
+	else
+	{
+		std::string fileExt = _name.substr(i, _name.size() - i);
+		return fileExt;
+	}
 }
+//Gets the node's name from it's path
 std::string ExporterMenu::Node::pathToName(std::string path)
 {
 	unsigned int i = path.find_last_of('/');
@@ -147,9 +159,9 @@ std::string ExporterMenu::Node::pathToName(std::string path)
 std::string ExporterMenu::Node::reverseEngineerPath()
 {
 	std::string upperPath = "";
-	if (this->parent != nullptr)
+	if (this->_parent != nullptr)
 	{
-		upperPath = parent->reverseEngineerPath();
+		upperPath = _parent->reverseEngineerPath();
 		return upperPath + "/" + this->_name;
 	}
 	return this->_name;
@@ -159,10 +171,10 @@ int ExporterMenu::Node::numberOfFiles()
 {
 	if (!isAllowedFile)
 	{
-		int allFiles = files.size();
-		for (int i = 0; i < subfolders.size(); i++)
+		int allFiles = _files.size();
+		for (int i = 0; i < _subfolders.size(); i++)
 		{
-			allFiles += subfolders[i]->numberOfFiles();
+			allFiles += _subfolders[i]->numberOfFiles();
 		}
 		return allFiles;
 	}
@@ -171,41 +183,42 @@ int ExporterMenu::Node::numberOfFiles()
 //Removes all folders that do not have any files
 void ExporterMenu::Node::clean()
 {
-	for (int i = 0; i < subfolders.size(); i++)
+	for (int i = 0; i < _subfolders.size(); i++)
 	{
-		if (subfolders[i]->numberOfFiles() == 0)
+		if (_subfolders[i]->numberOfFiles() == 0)
 		{
-			delete subfolders[i];
-			subfolders.erase(subfolders.begin() + i);
+			delete _subfolders[i];
+			_subfolders.erase(_subfolders.begin() + i);
 			i--;
 		}
 		else
 		{
-			subfolders[i]->clean();
+			_subfolders[i]->clean();
 		}
 	}
 }
 void ExporterMenu::Node::render(int index, Hydra::World::IWorld* world, Node& selectedNode)
 {
-	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
+	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
 	//TODO: Folder icon opening
-	if (ImGui::TreeNodeEx((void*)(intptr_t)index, node_flags, ICON_FA_FOLDER " %s", _name.c_str()))
+	if (ImGui::TreeNodeEx(this, node_flags, ICON_FA_FOLDER " %s", _name.c_str()))
 	{	
-		if (ImGui::IsItemClicked())
+		//if (ImGui::IsMouseDoubleClicked(0))
+		//{
+		//	if(ImGui::IsItemClicked())
+		//	selectedNode = (*this);
+		//}
+		for (size_t i = 0; i < this->_subfolders.size(); i++)
 		{
-			selectedNode = (*this);
+			_subfolders[i]->render(i, world, selectedNode);
 		}
-		for (int i = 0; i < this->subfolders.size(); i++)
+		for (size_t i = 0; i < this->_files.size(); i++)
 		{
-			subfolders[i]->render(i, world, selectedNode);
-		}
-		for (int i = 0; i < this->files.size(); i++)
-		{
-			ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBE " %s", files[i]->_name.c_str());
+			ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBE " %s", _files[i]->_name.c_str());
 			if (ImGui::IsItemClicked())
 			{
-				selectedNode = (*files[i]);
-				std::string ext = this->files[i]->getExt();
+				selectedNode = (*_files[i]);
+				std::string ext = this->_files[i]->getExt();
 				if (ImGui::IsMouseDoubleClicked(0))
 				{
 					
@@ -259,7 +272,7 @@ void ExporterMenu::Node::_getContentsOfDir(const std::string &directory, std::ve
 	} while (FindNextFile(dir, &fileData));
 
 	FindClose(dir);
-#else ///Unix
+#else ///Linux
 	DIR *dir;
 	class dirent *ent;
 	class stat st;
