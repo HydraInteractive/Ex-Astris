@@ -5,32 +5,34 @@
 #include <algorithm>
 
 #define frand() (float(rand()) / float(RAND_MAX))
-#define OUTERROW 24 // is always going to be a uniformly scaled texture.
+#define OUTERROW 8 // 24 or 6
+// Outerrow decides how many particle textures there are.
+
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
 ParticleComponent::ParticleComponent(IEntity* entity) : IComponent(entity), _drawObject(entity->getDrawObject()), _pps(1), 
-_behaviour(EmitterBehaviour::PerSecond), _accumulator(0.f), _emitterPos(glm::vec3(0)){
+_behaviour(EmitterBehaviour::PerSecond), _accumulator(0.f), _emitterPos(glm::vec3(0)), _innerRow(4){
 	_drawObject->refCounter++;
 	_drawObject->mesh = nullptr;
 }
 
 ParticleComponent::ParticleComponent(IEntity* entity, EmitterBehaviour behaviour, ParticleTexture texture, int nrOfParticles, glm::vec3 pos) : IComponent(entity), _drawObject(entity->getDrawObject()),
-_pps(nrOfParticles), _behaviour(behaviour), _accumulator(0.f), _emitterPos(pos){
+_pps(nrOfParticles), _behaviour(behaviour), _accumulator(0.f), _emitterPos(pos), _innerRow(4){
 	_drawObject->refCounter++;
 	_drawObject->mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getQuad().get();
 	_tempRotation = glm::mat4(1);
 	switch (texture) {
 	case ParticleTexture::Fire:
-		_innerRow = 4;
-		_offsetToTexture = glm::ivec2(0, 0);
+		_offsetToTexture = glm::ivec2(0, 0) * _innerRow; // First texture is 0 * 4, meaning top left in the texture. 
 		break;
 	case ParticleTexture::Knas:
+		_offsetToTexture = glm::ivec2(1, 0) * _innerRow;
 		break;
 	case ParticleTexture::BogdanDeluxe:
+		_offsetToTexture = glm::ivec2(2, 0) * _innerRow;
 		break;
 	}
-
 }
 
 ParticleComponent::~ParticleComponent() {
@@ -98,8 +100,8 @@ void ParticleComponent::_particlePhysics(float delta) {
 
 void ParticleComponent::_updateTextureCoordInfo(std::shared_ptr<Particle>& p, float delta) {
 	float lifeFactor = p->elapsedTime / p->life;
-	int stageCount = _innerRow*_innerRow;
-	float atlasProg = lifeFactor * stageCount;
+	int stageCount = OUTERROW * OUTERROW;
+	float atlasProg = stageCount * lifeFactor;
 	int index1 = (int)floor(atlasProg);
 	int index2 = index1 < stageCount - 1 ? index1 + 1 : index1;
 	p->texCoordInfo = glm::vec2(OUTERROW, fmod(atlasProg, 1));
@@ -147,6 +149,8 @@ void ParticleComponent::serialize(nlohmann::json & json) const{
 		{ "accumulator", _accumulator},
 		{ "behaviour", (int)_behaviour},
 		{ "emitterPos", { _emitterPos.x, _emitterPos.y, _emitterPos.z } },
+		{ "innerRow", _innerRow },
+		{ "offsetToTexture", { _offsetToTexture.x, _offsetToTexture.y} }
 	};
 }
 
@@ -162,6 +166,12 @@ void ParticleComponent::deserialize(nlohmann::json & json){
 
 	auto& pos = json["emitterPos"];
 	_emitterPos = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
+	
+	auto& innerRow = json["innerRow"];
+	_innerRow = innerRow.get<int>();
+
+	auto& offsetToTexture = json["offsetToTexture"];
+	_offsetToTexture = glm::ivec2(offsetToTexture[0].get<int>(), offsetToTexture[1].get<int>());
 	
 	_drawObject->mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getQuad().get();
 	_tempRotation = glm::mat4(1);
