@@ -340,7 +340,8 @@ namespace Barcode {
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, float(0.0f));
 
-			const ImVec2 pos = ImVec2(_engine->getView()->getSize().x / 2, _engine->getView()->getSize().y / 2);
+			const int x = _engine->getView()->getSize().x / 2;
+			const ImVec2 pos = ImVec2(x, _engine->getView()->getSize().y / 2);
 
 			ImGui::SetNextWindowPos(pos + ImVec2(-10, 1));
 			ImGui::SetNextWindowSize(ImVec2(20, 20));
@@ -380,8 +381,28 @@ namespace Barcode {
 			_textureLoader->getTexture("assets/hud/Compass.png")->setRepeat();
 			ImGui::End();
 
+
+			int i = 0;
+			for (auto& entity : _world->getActiveComponents<Hydra::Component::EnemyComponent>())
+			{
+				char buf[128];
+				snprintf(buf, sizeof(buf), "Enemy%d", i);
+				auto enemyDir = entity[i].getComponent<Hydra::Component::EnemyComponent>()->getPosition() - player->getPosition();
+				glm::mat4 viewMat = _world->getActiveComponents<Hydra::Component::CameraComponent>()[0]->getComponent<Hydra::Component::CameraComponent>()->getViewMatrix();
+				glm::vec3 forward(viewMat[0][2], viewMat[1][2], viewMat[2][2]);
+				float dotPlacment = glm::dot(forward, enemyDir); // -1 - +1
+				dotPlacment = glm::clamp(dotPlacment, float(-0.6), float(0.6)) * 275;
+				ImGui::SetNextWindowPos(ImVec2(x + dotPlacment, 75)); //- 275
+				ImGui::SetNextWindowSize(ImVec2(20, 20));
+				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+				ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(10, 10));
+				ImGui::End();
+				i++;
+			}
+
+
 			int amountOfActives = 3;
-			int coolDownList[5] = { 5,5,5,5,5 };
+			int coolDownList[20] = { 5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5 };
 			float pForEatchDot = float(1) / float(amountOfActives);
 			float stepSize = float(70) * pForEatchDot;
 			for (int i = 0; i < amountOfActives; i++)
