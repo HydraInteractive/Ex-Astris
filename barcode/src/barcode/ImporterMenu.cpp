@@ -190,7 +190,14 @@ void ImporterMenu::Node::render(int index, Hydra::World::IWorld* world)
 				ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_CUBES " %s", files[i]->_name.c_str());
 				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
 				{
-					//Load map
+					std::ifstream inFile(files[i]->reverseEngineerPath());
+					nlohmann::json json;
+					world->getWorldRoot()->serialize(json, true);
+
+					//Write to file in json format
+					inFile >> json;
+
+					world->getWorldRoot()->deserialize(json);
 				}
 			}
 			else if (ext == ".png" || ext == ".PNG")
