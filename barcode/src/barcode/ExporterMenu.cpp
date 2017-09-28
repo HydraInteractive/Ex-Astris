@@ -21,9 +21,11 @@ ExporterMenu::~ExporterMenu()
 }
 void ExporterMenu::render(bool &closeBool)
 {
-	ImGui::SetNextWindowSize(ImVec2(500, 800), ImGuiSetCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(1000, 600), ImGuiSetCond_Once);
 	ImGui::Begin("Export", &closeBool);
 	Node* selectedNode = nullptr;
+
+	//File tree
 	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 30));
 	if (_root != nullptr)
 		_root->render(0, _world, &selectedNode);
@@ -31,7 +33,10 @@ void ExporterMenu::render(bool &closeBool)
 
 	ImGui::SameLine();
 
+	//File name dialog
 	ImGui::BeginChild("File", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 30));
+	
+	//Refresh changes from file tree
 	if (selectedNode != nullptr)
 	{
 		_selectedPath = selectedNode->reverseEngineerPath();
@@ -49,8 +54,27 @@ void ExporterMenu::render(bool &closeBool)
 		}
 	}
 
+	//Draw gui
 	ImGui::Text("Path: "); ImGui::SameLine(); ImGui::Text(_selectedPath.c_str());
-	ImGui::InputText("", _fileName, 128);
+	ImGui::InputText(".json", _fileName, 128);
+
+	if (ImGui::Button("Save"))
+	{
+		std::ofstream outFile;
+		nlohmann::json json;
+		std::string fileToSave = "";
+		fileToSave.append(_selectedPath);
+		fileToSave.append(_fileName);
+		fileToSave.append(".json");
+		_world->getWorldRoot()->serialize(json, true);
+
+		//Write to file in json format
+		outFile.open(fileToSave);
+		outFile << json;
+		outFile.close();
+
+		closeBool = false;
+	}
 	ImGui::EndChild();
 
 	ImGui::End();
@@ -62,7 +86,7 @@ void ExporterMenu::refresh()
 		delete _root;
 	}
 	_root = new Node(executableDir + "/assets");
-	_root->clean();
+	//_root->clean();
 }
 std::string ExporterMenu::_getExecutableDir()
 {
@@ -224,7 +248,7 @@ void ExporterMenu::Node::render(int index, Hydra::World::IWorld* world, Node** s
 				std::string ext = this->_files[i]->getExt();
 				if (ImGui::IsMouseDoubleClicked(0))
 				{
-					
+					//If this is a json file, overwrite it
 				}
 			}
 			ImGui::TreePop();

@@ -6,6 +6,7 @@
 
 #include <string>
 #include <vector>
+#include <fstream>
 #ifdef _WIN32
 #include <Windows.h>
 #else
