@@ -413,7 +413,9 @@ namespace Barcode {
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, float(0.0f));
 
-			for (int i = 0; i < 30; i++)
+
+			//Debug for pathfinding
+			/*for (int i = 0; i < 30; i++)
 			{
 				for (int j = 0; j < 30; j++)
 				{
@@ -455,7 +457,7 @@ namespace Barcode {
 						}
 					}
 				}
-			}
+			}*/
 
 			ImGui::PopStyleColor();
 			ImGui::PopStyleVar();
@@ -512,15 +514,15 @@ namespace Barcode {
 		alienEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(15, 0, 15));
 		alienEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
-		//auto robotEntity = _world->createEntity("Enemy Robot");
-		//_enemy = robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot);
-		//robotEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(15, 0, 0));
-		//robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+		auto robotEntity = _world->createEntity("Enemy Robot");
+		_enemy = robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot);
+		robotEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(15, 0, 0));
+		robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
-		//auto bossEntity = _world->createEntity("Enemy Boss");
-		//_enemy = bossEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss);
-		//bossEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, -10, 0));
-		//bossEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+		auto bossEntity = _world->createEntity("Enemy Boss");
+		_enemy = bossEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss);
+		bossEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(5, 0, 5));
+		bossEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
 		auto bp = BlueprintLoader::load("world.blueprint");
