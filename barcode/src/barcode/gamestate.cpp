@@ -15,7 +15,6 @@ namespace Barcode {
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
 
 		auto& windowSize = _engine->getView()->getSize();
-		printf("%i %i\n", windowSize.x, windowSize.y);
 		{
 			auto& batch = _geometryBatch;
 			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/geometry.vert");
@@ -33,7 +32,7 @@ namespace Barcode {
 				->addTexture(0, Hydra::Renderer::TextureType::f32RGB) // Position
 				.addTexture(1, Hydra::Renderer::TextureType::u8RGB) // Diffuse
 				.addTexture(2, Hydra::Renderer::TextureType::u8RGB) // Normal
-				.addTexture(3, Hydra::Renderer::TextureType::f32RGBA) // Light pos
+				.addTexture(3, Hydra::Renderer::TextureType::f16RGBA) // Light pos
 				.addTexture(4, Hydra::Renderer::TextureType::f16RGB) // Depth
 				.addTexture(5, Hydra::Renderer::TextureType::f16Depth) // real depth
 				.finalize();
@@ -125,7 +124,7 @@ namespace Barcode {
 			_blurredIMG3 = Hydra::Renderer::GLTexture::createEmpty(windowSize.x, windowSize.y, TextureType::u8RGB);
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
-			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::color;
+			batch.batch.clearFlags = ClearFlags::color | ClearFlags::depth;
 			batch.batch.renderTarget = batch.output.get();
 			batch.batch.pipeline = batch.pipeline.get();
 		}
@@ -158,15 +157,13 @@ namespace Barcode {
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 			
-			batch.output = Hydra::Renderer::GLFramebuffer::create(glm::vec2(1024), 0);
-			batch.output->addTexture(0, Hydra::Renderer::TextureType::f24Depth).finalize();
+			batch.output = Hydra::Renderer::GLFramebuffer::create(glm::vec2(2048), 0);
+			batch.output->addTexture(0, Hydra::Renderer::TextureType::f16Depth).finalize();
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
 			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::depth;
 			batch.batch.renderTarget = batch.output.get();
 			batch.batch.pipeline = batch.pipeline.get();
-
-			
 		}
 		
 
@@ -216,9 +213,16 @@ namespace Barcode {
 			for (auto& entity : _world->getActiveComponents<Hydra::Component::LightComponent>()) {
 				_light = entity->getComponent<Hydra::Component::LightComponent>();
 			}
-
-			glm::mat4 lightB = glm::scale(glm::translate(glm::mat4(1), glm::vec3(0.5, 0.5, 0.5)), glm::vec3(0.5, 0.5, 0.5));
-			glm::mat4 lightS = lightB * _light->getProjectionMatrix() * _light->getViewMatrix();
+			glm::mat4 modelMX = glm::mat4(1.0);
+			auto& lightViewMX = _light->getViewMatrix();
+			auto& lightPMX = _light->getProjectionMatrix();
+			glm::mat4 biasMatrix(
+				0.5, 0.0, 0.0, 0.0,
+				0.0, 0.5, 0.0, 0.0,
+				0.0, 0.0, 0.5, 0.0,
+				0.5, 0.5, 0.5, 1.0
+			);
+			glm::mat4 lightS = biasMatrix * lightPMX * lightViewMX * modelMX;
 
 			_geometryBatch.pipeline->setValue(0, _cc->getViewMatrix());
 			_geometryBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
@@ -305,12 +309,9 @@ namespace Barcode {
 			_lightingBatch.pipeline->setValue(4, 4);
 
 
+
 			_lightingBatch.pipeline->setValue(5, _cc->getPosition());
 			_lightingBatch.pipeline->setValue(6, _light->getDirection());
-			_lightingBatch.pipeline->setValue(7, _light->getViewMatrix());
-			_lightingBatch.pipeline->setValue(8, _light->getProjectionMatrix());
-
-			//_lightingBatch.pipeline->setValue(7, _light->getPosition());
 			
 
 
@@ -439,12 +440,33 @@ namespace Barcode {
 		test2->addComponent<Hydra::Component::MeshComponent>("assets/objects/Wall1.ATTIC");
 		test2->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-20, 0, 0), glm::vec3(1, 1, 1), glm::quat(0.7, 0, -1, 0));
 
+		auto test3 = _world->createEntity("test3");
+		test3->addComponent<Hydra::Component::MeshComponent>("assets/objects/Wall1.ATTIC");
+		test3->addComponent<Hydra::Component::TransformComponent>(glm::vec3(8, 0, 33), glm::vec3(1, 1, 1), glm::quat(1.3, 0, -0.3, 0));
+
+		auto test4 = _world->createEntity("test4");
+		test4->addComponent<Hydra::Component::MeshComponent>("assets/objects/Wall1.ATTIC");
+		test4->addComponent<Hydra::Component::TransformComponent>(glm::vec3(55, 0, 15), glm::vec3(1, 1, 1), glm::quat(1.0, 0, 0.8, 0));
+
+		auto test5 = _world->createEntity("test5");
+		test5->addComponent<Hydra::Component::MeshComponent>("assets/objects/Wall1.ATTIC");
+		test5->addComponent<Hydra::Component::TransformComponent>(glm::vec3(19.5, 0, -13), glm::vec3(3, 1, 1), glm::quat(-0.1, 0, -1.09, 0));
+
+		auto test6 = _world->createEntity("test6");
+		test6->addComponent<Hydra::Component::MeshComponent>("assets/objects/Roof1.ATTIC");
+		test6->addComponent<Hydra::Component::TransformComponent>(glm::vec3(14, -8.0, 9), glm::vec3(1, 1, 1), glm::quat(0.450, 0, 0.4, -40));
+
+
+		auto test7 = _world->createEntity("test7");
+		test7->addComponent<Hydra::Component::MeshComponent>("assets/objects/Floor.ATTIC");
+		test7->addComponent<Hydra::Component::TransformComponent>(glm::vec3(14, 8, 9), glm::vec3(30, 8.7, 50), glm::quat(1.3, 0, -0.06, 0));
+
 		auto lightEntity = _world->createEntity("Light");
 		_light = lightEntity->addComponent<Hydra::Component::LightComponent>();
-		_light->setPosition(glm::vec3(0, 0, 0));
+		_light->setPosition(glm::vec3(-5.0, 0.75, 4.3));
 		_light->translate(glm::vec3(10, 0, 0));
 		_light->setDirection(glm::vec3(-1, 0, 0));
-		lightEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
+		lightEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(8.0, 0, 3.5));
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
 		auto bp = BlueprintLoader::load("world.blueprint");

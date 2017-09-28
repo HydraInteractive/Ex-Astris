@@ -34,6 +34,7 @@ static GLenum toGLBase(TextureType type) {
 		/* [_(TextureType::f32RGBA)] = */ GL_RGBA,
 
 		/* [_(TextureType::f16Depth)] = */ GL_DEPTH_COMPONENT,
+		/* [_(TextureType::f24Depth)] = */ GL_DEPTH_COMPONENT,
 		/* [_(TextureType::f32Depth)] = */ GL_DEPTH_COMPONENT
 	};
 	return translate[static_cast<int>(type)];
@@ -191,7 +192,7 @@ private:
 		else if (_textureType == GL_TEXTURE_2D_MULTISAMPLE)
 			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, (GLsizei)_samples, toGLBase(_format), (GLsizei)_size.x, (GLsizei)_size.y, GL_FALSE);
 
-		 if (_textureType == GL_TEXTURE_2D) {
+		if (_textureType == GL_TEXTURE_2D) {
 			glTexParameteri(_textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(_textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(_textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
