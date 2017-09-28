@@ -23,25 +23,29 @@ void ExporterMenu::render(bool &closeBool)
 {
 	ImGui::SetNextWindowSize(ImVec2(500, 800), ImGuiSetCond_Once);
 	ImGui::Begin("Export", &closeBool);
-	Node selectedNode;
+	Node* selectedNode = nullptr;
 	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 30));
 	if (_root != nullptr)
-		_root->render(0, _world, selectedNode);
+		_root->render(0, _world, &selectedNode);
 	ImGui::EndChild();
 
 	ImGui::SameLine();
 
 	ImGui::BeginChild("File", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 30));
-	if (selectedNode.name() != "")
+	if (selectedNode != nullptr)
 	{
-		_selectedPath = selectedNode.reverseEngineerPath();
-		if (selectedNode.isAllowedFile)
+		_selectedPath = selectedNode->reverseEngineerPath();
+		if (selectedNode->isAllowedFile)
 		{
-			_selectedPath.erase(_selectedPath.end() - selectedNode.name().length(), _selectedPath.end());
+			_selectedPath.erase(_selectedPath.end() - selectedNode->name().length(), _selectedPath.end());
 
-			std::string fileNameWithoutExt = selectedNode.name();
-			fileNameWithoutExt.erase(fileNameWithoutExt.end() - selectedNode.getExt().length(), fileNameWithoutExt.end());
+			std::string fileNameWithoutExt = selectedNode->name();
+			fileNameWithoutExt.erase(fileNameWithoutExt.end() - selectedNode->getExt().length(), fileNameWithoutExt.end());
 			strncpy_s(_fileName, fileNameWithoutExt.c_str(), fileNameWithoutExt.length());
+		}
+		else
+		{
+			_selectedPath.append("/");
 		}
 	}
 
@@ -197,17 +201,16 @@ void ExporterMenu::Node::clean()
 		}
 	}
 }
-void ExporterMenu::Node::render(int index, Hydra::World::IWorld* world, Node& selectedNode)
+void ExporterMenu::Node::render(int index, Hydra::World::IWorld* world, Node** selectedNode)
 {
-	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
+	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
 	//TODO: Folder icon opening
 	if (ImGui::TreeNodeEx(this, node_flags, ICON_FA_FOLDER " %s", _name.c_str()))
 	{	
-		//if (ImGui::IsMouseDoubleClicked(0))
-		//{
-		//	if(ImGui::IsItemClicked())
-		//	selectedNode = (*this);
-		//}
+		if (ImGui::IsItemClicked())
+		{
+			(*selectedNode) = this;
+		}
 		for (size_t i = 0; i < this->_subfolders.size(); i++)
 		{
 			_subfolders[i]->render(i, world, selectedNode);
@@ -217,7 +220,7 @@ void ExporterMenu::Node::render(int index, Hydra::World::IWorld* world, Node& se
 			ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBE " %s", _files[i]->_name.c_str());
 			if (ImGui::IsItemClicked())
 			{
-				selectedNode = (*_files[i]);
+				(*selectedNode) = _files[i];
 				std::string ext = this->_files[i]->getExt();
 				if (ImGui::IsMouseDoubleClicked(0))
 				{
