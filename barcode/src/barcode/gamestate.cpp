@@ -6,6 +6,8 @@
 #include <hydra/io/glmeshloader.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
+#include <imgui/imgui.h>
+#include <hydra/component/aicomponent.hpp>
 
 namespace Barcode {
 	GameState::GameState() : _engine(Hydra::IEngine::getInstance()) {}
@@ -336,6 +338,164 @@ namespace Barcode {
 			}
 		}
 
+		{ // Hud windows
+			static float f = 0.0f;
+			static bool b = false;
+			static float invisF[3] = { 0, 0, 0 };
+			float hpP = 100;
+			float ammoP = 100;
+			
+			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0));
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, float(0.0f));
+
+			const int x = _engine->getView()->getSize().x / 2;
+			const ImVec2 pos = ImVec2(x, _engine->getView()->getSize().y / 2);
+
+			ImGui::SetNextWindowPos(pos + ImVec2(-10, 1));
+			ImGui::SetNextWindowSize(ImVec2(20, 20));
+			ImGui::Begin("Crosshair", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Crosshair.png")->getID()), ImVec2(20, 20));
+			ImGui::End();
+
+			ImGui::SetNextWindowPos(pos + ImVec2(-51, -42));
+			ImGui::SetNextWindowSize(ImVec2(120, 120));
+			ImGui::Begin("AimRing", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/AimRing.png")->getID()), ImVec2(100, 100));
+			ImGui::End();
+
+			float offsetHpF = 72 * hpP * 0.01;
+			int offsetHp = offsetHpF;
+			ImGui::SetNextWindowPos(pos + ImVec2(-47, -26 + 72 - offsetHp));
+			ImGui::SetNextWindowSize(ImVec2(100, 100));
+			ImGui::Begin("HpOnRing", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HpOnRing.png")->getID()), ImVec2(22, offsetHp), ImVec2(0, 1 - hpP * 0.01), ImVec2(1, 1));
+			ImGui::End();
+
+			float offsetAmmoF = 72 * ammoP * 0.01;
+			int offsetAmmo = offsetAmmoF;
+			ImGui::SetNextWindowPos(pos + ImVec2(+25, -26 + 72 - offsetAmmo));
+			ImGui::SetNextWindowSize(ImVec2(100, 100));
+			ImGui::Begin("AmmoOnRing", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/AmmoOnRing.png")->getID()), ImVec2(22, offsetAmmo), ImVec2(0, 1 - ammoP * 0.01), ImVec2(1, 1));
+			ImGui::End();
+
+			float degres = 0;
+			float degresP = ((float(100) / float(360) * degres)/100);
+			float degresO = float(1000) * degresP;
+			ImGui::SetNextWindowPos(ImVec2(pos.x - 275, + 70));
+			ImGui::SetNextWindowSize(ImVec2(600, 20));
+			ImGui::Begin("Compass", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Compass.png")->getID()), ImVec2(550, 20), ImVec2(degresO / float(1550), 0), ImVec2((float(1) - ((float(1000) - degresO) / float(1550))), 1));
+			_textureLoader->getTexture("assets/hud/Compass.png")->setRepeat();
+			ImGui::End();
+
+
+			int i = 0;
+			for (auto& entity : _world->getActiveComponents<Hydra::Component::EnemyComponent>())
+			{
+				char buf[128];
+				snprintf(buf, sizeof(buf), "Enemy is a scrub here is it's scrubID: %d", i);
+				auto playerP = _cc->getPosition();
+				auto enemyP = entity->getComponent<Hydra::Component::EnemyComponent>()->getPosition();
+				auto enemyDir = normalize(enemyP - playerP);
+				glm::mat4 viewMat = _world->getActiveComponents<Hydra::Component::CameraComponent>()[0]->getComponent<Hydra::Component::CameraComponent>()->getViewMatrix();
+				glm::vec3 forward(viewMat[0][2], viewMat[1][2], viewMat[2][2]);
+				float dotPlacment = glm::dot(forward, enemyDir); // -1 - +1
+				dotPlacment = dotPlacment * 550;
+				ImGui::SetNextWindowPos(ImVec2(x + dotPlacment, 75)); //- 275
+				ImGui::SetNextWindowSize(ImVec2(20, 20));
+				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+				ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(10, 10));
+				ImGui::End();
+				i++;
+			}
+
+
+			int amountOfActives = 3;
+			int coolDownList[20] = { 5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5 };
+			float pForEatchDot = float(1) / float(amountOfActives);
+			float stepSize = float(70) * pForEatchDot;
+			for (int i = 0; i < amountOfActives; i++)
+			{
+				char buf[128];
+				snprintf(buf, sizeof(buf), "Cooldown%d", i);
+				float yOffset = float(stepSize * float(i + 1));
+				float xOffset = pow(abs((yOffset - (stepSize / float(2)) - float(35))) * 0.1069, 2);
+				ImGui::SetNextWindowPos(pos + ImVec2(-64 + xOffset , -24 + yOffset - ((stepSize + 10.0) / 2.0)));
+				ImGui::SetNextWindowSize(ImVec2(15, 15));
+				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+				if (coolDownList[i] >= 7)
+				{
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(10, 10));
+				}
+				else if (coolDownList[i] <= 0)
+				{
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Green.png")->getID()), ImVec2(10, 10));
+				}
+				else
+				{
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Yellow.png")->getID()), ImVec2(10, 10));
+				}
+				
+				ImGui::End();
+			}
+			//70, 24
+
+			ImGui::PopStyleColor();
+			ImGui::PopStyleVar();
+			ImGui::PopStyleVar();
+
+			//Debug for pathfinding
+			/*for (int i = 0; i < 30; i++)
+			{
+				for (int j = 0; j < 30; j++)
+				{
+					if (_enemy != nullptr)
+					{
+						char buf[128];
+						snprintf(buf, sizeof(buf), "%d%d", i, j);
+						if (_enemy->getWall(i, j) == 1)
+						{
+							ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
+							ImGui::SetNextWindowSize(ImVec2(20, 20));
+							ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(20, 20));
+							ImGui::End();
+						}
+						else if (_enemy->getWall(i, j) == 2)
+						{
+							ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
+							ImGui::SetNextWindowSize(ImVec2(20, 20));
+							ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Blue.png")->getID()), ImVec2(20, 20));
+							ImGui::End();
+						}
+						else if (_enemy->getWall(i, j) == 3)
+						{
+							ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
+							ImGui::SetNextWindowSize(ImVec2(20, 20));
+							ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Yellow.png")->getID()), ImVec2(20, 20));
+							ImGui::End();
+						}
+						else if (_enemy->getWall(i, j) == 0)
+						{
+							ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
+							ImGui::SetNextWindowSize(ImVec2(20, 20));
+							ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Green.png")->getID()), ImVec2(20, 20));
+							ImGui::End();
+						}
+					}
+				}
+			}*/
+
+			/*ImGui::PopStyleColor();
+			ImGui::PopStyleVar();
+			ImGui::PopStyleVar();*/
+		}
+
 		{ // Sync with network
 			_world->tick(TickAction::network, delta);
 		}
@@ -374,7 +534,7 @@ namespace Barcode {
 
 		auto alienEntity = _world->createEntity("Enemy Alien");
 		_enemy = alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien);
-		alienEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-10, 0, 0));
+		alienEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(15, 0, 15));
 		alienEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
 		auto robotEntity = _world->createEntity("Enemy Robot");
@@ -384,7 +544,7 @@ namespace Barcode {
 
 		auto bossEntity = _world->createEntity("Enemy Boss");
 		_enemy = bossEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss);
-		bossEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, -10, 0));
+		bossEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(5, 0, 5));
 		bossEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
@@ -399,6 +559,7 @@ namespace Barcode {
 				_cc->setRenderTarget(_geometryBatch.output.get());
 			} else
 				_engine->log(Hydra::LogLevel::error, "Camera not found!");
+			_enemy = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Enemy Alien"; })->get()->getComponent<Hydra::Component::EnemyComponent>();
 		}
 
 	}
