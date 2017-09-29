@@ -120,7 +120,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			}break;
 			case ATTACKING:
 			{
-				if (glm::length(enemy->getPosition() - player->getPosition()) > 7.0f)
+				if (glm::length(enemy->getPosition() - player->getPosition()) > 8.0f)
 				{
 					_pathFinding->intializedStartGoal = false;
 					_pathFinding->foundGoal = false;
@@ -129,9 +129,9 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				}
 				else
 				{
-					glm::vec3 playerDir = enemy->getPosition() - player->getPosition();
-					angle = glm::degrees(atan2(playerDir.x, playerDir.z));
-					rotation = glm::angleAxis(glm::radians(angle), glm::vec3(0, 1, 0));
+					glm::vec3 playerDir = player->getPosition() - enemy->getPosition();
+					angle = atan2(playerDir.x, playerDir.z);
+					rotation = glm::angleAxis(angle, glm::vec3(0, 1, 0));
 				}
 			}break;
 			}
@@ -200,7 +200,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			}break;
 			case ATTACKING:
 			{
-				if (glm::length(enemy->getPosition() - player->getPosition()) > 7.0f)
+				if (glm::length(enemy->getPosition() - player->getPosition()) > 8.0f)
 				{
 					_pathFinding->intializedStartGoal = false;
 					_pathFinding->foundGoal = false;
@@ -209,9 +209,9 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				}
 				else
 				{
-					glm::vec3 playerDir = enemy->getPosition() - player->getPosition();
-					angle = glm::degrees(atan2(playerDir.x, playerDir.z));
-					rotation = glm::angleAxis(glm::radians(angle), glm::vec3(0, 1, 0));
+					glm::vec3 playerDir = player->getPosition() - enemy->getPosition();
+					angle = atan2(playerDir.x, playerDir.z);
+					rotation = glm::angleAxis(angle, glm::vec3(0, 1, 0));
 				}
 			}break;
 			}
@@ -280,7 +280,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			}break;
 			case ATTACKING:
 			{
-				if (glm::length(enemy->getPosition() - player->getPosition()) > 7.0f)
+				if (glm::length(enemy->getPosition() - player->getPosition()) > 8.0f)
 				{
 					_pathFinding->intializedStartGoal = false;
 					_pathFinding->foundGoal = false;
@@ -289,9 +289,9 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				}
 				else
 				{
-					glm::vec3 playerDir = enemy->getPosition() - player->getPosition();
-					angle = glm::degrees(atan2(playerDir.x, playerDir.z));
-					rotation = glm::angleAxis(glm::radians(angle), glm::vec3(0, 1, 0));
+					glm::vec3 playerDir = player->getPosition() - enemy->getPosition();
+					angle = atan2(playerDir.x, playerDir.z);
+					rotation = glm::angleAxis(angle, glm::vec3(0, 1, 0));
 				}
 			}break;
 			}
@@ -303,22 +303,22 @@ void EnemyComponent::tick(TickAction action, float delta) {
 		}break;
 	}
 
-	// debug for pathfinding
-		int tempX = enemy->getPosition().x;
-		int tempZ = enemy->getPosition().z;
-		map[tempX][tempZ] = 2;
-	//	/*for (int i = 0; i < _pathFinding->_visitedList.size(); i++)
-	//	{
-	//		map[(int)_pathFinding->_visitedList[i]->m_xcoord][(int)_pathFinding->_visitedList[i]->m_zcoord] = 3;
-	//	}
-	//	for (int i = 0; i < _pathFinding->_openList.size(); i++)
-	//	{
-	//		map[(int)_pathFinding->_openList[i]->m_xcoord][(int)_pathFinding->_openList[i]->m_zcoord] = 3;
-	//	}
-		for (int i = 0; i < _pathFinding->_pathToEnd.size(); i++)
-		{
-			map[(int)_pathFinding->_pathToEnd[i]->x][(int)_pathFinding->_pathToEnd[i]->z] = 3;
-		}
+	 //debug for pathfinding
+		//int tempX = enemy->getPosition().x;
+		//int tempZ = enemy->getPosition().z;
+		//map[tempX][tempZ] = 2;
+		//for (int i = 0; i < _pathFinding->_visitedList.size(); i++)
+		//{
+		//	map[(int)_pathFinding->_visitedList[i]->m_xcoord][(int)_pathFinding->_visitedList[i]->m_zcoord] = 3;
+		//}
+		//for (int i = 0; i < _pathFinding->_openList.size(); i++)
+		//{
+		//	map[(int)_pathFinding->_openList[i]->m_xcoord][(int)_pathFinding->_openList[i]->m_zcoord] = 3;
+		//}
+		//for (int i = 0; i < _pathFinding->_pathToEnd.size(); i++)
+		//{
+		//	map[(int)_pathFinding->_pathToEnd[i]->x][(int)_pathFinding->_pathToEnd[i]->z] = 3;
+		//}
 }
 
 glm::vec3 EnemyComponent::getPosition()
