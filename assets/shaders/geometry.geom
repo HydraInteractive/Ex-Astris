@@ -34,6 +34,7 @@ layout(location = 2) uniform vec3 cameraPos;
 layout(location = 3) uniform bool setting_doBackFaceCulling = false;
 layout(location = 4) uniform mat4 lightS;
 
+
 #define M_PI 3.1415
 
 mat3 calcTBN(mat3 normalMatrix, vec3 normal, int idx) {
@@ -74,7 +75,6 @@ void main() {
 		outData.tbn = calcTBN(normalMatrix, inData[i].normal, i);
 
 		gl_Position = p * v * pos;
-		
 		outData.light = lightS * pos;
 		EmitVertex();
 	}

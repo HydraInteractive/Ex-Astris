@@ -157,7 +157,7 @@ namespace Barcode {
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 			
-			batch.output = Hydra::Renderer::GLFramebuffer::create(glm::vec2(2048), 0);
+			batch.output = Hydra::Renderer::GLFramebuffer::create(glm::vec2(1024), 0);
 			batch.output->addTexture(0, Hydra::Renderer::TextureType::f16Depth).finalize();
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
@@ -222,7 +222,7 @@ namespace Barcode {
 				0.0, 0.0, 0.5, 0.0,
 				0.5, 0.5, 0.5, 1.0
 			);
-			glm::mat4 lightS = biasMatrix * lightPMX * lightViewMX * modelMX;
+			glm::mat4 lightS = biasMatrix * lightPMX * lightViewMX;
 
 			_geometryBatch.pipeline->setValue(0, _cc->getViewMatrix());
 			_geometryBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
