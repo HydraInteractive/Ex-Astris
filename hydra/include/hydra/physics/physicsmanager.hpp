@@ -16,15 +16,13 @@ namespace Hydra::Physics {
 	struct HYDRA_API IMotionState {
 		virtual ~IMotionState() = 0;
 
-		typedef void (*Callback)(void* userptr);
-
 		// Should hopefully only be used by the server
-		virtual void setCallback(Callback cb, void* userptr) = 0;
 	};
 	inline IMotionState::~IMotionState() {}
 
 	enum class CollisionShape {
-		box
+		box,
+		staticPlane
 	};
 	ABSTRACT_STRUCT(IShape);
 

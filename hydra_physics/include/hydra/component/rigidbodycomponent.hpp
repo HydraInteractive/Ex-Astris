@@ -13,12 +13,17 @@
 #include <hydra/world/world.hpp>
 #include <hydra/physics/physicsmanager.hpp>
 
+#include <hydra/component/transformcomponent.hpp>
+
 namespace Hydra::Component {
 	class HYDRA_API RigidBodyComponent final : public Hydra::World::IComponent {
 	public:
 		RigidBodyComponent(Hydra::World::IEntity* entity);
 		RigidBodyComponent(Hydra::World::IEntity* entity, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction);
 		~RigidBodyComponent() final;
+
+		static RigidBodyComponent* createBox(glm::vec3 size, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction);
+		static RigidBodyComponent* createStaticPlane(float mass, float linearDamping, float angularDamping, float friction, float rollingFriction);
 
 		void tick(Hydra::World::TickAction action, float delta) final;
 		inline Hydra::World::TickAction wantTick() const final { return Hydra::World::TickAction::physics; }
