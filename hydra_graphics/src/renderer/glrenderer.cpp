@@ -36,8 +36,8 @@ public:
 		_glContext = SDL_GL_CreateContext(_window = static_cast<SDL_Window*>(view.getHandler()));
 		_loadGLAD();
 
-		//glEnable(GL_CULL_FACE);
-		//glCullFace(GL_BACK);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_MULTISAMPLE);
@@ -111,23 +111,29 @@ public:
 
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
 
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		glDepthMask(GL_FALSE);
 		auto& particles = batch.textureInfo;
-		size_t sizeParticles = particles.size();
+		size_t sizeParticles = particles.size() / 3;
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
-			size_t sizeMatrix = kv.second.size();
-
+			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
 			glBindVertexArray(mesh->getID());
+			for (size_t i = 0; i < sizeParticles; i+= maxPerLoop) {
+				size_t amount = std::min(sizeParticles - i, maxPerLoop);
+				glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
+				glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
+				glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &kv.second[i]);
 
-			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
-			glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeMatrix * sizeof(glm::mat4), &kv.second[0]);
-
-			glBindBuffer(GL_ARRAY_BUFFER, _particleBuffer);
-			glBufferData(GL_ARRAY_BUFFER, sizeParticles * sizeof(glm::vec2), nullptr, GL_STREAM_DRAW);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeParticles * sizeof(glm::vec2), &particles[0]);
-			glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(sizeMatrix));
+				glBindBuffer(GL_ARRAY_BUFFER, _particleBuffer);
+				glBufferData(GL_ARRAY_BUFFER, _particleBufferSize, nullptr, GL_STREAM_DRAW);
+				glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::vec2) * 3, &particles[i*3]);
+				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
+			}
 		}
+		glDisable(GL_BLEND);
+		glDepthMask(GL_TRUE);
 	}
 
 	void render(Batch& batch) final {
@@ -222,7 +228,7 @@ private:
 	const size_t _modelMatrixSize = sizeof(glm::mat4) * 128; // max 128 mesh instances per draw call
 	GLuint _modelMatrixBuffer;
 	GLuint _particleBuffer;
-	const size_t _particleBufferSize = sizeof(glm::vec2) * 3 * 256; // Particle buffer holds three vec2, and max 128 particle instances per draw call.
+	const size_t _particleBufferSize = sizeof(glm::vec2) * 3 * 128; // Particle buffer holds three vec2, and max 128 particle instances per draw call.
  
 	static void _loadGLAD() {
 		static bool initialized = false;

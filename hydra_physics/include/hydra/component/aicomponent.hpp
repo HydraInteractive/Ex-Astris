@@ -34,7 +34,7 @@ namespace Hydra::Component {
 	class HYDRA_API EnemyComponent final : public IComponent{
 	public:
 		EnemyComponent(IEntity* entity);
-		EnemyComponent(IEntity* entity, EnemyTypes enemyID);
+		EnemyComponent(IEntity* entity, EnemyTypes enemyID, glm::vec3 pos);
 		~EnemyComponent() final;
 
 		void tick(TickAction action, float delta) final;
