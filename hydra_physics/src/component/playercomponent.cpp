@@ -22,7 +22,9 @@ PlayerComponent::PlayerComponent(IEntity* entity) : IComponent(entity) {
 	lastKeysArray = new bool[keysArrayLength];
 }
 
-PlayerComponent::~PlayerComponent() { }
+PlayerComponent::~PlayerComponent(){
+	delete[] lastKeysArray;
+}
 
 void PlayerComponent::tick(TickAction action, float delta) {
 	auto player = entity->getComponent<Component::TransformComponent>();

@@ -47,7 +47,7 @@ namespace Hydra::Component {
 		bool _firstPerson = true;
 		
 		int keysArrayLength;
-		bool *lastKeysArray;
+		bool *lastKeysArray; //pretty bad. will fix
 
 		AbilityHandler _activeAbillies;
 
