@@ -1,6 +1,5 @@
 #version 440 core
 
-in vec2 texCoords;
 in vec2 textureCoords1;
 in vec2 textureCoords2;
 in float blend;
