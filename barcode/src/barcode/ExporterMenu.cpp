@@ -21,14 +21,14 @@ ExporterMenu::~ExporterMenu()
 }
 void ExporterMenu::render(bool &closeBool)
 {
-	ImGui::SetNextWindowSize(ImVec2(1000, 600), ImGuiSetCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiSetCond_Once);
 	ImGui::Begin("Export", &closeBool);
 	Node* selectedNode = nullptr;
 
 	//File tree
 	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 30));
 	if (_root != nullptr)
-		_root->render(0, _world, &selectedNode);
+		_root->render(_world, &selectedNode);
 	ImGui::EndChild();
 
 	ImGui::SameLine();
@@ -46,7 +46,7 @@ void ExporterMenu::render(bool &closeBool)
 
 			std::string fileNameWithoutExt = selectedNode->name();
 			fileNameWithoutExt.erase(fileNameWithoutExt.end() - selectedNode->getExt().length(), fileNameWithoutExt.end());
-			strncpy_s(_fileName, fileNameWithoutExt.c_str(), fileNameWithoutExt.length());
+			strncpy_s(_selectedFileName, fileNameWithoutExt.c_str(), fileNameWithoutExt.length());
 		}
 		else
 		{
@@ -56,7 +56,7 @@ void ExporterMenu::render(bool &closeBool)
 
 	//Draw gui
 	ImGui::Text("Path: "); ImGui::SameLine(); ImGui::Text(_selectedPath.c_str());
-	ImGui::InputText(".json", _fileName, 128);
+	ImGui::InputText(".json", _selectedFileName, 128);
 
 	if (ImGui::Button("Save"))
 	{
@@ -64,7 +64,7 @@ void ExporterMenu::render(bool &closeBool)
 		nlohmann::json json;
 		std::string fileToSave = "";
 		fileToSave.append(_selectedPath);
-		fileToSave.append(_fileName);
+		fileToSave.append(_selectedFileName);
 		fileToSave.append(".json");
 		_world->getWorldRoot()->serialize(json, true);
 
@@ -136,8 +136,7 @@ ExporterMenu::Node::Node(std::string path, Node* parent, bool isFile)
 	}
 	for (int i = 0; i < inFiles.size(); i++)
 	{
-		this->_files.push_back(new Node(inFiles[i], this));
-		_files[i]->isAllowedFile = true;
+		this->_files.push_back(new Node(inFiles[i], this, true));
 	}
 }
 ExporterMenu::Node::~Node()
@@ -225,7 +224,7 @@ void ExporterMenu::Node::clean()
 		}
 	}
 }
-void ExporterMenu::Node::render(int index, Hydra::World::IWorld* world, Node** selectedNode)
+void ExporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode)
 {
 	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
 	//TODO: Folder icon opening
@@ -237,15 +236,26 @@ void ExporterMenu::Node::render(int index, Hydra::World::IWorld* world, Node** s
 		}
 		for (size_t i = 0; i < this->_subfolders.size(); i++)
 		{
-			_subfolders[i]->render(i, world, selectedNode);
+			_subfolders[i]->render(world, selectedNode);
 		}
 		for (size_t i = 0; i < this->_files.size(); i++)
 		{
-			ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBE " %s", _files[i]->_name.c_str());
+			std::string ext = this->_files[i]->getExt();
+			if (ext == ".attic" || ext == ".ATTIC")
+			{
+				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBE " %s", _files[i]->_name.c_str());
+			}
+			else if (ext == ".json" || ext == ".JSON")
+			{
+				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBES " %s", _files[i]->_name.c_str());
+			}
+			else
+			{
+				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_QUESTION_CIRCLE_O " %s", _files[i]->_name.c_str());
+			}
 			if (ImGui::IsItemClicked())
 			{
 				(*selectedNode) = _files[i];
-				std::string ext = this->_files[i]->getExt();
 				if (ImGui::IsMouseDoubleClicked(0))
 				{
 					//If this is a json file, overwrite it

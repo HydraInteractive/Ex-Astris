@@ -31,7 +31,7 @@ private:
 	class Node
 	{
 	public:
-		bool isAllowedFile;
+		bool isAllowedFile = false;
 
 		Node();
 		Node(std::string path, Node* parent = nullptr, bool isFile = false);
@@ -43,7 +43,7 @@ private:
 		std::string reverseEngineerPath();
 		int numberOfFiles();
 		void clean();
-		void render(int index, Hydra::World::IWorld* world, Node** selectedNode);
+		void render(Hydra::World::IWorld* world, Node** selectedNode);
 	private:
 		std::string _name;
 		std::vector<Node*> _subfolders;
@@ -56,6 +56,6 @@ private:
 	Hydra::World::IWorld* _world;
 	std::string _getExecutableDir();
 	std::string _selectedPath;
-	char _fileName[128] = "";
+	char _selectedFileName[128] = "";
 
 };
