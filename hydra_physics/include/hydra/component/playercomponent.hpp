@@ -33,8 +33,8 @@ namespace Hydra::Component {
 
 		inline const std::string type() const final { return "PlayerComponent"; }
 		const glm::vec3 getPosition() { return _position; };
-		void throwGrenade();
-
+		int getHealth();
+		void applyDamage(int damage);
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
@@ -45,15 +45,16 @@ namespace Hydra::Component {
 		float _movementSpeed = 20.0f;
 		bool _onGround = false;
 		bool _firstPerson = true;
-		
+		Uint32 _timer;
 		int keysArrayLength;
 		bool *lastKeysArray; //pretty bad. will fix
+		int _health;
+		bool _dead;
 
 		AbilityHandler _activeAbillies;
 
 		float _debug;
 		glm::vec3 _debugPos;
-
 
 	};
 };

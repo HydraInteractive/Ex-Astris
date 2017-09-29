@@ -20,6 +20,12 @@ PlayerComponent::PlayerComponent(IEntity* entity) : IComponent(entity) {
 	entity->createEntity("Abilities");
 	SDL_GetKeyboardState(&keysArrayLength);
 	lastKeysArray = new bool[keysArrayLength];
+	_velocity.x = 0;
+	_velocity.y = 0;
+	_velocity.z = 0;
+	_position = glm::vec3(0, -2, 20);
+	_health = 100;
+	_timer = SDL_GetTicks();
 }
 
 PlayerComponent::~PlayerComponent(){
@@ -27,6 +33,14 @@ PlayerComponent::~PlayerComponent(){
 }
 
 void PlayerComponent::tick(TickAction action, float delta) {
+	// If you only have one TickAction in 'wantTick' you don't need to check the tickaction here.
+
+	if (_health <= 0)
+	{
+		_dead = true;
+	}
+
+	// Extract players position
 	auto player = entity->getComponent<Component::TransformComponent>();
 	auto camera = entity->getComponent<Component::CameraComponent>();
 	auto weapon = getWeapon()->getComponent<Component::WeaponComponent>();
@@ -108,25 +122,6 @@ void PlayerComponent::tick(TickAction action, float delta) {
 	player->setPosition(_position + glm::vec3(0, 0.75, 0) + glm::vec3(-1, 0, -1) * forward + glm::vec3(1, 0, 1)*strafe);
 }
 
-void PlayerComponent::throwGrenade()
-{
-	std::shared_ptr<Hydra::World::IEntity> grenades;
-	std::vector<std::shared_ptr<Hydra::World::IEntity>> children = entity->getChildren();
-
-	for (size_t i = 0; i < children.size(); i++) {
-		if (children[i]->getName() == "Grenades") {
-			grenades = children[i];
-		}
-	}
-	
-	auto camera = entity->getComponent<Component::CameraComponent>();
-	glm::mat4 viewMat = camera->getViewMatrix();
-	glm::vec3 forward(viewMat[0][2], viewMat[1][2], viewMat[2][2]);
-
-	auto grenade = grenades->createEntity("grenade");
-	grenade->addComponent<Component::GrenadeComponent>(_position, -forward);
-}
-
 std::shared_ptr<Hydra::World::IEntity> PlayerComponent::getWeapon() {
 	std::shared_ptr<Hydra::World::IEntity> weapon;
 	std::vector<std::shared_ptr<Hydra::World::IEntity>> children = entity->getChildren();
@@ -139,6 +134,20 @@ std::shared_ptr<Hydra::World::IEntity> PlayerComponent::getWeapon() {
 	}
 
 	return weapon;
+}
+
+int Hydra::Component::PlayerComponent::getHealth()
+{
+	return _health;
+}
+
+void Hydra::Component::PlayerComponent::applyDamage(int damage)
+{
+	if (SDL_GetTicks() > _timer + 500)
+	{
+		_health = _health - damage;
+		_timer = SDL_GetTicks();
+	}
 }
 
 void PlayerComponent::serialize(nlohmann::json& json) const {
@@ -163,4 +172,5 @@ void PlayerComponent::registerUI() {
 	ImGui::InputFloat("DEBUG", &_debug);
 	ImGui::DragFloat3("DEBUG POS", glm::value_ptr(_debugPos), 0.01f);
 	ImGui::Checkbox("First Person", &_firstPerson);
+	ImGui::Checkbox("Dead", &_dead);
 }
