@@ -37,7 +37,7 @@ namespace Hydra::Component {
 		glm::vec3 _direction;
 		float _velocity;
 		float _fallingVelocity;
-		int _tickSpawned;
-		int _timeUntilDelete;
+		Uint32 _tickSpawned;
+		Uint32 _timeUntilDelete;
 	};
 };

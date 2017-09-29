@@ -35,7 +35,7 @@ MineComponent::~MineComponent() { }
 
 void MineComponent::tick(TickAction action, float delta) {
 
-	_direction.y += 0.8 * delta;
+	_direction.y += 0.8f * delta;
 
 	_velocity -= 2.0f * delta;
 
