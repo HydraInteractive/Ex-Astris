@@ -8,6 +8,7 @@
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
 #include <hydra/abilities/grenadecomponent.hpp>
+#include <hydra/abilities/minecomponent.hpp>
 
 namespace Hydra::Component {
 	namespace ComponentManager {

@@ -6,8 +6,6 @@
 * Authors:
 *  - Dan Printzell
 */
-
-#pragma once
 #include <hydra/ext/api.hpp>
 #include <glm/glm.hpp>
 #include <SDL2/SDL.h>

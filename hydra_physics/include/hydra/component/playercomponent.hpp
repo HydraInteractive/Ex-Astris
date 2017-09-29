@@ -1,4 +1,3 @@
-#pragma once
 /**
 * Player stuff
 *
@@ -6,6 +5,7 @@
 * Authors:
 *  - Dan Printzell
 */
+#pragma once
 #include <hydra/ext/api.hpp>
 #include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL.h>

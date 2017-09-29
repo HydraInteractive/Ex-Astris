@@ -2,17 +2,7 @@
 
 AbilityHandler::AbilityHandler(){
 	_activeAbility = 0;
-	_abilityList.push_back(&AbilityHandler::grenadeAbility);
-	_abilityList.push_back(&AbilityHandler::grenadeAbility);
-	_abilityList.push_back(&AbilityHandler::grenadeAbility);
-	_abilityList.push_back(&AbilityHandler::grenadeAbility);
-	_abilityList.push_back(&AbilityHandler::grenadeAbility);
-	_abilityList.push_back(&AbilityHandler::grenadeAbility);
-	_cooldownList.push_back(0);
-	_cooldownList.push_back(0);
-	_cooldownList.push_back(0);
-	_cooldownList.push_back(0);
-	_cooldownList.push_back(0);
+	_abilityList.push_back(&AbilityHandler::mineAbility);
 	_cooldownList.push_back(0);
 }
 void AbilityHandler::useAbility(Hydra::World::IEntity* abilitiesEntity, glm::vec3 position, glm::vec3 direction) {
@@ -29,6 +19,10 @@ void AbilityHandler::useAbility(Hydra::World::IEntity* abilitiesEntity, glm::vec
 	}
 }
 void AbilityHandler::grenadeAbility(Hydra::World::IEntity* abilitiesEntity, glm::vec3 position, glm::vec3 direction) {
-	auto grenade = abilitiesEntity->createEntity("grenade");
+	auto grenade = abilitiesEntity->createEntity("Grenade");
 	grenade->addComponent<Hydra::Component::GrenadeComponent>(position, direction);
+}
+void AbilityHandler::mineAbility(Hydra::World::IEntity* abilitiesEntity, glm::vec3 position, glm::vec3 direction) {
+	auto mine = abilitiesEntity->createEntity("Mine");
+	mine->addComponent<Hydra::Component::MineComponent>(position, direction);
 }
