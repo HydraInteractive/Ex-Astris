@@ -345,23 +345,53 @@ private:
 			_makeBuffers();
 
 			if (hasAnimation) {
-				//HardCoded for now
-				_loadWeight("assets/objects/weightFireWeaponTest.ATTIC", vertices);
-				_loadSkeleton("assets/objects/skelIdleGunTest.ATTIC", vertices);
-				_loadSkeleton("assets/objects/skelRunningGunTest.ATTIC", vertices);
-				_loadSkeleton("assets/objects/skelFireWeaponTest.ATTIC", vertices);
+
 				_meshHasAnimation = true;
+				int nrOfAnimationFiles;
+				in.read(reinterpret_cast<char*>(&nrOfAnimationFiles), sizeof(int));
+				bool test = true;
+				std::string animationFilePath = "assets/objects/";
+				std::string animationFileName;
+				int nrOfFileChars = 0;
+
+				//Read the weight info
+				in.read(reinterpret_cast<char*>(&nrOfFileChars), sizeof(int));
+				char *tempAnimationFileName;
+				tempAnimationFileName = new char[nrOfFileChars];
+				in.read(tempAnimationFileName, nrOfFileChars);
+				animationFileName.append(tempAnimationFileName, nrOfFileChars);
+				delete[] tempAnimationFileName;
+				animationFileName += ".wATTIC";
+				animationFilePath += animationFileName;
+
+				_loadWeight(animationFilePath.c_str(), vertices);
+
+				//Read all the skeleton info. In other words, all different animations
+				for (int animationFile = 0; animationFile < nrOfAnimationFiles; animationFile++) {
+
+					in.read(reinterpret_cast<char*>(&nrOfFileChars), sizeof(int));
+					animationFilePath = "assets/objects/";
+					animationFileName = "";
+					tempAnimationFileName = new char[nrOfFileChars];
+					in.read(tempAnimationFileName, nrOfFileChars);
+					animationFileName.append(tempAnimationFileName, nrOfFileChars);
+					animationFileName += ".sATTIC";
+					animationFilePath += animationFileName;
+
+					delete[] tempAnimationFileName;
+
+					_loadSkeleton(animationFilePath.c_str(), vertices);
+
+
+				}
 				_uploadData(vertices, indices, true, modelMatrixBuffer, 0);
+
 			}
 			else {
 				_meshHasAnimation = false;
 				_uploadData(vertices, indices, false, modelMatrixBuffer, 0);
 			}
 
-			//const char *test = fileName.c_str();
-			//info->texture = createTexture(test);
-			//glGenVertexArrays(1, &info->VAO);
-			//ATTICMeshes.push_back(info);
 		}
 	
 	}

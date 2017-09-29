@@ -523,7 +523,7 @@ namespace Barcode {
 
 
 		auto weaponEntity = playerEntity->createEntity("Weapon");
-		weaponEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/modelFireWeaponTest.ATTIC");
+		weaponEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/Weapon.mATTIC");
 		weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 3, 0), glm::vec3(0.3), glm::quat(0,0,-1,0));
 		
 		auto particleEmitter = _world->createEntity("ParticleEmitter");

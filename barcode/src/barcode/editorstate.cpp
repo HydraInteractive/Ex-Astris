@@ -261,22 +261,23 @@ namespace Barcode {
 				else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
 					_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
-					//Get number of keyframes. Also hardcoded for now
-					if (currentFrame < 75) {
-						currentFrame++;
-					}
-					else {
-						currentFrame = 1;
-					}
+					int currentFrame = drawObj->mesh->getCurrentKeyframe();
 
-					std::vector<glm::mat4> tempMats;
-					//i == nrOfJoints. Hardcoded for now
-					for (int i = 0; i < 4; i++) {
-						tempMats.push_back(drawObj->mesh->getTransformationMatrices(i));
-						_animationBatch.pipeline->setValue(11 + i, tempMats[i]);
+					if (currentFrame < drawObj->mesh->getMaxFramesForAnimation()) {
+						drawObj->mesh->setCurrentKeyframe(currentFrame + 1);
+					}
+					else
+					{
+						drawObj->mesh->setCurrentKeyframe(1);
+					}
+					glm::mat4 tempMat;
+					for (int i = 0; i < drawObj->mesh->getNrOfJoints(); i++) {
+						tempMat = drawObj->mesh->getTransformationMatrices(i);
+						_animationBatch.pipeline->setValue(11 + i, tempMat);
 					}
 				}
 			}
+			
 
 			// Sort Front to back
 			for (auto& kv : _geometryBatch.batch.objects) {
