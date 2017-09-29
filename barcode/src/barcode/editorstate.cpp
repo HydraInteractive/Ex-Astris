@@ -272,7 +272,7 @@ namespace Barcode {
 					std::vector<glm::mat4> tempMats;
 					//i == nrOfJoints. Hardcoded for now
 					for (int i = 0; i < 4; i++) {
-						tempMats.push_back(drawObj->mesh->getTransformationMatrices(0, i, currentFrame - 1));
+						tempMats.push_back(drawObj->mesh->getTransformationMatrices(i));
 						_animationBatch.pipeline->setValue(11 + i, tempMats[i]);
 					}
 				}
@@ -413,9 +413,9 @@ namespace Barcode {
 		_cc = playerEntity->addComponent<Hydra::Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{ 5, 0, -3 });
 		playerEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
 
-		auto animatedEntity = _world->createEntity("AnimatedCube");
-		animatedEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/animatedCube.ATTIC");
-		animatedEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-10, 0, -10));
+		//auto animatedEntity = _world->createEntity("AnimatedCube");
+		//animatedEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/animatedCube.ATTIC");
+		//animatedEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-10, 0, -10));
 
 		auto weaponEntity = playerEntity->createEntity("Weapon");
 		weaponEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
