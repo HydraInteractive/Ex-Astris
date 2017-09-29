@@ -140,7 +140,7 @@ namespace Barcode {
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 
-			_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/fireAtlas.png");
+			_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/tempAtlas.png");
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
 			batch.batch.clearFlags = ClearFlags::depth;
@@ -523,10 +523,10 @@ namespace Barcode {
 		particleEmitter->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::Fire, 20, glm::vec3(0,0,0));
 
 		auto particleEmitter1 = _world->createEntity("ParticleEmitter1");
-		particleEmitter1->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::Fire, 2, glm::vec3(5,0,0));
+		particleEmitter1->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::Knas, 2, glm::vec3(5,0,0));
 		
 		auto particleEmitter2 = _world->createEntity("ParticleEmitter2");
-		particleEmitter2->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::Fire, 3, glm::vec3(5, -5, 0));
+		particleEmitter2->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::BogdanDeluxe, 3, glm::vec3(5, -5, 0));
 		
 		auto particleEmitter3 = _world->createEntity("ParticleEmitter3");
 		particleEmitter3->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::Fire, 8, glm::vec3(-5, -5, 0));

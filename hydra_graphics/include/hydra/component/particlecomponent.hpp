@@ -68,9 +68,8 @@ namespace Hydra::Component {
 	private:
 		int _pps; // Particles per second.
 		float _accumulator;
-		int _innerRow;
 		glm::quat _tempRotation;
-		glm::ivec2 _offsetToTexture;
+		glm::vec2 _offsetToTexture;
 		glm::vec3 _emitterPos;
 		EmitterBehaviour _behaviour;
 		Hydra::Renderer::DrawObject* _drawObject;
@@ -81,6 +80,5 @@ namespace Hydra::Component {
 		void _emmitParticle();
 		void _updateTextureCoordInfo(std::shared_ptr<Particle>& p, float delta);
 		void _sortParticles(); // Insertion Sort
-		void _setTextureOffset(glm::vec2& offset, int index);
 	};
 };
