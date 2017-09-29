@@ -31,6 +31,8 @@ namespace Hydra::Component {
 		inline const std::string type() const final { return "PlayerComponent"; }
 
 		glm::vec3 getPosition();
+		int getHealth();
+		void applyDamage(int damage);
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
@@ -40,11 +42,11 @@ namespace Hydra::Component {
 		float _velocityY;
 		float _velocityZ;
 		float _accelerationY;
-
+		Uint32 _timer;
 		bool _onGround = false;
-
+		int _health;
 		bool _firstPerson = true;
-
+		bool _dead;
 		float _movementSpeed = 0.2f;
 
 		float _debug;
