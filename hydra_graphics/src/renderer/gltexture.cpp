@@ -170,6 +170,18 @@ public:
 	size_t getSamples() final { return _samples; }
 	glm::ivec2 getSize() final { return _size; }
 	uint32_t getID() const final { return _texture; }
+	void setRepeat() final
+	{
+		glTexParameteri(_textureType, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(_textureType, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	}
+
+	void setClamp() final
+	{
+		glTexParameteri(_textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(_textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	}
+
 
 private:
 	GLenum _textureType;
