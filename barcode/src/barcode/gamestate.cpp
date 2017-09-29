@@ -18,7 +18,7 @@ namespace Barcode {
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
 		_physicsManager = Hydra::Physics::BulletManager::create();
 
-		auto& windowSize = _engine->getView()->getSize();
+		auto windowSize = _engine->getView()->getSize();
 		{
 			auto& batch = _geometryBatch;
 			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/geometry.vert");
@@ -177,7 +177,7 @@ namespace Barcode {
 
 
 	void GameState::runFrame(float delta) {
-		auto& windowSize = _engine->getView()->getSize();
+		auto windowSize = _engine->getView()->getSize();
 		{ // Fetch new events
 			_engine->getView()->update(_engine->getUIRenderer());
 			_engine->getUIRenderer()->newFrame();

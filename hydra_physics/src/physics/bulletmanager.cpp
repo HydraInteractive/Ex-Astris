@@ -10,23 +10,16 @@
 #include <hydra/physics/bulletmanager.hpp>
 
 #include <hydra/component/transformcomponent.hpp>
+#include <btBulletCollisionCommon.h>
 
-struct BulletRigidBodyImpl final : public Hydra::Physics::IBulletRigidBody {
-public:
-	BulletRigidBodyImpl() {}
-
-	btRigidBody* getRigidBody() final { return &_rigidBody; }
-private:
-	btRigidBody _rigidBody;
-};
 
 inline static btQuaternion cast(const glm::quat& r) { return btQuaternion{r.x, r.y, r.z, r.w}; }
 inline static btVector3 cast(const glm::vec3& v) { return btVector3{v.x, v.y, v.z}; }
 
-inline static glm::quat cast(const btQuaternion& r) { return glm::quat{r.x, r.y, r.z, r.w}; }
-inline static glm::vec3 cast(const btVector3& v) { return glm::vec3{v.x, v.y, v.z}; }
+inline static glm::quat cast(const btQuaternion& r) { return glm::quat(r.w(), r.x(), r.y(), r.z()); }
+inline static glm::vec3 cast(const btVector3& v) { return glm::vec3(v.x(), v.y(), v.z()); }
 
-struct BulletMotionStateImpl final : public Hydra::Physics::IBulletMotionState {
+/*struct BulletMotionStateImpl final : public Hydra::Physics::IBulletMotionState {
 public:
 	BulletMotionStateImpl(TransformComponent* transform) : _motionState(transform) {}
 
@@ -94,7 +87,7 @@ public:
 private:
 	glm::vec3 _size;
 	btBoxShape _box;
-};
+	};*/
 
 class BulletManagerImpl final : public Hydra::Physics::IPhysicsManager {
 public:
@@ -102,7 +95,6 @@ public:
 	~BulletManagerImpl() final {}
 
 private:
-	std::vector<Hydra::Physics::PhysicsObject> _physicsObjects;
 };
 
 std::unique_ptr<Hydra::Physics::IPhysicsManager> Hydra::Physics::BulletManager::create() {

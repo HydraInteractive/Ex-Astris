@@ -7,16 +7,18 @@
  * Authors:
  *  - Dan Printzell
  */
-#include <hydra/components/rigidbodycomponent.hpp>
+#include <hydra/component/rigidbodycomponent.hpp>
 
-#include <bullet3/btBulletCollisionCommon.h>
+#include <btBulletCollisionCommon.h>
+#include <imgui/imgui.h>
 
 using namespace Hydra::Component;
+using namespace Hydra::World;
 
 struct RigidBodyComponent::Data {
 	btRigidBody* rigidBody;
 	btMotionState* motionState;
-	btShape* shape;
+	btCollisionShape* shape;
 
 	float mass;
 	float linearDamping;
@@ -25,8 +27,8 @@ struct RigidBodyComponent::Data {
 	float rollingFriction;
 };
 
-RigidBodyComponent::RigidBodyComponent(IEntity* entity) : _data(std::make_unique<Data>()) {}
-RigidBodyComponent::RigidBodyComponent(IEntity* entity, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction) : _data(std::make_unique<Data>()) {
+RigidBodyComponent::RigidBodyComponent(IEntity* entity) : IComponent(entity), _data(std::make_unique<RigidBodyComponent::Data>()) {}
+RigidBodyComponent::RigidBodyComponent(IEntity* entity, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction) : IComponent(entity), _data(std::make_unique<Data>()) {
 	_data->mass = mass;
 	_data->linearDamping = linearDamping;
 	_data->angularDamping = angularDamping;
@@ -45,9 +47,9 @@ void RigidBodyComponent::serialize(nlohmann::json& json) const {
 		{"angularDamping", _data->angularDamping},
 		{"friction", _data->friction},
 		{"rollingFriction", _data->rollingFriction},
-		{"collisionShape", _data->shape->getCollisitionShape()}
+		//		{"collisionShape", _data->shape->getCollistionShape()}
 	};
-	_data->shape->serialize(json["shape"]);
+	//	_data->shape->serialize(json["shape"]);
 }
 
 void RigidBodyComponent::deserialize(nlohmann::json& json) {
@@ -58,22 +60,22 @@ void RigidBodyComponent::deserialize(nlohmann::json& json) {
 	_data->friction = json["friction"].get<float>();
 	_data->rollingFriction = json["rollingFriction"].get<float>();
 
-	_data->shape->deserialize(json["shape"]);
+	//	_data->shape->deserialize(json["shape"]);
 }
 
 void RigidBodyComponent::registerUI() {
 	if (ImGui::DragFloat("Mass", &_data->mass))
-		_data->getRigidBody()->setMassProps(cast(_data->mass), cast(glm::vec3{0, 0, 0}));
+		{}//_data->getRigidBody()->setMassProps(cast(_data->mass), cast(glm::vec3{0, 0, 0}));
 
 	bool damping = ImGui::DragFloat("Linear Damping", &_data->linearDamping);
-	damping |= ImGui::DragFloat("Angular Damping", &_data->angularDamping)
+	damping |= ImGui::DragFloat("Angular Damping", &_data->angularDamping);
 	if (damping)
-		_data->getRigidBody()->setDamping(cast(_data->linearDamping), cast(_data->angularDamping));
+		{}//_data->getRigidBody()->setDamping(cast(_data->linearDamping), cast(_data->angularDamping));
 
 	if (ImGui::DragFloat("Friction", &_data->friction))
-		_data->getRigidBody()->setFriction(_data->friction);
+		{}//_data->getRigidBody()->setFriction(_data->friction);
 	if (ImGui::DragFloat("Rolling Friction", &_data->rollingFriction))
-		_data->getRigidBody()->setRollingFriction(_data->rollingFriction);
+		{}//_data->getRigidBody()->setRollingFriction(_data->rollingFriction);
 
-	_data->shape->registerUI();
+	//_data->shape->registerUI();
 }

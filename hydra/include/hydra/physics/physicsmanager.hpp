@@ -12,8 +12,6 @@
 #include <hydra/ext/macros.hpp>
 
 namespace Hydra::Physics {
-	ABSTRACT_STRUCT(IRigidBody);
-
 	// Network will probably overwrite this to easily know what data to send.
 	struct HYDRA_API IMotionState {
 		virtual ~IMotionState() = 0;
@@ -29,7 +27,7 @@ namespace Hydra::Physics {
 		box
 	};
 	ABSTRACT_STRUCT(IShape);
-	
+
 	class HYDRA_API IPhysicsManager {
 	public:
 		virtual ~IPhysicsManager() = 0;

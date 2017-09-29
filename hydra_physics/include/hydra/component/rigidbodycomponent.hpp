@@ -14,13 +14,14 @@
 #include <hydra/physics/physicsmanager.hpp>
 
 namespace Hydra::Component {
-	class HYDRA_API RigidBodyComponent final : public IComponent {
+	class HYDRA_API RigidBodyComponent final : public Hydra::World::IComponent {
 	public:
-		RigidBodyComponent(IEntity* entity);
+		RigidBodyComponent(Hydra::World::IEntity* entity);
+		RigidBodyComponent(Hydra::World::IEntity* entity, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction);
 		~RigidBodyComponent() final;
 
-		void tick(TickAction action, float delta) final;
-		inline TickAction wantTick() const final { return TickAction::physics; }
+		void tick(Hydra::World::TickAction action, float delta) final;
+		inline Hydra::World::TickAction wantTick() const final { return Hydra::World::TickAction::physics; }
 
 		inline const std::string type() const final { return "RigidBodyComponent"; }
 
@@ -32,4 +33,4 @@ namespace Hydra::Component {
 		struct Data;
 		std::unique_ptr<Data> _data;
 	};
-}
+};
