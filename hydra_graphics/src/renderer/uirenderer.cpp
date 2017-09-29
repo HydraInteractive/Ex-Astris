@@ -212,17 +212,15 @@ public:
 		return output;
 	}
 
-	void render() final {
+	void render(float delta) final {
 		constexpr float MiB = 1024.0f*1024.0f;
 		if (ImGui::BeginMainMenuBar()) {
 			if (ImGui::BeginMenu("File")) {
 				ImGui::MenuItem("Log", nullptr, &_logWindow);
-				ImGui::MenuItem("Entity List", nullptr, &_entityWindow);
+				//ImGui::MenuItem("Entity List", nullptr, &_entityWindow);
 				ImGui::Separator();
 				ImGui::MenuItem("ImGui Test Window", nullptr, &_testWindow);
-
 				ImGui::Separator();
-
 				if (ImGui::MenuItem("Quit"))
 						_view->quit();
 				ImGui::EndMenu();
@@ -283,21 +281,28 @@ public:
 			static float fpsValues[valueLen] = {0};
 			static float ramValues[valueLen] = {0};
 			static float vramValues[valueLen] = {0};
+			static float counter = 0;
 
-			memmove(&fpsValues[0], &fpsValues[1], (valueLen - 1) * sizeof(float));
-			fpsValues[valueLen - 1] = ImGui::GetIO().Framerate;
+			counter += delta;
 
-			memmove(&ramValues[0], &ramValues[1], (valueLen - 1) * sizeof(float));
-			ramValues[valueLen - 1] = (Hydra::Ext::getCurrentRSS() - Hydra::Ext::getCurrentVRAM()) / MiB;
+			if (counter >= 0.1f) {
+				counter -= 0.1f;
+				memmove(&fpsValues[0], &fpsValues[1], (valueLen - 1) * sizeof(float));
+				fpsValues[valueLen - 1] = ImGui::GetIO().Framerate;
 
-			memmove(&vramValues[0], &vramValues[1], (valueLen - 1) * sizeof(float));
-			vramValues[valueLen - 1] = Hydra::Ext::getCurrentVRAM() / MiB;
+				memmove(&ramValues[0], &ramValues[1], (valueLen - 1) * sizeof(float));
+				ramValues[valueLen - 1] = (Hydra::Ext::getCurrentRSS() - Hydra::Ext::getCurrentVRAM()) / MiB;
+
+				memmove(&vramValues[0], &vramValues[1], (valueLen - 1) * sizeof(float));
+				vramValues[valueLen - 1] = Hydra::Ext::getCurrentVRAM() / MiB;
+			}
 
 			if (_performanceWindow) {
 				ImGui::Begin("Performance monitor", &_performanceWindow);
-				ImGui::PlotHistogram("#FPS", fpsValues, valueLen, 0, "FPS2", 20, 150, ImVec2(0, 200));
-				ImGui::PlotHistogram("#RAM", ramValues, valueLen, 0, "RAM2", 20, 150, ImVec2(0, 200));
-				ImGui::PlotHistogram("#VRAM", vramValues, valueLen, 0, "VRAM2", 20, 150, ImVec2(0, 200));
+				ImGui::Text("Counter: %f", counter);
+				ImGui::PlotHistogram("#FPS", fpsValues, valueLen, 0, "FPS2", FLT_MAX, FLT_MAX, ImVec2(0, 200));
+				ImGui::PlotHistogram("#RAM", ramValues, valueLen, 0, "RAM2", FLT_MAX, FLT_MAX, ImVec2(0, 200));
+				ImGui::PlotHistogram("#VRAM", vramValues, valueLen, 0, "VRAM2", FLT_MAX, FLT_MAX, ImVec2(0, 200));
 				ImGui::End();
 			}
 		}
