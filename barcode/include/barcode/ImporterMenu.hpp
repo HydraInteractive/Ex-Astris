@@ -14,6 +14,7 @@
 #include <imgui/icons.hpp>
 #include <algorithm>
 #include <hydra/world/world.hpp>
+#include <hydra/world/blueprintloader.hpp>
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
 
