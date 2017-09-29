@@ -58,12 +58,17 @@ namespace Hydra::Renderer {
 		virtual glm::ivec2 getSize() = 0;
 		virtual size_t getSamples() = 0;
 		virtual uint32_t getID() const = 0;
+		virtual void setRepeat() = 0;
+		virtual void setClamp() = 0;
+
 	};
 	inline ITexture::~ITexture() {}
 
 	class HYDRA_API IRenderTarget : public ITexture {
 	public:
 		virtual ~IRenderTarget() = 0;
+		inline void setRepeat() final{}
+		inline void setClamp() final{}
 	};
 	inline IRenderTarget::~IRenderTarget() {}
 

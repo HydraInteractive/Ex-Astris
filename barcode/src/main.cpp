@@ -3,7 +3,7 @@
 #include <SDL2/SDL.h>
 
 #include <memory>
-
+ 
 #include <hydra/view/sdlview.hpp>
 #include <hydra/renderer/glrenderer.hpp>
 
