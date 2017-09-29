@@ -220,7 +220,7 @@ private:
 			glBindBuffer(GL_ARRAY_BUFFER, particleExtraBuffer);
 			for (int i = 0; i < 3; i++) {
 				glEnableVertexAttribArray(VertexLocation::textureOffset1 + i);
-				glVertexAttribPointer(VertexLocation::textureOffset1 + i, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (GLvoid*)(sizeof(glm::vec2) * i));
+				glVertexAttribPointer(VertexLocation::textureOffset1 + i, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2) * 3, (GLvoid*)(sizeof(glm::vec2) * i));
 				glVertexAttribDivisor(VertexLocation::textureOffset1 + i, 1);
 			}
 		}
