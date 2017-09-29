@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <fstream>
 #ifdef _WIN32
 #include <Windows.h>
 #else
@@ -13,6 +14,7 @@
 #include <imgui/icons.hpp>
 #include <algorithm>
 #include <hydra/world/world.hpp>
+#include <hydra/world/blueprintloader.hpp>
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
 
@@ -31,6 +33,8 @@ private:
 	class Node
 	{
 	public:
+		bool isAllowedFile = false;
+
 		Node();
 		Node(std::string path, Node* parent = nullptr, bool isFile = false);
 		~Node();
@@ -41,17 +45,17 @@ private:
 		std::string reverseEngineerPath();
 		int numberOfFiles();
 		void clean();
-		void render(int index, Hydra::World::IWorld* world);
+		void render(Hydra::World::IWorld* world, Node** selectedNode);
 	private:
 		std::string _name;
-		std::vector<Node*> subfolders;
-		std::vector<Node*> files;
-		bool isAllowedFile;
-		Node* parent;
+		std::vector<Node*> _subfolders;
+		std::vector<Node*> _files;
+
+		Node* _parent;
 
 		void _getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders) const;
 	};
-	Node* root;
+	Node* _root;
 	Hydra::World::IWorld* _world;
 	std::string _getExecutableDir();
 };

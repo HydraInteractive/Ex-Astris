@@ -25,7 +25,7 @@ void CameraComponent::tick(TickAction action, float delta) {
 	int mouseX, mouseY;
 	if (_mouseControl && SDL_GetRelativeMouseState(&mouseX, &mouseY) == SDL_BUTTON(3)) {
 		_cameraYaw += mouseX * _sensitivity;
-		_cameraPitch += mouseY *_sensitivity;
+		_cameraPitch += mouseY * _sensitivity;
 
 		if (_cameraPitch > glm::radians(89.0f)){
 			_cameraPitch = glm::radians(89.0f);
@@ -35,7 +35,7 @@ void CameraComponent::tick(TickAction action, float delta) {
 		}
 	}
 
-	glm::quat qPitch = glm::angleAxis(_cameraPitch, glm::vec3(1, 0, 0));
+	glm::quat qPitch = glm::angleAxis(-_cameraPitch, glm::vec3(1, 0, 0));
 	glm::quat qYaw = glm::angleAxis(_cameraYaw, glm::vec3(0, 1, 0));
 	glm::quat qRoll = glm::angleAxis(glm::radians(180.f), glm::vec3(0, 0, 1));
 

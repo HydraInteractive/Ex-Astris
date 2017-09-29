@@ -209,12 +209,6 @@ namespace Barcode {
 			if (ImGui::MenuItem("Export..."))
 			{
 				_showExporter = !_showExporter;
-				//std::ofstream outFile;
-				//nlohmann::json json;
-				//_world->getWorldRoot()->serialize(json, true);
-				//outFile.open("assets/rooms/testroom.json");
-				//outFile << json;
-				//outFile.close();
 			}
 			ImGui::EndMenu();
 		}

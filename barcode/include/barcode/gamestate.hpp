@@ -17,8 +17,12 @@
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/playercomponent.hpp>
+#include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/particlecomponent.hpp>
 #include <hydra/component/aicomponent.hpp>
+#include <hydra/component/lightcomponent.hpp>
+
+#include <hydra/io/input.hpp>
 
 namespace Barcode {
 	class GameState final : public Hydra::IState {
@@ -67,6 +71,8 @@ namespace Barcode {
 		RenderBatch _glowBatch; // Glow batch.
 		RenderBatch _viewBatch;
 		RenderBatch _postTestBatch;
+		RenderBatch _shadowBatch;
+
 		ParticleRenderBatch _particleBatch;
 
 		// ParticleTexture
@@ -84,9 +90,17 @@ namespace Barcode {
 		std::unique_ptr<Hydra::Renderer::IShader> _glowVertexShader;
 		std::unique_ptr<Hydra::Renderer::IShader> _glowFragmentShader;
 
+		std::shared_ptr<Hydra::Renderer::IPipeline> _shadowPipeline;
+		std::unique_ptr<Hydra::Renderer::IShader> _shadowVertexShader;
+		std::unique_ptr<Hydra::Renderer::IShader> _shadowFragmentShader;
+		std::shared_ptr<Hydra::Renderer::ITexture> _shadowMap;
+
 		Hydra::Component::CameraComponent* _cc = nullptr;
 		Hydra::Component::PlayerComponent* player = nullptr;
 		Hydra::Component::EnemyComponent* _enemy = nullptr;
+		Hydra::Component::LightComponent* _light = nullptr;
+
+		Input _input;
 
 		void _initWorld();
 

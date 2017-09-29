@@ -165,6 +165,6 @@ void ParticleComponent::deserialize(nlohmann::json & json){
 	_tempRotation *= glm::angleAxis(glm::radians(90.f), glm::vec3(0, 0, 1));
 }
 
-void ParticleComponent::registerUI(){
+void ParticleComponent::registerUI() {
 	ImGui::DragInt("ParticlesPerSecond", &_pps, 1.0);
 }
