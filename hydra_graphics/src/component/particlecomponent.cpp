@@ -25,7 +25,7 @@ _pps(nrOfParticles), _behaviour(behaviour), _accumulator(0.f), _emitterPos(pos) 
 	_tempRotation = glm::mat4(1);
 
 	size_t id = static_cast<size_t>(texture);
-	_offsetToTexture = glm::vec2(id % OUTERROW, id / OUTERROW) / (float)OUTERROW;
+	_offsetToTexture = glm::vec2(id % OUTERROW, id / OUTERROW) / (float) OUTERROW;
 }
 
 ParticleComponent::~ParticleComponent() {
@@ -158,7 +158,7 @@ void ParticleComponent::deserialize(nlohmann::json & json){
 	_emitterPos = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
 
 	auto& offsetToTexture = json["offsetToTexture"];
-	_offsetToTexture = glm::ivec2(offsetToTexture[0].get<float>(), offsetToTexture[1].get<float>());
+	_offsetToTexture = glm::vec2(offsetToTexture[0].get<float>(), offsetToTexture[1].get<float>());
 	
 	_drawObject->mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getQuad().get();
 	_tempRotation = glm::mat4(1);
