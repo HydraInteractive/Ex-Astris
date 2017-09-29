@@ -219,9 +219,6 @@ namespace Barcode {
 
 	void GameState::onMainMenu() { }
 
-	//Global variable to maintain a keyframe for now
-	int currentFrame = 0;
-
 	void GameState::runFrame(float delta) {
 		{ // Fetch new events
 			_engine->getView()->update(_engine->getUIRenderer());
@@ -266,22 +263,24 @@ namespace Barcode {
 
 				if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false)
 					_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+
 				else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
 					_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
-					//Get number of keyframes. Also hardcoded for now
-					if (currentFrame < 75) {
-						currentFrame++;
+					int currentFrame = drawObj->mesh->getCurrentKeyframe();
+
+					if (currentFrame < drawObj->mesh->getMaxFramesForAnimation()) {
+						drawObj->mesh->setCurrentKeyframe(currentFrame + 1);
 					}
-					else {
-						currentFrame = 1;
+					else
+					{
+						drawObj->mesh->setCurrentKeyframe(1);
 					}
 
-					std::vector<glm::mat4> tempMats;
-					//i == nrOfJoints. Hardcoded for now
-					for (int i = 0; i < 4; i++) {
-						tempMats.push_back(drawObj->mesh->getTransformationMatrices(0, i, currentFrame - 1));
-						_animationBatch.pipeline->setValue(11 + i, tempMats[i]);
+					glm::mat4 tempMat;
+					for (int i = 0; i < drawObj->mesh->getNrOfJoints(); i++) {
+						tempMat = drawObj->mesh->getTransformationMatrices(i);
+						_animationBatch.pipeline->setValue(11 + i, tempMat);
 					}
 				}
 			}
@@ -439,14 +438,14 @@ namespace Barcode {
 		_cc = playerEntity->addComponent<Hydra::Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{ 5, 0, -3 });
 		playerEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
 
-		auto animatedEntity = _world->createEntity("AnimatedCube");
-		animatedEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/animatedCube.ATTIC");
-		animatedEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-10, 0, -10));
+		//auto animatedEntity = _world->createEntity("AnimatedCube");
+		//animatedEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/animatedCube.ATTIC");
+		//animatedEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-10, 0, -10));
 
 
 		auto weaponEntity = playerEntity->createEntity("Weapon");
-		weaponEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
-		weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(1,1,1), glm::quat(0,0,-1,0));
+		weaponEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/modelFireWeaponTest.ATTIC");
+		weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 3, 0), glm::vec3(0.3), glm::quat(0,0,-1,0));
 		
 		auto particleEmitter = _world->createEntity("ParticleEmitter");
 		particleEmitter->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, 1);

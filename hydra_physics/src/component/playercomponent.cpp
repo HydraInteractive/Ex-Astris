@@ -20,6 +20,8 @@ PlayerComponent::PlayerComponent(IEntity* entity) : IComponent(entity) {
 	_velocityX = 0;
 	_velocityY = 0;
 	_velocityZ = 0;
+	//_animationIndex = 0;
+	//_currentKeyframe = 0;
 }
 
 PlayerComponent::~PlayerComponent() { }
@@ -32,13 +34,15 @@ void PlayerComponent::tick(TickAction action, float delta) {
 	auto player = entity->getComponent<Component::TransformComponent>();
 	// Extract cameras position
 	auto camera = entity->getComponent<Component::CameraComponent>();
-	
+
 	{
 		Uint8* keysArray;
 		keysArray = const_cast <Uint8*> (SDL_GetKeyboardState(NULL));
 
 		if (keysArray[SDL_SCANCODE_W]) {
 			_velocityZ = -_movementSpeed;
+			
+			entity->getChildren()[0]->getDrawObject()->mesh->setAnimationIndex(1);
 		}
 
 		if (keysArray[SDL_SCANCODE_S]) {
@@ -64,6 +68,13 @@ void PlayerComponent::tick(TickAction action, float delta) {
 		if (keysArray[SDL_SCANCODE_SPACE] && _onGround){
 			_accelerationY -= 0.3f;
 			_onGround = false;
+		}
+		//If the player stands still, do the idle animation
+		if (_velocityX == 0 && _velocityY == 0 && _velocityZ == 0) {
+			entity->getChildren()[0]->getDrawObject()->mesh->setAnimationIndex(0);
+		}
+		if (keysArray[SDL_SCANCODE_E]) {
+			entity->getChildren()[0]->getDrawObject()->mesh->setAnimationIndex(2);
 		}
 	}
 

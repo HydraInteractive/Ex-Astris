@@ -94,6 +94,8 @@ public:
 
 	GLMeshImpl(const std::string& file, GLuint modelMatrixBuffer) {
 
+		_currentFrame = 1;
+		_currentAnimationIndex = 0;
 		_loadATTICModel(file.c_str(), modelMatrixBuffer);
 	}
 
@@ -108,13 +110,6 @@ public:
 
 		glDeleteVertexArrays(1, &_vao);
 	}
-
-	//void loadWeight(const char* filePath){
-	//	_loadWeight(filePath);
-	//}
-	//void loadAnimation(const char* filePath) {
-	//	_loadSkeleton(filePath);
-	//}
 
 	struct skelInfo {
 
@@ -155,10 +150,19 @@ public:
 	weights weightInfo;
 
 	Material& getMaterial() final { return _material; }
+
 	bool hasAnimation() final { return _meshHasAnimation; }
-	glm::mat4 getTransformationMatrices(int animationIndex, int joint, int currentFrame) final { return _finishedMatrices[animationIndex][joint]->finishedTransformMat[currentFrame]; }
+	glm::mat4 getTransformationMatrices(int joint) final { return _finishedMatrices[_currentAnimationIndex][joint]->finishedTransformMat[_currentFrame - 1]; }
+	int getNrOfJoints() final { return _finishedMatrices[_currentAnimationIndex][0]->nrOfClusters; }
+	int getCurrentKeyframe() final { return _currentFrame; }
+	int getMaxFramesForAnimation() final { return _finishedMatrices[_currentAnimationIndex][0]->nrOfKeys; }
+	int getCurrentAnimationIndex() final { return _currentAnimationIndex; }
+	void setCurrentKeyframe(int frame) { _currentFrame = frame; }
+	void setAnimationIndex(int index) { _currentAnimationIndex = index; }
+
 	GLuint getID() const final { return _vao; }
 	size_t getIndicesCount() const final { return _indicesCount; }
+
 private:
 	Material _material;
 	GLuint _vao; // Vertex Array
@@ -168,6 +172,11 @@ private:
 	
 	std::vector<skelInfo*> _finishedMatrices[7];
 	bool _meshHasAnimation = false;
+
+	int _nrOfJoints;
+	int _maxFramesForAnimation;
+	int _currentFrame;
+	int _currentAnimationIndex;
 
 	void _makeBuffers() {
 		glGenVertexArrays(1, &_vao);
@@ -327,8 +336,10 @@ private:
 
 			if (hasAnimation) {
 				//HardCoded for now
-				_loadWeight("assets/objects/animatedCubeWeights.ATTIC", vertices);
-				_loadSkeleton("assets/objects/animatedCubeSkeleton.ATTIC", vertices);
+				_loadWeight("assets/objects/weightFireWeaponTest.ATTIC", vertices);
+				_loadSkeleton("assets/objects/skelIdleGunTest.ATTIC", vertices);
+				_loadSkeleton("assets/objects/skelRunningGunTest.ATTIC", vertices);
+				_loadSkeleton("assets/objects/skelFireWeaponTest.ATTIC", vertices);
 				_meshHasAnimation = true;
 				_uploadData(vertices, indices, true, modelMatrixBuffer);
 			}
@@ -397,6 +408,7 @@ private:
 
 			skelInfo *info = new skelInfo;
 			info->nrOfKeys = nrOfKeyframes;
+			info->nrOfClusters = clusterNr;
 			info->jointName = name;
 
 			glm::vec4 globalBindVec0;
