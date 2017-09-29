@@ -22,11 +22,23 @@ ExporterMenu::~ExporterMenu()
 void ExporterMenu::render(bool &closeBool)
 {
 	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiSetCond_Once);
-	ImGui::Begin("Export", &closeBool);
+	ImGui::Begin("Export", &closeBool, ImGuiWindowFlags_MenuBar);
+	if (ImGui::BeginMenuBar())
+	{
+		if (ImGui::BeginMenu("Menu"))
+		{
+			if (ImGui::MenuItem("Refresh", NULL))
+			{
+				refresh();
+			}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenuBar();
+	}
 	Node* selectedNode = nullptr;
 
 	//File tree
-	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 30));
+	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 60));
 	if (_root != nullptr)
 		_root->render(_world, &selectedNode);
 	ImGui::EndChild();
@@ -34,7 +46,7 @@ void ExporterMenu::render(bool &closeBool)
 	ImGui::SameLine();
 
 	//File name dialog
-	ImGui::BeginChild("File", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 30));
+	ImGui::BeginChild("File", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 60));
 	
 	//Refresh changes from file tree
 	if (selectedNode != nullptr)
@@ -56,22 +68,17 @@ void ExporterMenu::render(bool &closeBool)
 
 	//Draw gui
 	ImGui::Text("Path: "); ImGui::SameLine(); ImGui::Text(_selectedPath.c_str());
-	ImGui::InputText(".json", _selectedFileName, 128);
+	ImGui::InputText(".room", _selectedFileName, 128);
 
 	if (ImGui::Button("Save"))
 	{
 		std::ofstream outFile;
-		nlohmann::json json;
 		std::string fileToSave = "";
 		fileToSave.append(_selectedPath);
 		fileToSave.append(_selectedFileName);
-		fileToSave.append(".json");
-		_world->getWorldRoot()->serialize(json, true);
+		fileToSave.append(".room");
 
-		//Write to file in json format
-		outFile.open(fileToSave);
-		outFile << json;
-		outFile.close();
+		BlueprintLoader::save(fileToSave, "Pls wurk", _world->getWorldRoot());
 
 		closeBool = false;
 	}
@@ -245,7 +252,7 @@ void ExporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode
 			{
 				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBE " %s", _files[i]->_name.c_str());
 			}
-			else if (ext == ".json" || ext == ".JSON")
+			else if (ext == ".room" || ext == ".ROOM")
 			{
 				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBES " %s", _files[i]->_name.c_str());
 			}
@@ -302,6 +309,10 @@ void ExporterMenu::Node::_getContentsOfDir(const std::string &directory, std::ve
 				files.push_back(fullFilePath);
 			}
 			else if (fileExt == ".json")
+			{
+				files.push_back(fullFilePath);
+			}
+			else if (fileExt == ".room")
 			{
 				files.push_back(fullFilePath);
 			}
