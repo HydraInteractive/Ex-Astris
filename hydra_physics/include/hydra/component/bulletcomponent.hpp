@@ -35,6 +35,6 @@ namespace Hydra::Component {
 		glm::vec3 _position;
 		glm::vec3 _direction;
 		float _velocity;
-		int _deleteTimer;
+		size_t _deleteTimer;
 	};
 };

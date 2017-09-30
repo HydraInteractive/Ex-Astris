@@ -16,7 +16,7 @@ namespace Barcode {
 		_textureLoader = Hydra::IO::GLTextureLoader::create();
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
 
-		auto& windowSize = _engine->getView()->getSize();
+		auto windowSize = _engine->getView()->getSize();
 		{
 			auto& batch = _geometryBatch;
 			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/geometry.vert");
@@ -196,7 +196,7 @@ namespace Barcode {
 
 
 	void GameState::runFrame(float delta) {
-		auto& windowSize = _engine->getView()->getSize();
+		auto windowSize = _engine->getView()->getSize();
 		{ // Fetch new events
 			_engine->getView()->update(_engine->getUIRenderer());
 			_engine->getUIRenderer()->newFrame();
@@ -215,9 +215,9 @@ namespace Barcode {
 			for (auto& entity : _world->getActiveComponents<Hydra::Component::LightComponent>()) {
 				_light = entity->getComponent<Hydra::Component::LightComponent>();
 			}
-			glm::mat4 modelMX = glm::mat4(1.0);
-			auto& lightViewMX = _light->getViewMatrix();
-			auto& lightPMX = _light->getProjectionMatrix();
+
+			auto lightViewMX = _light->getViewMatrix();
+			auto lightPMX = _light->getProjectionMatrix();
 			glm::mat4 biasMatrix(
 				0.5, 0.0, 0.0, 0.0,
 				0.0, 0.5, 0.0, 0.0,
@@ -400,9 +400,9 @@ namespace Barcode {
 		}
 
 		{ // Hud windows
-			static float f = 0.0f;
-			static bool b = false;
-			static float invisF[3] = { 0, 0, 0 };
+			//static float f = 0.0f;
+			//static bool b = false;
+			//static float invisF[3] = { 0, 0, 0 };
 			float hpP = 100;
 			float ammoP = 100;
 			

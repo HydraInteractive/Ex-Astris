@@ -13,7 +13,7 @@
 #include <hydra/pathing/pathfinding.hpp>
 #include <hydra/component/playercomponent.hpp>
 #include <math.h>
-#include <SDL2\SDL.h>
+#include <SDL2/SDL.h>
 #include <random>
 
 using namespace Hydra::World;

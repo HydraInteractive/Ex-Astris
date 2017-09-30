@@ -1,4 +1,4 @@
-#include "barcode/ExporterMenu.hpp"
+#include <barcode/ExporterMenu.hpp>
 ExporterMenu::ExporterMenu()
 {	
 	this->executableDir = "";
@@ -58,7 +58,7 @@ void ExporterMenu::render(bool &closeBool)
 
 			std::string fileNameWithoutExt = selectedNode->name();
 			fileNameWithoutExt.erase(fileNameWithoutExt.end() - selectedNode->getExt().length(), fileNameWithoutExt.end());
-			strncpy_s(_selectedFileName, fileNameWithoutExt.c_str(), fileNameWithoutExt.length());
+			strncpy(_selectedFileName, fileNameWithoutExt.c_str(), fileNameWithoutExt.length());
 		}
 		else
 		{
@@ -67,7 +67,7 @@ void ExporterMenu::render(bool &closeBool)
 	}
 
 	//Draw gui
-	ImGui::Text("Path: "); ImGui::SameLine(); ImGui::Text(_selectedPath.c_str());
+	ImGui::Text("Path: "); ImGui::SameLine(); ImGui::Text("%s", _selectedPath.c_str());
 	ImGui::InputText(".room", _selectedFileName, 128);
 
 	if (ImGui::Button("Save"))
@@ -137,23 +137,23 @@ ExporterMenu::Node::Node(std::string path, Node* parent, bool isFile)
 	std::vector<std::string> inFiles;
 	std::vector<std::string> inFolders;
 	_getContentsOfDir(path, inFiles, inFolders);
-	for (int i = 0; i < inFolders.size(); i++)
+	for (size_t i = 0; i < inFolders.size(); i++)
 	{
 		this->_subfolders.push_back(new Node(inFolders[i], this));
 	}
-	for (int i = 0; i < inFiles.size(); i++)
+	for (size_t i = 0; i < inFiles.size(); i++)
 	{
 		this->_files.push_back(new Node(inFiles[i], this, true));
 	}
 }
 ExporterMenu::Node::~Node()
 {
-	for (int i = 0; i < _subfolders.size(); i++)
+	for (size_t i = 0; i < _subfolders.size(); i++)
 	{
 		delete _subfolders[i];
 	}
 	_subfolders.clear();
-	for (int i = 0; i < _files.size(); i++)
+	for (size_t i = 0; i < _files.size(); i++)
 	{
 		delete _files[i];
 	}
@@ -166,7 +166,7 @@ std::string ExporterMenu::Node::name()
 //Returns the file extention from a filename
 std::string ExporterMenu::Node::getExt()
 {
-	int i = _name.find_last_of('.');
+	size_t i = _name.find_last_of('.');
 	if (i == std::string::npos)
 	{
 		return "";
@@ -180,7 +180,7 @@ std::string ExporterMenu::Node::getExt()
 //Gets the node's name from it's path
 std::string ExporterMenu::Node::pathToName(std::string path)
 {
-	unsigned int i = path.find_last_of('/');
+	size_t i = path.find_last_of('/');
 	if (i == std::string::npos)
 	{
 		return path;
@@ -206,7 +206,7 @@ int ExporterMenu::Node::numberOfFiles()
 	if (!isAllowedFile)
 	{
 		int allFiles = _files.size();
-		for (int i = 0; i < _subfolders.size(); i++)
+		for (size_t i = 0; i < _subfolders.size(); i++)
 		{
 			allFiles += _subfolders[i]->numberOfFiles();
 		}
@@ -217,7 +217,7 @@ int ExporterMenu::Node::numberOfFiles()
 //Removes all folders that do not have any files
 void ExporterMenu::Node::clean()
 {
-	for (int i = 0; i < _subfolders.size(); i++)
+	for (size_t i = 0; i < _subfolders.size(); i++)
 	{
 		if (_subfolders[i]->numberOfFiles() == 0)
 		{

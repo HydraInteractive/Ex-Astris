@@ -16,7 +16,7 @@ public:
 	void grenadeAbility(Hydra::World::IEntity* abilitiesEntity, glm::vec3 position, glm::vec3 direction);
 	void mineAbility(Hydra::World::IEntity* abilitiesEntity, glm::vec3 position, glm::vec3 direction);
 private:
-	int _activeAbility;
+	size_t _activeAbility;
 	std::vector<void(AbilityHandler::*)(Hydra::World::IEntity*, glm::vec3, glm::vec3)> _abilityList;
 	std::vector<int> _cooldownList;
 };
