@@ -18,12 +18,13 @@
 namespace Hydra::Component {
 	class HYDRA_API RigidBodyComponent final : public Hydra::World::IComponent {
 	public:
-		RigidBodyComponent(Hydra::World::IEntity* entity);
-		RigidBodyComponent(Hydra::World::IEntity* entity, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction);
+		struct Data;
+		RigidBodyComponent(IEntity* entity);
+		RigidBodyComponent(IEntity* entity, std::unique_ptr<Data> data);
 		~RigidBodyComponent() final;
 
-		static RigidBodyComponent* createBox(glm::vec3 size, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction);
-		static RigidBodyComponent* createStaticPlane(float mass, float linearDamping, float angularDamping, float friction, float rollingFriction);
+		static std::unique_ptr<RigidBodyComponent> createBox(IEntity* entity, const glm::vec3& size, float mass = 0, float linearDamping = 0, float angularDamping = 0, float friction = 0, float rollingFriction = 0);
+		static std::unique_ptr<RigidBodyComponent> createStaticPlane(IEntity* entity, const glm::vec3& normal, float planeConstant, float mass = 0, float linearDamping = 0, float angularDamping = 0, float friction = 0, float rollingFriction = 0);
 
 		void tick(Hydra::World::TickAction action, float delta) final;
 		inline Hydra::World::TickAction wantTick() const final { return Hydra::World::TickAction::physics; }
@@ -35,7 +36,6 @@ namespace Hydra::Component {
 		void registerUI() final;
 
 	private:
-		struct Data;
 		std::unique_ptr<Data> _data;
 	};
 };

@@ -21,8 +21,8 @@ namespace Hydra::Physics {
 	inline IMotionState::~IMotionState() {}
 
 	enum class CollisionShape {
-		box,
-		staticPlane
+		Box,
+		StaticPlane
 	};
 	ABSTRACT_STRUCT(IShape);
 
