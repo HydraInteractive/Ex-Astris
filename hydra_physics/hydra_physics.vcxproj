@@ -503,16 +503,28 @@
     <ClInclude Include="include\LinearMath\btTransform.h" />
     <ClInclude Include="include\LinearMath\btTransformUtil.h" />
     <ClInclude Include="include\LinearMath\btVector3.h" />
+    <ClInclude Include="include\hydra\abilities\abilityHandler.hpp" />
+    <ClInclude Include="include\hydra\abilities\buffHandler.h" />
+    <ClInclude Include="include\hydra\abilities\minecomponent.hpp" />
     <ClInclude Include="include\hydra\component\aicomponent.hpp" />
+    <ClInclude Include="include\hydra\component\bulletcomponent.hpp" />
     <ClInclude Include="include\hydra\component\componentmanager_physics.hpp" />
+    <ClInclude Include="include\hydra\abilities\grenadecomponent.hpp" />
     <ClInclude Include="include\hydra\component\playercomponent.hpp" />
+    <ClInclude Include="include\hydra\component\weaponcomponent.hpp" />
     <ClInclude Include="include\hydra\pathing\pathfinding.hpp" />
     <ClInclude Include="include\hydra\pathing\SearchCell.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\abilities\abilityHandler.cpp" />
+    <ClCompile Include="src\abilities\buffHandler.cpp" />
+    <ClCompile Include="src\abilities\minecomponent.cpp" />
     <ClCompile Include="src\component\aicomponent.cpp" />
+    <ClCompile Include="src\component\bulletcomponent.cpp" />
     <ClCompile Include="src\component\componentmanager_physics.cpp" />
+    <ClCompile Include="src\abilities\grenadecomponent.cpp" />
     <ClCompile Include="src\component\playercomponent.cpp" />
+    <ClCompile Include="src\component\weaponcomponent.cpp" />
     <ClCompile Include="src\pathing\pathfinding.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

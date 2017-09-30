@@ -3,44 +3,70 @@
 ImporterMenu::ImporterMenu()
 {
 	this->executableDir = "";
-	this->root = nullptr;
+	this->_root = nullptr;
 	this->_world = nullptr;
 }
 ImporterMenu::ImporterMenu(Hydra::World::IWorld* world)
 {
 	this->executableDir = _getExecutableDir();
-	this->root = nullptr;
+	this->_root = nullptr;
 	this->_world = world;
 	refresh();
 }
 ImporterMenu::~ImporterMenu()
 {
-	if(root != nullptr)
-	delete root;
+	if(_root != nullptr)
+	delete _root;
 }
 void ImporterMenu::render(bool &closeBool)
 {
-	ImGui::SetNextWindowSize(ImVec2(480, 640), ImGuiSetCond_Once);
-	ImGui::Begin("Import", &closeBool);
-	if(root != nullptr)
-	root->render(0, _world);
+	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiSetCond_Once);
+	ImGui::Begin("Import", &closeBool, ImGuiWindowFlags_MenuBar);
+	if (ImGui::BeginMenuBar())
+	{
+		if (ImGui::BeginMenu("Menu"))
+		{
+			if (ImGui::MenuItem("Refresh", NULL))
+			{
+				refresh();
+			}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenuBar();
+	}
+	Node* selectedNode = nullptr;
+
+	//File tree
+	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.3f, ImGui::GetWindowContentRegionMax().y - 60));
+	if(_root != nullptr)
+		_root->render(_world, &selectedNode);
+	if (selectedNode != nullptr)
+		std::cout << selectedNode->reverseEngineerPath() << std::endl;
+	ImGui::EndChild();
+
+	ImGui::SameLine();
+
+	//Preview window
+	ImGui::BeginChild("Preview", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.7f, ImGui::GetWindowContentRegionMax().y - 60));
+	ImGui::EndChild();
+
 	ImGui::End();
 }
 void ImporterMenu::refresh()
 {
-	if (root != nullptr)
+	if (_root != nullptr)
 	{
-		delete root;
+		delete _root;
 	}
-	root = new Node(executableDir + "/assets");
-	root->clean();
+	_root = new Node(executableDir + "/assets");
+	_root->clean();
 }
 std::string ImporterMenu::_getExecutableDir()
 {
 	std::string path;
 #ifdef _WIN32
 	char unicodePath[MAX_PATH];
-	int bytes = GetModuleFileName(NULL, unicodePath, 500);
+	int bytes = GetModuleFileName(NULL, unicodePath, MAX_PATH);
 #else
 	char unicodePath[1000];
 	char tempStr[32];
@@ -62,16 +88,16 @@ std::string ImporterMenu::_getExecutableDir()
 ImporterMenu::Node::Node()
 {
 	this->_name = "";
-	this->subfolders = std::vector<Node*>(0);
-	this->files = std::vector<Node*>(0);
-	this->parent = nullptr;
+	this->_subfolders = std::vector<Node*>(0);
+	this->_files = std::vector<Node*>(0);
+	this->_parent = nullptr;
 }
 ImporterMenu::Node::Node(std::string path, Node* parent, bool isFile)
 {
 	this->_name = pathToName(path);
-	this->subfolders = std::vector<Node*>();
-	this->files = std::vector<Node*>();
-	this->parent = parent;
+	this->_subfolders = std::vector<Node*>();
+	this->_files = std::vector<Node*>();
+	this->_parent = parent;
 	this->isAllowedFile = isFile;
 
 	std::vector<std::string> inFiles;
@@ -79,25 +105,25 @@ ImporterMenu::Node::Node(std::string path, Node* parent, bool isFile)
 	_getContentsOfDir(path, inFiles, inFolders);
 	for (size_t i = 0; i < inFolders.size(); i++)
 	{
-		this->subfolders.push_back(new Node(inFolders[i], this));
+		this->_subfolders.push_back(new Node(inFolders[i], this));
 	}
 	for (size_t i = 0; i < inFiles.size(); i++)
 	{
-		this->files.push_back(new Node(inFiles[i], this));
+		this->_files.push_back(new Node(inFiles[i], this, true));
 	}
 }
 ImporterMenu::Node::~Node()
 {
-	for (size_t i = 0; i < subfolders.size(); i++)
+	for (size_t i = 0; i < _subfolders.size(); i++)
 	{
-		delete subfolders[i];
+		delete _subfolders[i];
 	}
-	subfolders.clear();
-	for (size_t i = 0; i < files.size(); i++)
+	_subfolders.clear();
+	for (size_t i = 0; i < _files.size(); i++)
 	{
-		delete files[i];
+		delete _files[i];
 	}
-	files.clear();
+	_files.clear();
 }
 std::string ImporterMenu::Node::name()
 {
@@ -124,9 +150,9 @@ std::string ImporterMenu::Node::pathToName(std::string path)
 std::string ImporterMenu::Node::reverseEngineerPath()
 {
 	std::string upperPath = "";
-	if (this->parent != nullptr)
+	if (this->_parent != nullptr)
 	{
-		upperPath = parent->reverseEngineerPath();
+		upperPath = _parent->reverseEngineerPath();
 		return upperPath + "/" + this->_name;
 	}
 	return this->_name;
@@ -136,10 +162,10 @@ int ImporterMenu::Node::numberOfFiles()
 {	
 	if (!isAllowedFile)
 	{
-		int allFiles = files.size();
-		for (size_t i = 0; i < subfolders.size(); i++)
+		int allFiles = _files.size();
+		for (size_t i = 0; i < _subfolders.size(); i++)
 		{
-			allFiles += subfolders[i]->numberOfFiles();
+			allFiles += _subfolders[i]->numberOfFiles();
 		}
 		return allFiles;
 	}
@@ -148,59 +174,67 @@ int ImporterMenu::Node::numberOfFiles()
 //Removes all folders that do not have any files
 void ImporterMenu::Node::clean()
 {
-	for (size_t i = 0; i < subfolders.size(); i++)
+	for (size_t i = 0; i < _subfolders.size(); i++)
 	{
-		if (subfolders[i]->numberOfFiles() == 0)
+		if (_subfolders[i]->numberOfFiles() == 0)
 		{
-			delete subfolders[i];
-			subfolders.erase(subfolders.begin() + i);
+			delete _subfolders[i];
+			_subfolders.erase(_subfolders.begin() + i);
 			i--;
 		}
 		else
 		{
-			subfolders[i]->clean();
+			_subfolders[i]->clean();
 		}
 	}
 }
-void ImporterMenu::Node::render(int index, Hydra::World::IWorld* world)
+void ImporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode)
 {
-	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
 	//TODO: Folder icon opening
-	if (ImGui::TreeNodeEx((void*)(intptr_t)index, node_flags, ICON_FA_FOLDER " %s", _name.c_str()))
+	if (ImGui::TreeNodeEx(this, node_flags, ICON_FA_FOLDER " %s", _name.c_str()))
 	{	
-		for (size_t i = 0; i < this->subfolders.size(); i++)
+		if (ImGui::IsItemClicked())
 		{
-			subfolders[i]->render(i, world);
+			(*selectedNode) = this;
 		}
-		for (size_t i = 0; i < this->files.size(); i++)
+		for (size_t i = 0; i < this->_subfolders.size(); i++)
 		{
-			std::string ext = this->files[i]->getExt();
+			_subfolders[i]->render(world, selectedNode);
+		}
+		for (size_t i = 0; i < this->_files.size(); i++)
+		{
+			std::string ext = this->_files[i]->getExt();
 			if (ext == ".attic" || ext == ".ATTIC")
 			{
-				ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_CUBE " %s", files[i]->_name.c_str());
-				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
+				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_CUBE " %s", _files[i]->_name.c_str());
+				if (ImGui::IsItemClicked())
 				{
-					Hydra::World::IEntity* newEntity = world->createEntity(files[i]->name()).get();
-					newEntity->addComponent<Hydra::Component::MeshComponent>(files[i]->reverseEngineerPath());
-					newEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
+					(*selectedNode) = _files[i];
+					if (ImGui::IsMouseDoubleClicked(0))
+					{
+						Hydra::World::IEntity* newEntity = world->createEntity(_files[i]->name()).get();
+						newEntity->addComponent<Hydra::Component::MeshComponent>(_files[i]->reverseEngineerPath());
+						newEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
+					}
 				}
 			}
-			else if (ext == ".json" || ext == ".JSON")
+			else if (ext == ".room" || ext == ".ROOM")
 			{
-				ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_CUBES " %s", files[i]->_name.c_str());
+				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_CUBES " %s", _files[i]->_name.c_str());
 				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
 				{
-					//Load map
+					//world->setWorldRoot(BlueprintLoader::load(_files[i]->reverseEngineerPath())->spawn(world));
 				}
 			}
-			else if (ext == ".png" || ext == ".PNG")
-			{
-				ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_FILE_IMAGE_O " %s", files[i]->_name.c_str());
-				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
-				{
-					//Do whatever we do with images
-				}
-			}
+			//else if (ext == ".png" || ext == ".PNG")
+			//{
+			//	ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_FILE_IMAGE_O " %s", files[i]->_name.c_str());
+			//	if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
+			//	{
+			//		//Do whatever we do with images
+			//	}
+			//}
 		}
 		ImGui::TreePop();
 	}
@@ -241,6 +275,10 @@ void ImporterMenu::Node::_getContentsOfDir(const std::string &directory, std::ve
 				files.push_back(fullFilePath);
 			}
 			else if (fileExt == ".json")
+			{
+				files.push_back(fullFilePath);
+			}
+			else if (fileExt == ".room")
 			{
 				files.push_back(fullFilePath);
 			}
