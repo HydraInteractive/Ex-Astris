@@ -9,6 +9,7 @@
 #include <hydra/world/blueprintloader.hpp>
 #include <imgui/imgui.h>
 #include <hydra/component/aicomponent.hpp>
+#include <hydra/component/rigidbodycomponent.hpp>
 
 namespace Barcode {
 	GameState::GameState() : _engine(Hydra::IEngine::getInstance()) {}
@@ -515,10 +516,18 @@ namespace Barcode {
 	void GameState::_initWorld() {
 		_world = Hydra::World::World::create();
 
+		auto floor = _world->createEntity("Floor");
+		floor->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0));
+		floor->addComponent(Hydra::Component::RigidBodyComponent::createStaticPlane(floor.get(), glm::vec3(0, 1, 0), 1));
+
+		auto physicsBox = _world->createEntity("Physics box");
+		physicsBox->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0));
+		physicsBox->addComponent(Hydra::Component::RigidBodyComponent::createBox(physicsBox.get(), glm::vec3(0.5f), 10));
+		physicsBox->addComponent<Hydra::Component::MeshComponent>("assets/objects/Computer1.ATTIC");
 
 		auto playerEntity = _world->createEntity("Player");
-		player = playerEntity->addComponent<Hydra::Component::PlayerComponent>();
-		_cc = playerEntity->addComponent<Hydra::Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{ 5, 0, -3 });
+		playerEntity->addComponent<Hydra::Component::PlayerComponent>();
+		playerEntity->addComponent<Hydra::Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{ 5, 0, -3 });
 		playerEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
 
 		auto animatedEntity = _world->createEntity("AnimatedCube");
@@ -544,17 +553,17 @@ namespace Barcode {
 
 
 		auto alienEntity = _world->createEntity("Enemy Alien");
-		_enemy = alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 0));
+		alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 0));
 		alienEntity->addComponent<Hydra::Component::TransformComponent>();
 		alienEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
 		auto robotEntity = _world->createEntity("Enemy Robot");
-		_enemy = robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, glm::vec3(20, 0, 10));
+		robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, glm::vec3(20, 0, 10));
 		robotEntity->addComponent<Hydra::Component::TransformComponent>();
 		robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
 		auto bossEntity = _world->createEntity("Enemy Boss");
-		_enemy = bossEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss, glm::vec3(15, 0, 16));
+		bossEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss, glm::vec3(15, 0, 16));
 		bossEntity->addComponent<Hydra::Component::TransformComponent>();
 		bossEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
@@ -564,12 +573,8 @@ namespace Barcode {
 
 		{
 			auto& world = _world->getWorldRoot()->getChildren();
-			auto it = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Player"; });
-			if (it != world.end()) {
-				_cc = (*it)->getComponent<Hydra::Component::CameraComponent>();
-				_cc->setRenderTarget(_geometryBatch.output.get());
-			} else
-				_engine->log(Hydra::LogLevel::error, "Camera not found!");
+			_cc = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Player"; })->get()->getComponent<Hydra::Component::CameraComponent>();
+			_cc->setRenderTarget(_geometryBatch.output.get());
 			_enemy = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Enemy Alien"; })->get()->getComponent<Hydra::Component::EnemyComponent>();
 		}
 

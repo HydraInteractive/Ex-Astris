@@ -73,6 +73,13 @@ namespace Hydra::World {
 		virtual void removeComponent_(const std::type_index& id) = 0;
 		virtual std::map<std::type_index, std::unique_ptr<IComponent>>& getComponents() = 0;
 
+		template <typename T, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
+		T* addComponent(std::unique_ptr<T> component) {
+			T* ptr = component.get();
+			addComponent_(std::type_index(typeid(T)), std::move(component));
+			return ptr;
+		}
+
 		template <typename T, typename... Args, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
 		T* addComponent(Args... args) {
 			T* ptr = new T(this, args...);

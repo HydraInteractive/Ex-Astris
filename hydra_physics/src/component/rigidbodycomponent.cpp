@@ -13,6 +13,7 @@
 #include <BulletDynamics/Dynamics/btRigidBody.h>
 #include <LinearMath/btMotionState.h>
 #include <imgui/imgui.h>
+#include <hydra/component/componentmanager.hpp>
 
 using namespace Hydra::Component;
 using namespace Hydra::World;
@@ -58,22 +59,51 @@ private:
 
 typedef void (*SerializeShape)(nlohmann::json& json, btCollisionShape* shape);
 
-static btCollisionShape* createShape(CollisionShape collisionShape, nlohmann::json& json) {
-	(void)collisionShape;
-	(void)json;
-	return nullptr;
+static std::unique_ptr<btCollisionShape> createShape(CollisionShape collisionShape, nlohmann::json& json) {
+	switch (collisionShape) {
+	case CollisionShape::Box: {
+		auto halfExtents = json["halfExtents"];
+		return std::unique_ptr<btCollisionShape>(new btBoxShape(btVector3(halfExtents[0].get<float>(), halfExtents[1].get<float>(), halfExtents[2].get<float>())));
+	}
+	case CollisionShape::StaticPlane: {
+			auto planeNormal = json["planeNormal"];
+			auto planeConstant = json["planeConstant"];
+			return std::unique_ptr<btCollisionShape>(new btStaticPlaneShape(btVector3(planeNormal[0].get<float>(), planeNormal[1].get<float>(), planeNormal[2].get<float>()), planeConstant.get<float>()));
+		}
+	default:
+		assert(0);// Missing serializer
+		return nullptr;
+	}
 }
 
 static SerializeShape getShapeSerializer(CollisionShape collisionShape) {
-	(void)collisionShape;
-	return nullptr;
+	switch (collisionShape) {
+	case CollisionShape::Box:
+		return [](nlohmann::json& json, btCollisionShape* shape) {
+			btBoxShape* box = static_cast<btBoxShape*>(shape);
+
+			auto halfExtents = box->getHalfExtentsWithMargin();
+			json["halfExtents"] = {halfExtents.x(), halfExtents.y(), halfExtents.z()};
+		};
+	case CollisionShape::StaticPlane:
+		return [](nlohmann::json& json, btCollisionShape* shape) {
+			btStaticPlaneShape* staticPlane = static_cast<btStaticPlaneShape*>(shape);
+
+			auto n = staticPlane->getPlaneNormal();
+			json["planeNormal"] = {n.x(), n.y(), n.z()};
+			json["planeConstant"] = staticPlane->getPlaneConstant();
+		};
+	default:
+		assert(0);// Missing serializer
+		return nullptr;
+	}
 }
 
 struct RigidBodyComponent::Data {
-	Data(CollisionShape collisionShape, SerializeShape serializeShape, TransformComponent* transform, btCollisionShape* shape, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction) :
-		collisionShape(collisionShape), serializeShape(serializeShape), motionState(transform), shape(shape), mass(mass), linearDamping(linearDamping), angularDamping(angularDamping), friction(friction), rollingFriction(rollingFriction),
+	Data(CollisionShape collisionShape, SerializeShape serializeShape, TransformComponent* transform, std::unique_ptr<btCollisionShape> shape, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction) :
+		collisionShape(collisionShape), serializeShape(serializeShape), motionState(transform), shape(std::move(shape)), mass(mass), linearDamping(linearDamping), angularDamping(angularDamping), friction(friction), rollingFriction(rollingFriction),
 		rigidBody([&]() {
-				btRigidBody::btRigidBodyConstructionInfo info(mass, &motionState, shape);
+				btRigidBody::btRigidBodyConstructionInfo info(mass, &motionState, shape.get());
 				info.m_linearDamping = linearDamping;
 				info.m_angularDamping = angularDamping;
 				info.m_friction = friction;
@@ -85,7 +115,7 @@ struct RigidBodyComponent::Data {
 	SerializeShape serializeShape;
 
 	MotionStateImpl motionState;
-	btCollisionShape* shape;
+	std::unique_ptr<btCollisionShape> shape;
 
 	float mass;
 	float linearDamping;
@@ -100,18 +130,18 @@ RigidBodyComponent::RigidBodyComponent(IEntity* entity) : IComponent(entity), _d
 RigidBodyComponent::RigidBodyComponent(IEntity* entity, std::unique_ptr<Data> data) : IComponent(entity), _data(std::move(data)) {}
 RigidBodyComponent::~RigidBodyComponent() {}
 
-std::unique_ptr<RigidBodyComponent> RigidBodyComponent::createBox(IEntity* entity, const glm::vec3& size, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction) {
-	auto transform = entity->getComponent<TransformComponent>();
-	btCollisionShape* shape = new btBoxShape(cast(size / 2.0f));
+std::unique_ptr<RigidBodyComponent> RigidBodyComponent::createBox(IEntity* entity, const glm::vec3& halfExtents, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction) {
+	auto transform = static_cast<TransformComponent*>(ComponentManager::createOrGetComponentHelper<TransformComponent>(entity));
+	auto shape = std::unique_ptr<btCollisionShape>(new btBoxShape(cast(halfExtents)));
 
-	return std::make_unique<RigidBodyComponent>(entity, std::make_unique<Data>(CollisionShape::Box, getShapeSerializer(CollisionShape::Box), transform, shape, mass, linearDamping,angularDamping, friction, rollingFriction));
+	return std::make_unique<RigidBodyComponent>(entity, std::make_unique<Data>(CollisionShape::Box, getShapeSerializer(CollisionShape::Box), transform, std::move(shape), mass, linearDamping,angularDamping, friction, rollingFriction));
 }
 
-std::unique_ptr<RigidBodyComponent> RigidBodyComponent::createStaticPlane(IEntity* entity, const glm::vec3& normal, float planeConstant, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction) {
-	auto transform = entity->getComponent<TransformComponent>();
-	btCollisionShape* shape = new btStaticPlaneShape(cast(normal), planeConstant);
+std::unique_ptr<RigidBodyComponent> RigidBodyComponent::createStaticPlane(IEntity* entity, const glm::vec3& planeNormal, float planeConstant, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction) {
+	auto transform = static_cast<TransformComponent*>(ComponentManager::createOrGetComponentHelper<TransformComponent>(entity));
+	auto shape = std::unique_ptr<btCollisionShape>(new btStaticPlaneShape(cast(planeNormal), planeConstant));
 
-	return std::make_unique<RigidBodyComponent>(entity, std::make_unique<Data>(CollisionShape::StaticPlane, getShapeSerializer(CollisionShape::StaticPlane), transform, shape, mass, linearDamping,angularDamping, friction, rollingFriction));
+	return std::make_unique<RigidBodyComponent>(entity, std::make_unique<Data>(CollisionShape::StaticPlane, getShapeSerializer(CollisionShape::StaticPlane), transform, std::move(shape), mass, linearDamping,angularDamping, friction, rollingFriction));
 }
 
 void RigidBodyComponent::tick(TickAction action, float delta) {(void)action; (void)delta;}
@@ -125,7 +155,7 @@ void RigidBodyComponent::serialize(nlohmann::json& json) const {
 		{"rollingFriction", _data->rollingFriction}
 	};
 
-	_data->serializeShape(json["shapeData"], _data->shape);
+	_data->serializeShape(json["shapeData"], _data->shape.get());
 }
 
 void RigidBodyComponent::deserialize(nlohmann::json& json) {
@@ -133,13 +163,14 @@ void RigidBodyComponent::deserialize(nlohmann::json& json) {
 	auto serializeShape = getShapeSerializer(collisionShape);
 	auto shape = createShape(collisionShape, json["shapeData"]);
 
+	auto transform = static_cast<TransformComponent*>(ComponentManager::createOrGetComponentHelper<TransformComponent>(entity));
 	auto mass = json["mass"].get<float>();
 	auto linearDamping = json["linearDamping"].get<float>();
 	auto angularDamping = json["angularDamping"].get<float>();
 	auto friction = json["friction"].get<float>();
 	auto rollingFriction = json["rollingFriction"].get<float>();
 
-	//	_data = std::make_unique<Data>(std::make_unique<Data>(collisionShape, serializeShape, entity->getComponent<Hydra::Component::TransformComponent>(), shape, mass, linearDamping, angularDamping, friction, rollingFriction));
+	_data = std::make_unique<Data>(collisionShape, serializeShape, transform, std::move(shape), mass, linearDamping, angularDamping, friction, rollingFriction);
 }
 
 void RigidBodyComponent::registerUI() {

@@ -23,8 +23,8 @@ namespace Hydra::Component {
 		RigidBodyComponent(IEntity* entity, std::unique_ptr<Data> data);
 		~RigidBodyComponent() final;
 
-		static std::unique_ptr<RigidBodyComponent> createBox(IEntity* entity, const glm::vec3& size, float mass = 0, float linearDamping = 0, float angularDamping = 0, float friction = 0, float rollingFriction = 0);
-		static std::unique_ptr<RigidBodyComponent> createStaticPlane(IEntity* entity, const glm::vec3& normal, float planeConstant, float mass = 0, float linearDamping = 0, float angularDamping = 0, float friction = 0, float rollingFriction = 0);
+		static std::unique_ptr<RigidBodyComponent> createBox(IEntity* entity, const glm::vec3& halfExtents, float mass = 0, float linearDamping = 0, float angularDamping = 0, float friction = 0, float rollingFriction = 0);
+		static std::unique_ptr<RigidBodyComponent> createStaticPlane(IEntity* entity, const glm::vec3& planeNormal, float planeConstant, float mass = 0, float linearDamping = 0, float angularDamping = 0, float friction = 0, float rollingFriction = 0);
 
 		void tick(Hydra::World::TickAction action, float delta) final;
 		inline Hydra::World::TickAction wantTick() const final { return Hydra::World::TickAction::physics; }
