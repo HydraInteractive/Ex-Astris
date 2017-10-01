@@ -38,6 +38,7 @@ namespace Barcode {
 		inline Hydra::World::IWorld* getWorld() final { return _world.get(); };
 		inline Hydra::IO::ITextureLoader* getTextureLoader() final { return _textureLoader.get(); }
 		inline Hydra::IO::IMeshLoader* getMeshLoader() final { return _meshLoader.get(); }
+		inline Hydra::Physics::IPhysicsManager* getPhysicsManager() final { return _physicsManager.get(); }
 
 	private:
 		struct RenderBatch final {
@@ -64,6 +65,7 @@ namespace Barcode {
 		std::unique_ptr<Hydra::World::IWorld> _world;
 		std::unique_ptr<Hydra::IO::ITextureLoader> _textureLoader;
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
+		std::unique_ptr<Hydra::Physics::IPhysicsManager> _physicsManager;
 
 		RenderBatch _geometryBatch; // First part of deferred rendering
 		RenderBatch _animationBatch; // AnimationBatch

@@ -123,7 +123,7 @@ void ParticleComponent::_sortParticles() { // Insertion Sort
 	int j;
 	std::shared_ptr<Particle> temp;
 
-	for (int i = 0; i < _particles.size(); i++) {
+	for (size_t i = 0; i < _particles.size(); i++) {
 		j = i;
 		while (j > 0 && _particles[j]->distanceToCamera > _particles[j-1]->distanceToCamera) {
 			temp = _particles[j];

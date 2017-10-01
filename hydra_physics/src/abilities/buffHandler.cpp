@@ -1,4 +1,3 @@
-#pragma once
 #include <hydra/abilities/buffHandler.h>
 #include <iostream>
 

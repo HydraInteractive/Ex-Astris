@@ -4,10 +4,12 @@
 #include <hydra/renderer/glshader.hpp>
 #include <hydra/io/gltextureloader.hpp>
 #include <hydra/io/glmeshloader.hpp>
+#include <hydra/physics/bulletmanager.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
 #include <imgui/imgui.h>
 #include <hydra/component/aicomponent.hpp>
+#include <hydra/component/rigidbodycomponent.hpp>
 
 namespace Barcode {
 	GameState::GameState() : _engine(Hydra::IEngine::getInstance()) {}
@@ -15,8 +17,9 @@ namespace Barcode {
 	void GameState::load() {
 		_textureLoader = Hydra::IO::GLTextureLoader::create();
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
+		_physicsManager = Hydra::Physics::BulletManager::create();
 
-		auto& windowSize = _engine->getView()->getSize();
+		auto windowSize = _engine->getView()->getSize();
 		{
 			auto& batch = _geometryBatch;
 			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/geometry.vert");
@@ -141,7 +144,7 @@ namespace Barcode {
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 
-			_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/tempAtlas.png");
+			_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/TempAtlas.png");
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
 			batch.batch.clearFlags = ClearFlags::depth;
@@ -196,7 +199,7 @@ namespace Barcode {
 
 
 	void GameState::runFrame(float delta) {
-		auto& windowSize = _engine->getView()->getSize();
+		auto windowSize = _engine->getView()->getSize();
 		{ // Fetch new events
 			_engine->getView()->update(_engine->getUIRenderer());
 			_engine->getUIRenderer()->newFrame();
@@ -215,9 +218,9 @@ namespace Barcode {
 			for (auto& entity : _world->getActiveComponents<Hydra::Component::LightComponent>()) {
 				_light = entity->getComponent<Hydra::Component::LightComponent>();
 			}
-			glm::mat4 modelMX = glm::mat4(1.0);
-			auto& lightViewMX = _light->getViewMatrix();
-			auto& lightPMX = _light->getProjectionMatrix();
+
+			auto lightViewMX = _light->getViewMatrix();
+			auto lightPMX = _light->getProjectionMatrix();
 			glm::mat4 biasMatrix(
 				0.5, 0.0, 0.0, 0.0,
 				0.0, 0.5, 0.0, 0.0,
@@ -400,9 +403,9 @@ namespace Barcode {
 		}
 
 		{ // Hud windows
-			static float f = 0.0f;
-			static bool b = false;
-			static float invisF[3] = { 0, 0, 0 };
+			//static float f = 0.0f;
+			//static bool b = false;
+			//static float invisF[3] = { 0, 0, 0 };
 			float hpP = 100;
 			float ammoP = 100;
 			
@@ -574,11 +577,21 @@ namespace Barcode {
 	void GameState::_initWorld() {
 		_world = Hydra::World::World::create();
 
+
 		//_input.setWindowSize(_positionWindow->size.x, _positionWindow->size.y);
 
+		auto floor = _world->createEntity("Floor");
+		floor->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0));
+		floor->addComponent(Hydra::Component::RigidBodyComponent::createStaticPlane(floor.get(), glm::vec3(0, 1, 0), 1));
+
+		auto physicsBox = _world->createEntity("Physics box");
+		physicsBox->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0));
+		physicsBox->addComponent(Hydra::Component::RigidBodyComponent::createBox(physicsBox.get(), glm::vec3(0.5f), 10));
+		physicsBox->addComponent<Hydra::Component::MeshComponent>("assets/objects/Computer1.ATTIC");
+
 		auto playerEntity = _world->createEntity("Player");
-		player = playerEntity->addComponent<Hydra::Component::PlayerComponent>();
-		_cc = playerEntity->addComponent<Hydra::Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{ 5, 0, -3 });
+		playerEntity->addComponent<Hydra::Component::PlayerComponent>();
+		playerEntity->addComponent<Hydra::Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{ 5, 0, -3 });
 		playerEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
 
 		auto weaponEntity = playerEntity->createEntity("Weapon");
@@ -601,15 +614,15 @@ namespace Barcode {
 		particleEmitter2->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::BogdanDeluxe, 3, glm::vec3(5, -5, 0));
 		
 		auto alienEntity = _world->createEntity("Enemy Alien");
-		_enemy = alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 0), 80, 8);
+		alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 0), 80, 8);
 		alienEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
 		auto robotEntity = _world->createEntity("Enemy Robot");
-		_enemy = robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, glm::vec3(20, 0, 10), 70, 11);
+		robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, glm::vec3(20, 0, 10), 70, 11);
 		robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
 		auto bossEntity = _world->createEntity("Enemy Boss");
-		_enemy = bossEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss, glm::vec3(15, 0, 16), 1200, 25);
+		bossEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss, glm::vec3(15, 0, 16), 1200, 25);
 		bossEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
 		auto test = _world->createEntity("test");
@@ -654,12 +667,8 @@ namespace Barcode {
 
 		{
 			auto& world = _world->getWorldRoot()->getChildren();
-			auto it = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Player"; });
-			if (it != world.end()) {
-				_cc = (*it)->getComponent<Hydra::Component::CameraComponent>();
-				_cc->setRenderTarget(_geometryBatch.output.get());
-			} else
-				_engine->log(Hydra::LogLevel::error, "Camera not found!");
+			_cc = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Player"; })->get()->getComponent<Hydra::Component::CameraComponent>();
+			_cc->setRenderTarget(_geometryBatch.output.get());
 			_enemy = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Enemy Alien"; })->get()->getComponent<Hydra::Component::EnemyComponent>();
 		}
 

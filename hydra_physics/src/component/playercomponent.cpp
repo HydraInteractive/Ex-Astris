@@ -91,7 +91,7 @@ void PlayerComponent::tick(TickAction action, float delta) {
 			glm::quat bulletOrientation = glm::angleAxis(-camera->getYaw(), glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->getPitch(), glm::vec3(1, 0, 0)));
 			weapon->shoot(_position, forward, bulletOrientation, 0.5f);
 		}
-		for (size_t i = 0; i < keysArrayLength; i++){
+		for (int i = 0; i < keysArrayLength; i++){
 			lastKeysArray[i] = keysArray[i];
 		}
 	}
