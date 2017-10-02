@@ -12,6 +12,7 @@
 
 #include <hydra/renderer/renderer.hpp>
 #include <hydra/renderer/uirenderer.hpp>
+#include <hydra/physics/physicsmanager.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/io/textureloader.hpp>
 #include <hydra/io/meshloader.hpp>
@@ -51,6 +52,7 @@ namespace Hydra {
 		virtual World::IWorld* getWorld() = 0;
 		virtual IO::ITextureLoader* getTextureLoader() = 0;
 		virtual IO::IMeshLoader* getMeshLoader() = 0;
+		virtual Physics::IPhysicsManager* getPhysicsManager() = 0;
 	};
 	inline IState::~IState() {}
 

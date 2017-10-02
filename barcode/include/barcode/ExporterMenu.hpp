@@ -15,6 +15,7 @@
 #include <unistd.h>
 #endif
 
+#include <hydra/world/blueprintloader.hpp>
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
 class ExporterMenu

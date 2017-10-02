@@ -34,6 +34,7 @@ static GLenum toGLBase(TextureType type) {
 		/* [_(TextureType::f32RGBA)] = */ GL_RGBA,
 
 		/* [_(TextureType::f16Depth)] = */ GL_DEPTH_COMPONENT,
+		/* [_(TextureType::f24Depth)] = */ GL_DEPTH_COMPONENT,
 		/* [_(TextureType::f32Depth)] = */ GL_DEPTH_COMPONENT
 	};
 	return translate[static_cast<int>(type)];
@@ -57,6 +58,7 @@ static GLenum toGLInternal(TextureType type) {
 		/* [_(TextureType::f32RGBA)] = */GL_RGBA32F,
 
 		/* [_(TextureType::f16Depth)] = */GL_DEPTH_COMPONENT16,
+		/* [_(TextureType::f24Depth)] = */GL_DEPTH_COMPONENT24,
 		/* [_(TextureType::f32Depth)] = */GL_DEPTH_COMPONENT32
 	};
 	return translate[static_cast<int>(type)];
@@ -79,8 +81,9 @@ static GLenum toGLDataType(TextureType type) {
 		/* [_(TextureType::f32RGB)] = */ GL_FLOAT,
 		/* [_(TextureType::f32RGBA)] = */ GL_FLOAT,
 
-		/* [_(TextureType::f16Depth)] = */ GL_UNSIGNED_BYTE,
-		/* [_(TextureType::f32Depth)] = */ GL_UNSIGNED_BYTE
+		/* [_(TextureType::f16Depth)] = */ GL_FLOAT,
+		/* [_(TextureType::f32Depth)] = */ GL_FLOAT,
+		/* [_(TextureType::f32Depth)] = */ GL_FLOAT
 	};
 	return translate[static_cast<int>(type)];
 }
@@ -196,18 +199,17 @@ private:
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(_textureType, _texture);
 
-		// TODO: be able to change this
+		if (_textureType == GL_TEXTURE_2D)
+			glTexImage2D(_textureType, 0, toGLInternal(_format), _size.x, _size.y, 0, toGLBase(_format), toGLDataType(_format), pixels);
+		else if (_textureType == GL_TEXTURE_2D_MULTISAMPLE)
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, (GLsizei)_samples, toGLBase(_format), (GLsizei)_size.x, (GLsizei)_size.y, GL_FALSE);
+
 		if (_textureType == GL_TEXTURE_2D) {
 			glTexParameteri(_textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(_textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(_textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameteri(_textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		}
-
-		if (_textureType == GL_TEXTURE_2D)
-			glTexImage2D(_textureType, 0, toGLInternal(_format), _size.x, _size.y, 0, toGLBase(_format), toGLDataType(_format), pixels);
-		else if (_textureType == GL_TEXTURE_2D_MULTISAMPLE)
-			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, (GLsizei)_samples, toGLBase(_format), (GLsizei)_size.x, (GLsizei)_size.y, GL_FALSE);
 	}
 };
 

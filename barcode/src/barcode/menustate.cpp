@@ -4,6 +4,7 @@
 #include <hydra/renderer/glshader.hpp>
 #include <hydra/io/gltextureloader.hpp>
 #include <hydra/io/glmeshloader.hpp>
+#include <hydra/physics/bulletmanager.hpp>
 
 #include <barcode/gamestate.hpp>
 #include <imgui/imgui.h>
@@ -14,6 +15,7 @@ namespace Barcode {
 	void MenuState::load() {
 		_textureLoader = Hydra::IO::GLTextureLoader::create();
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
+		_physicsManager = Hydra::Physics::BulletManager::create();
 
 		{
 			auto& batch = _viewBatch;

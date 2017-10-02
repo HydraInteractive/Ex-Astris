@@ -5,34 +5,27 @@
 #include <algorithm>
 
 #define frand() (float(rand()) / float(RAND_MAX))
-#define OUTERROW 8 // 24 or 6
+#define OUTERROW 6 // 24 or 6
+#define INNER_ROW 4
 // Outerrow decides how many particle textures there are.
 
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
 ParticleComponent::ParticleComponent(IEntity* entity) : IComponent(entity), _drawObject(entity->getDrawObject()), _pps(1), 
-_behaviour(EmitterBehaviour::PerSecond), _accumulator(0.f), _emitterPos(glm::vec3(0)), _innerRow(4){
+_behaviour(EmitterBehaviour::PerSecond), _accumulator(0.f), _emitterPos(glm::vec3(0)) {
 	_drawObject->refCounter++;
 	_drawObject->mesh = nullptr;
 }
 
 ParticleComponent::ParticleComponent(IEntity* entity, EmitterBehaviour behaviour, ParticleTexture texture, int nrOfParticles, glm::vec3 pos) : IComponent(entity), _drawObject(entity->getDrawObject()),
-_pps(nrOfParticles), _behaviour(behaviour), _accumulator(0.f), _emitterPos(pos), _innerRow(4){
+_pps(nrOfParticles), _behaviour(behaviour), _accumulator(0.f), _emitterPos(pos) {
 	_drawObject->refCounter++;
 	_drawObject->mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getQuad().get();
 	_tempRotation = glm::mat4(1);
-	switch (texture) {
-	case ParticleTexture::Fire:
-		_offsetToTexture = glm::ivec2(0, 0) * _innerRow; // First texture is 0 * 4, meaning top left in the texture. 
-		break;
-	case ParticleTexture::Knas:
-		_offsetToTexture = glm::ivec2(1, 0) * _innerRow;
-		break;
-	case ParticleTexture::BogdanDeluxe:
-		_offsetToTexture = glm::ivec2(2, 0) * _innerRow;
-		break;
-	}
+
+	size_t id = static_cast<size_t>(texture);
+	_offsetToTexture = glm::vec2(id % OUTERROW, id / OUTERROW) / (float) OUTERROW;
 }
 
 ParticleComponent::~ParticleComponent() {
@@ -67,10 +60,10 @@ void ParticleComponent::_generateParticles() {
 
 void ParticleComponent::_emmitParticle() {
 	std::shared_ptr<Particle> p = std::make_shared<Particle>();
-	float dirX = frand() * 20 - 10;
-	float dirY = frand() * 20 - 10;
-	float dirZ = frand() * 20 - 10;
-	glm::vec3 a = glm::vec3(frand() * 4 - 2, frand() * 19.f - 8.5f, frand() * 6 - 3.f);
+	float dirX = frand() * 2 - 2;
+	float dirY = frand() * -6 - 1;
+	float dirZ = 0;
+	glm::vec3 a = glm::vec3(frand() * 2 - 2, frand() * -8.5f, 0);
 	p->spawn(_emitterPos, glm::normalize(glm::vec3(dirX, dirY, dirZ)), a, frand() * 1.f + 1.f);
 	_particles.push_back(p);
 }
@@ -100,20 +93,18 @@ void ParticleComponent::_particlePhysics(float delta) {
 
 void ParticleComponent::_updateTextureCoordInfo(std::shared_ptr<Particle>& p, float delta) {
 	float lifeFactor = p->elapsedTime / p->life;
-	int stageCount = OUTERROW * OUTERROW;
-	float atlasProg = stageCount * lifeFactor;
-	int index1 = (int)floor(atlasProg);
-	int index2 = index1 < stageCount - 1 ? index1 + 1 : index1;
-	p->texCoordInfo = glm::vec2(OUTERROW, fmod(atlasProg, 1));
-	_setTextureOffset(p->texOffset1, index1);
-	_setTextureOffset(p->texOffset2, index2);
-}
+	const int innerCount = INNER_ROW * INNER_ROW;
 
-void ParticleComponent::_setTextureOffset(glm::vec2& offset, int index) {
-	int column = index % OUTERROW;
-	int row = index / OUTERROW;
-	offset.x = column / (float)OUTERROW;
-	offset.y = row / (float)OUTERROW;
+	const float smallImageSize = 1.0f / (INNER_ROW * OUTERROW);
+
+	const int innerID = innerCount * lifeFactor;
+	const int nextInnerID = (innerID + 1) % INNER_ROW;
+
+	const glm::vec2 outerOffset = _offsetToTexture;
+
+	p->texOffset1 = outerOffset + glm::vec2(innerID % INNER_ROW, innerID / INNER_ROW) * smallImageSize;
+	p->texOffset2 = outerOffset + glm::vec2(nextInnerID % INNER_ROW, nextInnerID / INNER_ROW) * smallImageSize;
+	p->texCoordInfo = glm::vec2(smallImageSize, fmod(innerCount * lifeFactor, 1));
 }
 
 void ParticleComponent::_clearDeadParticles() {
@@ -132,7 +123,7 @@ void ParticleComponent::_sortParticles() { // Insertion Sort
 	int j;
 	std::shared_ptr<Particle> temp;
 
-	for (int i = 0; i < _particles.size(); i++) {
+	for (size_t i = 0; i < _particles.size(); i++) {
 		j = i;
 		while (j > 0 && _particles[j]->distanceToCamera > _particles[j-1]->distanceToCamera) {
 			temp = _particles[j];
@@ -149,7 +140,6 @@ void ParticleComponent::serialize(nlohmann::json & json) const{
 		{ "accumulator", _accumulator},
 		{ "behaviour", (int)_behaviour},
 		{ "emitterPos", { _emitterPos.x, _emitterPos.y, _emitterPos.z } },
-		{ "innerRow", _innerRow },
 		{ "offsetToTexture", { _offsetToTexture.x, _offsetToTexture.y} }
 	};
 }
@@ -166,18 +156,16 @@ void ParticleComponent::deserialize(nlohmann::json & json){
 
 	auto& pos = json["emitterPos"];
 	_emitterPos = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
-	
-	auto& innerRow = json["innerRow"];
-	_innerRow = innerRow.get<int>();
 
 	auto& offsetToTexture = json["offsetToTexture"];
-	_offsetToTexture = glm::ivec2(offsetToTexture[0].get<int>(), offsetToTexture[1].get<int>());
+	_offsetToTexture = glm::vec2(offsetToTexture[0].get<float>(), offsetToTexture[1].get<float>());
 	
 	_drawObject->mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getQuad().get();
 	_tempRotation = glm::mat4(1);
 	_tempRotation *= glm::angleAxis(glm::radians(90.f), glm::vec3(0, 0, 1));
 }
 
-void ParticleComponent::registerUI(){
+void ParticleComponent::registerUI() {
 	ImGui::DragInt("ParticlesPerSecond", &_pps, 1.0);
+	ImGui::DragFloat3("EmitterPosition", glm::value_ptr(_emitterPos), 0.1f);
 }

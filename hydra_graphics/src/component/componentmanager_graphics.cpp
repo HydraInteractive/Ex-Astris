@@ -3,6 +3,7 @@
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
+#include <hydra/component/lightcomponent.hpp>
 #include <hydra/component/particlecomponent.hpp>
 
 namespace Hydra::Component::ComponentManager {
@@ -10,6 +11,7 @@ namespace Hydra::Component::ComponentManager {
 		creators["CameraComponent"] = &createOrGetComponentHelper<CameraComponent>;
 		creators["MeshComponent"] = &createOrGetComponentHelper<MeshComponent>;
 		creators["TransformComponent"] = &createOrGetComponentHelper<TransformComponent>;
+		creators["LightComponent"] = &createOrGetComponentHelper<LightComponent>;
 		creators["ParticleComponent"] = &createOrGetComponentHelper<ParticleComponent>;
 	}
 }

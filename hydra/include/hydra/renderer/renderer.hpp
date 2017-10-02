@@ -90,6 +90,7 @@ namespace Hydra::Renderer {
 
 		// These needs to be last due to some code in the framebuffer
 		f16Depth,
+		f24Depth,
 		f32Depth
 	};
 
