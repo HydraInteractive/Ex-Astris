@@ -28,6 +28,7 @@ public:
 
 	void render(bool &closeBool);
 	void refresh();
+	static IEntity* getRoomEntity(Hydra::World::IWorld* world);
 private:
 	class Node
 	{

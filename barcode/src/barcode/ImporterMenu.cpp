@@ -85,6 +85,17 @@ std::string ImporterMenu::_getExecutableDir()
 	return path;
 }
 
+IEntity* ImporterMenu::getRoomEntity(Hydra::World::IWorld* world)
+{
+	std::vector<std::shared_ptr<IEntity>> entities = world->getWorldRoot()->getChildren();
+	for (int i = 0; i < entities.size(); i++)
+	{
+		if (entities[i]->getName() == "Room")
+			return entities[i].get();
+	}
+	return nullptr;
+}
+
 ImporterMenu::Node::Node()
 {
 	this->_name = "";
@@ -213,7 +224,7 @@ void ImporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode
 					(*selectedNode) = _files[i];
 					if (ImGui::IsMouseDoubleClicked(0))
 					{
-						Hydra::World::IEntity* newEntity = world->createEntity(_files[i]->name()).get();
+						Hydra::World::IEntity* newEntity = getRoomEntity(world)->createEntity(_files[i]->name()).get();
 						newEntity->addComponent<Hydra::Component::MeshComponent>(_files[i]->reverseEngineerPath());
 						newEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
 					}
@@ -227,8 +238,8 @@ void ImporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode
 					(*selectedNode) = _files[i];
 					if (ImGui::IsMouseDoubleClicked(0))
 					{
-						BlueprintLoader::load(_files[i]->reverseEngineerPath())->spawn(world)->setParent(world->getWorldRoot().get());
-
+						getRoomEntity(world)->markDead();
+						world->getWorldRoot()->spawn(BlueprintLoader::load(_files[i]->reverseEngineerPath())->spawn(world));
 					}
 				}
 			}

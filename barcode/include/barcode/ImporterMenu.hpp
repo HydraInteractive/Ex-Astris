@@ -28,6 +28,7 @@ public:
 
 	void render(bool &closeBool);
 	void refresh();
+	IEntity* getRoomEntity(Hydra::World::IWorld* world);
 private:
 
 	class Node
@@ -58,5 +59,6 @@ private:
 	Node* _root;
 	Hydra::World::IWorld* _world;
 	std::string _getExecutableDir();
+
 };
 
