@@ -78,7 +78,7 @@ void ExporterMenu::render(bool &closeBool)
 		fileToSave.append(_selectedFileName);
 		fileToSave.append(".room");
 
-		BlueprintLoader::save(fileToSave, "Pls wurk", _world->getWorldRoot());
+		BlueprintLoader::save(fileToSave, "Room", _world->getWorldRoot());
 
 		closeBool = false;
 	}
@@ -255,6 +255,10 @@ void ExporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode
 			else if (ext == ".room" || ext == ".ROOM")
 			{
 				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBES " %s", _files[i]->_name.c_str());
+				if (ImGui::IsMouseDoubleClicked(0))
+				{
+					//If this is a json file, overwrite it
+				}
 			}
 			else
 			{
@@ -263,10 +267,6 @@ void ExporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode
 			if (ImGui::IsItemClicked())
 			{
 				(*selectedNode) = _files[i];
-				if (ImGui::IsMouseDoubleClicked(0))
-				{
-					//If this is a json file, overwrite it
-				}
 			}
 			ImGui::TreePop();
 		}

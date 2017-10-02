@@ -222,19 +222,16 @@ void ImporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode
 			else if (ext == ".room" || ext == ".ROOM")
 			{
 				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_CUBES " %s", _files[i]->_name.c_str());
-				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
+				if (ImGui::IsItemClicked())
 				{
-					//world->setWorldRoot(BlueprintLoader::load(_files[i]->reverseEngineerPath())->spawn(world));
+					(*selectedNode) = _files[i];
+					if (ImGui::IsMouseDoubleClicked(0))
+					{
+						BlueprintLoader::load(_files[i]->reverseEngineerPath())->spawn(world)->setParent(world->getWorldRoot().get());
+
+					}
 				}
 			}
-			//else if (ext == ".png" || ext == ".PNG")
-			//{
-			//	ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_FILE_IMAGE_O " %s", files[i]->_name.c_str());
-			//	if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
-			//	{
-			//		//Do whatever we do with images
-			//	}
-			//}
 		}
 		ImGui::TreePop();
 	}
