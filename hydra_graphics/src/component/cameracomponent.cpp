@@ -23,7 +23,7 @@ void CameraComponent::tick(TickAction action, float delta) {
 	_position += glm::vec3{0, 0, 0};
 
 	int mouseX, mouseY;
-	if (_mouseControl && SDL_GetRelativeMouseState(&mouseX, &mouseY) == SDL_BUTTON(3)) {
+	if (_mouseControl && SDL_GetRelativeMouseState(&mouseX, &mouseY) & SDL_BUTTON(3)) {
 		_cameraYaw += mouseX * _sensitivity;
 		_cameraPitch += mouseY * _sensitivity;
 
