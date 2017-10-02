@@ -473,6 +473,7 @@
     <ClInclude Include="include\BulletSoftBody\btSoftSoftCollisionAlgorithm.h" />
     <ClInclude Include="include\BulletSoftBody\btSparseSDF.h" />
     <ClInclude Include="include\clew\clew.h" />
+    <ClInclude Include="include\hydra\component\rigidbodycomponent.hpp" />
     <ClInclude Include="include\LinearMath\btAabbUtil2.h" />
     <ClInclude Include="include\LinearMath\btAlignedAllocator.h" />
     <ClInclude Include="include\LinearMath\btAlignedObjectArray.h" />
@@ -524,8 +525,10 @@
     <ClCompile Include="src\component\componentmanager_physics.cpp" />
     <ClCompile Include="src\abilities\grenadecomponent.cpp" />
     <ClCompile Include="src\component\playercomponent.cpp" />
+    <ClCompile Include="src\component\rigidbodycomponent.cpp" />
     <ClCompile Include="src\component\weaponcomponent.cpp" />
     <ClCompile Include="src\pathing\pathfinding.cpp" />
+    <ClCompile Include="src\physics\bulletmanager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

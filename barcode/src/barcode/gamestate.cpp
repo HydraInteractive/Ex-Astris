@@ -607,7 +607,6 @@ namespace Barcode {
 		particleEmitter->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::Fire, 150, glm::vec3(0,0,0));
 
 		auto particleEmitter1 = _world->createEntity("ParticleEmitter1");
-
 		particleEmitter1->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::Knas, 2, glm::vec3(5,0,0));
 		
 		auto particleEmitter2 = _world->createEntity("ParticleEmitter2");
