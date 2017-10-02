@@ -24,7 +24,7 @@ public:
 
 		_size = glm::ivec2(1920, 1080);
 		_wantToClose = false;
-		_fullScreen = false;
+		_fullScreen = true;
 
 		_window = SDL_CreateWindow("SDL2 window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _size.x, _size.y, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 	}

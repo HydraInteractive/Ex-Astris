@@ -29,6 +29,8 @@ static GLuint stageToGL(PipelineStage stage) {
 		return GL_GEOMETRY_SHADER;
 	case PipelineStage::fragment:
 		return GL_FRAGMENT_SHADER;
+	case PipelineStage::compute:
+		return GL_COMPUTE_SHADER;
 	default:
 		throw "UNKNOWN PIPELINESTAGE";
 	}

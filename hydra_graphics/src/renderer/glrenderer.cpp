@@ -186,6 +186,12 @@ public:
 		glEnable(GL_CULL_FACE);
 	}
 
+	void compute(Batch& batch) final {
+		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
+		glDispatchCompute(1920, 1080, 1);
+		//glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	}
+
 	DrawObject* aquireDrawObject() final {
 		std::unique_ptr<DrawObject> drawObj;
 		DrawObject* drawObjPtr;

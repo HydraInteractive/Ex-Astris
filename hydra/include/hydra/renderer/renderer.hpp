@@ -54,6 +54,7 @@ namespace Hydra::Renderer {
 
 		virtual void resize(glm::ivec2 size) = 0;
 		virtual void bind(size_t position) = 0;
+		virtual void bindToComputeShader(size_t position, bool read) = 0;
 
 		virtual glm::ivec2 getSize() = 0;
 		virtual size_t getSamples() = 0;
@@ -102,6 +103,7 @@ namespace Hydra::Renderer {
 
 		virtual void finalize() = 0;
 		inline void bind(size_t) final {}
+		inline void bindToComputeShader(size_t, bool) final {}
 
 		virtual std::shared_ptr<ITexture> getDepth() = 0;
 
@@ -171,6 +173,11 @@ namespace Hydra::Renderer {
 		std::vector<glm::vec2> textureInfo;
 	};
 
+	// Fix what it shall have.
+	struct HYDRA_API ComputeBatch {
+
+	};
+
 	class HYDRA_API IRenderer {
 	public:
 		virtual ~IRenderer() = 0;
@@ -180,6 +187,7 @@ namespace Hydra::Renderer {
 		virtual void renderAnimation(Batch& batch) = 0;
 		// Note: this will ignore batch.objects
 		virtual void postProcessing(Batch& batch) = 0;
+		virtual void compute(Batch& batch) = 0;
 
 		virtual DrawObject* aquireDrawObject() = 0;
 

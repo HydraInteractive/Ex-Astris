@@ -92,7 +92,7 @@ void main() {
 	//fragOutput = lightPos.xyz;
 
 	// Picking out bright regions for glow.
-	float brightness = dot(fragOutput, vec3(0.2));
+	float brightness = dot(fragOutput, vec3(0.2126f, 0.7152f, 0.0722f));
 	if(brightness > 1.0f)
 		brightOutput = fragOutput;
 	else

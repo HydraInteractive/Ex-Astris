@@ -12,14 +12,14 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-ParticleComponent::ParticleComponent(IEntity* entity) : IComponent(entity), _drawObject(entity->getDrawObject()), _pps(1), 
-_behaviour(EmitterBehaviour::PerSecond), _accumulator(0.f), _emitterPos(glm::vec3(0)) {
+ParticleComponent::ParticleComponent(IEntity* entity) : IComponent(entity), _pps(1), 
+_behaviour(EmitterBehaviour::PerSecond), _accumulator(0.f), _emitterPos(glm::vec3(0)), _drawObject(entity->getDrawObject()) {
 	_drawObject->refCounter++;
 	_drawObject->mesh = nullptr;
 }
 
-ParticleComponent::ParticleComponent(IEntity* entity, EmitterBehaviour behaviour, ParticleTexture texture, int nrOfParticles, glm::vec3 pos) : IComponent(entity), _drawObject(entity->getDrawObject()),
-_pps(nrOfParticles), _behaviour(behaviour), _accumulator(0.f), _emitterPos(pos) {
+ParticleComponent::ParticleComponent(IEntity* entity, EmitterBehaviour behaviour, ParticleTexture texture, int nrOfParticles, glm::vec3 pos) : IComponent(entity),
+_pps(nrOfParticles), _behaviour(behaviour), _accumulator(0.f), _emitterPos(pos), _drawObject(entity->getDrawObject()) {
 	_drawObject->refCounter++;
 	_drawObject->mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getQuad().get();
 	_tempRotation = glm::mat4(1);

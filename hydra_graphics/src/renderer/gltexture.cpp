@@ -170,6 +170,14 @@ public:
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, _texture);
 	}
 
+	void bindToComputeShader(size_t position, bool read) {
+		glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + position));
+		if(read)
+			glBindImageTexture((GLuint)position, _texture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
+		else
+			glBindImageTexture((GLuint)position, _texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+	}
+
 	size_t getSamples() final { return _samples; }
 	glm::ivec2 getSize() final { return _size; }
 	uint32_t getID() const final { return _texture; }

@@ -67,12 +67,12 @@ namespace Hydra::Component {
 
 	private:
 		int _pps; // Particles per second.
+		EmitterBehaviour _behaviour;
 		float _accumulator;
+		glm::vec3 _emitterPos;
+		Hydra::Renderer::DrawObject* _drawObject;
 		glm::quat _tempRotation;
 		glm::vec2 _offsetToTexture;
-		glm::vec3 _emitterPos;
-		EmitterBehaviour _behaviour;
-		Hydra::Renderer::DrawObject* _drawObject;
 		std::vector<std::shared_ptr<Particle>> _particles;
 		void _generateParticles();
 		void _particlePhysics(float delta);

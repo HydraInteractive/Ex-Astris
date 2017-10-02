@@ -134,6 +134,19 @@ namespace Barcode {
 			batch.batch.pipeline = batch.pipeline.get();
 		}
 
+		{
+			auto&batch = _computeTestBatch;
+			batch.computeShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::compute, "assets/shaders/blur.comp");
+			
+			batch.pipeline = Hydra::Renderer::GLPipeline::create();
+			batch.pipeline->attachStage(*batch.computeShader);
+			batch.pipeline->finalize();
+
+			_computeIMGTest1 = Hydra::Renderer::GLTexture::createEmpty(windowSize.x, windowSize.y, TextureType::f16RGBA);
+			_computeIMGTest2 = Hydra::Renderer::GLTexture::createEmpty(windowSize.x, windowSize.y, TextureType::f16RGBA);
+			batch.batch.pipeline = batch.pipeline.get();
+		}
+
 		{ // PARTICLES
 			auto& batch = _particleBatch;
 			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/particles.vert");
@@ -336,26 +349,30 @@ namespace Barcode {
 			glm::vec2 size = windowSize;
 
 			_lightingBatch.output->resolve(0, _blurredOriginal);
-			_lightingBatch.output->resolve(1, (*_glowBatch.output)[0]);
+			_lightingBatch.output->resolve(1, _computeIMGTest1);
 
-			_blurGlowTexture((*_glowBatch.output)[0], nrOfTimes, size *= 0.5f)
-				->resolve(0, _blurredIMG1);
-			_blurGlowTexture(_blurredIMG1, nrOfTimes, size *= 0.5f)
-				->resolve(0, _blurredIMG2);
-			_blurGlowTexture(_blurredIMG2, nrOfTimes, size *= 0.5f)
-				->resolve(0, _blurredIMG3);
+			_computeIMGTest1->bindToComputeShader(0, true);
+			_computeIMGTest2->bindToComputeShader(1, false);
+			_engine->getRenderer()->compute(_computeTestBatch.batch);
+
+			//_blurGlowTexture((*_glowBatch.output)[0], nrOfTimes, size *= 0.5f)
+			//	->resolve(0, _blurredIMG1);
+			//_blurGlowTexture(_blurredIMG1, nrOfTimes, size *= 0.5f)
+			//	->resolve(0, _blurredIMG2);
+			//_blurGlowTexture(_blurredIMG2, nrOfTimes, size *= 0.5f)
+			//	->resolve(0, _blurredIMG3);
 
 			_glowBatch.batch.pipeline = _glowPipeline.get();
 
 			_glowBatch.batch.pipeline->setValue(1, 1);
-			_glowBatch.batch.pipeline->setValue(2, 2);
-			_glowBatch.batch.pipeline->setValue(3, 3);
-			_glowBatch.batch.pipeline->setValue(4, 4);
+			//_glowBatch.batch.pipeline->setValue(2, 2);
+			//_glowBatch.batch.pipeline->setValue(3, 3);
+			//_glowBatch.batch.pipeline->setValue(4, 4);
 
-			_blurredOriginal->bind(1);
-			_blurredIMG1->bind(2);
-			_blurredIMG2->bind(3);
-			_blurredIMG3->bind(4);
+			_computeIMGTest2->bind(1);
+			//_blurredIMG1->bind(2);
+			//_blurredIMG2->bind(3);
+			//_blurredIMG3->bind(4);
 
 			_glowBatch.batch.renderTarget = _engine->getView();
 			_engine->getRenderer()->postProcessing(_glowBatch.batch);

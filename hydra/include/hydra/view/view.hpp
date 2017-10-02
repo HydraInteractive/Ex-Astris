@@ -30,6 +30,7 @@ namespace Hydra::View {
 		virtual void* getHandler() = 0;
 		virtual void finalize() = 0;
 		inline void bind(size_t) final {}
+		inline void bindToComputeShader(size_t, bool) final {}
 		inline size_t getSamples() final { return 1; }
 
 		/// Did it get a close event, and hid itself

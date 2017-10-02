@@ -17,7 +17,8 @@ namespace Hydra::Renderer {
 	enum class HYDRA_API PipelineStage : uint32_t {
 		vertex = 1 << 0,
 		geometry = 1 << 1,
-		fragment = 1 << 2
+		fragment = 1 << 2,
+		compute = 1 << 3
 	};
 
 	inline PipelineStage operator& (PipelineStage a, PipelineStage b) { return static_cast<PipelineStage>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b)); }
