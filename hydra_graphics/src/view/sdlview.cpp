@@ -24,6 +24,7 @@ public:
 
 		_size = glm::ivec2(1920, 1080);
 		_wantToClose = false;
+		_fullScreen = false;
 
 		_window = SDL_CreateWindow("SDL2 window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _size.x, _size.y, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 	}
@@ -49,6 +50,13 @@ public:
 					break;
 				if (event.key.keysym.sym == SDLK_ESCAPE)
 					_wantToClose = true;
+				else if (event.key.keysym.sym == SDLK_F11) {
+					if (_fullScreen)
+						SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN);
+					else
+						SDL_SetWindowFullscreen(_window, 0);
+					_fullScreen = !_fullScreen;
+				}
 				break;
 			case SDL_WINDOWEVENT:
 				if (event.window.event == SDL_WINDOWEVENT_RESIZED || event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
@@ -88,6 +96,7 @@ private:
 	glm::ivec2 _size;
 
 	bool _wantToClose;
+	bool _fullScreen;
 };
 
 
