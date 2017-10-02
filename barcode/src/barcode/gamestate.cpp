@@ -234,7 +234,6 @@ namespace Barcode {
 			_geometryBatch.pipeline->setValue(2, cameraPos = _cc->getPosition());
 			_geometryBatch.pipeline->setValue(4, lightS);
 
-
 			_animationBatch.pipeline->setValue(0, _cc->getViewMatrix());
 			_animationBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
 			_animationBatch.pipeline->setValue(2, cameraPos = _cc->getPosition());
@@ -313,12 +312,8 @@ namespace Barcode {
 			_lightingBatch.pipeline->setValue(3, 3);
 			_lightingBatch.pipeline->setValue(4, 4);
 
-
-
 			_lightingBatch.pipeline->setValue(5, _cc->getPosition());
 			_lightingBatch.pipeline->setValue(6, _light->getDirection());
-			
-
 
 			(*_geometryBatch.output)[0]->bind(0);
 			(*_geometryBatch.output)[1]->bind(1);
