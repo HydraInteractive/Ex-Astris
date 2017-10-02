@@ -167,4 +167,5 @@ void ParticleComponent::deserialize(nlohmann::json & json){
 
 void ParticleComponent::registerUI() {
 	ImGui::DragInt("ParticlesPerSecond", &_pps, 1.0);
+	ImGui::DragFloat3("EmitterPosition", glm::value_ptr(_emitterPos), 0.1f);
 }
