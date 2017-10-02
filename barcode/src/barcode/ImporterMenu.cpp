@@ -21,10 +21,23 @@ ImporterMenu::~ImporterMenu()
 void ImporterMenu::render(bool &closeBool)
 {
 	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiSetCond_Once);
-	ImGui::Begin("Import", &closeBool);
+	ImGui::Begin("Import", &closeBool, ImGuiWindowFlags_MenuBar);
+	if (ImGui::BeginMenuBar())
+	{
+		if (ImGui::BeginMenu("Menu"))
+		{
+			if (ImGui::MenuItem("Refresh", NULL))
+			{
+				refresh();
+			}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenuBar();
+	}
 	Node* selectedNode = nullptr;
+
 	//File tree
-	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.3f, ImGui::GetWindowContentRegionMax().y - 30));
+	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.3f, ImGui::GetWindowContentRegionMax().y - 60));
 	if(_root != nullptr)
 		_root->render(_world, &selectedNode);
 	if (selectedNode != nullptr)
@@ -34,7 +47,7 @@ void ImporterMenu::render(bool &closeBool)
 	ImGui::SameLine();
 
 	//Preview window
-	ImGui::BeginChild("Preview", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.7f, ImGui::GetWindowContentRegionMax().y - 30));
+	ImGui::BeginChild("Preview", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.7f, ImGui::GetWindowContentRegionMax().y - 60));
 	ImGui::EndChild();
 
 	ImGui::End();
@@ -206,18 +219,12 @@ void ImporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode
 					}
 				}
 			}
-			else if (ext == ".json" || ext == ".JSON")
+			else if (ext == ".room" || ext == ".ROOM")
 			{
 				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_CUBES " %s", _files[i]->_name.c_str());
 				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
 				{
-					std::ifstream inFile(_files[i]->reverseEngineerPath());
-					nlohmann::json json;
-
-					//Read from json file
-					inFile >> json;
-					world->getWorldRoot()->deserialize(json);
-					
+					//world->setWorldRoot(BlueprintLoader::load(_files[i]->reverseEngineerPath())->spawn(world));
 				}
 			}
 			//else if (ext == ".png" || ext == ".PNG")
@@ -268,6 +275,10 @@ void ImporterMenu::Node::_getContentsOfDir(const std::string &directory, std::ve
 				files.push_back(fullFilePath);
 			}
 			else if (fileExt == ".json")
+			{
+				files.push_back(fullFilePath);
+			}
+			else if (fileExt == ".room")
 			{
 				files.push_back(fullFilePath);
 			}

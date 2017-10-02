@@ -5,7 +5,6 @@
 * Authors:
 *  - Dan Printzell
 */
-
 #pragma once
 #include <hydra/ext/api.hpp>
 #include <glm/glm.hpp>
@@ -14,7 +13,7 @@
 #include <hydra/pathing/pathfinding.hpp>
 #include <hydra/component/playercomponent.hpp>
 #include <math.h>
-#include <SDL2\SDL.h>
+#include <SDL2/SDL.h>
 #include <random>
 
 using namespace Hydra::World;

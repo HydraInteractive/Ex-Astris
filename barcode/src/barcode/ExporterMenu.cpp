@@ -1,4 +1,4 @@
-#include "barcode/ExporterMenu.hpp"
+#include <barcode/ExporterMenu.hpp>
 ExporterMenu::ExporterMenu()
 {	
 	this->executableDir = "";
@@ -22,11 +22,23 @@ ExporterMenu::~ExporterMenu()
 void ExporterMenu::render(bool &closeBool)
 {
 	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiSetCond_Once);
-	ImGui::Begin("Export", &closeBool);
+	ImGui::Begin("Export", &closeBool, ImGuiWindowFlags_MenuBar);
+	if (ImGui::BeginMenuBar())
+	{
+		if (ImGui::BeginMenu("Menu"))
+		{
+			if (ImGui::MenuItem("Refresh", NULL))
+			{
+				refresh();
+			}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenuBar();
+	}
 	Node* selectedNode = nullptr;
 
 	//File tree
-	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 30));
+	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 60));
 	if (_root != nullptr)
 		_root->render(_world, &selectedNode);
 	ImGui::EndChild();
@@ -34,7 +46,7 @@ void ExporterMenu::render(bool &closeBool)
 	ImGui::SameLine();
 
 	//File name dialog
-	ImGui::BeginChild("File", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 30));
+	ImGui::BeginChild("File", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 60));
 	
 	//Refresh changes from file tree
 	if (selectedNode != nullptr)
@@ -46,7 +58,7 @@ void ExporterMenu::render(bool &closeBool)
 
 			std::string fileNameWithoutExt = selectedNode->name();
 			fileNameWithoutExt.erase(fileNameWithoutExt.end() - selectedNode->getExt().length(), fileNameWithoutExt.end());
-			strncpy_s(_selectedFileName, fileNameWithoutExt.c_str(), fileNameWithoutExt.length());
+			strncpy(_selectedFileName, fileNameWithoutExt.c_str(), fileNameWithoutExt.length());
 		}
 		else
 		{
@@ -55,23 +67,18 @@ void ExporterMenu::render(bool &closeBool)
 	}
 
 	//Draw gui
-	ImGui::Text("Path: "); ImGui::SameLine(); ImGui::Text(_selectedPath.c_str());
-	ImGui::InputText(".json", _selectedFileName, 128);
+	ImGui::Text("Path: "); ImGui::SameLine(); ImGui::Text("%s", _selectedPath.c_str());
+	ImGui::InputText(".room", _selectedFileName, 128);
 
 	if (ImGui::Button("Save"))
 	{
 		std::ofstream outFile;
-		nlohmann::json json;
 		std::string fileToSave = "";
 		fileToSave.append(_selectedPath);
 		fileToSave.append(_selectedFileName);
-		fileToSave.append(".json");
-		_world->getWorldRoot()->serialize(json, true);
+		fileToSave.append(".room");
 
-		//Write to file in json format
-		outFile.open(fileToSave);
-		outFile << json;
-		outFile.close();
+		BlueprintLoader::save(fileToSave, "Pls wurk", _world->getWorldRoot());
 
 		closeBool = false;
 	}
@@ -130,23 +137,23 @@ ExporterMenu::Node::Node(std::string path, Node* parent, bool isFile)
 	std::vector<std::string> inFiles;
 	std::vector<std::string> inFolders;
 	_getContentsOfDir(path, inFiles, inFolders);
-	for (int i = 0; i < inFolders.size(); i++)
+	for (size_t i = 0; i < inFolders.size(); i++)
 	{
 		this->_subfolders.push_back(new Node(inFolders[i], this));
 	}
-	for (int i = 0; i < inFiles.size(); i++)
+	for (size_t i = 0; i < inFiles.size(); i++)
 	{
 		this->_files.push_back(new Node(inFiles[i], this, true));
 	}
 }
 ExporterMenu::Node::~Node()
 {
-	for (int i = 0; i < _subfolders.size(); i++)
+	for (size_t i = 0; i < _subfolders.size(); i++)
 	{
 		delete _subfolders[i];
 	}
 	_subfolders.clear();
-	for (int i = 0; i < _files.size(); i++)
+	for (size_t i = 0; i < _files.size(); i++)
 	{
 		delete _files[i];
 	}
@@ -159,7 +166,7 @@ std::string ExporterMenu::Node::name()
 //Returns the file extention from a filename
 std::string ExporterMenu::Node::getExt()
 {
-	int i = _name.find_last_of('.');
+	size_t i = _name.find_last_of('.');
 	if (i == std::string::npos)
 	{
 		return "";
@@ -173,7 +180,7 @@ std::string ExporterMenu::Node::getExt()
 //Gets the node's name from it's path
 std::string ExporterMenu::Node::pathToName(std::string path)
 {
-	unsigned int i = path.find_last_of('/');
+	size_t i = path.find_last_of('/');
 	if (i == std::string::npos)
 	{
 		return path;
@@ -199,7 +206,7 @@ int ExporterMenu::Node::numberOfFiles()
 	if (!isAllowedFile)
 	{
 		int allFiles = _files.size();
-		for (int i = 0; i < _subfolders.size(); i++)
+		for (size_t i = 0; i < _subfolders.size(); i++)
 		{
 			allFiles += _subfolders[i]->numberOfFiles();
 		}
@@ -210,7 +217,7 @@ int ExporterMenu::Node::numberOfFiles()
 //Removes all folders that do not have any files
 void ExporterMenu::Node::clean()
 {
-	for (int i = 0; i < _subfolders.size(); i++)
+	for (size_t i = 0; i < _subfolders.size(); i++)
 	{
 		if (_subfolders[i]->numberOfFiles() == 0)
 		{
@@ -245,7 +252,7 @@ void ExporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode
 			{
 				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBE " %s", _files[i]->_name.c_str());
 			}
-			else if (ext == ".json" || ext == ".JSON")
+			else if (ext == ".room" || ext == ".ROOM")
 			{
 				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBES " %s", _files[i]->_name.c_str());
 			}
@@ -302,6 +309,10 @@ void ExporterMenu::Node::_getContentsOfDir(const std::string &directory, std::ve
 				files.push_back(fullFilePath);
 			}
 			else if (fileExt == ".json")
+			{
+				files.push_back(fullFilePath);
+			}
+			else if (fileExt == ".room")
 			{
 				files.push_back(fullFilePath);
 			}
