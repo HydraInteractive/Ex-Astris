@@ -210,6 +210,7 @@ namespace Barcode {
 
 		{ // Update physics
 			_world->tick(TickAction::physics, delta);
+			_physicsManager->tick(delta);
 		}
 
 		{ // Render objects (Deferred rendering)
@@ -600,8 +601,8 @@ namespace Barcode {
 		//_input.setWindowSize(_positionWindow->size.x, _positionWindow->size.y);
 
 		auto floor = _world->createEntity("Floor");
-		floor->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0));
-		floor->addComponent(Hydra::Component::RigidBodyComponent::createStaticPlane(floor.get(), glm::vec3(0, 1, 0), 1));
+		floor->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, -1, 0));
+		floor->addComponent(Hydra::Component::RigidBodyComponent::createStaticPlane(floor.get(), glm::vec3(0, 0, 0), 0));
 
 		auto physicsBox = _world->createEntity("Physics box");
 		physicsBox->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0));
@@ -689,6 +690,8 @@ namespace Barcode {
 			_cc = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Player"; })->get()->getComponent<Hydra::Component::CameraComponent>();
 			_cc->setRenderTarget(_geometryBatch.output.get());
 			_enemy = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Enemy Alien"; })->get()->getComponent<Hydra::Component::EnemyComponent>();
+			_physicsManager->enable(std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Floor"; })->get()->getComponent<Hydra::Component::RigidBodyComponent>());
+			_physicsManager->enable(std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Physics box"; })->get()->getComponent<Hydra::Component::RigidBodyComponent>());
 		}
 
 	}

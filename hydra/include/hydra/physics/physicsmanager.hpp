@@ -11,6 +11,8 @@
 #include <cstddef>
 #include <hydra/ext/macros.hpp>
 
+namespace Hydra::Component { class RigidBodyComponent; }
+
 namespace Hydra::Physics {
 	// Network will probably overwrite this to easily know what data to send.
 	struct HYDRA_API IMotionState {
@@ -30,6 +32,10 @@ namespace Hydra::Physics {
 	public:
 		virtual ~IPhysicsManager() = 0;
 
+		virtual void enable(Hydra::Component::RigidBodyComponent* component) = 0;
+		virtual void disable(Hydra::Component::RigidBodyComponent* component) = 0;
+
+		virtual void tick(float delta) = 0;
 	};
 	inline IPhysicsManager::~IPhysicsManager() {}
 }

@@ -28,6 +28,7 @@ namespace Hydra::World {
 
 	// The tick function only accepts one value, but the wantTick is a bitfield
 	enum class HYDRA_API TickAction {
+		none = 0,
 		checkDead = 1 << 0,
 		physics = 1 << 1,
 		render = 1 << 2,
@@ -75,6 +76,10 @@ namespace Hydra::World {
 
 		template <typename T, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
 		T* addComponent(std::unique_ptr<T> component) {
+			if (auto _ = getComponent<T>()) {
+				*_ = std::move(*component.get());
+				return _;
+			}
 			T* ptr = component.get();
 			addComponent_(std::type_index(typeid(T)), std::move(component));
 			return ptr;
@@ -82,6 +87,11 @@ namespace Hydra::World {
 
 		template <typename T, typename... Args, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
 		T* addComponent(Args... args) {
+			if (auto c = getComponent<T>()) {
+				c->~T(); // destruct
+				new(c) T(this, args...); // reconstruct
+				return c;
+			}
 			T* ptr = new T(this, args...);
 			addComponent_(std::type_index(typeid(T)), std::unique_ptr<IComponent>(ptr));
 			return ptr;
@@ -89,7 +99,16 @@ namespace Hydra::World {
 		template <typename T, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
 		void removeComponent() { removeComponent_(std::type_index(typeid(T))); }
 		template <typename T, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
+		std::unique_ptr<IComponent>& getComponentHandler() {
+			auto& components = getComponents();
+			auto it = components.find(typeid(T));
+			if (it != components.end())
+				return it->second;
+			return nullptr;
+		}
+		template <typename T, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
 		T* getComponent() {
+			return getComponentHandler<T>();
 			auto& components = getComponents();
 			auto it = components.find(typeid(T));
 			if (it != components.end())

@@ -9,8 +9,8 @@ enum string SubProjectsLink = SubProjects.map!((string x) => "-l" ~ x).joiner(" 
 
 enum warnings = "-Wall -Wextra -Werror -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wrestrict -Wnull-dereference -Wformat=2 -Wno-error=unused-parameter -Wno-error=format-nonliteral -Wno-error=unused-variable -Wno-error=reorder";
 
-enum string CFlagsLib = "-O0 -std=c++14 -ffat-lto-objects -ggdb " ~ warnings ~ " -fdiagnostics-color=always -fopenmp -fPIC " ~ SubProjectsInclude;
-enum string CFlagsExec = "-O0 -std=c++14 -ffat-lto-objects -ggdb " ~ warnings ~ " -fdiagnostics-color=always -fopenmp -fPIC -Ibarcode/include " ~ SubProjectsInclude;
+enum string CFlagsLib = "-O0 -std=c++1z -ffat-lto-objects -ggdb " ~ warnings ~ " -fdiagnostics-color=always -fopenmp -fPIC " ~ SubProjectsInclude;
+enum string CFlagsExec = "-O0 -std=c++1z -ffat-lto-objects -ggdb " ~ warnings ~ " -fdiagnostics-color=always -fopenmp -fPIC -Ibarcode/include " ~ SubProjectsInclude;
 
 enum LFlagsHydraLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -lm -ldl -lSDL2";
 enum LFlagsGraphicsLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -ldl -lhydra -lGL -lSDL2 -lSDL2_image -lSDL2_ttf -lassimp";
