@@ -24,7 +24,6 @@ EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID, glm::vec3 po
 	_falling = false;
 	_pathState = IDLE;
 	entity->addComponent<Hydra::Component::TransformComponent>(pos);
-	
 
 	for (int i = 0; i < WORLD_SIZE; i++)
 	{
@@ -40,7 +39,9 @@ EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID, glm::vec3 po
 	}
 }
 
-EnemyComponent::~EnemyComponent() { }
+EnemyComponent::~EnemyComponent() {
+	delete _pathFinding;
+}
 
 void EnemyComponent::tick(TickAction action, float delta) {
 	// If you only have one TickAction in 'wantTick' you don't need to check the tickaction here.
@@ -360,18 +361,18 @@ void EnemyComponent::tick(TickAction action, float delta) {
 	 //debug for pathfinding
 		//int tempX = enemy->getPosition().x;
 		//int tempZ = enemy->getPosition().z;
-		//map[tempX][tempZ] = 2;
+		//_map[tempX][tempZ] = 2;
 		//for (int i = 0; i < _pathFinding->_visitedList.size(); i++)
 		//{
-		//	map[(int)_pathFinding->_visitedList[i]->m_xcoord][(int)_pathFinding->_visitedList[i]->m_zcoord] = 3;
+		//	_map[(int)_pathFinding->_visitedList[i]->m_xcoord][(int)_pathFinding->_visitedList[i]->m_zcoord] = 3;
 		//}
 		//for (int i = 0; i < _pathFinding->_openList.size(); i++)
 		//{
-		//	map[(int)_pathFinding->_openList[i]->m_xcoord][(int)_pathFinding->_openList[i]->m_zcoord] = 3;
+		//	_map[(int)_pathFinding->_openList[i]->m_xcoord][(int)_pathFinding->_openList[i]->m_zcoord] = 3;
 		//}
 		//for (int i = 0; i < _pathFinding->_pathToEnd.size(); i++)
 		//{
-		//	map[(int)_pathFinding->_pathToEnd[i]->x][(int)_pathFinding->_pathToEnd[i]->z] = 3;
+		//	_map[(int)_pathFinding->_pathToEnd[i].x][(int)_pathFinding->_pathToEnd[i].z] = 3;
 		//}
 }
 
