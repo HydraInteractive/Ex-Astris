@@ -315,7 +315,7 @@ namespace Barcode {
 			_lightingBatch.pipeline->setValue(0, 0);
 			_lightingBatch.pipeline->setValue(1, 1);
 			_lightingBatch.pipeline->setValue(2, 2);
-			_lightingBatch.pipeline->setValue(3, _cc->getPosition());
+			//_lightingBatch.pipeline->setValue(3, _cc->getPosition());
 
 			(*_geometryBatch.output)[0]->bind(0);
 			(*_geometryBatch.output)[1]->bind(1);
