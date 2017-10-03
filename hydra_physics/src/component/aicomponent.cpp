@@ -124,11 +124,11 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					}
 					else if(glm::length(player->getPosition() - _targetPos) > 15.0f)
 					{
-						_pathFinding->intializedStartGoal = false;
-						_pathFinding->foundGoal = false;
-						_pathFinding->clearPathToGoal();
-						_pathState = SEARCHING;
-						_timer = SDL_GetTicks();
+						//_pathFinding->intializedStartGoal = false;
+						//_pathFinding->foundGoal = false;
+						//_pathFinding->clearPathToGoal();
+						//_pathState = SEARCHING;
+						//_timer = SDL_GetTicks();
 					}
 
 					if (glm::length(enemy->getPosition() - player->getPosition()) <= 8.5f)
@@ -227,11 +227,11 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					}
 					else if (glm::length(player->getPosition() - _targetPos) > 15.0f)
 					{
-						_pathFinding->intializedStartGoal = false;
-						_pathFinding->foundGoal = false;
-						_pathFinding->clearPathToGoal();
-						_pathState = SEARCHING;
-						_timer = SDL_GetTicks();
+						//_pathFinding->intializedStartGoal = false;
+						//_pathFinding->foundGoal = false;
+						//_pathFinding->clearPathToGoal();
+						//_pathState = SEARCHING;
+						//_timer = SDL_GetTicks();
 					}
 
 					if (glm::length(enemy->getPosition() - player->getPosition()) < 22.0f)
@@ -326,11 +326,11 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					}
 					else if (glm::length(player->getPosition() - _targetPos) > 15.0f)
 					{
-						_pathFinding->intializedStartGoal = false;
-						_pathFinding->foundGoal = false;
-						_pathFinding->clearPathToGoal();
-						_pathState = SEARCHING;
-						_timer = SDL_GetTicks();
+						//_pathFinding->intializedStartGoal = false;
+						//_pathFinding->foundGoal = false;
+						//_pathFinding->clearPathToGoal();
+						//_pathState = SEARCHING;
+						//_timer = SDL_GetTicks();
 					}
 
 					if (glm::length(enemy->getPosition() - player->getPosition()) < 9.0f)
