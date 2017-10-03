@@ -78,7 +78,7 @@ void ExporterMenu::render(bool &closeBool)
 		fileToSave.append(_selectedFileName);
 		fileToSave.append(".room");
 
-		if(getRoomEntity(_world) != nullptr)
+		if (getRoomEntity(_world) != nullptr)
 			BlueprintLoader::save(fileToSave, "Room", getRoomEntity(_world));
 
 		closeBool = false;
