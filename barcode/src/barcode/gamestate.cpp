@@ -528,14 +528,12 @@ namespace Barcode {
 
 			//Perk Icons
 			int amountOfPerks = 5;
-			float pForEatchPerk = float(1) / float(amountOfPerks);
-			float perkSize = float(1920) * pForEatchPerk; //////////////////////////// to be fixxesd
 			for (int i = 0; i < amountOfPerks; i++)
 			{
 				char buf[128];
 				snprintf(buf, sizeof(buf), "Perk%d", i);
-				float xOffset = float(perkSize * float(i + 1));
-				ImGui::SetNextWindowPos(pos + ImVec2( xOffset , +500 ));
+				float xOffset = float((-10 * amountOfPerks) + (20 * i));
+				ImGui::SetNextWindowPos(pos + ImVec2( xOffset , +480 ));
 				ImGui::SetNextWindowSize(ImVec2(20, 20));
 				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 				{
