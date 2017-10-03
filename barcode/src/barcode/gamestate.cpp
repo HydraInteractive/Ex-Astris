@@ -411,18 +411,21 @@ namespace Barcode {
 			const int x = _engine->getView()->getSize().x / 2;
 			const ImVec2 pos = ImVec2(x, _engine->getView()->getSize().y / 2);
 
+			//Crosshair
 			ImGui::SetNextWindowPos(pos + ImVec2(-10, 1));
 			ImGui::SetNextWindowSize(ImVec2(20, 20));
 			ImGui::Begin("Crosshair", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Crosshair.png")->getID()), ImVec2(20, 20));
 			ImGui::End();
 
+			//AimRing
 			ImGui::SetNextWindowPos(pos + ImVec2(-51, -42));
 			ImGui::SetNextWindowSize(ImVec2(120, 120));
 			ImGui::Begin("AimRing", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/AimRing.png")->getID()), ImVec2(100, 100));
 			ImGui::End();
 
+			//Hp bar on ring
 			float offsetHpF = 72 * hpP * 0.01;
 			int offsetHp = offsetHpF;
 			ImGui::SetNextWindowPos(pos + ImVec2(-47, -26 + 72 - offsetHp));
@@ -431,6 +434,7 @@ namespace Barcode {
 			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HpOnRing.png")->getID()), ImVec2(22, offsetHp), ImVec2(0, 1 - hpP * 0.01), ImVec2(1, 1));
 			ImGui::End();
 
+			//Ammo on bar
 			float offsetAmmoF = 72 * ammoP * 0.01;
 			int offsetAmmo = offsetAmmoF;
 			ImGui::SetNextWindowPos(pos + ImVec2(+25, -26 + 72 - offsetAmmo));
@@ -439,6 +443,7 @@ namespace Barcode {
 			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/AmmoOnRing.png")->getID()), ImVec2(22, offsetAmmo), ImVec2(0, 1 - ammoP * 0.01), ImVec2(1, 1));
 			ImGui::End();
 
+			//compas that turns with player
 			float degres = 0;
 			float degresP = ((float(100) / float(360) * degres)/100);
 			float degresO = float(1000) * degresP;
@@ -449,7 +454,7 @@ namespace Barcode {
 			_textureLoader->getTexture("assets/hud/Compass.png")->setRepeat();
 			ImGui::End();
 
-
+			//Enemys on compas
 			int i = 0;
 			for (auto& entity : _world->getActiveComponents<Hydra::Component::EnemyComponent>())
 			{
@@ -491,9 +496,9 @@ namespace Barcode {
 				i++;
 			}
 
-
+			//Dynamic cooldown dots
 			int amountOfActives = 3;
-			int coolDownList[20] = { 5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5 };
+			int coolDownList[64] = { 5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5 };
 			float pForEatchDot = float(1) / float(amountOfActives);
 			float stepSize = float(70) * pForEatchDot;
 			for (int i = 0; i < amountOfActives; i++)
@@ -520,7 +525,25 @@ namespace Barcode {
 				
 				ImGui::End();
 			}
-			//70, 24
+
+			//Perk Icons
+			int amountOfPerks = 5;
+			float pForEatchPerk = float(1) / float(amountOfPerks);
+			float perkSize = float(1920) * pForEatchPerk; //////////////////////////// to be fixxesd
+			for (int i = 0; i < amountOfPerks; i++)
+			{
+				char buf[128];
+				snprintf(buf, sizeof(buf), "Perk%d", i);
+				float xOffset = float(perkSize * float(i + 1));
+				ImGui::SetNextWindowPos(pos + ImVec2( xOffset , +500 ));
+				ImGui::SetNextWindowSize(ImVec2(20, 20));
+				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+				{
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/ExtraJump.png")->getID()), ImVec2(20, 20));
+				}
+
+				ImGui::End();
+			}
 
 			ImGui::PopStyleColor();
 			ImGui::PopStyleVar();
