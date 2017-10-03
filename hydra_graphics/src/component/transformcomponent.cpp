@@ -40,7 +40,7 @@ void TransformComponent::serialize(nlohmann::json& json) const {
 	json = {
 		{"position", {_position.x, _position.y, _position.z}},
 		{"scale", {_scale.x, _scale.y, _scale.z}},
-		{"rotation", {_rotation.x, _rotation.y, _rotation.z, _rotation.w}}
+		{"rotation", {_rotation.w, _rotation.x, _rotation.y, _rotation.z}}
 	};
 }
 

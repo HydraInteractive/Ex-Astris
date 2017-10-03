@@ -23,7 +23,7 @@ PlayerComponent::PlayerComponent(IEntity* entity) : IComponent(entity) {
 	_velocity.x = 0;
 	_velocity.y = 0;
 	_velocity.z = 0;
-	_position = glm::vec3(0, -2, 20);
+	_position = glm::vec3(0, 2, 20);
 	_maxHealth = 100;
 	_health = 100;
 	_timer = SDL_GetTicks();
@@ -53,8 +53,7 @@ void PlayerComponent::tick(TickAction action, float delta) {
 	glm::vec3 strafe(viewMat[0][0], viewMat[1][0], viewMat[2][0]);
 
 	{
-		Uint8* keysArray;
-		keysArray = const_cast <Uint8*> (SDL_GetKeyboardState(&keysArrayLength));
+		const Uint8* keysArray = SDL_GetKeyboardState(&keysArrayLength);
 
 		if (keysArray[SDL_SCANCODE_W]) {
 			_velocity.z = -_movementSpeed;
@@ -81,7 +80,7 @@ void PlayerComponent::tick(TickAction action, float delta) {
 		}
 
 		if (keysArray[SDL_SCANCODE_SPACE] && _onGround){
-			_acceleration.y -= 6.0f;
+			_acceleration.y += 6.0f;
 			_onGround = false;
 		}
 		if (keysArray[SDL_SCANCODE_H] && !lastKeysArray[SDL_SCANCODE_H])
@@ -107,14 +106,14 @@ void PlayerComponent::tick(TickAction action, float delta) {
 		}
 	}
 
-	_acceleration.y += 10.0f * delta;
+	_acceleration.y -= 10.0f * delta;
 	glm::vec3 movementVector = (_velocity.z * forward + _velocity.x * strafe);
 	movementVector.y = _acceleration.y;
 
 	_position += movementVector * delta;
 
 	
-	if (_position.y > 0) {
+	if (_position.y < 0) {
 		_position.y = 0;
 		_acceleration.y = 0;
 		_onGround = true;
@@ -124,13 +123,13 @@ void PlayerComponent::tick(TickAction action, float delta) {
 		camera->setPosition(_position);
 	}
 	else{
-		camera->setPosition(_position + glm::vec3(0, -3, 0) + (forward * glm::vec3(4, 0, 4)));
+		camera->setPosition(_position + glm::vec3(0, 3, 0) + (forward * glm::vec3(4, 0, 4)));
 	}
-	player->setPosition(_position);
-	
+	//player->setPosition(_position);
+	player->setPosition(_position + glm::vec3(0, 0.75, 0) + glm::vec3(-1, 0, -1) * forward + glm::vec3(1, 0, 1)*strafe);
 	player->setRotation(glm::angleAxis(camera->getYaw(), glm::vec3(0, 1, 0)));
 	
-	player->setPosition(_position + glm::vec3(0, 0.75, 0) + glm::vec3(-1, 0, -1) * forward + glm::vec3(1, 0, 1)*strafe);
+	//getWeapon()->getComponent<TransformComponent>()->setRotation(glm::angleAxis(camera->getYaw(), glm::vec3(0, 1, 0)));
 }
 
 std::shared_ptr<Hydra::World::IEntity> PlayerComponent::getWeapon() {

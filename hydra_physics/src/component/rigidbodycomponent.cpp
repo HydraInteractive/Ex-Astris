@@ -50,12 +50,17 @@ public:
 	void setWorldTransform(const btTransform& worldTransform)	{
 		_transform->setRotation(cast(worldTransform.getRotation()));
 		_transform->setPosition(cast(worldTransform.getOrigin()));
+
+		auto r = _transform->getRotation();
+		auto p = _transform->getPosition();
+
+		Hydra::IEngine::getInstance()->log(Hydra::LogLevel::warning, "rot: %.2f, %.2f, %.2f, %.2f\t\tpos: %.2f, %.2f, %.2f", r.x, r.y, r.z, r.w, p.x, p.y, p.z);
 		if (_cb)
 			_cb(_userptr);
 	}
 private:
 	TransformComponent* _transform;
-	Callback _cb;
+	Callback _cb = nullptr;
 	void* _userptr;
 };
 
@@ -92,7 +97,6 @@ static SerializeShape getShapeSerializer(CollisionShape collisionShape) {
 			btStaticPlaneShape* staticPlane = static_cast<btStaticPlaneShape*>(shape);
 
 			auto n = staticPlane->getPlaneNormal();
-			Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "x: %.2f, y: %.2f, z: %.2f", n.x(), n.y(), n.z());
 			json["planeNormal"] = {n.x(), n.y(), n.z()};
 			json["planeConstant"] = staticPlane->getPlaneConstant();
 		};
@@ -131,21 +135,20 @@ struct RigidBodyComponent::Data {
 };
 
 RigidBodyComponent::RigidBodyComponent(IEntity* entity) : IComponent(entity), _data(nullptr) {}
-RigidBodyComponent::RigidBodyComponent(IEntity* entity, std::unique_ptr<Data> data) : IComponent(entity), _data(std::move(data)) {}
 RigidBodyComponent::~RigidBodyComponent() {}
 
-std::unique_ptr<RigidBodyComponent> RigidBodyComponent::createBox(IEntity* entity, const glm::vec3& halfExtents, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction) {
+void RigidBodyComponent::createBox(const glm::vec3& halfExtents, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction) {
 	auto transform = static_cast<TransformComponent*>(ComponentManager::createOrGetComponentHelper<TransformComponent>(entity));
 	auto shape = std::unique_ptr<btCollisionShape>(new btBoxShape(cast(halfExtents)));
 
-	return std::make_unique<RigidBodyComponent>(entity, std::make_unique<Data>(CollisionShape::Box, getShapeSerializer(CollisionShape::Box), transform, std::move(shape), mass, linearDamping,angularDamping, friction, rollingFriction));
+	_data = std::make_unique<Data>(CollisionShape::Box, getShapeSerializer(CollisionShape::Box), transform, std::move(shape), mass, linearDamping,angularDamping, friction, rollingFriction);
 }
 
-std::unique_ptr<RigidBodyComponent> RigidBodyComponent::createStaticPlane(IEntity* entity, const glm::vec3& planeNormal, float planeConstant, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction) {
+void RigidBodyComponent::createStaticPlane(const glm::vec3& planeNormal, float planeConstant, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction) {
 	auto transform = static_cast<TransformComponent*>(ComponentManager::createOrGetComponentHelper<TransformComponent>(entity));
 	auto shape = std::unique_ptr<btCollisionShape>(new btStaticPlaneShape(cast(planeNormal), planeConstant));
 
-	return std::make_unique<RigidBodyComponent>(entity, std::make_unique<Data>(CollisionShape::StaticPlane, getShapeSerializer(CollisionShape::StaticPlane), transform, std::move(shape), mass, linearDamping,angularDamping, friction, rollingFriction));
+	_data = std::make_unique<Data>(CollisionShape::StaticPlane, getShapeSerializer(CollisionShape::StaticPlane), transform, std::move(shape), mass, linearDamping,angularDamping, friction, rollingFriction);
 }
 
 void* RigidBodyComponent::getRigidBody() { return static_cast<void*>(&_data->rigidBody); }

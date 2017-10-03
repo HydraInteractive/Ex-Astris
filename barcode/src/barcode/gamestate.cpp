@@ -602,11 +602,11 @@ namespace Barcode {
 
 		auto floor = _world->createEntity("Floor");
 		floor->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, -1, 0));
-		floor->addComponent(Hydra::Component::RigidBodyComponent::createStaticPlane(floor.get(), glm::vec3(0, 0, 0), 0));
+		floor->addComponent<Hydra::Component::RigidBodyComponent>()->createStaticPlane(glm::vec3(0, 1, 0), 1);
 
 		auto physicsBox = _world->createEntity("Physics box");
-		physicsBox->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0));
-		physicsBox->addComponent(Hydra::Component::RigidBodyComponent::createBox(physicsBox.get(), glm::vec3(0.5f), 10));
+		physicsBox->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 10, 2));
+		physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(glm::vec3(0.5f), 10);
 		physicsBox->addComponent<Hydra::Component::MeshComponent>("assets/objects/Computer1.ATTIC");
 
 		auto playerEntity = _world->createEntity("Player");
@@ -617,7 +617,7 @@ namespace Barcode {
 		auto weaponEntity = playerEntity->createEntity("Weapon");
 		weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
 		weaponEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
-		weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::quat(0, 0, -1, 0));
+		weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, -1.5, 0), glm::vec3(1, 1, 1), glm::quat(0, 0, 1, 0));
 		/*
 		auto animatedEntity = _world->createEntity("AnimatedCube");
 		animatedEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/animatedCube.ATTIC");
@@ -628,7 +628,7 @@ namespace Barcode {
 
 		auto particleEmitter1 = _world->createEntity("ParticleEmitter1");
 		particleEmitter1->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::Knas, 2, glm::vec3(5,0,0));
-		
+
 		auto particleEmitter2 = _world->createEntity("ParticleEmitter2");
 		particleEmitter2->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::BogdanDeluxe, 3, glm::vec3(5, -5, 0));
 		*/

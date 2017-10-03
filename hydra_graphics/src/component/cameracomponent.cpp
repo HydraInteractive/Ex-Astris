@@ -14,14 +14,12 @@
 
 using namespace Hydra::Component;
 
-CameraComponent::CameraComponent(IEntity* entity) : IComponent(entity), _renderTarget(nullptr) { }
-CameraComponent::CameraComponent(IEntity* entity, Hydra::Renderer::IRenderTarget* renderTarget, const glm::vec3& position) : IComponent(entity), _renderTarget(renderTarget), _position(position) {}
+CameraComponent::CameraComponent(IEntity* entity) : IComponent(entity), _renderTarget(nullptr), _orientation(glm::quat()) { }
+CameraComponent::CameraComponent(IEntity* entity, Hydra::Renderer::IRenderTarget* renderTarget, const glm::vec3& position) : IComponent(entity), _renderTarget(renderTarget), _position(position), _orientation(glm::quat()) {}
 
 CameraComponent::~CameraComponent() {}
 
 void CameraComponent::tick(TickAction action, float delta) {
-	_position += glm::vec3{0, 0, 0};
-
 	int mouseX, mouseY;
 	if (_mouseControl && SDL_GetRelativeMouseState(&mouseX, &mouseY) & SDL_BUTTON(3)) {
 		_cameraYaw += mouseX * _sensitivity;
@@ -37,7 +35,7 @@ void CameraComponent::tick(TickAction action, float delta) {
 
 	glm::quat qPitch = glm::angleAxis(_cameraPitch, glm::vec3(1, 0, 0));
 	glm::quat qYaw = glm::angleAxis(_cameraYaw, glm::vec3(0, 1, 0));
-	glm::quat qRoll = glm::angleAxis(glm::radians(180.f), glm::vec3(0, 0, 1));
+	glm::quat qRoll = glm::angleAxis(glm::radians(0.f), glm::vec3(0, 0, 1));
 
 	_orientation = qPitch * qYaw * qRoll;
 	_orientation = glm::normalize(_orientation);
@@ -63,7 +61,7 @@ void Hydra::Component::CameraComponent::setPosition(const glm::vec3 & position) 
 void CameraComponent::serialize(nlohmann::json& json) const {
 	json = {
 		{"position", {_position.x, _position.y, _position.z}},
-		{"orientation", {_orientation.x, _orientation.y, _orientation.z, _orientation.w}},
+		{"orientation", {_orientation.w, _orientation.x, _orientation.y, _orientation.z}},
 		{"fov", _fov},
 		{"zNear", _zNear},
 		{"zFar", _zFar}

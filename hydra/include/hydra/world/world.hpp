@@ -74,16 +74,12 @@ namespace Hydra::World {
 		virtual void removeComponent_(const std::type_index& id) = 0;
 		virtual std::map<std::type_index, std::unique_ptr<IComponent>>& getComponents() = 0;
 
-		template <typename T, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
+		/*template <typename T, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
 		T* addComponent(std::unique_ptr<T> component) {
-			if (auto _ = getComponent<T>()) {
-				*_ = std::move(*component.get());
-				return _;
-			}
 			T* ptr = component.get();
 			addComponent_(std::type_index(typeid(T)), std::move(component));
 			return ptr;
-		}
+		 }*/
 
 		template <typename T, typename... Args, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
 		T* addComponent(Args... args) {
@@ -100,20 +96,16 @@ namespace Hydra::World {
 		void removeComponent() { removeComponent_(std::type_index(typeid(T))); }
 		template <typename T, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
 		std::unique_ptr<IComponent>& getComponentHandler() {
+			static std::unique_ptr<IComponent> nul;
 			auto& components = getComponents();
 			auto it = components.find(typeid(T));
 			if (it != components.end())
 				return it->second;
-			return nullptr;
+			return nul;
 		}
 		template <typename T, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
 		T* getComponent() {
-			return getComponentHandler<T>();
-			auto& components = getComponents();
-			auto it = components.find(typeid(T));
-			if (it != components.end())
-				return (T*)it->second.get();
-			return nullptr;
+			return (T*)getComponentHandler<T>().get();
 		}
 
 		virtual std::shared_ptr<IEntity> spawn(std::shared_ptr<IEntity> entity) = 0;

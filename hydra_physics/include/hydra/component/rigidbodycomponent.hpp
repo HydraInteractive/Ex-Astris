@@ -1,3 +1,4 @@
+
 /**
  * A component that enables the entity to be updated with physics.
  *
@@ -20,11 +21,10 @@ namespace Hydra::Component {
 	public:
 		struct Data;
 		RigidBodyComponent(IEntity* entity);
-		RigidBodyComponent(IEntity* entity, std::unique_ptr<Data> data);
 		~RigidBodyComponent() final;
 
-		static std::unique_ptr<RigidBodyComponent> createBox(IEntity* entity, const glm::vec3& halfExtents, float mass = 0, float linearDamping = 0, float angularDamping = 0, float friction = 0, float rollingFriction = 0);
-		static std::unique_ptr<RigidBodyComponent> createStaticPlane(IEntity* entity, const glm::vec3& planeNormal, float planeConstant, float mass = 0, float linearDamping = 0, float angularDamping = 0, float friction = 0, float rollingFriction = 0);
+		void createBox(const glm::vec3& halfExtents, float mass = 0, float linearDamping = 0, float angularDamping = 0, float friction = 0, float rollingFriction = 0);
+		void createStaticPlane(const glm::vec3& planeNormal, float planeConstant, float mass = 0, float linearDamping = 0, float angularDamping = 0, float friction = 0, float rollingFriction = 0);
 
 		void* getRigidBody();
 
