@@ -212,6 +212,14 @@ namespace Barcode {
 			{
 				_showExporter = !_showExporter;
 			}
+			ImGui::Separator();
+			if (ImGui::MenuItem("Clear room"))
+			{
+				ExporterMenu::getRoomEntity(_world.get())->markDead();
+
+				auto& roomEntity = _world->createEntity("Room");
+				roomEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
+			}
 			ImGui::EndMenu();
 		}
 	}

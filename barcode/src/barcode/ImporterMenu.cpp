@@ -84,7 +84,6 @@ std::string ImporterMenu::_getExecutableDir()
 	path.erase(path.begin() + index, path.end());
 	return path;
 }
-
 std::shared_ptr<IEntity> ImporterMenu::getRoomEntity(Hydra::World::IWorld* world)
 {
 	std::vector<std::shared_ptr<IEntity>> entities = world->getWorldRoot()->getChildren();
