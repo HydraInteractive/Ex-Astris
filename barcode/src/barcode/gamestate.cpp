@@ -234,7 +234,6 @@ namespace Barcode {
 			_geometryBatch.pipeline->setValue(2, cameraPos = _cc->getPosition());
 			_geometryBatch.pipeline->setValue(4, lightS);
 
-
 			_animationBatch.pipeline->setValue(0, _cc->getViewMatrix());
 			_animationBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
 			_animationBatch.pipeline->setValue(2, cameraPos = _cc->getPosition());
@@ -313,12 +312,8 @@ namespace Barcode {
 			_lightingBatch.pipeline->setValue(3, 3);
 			_lightingBatch.pipeline->setValue(4, 4);
 
-
-
 			_lightingBatch.pipeline->setValue(5, _cc->getPosition());
 			_lightingBatch.pipeline->setValue(6, _light->getDirection());
-			
-
 
 			(*_geometryBatch.output)[0]->bind(0);
 			(*_geometryBatch.output)[1]->bind(1);
@@ -571,14 +566,14 @@ namespace Barcode {
 			//					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Yellow.png")->getID()), ImVec2(20, 20));
 			//					ImGui::End();
 			//				}
-			//				/*else if (_enemy->getWall(i, j) == 0)
+			//				else if (_enemy->getWall(i, j) == 0)
 			//				{
 			//					ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
 			//					ImGui::SetNextWindowSize(ImVec2(20, 20));
 			//					ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 			//					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Green.png")->getID()), ImVec2(20, 20));
 			//					ImGui::End();
-			//				}*/
+			//				}
 			//			}
 			//		}
 			//	}
@@ -619,7 +614,7 @@ namespace Barcode {
 		weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
 		weaponEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 		weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::quat(0, 0, -1, 0));
-
+		/*
 		auto animatedEntity = _world->createEntity("AnimatedCube");
 		animatedEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/animatedCube.ATTIC");
 		animatedEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-10, 0, -10));
@@ -632,11 +627,12 @@ namespace Barcode {
 		
 		auto particleEmitter2 = _world->createEntity("ParticleEmitter2");
 		particleEmitter2->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::BogdanDeluxe, 3, glm::vec3(5, -5, 0));
-		
+		*/
+
 		auto alienEntity = _world->createEntity("Enemy Alien");
 		alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 0), 80, 8);
 		alienEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
-
+		
 		auto robotEntity = _world->createEntity("Enemy Robot");
 		robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, glm::vec3(20, 0, 10), 70, 11);
 		robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
@@ -644,6 +640,7 @@ namespace Barcode {
 		auto bossEntity = _world->createEntity("Enemy Boss");
 		bossEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss, glm::vec3(15, 0, 16), 1200, 25);
 		bossEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+		
 
 		auto test = _world->createEntity("test");
 		test->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");

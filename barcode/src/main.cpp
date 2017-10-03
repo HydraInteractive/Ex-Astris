@@ -27,6 +27,7 @@
 #include <crtdbg.h>
 
 static inline void reportMemoryLeaks() {
+	//_crtBreakAlloc = 36672;
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 }
 #else

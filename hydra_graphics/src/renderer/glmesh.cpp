@@ -467,6 +467,7 @@ private:
 			}
 			_finishedMatrices[indexNmr].push_back(info);
 			skeleton[indexNmr].push_back(info);
+			delete[] info;
 		}
 
 	}
