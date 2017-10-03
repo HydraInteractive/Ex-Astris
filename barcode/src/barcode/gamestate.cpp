@@ -234,7 +234,6 @@ namespace Barcode {
 			_geometryBatch.pipeline->setValue(2, cameraPos = _cc->getPosition());
 			_geometryBatch.pipeline->setValue(4, lightS);
 
-
 			_animationBatch.pipeline->setValue(0, _cc->getViewMatrix());
 			_animationBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
 			_animationBatch.pipeline->setValue(2, cameraPos = _cc->getPosition());
@@ -313,12 +312,8 @@ namespace Barcode {
 			_lightingBatch.pipeline->setValue(3, 3);
 			_lightingBatch.pipeline->setValue(4, 4);
 
-
-
 			_lightingBatch.pipeline->setValue(5, _cc->getPosition());
 			_lightingBatch.pipeline->setValue(6, _light->getDirection());
-			
-
 
 			(*_geometryBatch.output)[0]->bind(0);
 			(*_geometryBatch.output)[1]->bind(1);
@@ -463,10 +458,31 @@ namespace Barcode {
 				auto playerP = _cc->getPosition();
 				auto enemyP = entity->getComponent<Hydra::Component::EnemyComponent>()->getPosition();
 				auto enemyDir = normalize(enemyP - playerP);
+
 				glm::mat4 viewMat = _world->getActiveComponents<Hydra::Component::CameraComponent>()[0]->getComponent<Hydra::Component::CameraComponent>()->getViewMatrix();
-				glm::vec3 forward(viewMat[0][2], viewMat[1][2], viewMat[2][2]);
-				float dotPlacment = glm::dot(forward, enemyDir); // -1 - +1
-				dotPlacment = dotPlacment * 550;
+				glm::vec3 forward(-viewMat[0][2], -viewMat[1][2], -viewMat[2][2]);
+				glm::vec3 right = glm::normalize(glm::cross(glm::vec3(0, 1, 0), forward));
+
+				glm::vec2 forward2D = glm::normalize(glm::vec2(forward.x, forward.z));
+				glm::vec2 right2D = glm::normalize(glm::vec2(right.x, right.z));
+				glm::vec2 enemy2D = glm::normalize(glm::vec2(enemyDir.x, enemyDir.z));
+
+				float dotPlacment = glm::dot(forward2D, enemy2D); // -1 - +1
+				float leftRight = glm::dot(right2D, enemy2D);
+				if (leftRight < 0)
+				{
+					leftRight = -1;
+				}
+				else
+				{
+					leftRight = 1;
+				}
+				if (dotPlacment < 0)
+				{
+					dotPlacment = 0;
+				}
+				dotPlacment = dotPlacment;
+				dotPlacment = leftRight * (1 - dotPlacment) * 275;
 				ImGui::SetNextWindowPos(ImVec2(x + dotPlacment, 75)); //- 275
 				ImGui::SetNextWindowSize(ImVec2(20, 20));
 				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
