@@ -227,6 +227,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					}
 					else if (glm::length(player->getPosition() - _targetPos) > 15.0f)
 					{
+						//_pathFinding->intializedStartGoal = false;
 						//_pathFinding->foundGoal = false;
 						//_pathFinding->clearPathToGoal();
 						//_pathState = SEARCHING;
