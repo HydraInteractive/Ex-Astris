@@ -45,7 +45,7 @@ private:
 		std::string reverseEngineerPath();
 		int numberOfFiles();
 		void clean();
-		void render(Hydra::World::IWorld* world, Node** selectedNode);
+		void render(Hydra::World::IWorld* world, Node** selectedNode, bool& prepExporting);
 	private:
 		std::string _name;
 		std::vector<Node*> _subfolders;

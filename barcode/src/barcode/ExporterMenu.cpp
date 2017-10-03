@@ -40,7 +40,7 @@ void ExporterMenu::render(bool &closeBool)
 	//File tree
 	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 60));
 	if (_root != nullptr)
-		_root->render(_world, &selectedNode);
+		_root->render(_world, &selectedNode, _prepExporting);
 	ImGui::EndChild();
 
 	ImGui::SameLine();
@@ -58,6 +58,8 @@ void ExporterMenu::render(bool &closeBool)
 
 			std::string fileNameWithoutExt = selectedNode->name();
 			fileNameWithoutExt.erase(fileNameWithoutExt.end() - selectedNode->getExt().length(), fileNameWithoutExt.end());
+			//Force empty the string before copying the new one
+			memset(_selectedFileName, 0, sizeof(_selectedFileName));
 			strncpy(_selectedFileName, fileNameWithoutExt.c_str(), fileNameWithoutExt.length());
 		}
 		else
@@ -278,7 +280,7 @@ void ExporterMenu::Node::clean()
 		}
 	}
 }
-void ExporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode)
+void ExporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode, bool& prepExporting)
 {
 	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
 	//TODO: Folder icon opening
@@ -290,7 +292,7 @@ void ExporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode
 		}
 		for (size_t i = 0; i < this->_subfolders.size(); i++)
 		{
-			_subfolders[i]->render(world, selectedNode);
+			_subfolders[i]->render(world, selectedNode, prepExporting);
 		}
 		for (size_t i = 0; i < this->_files.size(); i++)
 		{
@@ -302,9 +304,9 @@ void ExporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode
 			else if (ext == ".room" || ext == ".ROOM")
 			{
 				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBES " %s", _files[i]->_name.c_str());
-				if (ImGui::IsMouseDoubleClicked(0))
+				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
 				{
-					//If this is a json file, overwrite it
+					prepExporting = true;
 				}
 			}
 			else
