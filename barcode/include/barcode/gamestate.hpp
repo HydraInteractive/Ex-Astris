@@ -64,7 +64,7 @@ namespace Barcode {
 		struct ComputeBatch final {
 			std::unique_ptr<Hydra::Renderer::IShader> computeShader;
 			std::unique_ptr<Hydra::Renderer::IPipeline> pipeline;
-
+			glm::vec2 size;
 			Hydra::Renderer::Batch batch;
 		};
 
@@ -96,6 +96,8 @@ namespace Barcode {
 		std::shared_ptr<Hydra::Renderer::ITexture> _blurredIMG2;
 		std::shared_ptr<Hydra::Renderer::ITexture> _blurredIMG3;
 
+		std::shared_ptr<Hydra::Renderer::IPipeline> _computeVerticalPipeline;
+		std::shared_ptr<Hydra::Renderer::IShader> _computeVerticalShader;
 		std::shared_ptr<Hydra::Renderer::ITexture> _computeIMGTest1;
 		std::shared_ptr<Hydra::Renderer::ITexture> _computeIMGTest2;
 
@@ -116,7 +118,6 @@ namespace Barcode {
 		Input _input;
 
 		void _initWorld();
-
-		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int &nrOfTimes, glm::vec2 size);
+		void blur(int nrOfTimes);
 	};
 }

@@ -102,6 +102,7 @@ namespace Barcode {
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 
+
 			_glowPipeline = Hydra::Renderer::GLPipeline::create();
 			_glowPipeline->attachStage(*_glowVertexShader);
 			_glowPipeline->attachStage(*_glowFragmentShader);
@@ -136,14 +137,19 @@ namespace Barcode {
 
 		{
 			auto&batch = _computeTestBatch;
-			batch.computeShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::compute, "assets/shaders/blur.comp");
+			batch.computeShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::compute, "assets/shaders/blurHorizontal.comp");
+			_computeVerticalShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::compute, "assets/shaders/blurVertical.comp");
 			
 			batch.pipeline = Hydra::Renderer::GLPipeline::create();
 			batch.pipeline->attachStage(*batch.computeShader);
 			batch.pipeline->finalize();
 
-			_computeIMGTest1 = Hydra::Renderer::GLTexture::createEmpty(windowSize.x, windowSize.y, TextureType::f16RGBA);
-			_computeIMGTest2 = Hydra::Renderer::GLTexture::createEmpty(windowSize.x, windowSize.y, TextureType::f16RGBA);
+			_computeVerticalPipeline = Hydra::Renderer::GLPipeline::create();
+			_computeVerticalPipeline->attachStage(*_computeVerticalShader);
+			_computeVerticalPipeline->finalize();
+
+			_computeIMGTest1 = Hydra::Renderer::GLTexture::createEmpty(windowSize.x, windowSize.y, TextureType::u8RGBA);
+			_computeIMGTest2 = Hydra::Renderer::GLTexture::createEmpty(windowSize.x, windowSize.y, TextureType::u8RGBA);
 			batch.batch.pipeline = batch.pipeline.get();
 		}
 
@@ -347,13 +353,11 @@ namespace Barcode {
 		{ // Glow
 			int nrOfTimes = 1;
 			glm::vec2 size = windowSize;
+			_computeTestBatch.size = windowSize;
 
-			_lightingBatch.output->resolve(0, _blurredOriginal);
-			_lightingBatch.output->resolve(1, _computeIMGTest1);
-
-			_computeIMGTest1->bindToComputeShader(0, true);
-			_computeIMGTest2->bindToComputeShader(1, false);
-			_engine->getRenderer()->compute(_computeTestBatch.batch);
+			_lightingBatch.output->resolve(0, (*_glowBatch.output)[0]);
+			_lightingBatch.output->resolve(0, _computeIMGTest1);
+			blur(1);
 
 			//_blurGlowTexture((*_glowBatch.output)[0], nrOfTimes, size *= 0.5f)
 			//	->resolve(0, _blurredIMG1);
@@ -365,12 +369,12 @@ namespace Barcode {
 			_glowBatch.batch.pipeline = _glowPipeline.get();
 
 			_glowBatch.batch.pipeline->setValue(1, 1);
-			//_glowBatch.batch.pipeline->setValue(2, 2);
+			_glowBatch.batch.pipeline->setValue(2, 2);
 			//_glowBatch.batch.pipeline->setValue(3, 3);
 			//_glowBatch.batch.pipeline->setValue(4, 4);
 
-			_computeIMGTest2->bind(1);
-			//_blurredIMG1->bind(2);
+			(*_glowBatch.output)[0]->bind(1);
+			_computeIMGTest2->bind(2);
 			//_blurredIMG2->bind(3);
 			//_blurredIMG3->bind(4);
 
@@ -690,32 +694,22 @@ namespace Barcode {
 
 	}
 
-	std::shared_ptr<Hydra::Renderer::IFramebuffer> GameState::_blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int &nrOfTimes, glm::vec2 size) { // TO-DO: Make it agile so it can blur any texture
-		_glowBatch.pipeline->setValue(1, 1); // This bind will never change
-		bool horizontal = true;
-		bool firstPass = true;
-		_blurrExtraFBO1->resize(size);
-		_blurrExtraFBO2->resize(size);
+	void GameState::blur(int nrOfTimes) {
 		for (int i = 0; i < nrOfTimes * 2; i++) {
-			if (firstPass) {
-				_glowBatch.batch.renderTarget = _blurrExtraFBO2.get();
-				texture->bind(1);
-				firstPass = false;
-			}
-			else if (horizontal) {
-				_glowBatch.batch.renderTarget = _blurrExtraFBO2.get();
-				(*_blurrExtraFBO1)[0]->bind(1);
+			if (i % 2 == 0) {
+				_computeIMGTest2->resize(glm::ivec2(_computeIMGTest1->getSize().x / 8, _computeIMGTest1->getSize().y / 8));
+				_computeIMGTest1->bindToComputeShader(0, true);
+				_computeIMGTest2->bindToComputeShader(1, false);
+				_computeTestBatch.batch.pipeline = _computeVerticalPipeline.get();
+				_engine->getRenderer()->compute(_computeTestBatch.batch, glm::vec3(1920/20, 1080, 1));
 			}
 			else {
-				_glowBatch.batch.renderTarget = _blurrExtraFBO1.get();
-				(*_blurrExtraFBO2)[0]->bind(1);
+				_computeIMGTest1->resize(glm::ivec2(_computeIMGTest2->getSize().x, _computeIMGTest2->getSize().y));
+				_computeIMGTest2->bindToComputeShader(0, true);
+				_computeIMGTest1->bindToComputeShader(1, false);
+				//_computeTestBatch.batch.pipeline = _computeTestBatch.pipeline.get();
+				_engine->getRenderer()->compute(_computeTestBatch.batch, glm::vec3(1920/20, 1080, 1));
 			}
-			_glowBatch.pipeline->setValue(2, horizontal);
-			_engine->getRenderer()->postProcessing(_glowBatch.batch);
-			horizontal = !horizontal;
 		}
-		// Change back to normal rendertarget.
-		_glowBatch.batch.renderTarget = _glowBatch.output.get();
-		return _blurrExtraFBO1;
 	}
 }

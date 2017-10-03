@@ -1,0 +1,46 @@
+#version 440 core
+
+const int xSize = 20;
+layout(local_size_x = 20, local_size_y = 1) in;
+layout(rgba8, binding = 0) uniform image2D img_input;
+layout(rgba8, binding = 1) uniform image2D img_output;
+
+#define CACHE(xPos) image_row[xPos + 2]
+
+float GAUSSIAN_KERNEL[5] = float[](0.06136, 0.24477, 0.38774, 0.24477, 0.06136);
+shared vec4 image_row[xSize+2+2];
+
+void main(){
+	ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
+	int x = pos.x % xSize;
+	CACHE(x) = imageLoad(img_input, pos);
+	if (x == 0) {
+		if (true || pos.x == 0)
+			CACHE(-2) = CACHE(-1) = CACHE(0);
+		else {
+			CACHE(-1) = imageLoad(img_input, pos-ivec2(1, 0));
+			CACHE(-2) = imageLoad(img_input, pos-ivec2(2, 0));
+		}
+	}
+
+	if (x == 19) {
+		if (true || pos.x == imageSize(img_input).x)
+			CACHE(xSize + 1) = CACHE(xSize) = CACHE(x);
+		else {
+			CACHE(xSize) = imageLoad(img_input, pos+ivec2(1, 0));
+			CACHE(xSize + 1) = imageLoad(img_input, pos+ivec2(2, 0));
+		}
+	}
+	barrier();
+	
+	// all threads wait until this point.
+
+	vec4 result = CACHE(x-2) * GAUSSIAN_KERNEL[0]
+				+ CACHE(x-1) * GAUSSIAN_KERNEL[1]
+				+ CACHE(x)   * GAUSSIAN_KERNEL[2]
+				+ CACHE(x+1) * GAUSSIAN_KERNEL[3]
+	 			+ CACHE(x+2) * GAUSSIAN_KERNEL[4];
+
+	if (pos.x % 8 == 0 && pos.y % 8 == 0)
+		imageStore(img_output, pos/8, result);
+}

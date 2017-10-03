@@ -187,7 +187,7 @@ namespace Hydra::Renderer {
 		virtual void renderAnimation(Batch& batch) = 0;
 		// Note: this will ignore batch.objects
 		virtual void postProcessing(Batch& batch) = 0;
-		virtual void compute(Batch& batch) = 0;
+		virtual void compute(Batch& batch, glm::vec3 dispatches) = 0;
 
 		virtual DrawObject* aquireDrawObject() = 0;
 
