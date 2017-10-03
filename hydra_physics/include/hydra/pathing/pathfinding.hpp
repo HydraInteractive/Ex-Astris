@@ -28,13 +28,12 @@ public:
 	std::vector<std::shared_ptr<SearchCell>> _openList;
 	std::vector<std::shared_ptr<SearchCell>> _visitedList;
 	std::vector<glm::vec3> _pathToEnd;
+	
 private:
 	void _setStartAndGoal(SearchCell start, SearchCell end);
 	void _pathOpened(int x, int z, float newCost, std::shared_ptr<SearchCell> parent, int map[WORLD_SIZE][WORLD_SIZE]);
 	std::shared_ptr<SearchCell> _getNextCell();
 	void _continuePath(int map[WORLD_SIZE][WORLD_SIZE]);
-
 	std::shared_ptr<SearchCell> _startCell;
 	std::shared_ptr<SearchCell> _endCell;
-
 };
