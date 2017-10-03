@@ -211,6 +211,8 @@ namespace Barcode {
 			if (ImGui::MenuItem("Export..."))
 			{
 				_showExporter = !_showExporter;
+				if (_showExporter)
+					_exporterMenu->refresh();
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem("Clear room"))

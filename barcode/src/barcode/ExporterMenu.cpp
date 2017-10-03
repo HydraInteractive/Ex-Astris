@@ -1,6 +1,6 @@
 #include <barcode/ExporterMenu.hpp>
 ExporterMenu::ExporterMenu()
-{	
+{
 	this->executableDir = "";
 	this->_root = nullptr;
 	this->_world = nullptr;
@@ -47,7 +47,7 @@ void ExporterMenu::render(bool &closeBool)
 
 	//File name dialog
 	ImGui::BeginChild("File", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 60));
-	
+
 	//Refresh changes from file tree
 	if (selectedNode != nullptr)
 	{
@@ -72,19 +72,55 @@ void ExporterMenu::render(bool &closeBool)
 
 	if (ImGui::Button("Save"))
 	{
-		std::ofstream outFile;
+		_prepExporting = true;
+	}
+	if (_prepExporting)
+	{
 		std::string fileToSave = "";
 		fileToSave.append(_selectedPath);
 		fileToSave.append(_selectedFileName);
 		fileToSave.append(".room");
+		std::ifstream infile(fileToSave);
+		bool doExport = false;
+		if (infile.good())
+		{
+			ImGui::OpenPopup("Overwrite?");
+		}
+		else
+		{
+			doExport = true;
+		}
 
-		if (getRoomEntity(_world) != nullptr)
-			BlueprintLoader::save(fileToSave, "Room", getRoomEntity(_world));
+		if (ImGui::BeginPopupModal("Overwrite?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			std::string textline = "This action will overwrite the file at " + fileToSave + ". Continue?";
+			ImGui::Text(textline.c_str());
+			ImGui::Separator();
 
-		closeBool = false;
+			if (ImGui::Button("OK", ImVec2(120, 0)))
+			{
+				doExport = true;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel", ImVec2(120, 0)))
+			{	
+				_prepExporting = false;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+
+		if (doExport)
+		{
+			std::ofstream outFile;
+			if (getRoomEntity(_world) != nullptr)
+				BlueprintLoader::save(fileToSave, "Room", getRoomEntity(_world));
+			_prepExporting = false;
+			closeBool = false;
+		}
 	}
 	ImGui::EndChild();
-
 	ImGui::End();
 }
 void ExporterMenu::refresh()

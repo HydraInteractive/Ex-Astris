@@ -48,6 +48,7 @@ void ImporterMenu::render(bool &closeBool)
 
 	//Preview window
 	ImGui::BeginChild("Preview", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.7f, ImGui::GetWindowContentRegionMax().y - 60));
+	
 	ImGui::EndChild();
 
 	ImGui::End();

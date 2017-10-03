@@ -59,5 +59,5 @@ private:
 	std::string _getExecutableDir();
 	std::string _selectedPath;
 	char _selectedFileName[128] = "";
-
+	bool _prepExporting = false;
 };
