@@ -33,10 +33,10 @@ EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID, glm::vec3 po
 		}
 	}
 
-	for (int i = 0; i < 20; i++)
-	{
-		_map[10][12+i] = 1;
-	}
+	//for (int i = 0; i < 20; i++)
+	//{
+	//	_map[10][12+i] = 1;
+	//}
 }
 
 EnemyComponent::~EnemyComponent() {
