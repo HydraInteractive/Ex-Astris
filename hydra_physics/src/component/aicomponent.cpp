@@ -33,10 +33,10 @@ EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID, glm::vec3 po
 		}
 	}
 
-	//for (int i = 0; i < 20; i++)
-	//{
-	//	_map[10][12+i] = 1;
-	//}
+	for (int i = 0; i < 30; i++)
+	{
+		_map[10][10+i] = 1;
+	}
 }
 
 EnemyComponent::~EnemyComponent() {
@@ -87,7 +87,6 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					_pathFinding->foundGoal = true;
 					_pathState = ATTACKING;
 				}
-
 				_pathFinding->findPath(enemy->getPosition(), player->getPosition(), _map);
 				if (_pathFinding->_pathToEnd.size() > 0) {
 					_targetPos = _pathFinding->_pathToEnd[0];
@@ -124,11 +123,11 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					}
 					else if(glm::length(player->getPosition() - _targetPos) > 15.0f)
 					{
-						_pathFinding->intializedStartGoal = false;
-						_pathFinding->foundGoal = false;
-						_pathFinding->clearPathToGoal();
-						_pathState = SEARCHING;
-						_timer = SDL_GetTicks();
+						//_pathFinding->intializedStartGoal = false;
+						//_pathFinding->foundGoal = false;
+						//_pathFinding->clearPathToGoal();
+						//_pathState = SEARCHING;
+						//_timer = SDL_GetTicks();
 					}
 
 					if (glm::length(enemy->getPosition() - player->getPosition()) <= 8.5f)
@@ -227,11 +226,11 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					}
 					else if (glm::length(player->getPosition() - _targetPos) > 15.0f)
 					{
-						_pathFinding->intializedStartGoal = false;
-						_pathFinding->foundGoal = false;
-						_pathFinding->clearPathToGoal();
-						_pathState = SEARCHING;
-						_timer = SDL_GetTicks();
+						//_pathFinding->intializedStartGoal = false;
+						//_pathFinding->foundGoal = false;
+						//_pathFinding->clearPathToGoal();
+						//_pathState = SEARCHING;
+						//_timer = SDL_GetTicks();
 					}
 
 					if (glm::length(enemy->getPosition() - player->getPosition()) < 22.0f)
@@ -260,6 +259,8 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				}
 			}break;
 			}
+
+			//_playerSeen = _checkLine(enemy->getPosition().x, enemy->getPosition().z, player->getPosition().x, player->getPosition().z);
 
 			_position = _position + glm::vec3(_velocityX, _velocityY, _velocityZ);
 			enemy->setPosition(_position);
@@ -326,11 +327,11 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					}
 					else if (glm::length(player->getPosition() - _targetPos) > 15.0f)
 					{
-						_pathFinding->intializedStartGoal = false;
-						_pathFinding->foundGoal = false;
-						_pathFinding->clearPathToGoal();
-						_pathState = SEARCHING;
-						_timer = SDL_GetTicks();
+						//_pathFinding->intializedStartGoal = false;
+						//_pathFinding->foundGoal = false;
+						//_pathFinding->clearPathToGoal();
+						//_pathState = SEARCHING;
+						//_timer = SDL_GetTicks();
 					}
 
 					if (glm::length(enemy->getPosition() - player->getPosition()) < 9.0f)
@@ -464,6 +465,7 @@ void EnemyComponent::registerUI() {
 	ImGui::InputFloat("targetY", &_targetPos.y);
 	ImGui::InputFloat("targetZ", &_targetPos.z);
 	ImGui::Checkbox("isAtGoal", &_isAtGoal);
+	ImGui::Checkbox("playerCanBeSeen", &_playerSeen);
 }
 
 int Hydra::Component::EnemyComponent::getWall(int x, int y)
@@ -482,5 +484,86 @@ int Hydra::Component::EnemyComponent::getWall(int x, int y)
 		result = 3;
 	}
 	return result;
+}
+
+bool Hydra::Component::EnemyComponent::_checkLine(float posX, float posZ, float playerPosX, float playerPosZ)
+{
+	int temp = 0;
+
+	if (fabs(playerPosZ - posZ) > fabs(playerPosX - posX)){
+		temp = posX;
+		posX = posZ;
+		posZ = temp;
+
+		temp = playerPosX;
+		playerPosX = playerPosZ;
+		playerPosZ = temp;
+	}
+
+	if (posX > playerPosX) {
+		temp = posX;
+		posX = playerPosX;
+		playerPosX = temp;
+
+		temp = posZ;
+		posZ = playerPosZ;
+		playerPosZ = temp;
+	}
+
+	float deltaX = playerPosX - posX;
+	float deltaZ = floor(fabs(playerPosZ - posZ));
+	float error = floor(deltaX / 2);
+	float z = posZ;
+
+	float zStep;
+	if (posZ < playerPosZ) { zStep = 1; }
+	else { zStep = -1; }
+
+	if (fabs(playerPosZ - posZ) > fabs(playerPosX - posX))
+	{
+		for (int x = posX; x < playerPosX; x++)
+		{
+			if (!_rayCanPass(z, x))
+			{
+				return false;
+			}
+			error -= deltaZ;
+
+			if (error < 0)
+			{
+				z = z + zStep;
+				error = error + deltaX;
+			}
+		}
+	}
+	else
+	{
+		for (int x = posX; x < playerPosX; x++)
+		{
+			if (!_rayCanPass(x, z))
+			{
+				return false;
+			}
+			error -= deltaZ;
+			if (error < 0)
+			{
+				z = z + zStep;
+				error = error + deltaX;
+			}
+		}
+	}
+	return true;
+}
+
+bool Hydra::Component::EnemyComponent::_rayCanPass(int x, int z)
+{
+	if (_map[x][z] = 1)
+	{
+		return false;
+	}
+	else 
+	{
+		return true;
+	}
 }
 

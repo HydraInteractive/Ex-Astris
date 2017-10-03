@@ -52,13 +52,12 @@ namespace Hydra::Component {
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
 		int getWall(int x, int y);
-
+		int _map[WORLD_SIZE][WORLD_SIZE];
 	private:
 		PathState _pathState;
 		PathFinding* _pathFinding = new PathFinding();
 		int _debugState;
 		float _angle;
-		int _map[WORLD_SIZE][WORLD_SIZE];
 		float _velocityX;
 		float _velocityY;
 		float _velocityZ;
@@ -74,5 +73,9 @@ namespace Hydra::Component {
 		EnemyTypes _enemyID = EnemyTypes::Alien;
 		std::random_device rd;
 		Uint32 _timer;
+		bool _playerSeen;
+
+		bool _checkLine(float posX, float posZ, float playerPosX, float playerPosZ);
+		bool _rayCanPass(int x, int z);
 	};
 };
