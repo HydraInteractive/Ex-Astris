@@ -48,6 +48,7 @@ void ImporterMenu::render(bool &closeBool)
 
 	//Preview window
 	ImGui::BeginChild("Preview", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.7f, ImGui::GetWindowContentRegionMax().y - 60));
+	
 	ImGui::EndChild();
 
 	ImGui::End();
@@ -83,6 +84,16 @@ std::string ImporterMenu::_getExecutableDir()
 	int index = path.find_last_of('/');
 	path.erase(path.begin() + index, path.end());
 	return path;
+}
+std::shared_ptr<IEntity> ImporterMenu::getRoomEntity(Hydra::World::IWorld* world)
+{
+	std::vector<std::shared_ptr<IEntity>> entities = world->getWorldRoot()->getChildren();
+	for (int i = 0; i < entities.size(); i++)
+	{
+		if (entities[i]->getName() == "Room")
+			return entities[i];
+	}
+	return nullptr;
 }
 
 ImporterMenu::Node::Node()
@@ -211,9 +222,9 @@ void ImporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode
 				if (ImGui::IsItemClicked())
 				{
 					(*selectedNode) = _files[i];
-					if (ImGui::IsMouseDoubleClicked(0))
+					if (ImGui::IsMouseDoubleClicked(0) && getRoomEntity(world) != nullptr)
 					{
-						Hydra::World::IEntity* newEntity = world->createEntity(_files[i]->name()).get();
+						Hydra::World::IEntity* newEntity = getRoomEntity(world)->createEntity(_files[i]->name()).get();
 						newEntity->addComponent<Hydra::Component::MeshComponent>(_files[i]->reverseEngineerPath());
 						newEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
 					}
@@ -222,19 +233,19 @@ void ImporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode
 			else if (ext == ".room" || ext == ".ROOM")
 			{
 				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_CUBES " %s", _files[i]->_name.c_str());
-				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
+				if (ImGui::IsItemClicked())
 				{
-					//world->setWorldRoot(BlueprintLoader::load(_files[i]->reverseEngineerPath())->spawn(world));
+					(*selectedNode) = _files[i];
+					if (ImGui::IsMouseDoubleClicked(0))
+					{
+						if (getRoomEntity(world) != nullptr)
+						{
+							getRoomEntity(world)->markDead();
+						}
+						world->getWorldRoot()->spawn(BlueprintLoader::load(_files[i]->reverseEngineerPath())->spawn(world));
+					}
 				}
 			}
-			//else if (ext == ".png" || ext == ".PNG")
-			//{
-			//	ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_FILE_IMAGE_O " %s", files[i]->_name.c_str());
-			//	if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
-			//	{
-			//		//Do whatever we do with images
-			//	}
-			//}
 		}
 		ImGui::TreePop();
 	}

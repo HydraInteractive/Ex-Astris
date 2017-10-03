@@ -28,6 +28,7 @@ public:
 
 	void render(bool &closeBool);
 	void refresh();
+	static std::shared_ptr<IEntity> getRoomEntity(Hydra::World::IWorld* world);
 private:
 	class Node
 	{
@@ -44,7 +45,7 @@ private:
 		std::string reverseEngineerPath();
 		int numberOfFiles();
 		void clean();
-		void render(Hydra::World::IWorld* world, Node** selectedNode);
+		void render(Hydra::World::IWorld* world, Node** selectedNode, bool& prepExporting);
 	private:
 		std::string _name;
 		std::vector<Node*> _subfolders;
@@ -58,5 +59,5 @@ private:
 	std::string _getExecutableDir();
 	std::string _selectedPath;
 	char _selectedFileName[128] = "";
-
+	bool _prepExporting = false;
 };
