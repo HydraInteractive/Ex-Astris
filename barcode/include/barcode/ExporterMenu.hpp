@@ -28,7 +28,7 @@ public:
 
 	void render(bool &closeBool);
 	void refresh();
-	static IEntity* getRoomEntity(Hydra::World::IWorld* world);
+	static std::shared_ptr<IEntity> getRoomEntity(Hydra::World::IWorld* world);
 private:
 	class Node
 	{

@@ -78,7 +78,8 @@ void ExporterMenu::render(bool &closeBool)
 		fileToSave.append(_selectedFileName);
 		fileToSave.append(".room");
 
-		BlueprintLoader::save(fileToSave, "Room", getRoomEntity(_world));
+		if(getRoomEntity(_world) != nullptr)
+			BlueprintLoader::save(fileToSave, "Room", getRoomEntity(_world));
 
 		closeBool = false;
 	}
@@ -95,16 +96,15 @@ void ExporterMenu::refresh()
 	_root = new Node(executableDir + "/assets");
 	//_root->clean();
 }
-IEntity* ExporterMenu::getRoomEntity(Hydra::World::IWorld* world)
+std::shared_ptr<IEntity> ExporterMenu::getRoomEntity(Hydra::World::IWorld* world)
 {
 	std::vector<std::shared_ptr<IEntity>> entities = world->getWorldRoot()->getChildren();
 	for (int i = 0; i < entities.size(); i++)
 	{
 		if (entities[i]->getName() == "Room")
-			return entities[i].get();
+			return entities[i];
 	}
-	//Why throw your own exceptions when you can throw others'?
-	return entities[-1].get();
+	return nullptr;
 }
 std::string ExporterMenu::_getExecutableDir()
 {

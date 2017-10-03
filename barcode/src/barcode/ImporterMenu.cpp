@@ -85,13 +85,13 @@ std::string ImporterMenu::_getExecutableDir()
 	return path;
 }
 
-IEntity* ImporterMenu::getRoomEntity(Hydra::World::IWorld* world)
+std::shared_ptr<IEntity> ImporterMenu::getRoomEntity(Hydra::World::IWorld* world)
 {
 	std::vector<std::shared_ptr<IEntity>> entities = world->getWorldRoot()->getChildren();
 	for (int i = 0; i < entities.size(); i++)
 	{
 		if (entities[i]->getName() == "Room")
-			return entities[i].get();
+			return entities[i];
 	}
 	return nullptr;
 }
@@ -222,7 +222,7 @@ void ImporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode
 				if (ImGui::IsItemClicked())
 				{
 					(*selectedNode) = _files[i];
-					if (ImGui::IsMouseDoubleClicked(0))
+					if (ImGui::IsMouseDoubleClicked(0) && getRoomEntity(world) != nullptr)
 					{
 						Hydra::World::IEntity* newEntity = getRoomEntity(world)->createEntity(_files[i]->name()).get();
 						newEntity->addComponent<Hydra::Component::MeshComponent>(_files[i]->reverseEngineerPath());
@@ -238,7 +238,10 @@ void ImporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode
 					(*selectedNode) = _files[i];
 					if (ImGui::IsMouseDoubleClicked(0))
 					{
-						getRoomEntity(world)->markDead();
+						if (getRoomEntity(world) != nullptr)
+						{
+							getRoomEntity(world)->markDead();
+						}
 						world->getWorldRoot()->spawn(BlueprintLoader::load(_files[i]->reverseEngineerPath())->spawn(world));
 					}
 				}
