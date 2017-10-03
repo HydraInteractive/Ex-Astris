@@ -24,6 +24,7 @@ PlayerComponent::PlayerComponent(IEntity* entity) : IComponent(entity) {
 	_velocity.y = 0;
 	_velocity.z = 0;
 	_position = glm::vec3(0, -2, 20);
+	_maxHealth = 100;
 	_health = 100;
 	_timer = SDL_GetTicks();
 }
@@ -34,6 +35,8 @@ PlayerComponent::~PlayerComponent(){
 
 void PlayerComponent::tick(TickAction action, float delta) {
 	// If you only have one TickAction in 'wantTick' you don't need to check the tickaction here.
+
+	_activeBuffs.onTick(_maxHealth, _health);
 
 	if (_health <= 0)
 	{
@@ -81,15 +84,23 @@ void PlayerComponent::tick(TickAction action, float delta) {
 			_acceleration.y -= 6.0f;
 			_onGround = false;
 		}
+		if (keysArray[SDL_SCANCODE_H] && !lastKeysArray[SDL_SCANCODE_H])
+		{
+			upgradeHealth();
+		}
+
 		if (keysArray[SDL_SCANCODE_F] && !lastKeysArray[SDL_SCANCODE_F]) {
 			auto& player = entity->getChildren();
 			auto abilitiesEntity = std::find_if(player.begin(), player.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Abilities"; });
 			_activeAbillies.useAbility(abilitiesEntity->get(), _position, -forward);
 		}
 
-		if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_MIDDLE)) {
+		if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
 			glm::quat bulletOrientation = glm::angleAxis(-camera->getYaw(), glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->getPitch(), glm::vec3(1, 0, 0)));
-			weapon->shoot(_position, forward, bulletOrientation, 0.5f);
+			float bulletVelocity = 1.0f;
+			_activeBuffs.onAttack(bulletVelocity);
+
+			weapon->shoot(_position, forward, bulletOrientation, bulletVelocity);
 		}
 		for (int i = 0; i < keysArrayLength; i++){
 			lastKeysArray[i] = keysArray[i];
@@ -172,5 +183,7 @@ void PlayerComponent::registerUI() {
 	ImGui::InputFloat("DEBUG", &_debug);
 	ImGui::DragFloat3("DEBUG POS", glm::value_ptr(_debugPos), 0.01f);
 	ImGui::Checkbox("First Person", &_firstPerson);
+	ImGui::InputInt("Health", &_health);
+	ImGui::InputInt("Max Health", &_maxHealth);
 	ImGui::Checkbox("Dead", &_dead);
 }
