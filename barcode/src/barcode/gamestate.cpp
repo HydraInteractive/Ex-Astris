@@ -403,6 +403,16 @@ namespace Barcode {
 			//static float invisF[3] = { 0, 0, 0 };
 			float hpP = 100;
 			float ammoP = 100;
+			float degres = 0;
+			for (auto& entity : _world->getActiveComponents<Hydra::Component::PlayerComponent>())
+			{
+				hpP = entity->getComponent<Hydra::Component::PlayerComponent>()->getHealth();
+			}
+			for (auto& entity : _world->getActiveComponents<Hydra::Component::CameraComponent>())
+			{
+				degres = entity->getComponent<Hydra::Component::CameraComponent>()->getYaw();
+				degres = glm::degrees(degres);
+			}
 			
 			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0));
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
@@ -426,6 +436,7 @@ namespace Barcode {
 			ImGui::End();
 
 			//Hp bar on ring
+			//_world->getActiveComponents<Hydra::Component::PlayerComponent>().
 			float offsetHpF = 72 * hpP * 0.01;
 			int offsetHp = offsetHpF;
 			ImGui::SetNextWindowPos(pos + ImVec2(-47, -26 + 72 - offsetHp));
@@ -444,7 +455,7 @@ namespace Barcode {
 			ImGui::End();
 
 			//compas that turns with player
-			float degres = 0;
+
 			float degresP = ((float(100) / float(360) * degres)/100);
 			float degresO = float(1000) * degresP;
 			ImGui::SetNextWindowPos(ImVec2(pos.x - 275, + 70));
@@ -527,7 +538,7 @@ namespace Barcode {
 			}
 
 			//Perk Icons
-			int amountOfPerks = 5;
+			int amountOfPerks = 60;
 			for (int i = 0; i < amountOfPerks; i++)
 			{
 				char buf[128];
