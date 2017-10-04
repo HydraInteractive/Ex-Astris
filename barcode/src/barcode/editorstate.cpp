@@ -211,6 +211,16 @@ namespace Barcode {
 			if (ImGui::MenuItem("Export..."))
 			{
 				_showExporter = !_showExporter;
+				if (_showExporter)
+					_exporterMenu->refresh();
+			}
+			ImGui::Separator();
+			if (ImGui::MenuItem("Clear room"))
+			{
+				ExporterMenu::getRoomEntity(_world.get())->markDead();
+
+				auto& roomEntity = _world->createEntity("Room");
+				roomEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
 			}
 			ImGui::EndMenu();
 		}
@@ -315,7 +325,7 @@ namespace Barcode {
 			_lightingBatch.pipeline->setValue(0, 0);
 			_lightingBatch.pipeline->setValue(1, 1);
 			_lightingBatch.pipeline->setValue(2, 2);
-			_lightingBatch.pipeline->setValue(3, _cc->getPosition());
+			//_lightingBatch.pipeline->setValue(3, _cc->getPosition());
 
 			(*_geometryBatch.output)[0]->bind(0);
 			(*_geometryBatch.output)[1]->bind(1);
@@ -410,18 +420,17 @@ namespace Barcode {
 		_world = Hydra::World::World::create();
 
 
-		auto playerEntity = _world->createEntity("Player");
+		auto& playerEntity = _world->createEntity("Player");
 		player = playerEntity->addComponent<Hydra::Component::PlayerComponent>();
 		_cc = playerEntity->addComponent<Hydra::Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{ 5, 0, -3 });
 		playerEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
 
-		auto animatedEntity = _world->createEntity("AnimatedCube");
-		animatedEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/animatedCube.ATTIC");
-		animatedEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-10, 0, -10));
-
-		auto weaponEntity = playerEntity->createEntity("Weapon");
+		auto& weaponEntity = playerEntity->createEntity("Weapon");
 		weaponEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 		weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::quat(0, 0, -1, 0));
+
+		auto& roomEntity = _world->createEntity("Room");
+		roomEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0,0,0));
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
 		auto bp = BlueprintLoader::load("world.blueprint");
