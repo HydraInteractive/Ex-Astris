@@ -234,7 +234,6 @@ namespace Barcode {
 			_geometryBatch.pipeline->setValue(2, cameraPos = _cc->getPosition());
 			_geometryBatch.pipeline->setValue(4, lightS);
 
-
 			_animationBatch.pipeline->setValue(0, _cc->getViewMatrix());
 			_animationBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
 			_animationBatch.pipeline->setValue(2, cameraPos = _cc->getPosition());
@@ -313,12 +312,8 @@ namespace Barcode {
 			_lightingBatch.pipeline->setValue(3, 3);
 			_lightingBatch.pipeline->setValue(4, 4);
 
-
-
 			_lightingBatch.pipeline->setValue(5, _cc->getPosition());
 			_lightingBatch.pipeline->setValue(6, _light->getDirection());
-			
-
 
 			(*_geometryBatch.output)[0]->bind(0);
 			(*_geometryBatch.output)[1]->bind(1);
@@ -463,10 +458,31 @@ namespace Barcode {
 				auto playerP = _cc->getPosition();
 				auto enemyP = entity->getComponent<Hydra::Component::EnemyComponent>()->getPosition();
 				auto enemyDir = normalize(enemyP - playerP);
+
 				glm::mat4 viewMat = _world->getActiveComponents<Hydra::Component::CameraComponent>()[0]->getComponent<Hydra::Component::CameraComponent>()->getViewMatrix();
-				glm::vec3 forward(viewMat[0][2], viewMat[1][2], viewMat[2][2]);
-				float dotPlacment = glm::dot(forward, enemyDir); // -1 - +1
-				dotPlacment = dotPlacment * 550;
+				glm::vec3 forward(-viewMat[0][2], -viewMat[1][2], -viewMat[2][2]);
+				glm::vec3 right = glm::normalize(glm::cross(glm::vec3(0, 1, 0), forward));
+
+				glm::vec2 forward2D = glm::normalize(glm::vec2(forward.x, forward.z));
+				glm::vec2 right2D = glm::normalize(glm::vec2(right.x, right.z));
+				glm::vec2 enemy2D = glm::normalize(glm::vec2(enemyDir.x, enemyDir.z));
+
+				float dotPlacment = glm::dot(forward2D, enemy2D); // -1 - +1
+				float leftRight = glm::dot(right2D, enemy2D);
+				if (leftRight < 0)
+				{
+					leftRight = -1;
+				}
+				else
+				{
+					leftRight = 1;
+				}
+				if (dotPlacment < 0)
+				{
+					dotPlacment = 0;
+				}
+				dotPlacment = dotPlacment;
+				dotPlacment = leftRight * (1 - dotPlacment) * 275;
 				ImGui::SetNextWindowPos(ImVec2(x + dotPlacment, 75)); //- 275
 				ImGui::SetNextWindowSize(ImVec2(20, 20));
 				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
@@ -511,62 +527,62 @@ namespace Barcode {
 			ImGui::PopStyleVar();
 
 			////Debug for pathfinding
-			//ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
-			//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-			//ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, float(0.0f));
+			/*ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, float(0.0f));
 
-			//int k = 0;
-			//for (auto& entity : _world->getActiveComponents<Hydra::Component::EnemyComponent>())
-			//{
-			//	for (int i = 0; i < 30; i++)
-			//	{
-			//		for (int j = 0; j < 30; j++)
-			//		{
-			//			if (entity != nullptr)
-			//			{
-			//				char buf[128];
-			//				snprintf(buf, sizeof(buf), "%d%d", i, j);
-			//				if (_enemy->getWall(i, j) == 1)
-			//				{
-			//					ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
-			//					ImGui::SetNextWindowSize(ImVec2(20, 20));
-			//					ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-			//					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(20, 20));
-			//					ImGui::End();
-			//				}
-			//				if (entity->getComponent<Hydra::Component::EnemyComponent>()->getWall(i, j) == 2)
-			//				{
-			//					ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
-			//					ImGui::SetNextWindowSize(ImVec2(20, 20));
-			//					ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-			//					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Blue.png")->getID()), ImVec2(20, 20));
-			//					ImGui::End();
-			//				}
-			//				else if (entity->getComponent<Hydra::Component::EnemyComponent>()->getWall(i, j) == 3)
-			//				{
-			//					ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
-			//					ImGui::SetNextWindowSize(ImVec2(20, 20));
-			//					ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-			//					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Yellow.png")->getID()), ImVec2(20, 20));
-			//					ImGui::End();
-			//				}
-			//				else if (_enemy->getWall(i, j) == 0)
-			//				{
-			//					ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
-			//					ImGui::SetNextWindowSize(ImVec2(20, 20));
-			//					ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-			//					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Green.png")->getID()), ImVec2(20, 20));
-			//					ImGui::End();
-			//				}
-			//			}
-			//		}
-			//	}
-			//	k++;
-			//}
+			int k = 0;
+			for (auto& entity : _world->getActiveComponents<Hydra::Component::EnemyComponent>())
+			{
+				for (int i = 0; i < 30; i++)
+				{
+					for (int j = 0; j < 30; j++)
+					{
+						if (entity != nullptr)
+						{
+							char buf[128];
+							snprintf(buf, sizeof(buf), "%d%d", i, j);
+							if (_enemy->getWall(i, j) == 1)
+							{
+								ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
+								ImGui::SetNextWindowSize(ImVec2(20, 20));
+								ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+								ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(20, 20));
+								ImGui::End();
+							}
+							if (entity->getComponent<Hydra::Component::EnemyComponent>()->getWall(i, j) == 2)
+							{
+								ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
+								ImGui::SetNextWindowSize(ImVec2(20, 20));
+								ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+								ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Blue.png")->getID()), ImVec2(20, 20));
+								ImGui::End();
+							}
+							else if (entity->getComponent<Hydra::Component::EnemyComponent>()->getWall(i, j) == 3)
+							{
+								ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
+								ImGui::SetNextWindowSize(ImVec2(20, 20));
+								ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+								ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Yellow.png")->getID()), ImVec2(20, 20));
+								ImGui::End();
+							}
+							else if (_enemy->getWall(i, j) == 0)
+							{
+								ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
+								ImGui::SetNextWindowSize(ImVec2(20, 20));
+								ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+								ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Green.png")->getID()), ImVec2(20, 20));
+								ImGui::End();
+							}
+						}
+					}
+				}
+				k++;
+			}
 
-			//ImGui::PopStyleColor();
-			//ImGui::PopStyleVar();
-			//ImGui::PopStyleVar();
+			ImGui::PopStyleColor();
+			ImGui::PopStyleVar();
+			ImGui::PopStyleVar();*/
 		}
 
 		{ // Sync with network
