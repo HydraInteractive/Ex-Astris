@@ -49,7 +49,7 @@ bool BuffHandler::addBuff(Buffs newBuff) {
 }
 
 void BuffHandler::onActivation(int &maxHealth, int &health) {
-	for (size_t i = 0; i < _activeBuffs.size(); i++){
+	for (size_t i = _lastPickedUpBuff; i < _activeBuffs.size(); i++){
 		switch (_activeBuffs[i]) {
 		case BUFF_HEALTHUPGRADE:
 			int lastMax = maxHealth;
@@ -57,6 +57,7 @@ void BuffHandler::onActivation(int &maxHealth, int &health) {
 			health += maxHealth - lastMax;
 		}
 	}
+	_lastPickedUpBuff++;
 }
 
 void BuffHandler::onTick(int &maxHealth, int &health) {
