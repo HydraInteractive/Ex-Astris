@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\barcode\EditorControlsComponent.hpp" />
     <ClInclude Include="include\barcode\editorstate.hpp" />
     <ClInclude Include="include\barcode\ExporterMenu.hpp" />
     <ClInclude Include="include\barcode\gamestate.hpp" />
@@ -18,6 +19,7 @@
     <ClInclude Include="include\barcode\menustate.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\barcode\EditorCameraComponent.cpp" />
     <ClCompile Include="src\barcode\editorstate.cpp" />
     <ClCompile Include="src\barcode\ExporterMenu.cpp" />
     <ClCompile Include="src\barcode\gamestate.cpp" />
