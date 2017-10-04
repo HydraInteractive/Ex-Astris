@@ -407,6 +407,7 @@ namespace Barcode {
 			for (auto& entity : _world->getActiveComponents<Hydra::Component::PlayerComponent>())
 			{
 				hpP = entity->getComponent<Hydra::Component::PlayerComponent>()->getHealth();
+				//get max hp
 			}
 			for (auto& entity : _world->getActiveComponents<Hydra::Component::CameraComponent>())
 			{
@@ -461,8 +462,8 @@ namespace Barcode {
 			ImGui::SetNextWindowPos(ImVec2(pos.x - 275, + 70));
 			ImGui::SetNextWindowSize(ImVec2(600, 20));
 			ImGui::Begin("Compass", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Compass.png")->getID()), ImVec2(550, 20), ImVec2(degresO / float(1550), 0), ImVec2((float(1) - ((float(1000) - degresO) / float(1550))), 1));
-			_textureLoader->getTexture("assets/hud/Compass.png")->setRepeat();
+			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/CompassCut.png")->getID()), ImVec2(550, 20), ImVec2(degresO / float(1000), 0), ImVec2((float(1) - ((float(450) - degresO) / float(1000))), 1));
+			_textureLoader->getTexture("assets/hud/CompassCut.png")->setRepeat();
 			ImGui::End();
 
 			//Enemys on compas
@@ -538,6 +539,10 @@ namespace Barcode {
 			}
 
 			//Perk Icons
+			for (auto& entity : _world->getActiveComponents<Hydra::Component::PlayerComponent>())
+			{
+				// get buff list = entity->getComponent<Hydra::Component::PlayerComponent>()->;
+			}
 			int amountOfPerks = 60;
 			for (int i = 0; i < amountOfPerks; i++)
 			{
