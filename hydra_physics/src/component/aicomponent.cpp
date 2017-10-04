@@ -71,6 +71,9 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				if (glm::length(enemy->getPosition() - player->getPosition()) < 50)
 				{
 					_timer = SDL_GetTicks();
+					_pathFinding->intializedStartGoal = false;
+					_pathFinding->foundGoal = false;
+					_pathFinding->clearPathToGoal();
 					_pathState = SEARCHING;
 				}
 			}break;
@@ -89,12 +92,14 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				}
 
 				_pathFinding->findPath(enemy->getPosition(), player->getPosition(), _map);
-				if (_pathFinding->_pathToEnd.size() > 0) {
-					_targetPos = _pathFinding->_pathToEnd[0];
-				}
+
 				_isAtGoal = false;
 				if (_pathFinding->foundGoal)
 				{
+					if (!_pathFinding->_pathToEnd.empty())
+					{
+						_targetPos = _pathFinding->_pathToEnd[0];
+					}
 					_pathState = FOUND_GOAL;
 				}
 			}break;
@@ -103,32 +108,37 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				
 				if (!_isAtGoal)
 				{
-					glm::vec3 targetDistance = _pathFinding->nextPathPos(enemy->getPosition(), getRadius()) - enemy->getPosition();
-
-					_angle = atan2(targetDistance.x, targetDistance.z);
-					_rotation = glm::angleAxis(_angle, glm::vec3(0, 1, 0));
-
-					glm::vec3 direction = glm::normalize(targetDistance);
-
-					_velocityX = (10.0f * direction.x) * delta;
-					_velocityZ = (10.0f * direction.z) * delta;
-
-					
-					if(glm::length(enemy->getPosition() - _targetPos) <= 8.0f)
+					if (!_pathFinding->_pathToEnd.empty())
 					{
-						_pathFinding->intializedStartGoal = false;
-						_pathFinding->foundGoal = false;
-						_pathFinding->clearPathToGoal();
-						_pathState = SEARCHING;
-						_timer = SDL_GetTicks();
-					}
-					else if(glm::length(player->getPosition() - _targetPos) > 15.0f)
-					{
-						//_pathFinding->intializedStartGoal = false;
-						//_pathFinding->foundGoal = false;
-						//_pathFinding->clearPathToGoal();
-						//_pathState = SEARCHING;
-						//_timer = SDL_GetTicks();
+						glm::vec3 targetDistance = _pathFinding->nextPathPos(enemy->getPosition(), getRadius()) - enemy->getPosition();
+
+						_angle = atan2(targetDistance.x, targetDistance.z);
+						_rotation = glm::angleAxis(_angle, glm::vec3(0, 1, 0));
+
+						glm::vec3 direction = glm::normalize(targetDistance);
+
+
+						_velocityX = (10.0f * direction.x) * delta;
+						_velocityZ = (10.0f * direction.z) * delta;
+
+
+
+						if (glm::length(enemy->getPosition() - _targetPos) <= 8.0f)
+						{
+							_pathFinding->intializedStartGoal = false;
+							_pathFinding->foundGoal = false;
+							_pathFinding->clearPathToGoal();
+							_pathState = SEARCHING;
+							_timer = SDL_GetTicks();
+						}
+						else if (glm::length(player->getPosition() - _targetPos) > 15.0f)
+						{
+							_pathFinding->intializedStartGoal = false;
+							_pathFinding->foundGoal = false;
+							_pathFinding->clearPathToGoal();
+							_pathState = SEARCHING;
+							_timer = SDL_GetTicks();
+						}
 					}
 
 					if (glm::length(enemy->getPosition() - player->getPosition()) <= 8.5f)
@@ -176,6 +186,9 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				if (glm::length(enemy->getPosition() - player->getPosition()) < 50)
 				{
 					_timer = SDL_GetTicks();
+					_pathFinding->intializedStartGoal = false;
+					_pathFinding->foundGoal = false;
+					_pathFinding->clearPathToGoal();
 					_pathState = SEARCHING;
 				}
 			}break;
@@ -194,12 +207,14 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				}
 
 				_pathFinding->findPath(enemy->getPosition(), player->getPosition(), _map);
-				if (_pathFinding->_pathToEnd.size() > 0) {
-					_targetPos = _pathFinding->_pathToEnd[0];
-				}
+
 				_isAtGoal = false;
 				if (_pathFinding->foundGoal)
 				{
+					if (!_pathFinding->_pathToEnd.empty())
+					{
+						_targetPos = _pathFinding->_pathToEnd[0];
+					}
 					_pathState = FOUND_GOAL;
 				}
 			}break;
@@ -207,31 +222,34 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			{
 				if (!_isAtGoal)
 				{
-					glm::vec3 targetDistance = _pathFinding->nextPathPos(enemy->getPosition(), getRadius()) - enemy->getPosition();
-
-					_angle = atan2(targetDistance.x, targetDistance.z);
-					_rotation = glm::angleAxis(_angle, glm::vec3(0, 1, 0));
-
-					glm::vec3 direction = glm::normalize(targetDistance);
-
-					_velocityX = (4.0f * direction.x) * delta;
-					_velocityZ = (4.0f * direction.z) * delta;
-
-					if (glm::length(enemy->getPosition() - _targetPos) <= 18.0f)
+					if (!_pathFinding->_pathToEnd.empty())
 					{
-						_pathFinding->intializedStartGoal = false;
-						_pathFinding->foundGoal = false;
-						_pathFinding->clearPathToGoal();
-						_pathState = SEARCHING;
-						_timer = SDL_GetTicks();
-					}
-					else if (glm::length(player->getPosition() - _targetPos) > 15.0f)
-					{
-						//_pathFinding->intializedStartGoal = false;
-						//_pathFinding->foundGoal = false;
-						//_pathFinding->clearPathToGoal();
-						//_pathState = SEARCHING;
-						//_timer = SDL_GetTicks();
+						glm::vec3 targetDistance = _pathFinding->nextPathPos(enemy->getPosition(), getRadius()) - enemy->getPosition();
+
+						_angle = atan2(targetDistance.x, targetDistance.z);
+						_rotation = glm::angleAxis(_angle, glm::vec3(0, 1, 0));
+
+						glm::vec3 direction = glm::normalize(targetDistance);
+
+						_velocityX = (4.0f * direction.x) * delta;
+						_velocityZ = (4.0f * direction.z) * delta;
+
+						if (glm::length(enemy->getPosition() - _targetPos) <= 18.0f)
+						{
+							_pathFinding->intializedStartGoal = false;
+							_pathFinding->foundGoal = false;
+							_pathFinding->clearPathToGoal();
+							_pathState = SEARCHING;
+							_timer = SDL_GetTicks();
+						}
+						else if (glm::length(player->getPosition() - _targetPos) > 15.0f)
+						{
+							_pathFinding->intializedStartGoal = false;
+							_pathFinding->foundGoal = false;
+							_pathFinding->clearPathToGoal();
+							_pathState = SEARCHING;
+							_timer = SDL_GetTicks();
+						}
 					}
 
 					if (glm::length(enemy->getPosition() - player->getPosition()) < 22.0f)
@@ -293,12 +311,14 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				}
 
 				_pathFinding->findPath(enemy->getPosition(), player->getPosition(), _map);
-				if (_pathFinding->_pathToEnd.size() > 0) {
-					_targetPos = _pathFinding->_pathToEnd[0];
-				}
 				_isAtGoal = false;
+
 				if (_pathFinding->foundGoal)
 				{
+					if (!_pathFinding->_pathToEnd.empty())
+					{
+						_targetPos = _pathFinding->_pathToEnd[0];
+					}
 					_pathState = FOUND_GOAL;
 				}
 			}break;
@@ -306,31 +326,34 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			{
 				if (!_isAtGoal)
 				{
-					glm::vec3 targetDistance = _pathFinding->nextPathPos(enemy->getPosition(), getRadius()) - enemy->getPosition();
-
-					_angle = atan2(targetDistance.x, targetDistance.z);
-					_rotation = glm::angleAxis(_angle, glm::vec3(0, 1, 0));
-
-					glm::vec3 direction = glm::normalize(targetDistance);
-
-					_velocityX = (6.0f * direction.x) * delta;
-					_velocityZ = (6.0f * direction.z) * delta;
-
-					if (glm::length(enemy->getPosition() - _targetPos) <= 8.0f)
+					if (!_pathFinding->_pathToEnd.empty())
 					{
-						_pathFinding->intializedStartGoal = false;
-						_pathFinding->foundGoal = false;
-						_pathFinding->clearPathToGoal();
-						_pathState = SEARCHING;
-						_timer = SDL_GetTicks();
-					}
-					else if (glm::length(player->getPosition() - _targetPos) > 15.0f)
-					{
-						//_pathFinding->intializedStartGoal = false;
-						//_pathFinding->foundGoal = false;
-						//_pathFinding->clearPathToGoal();
-						//_pathState = SEARCHING;
-						//_timer = SDL_GetTicks();
+						glm::vec3 targetDistance = _pathFinding->nextPathPos(enemy->getPosition(), getRadius()) - enemy->getPosition();
+
+						_angle = atan2(targetDistance.x, targetDistance.z);
+						_rotation = glm::angleAxis(_angle, glm::vec3(0, 1, 0));
+
+						glm::vec3 direction = glm::normalize(targetDistance);
+
+						_velocityX = (6.0f * direction.x) * delta;
+						_velocityZ = (6.0f * direction.z) * delta;
+
+						if (glm::length(enemy->getPosition() - _targetPos) <= 8.0f)
+						{
+							_pathFinding->intializedStartGoal = false;
+							_pathFinding->foundGoal = false;
+							_pathFinding->clearPathToGoal();
+							_pathState = SEARCHING;
+							_timer = SDL_GetTicks();
+						}
+						else if (glm::length(player->getPosition() - _targetPos) > 15.0f)
+						{
+							_pathFinding->intializedStartGoal = false;
+							_pathFinding->foundGoal = false;
+							_pathFinding->clearPathToGoal();
+							_pathState = SEARCHING;
+							_timer = SDL_GetTicks();
+						}
 					}
 
 					if (glm::length(enemy->getPosition() - player->getPosition()) < 9.0f)
