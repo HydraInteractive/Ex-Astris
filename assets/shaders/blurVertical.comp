@@ -1,14 +1,14 @@
 #version 440 core
 
-const int ySize = 20;
-const int downScale = 8;
-layout(local_size_x = 1, local_size_y = 20) in;
+const int ySize = 40;
+const int downScale = 2;
+layout(local_size_x = 1, local_size_y = 40) in;
 layout(rgba8, binding = 0) uniform image2D img_input;
 layout(rgba8, binding = 1) uniform image2D img_output;
 
 #define CACHE(yPos) image_row[yPos + 2]
 
-float GAUSSIAN_KERNEL[5] = float[](10.06136, 0.24477, 0.38774, 0.24477, 10.06136);
+float GAUSSIAN_KERNEL[5] = float[](0.06136, 0.24477, 0.38774, 0.24477, 0.06136);
 shared vec4 image_row[ySize+2+2];
 
 void main(){
@@ -24,7 +24,7 @@ void main(){
 		}
 	}
 
-	if (y == 19) {
+	if (y == 39) {
 		if (true || pos.y == imageSize(img_input).y)
 			CACHE(ySize + 1) = CACHE(ySize) = CACHE(y);
 		else {
@@ -42,6 +42,5 @@ void main(){
 				+ CACHE(y+1) * GAUSSIAN_KERNEL[3]
 	 			+ CACHE(y+2) * GAUSSIAN_KERNEL[4];
 
-	if (pos.y % downScale == 0 && pos.y % downScale == 0)
-		imageStore(img_output, pos/downScale, result);
+	imageStore(img_output, pos, result);
 }

@@ -1,7 +1,8 @@
 #version 440 core
 
-const int xSize = 20;
-layout(local_size_x = 20, local_size_y = 1) in;
+const int xSize = 40;
+const int downScale = 2;
+layout(local_size_x = 40, local_size_y = 1) in;
 layout(rgba8, binding = 0) uniform image2D img_input;
 layout(rgba8, binding = 1) uniform image2D img_output;
 
@@ -23,7 +24,7 @@ void main(){
 		}
 	}
 
-	if (x == 19) {
+	if (x == 39) {
 		if (true || pos.x == imageSize(img_input).x)
 			CACHE(xSize + 1) = CACHE(xSize) = CACHE(x);
 		else {
@@ -41,6 +42,6 @@ void main(){
 				+ CACHE(x+1) * GAUSSIAN_KERNEL[3]
 	 			+ CACHE(x+2) * GAUSSIAN_KERNEL[4];
 
-	if (pos.x % 8 == 0 && pos.y % 8 == 0)
-		imageStore(img_output, pos/8, result);
+	if (pos.x % downScale == 0 && pos.y % downScale == 0)
+		imageStore(img_output, pos/downScale, result);
 }

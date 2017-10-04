@@ -357,7 +357,7 @@ namespace Barcode {
 
 			_lightingBatch.output->resolve(0, (*_glowBatch.output)[0]);
 			_lightingBatch.output->resolve(0, _computeIMGTest1);
-			blur(1);
+			blur(4);
 
 			//_blurGlowTexture((*_glowBatch.output)[0], nrOfTimes, size *= 0.5f)
 			//	->resolve(0, _blurredIMG1);
@@ -374,7 +374,7 @@ namespace Barcode {
 			//_glowBatch.batch.pipeline->setValue(4, 4);
 
 			(*_glowBatch.output)[0]->bind(1);
-			_computeIMGTest2->bind(2);
+			_computeIMGTest1->bind(2);
 			//_blurredIMG2->bind(3);
 			//_blurredIMG3->bind(4);
 
@@ -697,18 +697,18 @@ namespace Barcode {
 	void GameState::blur(int nrOfTimes) {
 		for (int i = 0; i < nrOfTimes * 2; i++) {
 			if (i % 2 == 0) {
-				_computeIMGTest2->resize(glm::ivec2(_computeIMGTest1->getSize().x / 8, _computeIMGTest1->getSize().y / 8));
+				_computeIMGTest2->resize(glm::ivec2(_computeIMGTest1->getSize().x / 2, _computeIMGTest1->getSize().y / 2));
 				_computeIMGTest1->bindToComputeShader(0, true);
 				_computeIMGTest2->bindToComputeShader(1, false);
-				_computeTestBatch.batch.pipeline = _computeVerticalPipeline.get();
-				_engine->getRenderer()->compute(_computeTestBatch.batch, glm::vec3(1920/20, 1080, 1));
+				_computeTestBatch.batch.pipeline = _computeTestBatch.pipeline.get();
+				_engine->getRenderer()->compute(_computeTestBatch.batch, glm::vec3(1920/40, 1080, 1));
 			}
 			else {
 				_computeIMGTest1->resize(glm::ivec2(_computeIMGTest2->getSize().x, _computeIMGTest2->getSize().y));
 				_computeIMGTest2->bindToComputeShader(0, true);
 				_computeIMGTest1->bindToComputeShader(1, false);
-				//_computeTestBatch.batch.pipeline = _computeTestBatch.pipeline.get();
-				_engine->getRenderer()->compute(_computeTestBatch.batch, glm::vec3(1920/20, 1080, 1));
+				_computeTestBatch.batch.pipeline = _computeVerticalPipeline.get();
+				_engine->getRenderer()->compute(_computeTestBatch.batch, glm::vec3(1920/2, 1080/40, 1));
 			}
 		}
 	}
