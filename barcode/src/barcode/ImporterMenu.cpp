@@ -58,10 +58,11 @@ void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch& previewBatch,
 		}
 
 		previewBatch.objects.clear();
-		
+		// Because of issues with the engine adding components will always be added to the global world
+		// So we need to disable the meshes to have them be only viewed in the previewWindow
 		if (_newEntityClicked) {
 			_previewEntity = _previewWorld->createEntity(fileName);
-			_previewEntity->addComponent<Hydra::Component::MeshComponent>(fileName)->disable();
+			_previewEntity->addComponent<Hydra::Component::MeshComponent>(fileName); // Disable mesh to only see the model in preview window
 	
 			auto tc = _previewEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0));
 			auto cc = _previewEntity->addComponent<Hydra::Component::CameraComponent>(previewBatch.renderTarget, glm::vec3(0,0,5));
