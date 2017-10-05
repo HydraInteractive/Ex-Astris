@@ -79,7 +79,7 @@ void PlayerComponent::tick(TickAction action, float delta) {
 			_activeAbillies.useAbility(abilitiesEntity->get(), _position, -forward);
 		}
 
-		if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+		if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && !ImGui::GetIO().WantCaptureMouse) {
 			const glm::vec3 forward = glm::vec3(glm::vec4{0, 0, 1, 0} * rotation);
 
 			//TODO: Make pretty?

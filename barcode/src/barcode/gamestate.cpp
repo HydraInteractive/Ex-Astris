@@ -605,7 +605,7 @@ namespace Barcode {
 		floor->addComponent<Hydra::Component::RigidBodyComponent>()->createStaticPlane(glm::vec3(0, 1, 0), 1);
 
 		auto physicsBox = _world->createEntity("Physics box");
-		physicsBox->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 10, 2));
+		physicsBox->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 100, 2));
 		physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(glm::vec3(0.5f), 10);
 		physicsBox->addComponent<Hydra::Component::MeshComponent>("assets/objects/Computer1.ATTIC");
 
@@ -630,7 +630,7 @@ namespace Barcode {
 		particleEmitter1->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::Knas, 2, glm::vec3(5,0,0));
 
 		auto particleEmitter2 = _world->createEntity("ParticleEmitter2");
-		particleEmitter2->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::BogdanDeluxe, 3, glm::vec3(5, -5, 0));
+		particleEmitter2->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::BogdanDeluxe, 3, glm::vec3(5, 5, 0));
 		*/
 
 		auto alienEntity = _world->createEntity("Enemy Alien");
@@ -667,12 +667,12 @@ namespace Barcode {
 
 		auto test6 = _world->createEntity("test6");
 		test6->addComponent<Hydra::Component::MeshComponent>("assets/objects/Roof1.ATTIC");
-		test6->addComponent<Hydra::Component::TransformComponent>(glm::vec3(14, -8.0, 9), glm::vec3(1, 1, 1), glm::quat(0.450, 0, 0.4, -40));
+		test6->addComponent<Hydra::Component::TransformComponent>(glm::vec3(14, 8.0, 9), glm::vec3(40, 40, 40), glm::quat(0, 0, 0, 1));
 
 
 		auto test7 = _world->createEntity("test7");
 		test7->addComponent<Hydra::Component::MeshComponent>("assets/objects/Floor.ATTIC");
-		test7->addComponent<Hydra::Component::TransformComponent>(glm::vec3(14, 8, 9), glm::vec3(30, 8.7, 50), glm::quat(1.3, 0, -0.06, 0));
+		test7->addComponent<Hydra::Component::TransformComponent>(glm::vec3(14, -8, 9), glm::vec3(100, 1, 100), glm::quat(1.3, 0, -0.06, 0));
 
 		auto lightEntity = _world->createEntity("Light");
 		_light = lightEntity->addComponent<Hydra::Component::LightComponent>();
@@ -690,8 +690,10 @@ namespace Barcode {
 			_cc = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Player"; })->get()->getComponent<Hydra::Component::CameraComponent>();
 			_cc->setRenderTarget(_geometryBatch.output.get());
 			_enemy = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Enemy Alien"; })->get()->getComponent<Hydra::Component::EnemyComponent>();
-			_physicsManager->enable(std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Floor"; })->get()->getComponent<Hydra::Component::RigidBodyComponent>());
-			_physicsManager->enable(std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Physics box"; })->get()->getComponent<Hydra::Component::RigidBodyComponent>());
+			if (auto _  = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Floor"; }); _ != world.end())
+				_physicsManager->enable(_->get()->getComponent<Hydra::Component::RigidBodyComponent>());
+			if (auto _ = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Physics box"; }); _ != world.end())
+				_physicsManager->enable(_->get()->getComponent<Hydra::Component::RigidBodyComponent>());
 		}
 
 	}

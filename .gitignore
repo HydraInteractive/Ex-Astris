@@ -45,3 +45,4 @@ Debug
 *.pdb
 \#*\#
 .\#*
+.gdb_history
