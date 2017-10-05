@@ -19,7 +19,6 @@
     <ClInclude Include="include\barcode\menustate.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\barcode\EditorCameraComponent.cpp" />
     <ClCompile Include="src\barcode\editorstate.cpp" />
     <ClCompile Include="src\barcode\ExporterMenu.cpp" />
     <ClCompile Include="src\barcode\gamestate.cpp" />

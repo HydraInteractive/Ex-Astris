@@ -9,6 +9,10 @@ Hydra::Component::EditorCameraComponent::~EditorCameraComponent()
 
 }
 
+void Hydra::Component::EditorCameraComponent::tick(TickAction action, float delta){
+}
+
+
 void Hydra::Component::EditorCameraComponent::serialize(nlohmann::json & json) const
 {
 

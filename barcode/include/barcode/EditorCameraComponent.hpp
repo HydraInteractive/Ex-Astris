@@ -17,8 +17,6 @@ namespace Hydra::Component {
 		// If you want to add more than one TickAction, combine them with '|' (The bitwise or operator) 
 		inline TickAction wantTick() const final { return TickAction::physics; }
 
-		std::shared_ptr<Hydra::World::IEntity> getWeapon();
-
 		inline const std::string type() const final { return "EditorCameraComponent"; }
 		const glm::vec3 getPosition() { return _position; };
 		void serialize(nlohmann::json& json) const final;
