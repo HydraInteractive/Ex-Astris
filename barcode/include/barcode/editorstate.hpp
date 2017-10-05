@@ -88,6 +88,7 @@ namespace Barcode {
 		RenderBatch _viewBatch;
 		RenderBatch _postTestBatch;
 		RenderBatch _particleBatch;
+		RenderBatch _previewBatch;
 
 		// ParticleTexture
 		std::shared_ptr<Hydra::Renderer::ITexture> _particleAtlases;

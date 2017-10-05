@@ -191,6 +191,27 @@ namespace Barcode {
 			batch.batch.pipeline = batch.pipeline.get();
 		}
 
+		{
+			auto& batch = _previewBatch;
+			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/previewWindow.vert");
+			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/previewWindow.frag");
+
+			batch.pipeline = Hydra::Renderer::GLPipeline::create();
+			batch.pipeline->attachStage(*batch.vertexShader);
+			batch.pipeline->attachStage(*batch.fragmentShader);
+			batch.pipeline->finalize();
+
+			batch.output = Hydra::Renderer::GLFramebuffer::create(glm::ivec2(720), 0);
+			batch.output
+				->addTexture(0, Hydra::Renderer::TextureType::u8RGB)
+				.finalize();
+
+			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
+			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::color | Hydra::Renderer::ClearFlags::depth;
+			batch.batch.renderTarget = batch.output.get();
+			batch.batch.pipeline = batch.pipeline.get();
+		}
+
 		_initWorld();
 		this->_importerMenu = new ImporterMenu(_world.get());
 		this->_exporterMenu = new ExporterMenu(_world.get());
@@ -399,7 +420,7 @@ namespace Barcode {
 		{ // Update UI & views
 			_engine->getRenderer()->render(_viewBatch.batch);
 			if (_showImporter)
-				_importerMenu->render(_showImporter);
+				_importerMenu->render(_showImporter, _previewBatch.batch);
 			if (_showExporter)
 				_exporterMenu->render(_showExporter);
 			// Resolve geometryFBO into the geometry window in the UI

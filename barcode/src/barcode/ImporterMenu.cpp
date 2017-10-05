@@ -1,16 +1,19 @@
 #include <barcode/ImporterMenu.hpp>
+#include <hydra/engine.hpp>
 
 ImporterMenu::ImporterMenu()
 {
 	this->executableDir = "";
 	this->_root = nullptr;
-	this->_world = nullptr;
+	this->_editorWorld = nullptr;
 }
 ImporterMenu::ImporterMenu(Hydra::World::IWorld* world)
 {
 	this->executableDir = _getExecutableDir();
 	this->_root = nullptr;
-	this->_world = world;
+	this->_editorWorld = world;
+	this->_previewWorld = Hydra::World::World::create();
+	this->_newEntityClicked = false;
 	refresh();
 }
 ImporterMenu::~ImporterMenu()
@@ -18,7 +21,7 @@ ImporterMenu::~ImporterMenu()
 	if(_root != nullptr)
 	delete _root;
 }
-void ImporterMenu::render(bool &closeBool)
+void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch& previewBatch)
 {
 	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiSetCond_Once);
 	ImGui::Begin("Import", &closeBool, ImGuiWindowFlags_MenuBar);
@@ -38,19 +41,41 @@ void ImporterMenu::render(bool &closeBool)
 
 	//File tree
 	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.3f, ImGui::GetWindowContentRegionMax().y - 60));
+	bool foundClickedEntity = false;
 	if(_root != nullptr)
-		_root->render(_world, &selectedNode);
-	if (selectedNode != nullptr)
-		std::cout << selectedNode->reverseEngineerPath() << std::endl;
+		_root->render(_editorWorld, &selectedNode);
+	if (selectedNode != nullptr) {
+		std::string fileName = selectedNode->reverseEngineerPath();
+		std::cout << fileName.c_str() << std::endl;
+		
+		if (previewBatch.objects.size() > 0) {
+			if (_previewEntity->getName() == fileName)
+				_newEntityClicked = false;
+			else
+				_newEntityClicked = true;
+		}
+
+		previewBatch.objects.clear();
+		
+		if (!_newEntityClicked) {
+			_previewEntity = _previewWorld->createEntity(fileName);
+			_previewEntity->addComponent<Hydra::Component::MeshComponent>(fileName);
+			_previewEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0));
+		}
+		
+		auto drawObj = _previewEntity->getDrawObject();
+		previewBatch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+	}
 	ImGui::EndChild();
 
 	ImGui::SameLine();
-
+	Hydra::IEngine::getInstance()->getRenderer()->render(previewBatch);
 	//Preview window
 	ImGui::BeginChild("Preview", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.7f, ImGui::GetWindowContentRegionMax().y - 60));
-	
+	ImGui::SetNextWindowPos(ImVec2(10, 10));
+	ImGui::SetNextWindowSize(ImVec2(20, 20));
+	ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<Hydra::Renderer::IFramebuffer&>(*previewBatch.renderTarget)[0]->getID()), ImVec2(ImGui::GetWindowContentRegionWidth() * 0.9f, ImGui::GetWindowContentRegionMax().y - 60));
 	ImGui::EndChild();
-
 	ImGui::End();
 }
 void ImporterMenu::refresh()
@@ -123,6 +148,7 @@ ImporterMenu::Node::Node(std::string path, Node* parent, bool isFile)
 		this->_files.push_back(new Node(inFiles[i], this, true));
 	}
 }
+
 ImporterMenu::Node::~Node()
 {
 	for (size_t i = 0; i < _subfolders.size(); i++)
