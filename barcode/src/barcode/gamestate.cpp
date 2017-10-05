@@ -526,7 +526,7 @@ namespace Barcode {
 			ImGui::PopStyleVar();
 			ImGui::PopStyleVar();
 
-			////Debug for pathfinding
+			//////Debug for pathfinding
 			/*ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, float(0.0f));
@@ -630,18 +630,17 @@ namespace Barcode {
 		*/
 
 		auto alienEntity = _world->createEntity("Enemy Alien");
-		alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 0), 80, 8);
+		alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 0), 80, 8, 8.5f);
 		alienEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 		
-		//auto robotEntity = _world->createEntity("Enemy Robot");
-		//robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, glm::vec3(20, 0, 10), 70, 11);
-		//robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+		auto robotEntity = _world->createEntity("Enemy Robot");
+		robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, glm::vec3(20, 0, 10), 70, 11, 20.0f);
+		robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
-		//auto bossEntity = _world->createEntity("Enemy Boss");
-		//bossEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss, glm::vec3(15, 0, 16), 1200, 25);
-		//bossEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+		auto bossEntity = _world->createEntity("Enemy Boss");
+		bossEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss, glm::vec3(15, 0, 16), 1200, 25, 9.0f);
+		bossEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 		
-
 		auto test = _world->createEntity("test");
 		test->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");
 		test->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-7, 0, 0), glm::vec3(1, 1, 1), glm::quat(0, 0, -1, 0));
