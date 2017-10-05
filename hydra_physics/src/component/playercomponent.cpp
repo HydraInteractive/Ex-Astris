@@ -47,37 +47,21 @@ void PlayerComponent::tick(TickAction action, float delta) {
 	auto player = entity->getComponent<Component::TransformComponent>();
 	auto camera = entity->getComponent<Component::CameraComponent>();
 	auto weapon = getWeapon()->getComponent<Component::WeaponComponent>();
-	
-	glm::mat4 viewMat = camera->getViewMatrix();
-	glm::vec3 forward(viewMat[0][2], viewMat[1][2], viewMat[2][2]);
-	glm::vec3 strafe(viewMat[0][0], viewMat[1][0], viewMat[2][0]);
+
+	glm::mat4 rotation = glm::mat4_cast(camera->getOrientation());
 
 	{
 		const Uint8* keysArray = SDL_GetKeyboardState(&keysArrayLength);
+		_velocity = glm::vec3{0};
+		if (keysArray[SDL_SCANCODE_W])
+			_velocity.z -= _movementSpeed;
+		if (keysArray[SDL_SCANCODE_S])
+			_velocity.z += _movementSpeed;
 
-		if (keysArray[SDL_SCANCODE_W]) {
-			_velocity.z = -_movementSpeed;
-		}
-
-		if (keysArray[SDL_SCANCODE_S]) {
-			_velocity.z = _movementSpeed;
-		}
-
-		if (keysArray[SDL_SCANCODE_A]) {
-			_velocity.x = -_movementSpeed;
-		}
-
-		if (keysArray[SDL_SCANCODE_D]) {
-			_velocity.x = _movementSpeed;
-		}
-
-		if (keysArray[SDL_SCANCODE_A] == 0 && keysArray[SDL_SCANCODE_D] == 0) {
-			_velocity.x = 0.0f;
-		}
-
-		if (keysArray[SDL_SCANCODE_W] == 0 && keysArray[SDL_SCANCODE_S] == 0) {
-			_velocity.z = 0.0f;
-		}
+		if (keysArray[SDL_SCANCODE_A])
+			_velocity.x -= _movementSpeed;
+		if (keysArray[SDL_SCANCODE_D])
+			_velocity.x += _movementSpeed;
 
 		if (keysArray[SDL_SCANCODE_SPACE] && _onGround){
 			_acceleration.y += 6.0f;
@@ -90,46 +74,47 @@ void PlayerComponent::tick(TickAction action, float delta) {
 
 		if (keysArray[SDL_SCANCODE_F] && !lastKeysArray[SDL_SCANCODE_F]) {
 			auto& player = entity->getChildren();
+			const glm::vec3 forward = glm::vec3(glm::vec4{0, 0, 1, 0} * rotation);
 			auto abilitiesEntity = std::find_if(player.begin(), player.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Abilities"; });
 			_activeAbillies.useAbility(abilitiesEntity->get(), _position, -forward);
 		}
 
 		if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+			const glm::vec3 forward = glm::vec3(glm::vec4{0, 0, 1, 0} * rotation);
+
+			//TODO: Make pretty?
 			glm::quat bulletOrientation = glm::angleAxis(-camera->getYaw(), glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->getPitch(), glm::vec3(1, 0, 0)));
 			float bulletVelocity = 1.0f;
 			_activeBuffs.onAttack(bulletVelocity);
 
 			weapon->shoot(_position, forward, bulletOrientation, bulletVelocity);
 		}
-		for (int i = 0; i < keysArrayLength; i++){
+		for (int i = 0; i < keysArrayLength; i++)
 			lastKeysArray[i] = keysArray[i];
-		}
 	}
 
 	_acceleration.y -= 10.0f * delta;
-	glm::vec3 movementVector = (_velocity.z * forward + _velocity.x * strafe);
+	glm::vec4 movementVector = glm::vec4(_velocity, 0) * rotation;
 	movementVector.y = _acceleration.y;
 
-	_position += movementVector * delta;
+	_position += glm::vec3(movementVector) * delta;
 
-	
 	if (_position.y < 0) {
 		_position.y = 0;
 		_acceleration.y = 0;
 		_onGround = true;
 	}
 
-	if (_firstPerson){
+	if (_firstPerson)
 		camera->setPosition(_position);
-	}
-	else{
-		camera->setPosition(_position + glm::vec3(0, 3, 0) + (forward * glm::vec3(4, 0, 4)));
-	}
-	//player->setPosition(_position);
-	player->setPosition(_position + glm::vec3(0, 0.75, 0) + glm::vec3(-1, 0, -1) * forward + glm::vec3(1, 0, 1)*strafe);
-	player->setRotation(glm::angleAxis(camera->getYaw(), glm::vec3(0, 1, 0)));
-	
-	//getWeapon()->getComponent<TransformComponent>()->setRotation(glm::angleAxis(camera->getYaw(), glm::vec3(0, 1, 0)));
+	else
+		camera->setPosition(_position + glm::vec3(0, 3, 0) + glm::vec3(glm::vec4{-4, 0, 4, 0} * rotation));
+
+	player->setPosition(_position);
+	player->setRotation(camera->getOrientation());
+
+	getWeapon()->getComponent<TransformComponent>()->setPosition(_position + glm::vec3(glm::vec4{_weaponOffset, 0} * rotation));
+	getWeapon()->getComponent<TransformComponent>()->setRotation(glm::normalize(glm::conjugate(camera->getOrientation()) * glm::quat(glm::vec3(glm::radians(180.0f), 0, glm::radians(180.0f)))));
 }
 
 std::shared_ptr<Hydra::World::IEntity> PlayerComponent::getWeapon() {
@@ -163,6 +148,7 @@ void Hydra::Component::PlayerComponent::applyDamage(int damage)
 void PlayerComponent::serialize(nlohmann::json& json) const {
 	json = {
 		{ "position",{ _position.x, _position.y, _position.z } },
+		{ "weaponOffset",{ _weaponOffset.x, _weaponOffset.y, _weaponOffset.z } },
 		{ "velocity",{ _velocity.x, _velocity.y, _velocity.z } }
 	};
 }
@@ -170,15 +156,19 @@ void PlayerComponent::serialize(nlohmann::json& json) const {
 void PlayerComponent::deserialize(nlohmann::json& json) {
 	auto& pos = json["position"];
 	_position = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
-	
+
+	auto& wep = json["weaponOffset"];
+	_weaponOffset = glm::vec3{ wep[0].get<float>(), wep[1].get<float>(), wep[2].get<float>() };
+
 	auto& vel = json["velocity"];
-	_position = glm::vec3{ vel[0].get<float>(), vel[1].get<float>(), vel[2].get<float>() };
+	_velocity = glm::vec3{ vel[0].get<float>(), vel[1].get<float>(), vel[2].get<float>() };
 }
 
 // Register UI buttons in the debug UI
 // Note: This function won't always be called
 void PlayerComponent::registerUI() {
 	ImGui::DragFloat3("Position", glm::value_ptr(_position),0.01f);
+	ImGui::DragFloat3("Weapon Offset", glm::value_ptr(_weaponOffset),0.01f);
 	ImGui::InputFloat("DEBUG", &_debug);
 	ImGui::DragFloat3("DEBUG POS", glm::value_ptr(_debugPos), 0.01f);
 	ImGui::Checkbox("First Person", &_firstPerson);

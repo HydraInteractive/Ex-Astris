@@ -53,6 +53,7 @@ namespace Hydra::Component {
 
 		inline const float& getYaw() const { return _cameraYaw; }
 		inline const float& getPitch() const { return _cameraPitch; }
+		inline const glm::quat& getOrientation() const { return _orientation; }
 
 		// TODO: Cache these?
 		inline glm::mat4 getViewMatrix() const { return glm::translate(glm::mat4_cast(_orientation), -_position); }
