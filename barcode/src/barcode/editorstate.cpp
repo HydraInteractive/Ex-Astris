@@ -227,7 +227,7 @@ namespace Barcode {
 			{
 				ExporterMenu::getRoomEntity(_world.get())->markDead();
 
-				auto& roomEntity = _world->createEntity("Room");
+				auto roomEntity = _world->createEntity("Room");
 				roomEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
 			}
 			ImGui::EndMenu();

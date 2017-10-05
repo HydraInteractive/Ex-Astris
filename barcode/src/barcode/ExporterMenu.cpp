@@ -96,7 +96,7 @@ void ExporterMenu::render(bool &closeBool)
 		if (ImGui::BeginPopupModal("Overwrite?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			std::string textline = "This action will overwrite the file at " + fileToSave + ". Continue?";
-			ImGui::Text(textline.c_str());
+			ImGui::Text("%s", textline.c_str());
 			ImGui::Separator();
 
 			if (ImGui::Button("OK", ImVec2(120, 0)))
@@ -137,7 +137,7 @@ void ExporterMenu::refresh()
 std::shared_ptr<IEntity> ExporterMenu::getRoomEntity(Hydra::World::IWorld* world)
 {
 	std::vector<std::shared_ptr<IEntity>> entities = world->getWorldRoot()->getChildren();
-	for (int i = 0; i < entities.size(); i++)
+	for (size_t i = 0; i < entities.size(); i++)
 	{
 		if (entities[i]->getName() == "Room")
 			return entities[i];
