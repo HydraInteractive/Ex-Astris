@@ -1,12 +1,16 @@
 #include <hydra/component/EditorCameraComponent.hpp>
 Hydra::Component::EditorCameraComponent::EditorCameraComponent(IEntity* entity) : IComponent(entity)
 {
+	SDL_GetKeyboardState(&keysArrayLength);
+	lastKeysArray = new bool[keysArrayLength];
 	_renderTarget = nullptr;
 }
 Hydra::Component::EditorCameraComponent::EditorCameraComponent(IEntity* entity, Hydra::Renderer::IRenderTarget* renderTarget, const glm::vec3& position) : IComponent(entity)
 {
 	_renderTarget = renderTarget;
 	_position = position;
+	SDL_GetKeyboardState(&keysArrayLength);
+	lastKeysArray = new bool[keysArrayLength];
 }
 Hydra::Component::EditorCameraComponent::~EditorCameraComponent()
 {
@@ -16,7 +20,7 @@ Hydra::Component::EditorCameraComponent::~EditorCameraComponent()
 void Hydra::Component::EditorCameraComponent::tick(TickAction action, float delta)
 {
 	_position += glm::vec3{ 0, 0, 0 };
-
+	glm::vec3 velocity = glm::vec3(0,0,0);
 	int mouseX, mouseY;
 	if (SDL_GetRelativeMouseState(&mouseX, &mouseY) == SDL_BUTTON(3))
 	{
@@ -39,6 +43,29 @@ void Hydra::Component::EditorCameraComponent::tick(TickAction action, float delt
 
 	_orientation = qPitch * qYaw * qRoll;
 	_orientation = glm::normalize(_orientation);
+
+	Uint8* keysArray;
+	keysArray = const_cast<Uint8*>(SDL_GetKeyboardState(&keysArrayLength));
+
+	if (keysArray[SDL_SCANCODE_W]) {
+		velocity.z -= _movementSpeed;
+	}
+	if (keysArray[SDL_SCANCODE_S]) {
+		velocity.z += _movementSpeed;
+	}
+	if (keysArray[SDL_SCANCODE_A]) {
+		velocity.x -= _movementSpeed;
+	}
+	if (keysArray[SDL_SCANCODE_D]) {
+		velocity.x += _movementSpeed;
+	}
+	if (keysArray[SDL_SCANCODE_LSHIFT])
+	{
+		velocity *= _shiftMultiplier;
+	}
+	glm::mat4 viewMat = getViewMatrix();
+	_position += glm::vec3(glm::vec4(velocity,1.0f) * viewMat) * delta;
+	setPosition(_position);
 }
 
 void Hydra::Component::EditorCameraComponent::serialize(nlohmann::json & json) const
@@ -68,13 +95,16 @@ void Hydra::Component::EditorCameraComponent::deserialize(nlohmann::json & json)
 void Hydra::Component::EditorCameraComponent::registerUI()
 {
 	ImGui::DragFloat3("Position", glm::value_ptr(_position), 0.01f);
+	ImGui::InputFloat("Movement Speed", &_movementSpeed);
+	ImGui::InputFloat("Shift Multiplier", &_shiftMultiplier);
 	ImGui::DragFloat4("Orientation", glm::value_ptr(_orientation), 0.01f);
 	ImGui::DragFloat("FOV", &_fov);
 	ImGui::DragFloat("Z Near", &_zNear, 0.001f);
 	ImGui::DragFloat("Z Far", &_zFar);
 
 	float aspect = (_renderTarget->getSize().x*1.0f) / _renderTarget->getSize().y;
-	ImGui::InputFloat("Aspect", &aspect, 0, 0, -1, ImGuiInputTextFlags_ReadOnly);
+	ImGui::InputFloat("Aspect Ratio", &aspect, 0, 0, -1, ImGuiInputTextFlags_ReadOnly);
+
 }
 
 void Hydra::Component::EditorCameraComponent::setPosition(const glm::vec3 & position)

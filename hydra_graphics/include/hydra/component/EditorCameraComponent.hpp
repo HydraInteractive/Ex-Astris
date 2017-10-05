@@ -49,7 +49,11 @@ namespace Hydra::Component {
 		Hydra::Renderer::IRenderTarget* _renderTarget;
 
 		glm::vec3 _position = glm::vec3(0, 5, 0);
-		glm::vec3 _direction = glm::vec3(0, -1, 0);
+		int keysArrayLength;
+		bool *lastKeysArray;
+		float _movementSpeed = 10.0f;
+		float _shiftMultiplier = 5.0f;
+
 		glm::quat _orientation;
 
 		float _fov = 90.0f;
@@ -60,6 +64,8 @@ namespace Hydra::Component {
 		float _sensitivity = 0.003f;
 		float _cameraYaw = 0.0f;
 		float _cameraPitch = 0.0f;
+
+
 	};
 
 };
