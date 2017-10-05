@@ -13,9 +13,9 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-EnemyComponent::EnemyComponent(IEntity* entity) : IComponent(entity), _enemyID(EnemyTypes::Alien), _position(0,0,0), _health(1), _damage(0) {}
+EnemyComponent::EnemyComponent(IEntity* entity) : IComponent(entity), _enemyID(EnemyTypes::Alien), _position(0,0,0), _health(1), _damage(0), _range(1.0f) {}
 
-EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID, glm::vec3 pos, int hp, int dmg) : IComponent(entity), _enemyID(enemyID),  _position(pos), _health(hp), _damage(dmg){
+EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID, glm::vec3 pos, int hp, int dmg, float range) : IComponent(entity), _enemyID(enemyID),  _position(pos), _health(hp), _damage(dmg), _range(range){
 	_velocityX = 0;
 	_velocityY = 0;
 	_velocityZ = 0;
@@ -23,6 +23,7 @@ EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID, glm::vec3 po
 	_patrolPointReached = false;
 	_falling = false;
 	_pathState = IDLE;
+	_originalRange = range;
 	entity->addComponent<Hydra::Component::TransformComponent>(pos);
 
 	for (int i = 0; i < WORLD_SIZE; i++)
@@ -33,10 +34,10 @@ EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID, glm::vec3 po
 		}
 	}
 
-	//for (int i = 0; i < 20; i++)
-	//{
-	//	_map[10][12+i] = 1;
-	//}
+	for (int i = 0; i < 10; i++)
+	{
+		_map[10][10+i] = 1;
+	}
 }
 
 EnemyComponent::~EnemyComponent() {
@@ -84,13 +85,12 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					_timer = SDL_GetTicks();
 					_pathState = IDLE;
 				}
-				if (glm::length(enemy->getPosition() - player->getPosition()) < 8.5f)
+				if (glm::length(enemy->getPosition() - player->getPosition()) < _range)
 				{
 					_isAtGoal = true;
 					_pathFinding->foundGoal = true;
 					_pathState = ATTACKING;
 				}
-
 				_pathFinding->findPath(enemy->getPosition(), player->getPosition(), _map);
 
 				_isAtGoal = false;
@@ -121,8 +121,6 @@ void EnemyComponent::tick(TickAction action, float delta) {
 						_velocityX = (10.0f * direction.x) * delta;
 						_velocityZ = (10.0f * direction.z) * delta;
 
-
-
 						if (glm::length(enemy->getPosition() - _targetPos) <= 8.0f)
 						{
 							_pathFinding->intializedStartGoal = false;
@@ -141,7 +139,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 						}
 					}
 
-					if (glm::length(enemy->getPosition() - player->getPosition()) <= 8.5f)
+					if (glm::length(enemy->getPosition() - player->getPosition()) <= _range)
 					{
 						_isAtGoal = true;
 						_pathFinding->foundGoal = true;
@@ -151,7 +149,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			}break;
 			case ATTACKING:
 			{
-				if (glm::length(enemy->getPosition() - player->getPosition()) >= 8.5f)
+				if (glm::length(enemy->getPosition() - player->getPosition()) >= _range)
 				{
 					_pathFinding->intializedStartGoal = false;
 					_pathFinding->foundGoal = false;
@@ -200,7 +198,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					_pathState = IDLE;
 				}
 
-				if (glm::length(enemy->getPosition() - player->getPosition()) < 22.0f)
+				if (glm::length(enemy->getPosition() - player->getPosition()) < _range)
 				{
 					_isAtGoal = true;
 					_pathState = ATTACKING;
@@ -234,7 +232,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 						_velocityX = (4.0f * direction.x) * delta;
 						_velocityZ = (4.0f * direction.z) * delta;
 
-						if (glm::length(enemy->getPosition() - _targetPos) <= 18.0f)
+						if (glm::length(enemy->getPosition() - _targetPos) <= 8.0f)
 						{
 							_pathFinding->intializedStartGoal = false;
 							_pathFinding->foundGoal = false;
@@ -252,7 +250,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 						}
 					}
 
-					if (glm::length(enemy->getPosition() - player->getPosition()) < 22.0f)
+					if (glm::length(enemy->getPosition() - player->getPosition()) < _range)
 					{
 						_isAtGoal = true;
 						_pathFinding->foundGoal = true;
@@ -262,7 +260,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			}break;
 			case ATTACKING:
 			{
-				if (glm::length(enemy->getPosition() - player->getPosition()) > 22.0f)
+				if (glm::length(enemy->getPosition() - player->getPosition()) > _range)
 				{
 					_pathFinding->intializedStartGoal = false;
 					_pathFinding->foundGoal = false;
@@ -277,6 +275,20 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					_rotation = glm::angleAxis(_angle, glm::vec3(0, 1, 0));
 				}
 			}break;
+			}
+
+			_playerSeen = _checkLine(_map, enemy->getPosition(), player->getPosition());
+
+			if (_playerSeen == false)
+			{
+				if (_range > 4.0f)
+				{
+					_range -= 1.0f;
+				}
+			}
+			else
+			{
+				_range = _originalRange;
 			}
 
 			_position = _position + glm::vec3(_velocityX, _velocityY, _velocityZ);
@@ -304,7 +316,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					_pathState = IDLE;
 				}
 
-				if (glm::length(enemy->getPosition() - player->getPosition()) < 9.0f)
+				if (glm::length(enemy->getPosition() - player->getPosition()) < _range)
 				{
 					_isAtGoal = true;
 					_pathState = ATTACKING;
@@ -328,6 +340,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				{
 					if (!_pathFinding->_pathToEnd.empty())
 					{
+
 						glm::vec3 targetDistance = _pathFinding->nextPathPos(enemy->getPosition(), getRadius()) - enemy->getPosition();
 
 						_angle = atan2(targetDistance.x, targetDistance.z);
@@ -356,7 +369,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 						}
 					}
 
-					if (glm::length(enemy->getPosition() - player->getPosition()) < 9.0f)
+					if (glm::length(enemy->getPosition() - player->getPosition()) < _range)
 					{
 						_isAtGoal = true;
 						_pathFinding->foundGoal = true;
@@ -366,7 +379,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			}break;
 			case ATTACKING:
 			{
-				if (glm::length(enemy->getPosition() - player->getPosition()) > 9.0f)
+				if (glm::length(enemy->getPosition() - player->getPosition()) > _range)
 				{
 					_pathFinding->intializedStartGoal = false;
 					_pathFinding->foundGoal = false;
@@ -441,7 +454,11 @@ void EnemyComponent::serialize(nlohmann::json& json) const {
 		{ "velocityZ", _velocityZ },
 		{ "enemyID", (int)_enemyID },
 		{ "pathState", (int)_pathState },
-		{ "damage", _damage }
+		{ "damage", _damage },
+		{ "health", _health },
+		{ "range", _range },
+		{ "Original range", _originalRange }
+
 	};
 	for (size_t i = 0; i < 64; i++)
 	{
@@ -463,9 +480,13 @@ void EnemyComponent::deserialize(nlohmann::json& json) {
 	_velocityY = json["velocityY"].get<float>();
 	_velocityZ = json["velocityZ"].get<float>();
 
+	_range = json["range"].get<float>();
+	_originalRange = json["Original range"].get<float>();
+
 	_enemyID = (EnemyTypes)json["enemyID"].get<int>();
 	_pathState = (PathState)json["pathState"].get<int>();
 	_damage = json["damage"].get<int>();
+	_health = json["health"].get<int>();
 	for (size_t i = 0; i < 64; i++)
 	{
 		for (size_t j = 0; j < 64; j++)
@@ -487,6 +508,8 @@ void EnemyComponent::registerUI() {
 	ImGui::InputFloat("targetY", &_targetPos.y);
 	ImGui::InputFloat("targetZ", &_targetPos.z);
 	ImGui::Checkbox("isAtGoal", &_isAtGoal);
+	ImGui::Checkbox("playerCanBeSeen", &_playerSeen);
+	ImGui::InputFloat("range", &_range);
 }
 
 int Hydra::Component::EnemyComponent::getWall(int x, int y)
@@ -506,4 +529,81 @@ int Hydra::Component::EnemyComponent::getWall(int x, int y)
 	}
 	return result;
 }
+
+bool Hydra::Component::EnemyComponent::_checkLine(int levelmap[WORLD_SIZE][WORLD_SIZE], glm::vec3 A, glm::vec3 B)
+{
+	// New code, not optimal
+	double x = B.x - A.x;
+	double z = B.z - A.z;
+	double len = std::sqrt((x*x) + (z*z));
+
+	if (!len)
+		return true;
+
+	double unitx = x / len;
+	double unitz = z / len;
+
+	x = A.x;
+	z = A.z;
+	for (double i = 1; i < len; i += 1)
+	{
+		if (levelmap[(int)x][(int)z] == 1)
+		{
+			return false;
+		}
+
+		x += unitx;
+		z += unitz;
+	}
+
+	return true;
+
+	// Old code
+	/*bool steep = (fabs(B.z - A.z) > fabs(B.x - A.x));
+	if (steep)
+	{
+		std::swap(A.x, A.z);
+		std::swap(B.x, B.z);
+	}
+
+	if (A.x > B.x)
+	{
+		std::swap(A.x, B.x);
+		std::swap(A.z, B.z);
+	}
+
+	float dx = B.x - A.x;
+	float dz = fabs(B.z - A.z);
+
+	float error = dx / 2.0f;
+	int zStep = (A.z < B.z) ? 1 : -1;
+	int z = (int)A.z;
+
+	int maxX = (int)B.x;
+
+	int x;
+	for (x = (int)A.x; x < maxX; x++)
+	{
+		if (steep)
+		{
+			_map[x][z] = 3;
+			if (levelmap[x][z] == 1) return false;
+		}
+		else
+		{
+			_map[x][z] = 3;
+			if (levelmap[z][x] == 1) return false;
+		}
+
+		error -= dz;
+		if (error < 0)
+		{
+			z += zStep;
+			error += dx;
+		}
+	}
+
+	return true;*/
+}
+
 
