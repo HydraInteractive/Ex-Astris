@@ -14,7 +14,7 @@
 #include <hydra/io/meshloader.hpp>
 #include <hydra/io/textureloader.hpp>
 #include <hydra/world/blueprintloader.hpp>
-
+#include <hydra/physics/bulletmanager.hpp>
 #include <hydra/renderer/glrenderer.hpp>
 #include <hydra/renderer/glshader.hpp>
 #include <hydra/io/gltextureloader.hpp>
@@ -29,6 +29,7 @@
 #include <hydra/component/playercomponent.hpp>
 #include <hydra/component/particlecomponent.hpp>
 #include <hydra/component/aicomponent.hpp>
+#include <hydra/component/EditorCameraComponent.hpp>
 
 #include <fstream>
 #include <json.hpp>
@@ -105,9 +106,7 @@ namespace Barcode {
 		std::unique_ptr<Hydra::Renderer::IShader> _glowFragmentShader;
 		//////////////////////////////////////////////////////
 
-		Hydra::Component::CameraComponent* _cc = nullptr;
-		Hydra::Component::PlayerComponent* player = nullptr;
-		Hydra::Component::EnemyComponent* _enemy = nullptr;
+		Hydra::Component::EditorCameraComponent* _cc = nullptr;
 
 		void _initWorld();
 

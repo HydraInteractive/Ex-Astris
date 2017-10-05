@@ -1,5 +1,4 @@
 #include <barcode/editorstate.hpp>
-#include <hydra/physics/bulletmanager.hpp>
 
 namespace Barcode {
 	EditorState::EditorState() : _engine(Hydra::IEngine::getInstance()) {}
@@ -419,15 +418,8 @@ namespace Barcode {
 	void EditorState::_initWorld() {
 		_world = Hydra::World::World::create();
 
-
 		auto& playerEntity = _world->createEntity("Player");
-		player = playerEntity->addComponent<Hydra::Component::PlayerComponent>();
-		_cc = playerEntity->addComponent<Hydra::Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{ 5, 0, -3 });
-		playerEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
-
-		auto& weaponEntity = playerEntity->createEntity("Weapon");
-		weaponEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
-		weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::quat(0, 0, -1, 0));
+		_cc = playerEntity->addComponent<Hydra::Component::EditorCameraComponent>(_geometryBatch.output.get(), glm::vec3{ 5, 0, -3 });
 
 		auto& roomEntity = _world->createEntity("Room");
 		roomEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0,0,0));
@@ -440,7 +432,7 @@ namespace Barcode {
 			auto& world = _world->getWorldRoot()->getChildren();
 			auto it = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Player"; });
 			if (it != world.end()) {
-				_cc = (*it)->getComponent<Hydra::Component::CameraComponent>();
+				_cc = (*it)->getComponent<Hydra::Component::EditorCameraComponent>();
 				_cc->setRenderTarget(_geometryBatch.output.get());
 			}
 			else
