@@ -16,6 +16,7 @@
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
 #include <hydra/abilities/abilityHandler.hpp>
+#include <hydra/abilities/buffHandler.hpp>
 
 using namespace Hydra::World;
 
@@ -34,6 +35,14 @@ namespace Hydra::Component {
 		inline const std::string type() const final { return "PlayerComponent"; }
 		const glm::vec3 getPosition() { return _position; };
 		int getHealth();
+		void upgradeHealth(){
+			if (_activeBuffs.addBuff(BUFF_HEALTHUPGRADE)) {
+				_activeBuffs.onActivation(_maxHealth, _health);
+			}
+			if (_activeBuffs.addBuff(BUFF_DAMAGEUPGRADE)) {
+				_activeBuffs.onActivation(_maxHealth, _health);
+			}
+		}
 		void applyDamage(int damage);
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
@@ -48,10 +57,12 @@ namespace Hydra::Component {
 		Uint32 _timer;
 		int keysArrayLength;
 		bool *lastKeysArray; //pretty bad. will fix
+		int _maxHealth;
 		int _health;
 		bool _dead;
 
 		AbilityHandler _activeAbillies;
+		BuffHandler _activeBuffs;
 
 		float _debug;
 		glm::vec3 _debugPos;
