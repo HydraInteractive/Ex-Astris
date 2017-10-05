@@ -101,7 +101,8 @@ namespace Hydra::World {
 		virtual std::shared_ptr<IEntity> createEntity(const std::string& name) = 0;
 		virtual std::shared_ptr<IEntity> createEntity(nlohmann::json& json) = 0;
 
-		inline size_t getID() { return id; }
+		inline int64_t getID() { return id; }
+		inline void setID(int64_t id) { this->id = id; }
 
 		virtual void setParent(IEntity* parent) = 0;
 		virtual IEntity* getParent() = 0;
@@ -115,7 +116,7 @@ namespace Hydra::World {
 		virtual bool isDead() const = 0;
 	protected:
 		IWorld* world;
-		size_t id;
+		int64_t id;
 	};
 	inline IEntity::~IEntity() {}
 

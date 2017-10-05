@@ -10,6 +10,10 @@
 #include <imgui/imgui.h>
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
+#include <NetClient.h>
+
+//MAYBE MOVE THIS
+NetClient* net;
 
 namespace Barcode {
 	GameState::GameState() : _engine(Hydra::IEngine::getInstance()) {}
@@ -586,6 +590,7 @@ namespace Barcode {
 		}
 
 		{ // Sync with network
+			net->run(this->_world.get());
 			_world->tick(TickAction::network, delta);
 		}
 	}
@@ -687,6 +692,11 @@ namespace Barcode {
 			_cc = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Player"; })->get()->getComponent<Hydra::Component::CameraComponent>();
 			_cc->setRenderTarget(_geometryBatch.output.get());
 			_enemy = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Enemy Alien"; })->get()->getComponent<Hydra::Component::EnemyComponent>();
+		}
+
+		net = new NetClient();
+		if (net->initialize("192.168.1.24", 4545)) {
+			//NET CODE
 		}
 
 	}
