@@ -30,6 +30,10 @@
 #include <hydra/component/particlecomponent.hpp>
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/EditorCameraComponent.hpp>
+#include <hydra/component/lightcomponent.hpp>
+#include <hydra/component/rigidbodycomponent.hpp>
+
+#include <hydra/io/input.hpp>
 
 #include <fstream>
 #include <json.hpp>
@@ -51,6 +55,13 @@ namespace Barcode {
 		inline Hydra::Physics::IPhysicsManager* getPhysicsManager() final { return _physicsManager.get(); }
 
 	private:
+		ImporterMenu* _importerMenu;
+		ExporterMenu* _exporterMenu;
+		bool _showImporter = false;
+		bool _showExporter = false;
+
+		std::string selectedPath;
+
 		struct RenderBatch final {
 			std::unique_ptr<Hydra::Renderer::IShader> vertexShader;
 			std::unique_ptr<Hydra::Renderer::IShader> geometryShader;
@@ -61,12 +72,15 @@ namespace Barcode {
 			Hydra::Renderer::Batch batch;
 		};
 
-		ImporterMenu* _importerMenu;
-		ExporterMenu* _exporterMenu;
-		bool _showImporter = false;
-		bool _showExporter = false;
+		struct ParticleRenderBatch final {
+			std::unique_ptr<Hydra::Renderer::IShader> vertexShader;
+			std::unique_ptr<Hydra::Renderer::IShader> geometryShader;
+			std::unique_ptr<Hydra::Renderer::IShader> fragmentShader;
+			std::unique_ptr<Hydra::Renderer::IPipeline> pipeline;
 
-		std::string selectedPath;
+			std::shared_ptr<Hydra::Renderer::IFramebuffer> output;
+			Hydra::Renderer::ParticleBatch batch;
+		};
 
 		Hydra::IEngine* _engine;
 		std::unique_ptr<Hydra::World::IWorld> _world;
@@ -74,21 +88,18 @@ namespace Barcode {
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
 		std::unique_ptr<Hydra::Physics::IPhysicsManager> _physicsManager;
 
-		//////////////Render Windows/////////////////////////
-		Hydra::Renderer::UIRenderWindow* _positionWindow;
-		Hydra::Renderer::UIRenderWindow* _diffuseWindow;
-		Hydra::Renderer::UIRenderWindow* _normalWindow;
-		Hydra::Renderer::UIRenderWindow* _glowWindow;
-		Hydra::Renderer::UIRenderWindow* _depthWindow;
-		Hydra::Renderer::UIRenderWindow* _postTestWindow;
-
 		RenderBatch _geometryBatch; // First part of deferred rendering
 		RenderBatch _animationBatch; // AnimationBatch
 		RenderBatch _lightingBatch; // Second part of deferred rendering
 		RenderBatch _glowBatch; // Glow batch.
 		RenderBatch _viewBatch;
 		RenderBatch _postTestBatch;
-		RenderBatch _particleBatch;
+		RenderBatch _shadowBatch;
+		RenderBatch _previewBatch;
+
+		Hydra::Renderer::UIRenderWindow* _finalImage;
+
+		ParticleRenderBatch _particleBatch;
 
 		// ParticleTexture
 		std::shared_ptr<Hydra::Renderer::ITexture> _particleAtlases;
@@ -104,9 +115,16 @@ namespace Barcode {
 		std::shared_ptr<Hydra::Renderer::IPipeline> _glowPipeline;
 		std::unique_ptr<Hydra::Renderer::IShader> _glowVertexShader;
 		std::unique_ptr<Hydra::Renderer::IShader> _glowFragmentShader;
-		//////////////////////////////////////////////////////
+
+		std::shared_ptr<Hydra::Renderer::IPipeline> _shadowPipeline;
+		std::unique_ptr<Hydra::Renderer::IShader> _shadowVertexShader;
+		std::unique_ptr<Hydra::Renderer::IShader> _shadowFragmentShader;
+		std::shared_ptr<Hydra::Renderer::ITexture> _shadowMap;
 
 		Hydra::Component::EditorCameraComponent* _cc = nullptr;
+		Hydra::Component::LightComponent* _light = nullptr;
+
+		Input _input;
 
 		void _initWorld();
 
