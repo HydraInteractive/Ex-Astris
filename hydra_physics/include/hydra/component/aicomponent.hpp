@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/component/transformcomponent.hpp>
+#include <hydra/component/weaponcomponent.hpp>
 #include <hydra/pathing/pathfinding.hpp>
 #include <hydra/component/playercomponent.hpp>
 #include <math.h>
@@ -75,8 +76,8 @@ namespace Hydra::Component {
 		EnemyTypes _enemyID = EnemyTypes::Alien;
 		std::random_device rd;
 		Uint32 _timer;
+		Uint32 _shootTimer;
 		int _map[WORLD_SIZE][WORLD_SIZE];
-
 
 		// Private functions
 		bool _checkLine(int levelmap[WORLD_SIZE][WORLD_SIZE], glm::vec3 A, glm::vec3 B);
