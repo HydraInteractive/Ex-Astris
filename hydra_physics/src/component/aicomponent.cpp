@@ -13,19 +13,24 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-EnemyComponent::EnemyComponent(IEntity* entity) : IComponent(entity), _enemyID(EnemyTypes::Alien), _position(0,0,0), _health(1), _damage(0), _range(1.0f) {}
+EnemyComponent::EnemyComponent(IEntity* entity) : IComponent(entity), _enemyID(EnemyTypes::Alien), _position(0,0,0), _health(1), _damage(0), _range(1.0f), _scale(1,1,1) {}
 
-EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID, glm::vec3 pos, int hp, int dmg, float range) : IComponent(entity), _enemyID(enemyID),  _position(pos), _health(hp), _damage(dmg), _range(range){
+EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID, glm::vec3 pos, int hp, int dmg, float range, glm::vec3 scale) : IComponent(entity), _enemyID(enemyID),  _position(pos), _health(hp), _damage(dmg), _range(range), _scale(scale){
 	_velocityX = 0;
 	_velocityY = 0;
 	_velocityZ = 0;
 	_startPosition = pos;
 	_patrolPointReached = false;
 	_falling = false;
+	_stunned = false;
 	_pathState = IDLE;
+	_bossPhase = SPAWNING;
+	_spawnAmount = 0;
 	_originalRange = range;
-	_shootTimer = SDL_GetTicks();
-	entity->addComponent<Hydra::Component::TransformComponent>(pos);
+	_attackTimer = SDL_GetTicks();
+	_spawnTimer = SDL_GetTicks();
+	_stunTimer = SDL_GetTicks();
+	entity->addComponent<Hydra::Component::TransformComponent>(pos, scale);
 	entity->addComponent<Hydra::Component::WeaponComponent>();
 
 	for (int i = 0; i < WORLD_SIZE; i++)
@@ -163,13 +168,13 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				{
 					std::mt19937 rng(rd());
 					std::uniform_int_distribution<> randDmg(_damage - 1, _damage + 2);
-					if (SDL_GetTicks() > _shootTimer + 1500)
+					if (SDL_GetTicks() > _attackTimer + 1500)
 					{
 						player->applyDamage(randDmg(rng));
-						_shootTimer = SDL_GetTicks();
+						_attackTimer = SDL_GetTicks();
 					}
 
-					glm::vec3 playerDir = enemy->getPosition() - player->getPosition();
+					glm::vec3 playerDir = player->getPosition() - enemy->getPosition();
 					playerDir = glm::normalize(playerDir);
 					_angle = atan2(playerDir.x, playerDir.z);
 					_rotation = glm::angleAxis(_angle, glm::vec3(0, 1, 0));
@@ -280,12 +285,12 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				{
 					auto weapon = entity->getComponent<Component::WeaponComponent>();
 
-					glm::vec3 playerDir = enemy->getPosition() - player->getPosition();
+					glm::vec3 playerDir = player->getPosition() - enemy->getPosition();
 					playerDir = glm::normalize(playerDir);
-					if (SDL_GetTicks() > _shootTimer + 2000)
+					if (SDL_GetTicks() > _attackTimer + 2000)
 					{
-						weapon->shoot(_position, playerDir, glm::quat(), 5.0f);
-						_shootTimer = SDL_GetTicks();
+						weapon->shoot(_position, -playerDir, glm::quat(), 5.0f);
+						_attackTimer = SDL_GetTicks();
 					}
 					_angle = atan2(playerDir.x, playerDir.z);
 					_rotation = glm::angleAxis(_angle, glm::vec3(0, 1, 0));
@@ -395,7 +400,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			}break;
 			case ATTACKING:
 			{
-				if (glm::length(enemy->getPosition() - player->getPosition()) > _range)
+				if (glm::length(enemy->getPosition() - player->getPosition()) > _range && _stunned == false)
 				{
 					_pathFinding->intializedStartGoal = false;
 					_pathFinding->foundGoal = false;
@@ -405,10 +410,60 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				}
 				else
 				{
-					glm::vec3 playerDir = enemy->getPosition() - player->getPosition();
+					auto weapon = entity->getComponent<Component::WeaponComponent>();
+					glm::vec3 playerDir = player->getPosition() - enemy->getPosition();
 					playerDir = glm::normalize(playerDir);
-					_angle = atan2(playerDir.x, playerDir.z);
-					_rotation = glm::angleAxis(_angle, glm::vec3(0, 1, 0));
+					switch (_bossPhase)
+					{
+						case CLAWING:
+						{
+							_range = 9.0f;
+							std::mt19937 rng(rd());
+							std::uniform_int_distribution<> randDmg(_damage - 1, _damage + 2);
+							if (SDL_GetTicks() > _attackTimer + 1500)
+							{
+								player->applyDamage(randDmg(rng));
+								_attackTimer = SDL_GetTicks();
+							}
+						}break;
+						case SPITTING:
+						{
+							_range = 25.0f;
+							weapon->shoot(_position, -playerDir, glm::quat(), 15.0f);
+						}break;
+						case SPAWNING:
+						{
+							_range = 25.0f;
+							if (_spawnAmount <= 3)
+							{
+								if (SDL_GetTicks() > _spawnTimer + 2000)
+								{
+									auto alienSpawn = entity->createEntity("Enemy Alien");
+									alienSpawn->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, enemy->getPosition(), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+									alienSpawn->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+									_spawnAmount++;
+									_spawnTimer = SDL_GetTicks();
+								}
+							}
+						}break;
+						case CHILLING:
+						{
+							_range = 25.0f;
+							if (SDL_GetTicks() > _stunTimer + 10000)
+							{
+								if(!_stunned) { _stunned = true; }
+								else { _stunned = false; }
+								_stunTimer = SDL_GetTicks();
+							}
+						}break;
+					}
+
+					
+					if (_stunned == false)
+					{
+						_angle = atan2(playerDir.x, playerDir.z);
+						_rotation = glm::angleAxis(_angle, glm::vec3(0, 1, 0));
+					}
 				}
 			}break;
 			}
@@ -447,7 +502,7 @@ glm::vec3 EnemyComponent::getPosition()
 
 float EnemyComponent::getRadius()
 {
-	return 1.0f;
+	return _scale.x;
 }
 
 std::shared_ptr<Hydra::World::IEntity> EnemyComponent::getPlayerComponent()
@@ -466,11 +521,13 @@ void EnemyComponent::serialize(nlohmann::json& json) const {
 	json = {
 		{ "position",{ _position.x, _position.y, _position.z } },
 		{ "startPosition",{ _startPosition.x, _startPosition.y, _startPosition.z } },
+		{ "scale",{ _scale.x, _scale.y, _scale.z } },
 		{ "velocityX", _velocityX },
 		{ "velocityY", _velocityY },
 		{ "velocityZ", _velocityZ },
 		{ "enemyID", (int)_enemyID },
 		{ "pathState", (int)_pathState },
+		{ "bossPhase", (int)_bossPhase },
 		{ "damage", _damage },
 		{ "health", _health },
 		{ "range", _range },
@@ -493,6 +550,9 @@ void EnemyComponent::deserialize(nlohmann::json& json) {
 	auto& startpos = json["startPosition"];
 	_startPosition = glm::vec3{ startpos[0].get<float>(), startpos[1].get<float>(), startpos[2].get<float>() };
 
+	auto& scale = json["scale"];
+	_scale = glm::vec3{ scale[0].get<float>(), scale[1].get<float>(), scale[2].get<float>() };
+
 	_velocityX = json["velocityX"].get<float>();
 	_velocityY = json["velocityY"].get<float>();
 	_velocityZ = json["velocityZ"].get<float>();
@@ -502,6 +562,7 @@ void EnemyComponent::deserialize(nlohmann::json& json) {
 
 	_enemyID = (EnemyTypes)json["enemyID"].get<int>();
 	_pathState = (PathState)json["pathState"].get<int>();
+	_bossPhase = (BossPhase)json["bossPhase"].get<int>();
 	_damage = json["damage"].get<int>();
 	_health = json["health"].get<int>();
 	for (size_t i = 0; i < 64; i++)
