@@ -16,6 +16,9 @@ out VertexData {
 	mat4 m;
 } outData;
 
+layout(location = 0) uniform mat4 view;
+layout(location = 1) uniform mat4 proj;
+
 void main() {
 	outData.position = position;
 	outData.normal = normal;
@@ -23,4 +26,5 @@ void main() {
 	outData.uv = uv;
 	outData.tangent = tangent;
 	outData.m = m;
+	gl_Position = proj * view * m * vec4(position, 1);
 }

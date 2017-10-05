@@ -28,7 +28,7 @@ public:
 	ImporterMenu(Hydra::World::IWorld* world);
 	~ImporterMenu();
 
-	void render(bool &closeBool, Hydra::Renderer::Batch& previewBatch);
+	void render(bool &closeBool, Hydra::Renderer::Batch& previewBatch, float delta);
 	void refresh();
 	static std::shared_ptr<IEntity> getRoomEntity(Hydra::World::IWorld* world);
 private:
@@ -63,6 +63,7 @@ private:
 	Node* _root;
 	std::shared_ptr<Hydra::World::IEntity> _previewEntity;
 	bool _newEntityClicked;
+	float _rotation;
 	Hydra::World::IWorld* _editorWorld;
 	std::unique_ptr<Hydra::World::IWorld> _previewWorld;
 	std::string _getExecutableDir();

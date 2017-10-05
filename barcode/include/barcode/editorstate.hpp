@@ -74,19 +74,13 @@ namespace Barcode {
 		std::unique_ptr<Hydra::Physics::IPhysicsManager> _physicsManager;
 
 		//////////////Render Windows/////////////////////////
-		Hydra::Renderer::UIRenderWindow* _positionWindow;
-		Hydra::Renderer::UIRenderWindow* _diffuseWindow;
-		Hydra::Renderer::UIRenderWindow* _normalWindow;
-		Hydra::Renderer::UIRenderWindow* _glowWindow;
-		Hydra::Renderer::UIRenderWindow* _depthWindow;
-		Hydra::Renderer::UIRenderWindow* _postTestWindow;
+		Hydra::Renderer::UIRenderWindow* _finalWindow;
 
 		RenderBatch _geometryBatch; // First part of deferred rendering
 		RenderBatch _animationBatch; // AnimationBatch
 		RenderBatch _lightingBatch; // Second part of deferred rendering
 		RenderBatch _glowBatch; // Glow batch.
 		RenderBatch _viewBatch;
-		RenderBatch _postTestBatch;
 		RenderBatch _particleBatch;
 		RenderBatch _previewBatch;
 

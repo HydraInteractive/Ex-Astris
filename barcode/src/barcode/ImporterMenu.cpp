@@ -1,5 +1,6 @@
 #include <barcode/ImporterMenu.hpp>
 #include <hydra/engine.hpp>
+#include <hydra/component/cameracomponent.hpp>
 
 ImporterMenu::ImporterMenu()
 {
@@ -13,7 +14,8 @@ ImporterMenu::ImporterMenu(Hydra::World::IWorld* world)
 	this->_root = nullptr;
 	this->_editorWorld = world;
 	this->_previewWorld = Hydra::World::World::create();
-	this->_newEntityClicked = false;
+	this->_newEntityClicked = true;
+	this->_rotation = 0.f;
 	refresh();
 }
 ImporterMenu::~ImporterMenu()
@@ -21,7 +23,7 @@ ImporterMenu::~ImporterMenu()
 	if(_root != nullptr)
 	delete _root;
 }
-void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch& previewBatch)
+void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch& previewBatch, float delta)
 {
 	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiSetCond_Once);
 	ImGui::Begin("Import", &closeBool, ImGuiWindowFlags_MenuBar);
@@ -47,9 +49,9 @@ void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch& previewBatch)
 	if (selectedNode != nullptr) {
 		std::string fileName = selectedNode->reverseEngineerPath();
 		std::cout << fileName.c_str() << std::endl;
-		
+
 		if (previewBatch.objects.size() > 0) {
-			if (_previewEntity->getName() == fileName)
+			if (_previewEntity->getName().c_str() == fileName.c_str())
 				_newEntityClicked = false;
 			else
 				_newEntityClicked = true;
@@ -57,26 +59,40 @@ void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch& previewBatch)
 
 		previewBatch.objects.clear();
 		
-		if (!_newEntityClicked) {
+		if (_newEntityClicked) {
 			_previewEntity = _previewWorld->createEntity(fileName);
-			_previewEntity->addComponent<Hydra::Component::MeshComponent>(fileName);
-			_previewEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0));
+			_previewEntity->addComponent<Hydra::Component::MeshComponent>(fileName)->disable();
+	
+			auto tc = _previewEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0));
+			auto cc = _previewEntity->addComponent<Hydra::Component::CameraComponent>(previewBatch.renderTarget, glm::vec3(0,0,5));
+			tc->setRotation(glm::angleAxis(glm::radians(_rotation), glm::vec3(0,1,0)));
 		}
-		
+		else {
+			auto tc = _previewEntity->getComponent<Hydra::Component::TransformComponent>();
+			tc->setRotation(glm::angleAxis(glm::radians(_rotation), glm::vec3(0,1,0)));
+		}
 		auto drawObj = _previewEntity->getDrawObject();
+		auto cc = _previewEntity->getComponent<Hydra::Component::CameraComponent>();
+		previewBatch.pipeline->setValue(0, cc->getViewMatrix());
+		previewBatch.pipeline->setValue(1, cc->getProjectionMatrix());
+		previewBatch.pipeline->setValue(2, cc->getPosition());
 		previewBatch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 	}
-	ImGui::EndChild();
+	_previewWorld->tick(Hydra::World::TickAction::physics, delta);
 
+	ImGui::EndChild();
 	ImGui::SameLine();
 	Hydra::IEngine::getInstance()->getRenderer()->render(previewBatch);
 	//Preview window
 	ImGui::BeginChild("Preview", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.7f, ImGui::GetWindowContentRegionMax().y - 60));
 	ImGui::SetNextWindowPos(ImVec2(10, 10));
 	ImGui::SetNextWindowSize(ImVec2(20, 20));
-	ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<Hydra::Renderer::IFramebuffer&>(*previewBatch.renderTarget)[0]->getID()), ImVec2(ImGui::GetWindowContentRegionWidth() * 0.9f, ImGui::GetWindowContentRegionMax().y - 60));
+	ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<Hydra::Renderer::IFramebuffer&>(*previewBatch.renderTarget)[0]->getID()), ImVec2(ImGui::GetWindowContentRegionWidth() * 1.2f, ImGui::GetWindowContentRegionMax().y - 15));
 	ImGui::EndChild();
 	ImGui::End();
+
+
+	_rotation += delta * 1;
 }
 void ImporterMenu::refresh()
 {
