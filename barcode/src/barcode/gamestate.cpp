@@ -11,6 +11,7 @@
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
 
+
 namespace Barcode {
 	GameState::GameState() : _engine(Hydra::IEngine::getInstance()) {}
 
@@ -404,10 +405,13 @@ namespace Barcode {
 			float hpP = 100;
 			float ammoP = 100;
 			float degres = 0;
+			std::vector<Buffs> perksList;
 			for (auto& entity : _world->getActiveComponents<Hydra::Component::PlayerComponent>())
 			{
 				hpP = entity->getComponent<Hydra::Component::PlayerComponent>()->getHealth();
-				//get max hp
+				perksList = entity->getComponent<Hydra::Component::PlayerComponent>()->getActiveBuffs();
+
+				//get actives
 			}
 			for (auto& entity : _world->getActiveComponents<Hydra::Component::CameraComponent>())
 			{
@@ -437,7 +441,6 @@ namespace Barcode {
 			ImGui::End();
 
 			//Hp bar on ring
-			//_world->getActiveComponents<Hydra::Component::PlayerComponent>().
 			float offsetHpF = 72 * hpP * 0.01;
 			int offsetHp = offsetHpF;
 			ImGui::SetNextWindowPos(pos + ImVec2(-47, -26 + 72 - offsetHp));
@@ -539,11 +542,7 @@ namespace Barcode {
 			}
 
 			//Perk Icons
-			for (auto& entity : _world->getActiveComponents<Hydra::Component::PlayerComponent>())
-			{
-				// get buff list = entity->getComponent<Hydra::Component::PlayerComponent>()->;
-			}
-			int amountOfPerks = 60;
+			int amountOfPerks = perksList.size();
 			for (int i = 0; i < amountOfPerks; i++)
 			{
 				char buf[128];
@@ -552,8 +551,20 @@ namespace Barcode {
 				ImGui::SetNextWindowPos(pos + ImVec2( xOffset , +480 ));
 				ImGui::SetNextWindowSize(ImVec2(20, 20));
 				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+				switch (perksList[i])
 				{
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/ExtraJump.png")->getID()), ImVec2(20, 20));
+				case BUFF_BULLETVELOCITY:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/BulletVelocity.png")->getID()), ImVec2(20, 20));
+					break;
+				case BUFF_DAMAGEUPGRADE:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/DamageUpgrade.png")->getID()), ImVec2(20, 20));
+					break;
+				case BUFF_HEALING:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Healing.png")->getID()), ImVec2(20, 20));
+					break;
+				case BUFF_HEALTHUPGRADE:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
+					break;
 				}
 
 				ImGui::End();
