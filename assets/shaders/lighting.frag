@@ -43,7 +43,7 @@ void main() {
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128);
 	vec3 specular = spec * specularStrength * lightColor;
 
-	vec3 ambient = lightColor * 0.3f;
+	vec3 ambient = lightColor * 0.8f;
 	// All normal lighting calculations 
 	fragOutput = (diffuse + specular + ambient) * objectColor;
 	
