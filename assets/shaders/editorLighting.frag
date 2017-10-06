@@ -31,7 +31,7 @@ void main() {
 	normal /= 4;
 	lightPos /= 4;
 
-	vec3 lightColor = vec3(1,1,1);
+	vec3 lightColor = normal;
 
 	vec3 lightDirection = normalize(lightDir);
 	float diff = max(dot(normal, lightDirection), 0.0f);
@@ -43,9 +43,9 @@ void main() {
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128);
 	vec3 specular = spec * specularStrength * lightColor;
 
-	vec3 ambient = lightColor * 0.8f;
+	vec3 ambient = lightColor * 0.3f;
 	// All normal lighting calculations 
-	fragOutput = (diffuse + specular + ambient) * objectColor;
+	fragOutput = (diffuse + specular) * objectColor;
 	
 	vec3 projCoords = lightPos.xyz / lightPos.w;
 	float closestDepth = texture(depthMap, projCoords.xy).r;
@@ -66,9 +66,10 @@ void main() {
 	shadow /= 9.0;
 	shadow = 1 - shadow;
 	fragOutput *= shadow;
+	fragOutput += ambient;
 
 	// Picking out bright regions for glow.
-	float brightness = dot(fragOutput, vec3(0.9, 0, 0));
+	float brightness = dot(fragOutput, vec3(0.2));
 	if(brightness > 1.0f)
 		brightOutput = fragOutput;
 	else
