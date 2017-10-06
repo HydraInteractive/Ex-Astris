@@ -315,8 +315,24 @@ namespace Barcode {
 			_lightingBatch.pipeline->setValue(3, 3);
 			_lightingBatch.pipeline->setValue(4, 4);
 
+			auto& lights = _world->getActiveComponents<Hydra::Component::LightComponent>();
+
 			_lightingBatch.pipeline->setValue(5, _cc->getPosition());
-			_lightingBatch.pipeline->setValue(6, _light->getDirection());
+			_lightingBatch.pipeline->setValue(6, (int)(lights.size() - 1));
+			_lightingBatch.pipeline->setValue(7, _light->getDirection());
+			_lightingBatch.pipeline->setValue(8, _light->getColor());
+			
+			// good code lmao XD
+			int i = 9;
+			for (auto& le : lights) {
+				auto lc = le->getComponent<Hydra::Component::LightComponent>();
+				if (lc == _light)
+					continue;
+
+				_lightingBatch.pipeline->setValue(i += 0, lc->getPosition());
+				_lightingBatch.pipeline->setValue(i += 1, lc->getColor());
+				i++;
+			}
 
 			(*_geometryBatch.output)[0]->bind(0);
 			(*_geometryBatch.output)[1]->bind(1);
@@ -631,10 +647,12 @@ namespace Barcode {
 		auto alienEntity = _world->createEntity("Enemy Alien");
 		alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 0), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 		alienEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+		alienEntity->addComponent<Hydra::Component::LightComponent>();
 		
 		auto robotEntity = _world->createEntity("Enemy Robot");
 		robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, glm::vec3(20, 0, 10), 70, 11, 20.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 		robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+		robotEntity->addComponent<Hydra::Component::LightComponent>();
 
 		//auto bossEntity = _world->createEntity("Enemy Boss");
 		//bossEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss, glm::vec3(15, 0, 16), 1200, 25, 25.0f, glm::vec3(3.0f, 3.0f, 3.0f));

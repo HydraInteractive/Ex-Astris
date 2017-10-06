@@ -2,6 +2,18 @@
 
 in vec2 texCoords;
 
+const int MAX_LIGHTS = 12;
+
+struct DirLight{
+	vec3 dir;
+	vec3 color;
+};
+
+struct PointLight{
+	vec3 pos;
+	vec3 color;
+};
+
 layout(location = 0) out vec3 fragOutput;
 layout(location = 1) out vec3 brightOutput;
 layout(location = 0) uniform sampler2DMS positions;
@@ -10,8 +22,17 @@ layout(location = 2) uniform sampler2DMS normals;
 layout(location = 3) uniform sampler2DMS lightPositions;
 layout(location = 4) uniform sampler2D depthMap;
 layout(location = 5) uniform vec3 cameraPos;
-layout(location = 6) uniform vec3 lightDir;
+layout(location = 6) uniform int nrOfPointLights;
+layout(location = 7) uniform DirLight dirLight;
+layout(location = 9) uniform PointLight[MAX_LIGHTS];
 
+vec3 calcDirLight(PointLight light, vec3 fragPos, vec3 normal vec3 diffuseColor){
+	
+}
+
+vec3 calcPointLight(DirLight light, vec3 normal, vec3 diffuseColor){
+	
+}
 
 void main() {
 	ivec2 iTexCoords = ivec2(texCoords * textureSize(positions));
@@ -46,7 +67,12 @@ void main() {
 	vec3 ambient = lightColor * 0.3f;
 	// All normal lighting calculations 
 	fragOutput = (diffuse + specular + ambient) * objectColor;
-	
+
+	vec3 result = vec3(0);
+	for(int i = 0 ; i < nrOfPointLights; i++){
+		result += calcPointLight();
+	}
+
 	vec3 projCoords = lightPos.xyz / lightPos.w;
 	float closestDepth = texture(depthMap, projCoords.xy).r;
 	float currentDepth = projCoords.z;
