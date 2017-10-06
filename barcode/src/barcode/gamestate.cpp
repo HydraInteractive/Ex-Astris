@@ -122,6 +122,9 @@ namespace Barcode {
 				->addTexture(0, Hydra::Renderer::TextureType::u8RGB)
 				.finalize();
 
+			_fiveGaussianKernel1 = { 0.06136f, 0.24477f, 0.38774f, 0.24477f, 0.06136f };
+			_fiveGaussianKernel2 = { 0.153388f, 0.221461f, 0.250301f, 0.221461f, 0.153388f };
+
 			// 3 Blurred Textures and one original.
 			_blurredOriginal = Hydra::Renderer::GLTexture::createEmpty(windowSize.x, windowSize.y, TextureType::u8RGB);
 			_blurredIMG1 = Hydra::Renderer::GLTexture::createEmpty(windowSize.x, windowSize.y, TextureType::u8RGB);
@@ -696,6 +699,10 @@ namespace Barcode {
 		bool firstPass = true;
 		_blurrExtraFBO1->resize(size);
 		_blurrExtraFBO2->resize(size);
+		_glowBatch.pipeline->setValue(3, 5);
+		for (int i = 0; i < 5; i++) {
+			_glowBatch.pipeline->setValue(4 + i, _fiveGaussianKernel2[i]);
+		}
 		for (int i = 0; i < nrOfTimes * 2; i++) {
 			if (firstPass) {
 				_glowBatch.batch.renderTarget = _blurrExtraFBO2.get();
