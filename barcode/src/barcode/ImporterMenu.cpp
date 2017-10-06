@@ -88,7 +88,7 @@ std::string ImporterMenu::_getExecutableDir()
 std::shared_ptr<IEntity> ImporterMenu::getRoomEntity(Hydra::World::IWorld* world)
 {
 	std::vector<std::shared_ptr<IEntity>> entities = world->getWorldRoot()->getChildren();
-	for (int i = 0; i < entities.size(); i++)
+	for (size_t i = 0; i < entities.size(); i++)
 	{
 		if (entities[i]->getName() == "Room")
 			return entities[i];

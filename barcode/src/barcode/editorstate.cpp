@@ -219,7 +219,7 @@ namespace Barcode {
 			{
 				ExporterMenu::getRoomEntity(_world.get())->markDead();
 
-				auto& roomEntity = _world->createEntity("Room");
+				auto roomEntity = _world->createEntity("Room");
 				roomEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
 			}
 			ImGui::EndMenu();
@@ -420,16 +420,16 @@ namespace Barcode {
 		_world = Hydra::World::World::create();
 
 
-		auto& playerEntity = _world->createEntity("Player");
+		auto playerEntity = _world->createEntity("Player");
 		player = playerEntity->addComponent<Hydra::Component::PlayerComponent>();
 		_cc = playerEntity->addComponent<Hydra::Component::CameraComponent>(_geometryBatch.output.get(), glm::vec3{ 5, 0, -3 });
 		playerEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
 
-		auto& weaponEntity = playerEntity->createEntity("Weapon");
+		auto weaponEntity = playerEntity->createEntity("Weapon");
 		weaponEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 		weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::quat(0, 0, -1, 0));
 
-		auto& roomEntity = _world->createEntity("Room");
+		auto roomEntity = _world->createEntity("Room");
 		roomEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0,0,0));
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
