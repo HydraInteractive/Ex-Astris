@@ -24,7 +24,7 @@ EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID, glm::vec3 po
 	_falling = false;
 	_stunned = false;
 	_pathState = IDLE;
-	_bossPhase = SPAWNING;
+	_bossPhase = CHILLING;
 	_spawnAmount = 0;
 	_originalRange = range;
 	_attackTimer = SDL_GetTicks();
@@ -135,7 +135,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 							_pathState = ATTACKING;
 						}
 
-						if (glm::length(enemy->getPosition() - _targetPos) <= 8.5f)
+						if (glm::length(enemy->getPosition() - _targetPos) <= 6.0f)
 						{
 							_pathFinding->intializedStartGoal = false;
 							_pathFinding->foundGoal = false;
@@ -252,7 +252,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 							_pathState = ATTACKING;
 						}
 
-						if (glm::length(enemy->getPosition() - _targetPos) <= 8.5f)
+						if (glm::length(enemy->getPosition() - _targetPos) <= 6.0f)
 						{
 							_pathFinding->intializedStartGoal = false;
 							_pathFinding->foundGoal = false;
@@ -379,7 +379,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 							_pathState = ATTACKING;
 						}
 
-						if (glm::length(enemy->getPosition() - _targetPos) <= 8.5f)
+						if (glm::length(enemy->getPosition() - _targetPos) <= 6.0f)
 						{
 							_pathFinding->intializedStartGoal = false;
 							_pathFinding->foundGoal = false;
@@ -434,17 +434,23 @@ void EnemyComponent::tick(TickAction action, float delta) {
 						case SPAWNING:
 						{
 							_range = 25.0f;
-							if (_spawnAmount <= 3)
+							
+							/*if (_spawnAmount <= 3)
 							{
+								IEntity* world = entity->getParent();
+								while (world->getName() != "World")
+								{
+									world = world->getParent();
+								}
 								if (SDL_GetTicks() > _spawnTimer + 2000)
 								{
-									auto alienSpawn = entity->createEntity("Enemy Alien");
+									auto alienSpawn = world->createEntity("Enemy Alien");
 									alienSpawn->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, enemy->getPosition(), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 									alienSpawn->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 									_spawnAmount++;
 									_spawnTimer = SDL_GetTicks();
 								}
-							}
+							}*/
 						}break;
 						case CHILLING:
 						{
@@ -452,7 +458,11 @@ void EnemyComponent::tick(TickAction action, float delta) {
 							if (SDL_GetTicks() > _stunTimer + 10000)
 							{
 								if(!_stunned) { _stunned = true; }
-								else { _stunned = false; }
+								else 
+								{ 
+									_stunned = false; 
+									_bossPhase = CLAWING;
+								}
 								_stunTimer = SDL_GetTicks();
 							}
 						}break;
@@ -508,10 +518,16 @@ float EnemyComponent::getRadius()
 std::shared_ptr<Hydra::World::IEntity> EnemyComponent::getPlayerComponent()
 {
 	std::shared_ptr<Hydra::World::IEntity> player;
-	auto world = entity->getParent()->getChildren();
-	for (size_t i = 0; i < world.size(); i++) {
-		if (world[i]->getName() == "Player") {
-			player = world[i];
+	IEntity* world = entity->getParent();
+	while (world->getName() != "World")
+	{
+		world = world->getParent();
+	}
+	auto worldChildren = world->getChildren();
+	///auto world = entity->getParent()->getParent()->getChildren();
+	for (size_t i = 0; i < worldChildren.size(); i++) {
+		if (worldChildren[i]->getName() == "Player") {
+			player = worldChildren[i];
 		}
 	}
 	return player;
@@ -534,13 +550,13 @@ void EnemyComponent::serialize(nlohmann::json& json) const {
 		{ "Original range", _originalRange }
 
 	};
-	for (size_t i = 0; i < 64; i++)
-	{
-		for (size_t j = 0; j < 64; j++)
-		{
-			json["map"][i][j] = _map[i][j];
-		}
-	}
+	//for (size_t i = 0; i < 64; i++)
+	//{
+	//	for (size_t j = 0; j < 64; j++)
+	//	{
+	//		json["map"][i][j] = _map[i][j];
+	//	}
+	//}
 }
 
 void EnemyComponent::deserialize(nlohmann::json& json) {
@@ -565,13 +581,13 @@ void EnemyComponent::deserialize(nlohmann::json& json) {
 	_bossPhase = (BossPhase)json["bossPhase"].get<int>();
 	_damage = json["damage"].get<int>();
 	_health = json["health"].get<int>();
-	for (size_t i = 0; i < 64; i++)
-	{
-		for (size_t j = 0; j < 64; j++)
-		{
-			_map[i][j] = json["map"][i][j].get<int>();
-		}
-	}
+	//for (size_t i = 0; i < 64; i++)
+	//{
+	//	for (size_t j = 0; j < 64; j++)
+	//	{
+	//		_map[i][j] = json["map"][i][j].get<int>();
+	//	}
+	//}
 }
 
 // Register UI buttons in the debug UI
