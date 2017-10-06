@@ -24,7 +24,16 @@ namespace Hydra::Physics {
 
 	enum class CollisionShape {
 		Box,
-		StaticPlane
+		StaticPlane,
+		Sphere,
+		//TriangleMesh, // btBvhTriangleMesh
+		CapsuleX,
+		CapsuleY, // btCapsuleShape
+		CapsuleZ,
+		CylinderX,
+		CylinderY, // btCylinderShape
+		CylinderZ,
+
 	};
 	ABSTRACT_STRUCT(IShape);
 

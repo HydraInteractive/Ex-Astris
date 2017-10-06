@@ -605,9 +605,40 @@ namespace Barcode {
 		floor->addComponent<Hydra::Component::RigidBodyComponent>()->createStaticPlane(glm::vec3(0, 1, 0), 1);
 
 		auto physicsBox = _world->createEntity("Physics box");
-		physicsBox->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 100, 2));
+		physicsBox->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 25, 2));
 		physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(glm::vec3(0.5f), 10);
 		physicsBox->addComponent<Hydra::Component::MeshComponent>("assets/objects/Computer1.ATTIC");
+
+		auto physicsSphere = _world->createEntity("Physics sphere");
+		physicsSphere->addComponent<Hydra::Component::TransformComponent>(glm::vec3(5, 100, 2));
+		physicsSphere->addComponent<Hydra::Component::RigidBodyComponent>()->createSphere(5, 10);
+		physicsSphere->addComponent<Hydra::Component::MeshComponent>("assets/objects/Computer1.ATTIC");
+
+		auto physicsCapsuleX = _world->createEntity("Physics capsuleX");
+		physicsCapsuleX->addComponent<Hydra::Component::TransformComponent>(glm::vec3(7, 100, 2));
+		physicsCapsuleX->addComponent<Hydra::Component::RigidBodyComponent>()->createCapsuleX(5, 2, 10);
+		physicsCapsuleX->addComponent<Hydra::Component::MeshComponent>("assets/objects/Computer1.ATTIC");
+		auto physicsCapsuleY = _world->createEntity("Physics capsuleY");
+		physicsCapsuleY->addComponent<Hydra::Component::TransformComponent>(glm::vec3(7, 100, 4));
+		physicsCapsuleY->addComponent<Hydra::Component::RigidBodyComponent>()->createCapsuleY(5, 2, 10);
+		physicsCapsuleY->addComponent<Hydra::Component::MeshComponent>("assets/objects/Computer1.ATTIC");
+		auto physicsCapsuleZ = _world->createEntity("Physics capsuleZ");
+		physicsCapsuleZ->addComponent<Hydra::Component::TransformComponent>(glm::vec3(7, 100, 6));
+		physicsCapsuleZ->addComponent<Hydra::Component::RigidBodyComponent>()->createCapsuleZ(5, 2, 10);
+		physicsCapsuleZ->addComponent<Hydra::Component::MeshComponent>("assets/objects/Computer1.ATTIC");
+
+		auto physicsCylinderX = _world->createEntity("Physics cylinderX");
+		physicsCylinderX->addComponent<Hydra::Component::TransformComponent>(glm::vec3(9, 100, 2));
+		physicsCylinderX->addComponent<Hydra::Component::RigidBodyComponent>()->createCylinderX(glm::vec3{2, 1, 1}, 10);
+		physicsCylinderX->addComponent<Hydra::Component::MeshComponent>("assets/objects/Computer1.ATTIC");
+		auto physicsCylinderY = _world->createEntity("Physics cylinderY");
+		physicsCylinderY->addComponent<Hydra::Component::TransformComponent>(glm::vec3(9, 100, 4));
+		physicsCylinderY->addComponent<Hydra::Component::RigidBodyComponent>()->createCylinderY(glm::vec3{1, 2, 1}, 10);
+		physicsCylinderY->addComponent<Hydra::Component::MeshComponent>("assets/objects/Computer1.ATTIC");
+		auto physicsCylinderZ = _world->createEntity("Physics cylinderZ");
+		physicsCylinderZ->addComponent<Hydra::Component::TransformComponent>(glm::vec3(9, 100, 6));
+		physicsCylinderZ->addComponent<Hydra::Component::RigidBodyComponent>()->createCylinderZ(glm::vec3{1, 1, 2}, 10);
+		physicsCylinderZ->addComponent<Hydra::Component::MeshComponent>("assets/objects/Computer1.ATTIC");
 
 		auto playerEntity = _world->createEntity("Player");
 		playerEntity->addComponent<Hydra::Component::PlayerComponent>();
@@ -690,10 +721,11 @@ namespace Barcode {
 			_cc = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Player"; })->get()->getComponent<Hydra::Component::CameraComponent>();
 			_cc->setRenderTarget(_geometryBatch.output.get());
 			_enemy = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Enemy Alien"; })->get()->getComponent<Hydra::Component::EnemyComponent>();
-			if (auto _  = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Floor"; }); _ != world.end())
-				_physicsManager->enable(_->get()->getComponent<Hydra::Component::RigidBodyComponent>());
-			if (auto _ = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Physics box"; }); _ != world.end())
-				_physicsManager->enable(_->get()->getComponent<Hydra::Component::RigidBodyComponent>());
+			for (auto it = world.begin(); it != world.end(); it++)
+				if (auto _ = (*it)->getComponent<Hydra::Component::RigidBodyComponent>()) {
+					_engine->log(Hydra::LogLevel::normal, "Enabling bullet for %s", (*it)->getName().c_str());
+					_physicsManager->enable(_);
+				}
 		}
 
 	}
