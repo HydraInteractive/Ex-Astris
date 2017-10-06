@@ -36,7 +36,6 @@ void main() {
 	objectColor /= 4;
 	normal /= 4;
 	lightPos /= 4;
-	//lightPos = texelFetch(lightPositions, iTexCoords, 0);
 
 	vec3 lightColor = normal;//vec3(1,1,1);
 
