@@ -629,17 +629,33 @@ namespace Barcode {
 		particleEmitter2->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::BogdanDeluxe, 3, glm::vec3(5, -5, 0));
 		*/
 
-		auto alienEntity = _world->createEntity("Enemy Alien");
-		alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 0), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
-		alienEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
-		
-		auto robotEntity = _world->createEntity("Enemy Robot");
-		robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, glm::vec3(20, 0, 10), 70, 11, 20.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-		robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+		//auto alienEntity1 = _world->createEntity("Enemy Alien");
+		//alienEntity1->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(5, 0, 5), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+		//alienEntity1->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
-		//auto bossEntity = _world->createEntity("Enemy Boss");
-		//bossEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss, glm::vec3(15, 0, 16), 1200, 25, 25.0f, glm::vec3(3.0f, 3.0f, 3.0f));
-		//bossEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
+		//auto alienEntity2 = _world->createEntity("Enemy Alien");
+		//alienEntity2->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(15, 0, 5), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+		//alienEntity2->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+
+		//auto spawnerEntity1 = _world->createEntity("Enemy Spawner");
+		//spawnerEntity1->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienSpawner, glm::vec3(20, 0, 20), 100, 0, 0, glm::vec3(2.0f, 2.0f, 2.0f));
+		//spawnerEntity1->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
+		
+		//auto spawnerEntity2 = _world->createEntity("Enemy Spawner");
+		//spawnerEntity2->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::RobotSpawner, glm::vec3(15, 0, 20), 100, 0, 0, glm::vec3(2.0f, 2.0f, 2.0f));
+		//spawnerEntity2->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
+		
+		//auto robotEntity = _world->createEntity("Enemy Robot");
+		//robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, glm::vec3(20, 0, 10), 70, 11, 20.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+		//robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+
+		//auto alienBoss = _world->createEntity("Enemy Boss");
+		//alienBoss->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss, glm::vec3(15, 0, 16), 1200, 25, 25.0f, glm::vec3(3.0f, 3.0f, 3.0f));
+		//alienBoss->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
+
+		auto robotBoss = _world->createEntity("Enemy Boss");
+		robotBoss->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::RobotBoss, glm::vec3(15, 0, 16), 1200, 25, 25.0f, glm::vec3(3.0f, 3.0f, 3.0f));
+		robotBoss->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
 		
 		auto test = _world->createEntity("test");
 		test->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");
@@ -685,7 +701,7 @@ namespace Barcode {
 			auto& world = _world->getWorldRoot()->getChildren();
 			_cc = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Player"; })->get()->getComponent<Hydra::Component::CameraComponent>();
 			_cc->setRenderTarget(_geometryBatch.output.get());
-			_enemy = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Enemy Alien"; })->get()->getComponent<Hydra::Component::EnemyComponent>();
+			_enemy = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Enemy Boss"; })->get()->getComponent<Hydra::Component::EnemyComponent>();
 		}
 
 	}

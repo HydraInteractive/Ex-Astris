@@ -24,6 +24,9 @@ namespace Hydra::Component {
 		Alien = 0,
 		Robot = 1,
 		AlienBoss = 2,
+		AlienSpawner = 3,
+		RobotSpawner = 4,
+		RobotBoss = 5,
 	};
 
 	enum PathState{
@@ -64,6 +67,7 @@ namespace Hydra::Component {
 		PathState _pathState;
 		PathFinding* _pathFinding = new PathFinding();
 		BossPhase _bossPhase;
+		std::vector<std::shared_ptr<Hydra::World::IEntity>> _spawnGroup;
 		int _debugState;
 		float _angle;
 		float _velocityX;
