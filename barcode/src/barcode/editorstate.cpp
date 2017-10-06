@@ -235,8 +235,6 @@ namespace Barcode {
 	}
 
 	//Global variable to maintain a keyframe for now
-
-
 	void EditorState::runFrame(float delta) {
 		auto windowSize = _engine->getView()->getSize();
 		{ // Fetch new events

@@ -19,8 +19,6 @@ Hydra::Component::EditorCameraComponent::~EditorCameraComponent()
 
 void Hydra::Component::EditorCameraComponent::tick(TickAction action, float delta)
 {
-	_position += glm::vec3{ 0, 0, 0 };
-	glm::vec3 velocity = glm::vec3(0,0,0);
 	int mouseX, mouseY;
 	if (SDL_GetRelativeMouseState(&mouseX, &mouseY) == SDL_BUTTON(3))
 	{
@@ -47,6 +45,7 @@ void Hydra::Component::EditorCameraComponent::tick(TickAction action, float delt
 	Uint8* keysArray;
 	keysArray = const_cast<Uint8*>(SDL_GetKeyboardState(&keysArrayLength));
 
+	glm::vec3 velocity = glm::vec3(0, 0, 0);
 	if (keysArray[SDL_SCANCODE_W]) {
 		velocity.z -= _movementSpeed;
 	}
@@ -75,7 +74,9 @@ void Hydra::Component::EditorCameraComponent::serialize(nlohmann::json & json) c
 		{ "orientation",{ _orientation.x, _orientation.y, _orientation.z, _orientation.w } },
 		{ "fov", _fov },
 		{ "zNear", _zNear },
-		{ "zFar", _zFar }
+		{ "zFar", _zFar },
+		{ "movementSpeed", _movementSpeed },
+		{ "shiftMultiplier", _shiftMultiplier }
 	};
 }
 
@@ -90,6 +91,8 @@ void Hydra::Component::EditorCameraComponent::deserialize(nlohmann::json & json)
 	_fov = json["fov"].get<float>();
 	_zNear = json["zNear"].get<float>();
 	_zFar = json["zFar"].get<float>();
+	_movementSpeed = json["movementSpeed"].get<float>();
+	_shiftMultiplier = json["shiftMultiplier"].get<float>();
 }
 
 void Hydra::Component::EditorCameraComponent::registerUI()

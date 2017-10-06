@@ -53,11 +53,7 @@ private:
 		std::string _name;
 		std::vector<Node*> _subfolders;
 		std::vector<Node*> _files;
-
-
-
 		Node* _parent;
-
 		void _getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders) const;
 	};
 	Node* _root;

@@ -60,7 +60,7 @@ void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch& previewBatch,
 		previewBatch.objects.clear();
 		// Because of issues with the engine adding components will always be added to the global world
 		// So we need to disable the meshes to have them be only viewed in the previewWindow
-		if (_newEntityClicked) {
+		if (_newEntityClicked && selectedNode->getExt() == ".ATTIC") {
 			_previewEntity = _previewWorld->createEntity(fileName);
 			_previewEntity->addComponent<Hydra::Component::MeshComponent>(fileName); // Disable mesh to only see the model in preview window
 	
@@ -86,8 +86,8 @@ void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch& previewBatch,
 	Hydra::IEngine::getInstance()->getRenderer()->render(previewBatch);
 	//Preview window
 	ImGui::BeginChild("Preview", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.7f, ImGui::GetWindowContentRegionMax().y - 60));
-	ImGui::SetNextWindowPos(ImVec2(10, 10));
-	ImGui::SetNextWindowSize(ImVec2(20, 20));
+	//ImGui::SetNextWindowPos(ImVec2(10, 10));
+	//ImGui::SetNextWindowSize(ImVec2(20, 20));
 	ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<Hydra::Renderer::IFramebuffer&>(*previewBatch.renderTarget)[0]->getID()), ImVec2(ImGui::GetWindowContentRegionWidth() * 1.2f, ImGui::GetWindowContentRegionMax().y - 15));
 	ImGui::EndChild();
 	ImGui::End();
@@ -288,6 +288,10 @@ void ImporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode
 						world->getWorldRoot()->spawn(BlueprintLoader::load(_files[i]->reverseEngineerPath())->spawn(world));
 					}
 				}
+			}
+			else
+			{
+				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_QUESTION_CIRCLE_O " %s", _files[i]->_name.c_str());
 			}
 		}
 		ImGui::TreePop();
