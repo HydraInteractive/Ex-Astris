@@ -15,17 +15,22 @@
 
 #include <hydra/world/world.hpp>
 
+#include <json.hpp>
 using namespace Hydra::World;
 
 std::unique_ptr<Blueprint> BlueprintLoader::load(const std::string& file) {
 	std::unique_ptr<Blueprint> bp;
+	std::vector<uint8_t> d;
 
-	std::ifstream i(file);
-	if (!i.good())
-		return bp;
+	FILE* fp = fopen(file.c_str(), "rb");
+	fseek(fp, 0, SEEK_END);
+	d.resize(ftell(fp));
+	fseek(fp, 0, SEEK_SET);
+	fread(d.data(), d.size(), 1, fp);
+	fclose(fp);
 
 	bp = std::make_unique<Blueprint>();
-	i >> bp->_root;
+	bp->_root = nlohmann::json::from_msgpack(d);
 
 	bp->name = bp->_root["name"].get<std::string>();
 
@@ -33,13 +38,13 @@ std::unique_ptr<Blueprint> BlueprintLoader::load(const std::string& file) {
 }
 
 void BlueprintLoader::save(const std::string& file, const std::string& name, std::shared_ptr<IEntity> entity) {
-	std::ofstream o(file);
-	if (!o.good())
-		return;
 	nlohmann::json root;
 
 	root["name"] = name;
 	entity->serialize(root["data"]);
 
-	o << std::setw(2) << root << std::endl;
+	FILE* fp = fopen(file.c_str(), "wb");
+	auto d = nlohmann::json::to_msgpack(root);
+	fwrite(d.data(), d.size(), 1, fp);
+	fclose(fp);
 }

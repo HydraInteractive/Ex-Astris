@@ -43,7 +43,7 @@ void main() {
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128);
 	vec3 specular = spec * specularStrength * lightColor;
 
-	vec3 ambient = lightColor * 0.3f;
+	vec3 ambient = lightColor * 0.8f;
 	// All normal lighting calculations 
 	fragOutput = (diffuse + specular + ambient) * objectColor;
 	
@@ -68,7 +68,7 @@ void main() {
 	fragOutput *= shadow;
 
 	// Picking out bright regions for glow.
-	float brightness = dot(fragOutput, vec3(0.2));
+	float brightness = dot(fragOutput, vec3(0.9, 0, 0));
 	if(brightness > 1.0f)
 		brightOutput = fragOutput;
 	else
