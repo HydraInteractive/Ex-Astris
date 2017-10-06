@@ -122,6 +122,9 @@ namespace Barcode {
 				->addTexture(0, Hydra::Renderer::TextureType::u8RGB)
 				.finalize();
 
+			_fiveGaussianKernel1 = { 0.06136f, 0.24477f, 0.38774f, 0.24477f, 0.06136f };
+			_fiveGaussianKernel2 = { 0.153388f, 0.221461f, 0.250301f, 0.221461f, 0.153388f };
+
 			// 3 Blurred Textures and one original.
 			_blurredOriginal = Hydra::Renderer::GLTexture::createEmpty(windowSize.x, windowSize.y, TextureType::u8RGB);
 			_blurredIMG1 = Hydra::Renderer::GLTexture::createEmpty(windowSize.x, windowSize.y, TextureType::u8RGB);
@@ -630,16 +633,16 @@ namespace Barcode {
 		*/
 
 		auto alienEntity = _world->createEntity("Enemy Alien");
-		alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 0), 80, 8, 8.5f);
+		alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 0), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 		alienEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 		
 		auto robotEntity = _world->createEntity("Enemy Robot");
-		robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, glm::vec3(20, 0, 10), 70, 11, 20.0f);
+		robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, glm::vec3(20, 0, 10), 70, 11, 20.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 		robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
-		auto bossEntity = _world->createEntity("Enemy Boss");
-		bossEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss, glm::vec3(15, 0, 16), 1200, 25, 9.0f);
-		bossEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+		//auto bossEntity = _world->createEntity("Enemy Boss");
+		//bossEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss, glm::vec3(15, 0, 16), 1200, 25, 25.0f, glm::vec3(3.0f, 3.0f, 3.0f));
+		//bossEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
 		
 		auto test = _world->createEntity("test");
 		test->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");
@@ -696,6 +699,10 @@ namespace Barcode {
 		bool firstPass = true;
 		_blurrExtraFBO1->resize(size);
 		_blurrExtraFBO2->resize(size);
+		_glowBatch.pipeline->setValue(3, 5);
+		for (int i = 0; i < 5; i++) {
+			_glowBatch.pipeline->setValue(4 + i, _fiveGaussianKernel2[i]);
+		}
 		for (int i = 0; i < nrOfTimes * 2; i++) {
 			if (firstPass) {
 				_glowBatch.batch.renderTarget = _blurrExtraFBO2.get();

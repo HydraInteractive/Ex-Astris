@@ -68,7 +68,7 @@ void main() {
 	fragOutput *= shadow;
 
 	// Picking out bright regions for glow.
-	float brightness = dot(fragOutput, vec3(0.2));
+	float brightness = dot(fragOutput, vec3(0.9, 0, 0));
 	if(brightness > 1.0f)
 		brightOutput = fragOutput;
 	else
