@@ -34,7 +34,7 @@ void main() {
 	vec3 lightColor = normal;//vec3(1,1,1);
 
 	vec3 lightDirection = normalize(lightDir);
-	float diff = max(dot(normal, lightDirection), 0.0f);
+	float diff = max(dot(normal, -lightDirection), 0.0f);
 	vec3 diffuse = lightColor * diff;
 
 	float specularStrength = 0.1f;
@@ -68,10 +68,9 @@ void main() {
 	fragOutput *= shadow;
 
 	// Picking out bright regions for glow.
-	float brightness = dot(fragOutput, vec3(0.9, 0, 0));
+	float brightness = dot(vec3(fragOutput.x * 10, fragOutput.y, fragOutput.z), vec3(0.2126, 0.7152, 0.0722));
 	if(brightness > 1.0f)
-		brightOutput = fragOutput;
+		brightOutput = vec3(fragOutput.x, 0,0);
 	else
 		brightOutput = vec3(0);
-
 }
