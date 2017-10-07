@@ -640,10 +640,10 @@ namespace Barcode {
 	void EditorState::_initWorld() {
 		_world = Hydra::World::World::create();
 
-		auto& playerEntity = _world->createEntity("Player");
+		auto playerEntity = _world->createEntity("Player");
 		_cc = playerEntity->addComponent<Hydra::Component::EditorCameraComponent>(_geometryBatch.output.get(), glm::vec3{ 5, 0, -3 });
 
-		auto& roomEntity = _world->createEntity("Room");
+		auto roomEntity = _world->createEntity("Room");
 		roomEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0,0,0));
 
 		auto lightEntity = _world->createEntity("Light");

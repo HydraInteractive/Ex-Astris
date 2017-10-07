@@ -43,18 +43,18 @@ void main() {
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128);
 	vec3 specular = spec * specularStrength * lightColor;
 
-	vec3 ambient = lightColor * 0.8f;
-	// All normal lighting calculations 
-	fragOutput = (diffuse + specular + ambient) * objectColor;
-	
+	vec3 ambient = lightColor * 0.3f;
+	// All normal lighting calculations
+	vec3 fragResult = (diffuse + specular + ambient) * objectColor;
+
 	vec3 projCoords = lightPos.xyz / lightPos.w;
 	float closestDepth = texture(depthMap, projCoords.xy).r;
 	float currentDepth = projCoords.z;
-	
+
 	float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
 	float shadow = 0.0;
 	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
-	
+
 	// PCF
 	for(int x = -1; x <= 1; x++) {
 		for(int y = -1; y <= 1; y++) {
@@ -65,10 +65,11 @@ void main() {
 
 	shadow /= 9.0;
 	shadow = 1 - shadow;
-	fragOutput *= shadow;
+	fragResult *= shadow;
 
+	fragOutput = fragResult;
 	// Picking out bright regions for glow.
-	float brightness = dot(fragOutput, vec3(0.9, 0, 0));
+	float brightness = dot(fragResult, vec3(0.9, 0, 0));
 	if(brightness > 1.0f)
 		brightOutput = fragOutput;
 	else

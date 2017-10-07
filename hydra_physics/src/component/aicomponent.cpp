@@ -521,6 +521,8 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			enemy->setRotation(_rotation);
 
 		}break;
+	default:
+		break;
 	}
 
 	 //debug for pathfinding
