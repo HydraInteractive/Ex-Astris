@@ -12,7 +12,7 @@
 namespace Hydra::World {
 	namespace BlueprintLoader {
 		HYDRA_API std::unique_ptr<Blueprint> load(const std::string& file);
-		HYDRA_API void save(const std::string& file, const std::string& name, std::shared_ptr<IEntity> entity);
+		HYDRA_API void save(const std::string& file, const std::string& name, std::shared_ptr<Entity> entity);
 	};
 };
 

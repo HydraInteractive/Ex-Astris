@@ -49,7 +49,7 @@ namespace Hydra {
 		/// Update and render a frame
 		virtual void runFrame(float delta) = 0;
 
-		virtual World::IWorld* getWorld() = 0;
+		virtual World::World* getWorld() = 0;
 		virtual IO::ITextureLoader* getTextureLoader() = 0;
 		virtual IO::IMeshLoader* getMeshLoader() = 0;
 		virtual Physics::IPhysicsManager* getPhysicsManager() = 0;

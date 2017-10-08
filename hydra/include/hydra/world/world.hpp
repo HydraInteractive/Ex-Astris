@@ -17,151 +17,235 @@
 #undef min
 #undef max
 #include <json.hpp>
-#include <cstdio>
 
 namespace Hydra::Renderer { struct HYDRA_API DrawObject; }
 namespace Hydra::Physics { struct HYDRA_API PhysicsObject; }
 
+namespace Hydra::Component {
+	struct HYDRA_API TransformComponent;
+	struct HYDRA_API CameraComponent;
+	struct HYDRA_API LightComponent;
+	struct HYDRA_API MeshComponent;
+	struct HYDRA_API ParticleComponent;
+	struct HYDRA_API EnemyComponent;
+	struct HYDRA_API BulletComponent;
+	struct HYDRA_API PlayerComponent;
+	struct HYDRA_API WeaponComponent;
+	struct HYDRA_API GrenadeComponent;
+	struct HYDRA_API MineComponent;
+	struct HYDRA_API RigidBodyComponent;
+};
+
 namespace Hydra::World {
-	class HYDRA_API IEntity;
-	class HYDRA_API IComponent;
-	struct HYDRA_API Blueprint;
-
-	// The tick function only accepts one value, but the wantTick is a bitfield
-	enum class HYDRA_API TickAction {
-		none = 0,
-		checkDead = 1 << 0,
-		physics = 1 << 1,
-		render = 1 << 2,
-		renderTransparent = 1 << 3,
-		network = 1 << 4
+	// Each component will be one entry in this list
+#define BIT(x) (1 << x)
+	enum class ComponentBits : uint64_t {
+		Transform = BIT(0),
+		Camera = BIT(1),
+		Light = BIT(2),
+		Mesh = BIT(3),
+		Particle = BIT(4),
+		Enemy = BIT(5),
+		Bullet = BIT(6),
+		Player = BIT(7),
+		Weapon = BIT(8),
+		Grenade = BIT(9),
+		Mine = BIT(10),
+		RigidBody = BIT(11),
 	};
-	inline TickAction operator| (TickAction a, TickAction b) { return static_cast<TickAction>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b)); }
-	inline TickAction operator& (TickAction a, TickAction b) { return static_cast<TickAction>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b)); }
+#undef BIT
 
-	class HYDRA_API IWorld {
-	public:
-		virtual ~IWorld() = 0;
+	inline ComponentBits& operator |=(ComponentBits& a, const ComponentBits& b) { *reinterpret_cast<uint64_t*>(&a) |= static_cast<uint64_t>(b); return a;}
+	inline ComponentBits& operator &=(ComponentBits& a, const ComponentBits& b) { *reinterpret_cast<uint64_t*>(&a) &= static_cast<uint64_t>(b); return a;}
+	inline ComponentBits  operator | (const ComponentBits a, const ComponentBits b) { return static_cast<ComponentBits>(static_cast<uint64_t>(a) | static_cast<uint64_t>(b)); }
+	inline ComponentBits  operator & (const ComponentBits a, const ComponentBits b) { return static_cast<ComponentBits>(static_cast<uint64_t>(a) & static_cast<uint64_t>(b)); }
+	inline ComponentBits  operator ~ (const ComponentBits a) { return static_cast<ComponentBits>(~static_cast<uint64_t>(a)); }
 
-		virtual size_t getFreeID() = 0;
+	typedef size_t EntityID;
+	template<typename T>
+	constexpr T bitOr(T v) { return v; }
 
-		// To emulate a IEntity, kinda
-		virtual std::shared_ptr<IEntity> createEntity(const std::string& name) = 0;
-		virtual void tick(TickAction action, float delta) = 0;
+	template<typename T, typename... Args>
+	constexpr T bitOr(T first, Args... args) { return first | combine(args...); }
 
-		virtual void setWorldRoot(std::shared_ptr<IEntity> root) = 0;
-		virtual std::shared_ptr<IEntity> getWorldRoot() = 0;
-		virtual std::map<std::type_index, std::vector<IEntity*>>& getActiveComponentMap() = 0;
+	typedef void (*RemoveComponent_f)(EntityID id);
+	const std::map<ComponentBits, RemoveComponent_f> removeComponent;
+
+	struct HYDRA_API Entity final {
+		// Entity Core
+		EntityID id;
+		ComponentBits activeComponents;
+		EntityID parent;
+		std::vector<EntityID> children;
+
+		// Extra data
+		std::string name;
+		bool dead = true;
+
+		~Entity();
+
+		inline bool hasComponents(ComponentBits cb) { return (activeComponents & cb) == cb; }
 
 		template <typename T>
-		std::vector<IEntity*>& getActiveComponents() {
-			return getActiveComponentMap()[std::type_index(typeid(T))];
+		inline std::shared_ptr<T> getComponent() {
+			if (hasComponents(T::bits))
+				return T::getComponent(id);
+			return std::shared_ptr<T>();
 		}
 
+		template <typename T>
+		inline std::shared_ptr<T> addComponent() {
+			if (hasComponents(T::bits))
+				return T::getComponent(id);
+			activeComponents |= T::bits;
+			return T::addComponent(id);
+		}
+
+		template <typename T>
+			inline void removeComponent() {
+			if (!hasComponents(T::bits))
+				return;
+			activeComponents &= ~T::bits;
+			T::removeComponent(id);
+		}
+
+		inline void addChild(EntityID entity) { children.push_back(entity); };
+
+		void serialize(nlohmann::json& json) const;
+		void deserialize(nlohmann::json& json);
 	};
-	inline IWorld::~IWorld() {}
 
-	class HYDRA_API IEntity {
-	public:
-		inline IEntity(IWorld* world) : world(world), id(world->getFreeID()) {}
-		virtual ~IEntity() = 0;
-
-		virtual void tick(TickAction action, float delta) = 0;
-		virtual TickAction wantTick() = 0;
-
-		virtual void markDead() = 0;
-
-		virtual IComponent* addComponent_(const std::type_index& id, std::unique_ptr<IComponent> component) = 0;
-		virtual void removeComponent_(const std::type_index& id) = 0;
-		virtual std::map<std::type_index, std::unique_ptr<IComponent>>& getComponents() = 0;
-
-		template <typename T, typename... Args, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
-		T* addComponent(Args... args) {
-			if (auto c = getComponent<T>()) {
-				printf("Reloading '%s' for id:%lu\n", typeid(T).name(), id);
-				c->~T(); // destruct
-				new(c) T(this, args...); // reconstruct
-				return c;
-			}
-			T* ptr = new T(this, args...);
-			addComponent_(std::type_index(typeid(T)), std::unique_ptr<IComponent>(ptr));
-			return ptr;
-		}
-		template <typename T, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
-		void removeComponent() { removeComponent_(std::type_index(typeid(T))); }
-		template <typename T, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
-		std::unique_ptr<IComponent>& getComponentHandler() {
-			static std::unique_ptr<IComponent> nul;
-			auto& components = getComponents();
-			auto it = components.find(typeid(T));
-			if (it != components.end())
-				return it->second;
-			return nul;
-		}
-		template <typename T, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
-		T* getComponent() {
-			return (T*)getComponentHandler<T>().get();
-		}
-
-		virtual std::shared_ptr<IEntity> spawn(std::shared_ptr<IEntity> entity) = 0;
-		virtual std::shared_ptr<IEntity> createEntity(const std::string& name) = 0;
-		virtual std::shared_ptr<IEntity> createEntity(nlohmann::json& json) = 0;
-
-		inline size_t getID() { return id; }
-
-		virtual void setParent(IEntity* parent) = 0;
-		virtual IEntity* getParent() = 0;
-		virtual const std::vector<std::shared_ptr<IEntity>>& getChildren() = 0;
-
-		virtual void serialize(nlohmann::json& json, bool serializeChildren = true) const = 0;
-		virtual void deserialize(nlohmann::json& json) = 0;
-
-		virtual const std::string& getName() const = 0;
-		virtual Hydra::Renderer::DrawObject* getDrawObject() = 0;
-		virtual bool isDead() const = 0;
-	protected:
-		IWorld* world;
-		size_t id;
-	};
-	inline IEntity::~IEntity() {}
-
-	class HYDRA_API IComponent {
-	public:
-		inline IComponent(IEntity* entity) : entity(entity) {}
-		virtual ~IComponent() = 0;
-
-		virtual void tick(TickAction action, float delta) = 0;
-		virtual TickAction wantTick() const = 0;
+	struct HYDRA_API IComponentBase {
+		virtual ~IComponentBase() = 0;
 
 		virtual const std::string type() const = 0;
-
 		virtual void serialize(nlohmann::json& json) const = 0;
 		virtual void deserialize(nlohmann::json& json) = 0;
 		virtual void registerUI() = 0;
-
-		// TODO?: IComponent* getParent();
-		// TODO?: std::vector<IComponent*> getChildren();
-	protected:
-		IEntity* entity;
 	};
-	inline IComponent::~IComponent() {}
+	inline IComponentBase::~IComponentBase() {}
+
+	template <typename T, ComponentBits bit>
+	struct HYDRA_API IComponent : public IComponentBase {
+		friend class Entity;
+		static constexpr ComponentBits bits = bit;
+
+		EntityID entityID;
+		virtual ~IComponent() = 0;
+
+		static inline const std::vector<std::shared_ptr<IComponent<T, bit>>>& getActiveComponents() { return _components; }
+
+	private:
+		static std::unordered_map<EntityID, size_t> _map;
+		static std::vector<std::shared_ptr<IComponent<T, bit>>> _components;
+
+		inline static std::shared_ptr<T> getComponent(EntityID entityID) {
+			return std::static_pointer_cast<T>(_components[_map[entityID]]);
+		}
+
+		inline static std::shared_ptr<T> addComponent(EntityID entityID) {
+			auto t = new T();
+			t->entityID = entityID;
+			_components.emplace_back(std::shared_ptr<IComponent<T, bit>>(t));
+			_map[entityID] = _components.size() - 1;
+			return std::static_pointer_cast<T>(_components.back());
+		}
+
+		inline static void removeComponent(EntityID entityID) {
+			const size_t pos = _map[entityID];
+			if (pos != _components.size() - 1) {
+				_map[_components.back()->entityID] = pos;
+				std::swap(_components[pos], _components.back());
+			}
+
+			_components.pop_back();
+			_map.erase(entityID);
+		}
+	};
+	template <typename T, ComponentBits bit>
+	inline IComponent<T, bit>::~IComponent() {}
+	template <typename T, ComponentBits bit>
+	std::unordered_map<EntityID, size_t> IComponent<T, bit>::_map;
+	template <typename T, ComponentBits bit>
+	std::vector<std::shared_ptr<IComponent<T, bit>>> IComponent<T, bit>::_components;
+
+	struct HYDRA_API World final {
+		static std::shared_ptr<Entity> root;
+
+		World() = delete;
+
+		static void reset() {
+			_entities.clear();
+			_map.clear();
+			_idCounter = 1;
+			root = newEntity("World Root", 0);
+		}
+
+		inline static std::shared_ptr<Entity> newEntity(const std::string& name, EntityID parent) {
+			EntityID id = _idCounter++;
+			std::shared_ptr<Entity> e = std::make_shared<Entity>();
+			e->id = id;
+			e->name = name;
+			e->parent = parent;
+			if (parent)
+				getEntity(parent)->children.push_back(id);
+
+			_entities.emplace_back(std::move(e));
+			_map[id] = _entities.size() - 1;
+			return _entities.back();
+		}
+
+		inline static void removeEntity(EntityID entityID) {
+			if (!getEntity(entityID))
+				return;
+			const size_t pos = _map[entityID];
+			if (pos != _entities.size() - 1) {
+				_map[_entities.back()->id] = pos;
+				std::swap(_entities[pos], _entities.back());
+			}
+
+			_entities.pop_back();
+			_map.erase(entityID);
+		}
+
+		inline static std::shared_ptr<Entity> getEntity(EntityID id) {
+			if (!_map.count(id))
+				return std::shared_ptr<Entity>();
+			return _entities[_map[id]];
+		}
+
+		template <typename Component0, typename... Components>
+		inline static void getEntitiesWithComponents(std::vector<Entity*>& output) {
+			output.clear();
+			const ComponentBits bits = combine(Components::bits...);
+			for (const Component0& c : Component0::getActiveComponents())
+				if (auto e = getEntity(c.entityID); e->hasComponents(bits))
+					output.push_back(e);
+		}
+	private:
+		static std::unordered_map<EntityID, size_t> _map;
+		static std::vector<std::shared_ptr<Entity>> _entities;
+		static EntityID _idCounter;
+	};
+
+	class HYDRA_API ISystem {
+	public:
+		virtual ~ISystem() = 0;
+
+		virtual void tick(World& world, float delta) = 0;
+
+		virtual const std::string type() const = 0;
+		virtual void registerUI() = 0;
+	};
+	inline ISystem::~ISystem() {}
 
 	struct HYDRA_API Blueprint final {
 		std::string name; // Blueprint Name
 
 		inline nlohmann::json& getData() { return _root["data"]; }
 
-		std::shared_ptr<IEntity> spawn(IWorld* world);
+		Entity* spawn(World& world);
 
 		nlohmann::json _root;
-	};
-
-	namespace World {
-		HYDRA_API std::unique_ptr<IWorld> create();
-	};
-
-	namespace Entity {
-		HYDRA_API std::shared_ptr<IEntity> createEmpty(IWorld* world, const std::string& name);
-		HYDRA_API std::shared_ptr<IEntity> createFromBlueprint(IWorld* world, nlohmann::json& json);
 	};
 };
