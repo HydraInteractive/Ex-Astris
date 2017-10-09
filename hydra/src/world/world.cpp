@@ -19,21 +19,6 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-using ComponentTypes = Hydra::Ext::TypeTuple<
-	IComponent<TransformComponent, ComponentBits::Transform>,
-	IComponent<CameraComponent, ComponentBits::Camera>,
-	IComponent<LightComponent, ComponentBits::Light>,
-	IComponent<MeshComponent, ComponentBits::Mesh>,
-	IComponent<ParticleComponent, ComponentBits::Particle>,
-	IComponent<EnemyComponent, ComponentBits::Enemy>,
-	IComponent<BulletComponent, ComponentBits::Bullet>,
-	IComponent<PlayerComponent, ComponentBits::Player>,
-	IComponent<WeaponComponent, ComponentBits::Weapon>,
-	IComponent<GrenadeComponent, ComponentBits::Grenade>,
-	IComponent<MineComponent, ComponentBits::Mine>,
-	IComponent<RigidBodyComponent, ComponentBits::RigidBody>
->;
-
 
 template <typename T>
 inline void removeComponent(Entity& this_) {
@@ -44,10 +29,18 @@ inline void removeComponent(Entity& this_) {
 template <typename... Args>
 struct RemoveComponents;
 
-template <typename... Args>
-struct RemoveComponents<Hydra::Ext::TypeTuple<Args...>> {
+template <>
+struct RemoveComponents<Hydra::Ext::TypeTuple<>> {
+	constexpr static void apply(Entity&) {}
+};
+
+template <typename T, typename... Args>
+struct RemoveComponents<Hydra::Ext::TypeTuple<T, Args...>> {
 	constexpr static void apply(Entity& this_) {
-		(removeComponent<Args>(this_), ...);
+		//(removeComponent<Args>(this_), ...);
+
+		removeComponent<T>(this_);
+		RemoveComponents<Hydra::Ext::TypeTuple<Args...>>::apply(this_);
 	}
 };
 
@@ -73,10 +66,18 @@ inline void serializeComponent(const Entity& this_, nlohmann::json& json) {
 template <typename... Args>
 struct SerializeComponents;
 
-template <typename... Args>
-struct SerializeComponents<Hydra::Ext::TypeTuple<Args...>> {
+template <>
+struct SerializeComponents<Hydra::Ext::TypeTuple<>> {
+	constexpr static void apply(const Entity&, nlohmann::json&) {}
+};
+
+template <typename T, typename... Args>
+struct SerializeComponents<Hydra::Ext::TypeTuple<T, Args...>> {
 	constexpr static void apply(const Entity& this_, nlohmann::json& json) {
-		(serializeComponent<Args>(this_, json), ...);
+		//(serializeComponent<Args>(this_, json), ...);
+
+		serializeComponent<T>(this_, json);
+		SerializeComponents<Hydra::Ext::TypeTuple<Args...>>::apply(this_, json);
 	}
 };
 

@@ -55,13 +55,11 @@ Target[] MakeObjects(string src, CompileCommand cmd)() {
 
 Build myBuild() {
 	auto libhydra = Target("libhydra.so", Link!(LFlagsHydraLib), MakeObjects!("hydra/src/", CompileCommand.CompileLib));
-	return Build(libhydra);
-	/*auto libhydra_graphics = Target("libhydra_graphics.so", Link!(LFlagsGraphicsLib), MakeObjects!("hydra_graphics/src/", CompileCommand.CompileLib), [libhydra]);
+	auto libhydra_graphics = Target("libhydra_graphics.so", Link!(LFlagsGraphicsLib), MakeObjects!("hydra_graphics/src/", CompileCommand.CompileLib), [libhydra]);
 	auto libhydra_network = Target("libhydra_network.so", Link!(LFlagsNetworkLib), MakeObjects!("hydra_network/src/", CompileCommand.CompileLib), [libhydra, libhydra_graphics]);
 	auto libhydra_physics = Target("libhydra_physics.so", Link!(LFlagsPhysicsLib), MakeObjects!("hydra_physics/src/", CompileCommand.CompileLib), [libhydra, libhydra_graphics]);
 	auto libhydra_sound = Target("libhydra_sound.so", Link!(LFlagsSoundLib), MakeObjects!("hydra_sound/src/", CompileCommand.CompileLib), [libhydra, libhydra_graphics]);
-
 	auto barcode = Target("barcodegame", CompileCommand.LinkExec, MakeObjects!("barcode/src/", CompileCommand.CompileExec), [libhydra, libhydra_graphics, libhydra_network, libhydra_physics, libhydra_sound]);
 
-	return Build(barcode);*/
+	return Build(barcode);
 }

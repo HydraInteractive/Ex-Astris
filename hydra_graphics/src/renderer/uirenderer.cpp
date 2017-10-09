@@ -357,37 +357,60 @@ private:
 	ImFont* _monospaceFont;
 	ImFont* _bigFont;
 
+	template <typename... Args>
+	struct RenderComponents;
+
+	template <>
+	struct RenderComponents<Hydra::Ext::TypeTuple<>> {
+		constexpr static void apply(const Entity&, nlohmann::json&) {}
+	};
+
+	template <typename T, typename... Args>
+	struct RenderComponents<Hydra::Ext::TypeTuple<T, Args...>> {
+		constexpr static void apply(UIRendererImpl* this_, Entity* entity) {
+			this._renderComponentWrapper<T>(entity);
+			RenderComponents<Hydra::Ext::TypeTuple<Args...>>::apply(this_, entity);
+		}
+	};
+
 	void _renderEntityWindow() {
 		ImGui::SetNextWindowSize(ImVec2(480, 640), ImGuiSetCond_Once);
 		ImGui::Begin("Entity List", &_entityWindow);
 
-		auto world = _engine->getState()->getWorld()->getWorldRoot().get();
+		using world = Hydra::World::World;
+		auto worldRoot = world::root.get();
 
 		// This doesn't use _renderEntity, because I want a globe instad of a user
-		if (ImGui::TreeNode(world, ICON_FA_GLOBE " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", world->getName().c_str(), world->getID(), world->getComponents().size(), world->getChildren().size())) {
-			for (auto& component : world->getComponents())
+		if (ImGui::TreeNode(world, ICON_FA_GLOBE " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", worldRoot->name.c_str(), worldRoot->id, worldRoot->componentCount(), worldRoot->children.size())) {
+			for (auto& component : worldRoot->getComponents())
 				_renderComponent(component.second.get());
 
-			for (auto& child : world->getChildren())
-				_renderEntity(child.get());
+			for (auto& child : worldRoot->children)
+				_renderEntity(world::getEntity(child).get());
 			ImGui::TreePop();
 		}
 
 		ImGui::End();
 	}
 
-	void _renderEntity(IEntity* entity) {
-		if (!ImGui::TreeNode(entity, ICON_FA_USER_O " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", entity->getName().c_str(), entity->getID(), entity->getComponents().size(), entity->getChildren().size()))
+	void _renderEntity(Entity* entity) {
+		if (!ImGui::TreeNode(entity, ICON_FA_USER_O " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", entity->name.c_str(), entity->id, entity->componentCount(), entity->children.size()))
 			return;
 
 		for (auto& component : entity->getComponents())
 			_renderComponent(component.second.get());
-		for (auto& child : entity->getChildren())
-			_renderEntity(child.get());
+		for (auto& child : entity->children)
+			_renderEntity(world::getEntity(child).get());
 		ImGui::TreePop();
 	}
 
-	void _renderComponent(IComponent* component) {
+	template <typename T>
+	inline void _renderComponentWrapper(Entity* entity) {
+		if (auto t = entity->getComponent<T>())
+			_renderComponent(t.get());
+	}
+
+	void _renderComponent(IComponentBase* component) {
 		if (!ImGui::TreeNode(component, ICON_FA_MICROCHIP " %s", component->type().c_str()))
 			return;
 

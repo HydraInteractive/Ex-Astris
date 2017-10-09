@@ -3,7 +3,7 @@
 #include <SDL2/SDL.h>
 
 #include <memory>
- 
+
 #include <hydra/view/sdlview.hpp>
 #include <hydra/renderer/glrenderer.hpp>
 
@@ -36,6 +36,7 @@ static inline void reportMemoryLeaks() {}
 
 namespace Barcode {
 	using namespace Hydra;
+
 	class Engine final : public IEngine {
 	public:
 		Engine() {
@@ -54,6 +55,7 @@ namespace Barcode {
 			auto lastTime = std::chrono::high_resolution_clock::now();
 			_state = std::move(_newState);
 			_uiRenderer->reset();
+			Hydra::World::World::reset();
 			_state->load();
 			_quit = false;
 
@@ -61,10 +63,11 @@ namespace Barcode {
 				auto nowTime = std::chrono::high_resolution_clock::now();
 				float delta = std::chrono::duration<float, std::chrono::milliseconds::period>(nowTime - lastTime).count() / 1000.f;
 				lastTime = nowTime;
-				{ // Remove old dead objects
+
+				/*{ // Remove old dead objects
 					_state->getWorld()->tick(TickAction::checkDead, delta);
 					_renderer->cleanup();
-				}
+					}*/
 
 				_state->runFrame(delta);
 				_uiRenderer->render(delta);
@@ -73,6 +76,7 @@ namespace Barcode {
 				if (_newState) {
 					_state = std::move(_newState);
 					_uiRenderer->reset();
+					Hydra::World::World::reset();
 					_state->load();
 				}
 			}
@@ -142,7 +146,7 @@ int main(int argc, char** argv) {
 		reportMemoryLeaks();
 		srand(time(NULL));
 		Barcode::Engine engine;
-		engine.setState<Barcode::GameState>();
+		engine.setState<Barcode::MenuState>();
 		engine.run();
 		return 0;
 	} catch (const char * msg) {

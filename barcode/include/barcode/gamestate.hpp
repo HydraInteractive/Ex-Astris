@@ -13,7 +13,7 @@
 #include <hydra/renderer/uirenderer.hpp>
 #include <hydra/io/meshloader.hpp>
 #include <hydra/io/textureloader.hpp>
-
+/*
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/playercomponent.hpp>
@@ -21,7 +21,7 @@
 #include <hydra/component/particlecomponent.hpp>
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
-
+*/
 #include <hydra/io/input.hpp>
 
 namespace Barcode {
@@ -35,12 +35,11 @@ namespace Barcode {
 		int currentFrame = 0;
 		void runFrame(float delta) final;
 
-		inline Hydra::World::IWorld* getWorld() final { return _world.get(); };
 		inline Hydra::IO::ITextureLoader* getTextureLoader() final { return _textureLoader.get(); }
 		inline Hydra::IO::IMeshLoader* getMeshLoader() final { return _meshLoader.get(); }
 		inline Hydra::Physics::IPhysicsManager* getPhysicsManager() final { return _physicsManager.get(); }
 
-	private:
+	private:/*
 		struct RenderBatch final {
 			std::unique_ptr<Hydra::Renderer::IShader> vertexShader;
 			std::unique_ptr<Hydra::Renderer::IShader> geometryShader;
@@ -61,12 +60,11 @@ namespace Barcode {
 			Hydra::Renderer::ParticleBatch batch;
 		};
 
-		Hydra::IEngine* _engine;
-		std::unique_ptr<Hydra::World::IWorld> _world;
+		Hydra::IEngine* _engine;*/
 		std::unique_ptr<Hydra::IO::ITextureLoader> _textureLoader;
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
 		std::unique_ptr<Hydra::Physics::IPhysicsManager> _physicsManager;
-
+		/*
 		RenderBatch _geometryBatch; // First part of deferred rendering
 		RenderBatch _animationBatch; // AnimationBatch
 		RenderBatch _lightingBatch; // Second part of deferred rendering
@@ -108,6 +106,6 @@ namespace Barcode {
 
 		void _initWorld();
 
-		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int &nrOfTimes, glm::vec2 size);
+		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int &nrOfTimes, glm::vec2 size);*/
 	};
 }

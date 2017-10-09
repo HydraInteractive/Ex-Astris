@@ -17,26 +17,12 @@
 #undef min
 #undef max
 #include <json.hpp>
+#include <hydra/ext/macros.hpp>
 
 namespace Hydra::Renderer { struct HYDRA_API DrawObject; }
 namespace Hydra::Physics { struct HYDRA_API PhysicsObject; }
 
 namespace Hydra::Component {
-	struct HYDRA_API TransformComponent;
-	struct HYDRA_API CameraComponent;
-	struct HYDRA_API LightComponent;
-	struct HYDRA_API MeshComponent;
-	struct HYDRA_API ParticleComponent;
-	struct HYDRA_API EnemyComponent;
-	struct HYDRA_API BulletComponent;
-	struct HYDRA_API PlayerComponent;
-	struct HYDRA_API WeaponComponent;
-	struct HYDRA_API GrenadeComponent;
-	struct HYDRA_API MineComponent;
-	struct HYDRA_API RigidBodyComponent;
-};
-
-namespace Hydra::World {
 	// Each component will be one entry in this list
 #define BIT(x) (1 << x)
 	enum class ComponentBits : uint64_t {
@@ -55,12 +41,49 @@ namespace Hydra::World {
 	};
 #undef BIT
 
-	inline ComponentBits& operator |=(ComponentBits& a, const ComponentBits& b) { *reinterpret_cast<uint64_t*>(&a) |= static_cast<uint64_t>(b); return a;}
-	inline ComponentBits& operator &=(ComponentBits& a, const ComponentBits& b) { *reinterpret_cast<uint64_t*>(&a) &= static_cast<uint64_t>(b); return a;}
+	inline ComponentBits& operator |=(ComponentBits& a, const ComponentBits& b) { *reinterpret_cast<uint64_t*>(&a) |= static_cast<uint64_t>(b); return a; }
+	inline ComponentBits& operator &=(ComponentBits& a, const ComponentBits& b) { *reinterpret_cast<uint64_t*>(&a) &= static_cast<uint64_t>(b); return a; }
 	inline ComponentBits  operator | (const ComponentBits a, const ComponentBits b) { return static_cast<ComponentBits>(static_cast<uint64_t>(a) | static_cast<uint64_t>(b)); }
 	inline ComponentBits  operator & (const ComponentBits a, const ComponentBits b) { return static_cast<ComponentBits>(static_cast<uint64_t>(a) & static_cast<uint64_t>(b)); }
 	inline ComponentBits  operator ~ (const ComponentBits a) { return static_cast<ComponentBits>(~static_cast<uint64_t>(a)); }
+}
 
+namespace Hydra::World {
+	template <typename T, Hydra::Component::ComponentBits bit>
+	struct HYDRA_API IComponent;
+}
+
+namespace Hydra::Component {
+	struct HYDRA_API TransformComponent;
+	struct HYDRA_API CameraComponent;
+	struct HYDRA_API LightComponent;
+	struct HYDRA_API MeshComponent;
+	struct HYDRA_API ParticleComponent;
+	struct HYDRA_API EnemyComponent;
+	struct HYDRA_API BulletComponent;
+	struct HYDRA_API PlayerComponent;
+	struct HYDRA_API WeaponComponent;
+	struct HYDRA_API GrenadeComponent;
+	struct HYDRA_API MineComponent;
+	struct HYDRA_API RigidBodyComponent;
+
+	using ComponentTypes = Hydra::Ext::TypeTuple<
+		Hydra::World::IComponent<TransformComponent, ComponentBits::Transform>,
+		Hydra::World::IComponent<CameraComponent, ComponentBits::Camera>,
+		Hydra::World::IComponent<LightComponent, ComponentBits::Light>,
+		Hydra::World::IComponent<MeshComponent, ComponentBits::Mesh>,
+		Hydra::World::IComponent<ParticleComponent, ComponentBits::Particle>,
+		Hydra::World::IComponent<EnemyComponent, ComponentBits::Enemy>,
+		Hydra::World::IComponent<BulletComponent, ComponentBits::Bullet>,
+		Hydra::World::IComponent<PlayerComponent, ComponentBits::Player>,
+		Hydra::World::IComponent<WeaponComponent, ComponentBits::Weapon>,
+		Hydra::World::IComponent<GrenadeComponent, ComponentBits::Grenade>,
+		Hydra::World::IComponent<MineComponent, ComponentBits::Mine>,
+		Hydra::World::IComponent<RigidBodyComponent, ComponentBits::RigidBody>
+	>;
+};
+
+namespace Hydra::World {
 	typedef size_t EntityID;
 	template<typename T>
 	constexpr T bitOr(T v) { return v; }
@@ -68,26 +91,32 @@ namespace Hydra::World {
 	template<typename T, typename... Args>
 	constexpr T bitOr(T first, Args... args) { return first | combine(args...); }
 
-	/*	typedef void (*RemoveComponent_f)(EntityID id);
-	const std::map<ComponentBits, RemoveComponent_f> removeComponent;*/
-
 	struct HYDRA_API Entity final {
 		// Entity Core
 		EntityID id;
-		ComponentBits activeComponents;
+		Hydra::Component::ComponentBits activeComponents;
 		EntityID parent;
 		std::vector<EntityID> children;
 
 		// Extra data
 		std::string name;
-		bool dead = true;
+		bool dead = false;
 
 		~Entity();
 
-		inline bool hasComponents(ComponentBits cb) const { return (activeComponents & cb) == cb; }
+		inline bool hasComponents(Hydra::Component::ComponentBits cb) const { return (activeComponents & cb) == cb; }
 
 		template <typename T>
 		inline bool hasComponent() const { return (activeComponents & T::bits) == T::bits; }
+
+		inline size_t componentCount() {
+			// Counts the number of bits set in activeComponents
+
+			uint64_t i = static_cast<uint64_t>(activeComponents);
+			i = i - ((i >> 1) & 0x5555555555555555UL);
+			i = (i & 0x3333333333333333UL) + ((i >> 2) & 0x3333333333333333UL);
+			return (int)((((i + (i >> 4)) & 0xF0F0F0F0F0F0F0FUL) * 0x101010101010101UL) >> 56);
+		}
 
 		template <typename T>
 		inline std::shared_ptr<T> getComponent() const {
@@ -105,14 +134,12 @@ namespace Hydra::World {
 		}
 
 		template <typename T>
-			inline void removeComponent() {
+		inline void removeComponent() {
 			if (!hasComponents(T::bits))
 				return;
 			activeComponents &= ~T::bits;
 			T::removeComponent(id);
 		}
-
-		inline void addChild(EntityID entity) { children.push_back(entity); };
 
 		void serialize(nlohmann::json& json) const;
 		void deserialize(nlohmann::json& json);
@@ -128,10 +155,10 @@ namespace Hydra::World {
 	};
 	inline IComponentBase::~IComponentBase() {}
 
-	template <typename T, ComponentBits bit>
+	template <typename T, Hydra::Component::ComponentBits bit>
 	struct HYDRA_API IComponent : public IComponentBase {
-		friend class Entity;
-		static constexpr ComponentBits bits = bit;
+		friend struct Entity;
+		static constexpr Hydra::Component::ComponentBits bits = bit;
 
 		EntityID entityID;
 		virtual ~IComponent() = 0;
@@ -164,23 +191,28 @@ namespace Hydra::World {
 			_map.erase(entityID);
 		}
 	};
-	template <typename T, ComponentBits bit>
+	template <typename T, Hydra::Component::ComponentBits bit>
 	inline IComponent<T, bit>::~IComponent() {}
-	template <typename T, ComponentBits bit>
+	template <typename T, Hydra::Component::ComponentBits bit>
 	std::unordered_map<EntityID, size_t> IComponent<T, bit>::_map;
-	template <typename T, ComponentBits bit>
+	template <typename T, Hydra::Component::ComponentBits bit>
 	std::vector<std::shared_ptr<IComponent<T, bit>>> IComponent<T, bit>::_components;
 
 	struct HYDRA_API World final {
 		static std::shared_ptr<Entity> root;
 
 		World() = delete;
+		static constexpr EntityID invalidID = 0;
 
 		static void reset() {
 			_entities.clear();
 			_map.clear();
 			_idCounter = 1;
-			root = newEntity("World Root", 0);
+			root = newEntity("World Root", invalidID);
+		}
+
+		inline static std::shared_ptr<Entity> newEntity(const std::string& name, std::shared_ptr<Entity>& parent) {
+			return newEntity(name, parent->id);
 		}
 
 		inline static std::shared_ptr<Entity> newEntity(const std::string& name, EntityID parent) {
@@ -219,12 +251,12 @@ namespace Hydra::World {
 		template <typename Component0, typename... Components>
 		inline static void getEntitiesWithComponents(std::vector<Entity*>& output) {
 			output.clear();
-			const ComponentBits bits = combine(Components::bits...);
+			const Hydra::Component::ComponentBits bits = combine(Components::bits...);
 			for (const Component0& c : Component0::getActiveComponents())
 				if (auto e = getEntity(c.entityID); e->hasComponents(bits))
 					output.push_back(e);
 		}
-	private:
+
 		static std::unordered_map<EntityID, size_t> _map;
 		static std::vector<std::shared_ptr<Entity>> _entities;
 		static EntityID _idCounter;
@@ -234,7 +266,7 @@ namespace Hydra::World {
 	public:
 		virtual ~ISystem() = 0;
 
-		virtual void tick(World& world, float delta) = 0;
+		virtual void tick(float delta) = 0;
 
 		virtual const std::string type() const = 0;
 		virtual void registerUI() = 0;

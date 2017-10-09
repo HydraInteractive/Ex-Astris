@@ -26,6 +26,7 @@ union SDL_Event;
 #endif
 
 namespace Hydra { enum class HYDRA_API LogLevel; }
+namespace Hydra::World { class ISystem; }
 
 namespace Hydra::Renderer {
 	class HYDRA_API IUILog;
@@ -57,6 +58,7 @@ namespace Hydra::Renderer {
 		virtual void reset() = 0;
 		virtual void render(float delta) = 0; // TODO: Move to IRenderer(?)
 
+		virtual void registerSystems(const std::vector<Hydra::World::ISystem*>& systems) = 0;
 		virtual UIRenderWindow* addRenderWindow() = 0;
 
 		virtual void pushFont(UIFont font) = 0;

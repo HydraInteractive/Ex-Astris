@@ -1,3 +1,4 @@
+#if 0
 #include <barcode/gamestate.hpp>
 
 #include <hydra/renderer/glrenderer.hpp>
@@ -779,3 +780,4 @@ namespace Barcode {
 		return _blurrExtraFBO1;
 	}
 }
+#endif

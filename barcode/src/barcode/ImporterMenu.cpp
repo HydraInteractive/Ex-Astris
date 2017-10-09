@@ -1,3 +1,4 @@
+#if 0
 #include <barcode/ImporterMenu.hpp>
 #include <hydra/engine.hpp>
 #include <hydra/component/cameracomponent.hpp>
@@ -376,3 +377,4 @@ void ImporterMenu::Node::_getContentsOfDir(const std::string &directory, std::ve
 	closedir(dir);
 #endif
 }
+#endif

@@ -1,3 +1,4 @@
+#if 0
 #include <barcode/editorstate.hpp>
 
 namespace Barcode {
@@ -699,3 +700,4 @@ namespace Barcode {
 		return _blurrExtraFBO1;
 	}
 }
+#endif

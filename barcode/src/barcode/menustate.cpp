@@ -33,6 +33,7 @@ namespace Barcode {
 			batch.batch.pipeline = batch.pipeline.get();
 		}
 
+		_initSystem();
 		_initWorld();
 	}
 
@@ -41,27 +42,17 @@ namespace Barcode {
 	void MenuState::onMainMenu() {}
 
 	void MenuState::runFrame(float delta) {
+		deadSystem.tick(0);
+
 		{ // Fetch new events
 			_engine->getView()->update(_engine->getUIRenderer());
 			_engine->getUIRenderer()->newFrame();
 		}
 
-		{ // Update physics
-			_world->tick(Hydra::World::TickAction::physics, delta);
-		}
-
-		{ // Render objects (Deferred rendering)
-			_world->tick(Hydra::World::TickAction::render, delta);
-		}
-
-		{ // Render transparent objects	(Forward rendering)
-			_world->tick(Hydra::World::TickAction::renderTransparent, delta);
-		}
-
 		{ // Update UI & views
 			ImGui::Begin("Main menu");
-			if (ImGui::Button("Play game"))
-				_engine->setState<GameState>();
+			/*if (ImGui::Button("Play game"))
+				_engine->setState<GameState>();*/
 
 			if (ImGui::Button("Quit"))
 				_engine->quit();
@@ -69,15 +60,17 @@ namespace Barcode {
 
 			_engine->getRenderer()->render(_viewBatch.batch);
 		}
+	}
 
-		{ // Sync with network
-			_world->tick(Hydra::World::TickAction::network, delta);
-		}
+	void MenuState::_initSystem() {
+		const std::vector<Hydra::World::ISystem*> systems = {&deadSystem};
+		_engine->getUIRenderer()->registerSystems(systems);
 	}
 
 	void MenuState::_initWorld() {
-		_world = Hydra::World::World::create();
-		auto a = _world->createEntity("Menu entity");
+		using world = Hydra::World::World;
+
+		world::newEntity("Menu entity", world::root);
 	}
 
 }
