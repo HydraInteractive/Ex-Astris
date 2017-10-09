@@ -12,6 +12,9 @@ struct DirLight{
 struct PointLight{
 	vec3 pos;
 	vec3 color;
+	float constant;
+	float linear;
+	float quadratic;
 };
 
 layout(location = 0) out vec3 fragOutput;
@@ -24,14 +27,37 @@ layout(location = 4) uniform sampler2D depthMap;
 layout(location = 5) uniform vec3 cameraPos;
 layout(location = 6) uniform int nrOfPointLights;
 layout(location = 7) uniform DirLight dirLight;
-layout(location = 9) uniform PointLight[MAX_LIGHTS];
+layout(location = 9) uniform PointLight pointLights[MAX_LIGHTS];
 
-vec3 calcDirLight(PointLight light, vec3 fragPos, vec3 normal vec3 diffuseColor){
-	
+vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec3 objectColor){
+	// Diffuse
+	vec3 lightDir = normalize(light.pos - pos);
+	float diff = max(dot(normal, lightDir), 0.0);
+	vec3 diffuse = light.color * diff;
+
+	// Specular
+	float specularStrength = 0.1f;
+	vec3 viewDir = normalize(cameraPos - pos);
+	vec3 reflectDir = reflect(-lightDir, normal);
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128);
+	vec3 specular = spec * specularStrength * light.color;
+
+	vec3 ambient = light.color * 1 / nrOfPointLights;
+	return (diffuse + specular + ambient) * objectColor;
 }
 
-vec3 calcPointLight(DirLight light, vec3 normal, vec3 diffuseColor){
-	
+vec3 calcDirLight(DirLight light, vec3 pos, vec3 normal, vec3 objectColor){
+	vec3 lightDirection = normalize(light.dir);
+	float diff = max(dot(normal, -lightDirection), 0.0f);
+	vec3 diffuse = light.color * diff;
+
+	float specularStrength = 0.1f;
+	vec3 viewDir = normalize(cameraPos - pos);
+	vec3 reflectDir = reflect(-lightDirection, normal);
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128);
+	vec3 specular = spec * specularStrength * light.color;
+
+	return (diffuse + specular) * objectColor;
 }
 
 void main() {
@@ -52,32 +78,24 @@ void main() {
 	normal /= 4;
 	lightPos /= 4;
 
-	vec3 lightColor = normal;//vec3(1,1,1);
-
-	vec3 lightDirection = normalize(lightDir);
-	float diff = max(dot(normal, -lightDirection), 0.0f);
-	vec3 diffuse = lightColor * diff;
-
-	float specularStrength = 0.1f;
-	vec3 viewDir = normalize(cameraPos - pos);
-	vec3 reflectDir = reflect(-lightDirection, normal);
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128);
-	vec3 specular = spec * specularStrength * lightColor;
-
-	vec3 ambient = lightColor * 0.3f;
-	// All normal lighting calculations 
-	fragOutput = (diffuse + specular + ambient) * objectColor;
-
+	// Lighting 
+	vec3 globalAmbient = dirLight.color * 0.3f;
 	vec3 result = vec3(0);
+
+	// Directional light
+	result = calcDirLight(dirLight, pos, normal, objectColor);
+
+	// Point Lights.
 	for(int i = 0 ; i < nrOfPointLights; i++){
-		result += calcPointLight();
+		result += calcPointLight(pointLights[i], pos, normal, objectColor);
 	}
 
+	// Shadow
 	vec3 projCoords = lightPos.xyz / lightPos.w;
 	float closestDepth = texture(depthMap, projCoords.xy).r;
 	float currentDepth = projCoords.z;
 	
-	float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+	float bias = max(0.05 * (1.0 - dot(normal, dirLight.dir)), 0.005);
 	float shadow = 0.0;
 	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
 	
@@ -91,7 +109,9 @@ void main() {
 
 	shadow /= 9.0;
 	shadow = 1 - shadow;
-	fragOutput *= shadow;
+	result *= shadow;
+
+	fragOutput = result + globalAmbient;
 
 	// Picking out bright regions for glow.
 	float brightness = dot(vec3(fragOutput.x * 10, fragOutput.y, fragOutput.z), vec3(0.2126, 0.7152, 0.0722));

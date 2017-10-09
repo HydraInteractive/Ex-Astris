@@ -318,7 +318,7 @@ namespace Barcode {
 			auto& lights = _world->getActiveComponents<Hydra::Component::LightComponent>();
 
 			_lightingBatch.pipeline->setValue(5, _cc->getPosition());
-			_lightingBatch.pipeline->setValue(6, (int)(lights.size() - 1));
+			_lightingBatch.pipeline->setValue(6, (int)(lights.size()));
 			_lightingBatch.pipeline->setValue(7, _light->getDirection());
 			_lightingBatch.pipeline->setValue(8, _light->getColor());
 			
@@ -339,8 +339,6 @@ namespace Barcode {
 			(*_geometryBatch.output)[2]->bind(2);
 			(*_geometryBatch.output)[3]->bind(3);
 			_shadowBatch.output->getDepth()->bind(4);
-
-			//(*_geometryBatch.output)[4]->bind(4);
 
 			_engine->getRenderer()->postProcessing(_lightingBatch.batch);
 		}

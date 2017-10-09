@@ -42,7 +42,7 @@ void LightComponent::serialize(nlohmann::json& json) const {
 		{ "fov", _fov },
 		{ "zNear", _zNear },
 		{ "zFar", _zFar },
-		{ "color", _color}
+		{ "color", {_color.x, _color.y, _color.z}}
 	};
 }
 
@@ -70,7 +70,7 @@ void LightComponent::registerUI() {
 	ImGui::DragFloat("FOV", &_fov);
 	ImGui::DragFloat("Z Near", &_zNear, 0.001f);
 	ImGui::DragFloat("Z Far", &_zFar);
-	ImGui::DragFloat3("Color", glm::value_ptr(_color), 0.01f);
+	ImGui::DragFloat3("color", glm::value_ptr(_color), 0.01f);
 	
 	//float aspect = (_renderTarget->getSize().x*1.0f) / _renderTarget->getSize().y;
 	//ImGui::InputFloat("Aspect", &aspect, 0, 0, -1, ImGuiInputTextFlags_ReadOnly);
