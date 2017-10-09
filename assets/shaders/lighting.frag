@@ -12,9 +12,6 @@ struct DirLight{
 struct PointLight{
 	vec3 pos;
 	vec3 color;
-	float constant;
-	float linear;
-	float quadratic;
 };
 
 layout(location = 0) out vec3 fragOutput;
