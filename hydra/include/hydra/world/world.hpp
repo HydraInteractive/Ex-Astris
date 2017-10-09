@@ -68,8 +68,8 @@ namespace Hydra::World {
 	template<typename T, typename... Args>
 	constexpr T bitOr(T first, Args... args) { return first | combine(args...); }
 
-	typedef void (*RemoveComponent_f)(EntityID id);
-	const std::map<ComponentBits, RemoveComponent_f> removeComponent;
+	/*	typedef void (*RemoveComponent_f)(EntityID id);
+	const std::map<ComponentBits, RemoveComponent_f> removeComponent;*/
 
 	struct HYDRA_API Entity final {
 		// Entity Core
@@ -84,21 +84,24 @@ namespace Hydra::World {
 
 		~Entity();
 
-		inline bool hasComponents(ComponentBits cb) { return (activeComponents & cb) == cb; }
+		inline bool hasComponents(ComponentBits cb) const { return (activeComponents & cb) == cb; }
 
 		template <typename T>
-		inline std::shared_ptr<T> getComponent() {
+		inline bool hasComponent() const { return (activeComponents & T::bits) == T::bits; }
+
+		template <typename T>
+		inline std::shared_ptr<T> getComponent() const {
 			if (hasComponents(T::bits))
-				return T::getComponent(id);
+				return std::static_pointer_cast<T>(T::getComponent(id));
 			return std::shared_ptr<T>();
 		}
 
 		template <typename T>
 		inline std::shared_ptr<T> addComponent() {
 			if (hasComponents(T::bits))
-				return T::getComponent(id);
+				return std::static_pointer_cast<T>(T::getComponent(id));
 			activeComponents |= T::bits;
-			return T::addComponent(id);
+			return std::static_pointer_cast<T>(T::addComponent(id));
 		}
 
 		template <typename T>
@@ -135,20 +138,19 @@ namespace Hydra::World {
 
 		static inline const std::vector<std::shared_ptr<IComponent<T, bit>>>& getActiveComponents() { return _components; }
 
-	private:
 		static std::unordered_map<EntityID, size_t> _map;
 		static std::vector<std::shared_ptr<IComponent<T, bit>>> _components;
 
-		inline static std::shared_ptr<T> getComponent(EntityID entityID) {
-			return std::static_pointer_cast<T>(_components[_map[entityID]]);
+		inline static std::shared_ptr<IComponent<T, bit>> getComponent(EntityID entityID) {
+			return _components[_map[entityID]];
 		}
 
-		inline static std::shared_ptr<T> addComponent(EntityID entityID) {
+		inline static std::shared_ptr<IComponent<T, bit>> addComponent(EntityID entityID) {
 			auto t = new T();
 			t->entityID = entityID;
 			_components.emplace_back(std::shared_ptr<IComponent<T, bit>>(t));
 			_map[entityID] = _components.size() - 1;
-			return std::static_pointer_cast<T>(_components.back());
+			return _components.back();
 		}
 
 		inline static void removeComponent(EntityID entityID) {

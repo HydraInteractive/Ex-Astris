@@ -13,39 +13,48 @@
 #include <hydra/renderer/renderer.hpp>
 #include <hydra/engine.hpp>
 #include <hydra/component/componentmanager.hpp>
+#include <hydra/ext/macros.hpp>
+#include <tuple>
 
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
+using ComponentTypes = Hydra::Ext::TypeTuple<
+	IComponent<TransformComponent, ComponentBits::Transform>,
+	IComponent<CameraComponent, ComponentBits::Camera>,
+	IComponent<LightComponent, ComponentBits::Light>,
+	IComponent<MeshComponent, ComponentBits::Mesh>,
+	IComponent<ParticleComponent, ComponentBits::Particle>,
+	IComponent<EnemyComponent, ComponentBits::Enemy>,
+	IComponent<BulletComponent, ComponentBits::Bullet>,
+	IComponent<PlayerComponent, ComponentBits::Player>,
+	IComponent<WeaponComponent, ComponentBits::Weapon>,
+	IComponent<GrenadeComponent, ComponentBits::Grenade>,
+	IComponent<MineComponent, ComponentBits::Mine>,
+	IComponent<RigidBodyComponent, ComponentBits::RigidBody>
+>;
+
+
+template <typename T>
+inline void removeComponent(Entity& this_) {
+	if (this_.hasComponent<T>())
+		T::removeComponent(this_.id);
+}
+
+template <typename... Args>
+struct RemoveComponents;
+
+template <typename... Args>
+struct RemoveComponents<Hydra::Ext::TypeTuple<Args...>> {
+	constexpr static void apply(Entity& this_) {
+		(removeComponent<Args>(this_), ...);
+	}
+};
+
 Entity::~Entity() {
 	for (EntityID child : children)
 		World::removeEntity(child);
-
-	using namespace Hydra::Component;
-	if (hasComponents(ComponentBits::Transform))
-		IComponent<TransformComponent, ComponentBits::Transform>::removeComponent(id);
-	if (hasComponents(ComponentBits::Camera))
-		IComponent<CameraComponent, ComponentBits::Camera>::removeComponent(id);
-	if (hasComponents(ComponentBits::Light))
-		IComponent<LightComponent, ComponentBits::Light>::removeComponent(id);
-	if (hasComponents(ComponentBits::Mesh))
-		IComponent<MeshComponent, ComponentBits::Mesh>::removeComponent(id);
-	if (hasComponents(ComponentBits::Particle))
-		IComponent<ParticleComponent, ComponentBits::Particle>::removeComponent(id);
-	if (hasComponents(ComponentBits::Enemy))
-		IComponent<EnemyComponent, ComponentBits::Enemy>::removeComponent(id);
-	if (hasComponents(ComponentBits::Bullet))
-		IComponent<BulletComponent, ComponentBits::Bullet>::removeComponent(id);
-	if (hasComponents(ComponentBits::Player))
-		IComponent<PlayerComponent, ComponentBits::Player>::removeComponent(id);
-	if (hasComponents(ComponentBits::Weapon))
-		IComponent<WeaponComponent, ComponentBits::Weapon>::removeComponent(id);
-	if (hasComponents(ComponentBits::Grenade))
-		IComponent<GrenadeComponent, ComponentBits::Grenade>::removeComponent(id);
-	if (hasComponents(ComponentBits::Mine))
-		IComponent<MineComponent, ComponentBits::Mine>::removeComponent(id);
-	if (hasComponents(ComponentBits::RigidBody))
-		IComponent<RigidBodyComponent, ComponentBits::RigidBody>::removeComponent(id);
+	RemoveComponents<ComponentTypes>::apply(*this);
 }
 
 std::shared_ptr<Entity> World::root = nullptr;
@@ -53,19 +62,37 @@ std::unordered_map<EntityID, size_t> World::_map;
 std::vector<std::shared_ptr<Entity>> World::_entities;
 EntityID World::_idCounter = 1;
 
+template <typename T>
+inline void serializeComponent(const Entity& this_, nlohmann::json& json) {
+	if (this_.hasComponent<T>()) {
+		auto component = this_.getComponent<T>();
+		component->serialize(json[component->type()]);
+	}
+}
+
+template <typename... Args>
+struct SerializeComponents;
+
+template <typename... Args>
+struct SerializeComponents<Hydra::Ext::TypeTuple<Args...>> {
+	constexpr static void apply(const Entity& this_, nlohmann::json& json) {
+		(serializeComponent<Args>(this_, json), ...);
+	}
+};
+
+
 void Entity::serialize(nlohmann::json& json) const {
 	json["name"] = name;
 
 	{
 		auto& c = json["components"];
-		for (auto& component : _components)
-			component.second->serialize(c[component.second->type()]);
+		SerializeComponents<ComponentTypes>::apply(*this, c);
 	}
 
 	{
-		auto& children = json["children"];
-		for (size_t i = 0; i < _children.size(); i++)
-			_children[i]->serialize(children[i]);
+		auto& c = json["children"];
+		for (size_t i = 0; i < children.size(); i++)
+			Hydra::World::World::getEntity(children[i])->serialize(c[i]);
 	}
 }
 

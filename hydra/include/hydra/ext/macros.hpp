@@ -8,3 +8,8 @@
 #pragma once
 
 #define ABSTRACT_STRUCT(name)	struct HYDRA_API name { virtual ~name() = 0; }; inline name::~name() {}
+
+namespace Hydra::Ext {
+	template <class... Args>
+	struct TypeTuple {};
+}
