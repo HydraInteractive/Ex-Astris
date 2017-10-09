@@ -317,6 +317,44 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			enemy->setRotation(_rotation);
 
 		}break;
+		case EnemyTypes::AlienSpawner:
+		{
+			IEntity* world = entity->getParent();
+			while (world->getName() != "World")
+			{
+				world = world->getParent();
+			}
+			if (_spawnGroup.size() <= 5)
+			{
+				if (SDL_GetTicks() > _spawnTimer + 10000)
+				{
+					auto alienSpawn = world->createEntity("Enemy Alien");
+					alienSpawn->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, enemy->getPosition(), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+					alienSpawn->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+					_spawnGroup.push_back(alienSpawn);
+					_spawnTimer = SDL_GetTicks();
+				}
+			}
+		}break;
+		case EnemyTypes::RobotSpawner:
+		{
+			IEntity* world = entity->getParent();
+			while (world->getName() != "World")
+			{
+				world = world->getParent();
+			}
+			if (_spawnGroup.size() <= 5)
+			{
+				if (SDL_GetTicks() > _spawnTimer + 10000)
+				{
+					auto robotSpawn = world->createEntity("Enemy Robot");
+					robotSpawn->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, enemy->getPosition(), 70, 11, 20.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+					robotSpawn->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+					_spawnGroup.push_back(robotSpawn);
+					_spawnTimer = SDL_GetTicks();
+				}
+			}
+		}break;
 		case EnemyTypes::AlienBoss:
 		{
 			switch (_pathState)
@@ -483,6 +521,8 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			enemy->setRotation(_rotation);
 
 		}break;
+	default:
+		break;
 	}
 
 	 //debug for pathfinding
@@ -581,6 +621,7 @@ void EnemyComponent::deserialize(nlohmann::json& json) {
 	_bossPhase = (BossPhase)json["bossPhase"].get<int>();
 	_damage = json["damage"].get<int>();
 	_health = json["health"].get<int>();
+
 	//for (size_t i = 0; i < 64; i++)
 	//{
 	//	for (size_t j = 0; j < 64; j++)
@@ -631,7 +672,7 @@ bool Hydra::Component::EnemyComponent::_checkLine(int levelmap[WORLD_SIZE][WORLD
 	double z = B.z - A.z;
 	double len = std::sqrt((x*x) + (z*z));
 
-	if (!len)
+	if (!len) // Player tile is same as target tile
 		return true;
 
 	double unitx = x / len;
