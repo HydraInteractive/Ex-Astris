@@ -531,62 +531,62 @@ namespace Barcode {
 			ImGui::PopStyleVar();
 
 			//////Debug for pathfinding
-			/*ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, float(0.0f));
+			//ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
+			//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+			//ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, float(0.0f));
 
-			int k = 0;
-			for (auto& entity : _world->getActiveComponents<Hydra::Component::EnemyComponent>())
-			{
-				for (int i = 0; i < 30; i++)
-				{
-					for (int j = 0; j < 30; j++)
-					{
-						if (entity != nullptr)
-						{
-							char buf[128];
-							snprintf(buf, sizeof(buf), "%d%d", i, j);
-							if (_enemy->getWall(i, j) == 1)
-							{
-								ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
-								ImGui::SetNextWindowSize(ImVec2(20, 20));
-								ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-								ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(20, 20));
-								ImGui::End();
-							}
-							if (entity->getComponent<Hydra::Component::EnemyComponent>()->getWall(i, j) == 2)
-							{
-								ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
-								ImGui::SetNextWindowSize(ImVec2(20, 20));
-								ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-								ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Blue.png")->getID()), ImVec2(20, 20));
-								ImGui::End();
-							}
-							else if (entity->getComponent<Hydra::Component::EnemyComponent>()->getWall(i, j) == 3)
-							{
-								ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
-								ImGui::SetNextWindowSize(ImVec2(20, 20));
-								ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-								ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Yellow.png")->getID()), ImVec2(20, 20));
-								ImGui::End();
-							}
-							else if (_enemy->getWall(i, j) == 0)
-							{
-								ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
-								ImGui::SetNextWindowSize(ImVec2(20, 20));
-								ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-								ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Green.png")->getID()), ImVec2(20, 20));
-								ImGui::End();
-							}
-						}
-					}
-				}
-				k++;
-			}
+			//int k = 0;
+			//for (auto& entity : _world->getActiveComponents<Hydra::Component::EnemyComponent>())
+			//{
+			//	for (int i = 0; i < 30; i++)
+			//	{
+			//		for (int j = 0; j < 30; j++)
+			//		{
+			//			if (entity != nullptr)
+			//			{
+			//				char buf[128];
+			//				snprintf(buf, sizeof(buf), "%d%d", i, j);
+			//				if (entity->getComponent<Hydra::Component::EnemyComponent>()->getWall(i, j) == 1)
+			//				{
+			//					ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
+			//					ImGui::SetNextWindowSize(ImVec2(20, 20));
+			//					ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+			//					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(20, 20));
+			//					ImGui::End();
+			//				}
+			//				if (entity->getComponent<Hydra::Component::EnemyComponent>()->getWall(i, j) == 2)
+			//				{
+			//					ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
+			//					ImGui::SetNextWindowSize(ImVec2(20, 20));
+			//					ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+			//					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Blue.png")->getID()), ImVec2(20, 20));
+			//					ImGui::End();
+			//				}
+			//				else if (entity->getComponent<Hydra::Component::EnemyComponent>()->getWall(i, j) == 3)
+			//				{
+			//					ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
+			//					ImGui::SetNextWindowSize(ImVec2(20, 20));
+			//					ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+			//					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Yellow.png")->getID()), ImVec2(20, 20));
+			//					ImGui::End();
+			//				}
+			//				//else if (entity->getComponent<Hydra::Component::EnemyComponent>()->getWall(i, j) == 0)
+			//				//{
+			//				//	ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
+			//				//	ImGui::SetNextWindowSize(ImVec2(20, 20));
+			//				//	ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+			//				//	ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Green.png")->getID()), ImVec2(20, 20));
+			//				//	ImGui::End();
+			//				//}
+			//			}
+			//		}
+			//	}
+			//	k++;
+			//}
 
-			ImGui::PopStyleColor();
-			ImGui::PopStyleVar();
-			ImGui::PopStyleVar();*/
+			//ImGui::PopStyleColor();
+			//ImGui::PopStyleVar();
+			//ImGui::PopStyleVar();
 		}
 
 		{ // Sync with network
@@ -680,9 +680,9 @@ namespace Barcode {
 		//spawnerEntity2->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::RobotSpawner, glm::vec3(15, 0, 20), 100, 0, 0, glm::vec3(2.0f, 2.0f, 2.0f));
 		//spawnerEntity2->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
 		
-		//auto robotEntity = _world->createEntity("Enemy Robot");
-		//robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, glm::vec3(20, 0, 10), 70, 11, 20.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-		//robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+		auto robotEntity = _world->createEntity("Enemy Robot");
+		robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, glm::vec3(15, 0, 15), 70, 11, 20.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+		robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
 		//auto alienBoss = _world->createEntity("Enemy Boss");
 		//alienBoss->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss, glm::vec3(15, 0, 16), 1200, 25, 25.0f, glm::vec3(3.0f, 3.0f, 3.0f));

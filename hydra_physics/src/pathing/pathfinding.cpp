@@ -101,7 +101,7 @@ void PathFinding::_pathOpened(int x, int z, float newCost, std::shared_ptr<Searc
 		return;
 	}
 
-	if (map[x][z] == 1)
+	if (map[x][z] == 1 || map[x][z] == 2)
 	{
 		return;
 	}
