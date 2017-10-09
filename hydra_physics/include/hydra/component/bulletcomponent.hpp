@@ -33,6 +33,7 @@ namespace Hydra::Component {
 
 		std::vector<IEntity*> getEnemies();
 		IEntity* getClosestEnemy();
+		IEntity* getHomingEnemy();
 
 		void tick(TickAction action, float delta) final;
 		inline TickAction wantTick() const final { return TickAction::physics; }

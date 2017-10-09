@@ -24,7 +24,7 @@ BulletComponent::BulletComponent(IEntity* entity, glm::vec3 position, glm::vec3 
 	_direction = direction;
 	_velocity = velocity;
 	_deleteTimer = SDL_GetTicks();
-	_type = BULLET_MAGNETIC;
+	_type = BULLET_HOMING;
 }
 
 BulletComponent::~BulletComponent() { }
@@ -67,6 +67,11 @@ IEntity* BulletComponent::getClosestEnemy()
 	return closestEnemy;
 }
 
+IEntity* BulletComponent::getHomingEnemy() {
+	return getClosestEnemy();
+}
+
+
 void BulletComponent::tick(TickAction action, float delta) {
 	switch (_type)
 	{
@@ -90,6 +95,15 @@ void BulletComponent::tick(TickAction action, float delta) {
 	}
 	break;
 	case BULLET_HOMING:{
+		target = getHomingEnemy();
+
+		if (target != nullptr){
+			glm::vec3 enemyPos = target->getComponent<Component::EnemyComponent>()->getPosition();
+			glm::vec3 dirToEnemy = glm::normalize(enemyPos - _position);
+			float interpolateSpeed = 10.0f;
+
+			_direction = glm::normalize(interpolateSpeed*delta*dirToEnemy + (1.0f - interpolateSpeed*delta)*_direction);
+		}
 		/*
 		glm::vec3 enemyPos = target->getComponent<Component::EnemyComponent>()->getPosition();
 		glm::vec3 dirToEnemy = glm::normalize(enemyPos - _position);
