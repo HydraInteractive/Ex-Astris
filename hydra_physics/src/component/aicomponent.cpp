@@ -590,13 +590,13 @@ void EnemyComponent::serialize(nlohmann::json& json) const {
 		{ "Original range", _originalRange }
 
 	};
-	//for (size_t i = 0; i < 64; i++)
-	//{
-	//	for (size_t j = 0; j < 64; j++)
-	//	{
-	//		json["map"][i][j] = _map[i][j];
-	//	}
-	//}
+	for (size_t i = 0; i < 64; i++)
+	{
+		for (size_t j = 0; j < 64; j++)
+		{
+			json["map"][i][j] = _map[i][j];
+		}
+	}
 }
 
 void EnemyComponent::deserialize(nlohmann::json& json) {
@@ -622,13 +622,13 @@ void EnemyComponent::deserialize(nlohmann::json& json) {
 	_damage = json["damage"].get<int>();
 	_health = json["health"].get<int>();
 
-	//for (size_t i = 0; i < 64; i++)
-	//{
-	//	for (size_t j = 0; j < 64; j++)
-	//	{
-	//		_map[i][j] = json["map"][i][j].get<int>();
-	//	}
-	//}
+	for (size_t i = 0; i < 64; i++)
+	{
+		for (size_t j = 0; j < 64; j++)
+		{
+			_map[i][j] = json["map"][i][j].get<int>();
+		}
+	}
 }
 
 // Register UI buttons in the debug UI

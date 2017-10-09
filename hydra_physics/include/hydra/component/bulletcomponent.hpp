@@ -13,8 +13,16 @@
 #include <hydra/world/world.hpp>
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/meshcomponent.hpp>
+#include <hydra/component/aicomponent.hpp>
 
 using namespace Hydra::World;
+
+enum BulletType
+{
+	BULLET_NORMAL,
+	BULLET_MAGNETIC,
+	BULLET_HOMING
+};
 
 namespace Hydra::Component {
 	class HYDRA_API BulletComponent final : public IComponent{
@@ -22,6 +30,9 @@ namespace Hydra::Component {
 		BulletComponent(IEntity* entity);
 		BulletComponent(IEntity* entity, glm::vec3 position, glm::vec3 direction, float velocity);
 		~BulletComponent() final;
+
+		std::vector<IEntity*> getEnemies();
+		IEntity* getClosestEnemy();
 
 		void tick(TickAction action, float delta) final;
 		inline TickAction wantTick() const final { return TickAction::physics; }
@@ -36,5 +47,8 @@ namespace Hydra::Component {
 		glm::vec3 _direction;
 		float _velocity;
 		size_t _deleteTimer;
+		//testing homing
+		BulletType _type;
+		IEntity* target;
 	};
 };
