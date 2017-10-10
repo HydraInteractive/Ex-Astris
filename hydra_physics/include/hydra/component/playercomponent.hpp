@@ -47,6 +47,7 @@ namespace Hydra::Component {
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
+		IEntity* newBullet;
 	private:
 		glm::vec3 _position = glm::vec3(0,-2,3);
 		glm::vec3 _weaponOffset = glm::vec3{2, -1.5, -3};

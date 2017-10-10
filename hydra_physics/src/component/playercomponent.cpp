@@ -87,7 +87,7 @@ void PlayerComponent::tick(TickAction action, float delta) {
 			float bulletVelocity = 1.0f;
 			_activeBuffs.onAttack(bulletVelocity);
 
-			weapon->shoot(_position, forward, bulletOrientation, bulletVelocity);
+			newBullet = weapon->shoot(_position, forward, bulletOrientation, bulletVelocity);
 		}
 		for (int i = 0; i < keysArrayLength; i++)
 			lastKeysArray[i] = keysArray[i];

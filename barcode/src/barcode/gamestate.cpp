@@ -215,6 +215,11 @@ namespace Barcode {
 		{ // Update physics
 			_world->tick(TickAction::physics, delta);
 			_physicsManager->tick(delta);
+			if (player->newBullet != nullptr){
+				net->sendEntity(player->newBullet);
+				player->newBullet->markDead();
+				player->newBullet = nullptr;
+			}
 		}
 
 		{ // Render objects (Deferred rendering)
@@ -761,7 +766,9 @@ namespace Barcode {
 		_world->setWorldRoot(bp->spawn(_world.get()));
 
 		{
+
 			auto& world = _world->getWorldRoot()->getChildren();
+			player = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Player"; })->get()->getComponent<Hydra::Component::PlayerComponent>();
 			_cc = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Player"; })->get()->getComponent<Hydra::Component::CameraComponent>();
 			_cc->setRenderTarget(_geometryBatch.output.get());
 			//_enemy = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Enemy Alien"; })->get()->getComponent<Hydra::Component::EnemyComponent>();

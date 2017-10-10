@@ -34,9 +34,9 @@ void BulletComponent::tick(TickAction action, float delta) {
 	
 	auto transform = entity->getComponent<Component::TransformComponent>();
 	transform->setPosition(_position);
-	if (SDL_GetTicks() > _deleteTimer + 4*1000){
-		entity->markDead();
-	}
+	//if (SDL_GetTicks() > _deleteTimer + 4*1000){
+	//	entity->markDead();
+	//}
 }
 
 void BulletComponent::serialize(nlohmann::json& json) const {

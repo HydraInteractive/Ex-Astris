@@ -25,7 +25,7 @@ namespace Hydra::Component {
 		void tick(TickAction action, float delta) final;
 		inline TickAction wantTick() const final { return TickAction::physics; }
 
-		void shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity);
+		IEntity* shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity);
 		std::shared_ptr<Hydra::World::IEntity> getBullets();
 
 		inline const std::string type() const final { return "WeaponComponent"; }

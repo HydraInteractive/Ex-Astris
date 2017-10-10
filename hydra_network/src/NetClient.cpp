@@ -23,11 +23,17 @@ HYDRA_API void NetClient::sendEntity(Hydra::World::IEntity * ent) {
 	packet->size = vec.size();
 	packet->h.len = packet->getSize();
 
-	this->_tcp.send(packet, sizeof(ClientSpawnEntityPacket)); // DATA SNED
-
-	delete packet;
+	char* result = new char[sizeof(ClientSpawnEntityPacket) + vec.size() * sizeof(uint8_t)];
 	
-	this->_tcp.send(vec.data(), vec.size() * sizeof(uint8_t)); // DATA SKJICJIK
+	memcpy(result, packet, sizeof(ClientSpawnEntityPacket));
+	memcpy(result + sizeof(ClientSpawnEntityPacket), vec.data(), vec.size() * sizeof(uint8_t));
+
+	this->_tcp.send(result, sizeof(ClientSpawnEntityPacket) + vec.size() * sizeof(uint8_t));
+	//this->_tcp.send(packet, sizeof(ClientSpawnEntityPacket)); // DATA SNED
+	//this->_tcp.send(vec.data(), vec.size() * sizeof(uint8_t)); // DATA SKJICJIK
+
+	delete[] result;
+	delete packet;
 }
 
 void NetClient::_resolvePackets(Hydra::World::IWorld* world) {

@@ -27,12 +27,12 @@ void WeaponComponent::tick(TickAction action, float delta) {
 
 }
 
-void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity)
+IEntity* WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity)
 {
-	
+	IEntity* bullet = nullptr;
 	if (SDL_GetTicks() > _fireRateTimer + 1000/(_fireRateRPM/60)){
 		if (_bulletSpread == 0.0f){
-			auto bullet = getBullets()->createEntity("Bullet");
+			bullet = getBullets()->createEntity("Bullet").get();
 			
 			//net->sendBullet(bullet);
 
@@ -70,6 +70,7 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 		}
 		_fireRateTimer = SDL_GetTicks();
 	}
+	return bullet;
 }
 
 std::shared_ptr<Hydra::World::IEntity> WeaponComponent::getBullets() {
