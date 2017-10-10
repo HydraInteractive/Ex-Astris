@@ -67,6 +67,7 @@ public:
 		SDL_GL_DeleteContext(_glContext);
 	}
 
+
 	void renderAnimation(Batch& batch) final {
 		SDL_GL_MakeCurrent(_window, _glContext);
 		glBindFramebuffer(GL_FRAMEBUFFER, batch.renderTarget->getID());
@@ -83,6 +84,20 @@ public:
 
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
+
+			int currentFrame = mesh->getCurrentKeyframe();
+			if (currentFrame < mesh->getMaxFramesForAnimation()) {
+				mesh->setCurrentKeyframe(currentFrame + 1);
+			}
+			else {
+				mesh->setCurrentKeyframe(1);
+			}
+
+			glm::mat4 tempMat;
+			for (int i = 0; i < mesh->getNrOfJoints(); i++) {
+				tempMat = mesh->getTransformationMatrices(i);
+				batch.pipeline->setValue(11 + i, tempMat);
+			}
 
 			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
 			glBindVertexArray(mesh->getID());
@@ -152,6 +167,22 @@ public:
 
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
+
+			if (mesh->hasAnimation()) {
+				int currentFrame = mesh->getCurrentKeyframe();
+				if (currentFrame < mesh->getMaxFramesForAnimation()) {
+					mesh->setCurrentKeyframe(currentFrame + 1);
+				}
+				else {
+					mesh->setCurrentKeyframe(1);
+				}
+
+				glm::mat4 tempMat;
+				for (int i = 0; i < mesh->getNrOfJoints(); i++) {
+					tempMat = mesh->getTransformationMatrices(i);
+					batch.pipeline->setValue(11 + i, tempMat);
+				}
+			}
 
 			size_t size = kv.second.size();
 			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);

@@ -309,22 +309,20 @@ namespace Barcode {
 				else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
 					_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
-					int currentFrame = drawObj->mesh->getCurrentKeyframe();
+					//int currentFrame = drawObj->mesh->getCurrentKeyframe();
 
-					drawObj->mesh->setAnimationIndex(1);
+					//if (currentFrame < drawObj->mesh->getMaxFramesForAnimation()) {
+					//	drawObj->mesh->setCurrentKeyframe(currentFrame + 1);
+					//}
+					//else {
+					//	drawObj->mesh->setCurrentKeyframe(1);
+					//}
 
-					if (currentFrame < drawObj->mesh->getMaxFramesForAnimation()) {
-						drawObj->mesh->setCurrentKeyframe(currentFrame + 1);
-					}
-					else {
-						drawObj->mesh->setCurrentKeyframe(1);
-					}
-
-					glm::mat4 tempMat;
-					for (int i = 0; i < drawObj->mesh->getNrOfJoints(); i++) {
-						tempMat = drawObj->mesh->getTransformationMatrices(i);
-						_animationBatch.pipeline->setValue(11 + i, tempMat);
-					}
+					//glm::mat4 tempMat;
+					//for (int i = 0; i < drawObj->mesh->getNrOfJoints(); i++) {
+					//	tempMat = drawObj->mesh->getTransformationMatrices(i);
+					//	_animationBatch.pipeline->setValue(11 + i, tempMat);
+					//}
 					
 				}
 			}
@@ -347,8 +345,9 @@ namespace Barcode {
 			}
 
 			_engine->getRenderer()->render(_geometryBatch.batch);
-			//_engine->getRenderer()->render(_shadowBatch.batch);
 			_engine->getRenderer()->render(_animationBatch.batch);
+			//_engine->getRenderer()->render(_shadowBatch.batch);
+			//_engine->getRenderer()->renderAnimation(_animationBatch.batch);
 		}
 
 		{
@@ -761,11 +760,10 @@ namespace Barcode {
 		auto alienAnimation = _world->createEntity("Alien");
 		alienAnimation->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
 		alienAnimation->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 1, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
-		
+
 		auto alienAI = _world->createEntity("AlienAI");
 		alienAI->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
-		alienAI->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 1, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
-		alienAI->addComponent<Hydra::Component::EnemyComponent>(alienAI, 0, glm::vec3(0, 0, 5), 500, 1, 50, glm::vec3(1));
+		alienAnimation->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 1, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));		alienAI->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 5), 500, 2, 2, glm::vec3(2));
 
 		auto test = _world->createEntity("test");
 		test->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");
