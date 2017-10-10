@@ -88,7 +88,7 @@ void main() {
 	vec3 result = vec3(0);
 
 	// Directional light
-	//result = calcDirLight(dirLight, pos, normal, objectColor);
+	result = calcDirLight(dirLight, pos, normal, objectColor);
 
 	// Point Lights.s
 	for(int i = 0 ; i < nrOfPointLights; i++){
