@@ -16,7 +16,7 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-PlayerComponent::PlayerComponent(IEntity* entity) : IComponent(entity) {
+/*PlayerComponent::PlayerComponent(IEntity* entity) : IComponent(entity) {
 	entity->createEntity("Abilities");
 	SDL_GetKeyboardState(&keysArrayLength);
 	lastKeysArray = new bool[keysArrayLength];
@@ -27,13 +27,11 @@ PlayerComponent::PlayerComponent(IEntity* entity) : IComponent(entity) {
 	_maxHealth = 100;
 	_health = 100;
 	_timer = SDL_GetTicks();
-}
+}*/
 
-PlayerComponent::~PlayerComponent(){
-	delete[] lastKeysArray;
-}
+PlayerComponent::~PlayerComponent() {}
 
-void PlayerComponent::tick(TickAction action, float delta) {
+/*void PlayerComponent::tick(TickAction action, float delta) {
 	// If you only have one TickAction in 'wantTick' you don't need to check the tickaction here.
 
 	_activeBuffs.onTick(_maxHealth, _health);
@@ -131,25 +129,20 @@ std::shared_ptr<Hydra::World::IEntity> PlayerComponent::getWeapon() {
 	return weapon;
 }
 
-int Hydra::Component::PlayerComponent::getHealth()
+void Hydra::Component::PlayerComponent::applyDamage(float delta, int damage)
 {
-	return _health;
-}
-
-void Hydra::Component::PlayerComponent::applyDamage(int damage)
-{
-	if (SDL_GetTicks() > _timer + 500)
-	{
-		_health = _health - damage;
-		_timer = SDL_GetTicks();
+	_timer -= delta;
+	if (_timer <= 0) {
+		_health -= damage;
+		_timer += 0.5;
 	}
-}
+	}*/
 
 void PlayerComponent::serialize(nlohmann::json& json) const {
 	json = {
-		{ "position",{ _position.x, _position.y, _position.z } },
-		{ "weaponOffset",{ _weaponOffset.x, _weaponOffset.y, _weaponOffset.z } },
-		{ "velocity",{ _velocity.x, _velocity.y, _velocity.z } }
+		{ "position",{ position.x, position.y, position.z } },
+		{ "weaponOffset",{ weaponOffset.x, weaponOffset.y, weaponOffset.z } },
+		{ "velocity",{ velocity.x, velocity.y, velocity.z } }
 	};
 }
 
@@ -167,12 +160,10 @@ void PlayerComponent::deserialize(nlohmann::json& json) {
 // Register UI buttons in the debug UI
 // Note: This function won't always be called
 void PlayerComponent::registerUI() {
-	ImGui::DragFloat3("Position", glm::value_ptr(_position),0.01f);
-	ImGui::DragFloat3("Weapon Offset", glm::value_ptr(_weaponOffset),0.01f);
-	ImGui::InputFloat("DEBUG", &_debug);
-	ImGui::DragFloat3("DEBUG POS", glm::value_ptr(_debugPos), 0.01f);
-	ImGui::Checkbox("First Person", &_firstPerson);
-	ImGui::InputInt("Health", &_health);
-	ImGui::InputInt("Max Health", &_maxHealth);
-	ImGui::Checkbox("Dead", &_dead);
+	ImGui::DragFloat3("Position", glm::value_ptr(position),0.01f);
+	ImGui::DragFloat3("Weapon Offset", glm::value_ptr(weaponOffset),0.01f);
+	ImGui::Checkbox("First Person", &firstPerson);
+	ImGui::InputInt("Health", &health);
+	ImGui::InputInt("Max Health", &maxHealth);
+	ImGui::Checkbox("Dead", &dead);
 }

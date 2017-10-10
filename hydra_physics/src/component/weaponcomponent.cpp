@@ -16,18 +16,13 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-WeaponComponent::WeaponComponent(IEntity* entity) : IComponent(entity) {
+/*WeaponComponent::WeaponComponent(IEntity* entity) : IComponent(entity) {
 	entity->createEntity("Bullets");
-}
+}*/
 
 WeaponComponent::~WeaponComponent() { }
 
-void WeaponComponent::tick(TickAction action, float delta) {
-	// If you only have one TickAction in 'wantTick' you don't need to check the tickaction here.
-
-}
-
-void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity)
+/*void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity)
 {
 	if (SDL_GetTicks() > _fireRateTimer + 1000/(_fireRateRPM/60)){
 		if (_bulletSpread == 0.0f){
@@ -80,28 +75,27 @@ std::shared_ptr<Hydra::World::IEntity> WeaponComponent::getBullets() {
 	}
 
 	return bullets;
-}
+	}*/
 
 void WeaponComponent::serialize(nlohmann::json& json) const {
 	json = {
-		{ "fireRateRPM", _fireRateRPM },
-		{ "bulletSize", _bulletSize},
-		{ "bulletSpread", _bulletSpread},
-		{ "bulletsPerShot", _bulletsPerShot}
+		{ "fireRateRPM", fireRateRPM },
+		{ "bulletSize", bulletSize},
+		{ "bulletSpread", bulletSpread},
+		{ "bulletsPerShot", bulletsPerShot}
 	};
 }
 
 void WeaponComponent::deserialize(nlohmann::json& json) {
-	_fireRateRPM = json["fireRateRPM"].get<int>();
-	_bulletSize = json["bulletSize"].get<float>();
-	_bulletSpread = json["bulletSpread"].get<float>();
-	_bulletsPerShot = json["bulletsPerShot"].get<int>();
+	fireRateRPM = json["fireRateRPM"].get<int>();
+	bulletSize = json["bulletSize"].get<float>();
+	bulletSpread = json["bulletSpread"].get<float>();
+	bulletsPerShot = json["bulletsPerShot"].get<int>();
 }
 
 void WeaponComponent::registerUI() {
-	ImGui::InputInt("Fire Rate RPM", &_fireRateRPM);
-	ImGui::DragFloat("Bullet Size", &_bulletSize, 0.001f);
-	ImGui::DragFloat("Bullet Spread", &_bulletSpread, 0.001f);
-	ImGui::InputInt("Bullets Per Shot", &_bulletsPerShot);
-	ImGui::DragFloat3("DEBUG", glm::value_ptr(_debug));
+	ImGui::InputInt("Fire Rate RPM", &fireRateRPM);
+	ImGui::DragFloat("Bullet Size", &bulletSize, 0.001f);
+	ImGui::DragFloat("Bullet Spread", &bulletSpread, 0.001f);
+	ImGui::InputInt("Bullets Per Shot", &bulletsPerShot);
 }

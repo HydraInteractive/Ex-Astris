@@ -19,26 +19,19 @@ using namespace Hydra::World;
 // TODO: Implement LOD
 
 namespace Hydra::Component {
-	enum PrimitiveType : int {Quad = 0};
-	class HYDRA_API MeshComponent final : public IComponent {
-	public:
-		MeshComponent(IEntity* entity);
-		MeshComponent(IEntity* entity, const std::string& meshFile);
+	struct HYDRA_API MeshComponent final : public IComponent<MeshComponent, ComponentBits::Mesh> {
+		std::string meshFile;
+		Hydra::Renderer::DrawObject* drawObject;
+		std::shared_ptr<Hydra::Renderer::IMesh> mesh;
+
 		~MeshComponent() final;
 
-		void tick(TickAction action, float delta) final;
-		inline TickAction wantTick() const final { return TickAction::render; }
+		void loadMesh(const std::string meshFile);
 
 		inline const std::string type() const final { return "MeshComponent"; }
 
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
-		void disable() { _drawObject->disable = true; }
-
-	private:
-		std::string _meshFile;
-		Hydra::Renderer::DrawObject* _drawObject;
-		std::shared_ptr<Hydra::Renderer::IMesh> _mesh;
 	};
 };

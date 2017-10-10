@@ -106,7 +106,7 @@ void Entity::deserialize(nlohmann::json& json) {
 		auto& createMap = ComponentManager::createOrGetComponentMap();
 		for (size_t i = 0; i < components.size(); i++, it++) {
 			try {
-				auto* c = createMap.at(it.key())(this); // TODO: Change to find?
+				auto c = createMap.at(it.key())(this); // TODO: Change to find?
 				c->deserialize(components[i]);
 			} catch (const std::out_of_range&)	{
 				Hydra::IEngine::getInstance()->log(Hydra::LogLevel::error, "Component type '%s' not found!", it.key().c_str());

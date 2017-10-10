@@ -38,6 +38,7 @@ namespace Hydra::Component {
 		Grenade = BIT(9),
 		Mine = BIT(10),
 		RigidBody = BIT(11),
+		EditorCamera = BIT(12),
 	};
 #undef BIT
 
@@ -66,6 +67,7 @@ namespace Hydra::Component {
 	struct HYDRA_API GrenadeComponent;
 	struct HYDRA_API MineComponent;
 	struct HYDRA_API RigidBodyComponent;
+	struct HYDRA_API EditorCameraComponent;
 
 	using ComponentTypes = Hydra::Ext::TypeTuple<
 		Hydra::World::IComponent<TransformComponent, ComponentBits::Transform>,
@@ -79,17 +81,21 @@ namespace Hydra::Component {
 		Hydra::World::IComponent<WeaponComponent, ComponentBits::Weapon>,
 		Hydra::World::IComponent<GrenadeComponent, ComponentBits::Grenade>,
 		Hydra::World::IComponent<MineComponent, ComponentBits::Mine>,
-		Hydra::World::IComponent<RigidBodyComponent, ComponentBits::RigidBody>
+		Hydra::World::IComponent<RigidBodyComponent, ComponentBits::RigidBody>,
+		Hydra::World::IComponent<EditorCameraComponent, ComponentBits::EditorCamera>
 	>;
 };
 
 namespace Hydra::World {
 	typedef size_t EntityID;
-	template<typename T>
-	constexpr T bitOr(T v) { return v; }
+
+	template <typename T>
+	constexpr T combine() { return T(); }
+	template <typename T>
+	constexpr T combine(T v) { return v; }
 
 	template<typename T, typename... Args>
-	constexpr T bitOr(T first, Args... args) { return first | combine(args...); }
+	constexpr T combine(T first, Args... args) { return first | combine<T>(args...); }
 
 	struct HYDRA_API Entity final {
 		// Entity Core
@@ -249,11 +255,11 @@ namespace Hydra::World {
 		}
 
 		template <typename Component0, typename... Components>
-		inline static void getEntitiesWithComponents(std::vector<Entity*>& output) {
+		inline static void getEntitiesWithComponents(std::vector<std::shared_ptr<Entity>>& output) {
 			output.clear();
-			const Hydra::Component::ComponentBits bits = combine(Components::bits...);
-			for (const Component0& c : Component0::getActiveComponents())
-				if (auto e = getEntity(c.entityID); e->hasComponents(bits))
+			const Hydra::Component::ComponentBits bits = combine<Hydra::Component::ComponentBits>(Components::bits...);
+			for (auto& c : Component0::getActiveComponents())
+				if (auto e = getEntity(c->entityID); e->hasComponents(bits))
 					output.push_back(e);
 		}
 

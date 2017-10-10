@@ -8,10 +8,10 @@
 namespace Hydra::Component {
 	using namespace Hydra::World;
 	namespace ComponentManager {
-		typedef IComponentBase* (*createOrGetComponent_f)(Entity* entity);
+		typedef std::shared_ptr<IComponentBase> (*createOrGetComponent_f)(Entity* entity);
 
 		template <typename T, typename std::enable_if<std::is_base_of<IComponentBase, T>::value>::type* = nullptr>
-		static IComponentBase* createOrGetComponentHelper(Entity* entity) {
+		static std::shared_ptr<IComponentBase> createOrGetComponentHelper(Entity* entity) {
 			return entity->addComponent<T>();
 		}
 

@@ -12,6 +12,7 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
+/*
 ParticleComponent::ParticleComponent(IEntity* entity) : IComponent(entity), _drawObject(entity->getDrawObject()), _pps(1), 
 _behaviour(EmitterBehaviour::PerSecond), _accumulator(0.f), _emitterPos(glm::vec3(0)) {
 	_drawObject->refCounter++;
@@ -26,14 +27,14 @@ _pps(nrOfParticles), _behaviour(behaviour), _accumulator(0.f), _emitterPos(pos) 
 
 	size_t id = static_cast<size_t>(texture);
 	_offsetToTexture = glm::vec2(id % OUTERROW, id / OUTERROW) / (float) OUTERROW;
-}
+	}*/
 
 ParticleComponent::~ParticleComponent() {
-	_drawObject->refCounter--;
+	/*	_drawObject->refCounter--;
 	_drawObject->mesh = nullptr;
-	_particles.clear();
+	_particles.clear();*/
 }
-
+/*
 void ParticleComponent::tick(TickAction action, float delta){
 	if (action == TickAction::physics && _particles.size() > 0)
 		_particlePhysics(delta);
@@ -133,19 +134,19 @@ void ParticleComponent::_sortParticles() { // Insertion Sort
 		}
 	}
 }
-
+*/
 void ParticleComponent::serialize(nlohmann::json & json) const{
-	json = {
+	/*json = {
 		{ "pps", _pps},
 		{ "accumulator", _accumulator},
 		{ "behaviour", (int)_behaviour},
 		{ "emitterPos", { _emitterPos.x, _emitterPos.y, _emitterPos.z } },
 		{ "offsetToTexture", { _offsetToTexture.x, _offsetToTexture.y} }
-	};
+		};*/
 }
 
 void ParticleComponent::deserialize(nlohmann::json & json){
-	auto& pps = json["pps"];
+	/*auto& pps = json["pps"];
 	 _pps = pps.get<int>();
 
 	auto& accumulator = json["accumulator"];
@@ -162,10 +163,10 @@ void ParticleComponent::deserialize(nlohmann::json & json){
 	
 	_drawObject->mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getQuad().get();
 	_tempRotation = glm::mat4(1);
-	_tempRotation *= glm::angleAxis(glm::radians(90.f), glm::vec3(0, 0, 1));
+	_tempRotation *= glm::angleAxis(glm::radians(90.f), glm::vec3(0, 0, 1));*/
 }
 
 void ParticleComponent::registerUI() {
-	ImGui::DragInt("ParticlesPerSecond", &_pps, 1.0);
-	ImGui::DragFloat3("EmitterPosition", glm::value_ptr(_emitterPos), 0.1f);
+	//ImGui::DragInt("ParticlesPerSecond", &_pps, 1.0);
+	//ImGui::DragFloat3("EmitterPosition", glm::value_ptr(_emitterPos), 0.1f);
 }
