@@ -10,6 +10,7 @@
 #include <imgui/imgui.h>
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
+#include <tb/tb_core.h>
 
 
 namespace Barcode {
@@ -537,7 +538,7 @@ namespace Barcode {
 				{
 					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Yellow.png")->getID()), ImVec2(10, 10));
 				}
-				
+
 				ImGui::End();
 			}
 
@@ -548,7 +549,7 @@ namespace Barcode {
 				char buf[128];
 				snprintf(buf, sizeof(buf), "Perk%d", i);
 				float xOffset = float((-10 * amountOfPerks) + (20 * i));
-				ImGui::SetNextWindowPos(pos + ImVec2( xOffset , +480 ));
+				ImGui::SetNextWindowPos(pos + ImVec2(xOffset, +480));
 				ImGui::SetNextWindowSize(ImVec2(20, 20));
 				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 				switch (perksList[i])
@@ -631,6 +632,10 @@ namespace Barcode {
 			ImGui::PopStyleColor();
 			ImGui::PopStyleVar();
 			ImGui::PopStyleVar();*/
+		}
+
+		{//tb
+			
 		}
 
 		{ // Sync with network
