@@ -23,6 +23,7 @@ BulletComponent::BulletComponent(IEntity* entity, glm::vec3 position, glm::vec3 
 	_position = position;
 	_direction = direction;
 	_velocity = velocity;
+	_interpolation = 0.0f;
 	_deleteTimer = SDL_GetTicks();
 	_type = BULLET_HOMING;
 }
@@ -68,7 +69,27 @@ IEntity* BulletComponent::getClosestEnemy()
 }
 
 IEntity* BulletComponent::getHomingEnemy() {
-	return getClosestEnemy();
+	IEntity* closestEnemy = nullptr;
+	std::vector<IEntity*> allEnemies = getEnemies();
+
+	size_t enemyNr = -1;
+	for (size_t i = 0; i < allEnemies.size(); i++) {
+		auto enemy = allEnemies[i]->getComponent<Component::EnemyComponent>();
+		
+		float distance = FLT_MAX;
+		glm::vec3 directionToEnemy = glm::normalize(enemy->getPosition() - _position);
+
+		if (glm::distance(_direction, directionToEnemy) < 0.5f && glm::distance(_position, enemy->getPosition()) < distance)
+		{
+			distance = glm::distance(enemy->getPosition(), _position);
+			enemyNr = i;
+		}
+	}
+
+	if (enemyNr != -1)
+		closestEnemy = allEnemies[enemyNr];
+
+	return closestEnemy;
 }
 
 
@@ -95,23 +116,21 @@ void BulletComponent::tick(TickAction action, float delta) {
 	}
 	break;
 	case BULLET_HOMING:{
-		target = getHomingEnemy();
+		
+		if (target == nullptr)
+			target = getHomingEnemy();
 
 		if (target != nullptr){
 			glm::vec3 enemyPos = target->getComponent<Component::EnemyComponent>()->getPosition();
 			glm::vec3 dirToEnemy = glm::normalize(enemyPos - _position);
-			float interpolateSpeed = 10.0f;
 
-			_direction = glm::normalize(interpolateSpeed*delta*dirToEnemy + (1.0f - interpolateSpeed*delta)*_direction);
+			_interpolation += 3.0f * delta;
+			if (_interpolation > 1.0f)
+				_interpolation = 1.0f;
+
+			_direction = glm::normalize(_interpolation*dirToEnemy + (1.0f - _interpolation*delta)*_direction);
 		}
-		/*
-		glm::vec3 enemyPos = target->getComponent<Component::EnemyComponent>()->getPosition();
-		glm::vec3 dirToEnemy = glm::normalize(enemyPos - _position);
-		if (glm::distance(dirToEnemy, _direction) < 0.5f) {
-			float interpolateSpeed = 0.5f;
-			_direction = glm::normalize(interpolateSpeed*delta*dirToEnemy + (1.0f - interpolateSpeed)*_direction);
-		}
-		*/
+
 		_position += _velocity * _direction * delta;
 	}
 	break;
