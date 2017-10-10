@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/component/transformcomponent.hpp>
+#include <hydra/component/weaponcomponent.hpp>
 #include <hydra/pathing/pathfinding.hpp>
 #include <hydra/component/playercomponent.hpp>
 #include <math.h>
@@ -23,6 +24,9 @@ namespace Hydra::Component {
 		Alien = 0,
 		Robot = 1,
 		AlienBoss = 2,
+		AlienSpawner = 3,
+		RobotSpawner = 4,
+		RobotBoss = 5,
 	};
 
 	enum PathState{
@@ -32,10 +36,17 @@ namespace Hydra::Component {
 		ATTACKING = 3,
 	};
 
+	enum BossPhase {
+		CLAWING = 0,
+		SPITTING = 1,
+		SPAWNING = 2,
+		CHILLING = 3
+	};
+
 	class HYDRA_API EnemyComponent final : public IComponent{
 	public:
 		EnemyComponent(IEntity* entity);
-		EnemyComponent(IEntity* entity, EnemyTypes enemyID, glm::vec3 pos, int hp, int dmg);
+		EnemyComponent(IEntity* entity, EnemyTypes enemyID, glm::vec3 pos, int hp, int dmg, float range, glm::vec3 scale);
 		~EnemyComponent() final;
 
 		void tick(TickAction action, float delta) final;
@@ -52,27 +63,40 @@ namespace Hydra::Component {
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
 		int getWall(int x, int y);
-
 	private:
 		PathState _pathState;
 		PathFinding* _pathFinding = new PathFinding();
+		BossPhase _bossPhase;
+		std::vector<std::shared_ptr<Hydra::World::IEntity>> _spawnGroup;
 		int _debugState;
 		float _angle;
-		int _map[WORLD_SIZE][WORLD_SIZE];
 		float _velocityX;
 		float _velocityY;
 		float _velocityZ;
+		int _spawnAmount;
 		int _health;
 		int _damage;
+		float _range;
+		float _originalRange;
 		glm::vec3 _targetPos;
 		glm::vec3 _position;
 		glm::vec3 _startPosition;
 		glm::quat _rotation;
+		glm::vec3 _scale;
 		bool _isAtGoal;
 		bool _falling;
 		bool _patrolPointReached;
+		bool _playerSeen;
+		bool _stunned;
 		EnemyTypes _enemyID = EnemyTypes::Alien;
 		std::random_device rd;
 		Uint32 _timer;
+		Uint32 _spawnTimer;
+		Uint32 _stunTimer;
+		Uint32 _attackTimer;
+		int _map[WORLD_SIZE][WORLD_SIZE];
+
+		// Private functions
+		bool _checkLine(int levelmap[WORLD_SIZE][WORLD_SIZE], glm::vec3 A, glm::vec3 B);
 	};
 };

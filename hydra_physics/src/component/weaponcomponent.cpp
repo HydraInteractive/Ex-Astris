@@ -62,7 +62,7 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 				bulletDirection.z += distance * cos(theta);
 				bulletDirection = glm::normalize(bulletDirection);
 
-				bullet->addComponent<Hydra::Component::BulletComponent>(position, bulletDirection, 2.0f);
+				bullet->addComponent<Hydra::Component::BulletComponent>(position, bulletDirection, velocity);
 
 				auto transform = bullet->addComponent<Hydra::Component::TransformComponent>(position, glm::vec3(_bulletSize));
 				transform->setRotation(bulletOrientation);
