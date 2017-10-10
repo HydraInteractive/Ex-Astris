@@ -33,7 +33,7 @@ GrenadeComponent::~GrenadeComponent() { }
 
 void GrenadeComponent::tick(TickAction action, float delta) {
 	
-	_direction.y += 0.8 * delta;
+	_direction.y -= 0.8 * delta;
 	
 	_velocity -= 2.0f * delta;
 
@@ -48,7 +48,7 @@ void GrenadeComponent::tick(TickAction action, float delta) {
 
 	_position += _direction * temp * delta;
 
-	if (_position.y > 0.0f) {
+	if (_position.y < 0.0f) {
 		_position.y = 0.0f;
 		_fallingVelocity -= 10.0f;
 		_velocity -= 5.0f;
