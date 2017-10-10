@@ -564,6 +564,8 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			enemy->setPosition(_position);
 			enemy->setRotation(_rotation);
 		}break;
+	default:
+		break;
 	}
 
 	if (enemy->getPosition().x != _oldMapPosX && enemy->getPosition().z != _oldMapPosZ)

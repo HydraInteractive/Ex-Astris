@@ -6,9 +6,14 @@ using namespace Hydra::Component;
 
 LightComponent::LightComponent(IEntity* entity) : IComponent(entity) {
 	_position = glm::vec3(0, 0, 0);
+	_color = glm::vec3(1, 0, 0);
+	_constant = 1;
+	_linear = 0.14;
+	_quadratic = 0.07;
 }
 
-LightComponent::LightComponent(IEntity* entity, Hydra::Renderer::IRenderTarget* renderTarget, const glm::vec3& position) : IComponent(entity), _position(position) {
+LightComponent::LightComponent(IEntity* entity, Hydra::Renderer::IRenderTarget* renderTarget, const glm::vec3& position) : IComponent(entity), _position(position),
+_color(1,0,0), _constant(1), _linear(0.14), _quadratic (0.07) {
 
 }
 
@@ -39,7 +44,11 @@ void LightComponent::serialize(nlohmann::json& json) const {
 		{ "direction", { _direction.x, _direction.y, _direction.z } },
 		{ "fov", _fov },
 		{ "zNear", _zNear },
-		{ "zFar", _zFar }
+		{ "zFar", _zFar },
+		{ "color", {_color.x, _color.y, _color.z}},
+		{ "constant", _constant},
+		{ "linear", _linear},
+		{ "quadratic", _quadratic}
 	};
 }
 
@@ -56,6 +65,13 @@ void LightComponent::deserialize(nlohmann::json& json) {
 	_fov = json["fov"].get<float>();
 	_zNear = json["zNear"].get<float>();
 	_zFar = json["zFar"].get<float>();
+	_constant = json["constant"].get<float>();
+	_linear = json["linear"].get<float>();
+	_quadratic = json["quadratic"].get<float>();
+
+
+	auto& color = json["color"];
+	_color = glm::vec3{color[0].get<float>(), color[1].get<float>(), color[2].get<float>() };
 }
 
 void LightComponent::registerUI() {
@@ -64,6 +80,10 @@ void LightComponent::registerUI() {
 	ImGui::DragFloat("FOV", &_fov);
 	ImGui::DragFloat("Z Near", &_zNear, 0.001f);
 	ImGui::DragFloat("Z Far", &_zFar);
+	ImGui::DragFloat("Linear", &_linear, 0.01f);
+	ImGui::DragFloat("Constant", &_constant, 0.01f);
+	ImGui::DragFloat("Quadratic", &_quadratic, 0.01f);
+	ImGui::DragFloat3("color", glm::value_ptr(_color), 0.01f);
 	
 	//float aspect = (_renderTarget->getSize().x*1.0f) / _renderTarget->getSize().y;
 	//ImGui::InputFloat("Aspect", &aspect, 0, 0, -1, ImGuiInputTextFlags_ReadOnly);
