@@ -759,9 +759,9 @@ namespace Barcode {
 		particleEmitter2->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::BogdanDeluxe, 3, glm::vec3(5, 5, 0));
 		*/
 
-		//auto alienEntity = _world->createEntity("Enemy Alien");
-		//alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(5, 0, 5), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
-		//alienEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+		auto alienEntity = _world->createEntity("Enemy Alien");
+		alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(5, 0, 5), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+		alienEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 		
 		auto pointLight1 = _world->createEntity("Pointlight1");
 		pointLight1->addComponent<Hydra::Component::TransformComponent>();
@@ -830,7 +830,7 @@ namespace Barcode {
 			auto& world = _world->getWorldRoot()->getChildren();
 			_cc = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Player"; })->get()->getComponent<Hydra::Component::CameraComponent>();
 			_cc->setRenderTarget(_geometryBatch.output.get());
-			//_enemy = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Enemy Alien"; })->get()->getComponent<Hydra::Component::EnemyComponent>();
+			_enemy = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Enemy Alien"; })->get()->getComponent<Hydra::Component::EnemyComponent>();
 			for (auto it = world.begin(); it != world.end(); it++)
 				if (auto _ = (*it)->getComponent<Hydra::Component::RigidBodyComponent>()) {
 					_engine->log(Hydra::LogLevel::normal, "Enabling bullet for %s", (*it)->getName().c_str());
