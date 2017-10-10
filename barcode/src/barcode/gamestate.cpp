@@ -311,7 +311,7 @@ namespace Barcode {
 
 					int currentFrame = drawObj->mesh->getCurrentKeyframe();
 
-					drawObj->mesh->setAnimationIndex(2);
+					drawObj->mesh->setAnimationIndex(1);
 
 					if (currentFrame < drawObj->mesh->getMaxFramesForAnimation()) {
 						drawObj->mesh->setCurrentKeyframe(currentFrame + 1);
@@ -348,7 +348,7 @@ namespace Barcode {
 
 			_engine->getRenderer()->render(_geometryBatch.batch);
 			//_engine->getRenderer()->render(_shadowBatch.batch);
-			//_engine->getRenderer()->render(_animationBatch.batch);
+			_engine->getRenderer()->render(_animationBatch.batch);
 		}
 
 		{
@@ -356,9 +356,11 @@ namespace Barcode {
 				kv.second.clear();
 
 			for (auto& drawObj : _engine->getRenderer()->activeDrawObjects()) {
-				if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false)
+				if (!drawObj->disable && drawObj->mesh) {
 					_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+				}
 			}
+			
 
 			_shadowBatch.pipeline->setValue(0, _light->getViewMatrix());
 			_shadowBatch.pipeline->setValue(1, _light->getProjectionMatrix());
@@ -757,9 +759,14 @@ namespace Barcode {
 		p2LC->setColor(glm::vec3(0, 0, 1));
 
 		auto alienAnimation = _world->createEntity("Alien");
-		alienAnimation->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel2.mATTIC");
+		alienAnimation->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
 		alienAnimation->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 1, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
 		
+		auto alienAI = _world->createEntity("AlienAI");
+		alienAI->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
+		alienAI->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 1, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
+		alienAI->addComponent<Hydra::Component::EnemyComponent>(alienAI, 0, glm::vec3(0, 0, 5), 500, 1, 50, glm::vec3(1));
+
 		auto test = _world->createEntity("test");
 		test->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");
 		test->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-7, 0, 0), glm::vec3(1, 1, 1), glm::quat(0, 0, -1, 0));
@@ -779,7 +786,7 @@ namespace Barcode {
 		auto test5 = _world->createEntity("test5");
 		test5->addComponent<Hydra::Component::MeshComponent>("assets/objects/Wall1.ATTIC");
 		test5->addComponent<Hydra::Component::TransformComponent>(glm::vec3(19.5, 0, -13), glm::vec3(3, 1, 1), glm::quat(-0.1, 0, -1.09, 0));
-
+		
 		auto test6 = _world->createEntity("test6");
 		test6->addComponent<Hydra::Component::MeshComponent>("assets/objects/Roof1.ATTIC");
 		test6->addComponent<Hydra::Component::TransformComponent>(glm::vec3(14, 8.0, 9), glm::vec3(40, 40, 40), glm::quat(0, 0, 0, 1));

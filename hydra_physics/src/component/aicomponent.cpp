@@ -76,6 +76,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			{
 			case IDLE:
 			{
+				entity->getChildren()[0]->getDrawObject()->mesh->setAnimationIndex(0);
 				if (glm::length(enemy->getPosition() - player->getPosition()) < 50)
 				{
 					_timer = SDL_GetTicks();
@@ -87,6 +88,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			}break;
 			case SEARCHING:
 			{
+				entity->getChildren()[0]->getDrawObject()->mesh->setAnimationIndex(1);
 				if (SDL_GetTicks() > _timer + 5000)
 				{
 					_timer = SDL_GetTicks();
@@ -156,6 +158,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			}break;
 			case ATTACKING:
 			{
+				entity->getChildren()[0]->getDrawObject()->mesh->setAnimationIndex(2);
 				if (glm::length(enemy->getPosition() - player->getPosition()) >= _range)
 				{
 					_pathFinding->intializedStartGoal = false;
