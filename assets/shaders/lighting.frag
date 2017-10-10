@@ -4,13 +4,17 @@ in vec2 texCoords;
 
 layout(location = 0) out vec3 fragOutput;
 layout(location = 1) out vec3 brightOutput;
+
 layout(location = 0) uniform sampler2DMS positions;
 layout(location = 1) uniform sampler2DMS colors;
 layout(location = 2) uniform sampler2DMS normals;
 layout(location = 3) uniform sampler2DMS lightPositions;
 layout(location = 4) uniform sampler2D depthMap;
-layout(location = 5) uniform vec3 cameraPos;
-layout(location = 6) uniform vec3 lightDir;
+layout(location = 5) uniform sampler2D ssao;
+layout(location = 6) uniform vec3 cameraPos;
+layout(location = 7) uniform vec3 lightDir;
+
+layout(location = 42) uniform bool enableSSAO = true;
 
 
 void main() {
@@ -25,16 +29,16 @@ void main() {
 		normal += texelFetch(normals, iTexCoords, i).rgb;
 		lightPos += texelFetch(lightPositions, iTexCoords, i);
 	}
-
+	
 	pos /= 4;
 	objectColor /= 4;
 	normal /= 4;
 	lightPos /= 4;
 
-	vec3 lightColor = normal;//vec3(1,1,1);
+	vec3 lightColor = vec3(1,1,1);
 
 	vec3 lightDirection = normalize(lightDir);
-	float diff = max(dot(normal, lightDirection), 0.0f);
+	float diff = max(dot(normal, -lightDirection), 0.0f);
 	vec3 diffuse = lightColor * diff;
 
 	float specularStrength = 0.1f;
@@ -43,9 +47,13 @@ void main() {
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128);
 	vec3 specular = spec * specularStrength * lightColor;
 
+	float ambientOcclusion = texture(ssao, texCoords).r;
+
 	vec3 ambient = lightColor * 0.3f;
 	// All normal lighting calculations 
-	fragOutput = (diffuse + specular + ambient) * objectColor;
+	fragOutput = (diffuse) * objectColor;
+	if (enableSSAO)
+		ambient *= ambientOcclusion;
 	
 	vec3 projCoords = lightPos.xyz / lightPos.w;
 	float closestDepth = texture(depthMap, projCoords.xy).r;
@@ -66,6 +74,20 @@ void main() {
 	shadow /= 9.0;
 	shadow = 1 - shadow;
 	fragOutput *= shadow;
+	fragOutput = ambient;
+
+	//vec2 ssaoTexelSize = 1.0 / vec2(textureSize(ssao, 0));
+	//float result = 0.0;
+	//for(int x = -2; x < 2; x++) {
+	//	for(int y = -2; y < 2; y++) {
+	//		vec2 offset = vec2(float(x), float(y)) * texelSize;
+	//		result += texture(ssao, iTexCoords + offset).r;
+	//	}
+	//}
+	//fragOutput = vec3(result / (4.0 * 4.0));
+
+	//vec3 asd = texture(ssao, iTexCoords).rgb;
+	//fragOutput = asd;
 
 	// Picking out bright regions for glow.
 	float brightness = dot(fragOutput, vec3(0.2));

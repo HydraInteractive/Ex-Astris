@@ -14,6 +14,7 @@ layout (location = 1) out vec3 diffuse;
 layout (location = 2) out vec3 normal;
 layout (location = 3) out vec4 lightPos;
 layout (location = 4) out vec3 depth;
+//layout (location = 5) out vec4 albedo;
 
 void main() {
 	position = inData.position;
@@ -21,6 +22,7 @@ void main() {
 	normal = inData.normal;
 	lightPos = inData.light;
 	depth = gl_FragCoord.xyz / gl_FragCoord.w;
+//	albedo.rgb = vec3(0.95);
 }
 
 

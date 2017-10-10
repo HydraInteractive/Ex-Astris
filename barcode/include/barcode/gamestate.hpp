@@ -74,6 +74,7 @@ namespace Barcode {
 		RenderBatch _viewBatch;
 		RenderBatch _postTestBatch;
 		RenderBatch _shadowBatch;
+		RenderBatch _ssaoBatch;
 
 		ParticleRenderBatch _particleBatch;
 
@@ -96,6 +97,8 @@ namespace Barcode {
 		std::unique_ptr<Hydra::Renderer::IShader> _shadowVertexShader;
 		std::unique_ptr<Hydra::Renderer::IShader> _shadowFragmentShader;
 		std::shared_ptr<Hydra::Renderer::ITexture> _shadowMap;
+
+		std::shared_ptr<Hydra::Renderer::ITexture> _ssaoNoise;
 
 		Hydra::Component::CameraComponent* _cc = nullptr;
 		Hydra::Component::PlayerComponent* player = nullptr;

@@ -11,6 +11,10 @@
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
 
+float lerp(float a, float b, float f) {
+	return a + f * (b - a);
+}
+
 namespace Barcode {
 	GameState::GameState() : _engine(Hydra::IEngine::getInstance()) {}
 
@@ -171,6 +175,59 @@ namespace Barcode {
 			batch.batch.pipeline = batch.pipeline.get();
 		}
 		
+		{ // SSAO
+			auto& batch = _ssaoBatch;
+			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/ssao.vert");
+			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/ssao.frag");
+
+			batch.pipeline = Hydra::Renderer::GLPipeline::create();
+			batch.pipeline->attachStage(*batch.vertexShader);
+			batch.pipeline->attachStage(*batch.fragmentShader);
+			batch.pipeline->finalize();
+
+			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize, 0);
+			batch.output->addTexture(0, Hydra::Renderer::TextureType::f16R).finalize();
+
+			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
+			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::color | Hydra::Renderer::ClearFlags::depth;
+			batch.batch.renderTarget = batch.output.get();
+			batch.batch.pipeline = batch.pipeline.get();
+
+
+
+			/*std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
+			std::default_random_engine generator;
+			int kernelSize = 8;
+			std::vector<glm::vec3> ssaoKernel;
+			for (unsigned int i = 0; i < kernelSize; i++) {
+				glm::vec3 sample(
+					randomFloats(generator) * 2.0 - 1.0,
+					randomFloats(generator) * 2.0 - 1.0,
+					randomFloats(generator)
+				);
+				sample = glm::normalize(sample);
+				sample *= randomFloats(generator);
+				float scale = (float)i / kernelSize;
+				scale = 0.1 + (scale * scale) * (1.0 - 0.1);
+				sample *= scale;
+				ssaoKernel.push_back(sample);
+			}
+
+			std::vector<glm::vec3> ssaoNoise;
+			for (unsigned int i = 0; i < 16; i++) {
+				glm::vec3 noise(
+					randomFloats(generator) * 2.0 - 1.0,
+					randomFloats(generator) * 2.0 - 1.0,
+					0.0f);
+				ssaoNoise.push_back(noise);
+			}
+
+			_ssaoNoise = Hydra::Renderer::GLTexture::createFromData(4, 4, TextureType::f32RGB, ssaoNoise.data());
+
+			for (size_t i = 0; i < kernelSize; i++)
+				_ssaoBatch.pipeline->setValue(4 + i, ssaoKernel[i]);
+				*/
+		}
 
 		{
 			auto& batch = _viewBatch;
@@ -305,25 +362,95 @@ namespace Barcode {
 			_engine->getRenderer()->render(_shadowBatch.batch);
 		}
 
+		static bool enableSSAO = true;
+		static int kernelSize = 8;
+		static float kernelRadius = 0.5;
+		static float bias = 0.025;
+		ImGui::Checkbox("Enable SSAO", &enableSSAO);
+		ImGui::DragInt("Kernel Size", &kernelSize, 1.0, 1, 64);
+		ImGui::DragFloat("Kernel Radius", &kernelRadius, 0.01);
+		ImGui::DragFloat("Bias", &bias, 0.01);
+		/*if (enableSSAO)*/ {	// SSAO
+
+			_ssaoBatch.pipeline->setValue(0, 0);
+			_ssaoBatch.pipeline->setValue(1, 1);
+			_ssaoBatch.pipeline->setValue(2, 2);
+
+
+			_ssaoBatch.pipeline->setValue(3, _cc->getProjectionMatrix());
+			//_ssaoBatch.pipeline->setValue(4, _cc->getViewMatrix());
+			_ssaoBatch.pipeline->setValue(11, bias);
+			_ssaoBatch.pipeline->setValue(12, kernelRadius);
+			_ssaoBatch.pipeline->setValue(13, kernelSize);
+
+			std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
+			std::default_random_engine generator;
+
+			std::vector<glm::vec3> ssaoKernel;
+			for (unsigned int i = 0; i < kernelSize; i++) {
+				glm::vec3 sample(
+					randomFloats(generator) * 2.0 - 1.0,
+					randomFloats(generator) * 2.0 - 1.0,
+					randomFloats(generator)
+				);
+				sample = glm::normalize(sample);
+				sample *= randomFloats(generator);
+				float scale = (float)i / kernelSize;
+				scale = lerp(0.1f, 1.0f, scale * scale);
+				sample *= scale;
+				ssaoKernel.push_back(sample);
+			}
+
+			std::vector<glm::vec3> ssaoNoise;
+			for (unsigned int i = 0; i < 16; i++) {
+				glm::vec3 noise(
+					randomFloats(generator) * 2.0 - 1.0,
+					randomFloats(generator) * 2.0 - 1.0,
+					0.0f);
+				ssaoNoise.push_back(glm::normalize(noise));
+			}
+
+			_ssaoNoise = Hydra::Renderer::GLTexture::createFromData(4, 4, TextureType::f32RGB, ssaoNoise.data());
+
+			for (size_t i = 0; i < kernelSize; i++)
+				_ssaoBatch.pipeline->setValue(14 + i, ssaoKernel[i]);
+
+
+			(*_geometryBatch.output)[0]->bind(0);
+			(*_geometryBatch.output)[2]->bind(1);
+			_ssaoNoise->bind(2);
+
+			_engine->getRenderer()->postProcessing(_ssaoBatch.batch);
+			int nrOfTImes = 1;
+			_blurGlowTexture((*_ssaoBatch.output)[0], nrOfTImes, (*_ssaoBatch.output)[0]->getSize())
+				->resolve(0, (*_ssaoBatch.output)[0]);
+			
+		}
+
 		{ // Lighting pass
 			_lightingBatch.pipeline->setValue(0, 0);
 			_lightingBatch.pipeline->setValue(1, 1);
 			_lightingBatch.pipeline->setValue(2, 2);
 			_lightingBatch.pipeline->setValue(3, 3);
 			_lightingBatch.pipeline->setValue(4, 4);
+			_lightingBatch.pipeline->setValue(5, 5);
 
-			_lightingBatch.pipeline->setValue(5, _cc->getPosition());
-			_lightingBatch.pipeline->setValue(6, _light->getDirection());
+			_lightingBatch.pipeline->setValue(6, _cc->getPosition());
+			_lightingBatch.pipeline->setValue(7, _light->getDirection());
+			_lightingBatch.pipeline->setValue(42, enableSSAO);
 
 			(*_geometryBatch.output)[0]->bind(0);
 			(*_geometryBatch.output)[1]->bind(1);
 			(*_geometryBatch.output)[2]->bind(2);
 			(*_geometryBatch.output)[3]->bind(3);
 			_shadowBatch.output->getDepth()->bind(4);
+			(*_ssaoBatch.output)[0]->bind(5);
+			
 
 			//(*_geometryBatch.output)[4]->bind(4);
 
 			_engine->getRenderer()->postProcessing(_lightingBatch.batch);
+
 		}
 
 		{ // Glow
@@ -639,6 +766,10 @@ namespace Barcode {
 		auto bossEntity = _world->createEntity("Enemy Boss");
 		bossEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss, glm::vec3(15, 0, 16), 1200, 25);
 		bossEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+
+		auto lamp = _world->createEntity("Lamp");
+		lamp->addComponent<Hydra::Component::MeshComponent>("assets/objects/playerModel.ATTIC");
+		lamp->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-10, 0, 0), glm::vec3(1, 1, 1), glm::quat(0.7, 0, -1, 0));
 
 		auto test = _world->createEntity("test");
 		test->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");

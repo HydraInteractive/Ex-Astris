@@ -69,6 +69,7 @@ void main() {
 
 		mat3 normalMatrix = transpose(inverse(mat3(inData[i].m)));
 		outData.normal = normalize(normalMatrix * inData[i].normal);
+		//outData.normal = inData[i].normal * 0.5 + 0.5;	
 
 		outData.color = inData[i].color;
 		outData.uv = inData[i].uv;
