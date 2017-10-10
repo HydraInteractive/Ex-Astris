@@ -185,7 +185,7 @@ public:
 			auto& createMap = ComponentManager::createOrGetComponentMap();
 			for (size_t i = 0; i < components.size(); i++, it++) {
 				try {
-					auto* c = createMap.at(it.key())(this);
+					auto* c = createMap.at(it.key())(this); // TODO: Change to find?
 					c->deserialize(components[i]);
 				} catch (const std::out_of_range&)	{
 					Hydra::IEngine::getInstance()->log(Hydra::LogLevel::error, "Component type '%s' not found!", it.key().c_str());
@@ -213,6 +213,7 @@ public:
 	std::vector<std::shared_ptr<IEntity>> _children;
 
 	Hydra::Renderer::DrawObject* _drawObject = nullptr;
+	Hydra::Physics::PhysicsObject* _physicsObject = nullptr;
 };
 
 std::shared_ptr<IEntity> Blueprint::spawn(IWorld* world) {

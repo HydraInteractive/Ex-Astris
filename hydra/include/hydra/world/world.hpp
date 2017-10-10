@@ -17,8 +17,10 @@
 #undef min
 #undef max
 #include <json.hpp>
+#include <cstdio>
 
 namespace Hydra::Renderer { struct HYDRA_API DrawObject; }
+namespace Hydra::Physics { struct HYDRA_API PhysicsObject; }
 
 namespace Hydra::World {
 	class HYDRA_API IEntity;
@@ -27,6 +29,7 @@ namespace Hydra::World {
 
 	// The tick function only accepts one value, but the wantTick is a bitfield
 	enum class HYDRA_API TickAction {
+		none = 0,
 		checkDead = 1 << 0,
 		physics = 1 << 1,
 		render = 1 << 2,
@@ -74,6 +77,12 @@ namespace Hydra::World {
 
 		template <typename T, typename... Args, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
 		T* addComponent(Args... args) {
+			if (auto c = getComponent<T>()) {
+				printf("Reloading '%s' for id:%lu\n", typeid(T).name(), id);
+				c->~T(); // destruct
+				new(c) T(this, args...); // reconstruct
+				return c;
+			}
 			T* ptr = new T(this, args...);
 			addComponent_(std::type_index(typeid(T)), std::unique_ptr<IComponent>(ptr));
 			return ptr;
@@ -81,12 +90,17 @@ namespace Hydra::World {
 		template <typename T, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
 		void removeComponent() { removeComponent_(std::type_index(typeid(T))); }
 		template <typename T, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
-		T* getComponent() {
+		std::unique_ptr<IComponent>& getComponentHandler() {
+			static std::unique_ptr<IComponent> nul;
 			auto& components = getComponents();
 			auto it = components.find(typeid(T));
 			if (it != components.end())
-				return (T*)it->second.get();
-			return nullptr;
+				return it->second;
+			return nul;
+		}
+		template <typename T, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
+		T* getComponent() {
+			return (T*)getComponentHandler<T>().get();
 		}
 
 		virtual std::shared_ptr<IEntity> spawn(std::shared_ptr<IEntity> entity) = 0;

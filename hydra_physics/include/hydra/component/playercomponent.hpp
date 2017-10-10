@@ -1,4 +1,3 @@
-#pragma once
 /**
 * Player stuff
 *
@@ -6,7 +5,6 @@
 * Authors:
 *  - Dan Printzell
 */
-
 #pragma once
 #include <hydra/ext/api.hpp>
 #include <SDL2/SDL_keyboard.h>
@@ -15,6 +13,10 @@
 #include <hydra/world/world.hpp>
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
+#include <hydra/component/weaponcomponent.hpp>
+#include <hydra/component/bulletcomponent.hpp>
+#include <hydra/abilities/abilityHandler.hpp>
+#include <hydra/abilities/buffHandler.hpp>
 
 using namespace Hydra::World;
 
@@ -28,26 +30,43 @@ namespace Hydra::Component {
 		// If you want to add more than one TickAction, combine them with '|' (The bitwise or operator) 
 		inline TickAction wantTick() const final { return TickAction::physics; }
 
-		inline const std::string type() const final { return "PlayerComponent"; }
+		std::shared_ptr<Hydra::World::IEntity> getWeapon();
 
-		glm::vec3 getPosition();
+		inline const std::string type() const final { return "PlayerComponent"; }
+		const glm::vec3 getPosition() { return _position; };
+		int getHealth();
+		void upgradeHealth(){
+			if (_activeBuffs.addBuff(BUFF_HEALTHUPGRADE)) {
+				_activeBuffs.onActivation(_maxHealth, _health);
+			}
+			if (_activeBuffs.addBuff(BUFF_DAMAGEUPGRADE)) {
+				_activeBuffs.onActivation(_maxHealth, _health);
+			}
+		}
+		void applyDamage(int damage);
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
 	private:
-		glm::vec3 _position;
-		float _velocityX;
-		float _velocityY;
-		float _velocityZ;
-		float _accelerationY;
-
+		glm::vec3 _position = glm::vec3(0,-2,3);
+		glm::vec3 _weaponOffset = glm::vec3{2, -1.5, -3};
+		glm::vec3 _velocity;
+		glm::vec3 _acceleration;
+		float _movementSpeed = 20.0f;
 		bool _onGround = false;
-
 		bool _firstPerson = true;
+		Uint32 _timer;
+		int keysArrayLength;
+		bool *lastKeysArray; //pretty bad. will fix
+		int _maxHealth;
+		int _health;
+		bool _dead;
 
-		float _movementSpeed = 0.2f;
+		AbilityHandler _activeAbillies;
+		BuffHandler _activeBuffs;
 
 		float _debug;
 		glm::vec3 _debugPos;
+
 	};
 };
