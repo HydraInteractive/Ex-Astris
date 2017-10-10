@@ -7,7 +7,9 @@ TCPClient::TCPClient() {
     this->_connected = false;
 }
 TCPClient::~TCPClient() {
-
+	if (this->_msg) {
+		delete this->_msg;
+	}
 }
 
 bool TCPClient::initialize(char* ip, int port) {
@@ -37,16 +39,31 @@ std::vector<Packet*> TCPClient::receiveData() {
     Packet* tmp;
     Packet* tmp2;
     int curr = 0;
-	if (SDLNet_CheckSockets(this->_sset, 0)) {
-		int len = SDLNet_TCP_Recv(this->_tcp, this->_msg, MAX_NETWORK_LENGTH);
+
+	static size_t offset = 0;
+	while (SDLNet_CheckSockets(this->_sset, 0)) {
+		if (offset != 0) {
+			offset += 5;
+			offset -= 5;
+		}
+		int len = SDLNet_TCP_Recv(this->_tcp, this->_msg + offset, MAX_NETWORK_LENGTH - offset) + offset;
 		if (len > 0) {
 			while (curr < len && curr < MAX_NETWORK_LENGTH) {
 				tmp = (Packet*)(&(this->_msg[curr]));
+				if (curr + tmp->h.len > len) {
+					memmove(_msg, _msg + curr, len - curr);
+					offset = len - curr;
+					curr = 0;
+					break;
+				}
 				curr += tmp->h.len;
+
 				tmp2 = (Packet*)(new char[tmp->h.len]);
 				memcpy(tmp2, tmp, tmp->h.len);
 				packets.push_back(tmp2);
 			}
+			if (curr == len)
+				offset = 0;
 		}
 	}
 	return packets;

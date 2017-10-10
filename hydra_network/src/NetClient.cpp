@@ -14,10 +14,27 @@ void NetClient::_sendUpdatePacket() {
 		this->_tcp.send(&cpup, cpup.h.len);
 	}
 }
+HYDRA_API void NetClient::sendEntity(Hydra::World::IEntity * ent) {
+	nlohmann::json json;
+	ent->serialize(json);
+	std::vector<uint8_t> vec = json.to_msgpack(json);
+	ClientSpawnEntityPacket* packet = new ClientSpawnEntityPacket();
+	packet->h.type = PacketType::ClientSpawnEntity;
+	packet->size = vec.size();
+	packet->h.len = packet->getSize();
+
+	this->_tcp.send(packet, sizeof(ClientSpawnEntityPacket)); // DATA SNED
+
+	delete packet;
+	
+	this->_tcp.send(vec.data(), vec.size() * sizeof(uint8_t)); // DATA SKJICJIK
+}
+
 void NetClient::_resolvePackets(Hydra::World::IWorld* world) {
 	std::vector<Packet*> packets = this->_tcp.receiveData();
 	Hydra::Component::TransformComponent* tc;
 	std::vector<std::shared_ptr<Hydra::World::IEntity>> children;
+	std::shared_ptr<Hydra::World::IEntity> ent;
 	for (size_t i = 0; i < packets.size(); i++) {
 		switch (packets[i]->h.type) {
 		case PacketType::ServerInitialize:
@@ -34,6 +51,9 @@ void NetClient::_resolvePackets(Hydra::World::IWorld* world) {
 			tc->setPosition(((ServerInitializePacket*)packets[i])->ti.pos);
 			tc->setRotation(((ServerInitializePacket*)packets[i])->ti.rot);
 			tc->setScale(((ServerInitializePacket*)packets[i])->ti.scale);
+			//ent = world->createEntity("JagArEttSkott");
+			//ent->addComponent<Hydra::Component::TransformComponent>();
+			//this->_sendEntity(ent.get()); // KOLLAR SPAWN ENTITYPACKET OM DET FUNGERAR GUCCI
 			break;
 
 		case PacketType::ServerUpdate: 
@@ -42,9 +62,40 @@ void NetClient::_resolvePackets(Hydra::World::IWorld* world) {
 		case PacketType::ServerPlayer:
 			this->_addPlayer(world, packets[i]);
 			break;
+		case PacketType::ServerSpawnEntity:
+			this->_resolveServerSpawnEntityPacket(world, (ServerSpawnEntityPacket*)packets[i]);
+			break;
+		case PacketType::ServerDeleteEntity:
+			this->_resolveServerDeletePacket(world, (ServerDeletePacket*)packets[i]);
+			break;
 		}
+	}
 
-		
+	for (size_t i = 0; i < packets.size(); i++) {
+		delete packets[i];
+	}
+}
+
+
+HYDRA_API void NetClient::_resolveServerSpawnEntityPacket(Hydra::World::IWorld * world, ServerSpawnEntityPacket* entPacket) {
+	nlohmann::json json;
+	std::vector<uint8_t> vec;
+	for (size_t i = 0; i < entPacket->size; i++) {
+		vec.push_back(((uint8_t*)entPacket->data)[i]);
+	}
+	json = json.from_msgpack(vec);
+	std::shared_ptr<Hydra::World::IEntity> ent = world->createEntity("SERVER CREATED (ERROR)");
+	ent->deserialize(json);
+	ent->setID(entPacket->id);
+}
+
+HYDRA_API void NetClient::_resolveServerDeletePacket(Hydra::World::IWorld* world, ServerDeletePacket* delPacket) {
+	std::vector<std::shared_ptr<Hydra::World::IEntity>> children = world->getWorldRoot()->getChildren();
+	for (size_t i = 0; i < children.size(); i++) {
+		if (children[i]->getID() == delPacket->id) {
+			children[i]->markDead();
+			break;
+		}
 	}
 }
 
@@ -82,6 +133,7 @@ HYDRA_API void NetClient::_addPlayer(Hydra::World::IWorld * world, Packet * play
 	tc->setScale(spp->ti.scale);
 	delete[] c;
 }
+
 
 bool NetClient::initialize(char* ip, int port) {
 	SDLNet_Init();

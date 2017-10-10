@@ -13,7 +13,7 @@
 #include <NetClient.h>
 
 //MAYBE MOVE THIS
-NetClient* net;
+NetClient* net = nullptr;
 
 namespace Barcode {
 	GameState::GameState() : _engine(Hydra::IEngine::getInstance()) {}
@@ -590,7 +590,19 @@ namespace Barcode {
 		}
 
 		{ // Sync with network
-			net->run(this->_world.get());
+		//JAG E TEMPORÄR SOM FAAAAAN
+		//Uint8* keysArray;
+		//keysArray = const_cast <Uint8*> (SDL_GetKeyboardState(NULL));
+		//
+		//if (keysArray[SDL_SCANCODE_U]) {
+		//	std::vector<std::shared_ptr<Hydra::World::IEntity>> children = _world->getWorldRoot()->getChildren();
+		//	for (size_t i = 0; i < children.size(); i++)  {
+		//		if(children[i]->getName() == "Bullet")
+		//			net->sendEntity(children[i].get());
+		//	}
+		//}
+			if(net)
+				net->run(this->_world.get());
 			_world->tick(TickAction::network, delta);
 		}
 	}
@@ -696,7 +708,11 @@ namespace Barcode {
 
 		net = new NetClient();
 		if (net->initialize("192.168.1.24", 4545)) {
-			//NET CODE
+			//show feedback?
+		}
+		else {
+			delete net;
+			net = nullptr;
 		}
 
 	}

@@ -27,7 +27,7 @@ public:
 		_root.reset();
 	}
 
-	size_t getFreeID() final { return _id++; }
+	size_t getFreeID() final { return -1; }
 
 	std::shared_ptr<IEntity> createEntity(const std::string& name) final { return _root->createEntity(name); }
 	void tick(TickAction action, float delta) final { _root->tick(action, delta); }
@@ -186,7 +186,7 @@ public:
 			for (size_t i = 0; i < components.size(); i++, it++) {
 				try {
 					auto* c = createMap.at(it.key())(this); // TODO: Change to find?
-					c->deserialize(components[i]);
+					c->deserialize(it.value());
 				} catch (const std::out_of_range&)	{
 					Hydra::IEngine::getInstance()->log(Hydra::LogLevel::error, "Component type '%s' not found!", it.key().c_str());
 				}

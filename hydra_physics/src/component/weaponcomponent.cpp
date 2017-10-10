@@ -29,10 +29,13 @@ void WeaponComponent::tick(TickAction action, float delta) {
 
 void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity)
 {
+	
 	if (SDL_GetTicks() > _fireRateTimer + 1000/(_fireRateRPM/60)){
 		if (_bulletSpread == 0.0f){
 			auto bullet = getBullets()->createEntity("Bullet");
 			
+			//net->sendBullet(bullet);
+
 			bullet->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
 			bullet->addComponent<Hydra::Component::BulletComponent>(position, -direction, velocity);
 			auto transform = bullet->addComponent<Hydra::Component::TransformComponent>(position, glm::vec3(_bulletSize));

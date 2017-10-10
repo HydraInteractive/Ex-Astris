@@ -10,9 +10,13 @@ enum PacketType {
 	ServerUpdate,
 	ServerPlayer,
 	ClientUpdate,
-
+	ClientSpawnEntity,
+	ServerSpawnEntity,
+	ServerDeleteEntity
 	//..
 };
+
+
 
 struct TransformInfo {
 	glm::vec3 pos;
@@ -36,6 +40,27 @@ struct Header {
 struct Packet {
 	Header h;
 };
+
+struct ServerDeletePacket : Packet {
+	int64_t id;
+};
+
+//NEW SHIT
+
+struct ClientSpawnEntityPacket : Packet {
+	size_t size;
+	char* data[0];
+	inline size_t getSize() { return sizeof(ClientSpawnEntityPacket) + sizeof(char) * size; }
+};
+
+struct ServerSpawnEntityPacket : Packet {
+	int64_t id;
+	size_t size;
+	char* data[0];
+	inline size_t getSize() { return sizeof(ServerSpawnEntityPacket) + sizeof(char) * size; }
+};
+
+//NEW SHIT
 
 struct ServerInitializePacket : Packet {
 	int64_t entityid;
