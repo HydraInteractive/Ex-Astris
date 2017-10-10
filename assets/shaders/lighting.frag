@@ -34,13 +34,13 @@ vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec3 objectColor){
 	float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
 	// Diffuse
 	vec3 lightDir = normalize(light.pos - pos);
-	float diff = max(dot(normal, -lightDir), 0.0);
+	float diff = max(dot(-normal, lightDir), 0.0);
 	vec3 diffuse = light.color * diff * objectColor;
 
 	// Specular
 	float specularStrength = 0.1f;
 	vec3 viewDir = normalize(cameraPos - pos);
-	vec3 reflectDir = reflect(lightDir, normal);
+	vec3 reflectDir = reflect(-lightDir, normal);
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128);
 	vec3 specular = spec * specularStrength * light.color;
 
@@ -49,13 +49,13 @@ vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec3 objectColor){
 }
 
 vec3 calcDirLight(DirLight light, vec3 pos, vec3 normal, vec3 objectColor){
-	vec3 lightDirection = normalize(-light.dir);
-	float diff = max(dot(normal, lightDirection), 0.0f);
+	vec3 lightDir = normalize(-light.dir);
+	float diff = max(dot(normal, lightDir), 0.0f);
 	vec3 diffuse = light.color * diff * objectColor;
 
 	float specularStrength = 0.1f;
 	vec3 viewDir = normalize(cameraPos - pos);
-	vec3 reflectDir = reflect(lightDirection, normal);
+	vec3 reflectDir = reflect(lightDir, normal);
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128);
 	vec3 specular = spec * specularStrength * light.color;
 
@@ -64,9 +64,6 @@ vec3 calcDirLight(DirLight light, vec3 pos, vec3 normal, vec3 objectColor){
 
 void main() {
 	ivec2 iTexCoords1 = ivec2(texCoords * textureSize(positions));
-	ivec2 iTexCoords2 = ivec2(texCoords * textureSize(colors));
-	ivec2 iTexCoords3 = ivec2(texCoords * textureSize(normals));
-	ivec2 iTexCoords4 = ivec2(texCoords * textureSize(lightPositions));
 	vec3 pos = vec3(0);
 	vec3 objectColor = vec3(0);
 	vec3 normal = vec3(0);

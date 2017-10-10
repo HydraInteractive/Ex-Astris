@@ -682,11 +682,13 @@ namespace Barcode {
 		
 		auto pointLight1 = _world->createEntity("Pointlight1");
 		pointLight1->addComponent<Hydra::Component::TransformComponent>();
+		pointLight1->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");
 		auto p1LC = pointLight1->addComponent<Hydra::Component::LightComponent>();
 		p1LC->setColor(glm::vec3(0,1,0));
 
 		auto pointLight2 = _world->createEntity("Pointlight2");
 		pointLight2->addComponent<Hydra::Component::TransformComponent>();
+		pointLight2->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");
 		auto p2LC = pointLight2->addComponent<Hydra::Component::LightComponent>();
 		p2LC->setColor(glm::vec3(0, 0, 1));
 		
