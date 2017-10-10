@@ -6,7 +6,7 @@
 #ifndef TB_RENDERER_GL_H
 #define TB_RENDERER_GL_H
 
-#include "tb_types.h"
+#include "tb/tb_types.h"
 
 #ifdef TB_RENDERER_GL
 
@@ -24,7 +24,7 @@
 #include <GL/gl.h>
 #endif
 
-#include "renderers/tb_renderer_batcher.h"
+#include "tb/renderers/tb_renderer_batcher.h"
 
 namespace tb {
 

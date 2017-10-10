@@ -6,7 +6,7 @@
 #ifndef TB_RENDERER_BATCHER_H
 #define TB_RENDERER_BATCHER_H
 
-#include "tb_renderer.h"
+#include "tb/tb_renderer.h"
 
 #ifdef TB_RENDERER_BATCHER
 

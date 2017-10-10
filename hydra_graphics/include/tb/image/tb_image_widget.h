@@ -6,11 +6,11 @@
 #ifndef TB_IMAGE_WIDGET_H
 #define TB_IMAGE_WIDGET_H
 
-#include "tb_widgets.h"
+#include "tb/tb_widgets.h"
 
 #ifdef TB_IMAGE
 
-#include "image/tb_image_manager.h"
+#include "tb/image/tb_image_manager.h"
 
 namespace tb {
 

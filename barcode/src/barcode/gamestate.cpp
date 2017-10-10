@@ -10,7 +10,52 @@
 #include <imgui/imgui.h>
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
+
+
+#include <tb/image/tb_image_manager.h>
+#include <tb/image/tb_image_widget.h>
 #include <tb/tb_core.h>
+#include <tb/renderers/tb_renderer_gl.h>
+#include <tb/renderers/tb_renderer_batcher.h>
+#include <tb/tb_config.h>
+#include <tb/tb_dimension.h>
+#include <tb/tb_editfield.h>
+#include <tb/tb_font_renderer.h>
+#include <tb/tb_font_desc.h>
+#include <tb/tb_layout.h>
+#include <tb/tb_window.h>
+#include <tb/tests/tb_test.h>
+#include <tb/tb_geometry.h>
+#include <tb/tb_hash.h>
+#include <tb/tb_hashtable.h>
+#include <tb/tb_id.h>
+#include <tb/tb_inline_select.h>
+#include <tb/tb_language.h>
+#include <tb/tb_layout.h>
+#include <tb/tb_widgets_reader.h>
+#include <tb/tb_widgets.h>
+#include <tb/utf8/utf8.h>
+
+//#include "Demo.h"
+//#include "ListWindow.h"
+//#include "ResourceEditWindow.h"
+//#include <stdio.h>
+//#include <stdarg.h>
+//#include "tests/tb_test.h"
+//#include "tb_system.h"
+//#include "tb_language.h"
+//#include "tb_inline_select.h"
+//#include "tb_select.h"
+//#include "tb_menu_window.h"
+//#include "tb_editfield.h"
+//#include "tb_tab_container.h"
+//#include "tb_bitmap_fragment.h"
+//#include "animation/tb_widget_animation.h"
+//#include "tb_node_tree.h"
+//#include "tb_tempbuffer.h"
+//#include "tb_font_renderer.h"
+//#include "image/tb_image_manager.h"
+//#include "utf8/utf8.h"
 
 
 namespace Barcode {
@@ -651,7 +696,22 @@ namespace Barcode {
 		}
 
 		{//tb
-			
+			//ImageWindow::ImageWindow(TBWidget *root) : DemoWindow(root)
+			//{
+			//	LoadResourceFile("Demo/demo01/ui_resources/test_image_widget.tb.txt");
+			//}
+
+			//bool ImageWindow::OnEvent(const TBWidgetEvent &ev)
+			//{
+			//	if (ev.type == EVENT_TYPE_CLICK && ev.target->GetID() == TBIDC("remove"))
+			//	{
+			//		TBWidget *image = ev.target->GetParent();
+			//		image->GetParent()->RemoveChild(image);
+			//		delete image;
+			//		return true;
+			//	}
+			//	return DemoWindow::OnEvent(ev);
+			//}
 		}
 
 		{ // Sync with network
