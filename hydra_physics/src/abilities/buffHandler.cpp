@@ -26,7 +26,7 @@ void BuffHandler::getActiveDebuffs() {
 
 bool BuffHandler::addBuff(Buffs newBuff) {
 	bool buffCanBeAdded = true;
-	for (int i = 0; i < _activeBuffs.size(); i++){
+	for (size_t i = 0; i < _activeBuffs.size(); i++){
 		if (_activeBuffs[i] == newBuff) {
 			buffCanBeAdded = false;
 		}
@@ -42,10 +42,14 @@ bool BuffHandler::addBuff(Buffs newBuff) {
 void BuffHandler::onActivation(int &maxHealth, int &health) {
 	for (size_t i = _lastPickedUpBuff; i < _activeBuffs.size(); i++){
 		switch (_activeBuffs[i]) {
-		case BUFF_HEALTHUPGRADE:
+		case BUFF_HEALTHUPGRADE: {
 			int lastMax = maxHealth;
 			maxHealth *= 1.25;
 			health += maxHealth - lastMax;
+			break;
+		}
+		default:
+			break;
 		}
 	}
 	_lastPickedUpBuff++;
@@ -61,6 +65,8 @@ void BuffHandler::onTick(int &maxHealth, int &health) {
 				_activeBuffsTimer[i] = SDL_GetTicks();
 			}
 			break;
+		default:
+			break;
 		}
 	}
 }
@@ -70,6 +76,8 @@ void BuffHandler::onAttack(float &bulletVelocity) {
 		switch (_activeBuffs[i]){
 		case BUFF_BULLETVELOCITY:
 			bulletVelocity *= 4.0f;
+			break;
+		default:
 			break;
 		}
 	}

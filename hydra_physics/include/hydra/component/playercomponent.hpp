@@ -50,6 +50,7 @@ namespace Hydra::Component {
 		void registerUI() final;
 	private:
 		glm::vec3 _position = glm::vec3(0,-2,3);
+		glm::vec3 _weaponOffset = glm::vec3{2, -1.5, -3};
 		glm::vec3 _velocity;
 		glm::vec3 _acceleration;
 		float _movementSpeed = 20.0f;

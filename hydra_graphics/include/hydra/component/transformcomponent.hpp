@@ -53,9 +53,12 @@ namespace Hydra::Component {
 		void setRotation(const glm::quat& rotation);
 		void setDirection(const glm::vec3& direction, glm::vec3 up = glm::vec3{0, 1, 0});
 
+		inline void setIgnoreParent(bool ignoreParent) { _ignoreParent = ignoreParent; }
+
 	private:
 		Hydra::Renderer::DrawObject* _drawObject;
 		bool _dirty;
+		bool _ignoreParent = false;
 
 		glm::vec3 _position;
 		glm::vec3 _scale;

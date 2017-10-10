@@ -1,16 +1,21 @@
 #include <barcode/ImporterMenu.hpp>
+#include <hydra/engine.hpp>
+#include <hydra/component/cameracomponent.hpp>
 
 ImporterMenu::ImporterMenu()
 {
 	this->executableDir = "";
 	this->_root = nullptr;
-	this->_world = nullptr;
+	this->_editorWorld = nullptr;
 }
 ImporterMenu::ImporterMenu(Hydra::World::IWorld* world)
 {
 	this->executableDir = _getExecutableDir();
 	this->_root = nullptr;
-	this->_world = world;
+	this->_editorWorld = world;
+	this->_previewWorld = Hydra::World::World::create();
+	this->_newEntityClicked = true;
+	this->_rotation = 0.f;
 	refresh();
 }
 ImporterMenu::~ImporterMenu()
@@ -18,7 +23,7 @@ ImporterMenu::~ImporterMenu()
 	if(_root != nullptr)
 	delete _root;
 }
-void ImporterMenu::render(bool &closeBool)
+void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch& previewBatch, float delta)
 {
 	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiSetCond_Once);
 	ImGui::Begin("Import", &closeBool, ImGuiWindowFlags_MenuBar);
@@ -38,20 +43,57 @@ void ImporterMenu::render(bool &closeBool)
 
 	//File tree
 	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.3f, ImGui::GetWindowContentRegionMax().y - 60));
+	bool foundClickedEntity = false;
 	if(_root != nullptr)
-		_root->render(_world, &selectedNode);
-	if (selectedNode != nullptr)
-		std::cout << selectedNode->reverseEngineerPath() << std::endl;
+		_root->render(_editorWorld, &selectedNode);
+	if (selectedNode != nullptr) {
+		std::string fileName = selectedNode->reverseEngineerPath();
+		std::cout << fileName.c_str() << std::endl;
+
+		if (previewBatch.objects.size() > 0) {
+			if (_previewEntity->getName().c_str() == fileName.c_str())
+				_newEntityClicked = false;
+			else
+				_newEntityClicked = true;
+		}
+
+		previewBatch.objects.clear();
+		// Because of issues with the engine adding components will always be added to the global world
+		// So we need to disable the meshes to have them be only viewed in the previewWindow
+		if (_newEntityClicked && selectedNode->getExt() == ".ATTIC") {
+			_previewEntity = _previewWorld->createEntity(fileName);
+			_previewEntity->addComponent<Hydra::Component::MeshComponent>(fileName); // Disable mesh to only see the model in preview window
+	
+			auto tc = _previewEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0));
+			auto cc = _previewEntity->addComponent<Hydra::Component::CameraComponent>(previewBatch.renderTarget, glm::vec3(0,0,5));
+			tc->setRotation(glm::angleAxis(glm::radians(_rotation), glm::vec3(0,1,0)));
+		}
+		else {
+			auto tc = _previewEntity->getComponent<Hydra::Component::TransformComponent>();
+			tc->setRotation(glm::angleAxis(glm::radians(_rotation), glm::vec3(0,1,0)));
+		}
+		auto drawObj = _previewEntity->getDrawObject();
+		auto cc = _previewEntity->getComponent<Hydra::Component::CameraComponent>();
+		previewBatch.pipeline->setValue(0, cc->getViewMatrix());
+		previewBatch.pipeline->setValue(1, cc->getProjectionMatrix());
+		previewBatch.pipeline->setValue(2, cc->getPosition());
+		previewBatch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+	}
+	_previewWorld->tick(Hydra::World::TickAction::physics, delta);
+
 	ImGui::EndChild();
-
 	ImGui::SameLine();
-
+	Hydra::IEngine::getInstance()->getRenderer()->render(previewBatch);
 	//Preview window
 	ImGui::BeginChild("Preview", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.7f, ImGui::GetWindowContentRegionMax().y - 60));
-	
+	//ImGui::SetNextWindowPos(ImVec2(10, 10));
+	//ImGui::SetNextWindowSize(ImVec2(20, 20));
+	ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<Hydra::Renderer::IFramebuffer&>(*previewBatch.renderTarget)[0]->getID()), ImVec2(ImGui::GetWindowContentRegionWidth() * 1.2f, ImGui::GetWindowContentRegionMax().y - 15));
 	ImGui::EndChild();
-
 	ImGui::End();
+
+
+	_rotation += delta * 1;
 }
 void ImporterMenu::refresh()
 {
@@ -88,7 +130,7 @@ std::string ImporterMenu::_getExecutableDir()
 std::shared_ptr<IEntity> ImporterMenu::getRoomEntity(Hydra::World::IWorld* world)
 {
 	std::vector<std::shared_ptr<IEntity>> entities = world->getWorldRoot()->getChildren();
-	for (int i = 0; i < entities.size(); i++)
+	for (size_t i = 0; i < entities.size(); i++)
 	{
 		if (entities[i]->getName() == "Room")
 			return entities[i];
@@ -123,6 +165,7 @@ ImporterMenu::Node::Node(std::string path, Node* parent, bool isFile)
 		this->_files.push_back(new Node(inFiles[i], this, true));
 	}
 }
+
 ImporterMenu::Node::~Node()
 {
 	for (size_t i = 0; i < _subfolders.size(); i++)
@@ -245,6 +288,10 @@ void ImporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode
 						world->getWorldRoot()->spawn(BlueprintLoader::load(_files[i]->reverseEngineerPath())->spawn(world));
 					}
 				}
+			}
+			else
+			{
+				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_QUESTION_CIRCLE_O " %s", _files[i]->_name.c_str());
 			}
 		}
 		ImGui::TreePop();
