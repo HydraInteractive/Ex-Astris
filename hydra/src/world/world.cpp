@@ -186,8 +186,9 @@ public:
 			for (size_t i = 0; i < components.size(); i++, it++) {
 				try {
 					auto* c = createMap.at(it.key())(this);
-					c->deserialize(components[i]);
+					c->deserialize(it.value());
 				} catch (const std::out_of_range&)	{
+					const char* c = it.key().c_str();
 					Hydra::IEngine::getInstance()->log(Hydra::LogLevel::error, "Component type '%s' not found!", it.key().c_str());
 				}
 			}
