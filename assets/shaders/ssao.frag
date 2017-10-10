@@ -18,8 +18,8 @@ void main() {
 	vec3 fragPos = texelFetch(positions, iTexCoords, 0).xyz;
 	vec3 normal = texelFetch(normals, iTexCoords, 0).xyz;
 
-	float bias = 0.025;
-	float kernelRadius = 0.5;
+	float bias = 0.025f;
+	float kernelRadius = 0.5f;
 	float kernelSize = 8;
 	
 	vec3 randomVec = texture(texNoise, texCoords * noiseScale).xyz;
