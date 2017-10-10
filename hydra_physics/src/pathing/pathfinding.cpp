@@ -96,11 +96,6 @@ void PathFinding::_setStartAndGoal(SearchCell start, SearchCell end)
 
 void PathFinding::_pathOpened(int x, int z, float newCost, std::shared_ptr<SearchCell> parent, int map[WORLD_SIZE][WORLD_SIZE])
 {
-	if (x > WORLD_SIZE * CELL_SIZE || z > WORLD_SIZE * CELL_SIZE || x < (WORLD_SIZE * -1) * CELL_SIZE || z < (WORLD_SIZE * -1) * CELL_SIZE)
-	{
-		return;
-	}
-
 	if (map[x][z] == 1 || map[x][z] == 2)
 	{
 		return;

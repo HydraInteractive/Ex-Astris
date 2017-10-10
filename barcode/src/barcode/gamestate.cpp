@@ -680,9 +680,9 @@ namespace Barcode {
 		//spawnerEntity2->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::RobotSpawner, glm::vec3(15, 0, 20), 100, 0, 0, glm::vec3(2.0f, 2.0f, 2.0f));
 		//spawnerEntity2->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
 		
-		auto robotEntity = _world->createEntity("Enemy Robot");
-		robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, glm::vec3(15, 0, 15), 70, 11, 20.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-		robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+		//auto robotEntity = _world->createEntity("Enemy Robot");
+		//robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, glm::vec3(15, 0, 15), 70, 11, 20.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+		//robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
 		//auto alienBoss = _world->createEntity("Enemy Boss");
 		//alienBoss->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss, glm::vec3(15, 0, 16), 1200, 25, 25.0f, glm::vec3(3.0f, 3.0f, 3.0f));

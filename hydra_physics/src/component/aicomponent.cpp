@@ -35,15 +35,7 @@ EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID, glm::vec3 po
 	entity->addComponent<Hydra::Component::TransformComponent>(pos, scale);
 	entity->addComponent<Hydra::Component::WeaponComponent>();
 
-	for (int i = 0; i < WORLD_SIZE; i++)
-	{
-		for (int j = 0; j < WORLD_SIZE; j++)
-		{
-			_map[i][j] = 0;
-		}
-	}
-
-	for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		_map[10][10+i] = 1;
 	}
@@ -78,18 +70,23 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			{
 			case IDLE:
 			{
-				if (glm::length(enemy->getPosition() - player->getPosition()) < 50)
+				if (player->getPosition().x > 0.0f && player->getPosition().x < WORLD_SIZE && player->getPosition().z > 0.0f && player->getPosition().z < WORLD_SIZE)
 				{
-					_timer = SDL_GetTicks();
-					_pathFinding->intializedStartGoal = false;
-					_pathFinding->foundGoal = false;
-					_pathFinding->clearPathToGoal();
-					_pathState = SEARCHING;
+					if (glm::length(enemy->getPosition() - player->getPosition()) < 50)
+					{
+						_timer = SDL_GetTicks();
+						_pathFinding->intializedStartGoal = false;
+						_pathFinding->foundGoal = false;
+						_pathFinding->clearVisitedList();
+						_pathFinding->clearOpenList();
+						_pathFinding->clearPathToGoal();
+						_pathState = SEARCHING;
+					}
 				}
 			}break;
 			case SEARCHING:
 			{
-				if (SDL_GetTicks() > _timer + 5000)
+				if (SDL_GetTicks() > _timer + 8000)
 				{
 					_timer = SDL_GetTicks();
 					_pathState = IDLE;
@@ -100,9 +97,16 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					_pathFinding->foundGoal = true;
 					_pathState = ATTACKING;
 				}
-				_pathFinding->findPath(enemy->getPosition(), player->getPosition(), _map);
 
+				if (player->getPosition().x <= 0.0f || player->getPosition().x >= WORLD_SIZE || player->getPosition().z <= 0.0f || player->getPosition().z >= WORLD_SIZE)
+				{
+					_pathState = IDLE;
+				}
+
+				_pathFinding->findPath(enemy->getPosition(), player->getPosition(), _map);
 				_isAtGoal = false;
+
+
 				if (_pathFinding->foundGoal)
 				{
 					if (!_pathFinding->_pathToEnd.empty())
@@ -114,7 +118,6 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			}break;
 			case FOUND_GOAL:
 			{
-				
 				if (!_isAtGoal)
 				{
 					if (!_pathFinding->_pathToEnd.empty())
@@ -137,7 +140,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 							_pathState = ATTACKING;
 						}
 
-						if (glm::length(enemy->getPosition() - _targetPos) <= 3.0f)
+						if (glm::length(enemy->getPosition() - _targetPos) <= 5.0f)
 						{
 							_pathFinding->intializedStartGoal = false;
 							_pathFinding->foundGoal = false;
@@ -155,14 +158,12 @@ void EnemyComponent::tick(TickAction action, float delta) {
 						}
 					}
 				}
-				else
+
+				if (player->getPosition().x <= 0.0f || player->getPosition().x >= WORLD_SIZE || player->getPosition().z <= 0.0f || player->getPosition().z >= WORLD_SIZE)
 				{
-					_pathFinding->intializedStartGoal = false;
-					_pathFinding->foundGoal = false;
-					_pathFinding->clearPathToGoal();
-					_pathState = SEARCHING;
-					_timer = SDL_GetTicks();
+					_pathState = IDLE;
 				}
+
 			}break;
 			case ATTACKING:
 			{
@@ -203,18 +204,23 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			{
 			case IDLE:
 			{
-				if (glm::length(enemy->getPosition() - player->getPosition()) < 50)
+				if (player->getPosition().x > 0.0f && player->getPosition().x < WORLD_SIZE && player->getPosition().z > 0.0f && player->getPosition().z < WORLD_SIZE)
 				{
-					_timer = SDL_GetTicks();
-					_pathFinding->intializedStartGoal = false;
-					_pathFinding->foundGoal = false;
-					_pathFinding->clearPathToGoal();
-					_pathState = SEARCHING;
+					if (glm::length(enemy->getPosition() - player->getPosition()) < 50)
+					{
+						_timer = SDL_GetTicks();
+						_pathFinding->intializedStartGoal = false;
+						_pathFinding->foundGoal = false;
+						_pathFinding->clearVisitedList();
+						_pathFinding->clearOpenList();
+						_pathFinding->clearPathToGoal();
+						_pathState = SEARCHING;
+					}
 				}
 			}break;
 			case SEARCHING:
 			{
-				if (SDL_GetTicks() > _timer + 5000)
+				if (SDL_GetTicks() > _timer + 8000)
 				{
 					_timer = SDL_GetTicks();
 					_pathState = IDLE;
@@ -224,6 +230,11 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				{
 					_isAtGoal = true;
 					_pathState = ATTACKING;
+				}
+
+				if (player->getPosition().x <= 0.0f || player->getPosition().x >= WORLD_SIZE || player->getPosition().z <= 0.0f || player->getPosition().z >= WORLD_SIZE)
+				{
+					_pathState = IDLE;
 				}
 
 				_pathFinding->findPath(enemy->getPosition(), player->getPosition(), _map);
@@ -262,7 +273,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 							_pathState = ATTACKING;
 						}
 
-						if (glm::length(enemy->getPosition() - _targetPos) <= 3.0f)
+						if (glm::length(enemy->getPosition() - _targetPos) <= 5.0f)
 						{
 							_pathFinding->intializedStartGoal = false;
 							_pathFinding->foundGoal = false;
@@ -280,13 +291,10 @@ void EnemyComponent::tick(TickAction action, float delta) {
 						}
 					}
 				}
-				else
+
+				if (player->getPosition().x <= 0.0f || player->getPosition().x >= WORLD_SIZE || player->getPosition().z <= 0.0f || player->getPosition().z >= WORLD_SIZE)
 				{
-					_pathFinding->intializedStartGoal = false;
-					_pathFinding->foundGoal = false;
-					_pathFinding->clearPathToGoal();
-					_pathState = SEARCHING;
-					_timer = SDL_GetTicks();
+					_pathState = IDLE;
 				}
 			}break;
 			case ATTACKING:
@@ -379,15 +387,23 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			{
 			case IDLE:
 			{
-				if (glm::length(enemy->getPosition() - player->getPosition()) < 50)
+				if (player->getPosition().x > 0.0f && player->getPosition().x < WORLD_SIZE && player->getPosition().z > 0.0f && player->getPosition().z < WORLD_SIZE)
 				{
-					_timer = SDL_GetTicks();
-					_pathState = SEARCHING;
+					if (glm::length(enemy->getPosition() - player->getPosition()) < 50)
+					{
+						_timer = SDL_GetTicks();
+						_pathFinding->intializedStartGoal = false;
+						_pathFinding->foundGoal = false;
+						_pathFinding->clearVisitedList();
+						_pathFinding->clearOpenList();
+						_pathFinding->clearPathToGoal();
+						_pathState = SEARCHING;
+					}
 				}
 			}break;
 			case SEARCHING:
 			{
-				if (SDL_GetTicks() > _timer + 5000)
+				if (SDL_GetTicks() > _timer + 8000)
 				{
 					_timer = SDL_GetTicks();
 					_pathState = IDLE;
@@ -397,6 +413,11 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				{
 					_isAtGoal = true;
 					_pathState = ATTACKING;
+				}
+
+				if (player->getPosition().x <= 0.0f || player->getPosition().x >= WORLD_SIZE || player->getPosition().z <= 0.0f || player->getPosition().z >= WORLD_SIZE)
+				{
+					_pathState = IDLE;
 				}
 
 				_pathFinding->findPath(enemy->getPosition(), player->getPosition(), _map);
@@ -435,7 +456,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 							_pathState = ATTACKING;
 						}
 
-						if (glm::length(enemy->getPosition() - _targetPos) <= 3.0f)
+						if (glm::length(enemy->getPosition() - _targetPos) <= 5.0f)
 						{
 							_pathFinding->intializedStartGoal = false;
 							_pathFinding->foundGoal = false;
@@ -453,13 +474,10 @@ void EnemyComponent::tick(TickAction action, float delta) {
 						}
 					}
 				}
-				else
+
+				if (player->getPosition().x <= 0.0f || player->getPosition().x >= WORLD_SIZE || player->getPosition().z <= 0.0f || player->getPosition().z >= WORLD_SIZE)
 				{
-					_pathFinding->intializedStartGoal = false;
-					_pathFinding->foundGoal = false;
-					_pathFinding->clearPathToGoal();
-					_pathState = SEARCHING;
-					_timer = SDL_GetTicks();
+					_pathState = IDLE;
 				}
 			}break;
 			case ATTACKING:
