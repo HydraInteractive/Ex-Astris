@@ -6,7 +6,7 @@
 #ifndef TB_LAYOUT_H
 #define TB_LAYOUT_H
 
-#include "tb_widgets.h"
+#include "tb/tb_widgets.h"
 
 namespace tb {
 

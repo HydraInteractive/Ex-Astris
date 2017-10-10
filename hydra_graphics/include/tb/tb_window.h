@@ -6,8 +6,8 @@
 #ifndef TB_WINDOW_H
 #define TB_WINDOW_H
 
-#include "tb_widgets_common.h"
-#include "tb_widgets_listener.h"
+#include "tb/tb_widgets_common.h"
+#include "tb/tb_widgets_listener.h"
 
 namespace tb {
 

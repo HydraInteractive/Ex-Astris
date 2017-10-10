@@ -6,9 +6,9 @@
 #ifndef TB_EDITFIELD_H
 #define TB_EDITFIELD_H
 
-#include "tb_widgets_common.h"
-#include "tb_msg.h"
-#include "tb_style_edit.h"
+#include "tb/tb_widgets_common.h"
+#include "tb/tb_msg.h"
+#include "tb/tb_style_edit.h"
 
 namespace tb {
 

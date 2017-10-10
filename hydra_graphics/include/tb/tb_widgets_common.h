@@ -6,9 +6,9 @@
 #ifndef TB_WIDGETS_COMMON_H
 #define TB_WIDGETS_COMMON_H
 
-#include "tb_widgets.h"
-#include "tb_layout.h"
-#include "tb_msg.h"
+#include "tb/tb_widgets.h"
+#include "tb/tb_layout.h"
+#include "tb/tb_msg.h"
 
 namespace tb {
 

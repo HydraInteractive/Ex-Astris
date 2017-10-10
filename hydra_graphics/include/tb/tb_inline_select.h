@@ -6,9 +6,9 @@
 #ifndef TB_INLINE_SELECT_H
 #define TB_INLINE_SELECT_H
 
-#include "tb_widgets_listener.h"
-#include "tb_select_item.h"
-#include "tb_editfield.h"
+#include "tb/tb_widgets_listener.h"
+#include "tb/tb_select_item.h"
+#include "tb/tb_editfield.h"
 
 namespace tb {
 
