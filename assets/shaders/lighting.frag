@@ -74,7 +74,7 @@ void main() {
 	shadow /= 9.0;
 	shadow = 1 - shadow;
 	fragOutput *= shadow;
-	fragOutput = ambient;
+	fragOutput += ambient;
 
 	//vec2 ssaoTexelSize = 1.0 / vec2(textureSize(ssao, 0));
 	//float result = 0.0;

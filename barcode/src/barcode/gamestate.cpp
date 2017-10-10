@@ -44,6 +44,7 @@ namespace Barcode {
 				.addTexture(3, Hydra::Renderer::TextureType::f16RGBA) // Light pos
 				.addTexture(4, Hydra::Renderer::TextureType::f16RGB) // Depth
 				.addTexture(5, Hydra::Renderer::TextureType::f16Depth) // real depth
+				.addTexture(6, Hydra::Renderer::TextureType::u8RGB) // Position in view-space
 				.finalize();
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
@@ -195,7 +196,7 @@ namespace Barcode {
 
 
 
-			/*std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
+			std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
 			std::default_random_engine generator;
 			int kernelSize = 8;
 			std::vector<glm::vec3> ssaoKernel;
@@ -226,7 +227,7 @@ namespace Barcode {
 
 			for (size_t i = 0; i < kernelSize; i++)
 				_ssaoBatch.pipeline->setValue(4 + i, ssaoKernel[i]);
-				*/
+				
 		}
 
 		{
@@ -363,14 +364,9 @@ namespace Barcode {
 		}
 
 		static bool enableSSAO = true;
-		static int kernelSize = 8;
-		static float kernelRadius = 0.5;
-		static float bias = 0.025;
 		ImGui::Checkbox("Enable SSAO", &enableSSAO);
-		ImGui::DragInt("Kernel Size", &kernelSize, 1.0, 1, 64);
-		ImGui::DragFloat("Kernel Radius", &kernelRadius, 0.01);
-		ImGui::DragFloat("Bias", &bias, 0.01);
-		/*if (enableSSAO)*/ {	// SSAO
+		
+		{
 
 			_ssaoBatch.pipeline->setValue(0, 0);
 			_ssaoBatch.pipeline->setValue(1, 1);
@@ -378,45 +374,8 @@ namespace Barcode {
 
 
 			_ssaoBatch.pipeline->setValue(3, _cc->getProjectionMatrix());
-			//_ssaoBatch.pipeline->setValue(4, _cc->getViewMatrix());
-			_ssaoBatch.pipeline->setValue(11, bias);
-			_ssaoBatch.pipeline->setValue(12, kernelRadius);
-			_ssaoBatch.pipeline->setValue(13, kernelSize);
 
-			std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
-			std::default_random_engine generator;
-
-			std::vector<glm::vec3> ssaoKernel;
-			for (unsigned int i = 0; i < kernelSize; i++) {
-				glm::vec3 sample(
-					randomFloats(generator) * 2.0 - 1.0,
-					randomFloats(generator) * 2.0 - 1.0,
-					randomFloats(generator)
-				);
-				sample = glm::normalize(sample);
-				sample *= randomFloats(generator);
-				float scale = (float)i / kernelSize;
-				scale = lerp(0.1f, 1.0f, scale * scale);
-				sample *= scale;
-				ssaoKernel.push_back(sample);
-			}
-
-			std::vector<glm::vec3> ssaoNoise;
-			for (unsigned int i = 0; i < 16; i++) {
-				glm::vec3 noise(
-					randomFloats(generator) * 2.0 - 1.0,
-					randomFloats(generator) * 2.0 - 1.0,
-					0.0f);
-				ssaoNoise.push_back(glm::normalize(noise));
-			}
-
-			_ssaoNoise = Hydra::Renderer::GLTexture::createFromData(4, 4, TextureType::f32RGB, ssaoNoise.data());
-
-			for (size_t i = 0; i < kernelSize; i++)
-				_ssaoBatch.pipeline->setValue(14 + i, ssaoKernel[i]);
-
-
-			(*_geometryBatch.output)[0]->bind(0);
+			(*_geometryBatch.output)[6]->bind(0);
 			(*_geometryBatch.output)[2]->bind(1);
 			_ssaoNoise->bind(2);
 
