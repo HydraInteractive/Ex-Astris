@@ -350,7 +350,7 @@ private:
 				int nrOfAnimationFiles;
 				in.read(reinterpret_cast<char*>(&nrOfAnimationFiles), sizeof(int));
 				bool test = true;
-				std::string animationFilePath = "assets/objects/";
+				std::string animationFilePath = "assets/objects/characters/";
 				std::string animationFileName;
 				int nrOfFileChars = 0;
 
@@ -370,7 +370,7 @@ private:
 				for (int animationFile = 0; animationFile < nrOfAnimationFiles; animationFile++) {
 
 					in.read(reinterpret_cast<char*>(&nrOfFileChars), sizeof(int));
-					animationFilePath = "assets/objects/";
+					animationFilePath = "assets/objects/characters/";
 					animationFileName = "";
 					tempAnimationFileName = new char[nrOfFileChars];
 					in.read(tempAnimationFileName, nrOfFileChars);

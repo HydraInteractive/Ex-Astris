@@ -42,7 +42,7 @@ void PlayerComponent::tick(TickAction action, float delta) {
 		if (keysArray[SDL_SCANCODE_W]) {
 			_velocityZ = -_movementSpeed;
 			
-			entity->getChildren()[0]->getDrawObject()->mesh->setAnimationIndex(1);
+			//entity->getChildren()[0]->getDrawObject()->mesh->setAnimationIndex(1);
 		}
 
 		if (keysArray[SDL_SCANCODE_S]) {
@@ -71,7 +71,7 @@ void PlayerComponent::tick(TickAction action, float delta) {
 		}
 		//If the player stands still, do the idle animation
 		if (_velocityX == 0 && _velocityY == 0 && _velocityZ == 0) {
-			entity->getChildren()[0]->getDrawObject()->mesh->setAnimationIndex(0);
+			//entity->getChildren()[0]->getDrawObject()->mesh->setAnimationIndex(0);
 		}
 		if (keysArray[SDL_SCANCODE_E]) {
 			entity->getChildren()[0]->getDrawObject()->mesh->setAnimationIndex(2);

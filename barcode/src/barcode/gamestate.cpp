@@ -214,6 +214,8 @@ namespace Barcode {
 
 					int currentFrame = drawObj->mesh->getCurrentKeyframe();
 
+					drawObj->mesh->setAnimationIndex(2);
+
 					if (currentFrame < drawObj->mesh->getMaxFramesForAnimation()) {
 						drawObj->mesh->setCurrentKeyframe(currentFrame + 1);
 					}
@@ -522,9 +524,9 @@ namespace Barcode {
 		//animatedEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-10, 0, -10));
 
 
-		auto weaponEntity = playerEntity->createEntity("Weapon");
-		weaponEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/Weapon.mATTIC");
-		weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 3, 0), glm::vec3(0.3), glm::quat(0,0,-1,0));
+		//auto weaponEntity = playerEntity->createEntity("Weapon");
+		//weaponEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/Weapon.mATTIC");
+		//weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 3, 0), glm::vec3(0.3), glm::quat(0,0,-1,0));
 		
 		auto particleEmitter = _world->createEntity("ParticleEmitter");
 		particleEmitter->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::Fire, 150, glm::vec3(0,0,0));
@@ -538,6 +540,9 @@ namespace Barcode {
 		auto particleEmitter3 = _world->createEntity("ParticleEmitter3");
 		particleEmitter3->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::Fire, 1000, glm::vec3(-5, -5, 0));
 
+		auto alienAnimation = _world->createEntity("Alien");
+		alienAnimation->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel2.mATTIC");
+		alienAnimation->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 1, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
 
 		auto alienEntity = _world->createEntity("Enemy Alien");
 		_enemy = alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 0));
