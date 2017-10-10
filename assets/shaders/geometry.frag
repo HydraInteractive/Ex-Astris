@@ -22,5 +22,3 @@ void main() {
 	lightPos = inData.light;
 	depth = gl_FragCoord.xyz / gl_FragCoord.w;
 }
-
-
