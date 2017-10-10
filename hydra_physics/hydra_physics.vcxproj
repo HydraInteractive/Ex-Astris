@@ -505,7 +505,7 @@
     <ClInclude Include="include\LinearMath\btTransformUtil.h" />
     <ClInclude Include="include\LinearMath\btVector3.h" />
     <ClInclude Include="include\hydra\abilities\abilityHandler.hpp" />
-    <ClInclude Include="include\hydra\abilities\buffHandler.h" />
+    <ClInclude Include="include\hydra\abilities\buffHandler.hpp" />
     <ClInclude Include="include\hydra\abilities\minecomponent.hpp" />
     <ClInclude Include="include\hydra\component\aicomponent.hpp" />
     <ClInclude Include="include\hydra\component\bulletcomponent.hpp" />

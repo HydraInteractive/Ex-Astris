@@ -34,6 +34,7 @@ namespace Hydra::Component {
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
+		void disable() { _drawObject->disable = true; }
 
 	private:
 		std::string _meshFile;

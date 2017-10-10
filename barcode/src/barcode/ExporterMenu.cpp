@@ -1,6 +1,6 @@
 #include <barcode/ExporterMenu.hpp>
 ExporterMenu::ExporterMenu()
-{	
+{
 	this->executableDir = "";
 	this->_root = nullptr;
 	this->_world = nullptr;
@@ -40,14 +40,14 @@ void ExporterMenu::render(bool &closeBool)
 	//File tree
 	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 60));
 	if (_root != nullptr)
-		_root->render(_world, &selectedNode);
+		_root->render(_world, &selectedNode, _prepExporting);
 	ImGui::EndChild();
 
 	ImGui::SameLine();
 
 	//File name dialog
 	ImGui::BeginChild("File", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 60));
-	
+
 	//Refresh changes from file tree
 	if (selectedNode != nullptr)
 	{
@@ -58,6 +58,8 @@ void ExporterMenu::render(bool &closeBool)
 
 			std::string fileNameWithoutExt = selectedNode->name();
 			fileNameWithoutExt.erase(fileNameWithoutExt.end() - selectedNode->getExt().length(), fileNameWithoutExt.end());
+			//Force empty the string before copying the new one
+			memset(_selectedFileName, 0, sizeof(_selectedFileName));
 			strncpy(_selectedFileName, fileNameWithoutExt.c_str(), fileNameWithoutExt.length());
 		}
 		else
@@ -72,18 +74,55 @@ void ExporterMenu::render(bool &closeBool)
 
 	if (ImGui::Button("Save"))
 	{
-		std::ofstream outFile;
+		_prepExporting = true;
+	}
+	if (_prepExporting)
+	{
 		std::string fileToSave = "";
 		fileToSave.append(_selectedPath);
 		fileToSave.append(_selectedFileName);
 		fileToSave.append(".room");
+		std::ifstream infile(fileToSave);
+		bool doExport = false;
+		if (infile.good())
+		{
+			ImGui::OpenPopup("Overwrite?");
+		}
+		else
+		{
+			doExport = true;
+		}
 
-		BlueprintLoader::save(fileToSave, "Pls wurk", _world->getWorldRoot());
+		if (ImGui::BeginPopupModal("Overwrite?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			std::string textline = "This action will overwrite the file at " + fileToSave + ". Continue?";
+			ImGui::Text("%s", textline.c_str());
+			ImGui::Separator();
 
-		closeBool = false;
+			if (ImGui::Button("OK", ImVec2(120, 0)))
+			{
+				doExport = true;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel", ImVec2(120, 0)))
+			{	
+				_prepExporting = false;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+
+		if (doExport)
+		{
+			std::ofstream outFile;
+			if (getRoomEntity(_world) != nullptr)
+				BlueprintLoader::save(fileToSave, "Room", getRoomEntity(_world));
+			_prepExporting = false;
+			closeBool = false;
+		}
 	}
 	ImGui::EndChild();
-
 	ImGui::End();
 }
 void ExporterMenu::refresh()
@@ -94,6 +133,16 @@ void ExporterMenu::refresh()
 	}
 	_root = new Node(executableDir + "/assets");
 	//_root->clean();
+}
+std::shared_ptr<IEntity> ExporterMenu::getRoomEntity(Hydra::World::IWorld* world)
+{
+	std::vector<std::shared_ptr<IEntity>> entities = world->getWorldRoot()->getChildren();
+	for (size_t i = 0; i < entities.size(); i++)
+	{
+		if (entities[i]->getName() == "Room")
+			return entities[i];
+	}
+	return nullptr;
 }
 std::string ExporterMenu::_getExecutableDir()
 {
@@ -231,7 +280,7 @@ void ExporterMenu::Node::clean()
 		}
 	}
 }
-void ExporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode)
+void ExporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode, bool& prepExporting)
 {
 	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
 	//TODO: Folder icon opening
@@ -243,7 +292,7 @@ void ExporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode
 		}
 		for (size_t i = 0; i < this->_subfolders.size(); i++)
 		{
-			_subfolders[i]->render(world, selectedNode);
+			_subfolders[i]->render(world, selectedNode, prepExporting);
 		}
 		for (size_t i = 0; i < this->_files.size(); i++)
 		{
@@ -255,6 +304,10 @@ void ExporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode
 			else if (ext == ".room" || ext == ".ROOM")
 			{
 				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBES " %s", _files[i]->_name.c_str());
+				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
+				{
+					prepExporting = true;
+				}
 			}
 			else
 			{
@@ -263,10 +316,6 @@ void ExporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode
 			if (ImGui::IsItemClicked())
 			{
 				(*selectedNode) = _files[i];
-				if (ImGui::IsMouseDoubleClicked(0))
-				{
-					//If this is a json file, overwrite it
-				}
 			}
 			ImGui::TreePop();
 		}

@@ -43,7 +43,8 @@ void MeshComponent::serialize(nlohmann::json& json) const {
 }
 
 void MeshComponent::deserialize(nlohmann::json& json) {
-	_mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(json["meshFile"].get<std::string>());
+	_meshFile = json["meshFile"].get<std::string>();
+	_mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(_meshFile);
 	_drawObject->mesh = _mesh.get();
 }
 

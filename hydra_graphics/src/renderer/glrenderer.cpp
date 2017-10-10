@@ -149,10 +149,10 @@ public:
 		glClear(clearFlags);
 
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
-		
+
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
-			
+
 			size_t size = kv.second.size();
 			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
 			for (size_t i = 0; i < size; i += maxPerLoop) {
@@ -244,7 +244,7 @@ std::unique_ptr<IRenderer> GLRenderer::create(Hydra::View::IView& view) {
 }
 
 void glDebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei /*length*/, const GLchar* message, const void* /*userParam*/) {
-	if(id == 4 || id == 8 || id == 20 || id == 131169 || id == 131185 || id == 131218 || id == 131204)
+	if(id == 4 || id == 8 || id == 20 || id == 36 || id == 37 || id == 131169 || id == 131185 || id == 131218 || id == 131204)
 		return;
 
 	if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
