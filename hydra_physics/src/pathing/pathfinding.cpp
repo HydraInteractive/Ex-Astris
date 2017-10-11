@@ -90,18 +90,13 @@ void PathFinding::_setStartAndGoal(SearchCell start, SearchCell end)
 
 	_startCell->G = 0;
 	_startCell->H = _startCell->manHattanDistance(_endCell);
-	_startCell->parent = nullptr;
+	_startCell->parent = 0;
 	_openList.push_back(_startCell);
 }
 
 void PathFinding::_pathOpened(int x, int z, float newCost, std::shared_ptr<SearchCell> parent, int map[WORLD_SIZE][WORLD_SIZE])
 {
-	if (x > WORLD_SIZE * CELL_SIZE || z > WORLD_SIZE * CELL_SIZE || x < (WORLD_SIZE * -1) * CELL_SIZE || z < (WORLD_SIZE * -1) * CELL_SIZE)
-	{
-		return;
-	}
-
-	if (map[x][z] == 1)
+	if (map[x][z] == 1 || map[x][z] == 2)
 	{
 		return;
 	}

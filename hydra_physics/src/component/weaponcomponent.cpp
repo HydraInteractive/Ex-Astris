@@ -19,7 +19,13 @@ using namespace Hydra::Component;
 WeaponComponent::WeaponComponent(IEntity* entity) : IComponent(entity) {
 	entity->createEntity("Bullets");
 }
-
+WeaponComponent::WeaponComponent(IEntity* entity, float fireRateRPM, float bulletSize, float bulletSpread, int bulletsPerShot) : IComponent(entity) {
+	entity->createEntity("Bullets");
+	_fireRateRPM = fireRateRPM;
+	_bulletSize = bulletSize;
+	_bulletSpread = bulletSpread;
+	_bulletsPerShot = bulletsPerShot;
+}
 WeaponComponent::~WeaponComponent() { }
 
 void WeaponComponent::tick(TickAction action, float delta) {
@@ -99,7 +105,7 @@ void WeaponComponent::deserialize(nlohmann::json& json) {
 }
 
 void WeaponComponent::registerUI() {
-	ImGui::InputInt("Fire Rate RPM", &_fireRateRPM);
+	ImGui::DragFloat("Fire Rate RPM", &_fireRateRPM);
 	ImGui::DragFloat("Bullet Size", &_bulletSize, 0.001f);
 	ImGui::DragFloat("Bullet Spread", &_bulletSpread, 0.001f);
 	ImGui::InputInt("Bullets Per Shot", &_bulletsPerShot);
