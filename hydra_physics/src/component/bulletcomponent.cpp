@@ -126,7 +126,7 @@ void BulletComponent::tick(TickAction action, float delta) {
 
 			_interpolation += 3.0f * delta;
 
-			_direction = glm::normalize(_interpolation*dirToEnemy + (1.0f - _interpolation*delta)*_direction);
+			_direction = glm::normalize(_interpolation*dirToEnemy + (1.0f - _interpolation)*_direction);
 		}
 
 		_position += _velocity * _direction * delta;
