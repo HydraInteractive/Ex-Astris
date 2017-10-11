@@ -22,6 +22,15 @@
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
 
+#include <tb/tb_widgets.h>
+#include <tb/tb_widgets_common.h>
+#include <tb/tb_widgets_reader.h>
+#include <tb/tb_widgets_listener.h>
+#include <tb/tb_message_window.h>
+#include <tb/tb_msg.h>
+#include <tb/tb_scroller.h>
+#include <tb/tests/tb_test.h>
+
 #include <hydra/io/input.hpp>
 
 namespace Barcode {
@@ -110,4 +119,14 @@ namespace Barcode {
 
 		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int nrOfTimes, glm::vec2 size);
 	};
+
+	//class DemoWindow : public TBWindow
+	//{
+	//public:
+	//	DemoWindow(TBWidget *root);
+	//	bool LoadResourceFile(const char *filename);
+	//	void LoadResourceData(const char *data);
+	//	void LoadResource(TBNode &node);
+	//	virtual bool OnEvent(const TBWidgetEvent &ev);
+	//};
 }
