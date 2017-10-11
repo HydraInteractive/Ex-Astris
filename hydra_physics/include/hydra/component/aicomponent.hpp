@@ -67,38 +67,44 @@ namespace Hydra::Component {
 		PathState _pathState;
 		PathFinding* _pathFinding = new PathFinding();
 		BossPhase _bossPhase;
+		EnemyTypes _enemyID = EnemyTypes::Alien;
 		std::vector<std::shared_ptr<Hydra::World::IEntity>> _spawnGroup;
+
 		int _debugState;
+		int _spawnAmount;
+		int _health;
+		int _damage;
+		int _map[WORLD_SIZE][WORLD_SIZE];
+		int _oldMapPosX;
+		int _oldMapPosZ;
+
 		float _angle;
 		float _velocityX;
 		float _velocityY;
 		float _velocityZ;
-		int _spawnAmount;
-		int _health;
-		int _damage;
 		float _range;
 		float _originalRange;
+
 		glm::vec3 _mapOffset;
 		glm::vec3 _targetPos;
 		glm::vec3 _position;
 		glm::vec3 _startPosition;
-		glm::quat _rotation;
 		glm::vec3 _scale;
+
+		glm::quat _rotation;
+		
 		bool _isAtGoal;
 		bool _falling;
 		bool _patrolPointReached;
 		bool _playerSeen;
 		bool _stunned;
-		EnemyTypes _enemyID = EnemyTypes::Alien;
+
 		std::random_device rd;
 		Uint32 _timer;
 		Uint32 _spawnTimer;
 		Uint32 _stunTimer;
 		Uint32 _attackTimer;
 		Uint32 _newPathTimer;
-		int _map[WORLD_SIZE][WORLD_SIZE];
-		int _oldMapPosX;
-		int _oldMapPosZ;
 
 		// Private functions
 		bool _checkLine(int levelmap[WORLD_SIZE][WORLD_SIZE], glm::vec3 A, glm::vec3 B);
