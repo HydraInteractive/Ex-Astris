@@ -204,7 +204,12 @@ private:
 		else if (_textureType == GL_TEXTURE_2D_MULTISAMPLE)
 			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, (GLsizei)_samples, toGLBase(_format), (GLsizei)_size.x, (GLsizei)_size.y, GL_FALSE);
 
-		if (_textureType == GL_TEXTURE_2D) {
+		if (_textureType == GL_TEXTURE_2D && _size.x == 4) {
+			glTexParameteri(_textureType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(_textureType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(_textureType, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(_textureType, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		} else if (_textureType == GL_TEXTURE_2D) {
 			glTexParameteri(_textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(_textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(_textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
