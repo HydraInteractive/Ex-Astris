@@ -90,7 +90,7 @@ void PathFinding::_setStartAndGoal(SearchCell start, SearchCell end)
 
 	_startCell->G = 0;
 	_startCell->H = _startCell->manHattanDistance(_endCell);
-	_startCell->parent = nullptr;
+	_startCell->parent = 0;
 	_openList.push_back(_startCell);
 }
 
