@@ -821,7 +821,7 @@ namespace Barcode {
 		_light->setPosition(glm::vec3(-5.0, 0.75, 4.3));
 		_light->translate(glm::vec3(10, 0, 0));
 		_light->setDirection(glm::vec3(-1, 0, 0));
-		_light->setColor(glm::vec3(0));
+		_light->setColor(glm::vec3(1));
 		lightEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(8.0, 0, 3.5));
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());

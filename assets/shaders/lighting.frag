@@ -89,7 +89,7 @@ void main() {
 	vec3 result = vec3(0);
 
 	// Directional light
-	//result = calcDirLight(dirLight, pos, normal, objectColor);
+	result = calcDirLight(dirLight, pos, normal, objectColor);
 
 	// Point Lights.s
 	for(int i = 0 ; i < nrOfPointLights; i++){
@@ -119,8 +119,8 @@ void main() {
 
 	shadow /= 9.0;
 	shadow = 1 - shadow;
-	//result *= shadow;
-	//result += globalAmbient;
+	result *= shadow;
+	result += globalAmbient;
 	fragOutput = result;
 
 	// Picking out bright regions for glow.
