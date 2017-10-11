@@ -14,13 +14,13 @@
 #define CELL_SIZE 1.0f
 #include <math.h>
 
-
 class PathFinding
 {
 public:
 	class Node
 	{
 	public:
+		//X and Y represent the 2D map's dimensions not the world's. X = worldX, Y = worldZ
 		glm::ivec2 pos;
 		int m_id;
 		std::shared_ptr<Node> parent;
@@ -64,8 +64,6 @@ public:
 	std::vector<glm::vec3> _pathToEnd;
 	
 private:
-
-	void _setStartAndGoal(Node start, Node end);
 	void _pathOpened(int x, int z, float newCost, std::shared_ptr<Node> parent, int map[WORLD_SIZE][WORLD_SIZE]);
 	std::shared_ptr<Node> _getNextCell();
 	void _continuePath(int map[WORLD_SIZE][WORLD_SIZE]);
