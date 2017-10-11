@@ -667,30 +667,44 @@ namespace Barcode {
 
 		auto alienEntity1 = _world->createEntity("Enemy Alien");
 		alienEntity1->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(5, 0, 5), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+		alienEntity1->addComponent<Hydra::Component::TransformComponent>(glm::vec3{5, 0, 5}, glm::vec3{1, 1, 1});
+		alienEntity1->addComponent<Hydra::Component::WeaponComponent>();
 		alienEntity1->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
 		//auto alienEntity2 = _world->createEntity("Enemy Alien");
 		//alienEntity2->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(15, 0, 5), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+		//alienEntity2->addComponent<Hydra::Component::TransformComponent>(glm::vec3{15, 0, 5}, glm::vec3{1, 1, 1});
+		//alienEntity2->addComponent<Hydra::Component::WeaponComponent>();
 		//alienEntity2->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
 		//auto spawnerEntity1 = _world->createEntity("Enemy Spawner");
 		//spawnerEntity1->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienSpawner, glm::vec3(20, 0, 20), 100, 0, 0, glm::vec3(2.0f, 2.0f, 2.0f));
+		//spawnerEntity1->addComponent<Hydra::Component::TransformComponent>(glm::vec3{20, 0, 20}, glm::vec3{1, 1, 1});
+		//spawnerEntity1->addComponent<Hydra::Component::WeaponComponent>();
 		//spawnerEntity1->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
 		
 		//auto spawnerEntity2 = _world->createEntity("Enemy Spawner");
 		//spawnerEntity2->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::RobotSpawner, glm::vec3(15, 0, 20), 100, 0, 0, glm::vec3(2.0f, 2.0f, 2.0f));
+		//spawnerEntity2->addComponent<Hydra::Component::TransformComponent>(glm::vec3{15, 0, 20}, glm::vec3{1, 1, 1});
+		//spawnerEntity2->addComponent<Hydra::Component::WeaponComponent>();
 		//spawnerEntity2->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
 		
 		//auto robotEntity = _world->createEntity("Enemy Robot");
 		//robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, glm::vec3(20, 0, 10), 70, 11, 20.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+		//robotEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3{20, 0, 10}, glm::vec3{1, 1, 1});
+		//robotEntity->addComponent<Hydra::Component::WeaponComponent>();
 		//robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
 		//auto alienBoss = _world->createEntity("Enemy Boss");
 		//alienBoss->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss, glm::vec3(15, 0, 16), 1200, 25, 25.0f, glm::vec3(3.0f, 3.0f, 3.0f));
+		//alienBoss->addComponent<Hydra::Component::TransformComponent>(glm::vec3{15, 0, 16}, glm::vec3{1, 1, 1});
+		//alienBoss->addComponent<Hydra::Component::WeaponComponent>();
 		//alienBoss->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
 
 		//auto robotBoss = _world->createEntity("Enemy Boss");
 		//robotBoss->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::RobotBoss, glm::vec3(15, 0, 16), 1200, 25, 25.0f, glm::vec3(3.0f, 3.0f, 3.0f));
+		//robotBoss->addComponent<Hydra::Component::TransformComponent>(glm::vec3{15, 0, 10}, glm::vec3{1, 1, 1});
+		//robotBoss->addComponent<Hydra::Component::WeaponComponent>();
 		//robotBoss->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
 		
 		auto test = _world->createEntity("test");

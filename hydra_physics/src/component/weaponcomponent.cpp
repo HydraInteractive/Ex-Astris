@@ -16,66 +16,54 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-/*WeaponComponent::WeaponComponent(IEntity* entity) : IComponent(entity) {
-	entity->createEntity("Bullets");
-}*/
+using world = Hydra::World::World;
 
 WeaponComponent::~WeaponComponent() { }
 
-/*void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity)
-{
-	if (SDL_GetTicks() > _fireRateTimer + 1000/(_fireRateRPM/60)){
-		if (_bulletSpread == 0.0f){
-			auto bullet = getBullets()->createEntity("Bullet");
-			
-			bullet->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
-			bullet->addComponent<Hydra::Component::BulletComponent>(position, -direction, velocity);
-			auto transform = bullet->addComponent<Hydra::Component::TransformComponent>(position, glm::vec3(_bulletSize));
+//TODO: (Re)move?
+void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity) {
+	if (!_bullets)
+		_bullets = world::newEntity("Bullets", entity);
 
+	if (fireRateTimer > 0)
+		return;
+
+	if (_bulletSpread == 0.0f) {
+		auto bullet = world::newEntity("Bullet", _bullets);
+		bullet->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
+		bullet->addComponent<Hydra::Component::BulletComponent>(position, -direction, velocity);
+		auto transform = bullet->addComponent<Hydra::Component::TransformComponent>(position, glm::vec3(_bulletSize));
+
+		transform->setRotation(bulletOrientation);
+	} else {
+		for (int i = 0; i < _bulletsPerShot; i++) {
+			auto bullet = world::newEntity("Bullet", _bullets);
+			bullet->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
+
+			std::random_device rd;
+			std::mt19937 gen(rd());
+			std::uniform_real_distribution<>dis(0, 2 * 3.14);
+			float phi = dis(gen);
+			dis = std::uniform_real_distribution<>(0, 1.0);
+			float distance = dis(gen) * _bulletSpread;
+			dis = std::uniform_real_distribution<>(0, 3.14);
+			float theta = dis(gen);
+
+			glm::vec3 bulletDirection = -direction;
+			bulletDirection.x += distance * sin(theta) * cos(phi);
+			bulletDirection.y += distance * sin(theta) * sin(phi);
+			bulletDirection.z += distance * cos(theta);
+			bulletDirection = glm::normalize(bulletDirection);
+
+			bullet->addComponent<Hydra::Component::BulletComponent>(position, bulletDirection, velocity);
+
+			auto transform = bullet->addComponent<Hydra::Component::TransformComponent>(position, glm::vec3(_bulletSize));
 			transform->setRotation(bulletOrientation);
 		}
-		else {
-			for (int i = 0; i < _bulletsPerShot; i++) {
-				auto bullet = getBullets()->createEntity("Bullet");
-				bullet->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
-
-				std::random_device rd;
-				std::mt19937 gen(rd());
-				std::uniform_real_distribution<>dis(0, 2 * 3.14);
-				float phi = dis(gen);
-				dis = std::uniform_real_distribution<>(0, 1.0);
-				float distance = dis(gen) * _bulletSpread;
-				dis = std::uniform_real_distribution<>(0, 3.14);
-				float theta = dis(gen);
-
-				glm::vec3 bulletDirection = -direction;
-				bulletDirection.x += distance * sin(theta) * cos(phi);
-				bulletDirection.y += distance * sin(theta) * sin(phi);
-				bulletDirection.z += distance * cos(theta);
-				bulletDirection = glm::normalize(bulletDirection);
-
-				bullet->addComponent<Hydra::Component::BulletComponent>(position, bulletDirection, velocity);
-
-				auto transform = bullet->addComponent<Hydra::Component::TransformComponent>(position, glm::vec3(_bulletSize));
-				transform->setRotation(bulletOrientation);
-			}
-		}
-		_fireRateTimer = SDL_GetTicks();
 	}
+	fireRateTimer = fireRateRPM / 60000.0;
+
 }
-
-std::shared_ptr<Hydra::World::IEntity> WeaponComponent::getBullets() {
-	std::shared_ptr<Hydra::World::IEntity> bullets;
-	std::vector<std::shared_ptr<Hydra::World::IEntity>> children = entity->getChildren();
-	
-	for (size_t i = 0; i < children.size(); i++) {
-		if (children[i]->getName() == "Bullets") {
-			bullets = children[i];
-		}
-	}
-
-	return bullets;
-	}*/
 
 void WeaponComponent::serialize(nlohmann::json& json) const {
 	json = {

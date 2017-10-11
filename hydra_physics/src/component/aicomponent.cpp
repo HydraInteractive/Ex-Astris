@@ -13,25 +13,19 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-EnemyComponent::EnemyComponent(IEntity* entity) : IComponent(entity), _enemyID(EnemyTypes::Alien), _position(0,0,0), _health(1), _damage(0), _range(1.0f), _scale(1,1,1) {}
-
-EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID, glm::vec3 pos, int hp, int dmg, float range, glm::vec3 scale) : IComponent(entity), _enemyID(enemyID),  _position(pos), _health(hp), _damage(dmg), _range(range), _scale(scale){
-	_velocityX = 0;
-	_velocityY = 0;
-	_velocityZ = 0;
+void EnemyComponent::init(EnemyTypes enemyID, glm::vec3 pos, int hp, int dmg, float range, glm::vec3 scale) {
+	_enemyID = enemyID;
+	_position = pos;
 	_startPosition = pos;
-	_patrolPointReached = false;
-	_falling = false;
-	_stunned = false;
-	_pathState = IDLE;
-	_bossPhase = CHILLING;
-	_spawnAmount = 0;
+	_health = hp;
+	_damage = dmg;
+	_range = range;
 	_originalRange = range;
+	_scale = scale;
+
 	_attackTimer = SDL_GetTicks();
 	_spawnTimer = SDL_GetTicks();
 	_stunTimer = SDL_GetTicks();
-	entity->addComponent<Hydra::Component::TransformComponent>(pos, scale);
-	entity->addComponent<Hydra::Component::WeaponComponent>();
 
 	for (int i = 0; i < WORLD_SIZE; i++)
 	{
@@ -51,11 +45,13 @@ EnemyComponent::~EnemyComponent() {
 	delete _pathFinding;
 }
 
-void EnemyComponent::tick(TickAction action, float delta) {
+//TODO: !!!!!!!!!!!!MOVE!!!!!!!!!!!!
+void EnemyComponent::tick(float delta) {
 	// If you only have one TickAction in 'wantTick' you don't need to check the tickaction here.
+	auto entity = Hydra::World::World::getEntity(entityID);
 
 	auto enemy = entity->getComponent<Component::TransformComponent>();
-	std::shared_ptr<Hydra::World::IEntity> playerEntity = getPlayerComponent();
+	std::shared_ptr<Hydra::World::Entity> playerEntity = getPlayerComponent();
 	auto player = playerEntity->getComponent<Component::PlayerComponent>();
 
 	_velocityX = 0;
@@ -63,7 +59,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 	_velocityZ = 0;
 	_debugState = _pathState;
 
-	if (glm::length(enemy->getPosition() - player->getPosition()) > 50)
+	if (glm::length(enemy->position - player->position) > 50)
 	{
 		_pathState = IDLE;
 	}
@@ -76,7 +72,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			{
 			case IDLE:
 			{
-				if (glm::length(enemy->getPosition() - player->getPosition()) < 50)
+				if (glm::length(enemy->position - player->position) < 50)
 				{
 					_timer = SDL_GetTicks();
 					_pathFinding->intializedStartGoal = false;
@@ -92,13 +88,13 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					_timer = SDL_GetTicks();
 					_pathState = IDLE;
 				}
-				if (glm::length(enemy->getPosition() - player->getPosition()) < _range)
+				if (glm::length(enemy->position - player->position) < _range)
 				{
 					_isAtGoal = true;
 					_pathFinding->foundGoal = true;
 					_pathState = ATTACKING;
 				}
-				_pathFinding->findPath(enemy->getPosition(), player->getPosition(), _map);
+				_pathFinding->findPath(enemy->position, player->position, _map);
 
 				_isAtGoal = false;
 				if (_pathFinding->foundGoal)
@@ -117,7 +113,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				{
 					if (!_pathFinding->_pathToEnd.empty())
 					{
-						glm::vec3 targetDistance = _pathFinding->nextPathPos(enemy->getPosition(), getRadius()) - enemy->getPosition();
+						glm::vec3 targetDistance = _pathFinding->nextPathPos(enemy->position, getRadius()) - enemy->position;
 
 						_angle = atan2(targetDistance.x, targetDistance.z);
 						_rotation = glm::angleAxis(_angle, glm::vec3(0, 1, 0));
@@ -128,14 +124,14 @@ void EnemyComponent::tick(TickAction action, float delta) {
 						_velocityX = (10.0f * direction.x) * delta;
 						_velocityZ = (10.0f * direction.z) * delta;
 
-						if (glm::length(enemy->getPosition() - player->getPosition()) <= _range)
+						if (glm::length(enemy->position - player->position) <= _range)
 						{
 							_isAtGoal = true;
 							_pathFinding->foundGoal = true;
 							_pathState = ATTACKING;
 						}
 
-						if (glm::length(enemy->getPosition() - _targetPos) <= 6.0f)
+						if (glm::length(enemy->position - _targetPos) <= 6.0f)
 						{
 							_pathFinding->intializedStartGoal = false;
 							_pathFinding->foundGoal = false;
@@ -143,7 +139,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 							_pathState = SEARCHING;
 							_timer = SDL_GetTicks();
 						}
-						else if (glm::length(player->getPosition() - _targetPos) > 15.0f)
+						else if (glm::length(player->position - _targetPos) > 15.0f)
 						{
 							_pathFinding->intializedStartGoal = false;
 							_pathFinding->foundGoal = false;
@@ -156,7 +152,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			}break;
 			case ATTACKING:
 			{
-				if (glm::length(enemy->getPosition() - player->getPosition()) >= _range)
+				if (glm::length(enemy->position - player->position) >= _range)
 				{
 					_pathFinding->intializedStartGoal = false;
 					_pathFinding->foundGoal = false;
@@ -170,11 +166,11 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					std::uniform_int_distribution<> randDmg(_damage - 1, _damage + 2);
 					if (SDL_GetTicks() > _attackTimer + 1500)
 					{
-						player->applyDamage(randDmg(rng));
+						player->applyDamage(delta, randDmg(rng));
 						_attackTimer = SDL_GetTicks();
 					}
 
-					glm::vec3 playerDir = player->getPosition() - enemy->getPosition();
+					glm::vec3 playerDir = player->position - enemy->position;
 					playerDir = glm::normalize(playerDir);
 					_angle = atan2(playerDir.x, playerDir.z);
 					_rotation = glm::angleAxis(_angle, glm::vec3(0, 1, 0));
@@ -193,7 +189,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			{
 			case IDLE:
 			{
-				if (glm::length(enemy->getPosition() - player->getPosition()) < 50)
+				if (glm::length(enemy->position - player->position) < 50)
 				{
 					_timer = SDL_GetTicks();
 					_pathFinding->intializedStartGoal = false;
@@ -210,13 +206,13 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					_pathState = IDLE;
 				}
 
-				if (glm::length(enemy->getPosition() - player->getPosition()) < _range)
+				if (glm::length(enemy->position - player->position) < _range)
 				{
 					_isAtGoal = true;
 					_pathState = ATTACKING;
 				}
 
-				_pathFinding->findPath(enemy->getPosition(), player->getPosition(), _map);
+				_pathFinding->findPath(enemy->position, player->position, _map);
 
 				_isAtGoal = false;
 				if (_pathFinding->foundGoal)
@@ -234,7 +230,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				{
 					if (!_pathFinding->_pathToEnd.empty())
 					{
-						glm::vec3 targetDistance = _pathFinding->nextPathPos(enemy->getPosition(), getRadius()) - enemy->getPosition();
+						glm::vec3 targetDistance = _pathFinding->nextPathPos(enemy->position, getRadius()) - enemy->position;
 
 						_angle = atan2(targetDistance.x, targetDistance.z);
 						_rotation = glm::angleAxis(_angle, glm::vec3(0, 1, 0));
@@ -245,14 +241,14 @@ void EnemyComponent::tick(TickAction action, float delta) {
 						_velocityZ = (4.0f * direction.z) * delta;
 
 
-						if (glm::length(enemy->getPosition() - player->getPosition()) < _range)
+						if (glm::length(enemy->position - player->position) < _range)
 						{
 							_isAtGoal = true;
 							_pathFinding->foundGoal = true;
 							_pathState = ATTACKING;
 						}
 
-						if (glm::length(enemy->getPosition() - _targetPos) <= 6.0f)
+						if (glm::length(enemy->position - _targetPos) <= 6.0f)
 						{
 							_pathFinding->intializedStartGoal = false;
 							_pathFinding->foundGoal = false;
@@ -260,7 +256,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 							_pathState = SEARCHING;
 							_timer = SDL_GetTicks();
 						}
-						else if (glm::length(player->getPosition() - _targetPos) > 15.0f)
+						else if (glm::length(player->position - _targetPos) > 15.0f)
 						{
 							_pathFinding->intializedStartGoal = false;
 							_pathFinding->foundGoal = false;
@@ -273,7 +269,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			}break;
 			case ATTACKING:
 			{
-				if (glm::length(enemy->getPosition() - player->getPosition()) > _range)
+				if (glm::length(enemy->position - player->position) > _range)
 				{
 					_pathFinding->intializedStartGoal = false;
 					_pathFinding->foundGoal = false;
@@ -285,7 +281,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				{
 					auto weapon = entity->getComponent<Component::WeaponComponent>();
 
-					glm::vec3 playerDir = player->getPosition() - enemy->getPosition();
+					glm::vec3 playerDir = player->position - enemy->position;
 					playerDir = glm::normalize(playerDir);
 					if (SDL_GetTicks() > _attackTimer + 2000)
 					{
@@ -298,7 +294,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			}break;
 			}
 
-			_playerSeen = _checkLine(_map, enemy->getPosition(), player->getPosition());
+			_playerSeen = _checkLine(_map, enemy->position, player->position);
 
 			if (_playerSeen == false)
 			{
@@ -319,18 +315,16 @@ void EnemyComponent::tick(TickAction action, float delta) {
 		}break;
 		case EnemyTypes::AlienSpawner:
 		{
-			IEntity* world = entity->getParent();
-			while (world->getName() != "World")
-			{
-				world = world->getParent();
-			}
 			if (_spawnGroup.size() <= 5)
 			{
 				if (SDL_GetTicks() > _spawnTimer + 10000)
 				{
-					auto alienSpawn = world->createEntity("Enemy Alien");
-					alienSpawn->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, enemy->getPosition(), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
-					alienSpawn->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+					auto alienSpawn = Hydra::World::World::newEntity("Enemy Alien", Hydra::World::World::root);
+					alienSpawn->addComponent<Hydra::Component::EnemyComponent>()->init(Hydra::Component::EnemyTypes::Alien, enemy->position, 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+					auto transform = alienSpawn->addComponent<Hydra::Component::TransformComponent>();
+					transform->position = enemy->position;
+					alienSpawn->addComponent<Hydra::Component::WeaponComponent>();
+					alienSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/alphaGunModel.ATTIC");
 					_spawnGroup.push_back(alienSpawn);
 					_spawnTimer = SDL_GetTicks();
 				}
@@ -338,18 +332,16 @@ void EnemyComponent::tick(TickAction action, float delta) {
 		}break;
 		case EnemyTypes::RobotSpawner:
 		{
-			IEntity* world = entity->getParent();
-			while (world->getName() != "World")
-			{
-				world = world->getParent();
-			}
 			if (_spawnGroup.size() <= 5)
 			{
 				if (SDL_GetTicks() > _spawnTimer + 10000)
 				{
-					auto robotSpawn = world->createEntity("Enemy Robot");
-					robotSpawn->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, enemy->getPosition(), 70, 11, 20.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-					robotSpawn->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+					auto robotSpawn = Hydra::World::World::newEntity("Enemy Robot", Hydra::World::World::root);
+					robotSpawn->addComponent<Hydra::Component::EnemyComponent>()->init(Hydra::Component::EnemyTypes::Robot, enemy->position, 70, 11, 20.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+					auto transform = robotSpawn->addComponent<Hydra::Component::TransformComponent>();
+					transform->position = enemy->position;
+					robotSpawn->addComponent<Hydra::Component::WeaponComponent>();
+					robotSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/alphaGunModel.ATTIC");
 					_spawnGroup.push_back(robotSpawn);
 					_spawnTimer = SDL_GetTicks();
 				}
@@ -361,7 +353,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			{
 			case IDLE:
 			{
-				if (glm::length(enemy->getPosition() - player->getPosition()) < 50)
+				if (glm::length(enemy->position - player->position) < 50)
 				{
 					_timer = SDL_GetTicks();
 					_pathState = SEARCHING;
@@ -375,13 +367,13 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					_pathState = IDLE;
 				}
 
-				if (glm::length(enemy->getPosition() - player->getPosition()) < _range)
+				if (glm::length(enemy->position - player->position) < _range)
 				{
 					_isAtGoal = true;
 					_pathState = ATTACKING;
 				}
 
-				_pathFinding->findPath(enemy->getPosition(), player->getPosition(), _map);
+				_pathFinding->findPath(enemy->position, player->position, _map);
 				_isAtGoal = false;
 
 				if (_pathFinding->foundGoal)
@@ -400,7 +392,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					if (!_pathFinding->_pathToEnd.empty())
 					{
 
-						glm::vec3 targetDistance = _pathFinding->nextPathPos(enemy->getPosition(), getRadius()) - enemy->getPosition();
+						glm::vec3 targetDistance = _pathFinding->nextPathPos(enemy->position, getRadius()) - enemy->position;
 
 						_angle = atan2(targetDistance.x, targetDistance.z);
 						_rotation = glm::angleAxis(_angle, glm::vec3(0, 1, 0));
@@ -410,14 +402,14 @@ void EnemyComponent::tick(TickAction action, float delta) {
 						_velocityX = (7.0f * direction.x) * delta;
 						_velocityZ = (7.0f * direction.z) * delta;
 
-						if (glm::length(enemy->getPosition() - player->getPosition()) < _range)
+						if (glm::length(enemy->position - player->position) < _range)
 						{
 							_isAtGoal = true;
 							_pathFinding->foundGoal = true;
 							_pathState = ATTACKING;
 						}
 
-						if (glm::length(enemy->getPosition() - _targetPos) <= 6.0f)
+						if (glm::length(enemy->position - _targetPos) <= 6.0f)
 						{
 							_pathFinding->intializedStartGoal = false;
 							_pathFinding->foundGoal = false;
@@ -425,7 +417,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 							_pathState = SEARCHING;
 							_timer = SDL_GetTicks();
 						}
-						else if (glm::length(player->getPosition() - _targetPos) > 15.0f)
+						else if (glm::length(player->position - _targetPos) > 15.0f)
 						{
 							_pathFinding->intializedStartGoal = false;
 							_pathFinding->foundGoal = false;
@@ -438,7 +430,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			}break;
 			case ATTACKING:
 			{
-				if (glm::length(enemy->getPosition() - player->getPosition()) > _range && _stunned == false)
+				if (glm::length(enemy->position - player->position) > _range && _stunned == false)
 				{
 					_pathFinding->intializedStartGoal = false;
 					_pathFinding->foundGoal = false;
@@ -449,7 +441,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				else
 				{
 					auto weapon = entity->getComponent<Component::WeaponComponent>();
-					glm::vec3 playerDir = player->getPosition() - enemy->getPosition();
+					glm::vec3 playerDir = player->position - enemy->position;
 					playerDir = glm::normalize(playerDir);
 					switch (_bossPhase)
 					{
@@ -475,15 +467,13 @@ void EnemyComponent::tick(TickAction action, float delta) {
 							
 							/*if (_spawnAmount <= 3)
 							{
-								IEntity* world = entity->getParent();
-								while (world->getName() != "World")
-								{
-									world = world->getParent();
-								}
 								if (SDL_GetTicks() > _spawnTimer + 2000)
 								{
-									auto alienSpawn = world->createEntity("Enemy Alien");
-									alienSpawn->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, enemy->getPosition(), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+									auto robotSpawn = Hydra::World::World::newEntity("Enemy Alien", Hydra::World::World::root);
+									robotSpawn->addComponent<Hydra::Component::EnemyComponent>()->init(Hydra::Component::EnemyTypes::Alien, enemy->position, 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+									auto transform = robotSpawn->addComponent<Hydra::Component::TransformComponent>();
+									transform->position = enemy->position;
+									robotSpawn->addComponent<Hydra::Component::WeaponComponent>();
 									alienSpawn->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 									_spawnAmount++;
 									_spawnTimer = SDL_GetTicks();
@@ -526,8 +516,8 @@ void EnemyComponent::tick(TickAction action, float delta) {
 	}
 
 	 //debug for pathfinding
-		//int tempX = enemy->getPosition().x;
-		//int tempZ = enemy->getPosition().z;
+		//int tempX = enemy->position.x;
+		//int tempZ = enemy->position.z;
 		//_map[tempX][tempZ] = 2;
 		//for (int i = 0; i < _pathFinding->_visitedList.size(); i++)
 		//{
@@ -543,34 +533,15 @@ void EnemyComponent::tick(TickAction action, float delta) {
 		//}
 }
 
-glm::vec3 EnemyComponent::getPosition()
-{
-	auto enemy = entity->getComponent<Component::TransformComponent>();
-
-	return enemy->getPosition();
-}
 
 float EnemyComponent::getRadius()
 {
 	return _scale.x;
 }
 
-std::shared_ptr<Hydra::World::IEntity> EnemyComponent::getPlayerComponent()
+std::shared_ptr<Hydra::World::Entity> EnemyComponent::getPlayerComponent()
 {
-	std::shared_ptr<Hydra::World::IEntity> player;
-	IEntity* world = entity->getParent();
-	while (world->getName() != "World")
-	{
-		world = world->getParent();
-	}
-	auto worldChildren = world->getChildren();
-	///auto world = entity->getParent()->getParent()->getChildren();
-	for (size_t i = 0; i < worldChildren.size(); i++) {
-		if (worldChildren[i]->getName() == "Player") {
-			player = worldChildren[i];
-		}
-	}
-	return player;
+	return Hydra::World::World::getEntity(PlayerComponent::getActiveComponents()[0]->entityID);
 }
 
 void EnemyComponent::serialize(nlohmann::json& json) const {

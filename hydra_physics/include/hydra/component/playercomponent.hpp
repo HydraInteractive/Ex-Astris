@@ -22,33 +22,33 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 	struct HYDRA_API PlayerComponent final : public IComponent<PlayerComponent, ComponentBits::Player> {
-		glm::vec3 _position = glm::vec3(0, 2, 20);
-		glm::vec3 _weaponOffset = glm::vec3{2, -1.5, -3};
-		glm::vec3 _velocity = glm::vec3{0, 0, 0};
-		glm::vec3 _acceleration = glm::vec3{0, 0, 0};
-		float _movementSpeed = 20.0f;
-		bool _onGround = false;
-		bool _firstPerson = true;
-		float _timer = 0.5;
-		int _maxHealth = 100;
-		int _health = 100;
-		bool _dead = false;
+		glm::vec3 position = glm::vec3(0, 2, 20);
+		glm::vec3 weaponOffset = glm::vec3{2, -1.5, -3};
+		glm::vec3 velocity = glm::vec3{0, 0, 0};
+		glm::vec3 acceleration = glm::vec3{0, 0, 0};
+		float movementSpeed = 20.0f;
+		bool onGround = false;
+		bool firstPerson = true;
+		float timer = 0.5;
+		int maxHealth = 100;
+		int health = 100;
+		bool dead = false;
 
-		AbilityHandler _activeAbillies;
-		BuffHandler _activeBuffs;
+		// TODO: Move?
+		AbilityHandler activeAbillies;
+		BuffHandler activeBuffs;
 
 		~PlayerComponent() final;
 
-		std::shared_ptr<Hydra::World::IEntity> getWeapon();
+		std::shared_ptr<Hydra::World::Entity> getWeapon();
 
 		inline const std::string type() const final { return "PlayerComponent"; }
 		void upgradeHealth(){
-			if (_activeBuffs.addBuff(BUFF_HEALTHUPGRADE)) {
-				_activeBuffs.onActivation(_maxHealth, _health);
-			}
-			if (_activeBuffs.addBuff(BUFF_DAMAGEUPGRADE)) {
-				_activeBuffs.onActivation(_maxHealth, _health);
-			}
+			if (activeBuffs.addBuff(BUFF_HEALTHUPGRADE))
+				activeBuffs.onActivation(maxHealth, health);
+
+			if (activeBuffs.addBuff(BUFF_DAMAGEUPGRADE))
+				activeBuffs.onActivation(maxHealth, health);
 		}
 		void applyDamage(float delta, int damage);
 

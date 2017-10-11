@@ -12,11 +12,11 @@ class AbilityHandler
 public:
 	AbilityHandler();
 	~AbilityHandler() {};
-	void useAbility(Hydra::World::IEntity* abilitiesEntity, glm::vec3 position, glm::vec3 direction);
-	void grenadeAbility(Hydra::World::IEntity* abilitiesEntity, glm::vec3 position, glm::vec3 direction);
-	void mineAbility(Hydra::World::IEntity* abilitiesEntity, glm::vec3 position, glm::vec3 direction);
+	void useAbility(Hydra::World::Entity* abilitiesEntity, glm::vec3 position, glm::vec3 direction);
+	void grenadeAbility(Hydra::World::Entity* abilitiesEntity, glm::vec3 position, glm::vec3 direction);
+	void mineAbility(Hydra::World::Entity* abilitiesEntity, glm::vec3 position, glm::vec3 direction);
 private:
 	size_t _activeAbility;
-	std::vector<void(AbilityHandler::*)(Hydra::World::IEntity*, glm::vec3, glm::vec3)> _abilityList;
+	std::vector<void(AbilityHandler::*)(Hydra::World::Entity*, glm::vec3, glm::vec3)> _abilityList;
 	std::vector<int> _cooldownList;
 };

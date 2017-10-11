@@ -129,6 +129,7 @@ std::shared_ptr<Hydra::World::IEntity> PlayerComponent::getWeapon() {
 	return weapon;
 }
 
+//TODO: Remove DELTA from here!!!!
 void Hydra::Component::PlayerComponent::applyDamage(float delta, int damage)
 {
 	_timer -= delta;

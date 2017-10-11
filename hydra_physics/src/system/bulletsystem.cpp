@@ -1,5 +1,6 @@
 #include <hydra/system/bulletsystem.hpp>
 
+#include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
 
 BulletSystem::~BulletSystem() {}
@@ -7,6 +8,16 @@ BulletSystem::~BulletSystem() {}
 void BulletSystem::tick(float delta) {
 	using world = Hydra::World::World;
 	static std::vector<std::shared_ptr<Entity>> entities;
+
+	//Process WeaponComponent
+	world::getEntitiesWithComponents<Hydra::Component::WeaponComponent>(entities);
+	#pragma omp parallel for
+	for (size_t i = 0; i < entities.size(); i++) {
+		auto w = entities[i]->getComponent<Hydra::Component::WeaponComponent>();
+
+		if (w->fireRateTimer > 0)
+			w->fireRateTimer -= delta;
+	}
 
 	//Process BulletComponent
 	world::getEntitiesWithComponents<Hydra::Component::BulletComponent, Hydra::Component::TransformComponent>(entities);

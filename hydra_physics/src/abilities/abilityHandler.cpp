@@ -20,9 +20,13 @@ void AbilityHandler::useAbility(Hydra::World::IEntity* abilitiesEntity, glm::vec
 }
 void AbilityHandler::grenadeAbility(Hydra::World::IEntity* abilitiesEntity, glm::vec3 position, glm::vec3 direction) {
 	auto grenade = abilitiesEntity->createEntity("Grenade");
-	grenade->addComponent<Hydra::Component::GrenadeComponent>(position, direction);
+	grenade->addComponent<Hydra::Component::GrenadeComponent>(direction);
+	grenade->addComponent<Component::MeshComponent>("assets/objects/Fridge.ATTIC");
+	grenade->addComponent<Component::TransformComponent>(position);
 }
 void AbilityHandler::mineAbility(Hydra::World::IEntity* abilitiesEntity, glm::vec3 position, glm::vec3 direction) {
 	auto mine = abilitiesEntity->createEntity("Mine");
-	mine->addComponent<Hydra::Component::MineComponent>(position, direction);
+	mine->addComponent<Hydra::Component::MineComponent>(direction);
+	mine->addComponent<Component::MeshComponent>("assets/objects/Fridge.ATTIC");
+	mine->addComponent<Component::TransformComponent>(position);
 }
