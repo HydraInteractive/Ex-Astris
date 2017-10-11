@@ -41,19 +41,14 @@ void PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos, int map[WO
 			//delete _pathToEnd[i];
 		}
 		_pathToEnd.clear();
+		
+		_startCell = std::make_shared<Node>(currentPos.x / CELL_SIZE, currentPos.z / CELL_SIZE, nullptr);
+		_endCell = std::make_shared<Node>(targetPos.x / CELL_SIZE, targetPos.z / CELL_SIZE, nullptr);
 
-		// Initialize start
-		Node start;
-		start.pos.x = currentPos.x / CELL_SIZE;
-		start.pos.y = currentPos.z / CELL_SIZE;
-
-		// Initialize end
-		Node end;
-		end.pos.x = targetPos.x / CELL_SIZE;
-		end.pos.y = targetPos.z / CELL_SIZE;
+		_startCell->H = _startCell->manHattanDistance(_endCell);
+		_openList.push_back(_startCell);
 
 		foundGoal = false;
-		_setStartAndGoal(start, end);
 		intializedStartGoal = true;
 	}
 
@@ -81,17 +76,6 @@ glm::vec3 PathFinding::nextPathPos(glm::vec3 pos, float radius)
 		}
 	}
 	return nextPos;
-}
-
-void PathFinding::_setStartAndGoal(Node start, Node end)
-{
-	_startCell = std::make_shared<Node>(start.pos.x, start.pos.y, nullptr);
-	_endCell = std::make_shared<Node>(end.pos.x, end.pos.y, std::make_shared<Node>(end));
-
-	_startCell->G = 0;
-	_startCell->H = _startCell->manHattanDistance(_endCell);
-	_startCell->parent = 0;
-	_openList.push_back(_startCell);
 }
 
 void PathFinding::_pathOpened(int x, int z, float newCost, std::shared_ptr<Node> parent, int map[WORLD_SIZE][WORLD_SIZE])
