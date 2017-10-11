@@ -78,6 +78,7 @@ namespace Hydra::Component {
 		int _damage;
 		float _range;
 		float _originalRange;
+		glm::vec3 _mapOffset;
 		glm::vec3 _targetPos;
 		glm::vec3 _position;
 		glm::vec3 _startPosition;
@@ -94,6 +95,7 @@ namespace Hydra::Component {
 		Uint32 _spawnTimer;
 		Uint32 _stunTimer;
 		Uint32 _attackTimer;
+		Uint32 _newPathTimer;
 		int _map[WORLD_SIZE][WORLD_SIZE];
 		int _oldMapPosX;
 		int _oldMapPosZ;

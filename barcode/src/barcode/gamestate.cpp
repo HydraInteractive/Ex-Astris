@@ -773,14 +773,15 @@ namespace Barcode {
 		auto p2LC = pointLight2->addComponent<Hydra::Component::LightComponent>();
 		p2LC->setColor(glm::vec3(0, 0, 1));
 		
-		//auto robotEntity = _world->createEntity("Enemy Robot");
-		//robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, glm::vec3(15, 0, 15), 70, 11, 20.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-		//robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+		auto robotEntity = _world->createEntity("Enemy Robot");
+		robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, glm::vec3(15, 0, 15), 70, 11, 25.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+		robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 
 		//auto alienBoss = _world->createEntity("Enemy Boss");
 		//alienBoss->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss, glm::vec3(15, 0, 16), 1200, 25, 25.0f, glm::vec3(3.0f, 3.0f, 3.0f));
 		//alienBoss->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
 
+		// Not at thing yet, do not use!!!
 		//auto robotBoss = _world->createEntity("Enemy Boss");
 		//robotBoss->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::RobotBoss, glm::vec3(15, 0, 16), 1200, 25, 25.0f, glm::vec3(3.0f, 3.0f, 3.0f));
 		//robotBoss->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
