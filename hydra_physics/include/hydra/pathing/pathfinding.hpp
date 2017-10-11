@@ -21,21 +21,28 @@ public:
 	class Node
 	{
 	public:
-		int m_xcoord, m_zcoord;
+		glm::ivec2 pos;
 		int m_id;
 		std::shared_ptr<Node> parent;
 		float G;
 		float H;
 
 		Node() : parent() {}
-		Node(int x, int z, std::shared_ptr<Node> _parent) : m_xcoord(x), m_zcoord(z),
-			m_id(z * WORLD_SIZE + x), parent(_parent), G(0), H(0) {}
+		Node(int x, int z, std::shared_ptr<Node> _parent = nullptr)
+		{
+			pos.x = x; 
+			pos.y = z;
+			m_id = z * WORLD_SIZE + x;
+			parent = _parent;
+			G = 0.0f;
+			H = 0.0f;
+		}
 
 		float getF() { return G + H; }
 		float manHattanDistance(std::shared_ptr<Node> nodeEnd)
 		{
-			float x = (float)(fabs((float)(this->m_xcoord - nodeEnd->m_xcoord)));
-			float z = (float)(fabs((float)(this->m_zcoord - nodeEnd->m_zcoord)));
+			float x = (float)(fabs((float)(this->pos.x - nodeEnd->pos.x)));
+			float z = (float)(fabs((float)(this->pos.y - nodeEnd->pos.y)));
 
 			return x + z;
 		}
@@ -49,6 +56,7 @@ public:
 	void clearOpenList() { _openList.clear(); }
 	void clearVisitedList() { _visitedList.clear(); }
 	void clearPathToGoal() { _pathToEnd.clear(); }
+
 	bool intializedStartGoal;
 	bool foundGoal;
 	std::vector<std::shared_ptr<Node>> _openList;
