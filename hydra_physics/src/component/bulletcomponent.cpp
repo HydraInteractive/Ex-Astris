@@ -125,8 +125,6 @@ void BulletComponent::tick(TickAction action, float delta) {
 			glm::vec3 dirToEnemy = glm::normalize(enemyPos - _position);
 
 			_interpolation += 3.0f * delta;
-			if (_interpolation > 1.0f)
-				_interpolation = 1.0f;
 
 			_direction = glm::normalize(_interpolation*dirToEnemy + (1.0f - _interpolation*delta)*_direction);
 		}
