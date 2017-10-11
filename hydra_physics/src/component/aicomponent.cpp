@@ -345,7 +345,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 
 			if (_playerSeen == false)
 			{
-				if (_range > 4.0f)
+				if (_range > 6.0f)
 				{
 					_range -= 1.0f;
 				}
@@ -537,12 +537,12 @@ void EnemyComponent::tick(TickAction action, float delta) {
 						}break;
 						case SPITTING:
 						{
-							_range = 25.0f;
+							_range = 30.0f;
 							weapon->shoot(_position, -playerDir, glm::quat(), 15.0f);
 						}break;
 						case SPAWNING:
 						{
-							_range = 25.0f;
+							_range = 30.0f;
 							
 							/*if (_spawnAmount <= 3)
 							{
@@ -563,7 +563,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 						}break;
 						case CHILLING:
 						{
-							_range = 25.0f;
+							_range = 30.0f;
 							if (SDL_GetTicks() > _stunTimer + 10000)
 							{
 								if(!_stunned) { _stunned = true; }

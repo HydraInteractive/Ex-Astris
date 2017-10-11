@@ -13,6 +13,15 @@
 #include <hydra/renderer/uirenderer.hpp>
 #include <hydra/io/meshloader.hpp>
 #include <hydra/io/textureloader.hpp>
+#include <hydra/renderer/glrenderer.hpp>
+#include <hydra/renderer/glshader.hpp>
+#include <hydra/io/gltextureloader.hpp>
+#include <hydra/io/glmeshloader.hpp>
+#include <hydra/physics/bulletmanager.hpp>
+
+#include <barcode/editorstate.hpp>
+#include <barcode/gamestate.hpp>
+#include <imgui/imgui.h>
 
 namespace Barcode {
 	class MenuState final : public Hydra::IState {
