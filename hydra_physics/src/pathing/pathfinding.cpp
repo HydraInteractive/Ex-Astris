@@ -43,12 +43,12 @@ void PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos, int map[WO
 		_pathToEnd.clear();
 
 		// Initialize start
-		SearchCell start;
+		Node start;
 		start.m_xcoord = currentPos.x / CELL_SIZE;
 		start.m_zcoord = currentPos.z / CELL_SIZE;
 
 		// Initialize end
-		SearchCell end;
+		Node end;
 		end.m_xcoord = targetPos.x / CELL_SIZE;
 		end.m_zcoord = targetPos.z / CELL_SIZE;
 
@@ -83,10 +83,10 @@ glm::vec3 PathFinding::nextPathPos(glm::vec3 pos, float radius)
 	return nextPos;
 }
 
-void PathFinding::_setStartAndGoal(SearchCell start, SearchCell end)
+void PathFinding::_setStartAndGoal(Node start, Node end)
 {
-	_startCell = std::make_shared<SearchCell>(start.m_xcoord, start.m_zcoord, nullptr);
-	_endCell = std::make_shared<SearchCell>(end.m_xcoord, end.m_zcoord, std::make_shared<SearchCell>(end));
+	_startCell = std::make_shared<Node>(start.m_xcoord, start.m_zcoord, nullptr);
+	_endCell = std::make_shared<Node>(end.m_xcoord, end.m_zcoord, std::make_shared<Node>(end));
 
 	_startCell->G = 0;
 	_startCell->H = _startCell->manHattanDistance(_endCell);
@@ -94,7 +94,7 @@ void PathFinding::_setStartAndGoal(SearchCell start, SearchCell end)
 	_openList.push_back(_startCell);
 }
 
-void PathFinding::_pathOpened(int x, int z, float newCost, std::shared_ptr<SearchCell> parent, int map[WORLD_SIZE][WORLD_SIZE])
+void PathFinding::_pathOpened(int x, int z, float newCost, std::shared_ptr<Node> parent, int map[WORLD_SIZE][WORLD_SIZE])
 {
 	if (map[x][z] == 1 || map[x][z] == 2)
 	{
@@ -110,7 +110,7 @@ void PathFinding::_pathOpened(int x, int z, float newCost, std::shared_ptr<Searc
 		}
 	}
 
-	std::shared_ptr<SearchCell> newCell = std::make_shared<SearchCell>(x, z, parent);
+	std::shared_ptr<Node> newCell = std::make_shared<Node>(x, z, parent);
 
 	newCell->G = newCost;
 	newCell->H = parent->manHattanDistance(_endCell);
@@ -137,11 +137,11 @@ void PathFinding::_pathOpened(int x, int z, float newCost, std::shared_ptr<Searc
 	_openList.push_back(newCell);
 }
 
-std::shared_ptr<SearchCell> PathFinding::_getNextCell()
+std::shared_ptr<PathFinding::Node> PathFinding::_getNextCell()
 {
 	float bestF = 999999.0f;
 	int cellID = -1;
-	std::shared_ptr<SearchCell> nextCell;
+	std::shared_ptr<Node> nextCell;
 
 	for (size_t i = 0; i < _openList.size(); i++)
 	{
@@ -171,13 +171,13 @@ void PathFinding::_continuePath(int map[WORLD_SIZE][WORLD_SIZE])
 			return;
 		}
 
-		std::shared_ptr<SearchCell> currentCell = _getNextCell();
+		std::shared_ptr<Node> currentCell = _getNextCell();
 
 		if (currentCell->m_id == _endCell->m_id)
 		{
 			_endCell->parent = currentCell->parent;
 
-			std::shared_ptr<SearchCell> getPath;
+			std::shared_ptr<Node> getPath;
 
 			for (getPath = _endCell; getPath != NULL; getPath = getPath->parent)
 			{
