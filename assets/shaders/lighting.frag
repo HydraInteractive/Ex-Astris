@@ -38,7 +38,7 @@ vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec3 objectColor){
 
 	// Diffuse
 	vec3 lightDir = normalize(light.pos - pos);
-	float diff = max(dot(-normal, lightDir), 0.0);
+	float diff = max(dot(normal, -lightDir), 0.0);
 	vec3 diffuse = light.color * diff * objectColor;
 
 	// Specular
@@ -48,8 +48,7 @@ vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec3 objectColor){
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128);
 	vec3 specular = spec * specularStrength * light.color;
 
-	vec3 ambient = light.color * 1 / nrOfPointLights;
-	return (diffuse + specular) * attenuation;
+	return (diffuse);
 }
 
 vec3 calcDirLight(DirLight light, vec3 pos, vec3 normal, vec3 objectColor){
@@ -68,7 +67,6 @@ vec3 calcDirLight(DirLight light, vec3 pos, vec3 normal, vec3 objectColor){
 
 void main() {
 	ivec2 iTexCoords = ivec2(texCoords * textureSize(positions));
-
 	vec3 pos = vec3(0);
 	vec3 objectColor = vec3(0);
 	vec3 normal = vec3(0);
@@ -79,7 +77,8 @@ void main() {
 		normal += texelFetch(normals, iTexCoords, i).xyz;
 		lightPos += texelFetch(lightPositions, iTexCoords, i);
 	}
-	
+	//pos = texelFetch(positions, iTexCoords, 0).xyz;
+	//normal = texelFetch(normals, iTexCoords, 0).xyz;
 	pos /= 4;
 	objectColor /= 4;
 	normal /= 4;
@@ -90,7 +89,7 @@ void main() {
 	vec3 result = vec3(0);
 
 	// Directional light
-	result = calcDirLight(dirLight, pos, normal, objectColor);
+	//result = calcDirLight(dirLight, pos, normal, objectColor);
 
 	// Point Lights.s
 	for(int i = 0 ; i < nrOfPointLights; i++){
@@ -120,15 +119,15 @@ void main() {
 
 	shadow /= 9.0;
 	shadow = 1 - shadow;
-	result *= shadow;
-	result += globalAmbient;
+	//result *= shadow;
+	//result += globalAmbient;
 	fragOutput = result;
 
 	// Picking out bright regions for glow.
 	float brightness = dot(vec3(fragOutput), vec3(0.2126, 0.7152, 0.0722));
 
 	if(brightness > 1.0f)
-		brightOutput = vec3(fragOutput.x, 0,0);
+		brightOutput = fragOutput;
 	else
 		brightOutput = vec3(0);
 }

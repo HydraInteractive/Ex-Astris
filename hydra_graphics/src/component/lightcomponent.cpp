@@ -8,8 +8,8 @@ LightComponent::LightComponent(IEntity* entity) : IComponent(entity) {
 	_position = glm::vec3(0, 0, 0);
 	_color = glm::vec3(1, 0, 0);
 	_constant = 1;
-	_linear = 0.045;
-	_quadratic = 0.0075;
+	_linear = 0.14;
+	_quadratic = 0.07;
 }
 
 LightComponent::LightComponent(IEntity* entity, Hydra::Renderer::IRenderTarget* renderTarget, const glm::vec3& position) : IComponent(entity), _position(position),

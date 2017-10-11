@@ -38,13 +38,12 @@ namespace Barcode {
 
 			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize, 4);
 			batch.output
-				->addTexture(0, Hydra::Renderer::TextureType::f32RGB) // Position
+				->addTexture(0, Hydra::Renderer::TextureType::f16RGB) // Position
 				.addTexture(1, Hydra::Renderer::TextureType::u8RGB) // Diffuse
-				.addTexture(2, Hydra::Renderer::TextureType::u8RGB) // Normal
+				.addTexture(2, Hydra::Renderer::TextureType::f16RGB) // Normal
 				.addTexture(3, Hydra::Renderer::TextureType::f16RGBA) // Light pos
-				.addTexture(4, Hydra::Renderer::TextureType::f16RGB) // Depth
-				.addTexture(5, Hydra::Renderer::TextureType::f16Depth) // real depth
-				.addTexture(6, Hydra::Renderer::TextureType::u8RGB) // Position in view-space
+				.addTexture(4, Hydra::Renderer::TextureType::f16Depth) // real depth
+				.addTexture(5, Hydra::Renderer::TextureType::u8RGB) // Position in view-space
 				.finalize();
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
@@ -306,7 +305,7 @@ namespace Barcode {
 
 			for (auto& drawObj : _engine->getRenderer()->activeDrawObjects()) {
 
-				if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false && drawObj->mesh->getIndicesCount() != 6)
+				if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false)
 					_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 				else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
 					_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
@@ -377,7 +376,7 @@ namespace Barcode {
 
 			_ssaoBatch.pipeline->setValue(3, _cc->getProjectionMatrix());
 
-			(*_geometryBatch.output)[6]->bind(0);
+			(*_geometryBatch.output)[5]->bind(0);
 			(*_geometryBatch.output)[2]->bind(1);
 			_ssaoNoise->bind(2);
 
@@ -415,7 +414,6 @@ namespace Barcode {
 				_lightingBatch.pipeline->setValue(i++, lc->getConstant());
 				_lightingBatch.pipeline->setValue(i++, lc->getLinear());
 				_lightingBatch.pipeline->setValue(i++, lc->getQuadratic());
-				printf("%i\n", i);
 			}
 
 			(*_geometryBatch.output)[0]->bind(0);
@@ -770,11 +768,11 @@ namespace Barcode {
 		auto p1LC = pointLight1->addComponent<Hydra::Component::LightComponent>();
 		p1LC->setColor(glm::vec3(0,1,0));
 
-		auto pointLight2 = _world->createEntity("Pointlight2");
-		pointLight2->addComponent<Hydra::Component::TransformComponent>();
-		pointLight2->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");
-		auto p2LC = pointLight2->addComponent<Hydra::Component::LightComponent>();
-		p2LC->setColor(glm::vec3(0, 0, 1));
+		//auto pointLight2 = _world->createEntity("Pointlight2");
+		//pointLight2->addComponent<Hydra::Component::TransformComponent>();
+		//pointLight2->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");
+		//auto p2LC = pointLight2->addComponent<Hydra::Component::LightComponent>();
+		//p2LC->setColor(glm::vec3(0, 0, 1));
 		
 		//auto robotEntity = _world->createEntity("Enemy Robot");
 		//robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, glm::vec3(5, 0, 5), 70, 11, 20.0f, glm::vec3(1.0f, 1.0f, 1.0f));
@@ -822,7 +820,7 @@ namespace Barcode {
 		_light->setPosition(glm::vec3(-5.0, 0.75, 4.3));
 		_light->translate(glm::vec3(10, 0, 0));
 		_light->setDirection(glm::vec3(-1, 0, 0));
-		_light->setColor(glm::vec3(1));
+		_light->setColor(glm::vec3(0));
 		lightEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(8.0, 0, 3.5));
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
