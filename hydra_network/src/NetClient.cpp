@@ -41,6 +41,7 @@ void NetClient::_resolvePackets(Hydra::World::IWorld* world) {
 	Hydra::Component::TransformComponent* tc;
 	std::vector<std::shared_ptr<Hydra::World::IEntity>> children;
 	std::shared_ptr<Hydra::World::IEntity> ent;
+	Packet* serverUpdate = nullptr;
 	for (size_t i = 0; i < packets.size(); i++) {
 		switch (packets[i]->h.type) {
 		case PacketType::ServerInitialize:
@@ -63,7 +64,7 @@ void NetClient::_resolvePackets(Hydra::World::IWorld* world) {
 			break;
 
 		case PacketType::ServerUpdate: 
-			this->_updateWorld(world, packets[i]);
+			serverUpdate = packets[i];
 			break;
 		case PacketType::ServerPlayer:
 			this->_addPlayer(world, packets[i]);
@@ -76,6 +77,9 @@ void NetClient::_resolvePackets(Hydra::World::IWorld* world) {
 			break;
 		}
 	}
+
+	if (serverUpdate)
+		this->_updateWorld(world, serverUpdate);
 
 	for (size_t i = 0; i < packets.size(); i++) {
 		delete packets[i];

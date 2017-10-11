@@ -1,7 +1,7 @@
 #include <TCPClient.h>
 #include <vector>
 #include <SDL2/SDL_net.h>
-#define MAX_NETWORK_LENGTH 10000
+#define MAX_NETWORK_LENGTH 100000
 
 TCPClient::TCPClient() {
     this->_connected = false;
