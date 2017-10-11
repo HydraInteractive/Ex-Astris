@@ -62,7 +62,6 @@ void NetClient::_resolvePackets(Hydra::World::IWorld* world) {
 			//ent->addComponent<Hydra::Component::TransformComponent>();
 			//this->_sendEntity(ent.get()); // KOLLAR SPAWN ENTITYPACKET OM DET FUNGERAR GUCCI
 			break;
-
 		case PacketType::ServerUpdate: 
 			serverUpdate = packets[i];
 			break;
