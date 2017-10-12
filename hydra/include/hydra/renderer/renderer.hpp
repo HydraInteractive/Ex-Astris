@@ -124,7 +124,13 @@ namespace Hydra::Renderer {
 
 		virtual Material& getMaterial() = 0;
 		virtual bool hasAnimation() = 0;
-		virtual glm::mat4 getTransformationMatrices(int animationIndex, int joint, int currentFrame) = 0;
+		virtual glm::mat4 getTransformationMatrices(int joint) = 0;
+		virtual int getNrOfJoints() = 0;
+		virtual int getCurrentKeyframe() = 0;
+		virtual int getMaxFramesForAnimation() = 0;
+		virtual int getCurrentAnimationIndex() = 0;
+		virtual void setCurrentKeyframe(int frame) = 0;
+		virtual void setAnimationIndex(int index) = 0;
 		virtual uint32_t getID() const = 0;
 		virtual size_t getIndicesCount() const = 0;
 	};
@@ -176,8 +182,8 @@ namespace Hydra::Renderer {
 		virtual ~IRenderer() = 0;
 
 		virtual void render(Batch& batch) = 0;
-		virtual void render(ParticleBatch& batch) = 0;
 		virtual void renderAnimation(Batch& batch) = 0;
+		virtual void render(ParticleBatch& batch) = 0;
 		// Note: this will ignore batch.objects
 		virtual void postProcessing(Batch& batch) = 0;
 

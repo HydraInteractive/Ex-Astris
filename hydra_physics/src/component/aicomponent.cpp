@@ -62,6 +62,8 @@ void EnemyComponent::tick(TickAction action, float delta) {
 	if (glm::length(enemy->getPosition() - player->getPosition()) > 50)
 	{
 		_pathState = IDLE;
+		//If the enemy is out of range, play the idle animation
+		entity->getDrawObject()[0].mesh->setAnimationIndex(0);
 	}
 
 	switch (_enemyID)
@@ -88,6 +90,8 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			}break;
 			case SEARCHING:
 			{
+				//While the enemy is searching, play the walking animation
+				entity->getDrawObject()[0].mesh->setAnimationIndex(1);
 				if (SDL_GetTicks() > _timer + 5000)
 				{
 					_pathState = IDLE;
@@ -177,6 +181,8 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			}break;
 			case ATTACKING:
 			{
+				//When the enemy attack, start the attack animation
+				entity->getDrawObject()[0].mesh->setAnimationIndex(2);
 				if (glm::length(enemy->getPosition() - player->getPosition()) >= _range)
 				{
 					_pathFinding->intializedStartGoal = false;
