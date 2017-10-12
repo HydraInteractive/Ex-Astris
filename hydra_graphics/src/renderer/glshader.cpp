@@ -133,7 +133,6 @@ public:
 	void setValue(int32_t id, const glm::mat3& value) final { glProgramUniformMatrix3fv(_program, id, 1, false, glm::value_ptr(value)); }
 	void setValue(int32_t id, const glm::mat4& value) final { glProgramUniformMatrix4fv(_program, id, 1, false, glm::value_ptr(value)); }
 	void setValue(int32_t id, const glm::mat4& value, int i, std::string path) final { glProgramUniformMatrix4fv(glGetUniformLocation(_program, (path + "[" + std::to_string(i) + "]").c_str()), id, 1, false, glm::value_ptr(value)); }
-	
 
 	void* getHandler() final { return static_cast<void*>(&_program); }
 

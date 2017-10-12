@@ -253,9 +253,6 @@ namespace Barcode {
 
 	void GameState::onMainMenu() { }
 
-	//Global variable to maintain a keyframe for now
-
-
 	void GameState::runFrame(float delta) {
 		auto windowSize = _engine->getView()->getSize();
 		{ // Fetch new events
@@ -307,23 +304,25 @@ namespace Barcode {
 
 				if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false)
 					_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+
 				else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
 					_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-				
-					//Get number of keyframes. Also hardcoded for now
-					if (currentFrame < 75) {
-						currentFrame++;
-					}
-					else {
-						currentFrame = 1;
-					}
-				
-					std::vector<glm::mat4> tempMats;
-					//i == nrOfJoints. Hardcoded for now
-					for (int i = 0; i < 4; i++) {
-						tempMats.push_back(drawObj->mesh->getTransformationMatrices(0, i, currentFrame - 1));
-						_animationBatch.pipeline->setValue(11 + i, tempMats[i]);
-					}
+
+					//int currentFrame = drawObj->mesh->getCurrentKeyframe();
+
+					//if (currentFrame < drawObj->mesh->getMaxFramesForAnimation()) {
+					//	drawObj->mesh->setCurrentKeyframe(currentFrame + 1);
+					//}
+					//else {
+					//	drawObj->mesh->setCurrentKeyframe(1);
+					//}
+
+					//glm::mat4 tempMat;
+					//for (int i = 0; i < drawObj->mesh->getNrOfJoints(); i++) {
+					//	tempMat = drawObj->mesh->getTransformationMatrices(i);
+					//	_animationBatch.pipeline->setValue(11 + i, tempMat);
+					//}
+					
 				}
 			}
 
@@ -343,10 +342,11 @@ namespace Barcode {
 					return glm::distance(glm::vec3(a[3]), cameraPos) < glm::distance(glm::vec3(b[3]), cameraPos);
 				});
 			}
-
+			
 			_engine->getRenderer()->render(_geometryBatch.batch);
+			_engine->getRenderer()->renderAnimation(_animationBatch.batch);
 			//_engine->getRenderer()->render(_shadowBatch.batch);
-			//_engine->getRenderer()->render(_animationBatch.batch);
+			//_engine->getRenderer()->renderAnimation(_animationBatch.batch);
 		}
 
 		{
@@ -354,9 +354,11 @@ namespace Barcode {
 				kv.second.clear();
 
 			for (auto& drawObj : _engine->getRenderer()->activeDrawObjects()) {
-				if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false)
+				if (!drawObj->disable && drawObj->mesh) {
 					_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+				}
 			}
+			
 
 			_shadowBatch.pipeline->setValue(0, _light->getViewMatrix());
 			_shadowBatch.pipeline->setValue(1, _light->getProjectionMatrix());
@@ -741,20 +743,6 @@ namespace Barcode {
 		weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
 		weaponEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 		weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, -1.5, -2), glm::vec3(1, 1, 1), glm::quat(0, 0, 1, 0))->setIgnoreParent(true);
-		/*
-		auto animatedEntity = _world->createEntity("AnimatedCube");
-		animatedEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/animatedCube.ATTIC");
-		animatedEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-10, 0, -10));
-
-		auto particleEmitter = _world->createEntity("ParticleEmitter");
-		particleEmitter->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::Fire, 150, glm::vec3(0,0,0));
-
-		auto particleEmitter1 = _world->createEntity("ParticleEmitter1");
-		particleEmitter1->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::Knas, 2, glm::vec3(5,0,0));
-
-		auto particleEmitter2 = _world->createEntity("ParticleEmitter2");
-		particleEmitter2->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::BogdanDeluxe, 3, glm::vec3(5, 5, 0));
-		*/
 
 		auto alienEntity = _world->createEntity("Enemy Alien");
 		alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(5, 0, 5), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
@@ -768,6 +756,25 @@ namespace Barcode {
 
 		auto pointLight2 = _world->createEntity("Pointlight2");
 		pointLight2->addComponent<Hydra::Component::TransformComponent>();
+
+		auto alienAnimation = _world->createEntity("Alien");
+		alienAnimation->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
+		alienAnimation->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 1, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
+
+		auto alienAI = _world->createEntity("AlienAI");
+		alienAI->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
+		alienAI->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 0, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
+		alienAI->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 5), 500, 2, 2, glm::vec3(2));
+
+		auto alienAI2 = _world->createEntity("AlienAI2");
+		alienAI2->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
+		alienAI2->addComponent<Hydra::Component::TransformComponent>(glm::vec3(5, 0, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
+		alienAI2->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 5), 500, 2, 2, glm::vec3(2));
+
+		//auto tileTest = _world->createEntity("Tiles");
+		//tileTest->addComponent<Hydra::Component::MeshComponent>(5, 5);
+		//tileTest->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
+
 		pointLight2->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");
 		auto p2LC = pointLight2->addComponent<Hydra::Component::PointLightComponent>();
 		p2LC->setPosition(glm::vec3(45, 0, 0));
@@ -787,26 +794,6 @@ namespace Barcode {
 		p4LC->setPosition(glm::vec3(45, 0, 45));
 		p4LC->setColor(glm::vec3(1, 0, 0));
 
-
-		//auto pointLight2 = _world->createEntity("Pointlight2");
-		//pointLight2->addComponent<Hydra::Component::TransformComponent>();
-		//pointLight2->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");
-		//auto p2LC = pointLight2->addComponent<Hydra::Component::LightComponent>();
-		//p2LC->setColor(glm::vec3(0, 0, 1));
-		
-		//auto robotEntity = _world->createEntity("Enemy Robot");
-		//robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, glm::vec3(15, 0, 15), 70, 11, 25.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-		//robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
-
-		//auto alienBoss = _world->createEntity("Enemy Boss");
-		//alienBoss->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::AlienBoss, glm::vec3(15, 0, 16), 1200, 25, 30.0f, glm::vec3(3.0f, 3.0f, 3.0f));
-		//alienBoss->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
-
-		// Not at thing yet, do not use!!!
-		//auto robotBoss = _world->createEntity("Enemy Boss");
-		//robotBoss->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::RobotBoss, glm::vec3(15, 0, 16), 1200, 25, 25.0f, glm::vec3(3.0f, 3.0f, 3.0f));
-		//robotBoss->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
-		
 		auto test = _world->createEntity("test");
 		test->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");
 		test->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-7, 0, 0), glm::vec3(1, 1, 1), glm::quat(0, 0, -1, 0));
@@ -822,7 +809,7 @@ namespace Barcode {
 		auto test5 = _world->createEntity("test5");
 		test5->addComponent<Hydra::Component::MeshComponent>("assets/objects/Wall1.ATTIC");
 		test5->addComponent<Hydra::Component::TransformComponent>(glm::vec3(19.5, 0, -13), glm::vec3(3, 1, 1), glm::quat(-0.1, 0, -1.09, 0));
-
+		
 		auto test6 = _world->createEntity("test6");
 		test6->addComponent<Hydra::Component::MeshComponent>("assets/objects/Roof1.ATTIC");
 		test6->addComponent<Hydra::Component::TransformComponent>(glm::vec3(14, 8.0, 9), glm::vec3(40, 40, 40), glm::quat(0, 0, 0, 1));
