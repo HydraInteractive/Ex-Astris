@@ -26,22 +26,18 @@ EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID, glm::vec3 po
 	_pathState = IDLE;
 	_bossPhase = CHILLING;
 	_spawnAmount = 0;
+	_oldMapPosX = 0;
+	_oldMapPosZ = 0;
 	_originalRange = range;
 	_attackTimer = SDL_GetTicks();
 	_spawnTimer = SDL_GetTicks();
 	_stunTimer = SDL_GetTicks();
 	entity->addComponent<Hydra::Component::TransformComponent>(pos, scale);
-	entity->addComponent<Hydra::Component::WeaponComponent>();
+	entity->addComponent<Hydra::Component::WeaponComponent>(40,0.1,0.11,1);
 
-	for (int i = 0; i < WORLD_SIZE; i++)
-	{
-		for (int j = 0; j < WORLD_SIZE; j++)
-		{
-			_map[i][j] = 0;
-		}
-	}
+	_mapOffset = glm::vec3(-30.0f, 0, -30.0f);
 
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		_map[10][10+i] = 1;
 	}
@@ -62,7 +58,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 	_velocityY = 0;
 	_velocityZ = 0;
 	_debugState = _pathState;
-
+	
 	if (glm::length(enemy->getPosition() - player->getPosition()) > 50)
 	{
 		_pathState = IDLE;
@@ -78,13 +74,18 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			{
 			case IDLE:
 			{
-				if (glm::length(enemy->getPosition() - player->getPosition()) < 50)
+				if (player->getPosition().x > _mapOffset.x && player->getPosition().x < WORLD_SIZE && player->getPosition().z > _mapOffset.z && player->getPosition().z < WORLD_SIZE)
 				{
-					_timer = SDL_GetTicks();
-					_pathFinding->intializedStartGoal = false;
-					_pathFinding->foundGoal = false;
-					_pathFinding->clearPathToGoal();
-					_pathState = SEARCHING;
+					if (glm::length(enemy->getPosition() - player->getPosition()) < 50)
+					{
+						_timer = SDL_GetTicks();
+						_pathFinding->intializedStartGoal = false;
+						_pathFinding->foundGoal = false;
+						_pathFinding->clearVisitedList();
+						_pathFinding->clearOpenList();
+						_pathFinding->clearPathToGoal();
+						_pathState = SEARCHING;
+					}
 				}
 			}break;
 			case SEARCHING:
@@ -93,7 +94,6 @@ void EnemyComponent::tick(TickAction action, float delta) {
 				entity->getDrawObject()[0].mesh->setAnimationIndex(1);
 				if (SDL_GetTicks() > _timer + 5000)
 				{
-					_timer = SDL_GetTicks();
 					_pathState = IDLE;
 				}
 				if (glm::length(enemy->getPosition() - player->getPosition()) < _range)
@@ -102,9 +102,16 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					_pathFinding->foundGoal = true;
 					_pathState = ATTACKING;
 				}
-				_pathFinding->findPath(enemy->getPosition(), player->getPosition(), _map);
 
+				if (player->getPosition().x <= _mapOffset.x || player->getPosition().x >= WORLD_SIZE || player->getPosition().z <= _mapOffset.z || player->getPosition().z >= WORLD_SIZE)
+				{
+					_pathState = IDLE;
+				}
+
+				_pathFinding->findPath(enemy->getPosition(), player->getPosition(), _map);
 				_isAtGoal = false;
+
+
 				if (_pathFinding->foundGoal)
 				{
 					if (!_pathFinding->_pathToEnd.empty())
@@ -112,6 +119,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 						_targetPos = _pathFinding->_pathToEnd[0];
 					}
 					_pathState = FOUND_GOAL;
+					_newPathTimer = SDL_GetTicks();
 				}
 			}break;
 			case FOUND_GOAL:
@@ -126,7 +134,6 @@ void EnemyComponent::tick(TickAction action, float delta) {
 						_rotation = glm::angleAxis(_angle, glm::vec3(0, 1, 0));
 
 						glm::vec3 direction = glm::normalize(targetDistance);
-
 
 						_velocityX = (10.0f * direction.x) * delta;
 						_velocityZ = (10.0f * direction.z) * delta;
@@ -146,7 +153,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 							_pathState = SEARCHING;
 							_timer = SDL_GetTicks();
 						}
-						else if (glm::length(player->getPosition() - _targetPos) > 15.0f)
+						else if (glm::length(player->getPosition() - _targetPos) > 25.0f)
 						{
 							_pathFinding->intializedStartGoal = false;
 							_pathFinding->foundGoal = false;
@@ -156,6 +163,21 @@ void EnemyComponent::tick(TickAction action, float delta) {
 						}
 					}
 				}
+
+				if (SDL_GetTicks() > _newPathTimer + 4000)
+				{
+					_pathFinding->intializedStartGoal = false;
+					_pathFinding->foundGoal = false;
+					_pathFinding->clearPathToGoal();
+					_pathState = SEARCHING;
+					_timer = SDL_GetTicks();
+				}
+
+				if (player->getPosition().x <= _mapOffset.x || player->getPosition().x >= WORLD_SIZE || player->getPosition().z <= _mapOffset.z || player->getPosition().z >= WORLD_SIZE)
+				{
+					_pathState = IDLE;
+				}
+
 			}break;
 			case ATTACKING:
 			{
@@ -198,13 +220,18 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			{
 			case IDLE:
 			{
-				if (glm::length(enemy->getPosition() - player->getPosition()) < 50)
+				if (player->getPosition().x > _mapOffset.x && player->getPosition().x < WORLD_SIZE && player->getPosition().z > _mapOffset.z && player->getPosition().z < WORLD_SIZE)
 				{
-					_timer = SDL_GetTicks();
-					_pathFinding->intializedStartGoal = false;
-					_pathFinding->foundGoal = false;
-					_pathFinding->clearPathToGoal();
-					_pathState = SEARCHING;
+					if (glm::length(enemy->getPosition() - player->getPosition()) < 50)
+					{
+						_timer = SDL_GetTicks();
+						_pathFinding->intializedStartGoal = false;
+						_pathFinding->foundGoal = false;
+						_pathFinding->clearVisitedList();
+						_pathFinding->clearOpenList();
+						_pathFinding->clearPathToGoal();
+						_pathState = SEARCHING;
+					}
 				}
 			}break;
 			case SEARCHING:
@@ -221,6 +248,11 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					_pathState = ATTACKING;
 				}
 
+				if (player->getPosition().x <= _mapOffset.x || player->getPosition().x >= WORLD_SIZE || player->getPosition().z <= _mapOffset.z || player->getPosition().z >= WORLD_SIZE)
+				{
+					_pathState = IDLE;
+				}
+
 				_pathFinding->findPath(enemy->getPosition(), player->getPosition(), _map);
 
 				_isAtGoal = false;
@@ -231,6 +263,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 						_targetPos = _pathFinding->_pathToEnd[0];
 					}
 					_pathState = FOUND_GOAL;
+					_newPathTimer = SDL_GetTicks();
 				}
 			}break;
 			case FOUND_GOAL:
@@ -249,7 +282,6 @@ void EnemyComponent::tick(TickAction action, float delta) {
 						_velocityX = (4.0f * direction.x) * delta;
 						_velocityZ = (4.0f * direction.z) * delta;
 
-
 						if (glm::length(enemy->getPosition() - player->getPosition()) < _range)
 						{
 							_isAtGoal = true;
@@ -265,7 +297,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 							_pathState = SEARCHING;
 							_timer = SDL_GetTicks();
 						}
-						else if (glm::length(player->getPosition() - _targetPos) > 15.0f)
+						else if (glm::length(player->getPosition() - _targetPos) > 25.0f)
 						{
 							_pathFinding->intializedStartGoal = false;
 							_pathFinding->foundGoal = false;
@@ -274,6 +306,20 @@ void EnemyComponent::tick(TickAction action, float delta) {
 							_timer = SDL_GetTicks();
 						}
 					}
+				}
+
+				if (SDL_GetTicks() > _newPathTimer + 4000)
+				{
+					_pathFinding->intializedStartGoal = false;
+					_pathFinding->foundGoal = false;
+					_pathFinding->clearPathToGoal();
+					_pathState = SEARCHING;
+					_timer = SDL_GetTicks();
+				}
+
+				if (player->getPosition().x <= _mapOffset.x || player->getPosition().x >= WORLD_SIZE || player->getPosition().z <= _mapOffset.z || player->getPosition().z >= WORLD_SIZE)
+				{
+					_pathState = IDLE;
 				}
 			}break;
 			case ATTACKING:
@@ -292,11 +338,9 @@ void EnemyComponent::tick(TickAction action, float delta) {
 
 					glm::vec3 playerDir = player->getPosition() - enemy->getPosition();
 					playerDir = glm::normalize(playerDir);
-					if (SDL_GetTicks() > _attackTimer + 2000)
-					{
-						weapon->shoot(_position, -playerDir, glm::quat(), 5.0f);
-						_attackTimer = SDL_GetTicks();
-					}
+
+					weapon->shoot(_position, -playerDir, glm::quat(), 8.0f);
+
 					_angle = atan2(playerDir.x, playerDir.z);
 					_rotation = glm::angleAxis(_angle, glm::vec3(0, 1, 0));
 				}
@@ -307,7 +351,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 
 			if (_playerSeen == false)
 			{
-				if (_range > 4.0f)
+				if (_range > 6.0f)
 				{
 					_range -= 1.0f;
 				}
@@ -366,10 +410,18 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			{
 			case IDLE:
 			{
-				if (glm::length(enemy->getPosition() - player->getPosition()) < 50)
+				if (player->getPosition().x > _mapOffset.x && player->getPosition().x < WORLD_SIZE && player->getPosition().z > _mapOffset.z && player->getPosition().z < WORLD_SIZE)
 				{
-					_timer = SDL_GetTicks();
-					_pathState = SEARCHING;
+					if (glm::length(enemy->getPosition() - player->getPosition()) < 50)
+					{
+						_timer = SDL_GetTicks();
+						_pathFinding->intializedStartGoal = false;
+						_pathFinding->foundGoal = false;
+						_pathFinding->clearVisitedList();
+						_pathFinding->clearOpenList();
+						_pathFinding->clearPathToGoal();
+						_pathState = SEARCHING;
+					}
 				}
 			}break;
 			case SEARCHING:
@@ -386,6 +438,11 @@ void EnemyComponent::tick(TickAction action, float delta) {
 					_pathState = ATTACKING;
 				}
 
+				if (player->getPosition().x <= _mapOffset.x || player->getPosition().x >= WORLD_SIZE || player->getPosition().z <= _mapOffset.z || player->getPosition().z >= WORLD_SIZE)
+				{
+					_pathState = IDLE;
+				}
+
 				_pathFinding->findPath(enemy->getPosition(), player->getPosition(), _map);
 				_isAtGoal = false;
 
@@ -396,6 +453,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 						_targetPos = _pathFinding->_pathToEnd[0];
 					}
 					_pathState = FOUND_GOAL;
+					_newPathTimer = SDL_GetTicks();
 				}
 			}break;
 			case FOUND_GOAL:
@@ -430,7 +488,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 							_pathState = SEARCHING;
 							_timer = SDL_GetTicks();
 						}
-						else if (glm::length(player->getPosition() - _targetPos) > 15.0f)
+						else if (glm::length(player->getPosition() - _targetPos) > 25.0f)
 						{
 							_pathFinding->intializedStartGoal = false;
 							_pathFinding->foundGoal = false;
@@ -439,6 +497,20 @@ void EnemyComponent::tick(TickAction action, float delta) {
 							_timer = SDL_GetTicks();
 						}
 					}
+				}
+
+				if (SDL_GetTicks() > _newPathTimer + 4000)
+				{
+					_pathFinding->intializedStartGoal = false;
+					_pathFinding->foundGoal = false;
+					_pathFinding->clearPathToGoal();
+					_pathState = SEARCHING;
+					_timer = SDL_GetTicks();
+				}
+
+				if (player->getPosition().x <= _mapOffset.x || player->getPosition().x >= WORLD_SIZE || player->getPosition().z <= _mapOffset.z || player->getPosition().z >= WORLD_SIZE)
+				{
+					_pathState = IDLE;
 				}
 			}break;
 			case ATTACKING:
@@ -463,7 +535,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 							_range = 9.0f;
 							std::mt19937 rng(rd());
 							std::uniform_int_distribution<> randDmg(_damage - 1, _damage + 2);
-							if (SDL_GetTicks() > _attackTimer + 1500)
+							if (SDL_GetTicks() > _attackTimer + 3000)
 							{
 								player->applyDamage(randDmg(rng));
 								_attackTimer = SDL_GetTicks();
@@ -471,12 +543,12 @@ void EnemyComponent::tick(TickAction action, float delta) {
 						}break;
 						case SPITTING:
 						{
-							_range = 25.0f;
+							_range = 30.0f;
 							weapon->shoot(_position, -playerDir, glm::quat(), 15.0f);
 						}break;
 						case SPAWNING:
 						{
-							_range = 25.0f;
+							_range = 30.0f;
 							
 							/*if (_spawnAmount <= 3)
 							{
@@ -497,7 +569,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 						}break;
 						case CHILLING:
 						{
-							_range = 25.0f;
+							_range = 30.0f;
 							if (SDL_GetTicks() > _stunTimer + 10000)
 							{
 								if(!_stunned) { _stunned = true; }
@@ -524,16 +596,59 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			_position = _position + glm::vec3(_velocityX, _velocityY, _velocityZ);
 			enemy->setPosition(_position);
 			enemy->setRotation(_rotation);
-
 		}break;
 	default:
 		break;
 	}
 
+	if (enemy->getPosition().x != _oldMapPosX && enemy->getPosition().z != _oldMapPosZ)
+	{
+		_map[_oldMapPosX][_oldMapPosZ] = 0;
+		if (enemy->getPosition().x <= 0 || enemy->getPosition().z <= 0)
+		{
+			_oldMapPosX = this->getPosition().x - _mapOffset.x;
+			_oldMapPosZ = this->getPosition().z - _mapOffset.z;
+		}
+		else
+		{
+			_oldMapPosX = this->getPosition().x;
+			_oldMapPosZ = this->getPosition().z;
+		}
+		_map[_oldMapPosX][_oldMapPosZ] = 2;
+	}
+	else if (enemy->getPosition().x != _oldMapPosX && enemy->getPosition().z == _oldMapPosZ)
+	{
+
+		_map[_oldMapPosX][_oldMapPosZ] = 0;
+		if (enemy->getPosition().x <= 0 || enemy->getPosition().z <= 0)
+		{
+			_oldMapPosX = this->getPosition().x + _mapOffset.x;
+		}
+		else
+		{
+			_oldMapPosX = this->getPosition().x;
+		}
+		_map[_oldMapPosX][_oldMapPosZ] = 2;
+	}
+	else if (enemy->getPosition().z != _oldMapPosZ && enemy->getPosition().x == _oldMapPosX)
+	{
+
+		_map[_oldMapPosX][_oldMapPosZ] = 0;
+		if (enemy->getPosition().x <= 0 || enemy->getPosition().z <= 0)
+		{
+			_oldMapPosZ = this->getPosition().z + _mapOffset.z;
+		}
+		else
+		{
+			_oldMapPosZ = this->getPosition().z;
+		}
+		_map[_oldMapPosX][_oldMapPosZ] = 2;
+	}
+
 	 //debug for pathfinding
-		//int tempX = enemy->getPosition().x;
-		//int tempZ = enemy->getPosition().z;
-		//_map[tempX][tempZ] = 2;
+	//int tempX = enemy->getPosition().x;
+	//int tempZ = enemy->getPosition().z;
+	//_map[tempX][tempZ] = 2;
 		//for (int i = 0; i < _pathFinding->_visitedList.size(); i++)
 		//{
 		//	_map[(int)_pathFinding->_visitedList[i]->m_xcoord][(int)_pathFinding->_visitedList[i]->m_zcoord] = 3;
@@ -583,6 +698,7 @@ void EnemyComponent::serialize(nlohmann::json& json) const {
 		{ "position",{ _position.x, _position.y, _position.z } },
 		{ "startPosition",{ _startPosition.x, _startPosition.y, _startPosition.z } },
 		{ "scale",{ _scale.x, _scale.y, _scale.z } },
+		{ "mapOffset",{ _mapOffset.x, _mapOffset.y, _mapOffset.z } },
 		{ "velocityX", _velocityX },
 		{ "velocityY", _velocityY },
 		{ "velocityZ", _velocityZ },
@@ -595,13 +711,13 @@ void EnemyComponent::serialize(nlohmann::json& json) const {
 		{ "Original range", _originalRange }
 
 	};
-	//for (size_t i = 0; i < 64; i++)
-	//{
-	//	for (size_t j = 0; j < 64; j++)
-	//	{
-	//		json["map"][i][j] = _map[i][j];
-	//	}
-	//}
+	for (size_t i = 0; i < 64; i++)
+	{
+		for (size_t j = 0; j < 64; j++)
+		{
+			json["map"][i][j] = _map[i][j];
+		}
+	}
 }
 
 void EnemyComponent::deserialize(nlohmann::json& json) {
@@ -613,6 +729,9 @@ void EnemyComponent::deserialize(nlohmann::json& json) {
 
 	auto& scale = json["scale"];
 	_scale = glm::vec3{ scale[0].get<float>(), scale[1].get<float>(), scale[2].get<float>() };
+
+	auto& mapOffset = json["mapOffset"];
+	_mapOffset = glm::vec3{ mapOffset[0].get<float>(), mapOffset[1].get<float>(), mapOffset[2].get<float>() };
 
 	_velocityX = json["velocityX"].get<float>();
 	_velocityY = json["velocityY"].get<float>();
@@ -627,13 +746,13 @@ void EnemyComponent::deserialize(nlohmann::json& json) {
 	_damage = json["damage"].get<int>();
 	_health = json["health"].get<int>();
 
-	//for (size_t i = 0; i < 64; i++)
-	//{
-	//	for (size_t j = 0; j < 64; j++)
-	//	{
-	//		_map[i][j] = json["map"][i][j].get<int>();
-	//	}
-	//}
+	for (size_t i = 0; i < 64; i++)
+	{
+		for (size_t j = 0; j < 64; j++)
+		{
+			_map[i][j] = json["map"][i][j].get<int>();
+		}
+	}
 }
 
 // Register UI buttons in the debug UI

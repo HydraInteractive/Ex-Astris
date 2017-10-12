@@ -14,7 +14,6 @@ layout (location = 0) out vec3 position;
 layout (location = 1) out vec3 diffuse;
 layout (location = 2) out vec3 normal;
 layout (location = 3) out vec4 lightPos;
-layout (location = 4) out vec3 depth;
 layout (location = 5) out vec3 viewPos;
 
 void main() {
@@ -23,5 +22,4 @@ void main() {
 	normal = inData.normal;
 	lightPos = inData.light;
 	viewPos = inData.vPos;
-	depth = gl_FragCoord.xyz / gl_FragCoord.w;
 }
