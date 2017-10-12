@@ -16,7 +16,7 @@
 using namespace Hydra::World;
 
 namespace Hydra::Component {
-	struct HYDRA_API LightComponent final : public IComponent<LightComponent, ComponentBits::Light> {
+	struct HYDRA_GRAPHICS_API LightComponent final : public IComponent<LightComponent, ComponentBits::Light> {
 		glm::vec3 position = glm::vec3{0, 0, 0};
 		glm::vec3 direction = glm::vec3{0, 0, 0};
 

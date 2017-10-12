@@ -13,10 +13,10 @@
 #include <glm/glm.hpp>
 #include <hydra/renderer/renderer.hpp>
 
-namespace Hydra::Renderer { class HYDRA_API IUIRenderer; }
+namespace Hydra::Renderer { class HYDRA_BASE_API IUIRenderer; }
 
 namespace Hydra::View {
-	class HYDRA_API IView : public Hydra::Renderer::IRenderTarget {
+	class HYDRA_BASE_API IView : public Hydra::Renderer::IRenderTarget {
 	public:
 		virtual ~IView() = 0;
 

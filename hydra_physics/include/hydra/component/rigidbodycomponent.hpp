@@ -17,7 +17,7 @@
 #include <hydra/component/transformcomponent.hpp>
 
 namespace Hydra::Component {
-	struct HYDRA_API RigidBodyComponent final : public Hydra::World::IComponent<RigidBodyComponent, ComponentBits::RigidBody> {
+	struct HYDRA_PHYSICS_API RigidBodyComponent final : public Hydra::World::IComponent<RigidBodyComponent, ComponentBits::RigidBody> {
 		~RigidBodyComponent() final;
 
 #define DEFAULT_PARAMS float mass = 0, float linearDamping = 0, float angularDamping = 0, float friction = 0, float rollingFriction = 0

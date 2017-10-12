@@ -18,7 +18,7 @@
 using namespace Hydra::World;
 
 namespace Hydra::Component {
-	struct HYDRA_API MineComponent final : public IComponent<MineComponent, ComponentBits::Mine> {
+	struct HYDRA_PHYSICS_API MineComponent final : public IComponent<MineComponent, ComponentBits::Mine> {
 		glm::vec3 direction = glm::vec3{0, 0, 0};
 		float velocity = 02;
 		float fallingVelocity = 20;

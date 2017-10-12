@@ -11,7 +11,7 @@
 #include <string>
 
 namespace Hydra::Ext {
-	HYDRA_API size_t getCurrentVRAM();
-	HYDRA_API size_t getMaxVRAM();
-	HYDRA_API bool isVRAMDedicated();
+	HYDRA_GRAPHICS_API size_t getCurrentVRAM();
+	HYDRA_GRAPHICS_API size_t getMaxVRAM();
+	HYDRA_GRAPHICS_API bool isVRAMDedicated();
 };

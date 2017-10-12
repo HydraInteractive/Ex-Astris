@@ -43,7 +43,7 @@ namespace Hydra::Component {
 		CHILLING = 3
 	};
 
-	struct HYDRA_API EnemyComponent final : public IComponent<EnemyComponent, ComponentBits::Enemy> {
+	struct HYDRA_PHYSICS_API EnemyComponent final : public IComponent<EnemyComponent, ComponentBits::Enemy> {
 		// TODO: !!!!!REMOVE!!!!!
 		void init(EnemyTypes enemyID, glm::vec3 pos, int hp, int dmg, float range, glm::vec3 scale);
 		~EnemyComponent() final;

@@ -1,5 +1,7 @@
 #include <hydra/system/particlesystem.hpp>
 
+#include <hydra/ext/openmp.hpp>
+
 #include <hydra/component/particlecomponent.hpp>
 
 using namespace Hydra::System;
@@ -12,7 +14,7 @@ void ParticleSystem::tick(float delta) {
 	//Process ParticleComponent
 	world::getEntitiesWithComponents<Hydra::Component::ParticleComponent>(entities);
 	#pragma omp parallel for
-	for (size_t i = 0; i < entities.size(); i++) {
+	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 	}
 }
 

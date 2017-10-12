@@ -28,18 +28,18 @@
 namespace Hydra::View { class IView; }
 
 namespace Hydra {
-	enum class HYDRA_API LogLevel {
+	enum class HYDRA_BASE_API LogLevel {
 		verbose,
 		normal,
 		warning,
 		error
 	};
-	HYDRA_API inline const char* toString(LogLevel level) {
+	HYDRA_BASE_API inline const char* toString(LogLevel level) {
 		static const char* name[4] = {"verbose", "normal", "warning", "error"};
 		return name[static_cast<int>(level)];
 	}
 
-	class HYDRA_API IState {
+	class HYDRA_BASE_API IState {
 	public:
 		virtual ~IState() = 0;
 
@@ -55,7 +55,7 @@ namespace Hydra {
 	};
 	inline IState::~IState() {}
 
-	class HYDRA_API IEngine {
+	class HYDRA_BASE_API IEngine {
 	public:
 		virtual ~IEngine() = 0;
 

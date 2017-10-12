@@ -2,6 +2,8 @@
 
 #include <imgui/imgui.h>
 
+#include <hydra/ext/openmp.hpp>
+
 #include <hydra/component/playercomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
@@ -25,7 +27,7 @@ void PlayerSystem::tick(float delta) {
 	//Process PlayerComponent
 	world::getEntitiesWithComponents<PlayerComponent, TransformComponent, CameraComponent>(entities);
 	#pragma omp parallel for
-	for (size_t i = 0; i < entities.size(); i++) {
+	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto player = entities[i]->getComponent<PlayerComponent>();
 		auto transform = entities[i]->getComponent<TransformComponent>();
 		auto camera = entities[i]->getComponent<CameraComponent>();

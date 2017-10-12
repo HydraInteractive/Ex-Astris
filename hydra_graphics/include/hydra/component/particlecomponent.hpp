@@ -16,7 +16,7 @@ namespace Hydra::Component {
 	enum EmitterBehaviour : int {PerSecond = 0, Explosion};
 	enum ParticleTexture : int {Fire = 0, Knas, BogdanDeluxe};
 	
-	HYDRA_API struct Particle {
+	struct HYDRA_GRAPHICS_API Particle {
 		glm::mat4 m;
 		glm::vec3 pos;
 		glm::vec3 acceleration;
@@ -48,7 +48,7 @@ namespace Hydra::Component {
 		void fixMX(glm::quat& rot) { m = glm::translate(pos) * glm::scale(scale); }
 	};
 
-	struct HYDRA_API ParticleComponent final : public IComponent<ParticleComponent, ComponentBits::Particle> {
+	struct HYDRA_GRAPHICS_API ParticleComponent final : public IComponent<ParticleComponent, ComponentBits::Particle> {
 		int pps; // Particles per second.
 		float accumulator;
 		glm::quat tempRotation;

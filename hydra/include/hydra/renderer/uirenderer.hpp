@@ -25,14 +25,14 @@ union SDL_Event;
 #endif
 #endif
 
-namespace Hydra { enum class HYDRA_API LogLevel; }
+namespace Hydra { enum class HYDRA_BASE_API LogLevel; }
 namespace Hydra::World { class ISystem; }
 
 namespace Hydra::Renderer {
-	class HYDRA_API IUILog;
-	class HYDRA_API ITexture;
+	class HYDRA_BASE_API IUILog;
+	class HYDRA_BASE_API ITexture;
 
-	enum class HYDRA_API UIFont {
+	enum class HYDRA_BASE_API UIFont {
 		normal,
 		normalBold,
 		medium,
@@ -40,14 +40,14 @@ namespace Hydra::Renderer {
 		monospace
 	};
 
-	struct HYDRA_API UIRenderWindow final {
+	struct HYDRA_BASE_API UIRenderWindow final {
 		bool enabled = false;
 		std::string title = "Untitled";
 		glm::ivec2 size = glm::ivec2{640, 280};
 		std::shared_ptr<ITexture> image;
 	};
 
-	class HYDRA_API IUIRenderer {
+	class HYDRA_BASE_API IUIRenderer {
 	public:
 		virtual ~IUIRenderer() = 0;
 
@@ -71,7 +71,7 @@ namespace Hydra::Renderer {
 	};
 	inline IUIRenderer::~IUIRenderer() {}
 
-	class HYDRA_API IUILog {
+	class HYDRA_BASE_API IUILog {
 	public:
 		virtual ~IUILog() = 0;
 
@@ -91,6 +91,6 @@ namespace Hydra::Renderer {
 	inline IUILog::~IUILog() {}
 
 	namespace UIRenderer {
-		HYDRA_API std::unique_ptr<IUIRenderer> create(Hydra::View::IView& view);
+		HYDRA_BASE_API std::unique_ptr<IUIRenderer> create(Hydra::View::IView& view);
 	};
 };

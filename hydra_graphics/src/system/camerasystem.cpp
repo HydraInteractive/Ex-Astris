@@ -1,5 +1,7 @@
 #include <hydra/system/camerasystem.hpp>
 
+#include <hydra/ext/openmp.hpp>
+
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/EditorCameraComponent.hpp>
 #include <algorithm>
@@ -39,7 +41,7 @@ void CameraSystem::tick(float delta) {
 	world::getEntitiesWithComponents<Hydra::Component::CameraComponent>(entities);
 
 #pragma omp parallel for
-	for (size_t i = 0; i < entities.size(); i++) {
+	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto cc = entities[i]->getComponent<Hydra::Component::CameraComponent>();
 
 		cc->cameraYaw = std::max(std::min(cc->cameraYaw + mouseX * cc->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
@@ -56,7 +58,7 @@ void CameraSystem::tick(float delta) {
 	//Process EditorCameraComponent
 	world::getEntitiesWithComponents<Hydra::Component::EditorCameraComponent>(entities);
 #pragma omp parallel for
-	for (size_t i = 0; i < entities.size(); i++) {
+	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto ec = entities[i]->getComponent<Hydra::Component::EditorCameraComponent>();
 
 		ec->cameraYaw = std::max(std::min(ec->cameraYaw + mouseX * ec->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));

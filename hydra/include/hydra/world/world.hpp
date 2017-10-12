@@ -19,8 +19,8 @@
 #include <json.hpp>
 #include <hydra/ext/macros.hpp>
 
-namespace Hydra::Renderer { struct HYDRA_API DrawObject; }
-namespace Hydra::Physics { struct HYDRA_API PhysicsObject; }
+namespace Hydra::Renderer { struct HYDRA_BASE_API DrawObject; }
+namespace Hydra::Physics { struct HYDRA_BASE_API PhysicsObject; }
 
 namespace Hydra::Component {
 	// Each component will be one entry in this list
@@ -52,24 +52,24 @@ namespace Hydra::Component {
 
 namespace Hydra::World {
 	template <typename T, Hydra::Component::ComponentBits bit>
-	struct HYDRA_API IComponent;
+	struct HYDRA_BASE_API IComponent;
 }
 
 namespace Hydra::Component {
-	struct HYDRA_API TransformComponent;
-	struct HYDRA_API CameraComponent;
-	struct HYDRA_API LightComponent;
-	struct HYDRA_API MeshComponent;
-	struct HYDRA_API ParticleComponent;
-	struct HYDRA_API EnemyComponent;
-	struct HYDRA_API BulletComponent;
-	struct HYDRA_API PlayerComponent;
-	struct HYDRA_API WeaponComponent;
-	struct HYDRA_API GrenadeComponent;
-	struct HYDRA_API MineComponent;
-	struct HYDRA_API RigidBodyComponent;
-	struct HYDRA_API EditorCameraComponent;
-	struct HYDRA_API DrawObjectComponent;
+	struct HYDRA_BASE_API TransformComponent;
+	struct HYDRA_BASE_API CameraComponent;
+	struct HYDRA_BASE_API LightComponent;
+	struct HYDRA_BASE_API MeshComponent;
+	struct HYDRA_BASE_API ParticleComponent;
+	struct HYDRA_BASE_API EnemyComponent;
+	struct HYDRA_BASE_API BulletComponent;
+	struct HYDRA_BASE_API PlayerComponent;
+	struct HYDRA_BASE_API WeaponComponent;
+	struct HYDRA_BASE_API GrenadeComponent;
+	struct HYDRA_BASE_API MineComponent;
+	struct HYDRA_BASE_API RigidBodyComponent;
+	struct HYDRA_BASE_API EditorCameraComponent;
+	struct HYDRA_BASE_API DrawObjectComponent;
 
 	using ComponentTypes = Hydra::Ext::TypeTuple<
 		Hydra::World::IComponent<TransformComponent, ComponentBits::Transform>,
@@ -100,7 +100,7 @@ namespace Hydra::World {
 	template<typename T, typename... Args>
 	constexpr T combine(T first, Args... args) { return first | combine<T>(args...); }
 
-	struct HYDRA_API Entity final {
+	struct HYDRA_BASE_API Entity final {
 		// Entity Core
 		EntityID id;
 		Hydra::Component::ComponentBits activeComponents;
@@ -154,7 +154,7 @@ namespace Hydra::World {
 		void deserialize(nlohmann::json& json);
 	};
 
-	struct HYDRA_API IComponentBase {
+	struct HYDRA_BASE_API IComponentBase {
 		virtual ~IComponentBase() = 0;
 
 		virtual const std::string type() const = 0;
@@ -165,7 +165,7 @@ namespace Hydra::World {
 	inline IComponentBase::~IComponentBase() {}
 
 	template <typename T, Hydra::Component::ComponentBits bit>
-	struct HYDRA_API IComponent : public IComponentBase {
+	struct HYDRA_BASE_API IComponent : public IComponentBase {
 		friend struct Entity;
 		static constexpr Hydra::Component::ComponentBits bits = bit;
 
@@ -202,14 +202,11 @@ namespace Hydra::World {
 			_map.erase(entityID);
 		}
 	};
-	template <typename T, Hydra::Component::ComponentBits bit>
-	inline IComponent<T, bit>::~IComponent() {}
-	template <typename T, Hydra::Component::ComponentBits bit>
-	std::unordered_map<EntityID, size_t> IComponent<T, bit>::_map;
-	template <typename T, Hydra::Component::ComponentBits bit>
-	std::vector<std::shared_ptr<IComponent<T, bit>>> IComponent<T, bit>::_components;
 
-	struct HYDRA_API World final {
+
+	template struct HYDRA_BASE_API Hydra::World::IComponent<Hydra::Component::TransformComponent, Hydra::Component::ComponentBits::Transform>;
+
+	struct HYDRA_BASE_API World final {
 		static std::shared_ptr<Entity> root;
 
 		World() = delete;
@@ -276,7 +273,7 @@ namespace Hydra::World {
 		static EntityID _idCounter;
 	};
 
-	class HYDRA_API ISystem {
+	class HYDRA_BASE_API ISystem {
 	public:
 		virtual ~ISystem() = 0;
 
@@ -287,7 +284,7 @@ namespace Hydra::World {
 	};
 	inline ISystem::~ISystem() {}
 
-	struct HYDRA_API Blueprint final {
+	struct HYDRA_BASE_API Blueprint final {
 		std::string name; // Blueprint Name
 
 		inline nlohmann::json& getData() { return _root["data"]; }

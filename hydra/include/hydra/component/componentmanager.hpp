@@ -15,6 +15,6 @@ namespace Hydra::Component {
 			return entity->addComponent<T>();
 		}
 
-		HYDRA_API std::map<std::string /* Component name */, createOrGetComponent_f>& createOrGetComponentMap();
+		HYDRA_BASE_API std::map<std::string /* Component name */, createOrGetComponent_f>& createOrGetComponentMap();
 	};
 };

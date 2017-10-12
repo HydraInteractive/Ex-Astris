@@ -17,7 +17,7 @@ using namespace Hydra::Renderer;
 //TODO: Use PBO! http://www.songho.ca/opengl/gl_pbo.html#unpack
 
 namespace Hydra::IO {
-	class HYDRA_API IMeshLoader {
+	class HYDRA_BASE_API IMeshLoader {
 	public:
 		virtual ~IMeshLoader() = 0;
 

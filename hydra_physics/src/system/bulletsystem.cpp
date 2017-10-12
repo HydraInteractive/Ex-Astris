@@ -1,5 +1,7 @@
 #include <hydra/system/bulletsystem.hpp>
 
+#include <hydra/ext/openmp.hpp>
+
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
 
@@ -14,7 +16,7 @@ void BulletSystem::tick(float delta) {
 	//Process WeaponComponent
 	world::getEntitiesWithComponents<Hydra::Component::WeaponComponent>(entities);
 	#pragma omp parallel for
-	for (size_t i = 0; i < entities.size(); i++) {
+	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto w = entities[i]->getComponent<Hydra::Component::WeaponComponent>();
 
 		if (w->fireRateTimer > 0)
@@ -24,7 +26,7 @@ void BulletSystem::tick(float delta) {
 	//Process BulletComponent
 	world::getEntitiesWithComponents<Hydra::Component::BulletComponent, Hydra::Component::TransformComponent>(entities);
 	#pragma omp parallel for
-	for (size_t i = 0; i < entities.size(); i++) {
+	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto b = entities[i]->getComponent<Hydra::Component::BulletComponent>();
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 

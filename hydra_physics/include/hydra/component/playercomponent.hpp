@@ -21,7 +21,7 @@
 using namespace Hydra::World;
 
 namespace Hydra::Component {
-	struct HYDRA_API PlayerComponent final : public IComponent<PlayerComponent, ComponentBits::Player> {
+	struct HYDRA_PHYSICS_API PlayerComponent final : public IComponent<PlayerComponent, ComponentBits::Player> {
 		glm::vec3 position = glm::vec3(0, 2, 20); //TODO: Remove
 		glm::vec3 velocity = glm::vec3{0, 0, 0};// Same
 		glm::vec3 acceleration = glm::vec3{0, 0, 0}; // Same

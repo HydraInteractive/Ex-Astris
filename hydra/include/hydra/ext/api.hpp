@@ -8,11 +8,41 @@
 #pragma once
 
 #ifdef _WIN32
-#ifdef HYDRA_EXPORTS
-#define HYDRA_API __declspec(dllexport)
+#ifdef HYDRA_BASE_EXPORTS
+#define HYDRA_BASE_API __declspec(dllexport)
 #else
-#define HYDRA_API __declspec(dllimport)
+#define HYDRA_BASE_API __declspec(dllimport)
 #endif
+
+#ifdef HYDRA_GRAPHICS_EXPORTS
+#define HYDRA_GRAPHICS_API __declspec(dllexport)
 #else
-#define HYDRA_API
+#define HYDRA_GRAPHICS_API __declspec(dllimport)
 #endif
+
+#ifdef HYDRA_NETWORK_EXPORTS
+#define HYDRA_NETWORK_API __declspec(dllexport)
+#else
+#define HYDRA_NETWORK_API __declspec(dllimport)
+#endif
+
+#ifdef HYDRA_PHYSICS_EXPORTS
+#define HYDRA_PHYSICS_API __declspec(dllexport)
+#else
+#define HYDRA_PHYSICS_API __declspec(dllimport)
+#endif
+
+#ifdef HYDRA_SOUND_EXPORTS
+#define HYDRA_SOUND_API __declspec(dllexport)
+#else
+#define HYDRA_SOUND_API __declspec(dllimport)
+#endif
+
+#else
+#define HYDRA_BASE_API
+#define HYDRA_GRAPHICS_API
+#define HYDRA_NETWORK_API
+#define HYDRA_PHYSICS_API
+#define HYDRA_SOUND_API
+#endif
+

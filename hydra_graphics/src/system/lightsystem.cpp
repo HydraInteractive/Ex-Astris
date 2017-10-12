@@ -1,5 +1,7 @@
 #include <hydra/system/lightsystem.hpp>
 
+#include <hydra/ext/openmp.hpp>
+
 #include <hydra/component/lightcomponent.hpp>
 
 using namespace Hydra::System;
@@ -12,7 +14,7 @@ void LightSystem::tick(float delta) {
 	//Process LightComponent
 	world::getEntitiesWithComponents<Hydra::Component::LightComponent, Hydra::Component::TransformComponent>(entities);
 	#pragma omp parallel for
-	for (size_t i = 0; i < entities.size(); i++) {
+	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto l = entities[i]->getComponent<Hydra::Component::LightComponent>();
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 		l->position = t->position;

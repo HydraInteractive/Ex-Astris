@@ -21,7 +21,7 @@ using namespace Hydra::World;
 // TODO: Implement LOD
 
 namespace Hydra::Component {
-	struct HYDRA_API MeshComponent final : public IComponent<MeshComponent, ComponentBits::Mesh> {
+	struct HYDRA_GRAPHICS_API MeshComponent final : public IComponent<MeshComponent, ComponentBits::Mesh> {
 		std::string meshFile;
 		std::shared_ptr<DrawObjectComponent> drawObject;
 		std::shared_ptr<Hydra::Renderer::IMesh> mesh;

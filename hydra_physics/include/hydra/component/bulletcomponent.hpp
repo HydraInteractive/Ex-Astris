@@ -17,7 +17,7 @@
 using namespace Hydra::World;
 
 namespace Hydra::Component {
-	struct HYDRA_API BulletComponent final : public IComponent<BulletComponent, ComponentBits::Bullet> {
+	struct HYDRA_PHYSICS_API BulletComponent final : public IComponent<BulletComponent, ComponentBits::Bullet> {
 		glm::vec3 position = glm::vec3{0, 0, 0};
 		glm::vec3 direction = glm::vec3{0, 0, 0};
 		float velocity = 1;

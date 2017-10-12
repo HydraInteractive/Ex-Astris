@@ -8,7 +8,7 @@
 using namespace Hydra::World;
 
 namespace Hydra::Component {
-	struct HYDRA_API DrawObjectComponent final : public IComponent<DrawObjectComponent, ComponentBits::DrawObject> {
+	struct HYDRA_GRAPHICS_API DrawObjectComponent final : public IComponent<DrawObjectComponent, ComponentBits::DrawObject> {
 		Hydra::Renderer::DrawObject* drawObject;
 
 		DrawObjectComponent();

@@ -15,7 +15,7 @@
 using namespace Hydra::World;
 
 namespace Hydra::Component {
-	struct HYDRA_API EditorCameraComponent final : public IComponent<EditorCameraComponent, ComponentBits::EditorCamera> {
+	struct HYDRA_GRAPHICS_API EditorCameraComponent final : public IComponent<EditorCameraComponent, ComponentBits::EditorCamera> {
 		Hydra::Renderer::IRenderTarget* renderTarget = nullptr;
 
 		glm::vec3 position = glm::vec3(0, 5, 0);

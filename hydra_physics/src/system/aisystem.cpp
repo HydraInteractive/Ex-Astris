@@ -1,5 +1,7 @@
 #include <hydra/system/aisystem.hpp>
 
+#include <hydra/ext/openmp.hpp>
+
 #include <hydra/component/aicomponent.hpp>
 
 using namespace Hydra::System;
@@ -13,7 +15,7 @@ void AISystem::tick(float delta) {
 	//Process AiComponent
 	world::getEntitiesWithComponents<Hydra::Component::EnemyComponent>(entities);
 	#pragma omp parallel for
-	for (size_t i = 0; i < entities.size(); i++) {
+	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto e = entities[i]->getComponent<Hydra::Component::EnemyComponent>();
 
 		//TODO: FIX!!!

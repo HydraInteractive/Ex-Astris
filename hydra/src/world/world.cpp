@@ -19,6 +19,17 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
+template <typename T, Hydra::Component::ComponentBits bit>
+IComponent<T, bit>::~IComponent() {}
+template <typename T, Hydra::Component::ComponentBits bit>
+std::unordered_map<EntityID, size_t> IComponent<T, bit>::_map;
+template <typename T, Hydra::Component::ComponentBits bit>
+std::vector<std::shared_ptr<IComponent<T, bit>>> IComponent<T, bit>::_components;
+
+std::shared_ptr<Entity> World::root = nullptr;
+std::unordered_map<EntityID, size_t> World::_map;
+std::vector<std::shared_ptr<Entity>> World::_entities;
+EntityID World::_idCounter = 1;
 
 template <typename T>
 inline void removeComponent(Entity& this_) {
@@ -50,11 +61,6 @@ Entity::~Entity() {
 	RemoveComponents<ComponentTypes>::apply(*this);
 }
 
-std::shared_ptr<Entity> World::root = nullptr;
-std::unordered_map<EntityID, size_t> World::_map;
-std::vector<std::shared_ptr<Entity>> World::_entities;
-EntityID World::_idCounter = 1;
-
 template <typename T>
 inline void serializeComponent(const Entity& this_, nlohmann::json& json) {
 	if (this_.hasComponent<T>()) {
@@ -80,7 +86,6 @@ struct SerializeComponents<Hydra::Ext::TypeTuple<T, Args...>> {
 		SerializeComponents<Hydra::Ext::TypeTuple<Args...>>::apply(this_, json);
 	}
 };
-
 
 void Entity::serialize(nlohmann::json& json) const {
 	json["name"] = name;

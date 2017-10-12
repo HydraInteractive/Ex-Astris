@@ -19,7 +19,7 @@
 using namespace Hydra::World;
 
 namespace Hydra::Component {
-	struct HYDRA_API TransformComponent final : public IComponent<TransformComponent, ComponentBits::Transform> {
+	struct HYDRA_BASE_API TransformComponent final : public IComponent<TransformComponent, ComponentBits::Transform> {
 		glm::vec3 position = glm::vec3{0, 0, 0};
 		glm::vec3 scale = glm::vec3{1, 1, 1};
 		glm::quat rotation = glm::quat();
