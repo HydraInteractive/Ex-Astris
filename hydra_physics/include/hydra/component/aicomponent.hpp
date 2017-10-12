@@ -68,6 +68,7 @@ namespace Hydra::Component {
 		PathFinding* _pathFinding = new PathFinding();
 		BossPhase _bossPhase;
 		EnemyTypes _enemyID = EnemyTypes::Alien;
+
 		std::vector<std::shared_ptr<Hydra::World::IEntity>> _spawnGroup;
 
 		int _debugState;
@@ -100,6 +101,7 @@ namespace Hydra::Component {
 		bool _stunned;
 
 		std::random_device rd;
+
 		Uint32 _timer;
 		Uint32 _spawnTimer;
 		Uint32 _stunTimer;

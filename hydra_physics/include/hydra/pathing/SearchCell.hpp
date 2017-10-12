@@ -10,6 +10,7 @@
 #define WORLD_SIZE 64
 #define CELL_SIZE 1.0f
 #include <math.h>
+#include <algorithm>
 
 struct SearchCell
 {
@@ -19,7 +20,7 @@ struct SearchCell
 		std::shared_ptr<SearchCell> parent;
 		float G;
 		float H;
-
+		
 		SearchCell() : parent() {}
 		SearchCell(int x, int z, std::shared_ptr<SearchCell> _parent) : m_xcoord(x), m_zcoord(z),
 			m_id(z * WORLD_SIZE + x), parent(_parent), G(0), H(0) {}
@@ -31,5 +32,13 @@ struct SearchCell
 			float z = (float)(fabs((float)(this->m_zcoord - nodeEnd->m_zcoord)));
 
 			return x + z;
+		}
+
+		float chebyshevDistance(std::shared_ptr<SearchCell> nodeEnd)
+		{
+			float x = (float)(fabs((float)(this->m_xcoord - nodeEnd->m_xcoord)));
+			float z = (float)(fabs((float)(this->m_zcoord - nodeEnd->m_zcoord)));
+
+			return (std::max)(x, z);
 		}
 };

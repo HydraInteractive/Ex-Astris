@@ -24,7 +24,7 @@ EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID, glm::vec3 po
 	_falling = false;
 	_stunned = false;
 	_pathState = IDLE;
-	_bossPhase = CHILLING;
+	_bossPhase = CLAWING;
 	_spawnAmount = 0;
 	_oldMapPosX = 0;
 	_oldMapPosZ = 0;
@@ -37,7 +37,7 @@ EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID, glm::vec3 po
 
 	_mapOffset = glm::vec3(-30.0f, 0, -30.0f);
 
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 2; i++)
 	{
 		_map[10][10+i] = 1;
 	}
@@ -203,6 +203,20 @@ void EnemyComponent::tick(TickAction action, float delta) {
 			}break;
 			}
 
+			_playerSeen = _checkLine(_map, enemy->getPosition(), player->getPosition());
+
+			if (_playerSeen == false)
+			{
+				if (_range > 2.0f)
+				{
+					_range -= 1.0f;
+				}
+			}
+			else
+			{
+				_range = _originalRange;
+			}
+
 			_position = _position + glm::vec3(_velocityX, _velocityY, _velocityZ);
 			enemy->setPosition(_position);
 			enemy->setRotation(_rotation);
@@ -345,7 +359,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 
 			if (_playerSeen == false)
 			{
-				if (_range > 6.0f)
+				if (_range > 2.0f)
 				{
 					_range -= 1.0f;
 				}
@@ -767,20 +781,7 @@ void EnemyComponent::registerUI() {
 
 int Hydra::Component::EnemyComponent::getWall(int x, int y)
 {
-	int result = 0;
-	if (_map[x][y] == 1)
-	{
-		result = 1;
-	}
-	else if (_map[x][y] == 2)
-	{
-		result = 2;
-	}
-	else if (_map[x][y] == 3)
-	{
-		result = 3;
-	}
-	return result;
+	return _map[x][y];
 }
 
 bool Hydra::Component::EnemyComponent::_checkLine(int levelmap[WORLD_SIZE][WORLD_SIZE], glm::vec3 A, glm::vec3 B)

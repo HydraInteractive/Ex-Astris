@@ -89,7 +89,7 @@ void PathFinding::_setStartAndGoal(SearchCell start, SearchCell end)
 	_endCell = std::make_shared<SearchCell>(end.m_xcoord, end.m_zcoord, std::make_shared<SearchCell>(end));
 
 	_startCell->G = 0;
-	_startCell->H = _startCell->manHattanDistance(_endCell);
+	_startCell->H = _startCell->chebyshevDistance(_endCell);
 	_startCell->parent = 0;
 	_openList.push_back(_startCell);
 }

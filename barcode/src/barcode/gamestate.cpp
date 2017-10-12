@@ -758,10 +758,6 @@ namespace Barcode {
 		auto particleEmitter2 = _world->createEntity("ParticleEmitter2");
 		particleEmitter2->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::BogdanDeluxe, 3, glm::vec3(5, 5, 0));
 		*/
-
-		auto alienEntity = _world->createEntity("Enemy Alien");
-		alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(5, 0, 5), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
-		alienEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 		
 		auto pointLight1 = _world->createEntity("Pointlight1");
 		pointLight1->addComponent<Hydra::Component::TransformComponent>();
@@ -773,6 +769,18 @@ namespace Barcode {
 		auto p2LC = pointLight2->addComponent<Hydra::Component::LightComponent>();
 		p2LC->setColor(glm::vec3(0, 0, 1));
 		
+		auto alienEntity1 = _world->createEntity("Enemy Alien");
+		alienEntity1->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(5, 0, 5), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+		alienEntity1->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+
+		//auto alienEntity2 = _world->createEntity("Enemy Alien");
+		//alienEntity2->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(20, 0, 20), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+		//alienEntity2->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+
+		//auto alienEntity3 = _world->createEntity("Enemy Alien");
+		//alienEntity3->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(-10, 0, -10), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+		//alienEntity3->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+
 		//auto robotEntity = _world->createEntity("Enemy Robot");
 		//robotEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Robot, glm::vec3(15, 0, 15), 70, 11, 25.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 		//robotEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
