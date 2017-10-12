@@ -74,6 +74,7 @@ namespace Barcode {
 		RenderBatch _viewBatch;
 		RenderBatch _postTestBatch;
 		RenderBatch _shadowBatch;
+		RenderBatch _hudBatch;
 
 		ParticleRenderBatch _particleBatch;
 
