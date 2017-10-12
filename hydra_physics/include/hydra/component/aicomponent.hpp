@@ -99,7 +99,7 @@ namespace Hydra::Component {
 		int _map[WORLD_SIZE][WORLD_SIZE];
 		int _oldMapPosX;
 		int _oldMapPosZ;
-
+		float time = 0;
 		// Private functions
 		bool _checkLine(int levelmap[WORLD_SIZE][WORLD_SIZE], glm::vec3 A, glm::vec3 B);
 	};

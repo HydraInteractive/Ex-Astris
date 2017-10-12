@@ -16,22 +16,26 @@
 
 class PathFinding
 {
-public:	
+public:
+	//A 2D vector with x and z axies instead of x and y
 	struct MapVec
 	{
-		glm::vec2 baseVec = glm::vec2(1.0f,2.0f);
-		
+		glm::vec2 baseVec;
+
+		MapVec(float x, float z) { baseVec = glm::vec2(x, z); }
+		MapVec() { baseVec = glm::vec2(0.0f, 0.0f); }
+
 		float& x() { return baseVec.x; }
 		float& z() { return baseVec.y; }
 		glm::vec3& vec3() { return glm::vec3(baseVec.x, 0, baseVec.y); }
 		void set(glm::vec2 &vec) { baseVec = vec; }
 		void set(glm::vec3 &vec) { baseVec = glm::vec2(vec.x,vec.z); }
-		glm::vec3 MapVec::operator=(glm::vec3 vec) { return glm::vec3(baseVec.x, 0, baseVec.y); }
-		glm::vec2 MapVec::operator=(glm::vec2 vec) { return baseVec; }
+
+		operator glm::vec3()& { return glm::vec3(baseVec.x, 0, baseVec.y); }
+		operator glm::vec2()& { return baseVec; }
 	};
 	struct Node
 	{
-		//X and Y represent the 2D map's dimensions not the world's. X = worldX, Y = worldZ
 		MapVec pos;
 		int id;
 		std::shared_ptr<Node> parent;
@@ -50,34 +54,43 @@ public:
 		}
 
 		float getF() { return G + H; }
-		float manHattanDistance(std::shared_ptr<Node> nodeEnd)
+		//float manHattanDistance(std::shared_ptr<Node> nodeEnd)
+		//{
+		//	float x = fabs((float)(this->pos.x() - nodeEnd->pos.x()));
+		//	float z = fabs((float)(this->pos.z() - nodeEnd->pos.z()));
+		//	return x + z;
+		//}
+		//float chebyshevDistance(std::shared_ptr<Node> nodeEnd)
+		//{
+		//	float x = fabs((float)(this->pos.x() - nodeEnd->pos.x()));
+		//	float z = fabs((float)(this->pos.z() - nodeEnd->pos.z()));
+		//	return std::fmax(x, z);
+		//}
+		float actualDistance(std::shared_ptr<Node> nodeEnd)
 		{
-			float x = (float)(fabs((float)(this->pos.x() - nodeEnd->pos.x())));
-			float z = (float)(fabs((float)(this->pos.z() - nodeEnd->pos.z())));
-
-			return x + z;
+			return std::sqrt(std::pow(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::pow(this->pos.z() - nodeEnd->pos.z(), 2.0f));
 		}
 	};
 
 	PathFinding();
 	virtual ~PathFinding();
 
-	void findPath(glm::vec3 currentPos, glm::vec3 targetPos, int(&map)[WORLD_SIZE][WORLD_SIZE]);
-	glm::vec3 nextPathPos(glm::vec3 pos, float radius);
-	void clearOpenList() { _openList.clear(); }
+	void findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, int(&map)[WORLD_SIZE][WORLD_SIZE]);
+	glm::vec3 nextPathPos(const glm::vec3& pos, const float& radius);
 	void clearVisitedList() { _visitedList.clear(); }
+	void clearOpenList() { _openList.clear(); }
 	void clearPathToGoal() { _pathToEnd.clear(); }
 
 	bool intializedStartGoal;
 	bool foundGoal;
 	std::vector<std::shared_ptr<Node>> _openList;
 	std::vector<std::shared_ptr<Node>> _visitedList;
-	std::vector<glm::vec3> _pathToEnd;
+	std::vector<MapVec> _pathToEnd;
 	
 private:
 	std::shared_ptr<Node> _startCell;
 	std::shared_ptr<Node> _endCell;
 
-	void _pathOpened(int x, int z, float newCost, std::shared_ptr<Node> parent, int(&map)[WORLD_SIZE][WORLD_SIZE]);
+	void _discoverNode(int x, int z, float newCost, std::shared_ptr<Node> parent, int(&map)[WORLD_SIZE][WORLD_SIZE]);
 	std::shared_ptr<Node> _getNextCell();
 };
