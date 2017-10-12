@@ -65,7 +65,7 @@ namespace Hydra::Component {
 		glm::quat _orientation;
 
 		float _fov = 90.0f;
-		float _zNear = 0.001f;
+		float _zNear = 0.1f;
 		float _zFar = 75.0f;
 		float _aspect = 1920.0f/1080.0f;
 

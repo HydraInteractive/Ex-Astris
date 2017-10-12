@@ -19,6 +19,7 @@
     <ClInclude Include="include\hydra\component\lightcomponent.hpp" />
     <ClInclude Include="include\hydra\component\meshcomponent.hpp" />
     <ClInclude Include="include\hydra\component\particlecomponent.hpp" />
+    <ClInclude Include="include\hydra\component\pointlightcomponent.hpp" />
     <ClInclude Include="include\hydra\component\transformcomponent.hpp" />
     <ClInclude Include="include\hydra\ext\vram.hpp" />
     <ClInclude Include="include\hydra\io\glmeshloader.hpp" />
@@ -47,6 +48,7 @@
     <ClCompile Include="src\component\lightcomponent.cpp" />
     <ClCompile Include="src\component\meshcomponent.cpp" />
     <ClCompile Include="src\component\particlecomponent.cpp" />
+    <ClCompile Include="src\component\pointlightcomponent.cpp" />
     <ClCompile Include="src\component\transformcomponent.cpp" />
     <ClCompile Include="src\ext\vram.cpp" />
     <ClCompile Include="src\io\input.cpp" />

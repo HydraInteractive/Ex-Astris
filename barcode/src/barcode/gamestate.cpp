@@ -36,7 +36,7 @@ namespace Barcode {
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 
-			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize, 4);
+			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize, 0);
 			batch.output
 				->addTexture(0, Hydra::Renderer::TextureType::f16RGB) // Position
 				.addTexture(1, Hydra::Renderer::TextureType::u8RGB) // Diffuse
@@ -396,24 +396,22 @@ namespace Barcode {
 
 			_lightingBatch.pipeline->setValue(6, _cc->getPosition());
 			_lightingBatch.pipeline->setValue(7, enableSSAO);
-			auto& lights = _world->getActiveComponents<Hydra::Component::LightComponent>();
+			auto& lights = _world->getActiveComponents<Hydra::Component::PointLightComponent>();
 
-			_lightingBatch.pipeline->setValue(8, (int)(lights.size() - 1));
+			_lightingBatch.pipeline->setValue(8, (int)(lights.size()));
 			_lightingBatch.pipeline->setValue(9, _light->getDirection());
 			_lightingBatch.pipeline->setValue(10, _light->getColor());
 			
 			// good code lmao XD
 			int i = 11;
 			for (auto& le : lights) {
-				auto lc = le->getComponent<Hydra::Component::LightComponent>();
-				if (lc == _light)
-					continue;
+				auto pc = le->getComponent<Hydra::Component::PointLightComponent>();
 
-				_lightingBatch.pipeline->setValue(i++, lc->getPosition());
-				_lightingBatch.pipeline->setValue(i++, lc->getColor());
-				_lightingBatch.pipeline->setValue(i++, lc->getConstant());
-				_lightingBatch.pipeline->setValue(i++, lc->getLinear());
-				_lightingBatch.pipeline->setValue(i++, lc->getQuadratic());
+				_lightingBatch.pipeline->setValue(i++, pc->getPosition());
+				_lightingBatch.pipeline->setValue(i++, pc->getColor());
+				_lightingBatch.pipeline->setValue(i++, pc->getConstant());
+				_lightingBatch.pipeline->setValue(i++, pc->getLinear());
+				_lightingBatch.pipeline->setValue(i++, pc->getQuadratic());
 			}
 
 			(*_geometryBatch.output)[0]->bind(0);
@@ -765,8 +763,30 @@ namespace Barcode {
 		auto pointLight1 = _world->createEntity("Pointlight1");
 		pointLight1->addComponent<Hydra::Component::TransformComponent>();
 		pointLight1->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");
-		auto p1LC = pointLight1->addComponent<Hydra::Component::LightComponent>();
+		auto p1LC = pointLight1->addComponent<Hydra::Component::PointLightComponent>();
 		p1LC->setColor(glm::vec3(0,1,0));
+
+		auto pointLight2 = _world->createEntity("Pointlight2");
+		pointLight2->addComponent<Hydra::Component::TransformComponent>();
+		pointLight2->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");
+		auto p2LC = pointLight2->addComponent<Hydra::Component::PointLightComponent>();
+		p2LC->setPosition(glm::vec3(45, 0, 0));
+		p2LC->setColor(glm::vec3(1, 0, 0));
+
+		auto pointLight3 = _world->createEntity("Pointlight3");
+		pointLight3->addComponent<Hydra::Component::TransformComponent>();
+		pointLight3->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");
+		auto p3LC = pointLight3->addComponent<Hydra::Component::PointLightComponent>();
+		p3LC->setPosition(glm::vec3(0, 0, 45));
+		p3LC->setColor(glm::vec3(1, 0, 0));
+
+		auto pointLight4 = _world->createEntity("Pointlight4");
+		pointLight4->addComponent<Hydra::Component::TransformComponent>();
+		pointLight4->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");
+		auto p4LC = pointLight4->addComponent<Hydra::Component::PointLightComponent>();
+		p4LC->setPosition(glm::vec3(45, 0, 45));
+		p4LC->setColor(glm::vec3(1, 0, 0));
+
 
 		//auto pointLight2 = _world->createEntity("Pointlight2");
 		//pointLight2->addComponent<Hydra::Component::TransformComponent>();
@@ -790,10 +810,6 @@ namespace Barcode {
 		auto test = _world->createEntity("test");
 		test->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");
 		test->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-7, 0, 0), glm::vec3(1, 1, 1), glm::quat(0, 0, -1, 0));
-
-		auto test2 = _world->createEntity("test2");
-		test2->addComponent<Hydra::Component::MeshComponent>("assets/objects/Wall1.ATTIC");
-		test2->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-20, 0, 0), glm::vec3(1, 1, 1), glm::quat(0.7, 0, -1, 0));
 
 		auto test3 = _world->createEntity("test3");
 		test3->addComponent<Hydra::Component::MeshComponent>("assets/objects/Wall1.ATTIC");
@@ -819,7 +835,6 @@ namespace Barcode {
 		auto lightEntity = _world->createEntity("Light");
 		_light = lightEntity->addComponent<Hydra::Component::LightComponent>();
 		_light->setPosition(glm::vec3(-5.0, 0.75, 4.3));
-		_light->translate(glm::vec3(10, 0, 0));
 		_light->setDirection(glm::vec3(-1, 0, 0));
 		_light->setColor(glm::vec3(1));
 		lightEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(8.0, 0, 3.5));

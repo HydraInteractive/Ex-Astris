@@ -63,8 +63,6 @@ void main() {
 		
 		if (dot(normalize(p0 - cameraPos), triangleNormal) >= 0)
 			return;
-
-		//outData.normal = normalize(triangleNormal);
 	}
 
 	for (i = 0; i < 3; i++) {

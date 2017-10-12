@@ -649,7 +649,6 @@ namespace Barcode {
 		auto lightEntity = _world->createEntity("Light");
 		_light = lightEntity->addComponent<Hydra::Component::LightComponent>();
 		_light->setPosition(glm::vec3(-5.0, 0.75, 4.3));
-		_light->translate(glm::vec3(10, 0, 0));
 		_light->setDirection(glm::vec3(-1, 0, 0));
 		lightEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(8.0, 0, 3.5));
 
