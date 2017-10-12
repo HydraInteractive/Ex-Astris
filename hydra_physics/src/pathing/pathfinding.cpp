@@ -19,7 +19,7 @@ PathFinding::~PathFinding(){
 
 }
 
-void PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos, int map[WORLD_SIZE][WORLD_SIZE])
+void PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos, int (&map)[WORLD_SIZE][WORLD_SIZE])
 {
 	if (!intializedStartGoal) 
 	{
@@ -52,9 +52,61 @@ void PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos, int map[WO
 		intializedStartGoal = true;
 	}
 
-	if (intializedStartGoal)
+	for (size_t i = 0; i < 4; i++)
 	{
-		_continuePath(map);
+		if (_openList.empty())
+		{
+			return;
+		}
+
+		std::shared_ptr<Node> currentCell = _getNextCell();
+
+		if (currentCell->id == _endCell->id)
+		{
+			_endCell->parent = currentCell->parent;
+
+			std::shared_ptr<Node> getPath;
+
+			for (getPath = _endCell; getPath != NULL; getPath = getPath->parent)
+			{
+				_pathToEnd.push_back(glm::vec3(getPath->pos.x() * CELL_SIZE, 0, getPath->pos.z() * CELL_SIZE));
+			}
+			foundGoal = true;
+		}
+		else
+		{
+			//East
+			_pathOpened(currentCell->pos.x() + 1, currentCell->pos.z(), currentCell->G + 1, currentCell, map);
+			
+			//West
+			_pathOpened(currentCell->pos.x() - 1, currentCell->pos.z(), currentCell->G + 1, currentCell, map);
+			
+			//North
+			_pathOpened(currentCell->pos.x(), currentCell->pos.z() + 1, currentCell->G + 1, currentCell, map);
+			
+			//South
+			_pathOpened(currentCell->pos.x(), currentCell->pos.z() - 1, currentCell->G + 1, currentCell, map);
+			
+			//North West
+			_pathOpened(currentCell->pos.x() - 1, currentCell->pos.z() + 1, currentCell->G + 1.414f, currentCell, map);
+			
+			//North East
+			_pathOpened(currentCell->pos.x() + 1, currentCell->pos.z() + 1, currentCell->G + 1.414f, currentCell, map);
+			
+			//South West
+			_pathOpened(currentCell->pos.x() - 1, currentCell->pos.z() - 1, currentCell->G + 1.414f, currentCell, map);
+			
+			//South East
+			_pathOpened(currentCell->pos.x() + 1, currentCell->pos.z() - 1, currentCell->G + 1.414f, currentCell, map);
+
+			for (size_t i = 0; i < _openList.size(); i++)
+			{
+				if (currentCell->id == _openList[i]->id)
+				{
+					_openList.erase(_openList.begin() + i);
+				}
+			}
+		}
 	}
 }
 
@@ -76,7 +128,7 @@ glm::vec3 PathFinding::nextPathPos(glm::vec3 pos, float radius)
 	return nextPos;
 }
 
-void PathFinding::_pathOpened(int x, int z, float newCost, std::shared_ptr<Node> parent, int map[WORLD_SIZE][WORLD_SIZE])
+void PathFinding::_pathOpened(int x, int z, float newCost, std::shared_ptr<Node> parent, int(&map)[WORLD_SIZE][WORLD_SIZE])
 {
 	if (map[x][z] == 1 || map[x][z] == 2)
 	{
@@ -86,7 +138,7 @@ void PathFinding::_pathOpened(int x, int z, float newCost, std::shared_ptr<Node>
 	int id = z * WORLD_SIZE + x;
 	for (size_t i = 0; i < _visitedList.size(); i++)
 	{
-		if (id == _visitedList[i]->m_id)
+		if (id == _visitedList[i]->id)
 		{
 			return;
 		}
@@ -99,7 +151,7 @@ void PathFinding::_pathOpened(int x, int z, float newCost, std::shared_ptr<Node>
 
 	for (size_t i = 0; i < _openList.size(); i++)
 	{
-		if (id == _openList[i]->m_id)
+		if (id == _openList[i]->id)
 		{
 			float newF = newCell->G + newCost + _openList[i]->H;
 			
@@ -142,58 +194,5 @@ std::shared_ptr<PathFinding::Node> PathFinding::_getNextCell()
 	}
 
 	return nextCell;
-}
-
-void PathFinding::_continuePath(int map[WORLD_SIZE][WORLD_SIZE])
-{
-	for (size_t i = 0; i < 4; i++)
-	{
-		if (_openList.empty())
-		{
-			return;
-		}
-
-		std::shared_ptr<Node> currentCell = _getNextCell();
-
-		if (currentCell->m_id == _endCell->m_id)
-		{
-			_endCell->parent = currentCell->parent;
-
-			std::shared_ptr<Node> getPath;
-
-			for (getPath = _endCell; getPath != NULL; getPath = getPath->parent)
-			{
-				_pathToEnd.push_back(glm::vec3(getPath->pos.x * CELL_SIZE, 0, getPath->pos.y * CELL_SIZE));
-			}
-			foundGoal = true;
-		}
-		else
-		{
-			//rightSide
-			_pathOpened(currentCell->pos.x + 1, currentCell->pos.y, currentCell->G + 1, currentCell, map);
-			//leftSide
-			_pathOpened(currentCell->pos.x - 1, currentCell->pos.y, currentCell->G + 1, currentCell, map);
-			//upSide
-			_pathOpened(currentCell->pos.x, currentCell->pos.y + 1, currentCell->G + 1, currentCell, map);
-			//downSide
-			_pathOpened(currentCell->pos.x, currentCell->pos.y - 1, currentCell->G + 1, currentCell, map);
-			//left-up diagonal
-			_pathOpened(currentCell->pos.x - 1, currentCell->pos.y + 1, currentCell->G + 1.414f, currentCell, map);
-			//right-up diagonal
-			_pathOpened(currentCell->pos.x + 1, currentCell->pos.y + 1, currentCell->G + 1.414f, currentCell, map);
-			//left-down diagonal
-			_pathOpened(currentCell->pos.x - 1, currentCell->pos.y - 1, currentCell->G + 1.414f, currentCell, map);
-			//right-down diagonal
-			_pathOpened(currentCell->pos.x + 1, currentCell->pos.y - 1, currentCell->G + 1.414f, currentCell, map);
-
-			for (size_t i = 0; i < _openList.size(); i++)
-			{
-				if (currentCell->m_id == _openList[i]->m_id)
-				{
-					_openList.erase(_openList.begin() + i);
-				}
-			}
-		}
-	}
 }
 
