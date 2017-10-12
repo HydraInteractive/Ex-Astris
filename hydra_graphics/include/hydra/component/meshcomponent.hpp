@@ -14,6 +14,8 @@
 #include <hydra/world/world.hpp>
 #include <hydra/renderer/renderer.hpp>
 
+#include <hydra/component/drawobjectcomponent.hpp>
+
 using namespace Hydra::World;
 
 // TODO: Implement LOD
@@ -21,7 +23,7 @@ using namespace Hydra::World;
 namespace Hydra::Component {
 	struct HYDRA_API MeshComponent final : public IComponent<MeshComponent, ComponentBits::Mesh> {
 		std::string meshFile;
-		Hydra::Renderer::DrawObject* drawObject;
+		std::shared_ptr<DrawObjectComponent> drawObject;
 		std::shared_ptr<Hydra::Renderer::IMesh> mesh;
 
 		~MeshComponent() final;

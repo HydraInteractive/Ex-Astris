@@ -114,3 +114,8 @@ void Entity::deserialize(nlohmann::json& json) {
 		}
 	}
 }
+
+
+void Blueprint::spawn(std::shared_ptr<Entity>& root) {
+	root->deserialize(getData());
+}

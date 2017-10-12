@@ -166,7 +166,7 @@ void EnemyComponent::tick(float delta) {
 					std::uniform_int_distribution<> randDmg(_damage - 1, _damage + 2);
 					if (SDL_GetTicks() > _attackTimer + 1500)
 					{
-						player->applyDamage(delta, randDmg(rng));
+						player->applyDamage(randDmg(rng));
 						_attackTimer = SDL_GetTicks();
 					}
 

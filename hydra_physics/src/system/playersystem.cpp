@@ -1,17 +1,26 @@
 #include <hydra/system/playersystem.hpp>
 
+#include <imgui/imgui.h>
+
 #include <hydra/component/playercomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
 
+using namespace Hydra::System;
 using namespace Hydra::Component;
+
+enum Keys {
+ H, F, COUNT
+};
 
 PlayerSystem::~PlayerSystem() {}
 
 void PlayerSystem::tick(float delta) {
 	using world = Hydra::World::World;
 	static std::vector<std::shared_ptr<Entity>> entities;
+	const Uint8* keysArray = SDL_GetKeyboardState(nullptr);
+	bool prevKBFrameState[Keys::COUNT] = {false};
 
 	//Process PlayerComponent
 	world::getEntitiesWithComponents<PlayerComponent, TransformComponent, CameraComponent>(entities);
@@ -24,14 +33,13 @@ void PlayerSystem::tick(float delta) {
 		player->activeBuffs.onTick(player->maxHealth, player->health);
 
 		if (player->health <= 0)
-			player->dead = true;
+			player->isDead = true;
 
-		auto weapon = player->getWeapon()->getComponent<Component::WeaponComponent>();
+		auto weapon = player->getWeapon()->getComponent<Hydra::Component::WeaponComponent>();
 
-		glm::mat4 rotation = glm::mat4_cast(camera->getOrientation());
+		glm::mat4 rotation = glm::mat4_cast(camera->orientation);
 
 		{
-			const Uint8* keysArray = SDL_GetKeyboardState(&keysArrayLength);
 			player->velocity = glm::vec3{0};
 			if (keysArray[SDL_SCANCODE_W])
 				player->velocity.z -= player->movementSpeed;
@@ -47,30 +55,25 @@ void PlayerSystem::tick(float delta) {
 				player->acceleration.y += 6.0f;
 				player->onGround = false;
 			}
-			if (keysArray[SDL_SCANCODE_H] && !lastKeysArray[SDL_SCANCODE_H])
-				{
-					upgradeHealth();
-				}
+			if (keysArray[SDL_SCANCODE_H] && !prevKBFrameState[Keys::H])
+					player->upgradeHealth();
 
-			if (keysArray[SDL_SCANCODE_F] && !lastKeysArray[SDL_SCANCODE_F]) {
-				auto& player = entity->getChildren();
+			if (keysArray[SDL_SCANCODE_F] && !prevKBFrameState[Keys::F]) {
 				const glm::vec3 forward = glm::vec3(glm::vec4{0, 0, 1, 0} * rotation);
-				auto abilitiesEntity = std::find_if(player.begin(), player.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Abilities"; });
-				player->activeAbillies.useAbility(abilitiesEntity->get(), player->position, -forward);
+				auto abilitiesEntity = std::find_if(entities[i]->children.begin(), entities[i]->children.end(), [](Hydra::World::EntityID id) { return Hydra::World::World::getEntity(id)->name == "Abilities"; });
+				player->activeAbillies.useAbility(Hydra::World::World::getEntity(*abilitiesEntity).get(), player->position, -forward);
 			}
 
 			if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && !ImGui::GetIO().WantCaptureMouse) {
 				const glm::vec3 forward = glm::vec3(glm::vec4{0, 0, 1, 0} * rotation);
 
 				//TODO: Make pretty?
-				glm::quat bulletOrientation = glm::angleAxis(-camera->getYaw(), glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->getPitch(), glm::vec3(1, 0, 0)));
+				glm::quat bulletOrientation = glm::angleAxis(-camera->cameraYaw, glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->cameraPitch, glm::vec3(1, 0, 0)));
 				float bulletVelocity = 1.0f;
 				player->activeBuffs.onAttack(bulletVelocity);
 
 				weapon->shoot(player->position, forward, bulletOrientation, bulletVelocity);
 			}
-			for (int i = 0; i < keysArrayLength; i++)
-				lastKeysArray[i] = keysArray[i];
 		}
 
 		player->acceleration.y -= 10.0f * delta;
@@ -86,16 +89,19 @@ void PlayerSystem::tick(float delta) {
 		}
 
 		if (player->firstPerson)
-			camera->setPosition(player->position);
+			camera->position = player->position;
 		else
-			camera->setPosition(player->position + glm::vec3(0, 3, 0) + glm::vec3(glm::vec4{-4, 0, 4, 0} * rotation));
+			camera->position = player->position + glm::vec3(0, 3, 0) + glm::vec3(glm::vec4{-4, 0, 4, 0} * rotation);
 
-		transform->setPosition(player->position);
-		transform->setRotation(camera->getOrientation());
+		transform->position = player->position;
+		transform->rotation = camera->orientation;
 
-		getWeapon()->getComponent<TransformComponent>()->setPosition(player->position + glm::vec3(glm::vec4{_weaponOffset, 0} * rotation));
-		getWeapon()->getComponent<TransformComponent>()->setRotation(glm::normalize(glm::conjugate(camera->getOrientation()) * glm::quat(glm::vec3(glm::radians(180.0f), 0, glm::radians(180.0f)))));
+		player->getWeapon()->getComponent<TransformComponent>()->position = player->position + glm::vec3(glm::vec4{player->weaponOffset, 0} * rotation);
+		player->getWeapon()->getComponent<TransformComponent>()->rotation = glm::normalize(glm::conjugate(camera->orientation) * glm::quat(glm::vec3(glm::radians(180.0f), 0, glm::radians(180.0f))));
 	}
+
+	prevKBFrameState[Keys::H] = !!keysArray[SDL_SCANCODE_H];
+	prevKBFrameState[Keys::F] = !!keysArray[SDL_SCANCODE_F];
 }
 
 void PlayerSystem::registerUI() {}

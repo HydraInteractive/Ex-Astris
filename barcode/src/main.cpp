@@ -64,10 +64,12 @@ namespace Barcode {
 				float delta = std::chrono::duration<float, std::chrono::milliseconds::period>(nowTime - lastTime).count() / 1000.f;
 				lastTime = nowTime;
 
-				/*{ // Remove old dead objects
-					_state->getWorld()->tick(TickAction::checkDead, delta);
-					_renderer->cleanup();
-					}*/
+				{ // Fetch new events
+					_view->update(_uiRenderer.get());
+					_uiRenderer->newFrame();
+				}
+
+				_deadSystem.tick(delta);
 
 				_state->runFrame(delta);
 				_uiRenderer->render(delta);
@@ -80,6 +82,8 @@ namespace Barcode {
 					_state->load();
 				}
 			}
+
+			Hydra::World::World::reset();
 		}
 
 		void quit() final { _quit = true; }
@@ -90,8 +94,8 @@ namespace Barcode {
 					setState<MenuState>();
 				if (ImGui::MenuItem("GameState", NULL, typeid(*_state) == typeid(GameState)))
 					setState<GameState>();
-				if (ImGui::MenuItem("EditorState", NULL, typeid(*_state) == typeid(EditorState)))
-					setState<EditorState>();
+				/*if (ImGui::MenuItem("EditorState", NULL, typeid(*_state) == typeid(EditorState)))
+					setState<EditorState>();*/
 				ImGui::EndMenu();
 			}
 			if (_state)
@@ -105,6 +109,7 @@ namespace Barcode {
 		View::IView* getView() final { return _view.get(); }
 		Renderer::IRenderer* getRenderer() final { return _renderer.get(); }
 		Renderer::IUIRenderer* getUIRenderer() final { return _uiRenderer.get(); }
+		Hydra::System::DeadSystem* getDeadSystem() final { return &_deadSystem; }
 
 		void log(LogLevel level, const char* fmt, ...) {
 			va_list va;
@@ -126,6 +131,8 @@ namespace Barcode {
 
 		std::unique_ptr<IState> _state;
 		std::unique_ptr<IState> _newState;
+
+		Hydra::System::DeadSystem _deadSystem;
 
 		void _setupComponents() {
 			using namespace Component::ComponentManager;

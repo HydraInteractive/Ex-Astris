@@ -4,6 +4,7 @@
 #include <hydra/component/EditorCameraComponent.hpp>
 #include <algorithm>
 
+using namespace Hydra::System;
 CameraSystem::~CameraSystem() {}
 
 void CameraSystem::tick(float delta) {

@@ -1,11 +1,13 @@
 #include <hydra/abilities/abilityHandler.hpp>
 
+using world = Hydra::World::World;
+
 AbilityHandler::AbilityHandler(){
 	_activeAbility = 0;
 	_abilityList.push_back(&AbilityHandler::mineAbility);
 	_cooldownList.push_back(0);
 }
-void AbilityHandler::useAbility(Hydra::World::IEntity* abilitiesEntity, glm::vec3 position, glm::vec3 direction) {
+void AbilityHandler::useAbility(Hydra::World::Entity* abilitiesEntity, glm::vec3 position, glm::vec3 direction) {
 	if (_cooldownList[_activeAbility] == 0)
 	{
 		(this->*_abilityList[_activeAbility])(abilitiesEntity, position, direction);
@@ -18,15 +20,19 @@ void AbilityHandler::useAbility(Hydra::World::IEntity* abilitiesEntity, glm::vec
 		}
 	}
 }
-void AbilityHandler::grenadeAbility(Hydra::World::IEntity* abilitiesEntity, glm::vec3 position, glm::vec3 direction) {
-	auto grenade = abilitiesEntity->createEntity("Grenade");
-	grenade->addComponent<Hydra::Component::GrenadeComponent>(direction);
-	grenade->addComponent<Component::MeshComponent>("assets/objects/Fridge.ATTIC");
-	grenade->addComponent<Component::TransformComponent>(position);
+void AbilityHandler::grenadeAbility(Hydra::World::Entity* abilitiesEntity, glm::vec3 position, glm::vec3 direction) {
+	auto grenade = world::newEntity("Grenade", abilitiesEntity);
+	auto g = grenade->addComponent<Hydra::Component::GrenadeComponent>();
+	g->direction = direction;
+	grenade->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge.ATTIC");
+	auto t = grenade->addComponent<Hydra::Component::TransformComponent>();
+	t->position = position;
 }
-void AbilityHandler::mineAbility(Hydra::World::IEntity* abilitiesEntity, glm::vec3 position, glm::vec3 direction) {
-	auto mine = abilitiesEntity->createEntity("Mine");
-	mine->addComponent<Hydra::Component::MineComponent>(direction);
-	mine->addComponent<Component::MeshComponent>("assets/objects/Fridge.ATTIC");
-	mine->addComponent<Component::TransformComponent>(position);
+void AbilityHandler::mineAbility(Hydra::World::Entity* abilitiesEntity, glm::vec3 position, glm::vec3 direction) {
+	auto mine = world::newEntity("Mine", abilitiesEntity);
+	auto m = mine->addComponent<Hydra::Component::MineComponent>();
+	m->direction = direction;
+	mine->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge.ATTIC");
+	auto t = mine->addComponent<Hydra::Component::TransformComponent>();
+	t->position = position;
 }

@@ -14,6 +14,7 @@
 #include <hydra/io/meshloader.hpp>
 #include <hydra/io/textureloader.hpp>
 #include <hydra/system/deadsystem.hpp>
+#include <hydra/system/bulletphysicssystem.hpp>
 
 namespace Barcode {
 	class MenuState final : public Hydra::IState {
@@ -28,7 +29,7 @@ namespace Barcode {
 
 		inline Hydra::IO::ITextureLoader* getTextureLoader() final { return _textureLoader.get(); }
 		inline Hydra::IO::IMeshLoader* getMeshLoader() final { return _meshLoader.get(); }
-		inline Hydra::Physics::IPhysicsManager* getPhysicsManager() final { return _physicsManager.get(); }
+		inline Hydra::World::ISystem* getPhysicsSystem() final { return &_physicsSystem; }
 
 	private:
 		struct RenderBatch final {
@@ -44,11 +45,9 @@ namespace Barcode {
 		Hydra::IEngine* _engine;
 		std::unique_ptr<Hydra::IO::ITextureLoader> _textureLoader;
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
-		std::unique_ptr<Hydra::Physics::IPhysicsManager> _physicsManager;
+		Hydra::System::BulletPhysicsSystem _physicsSystem;
 
 		RenderBatch _viewBatch;
-
-		DeadSystem deadSystem;
 
 		void _initSystem();
 		void _initWorld();

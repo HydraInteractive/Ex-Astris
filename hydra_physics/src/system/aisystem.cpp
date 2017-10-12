@@ -2,6 +2,8 @@
 
 #include <hydra/component/aicomponent.hpp>
 
+using namespace Hydra::System;
+
 AISystem::~AISystem() {}
 
 void AISystem::tick(float delta) {

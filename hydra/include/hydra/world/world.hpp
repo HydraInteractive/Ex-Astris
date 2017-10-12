@@ -39,6 +39,7 @@ namespace Hydra::Component {
 		Mine = BIT(10),
 		RigidBody = BIT(11),
 		EditorCamera = BIT(12),
+		DrawObject = BIT(13),
 	};
 #undef BIT
 
@@ -68,6 +69,7 @@ namespace Hydra::Component {
 	struct HYDRA_API MineComponent;
 	struct HYDRA_API RigidBodyComponent;
 	struct HYDRA_API EditorCameraComponent;
+	struct HYDRA_API DrawObjectComponent;
 
 	using ComponentTypes = Hydra::Ext::TypeTuple<
 		Hydra::World::IComponent<TransformComponent, ComponentBits::Transform>,
@@ -82,7 +84,8 @@ namespace Hydra::Component {
 		Hydra::World::IComponent<GrenadeComponent, ComponentBits::Grenade>,
 		Hydra::World::IComponent<MineComponent, ComponentBits::Mine>,
 		Hydra::World::IComponent<RigidBodyComponent, ComponentBits::RigidBody>,
-		Hydra::World::IComponent<EditorCameraComponent, ComponentBits::EditorCamera>
+		Hydra::World::IComponent<EditorCameraComponent, ComponentBits::EditorCamera>,
+		Hydra::World::IComponent<DrawObjectComponent, ComponentBits::DrawObject>
 	>;
 };
 
@@ -169,6 +172,8 @@ namespace Hydra::World {
 		EntityID entityID;
 		virtual ~IComponent() = 0;
 
+		// This would work if everything would be in the same library
+		//static inline const std::vector<std::shared_ptr<T>>& getActiveComponents() { return _components; }
 		static inline const std::vector<std::shared_ptr<IComponent<T, bit>>>& getActiveComponents() { return _components; }
 
 		static std::unordered_map<EntityID, size_t> _map;
@@ -218,6 +223,9 @@ namespace Hydra::World {
 		}
 
 		inline static std::shared_ptr<Entity> newEntity(const std::string& name, std::shared_ptr<Entity>& parent) {
+			return newEntity(name, parent->id);
+		}
+		inline static std::shared_ptr<Entity> newEntity(const std::string& name, Entity* parent) {
 			return newEntity(name, parent->id);
 		}
 
@@ -284,7 +292,7 @@ namespace Hydra::World {
 
 		inline nlohmann::json& getData() { return _root["data"]; }
 
-		Entity* spawn(World& world);
+		void spawn(std::shared_ptr<Entity>& root);
 
 		nlohmann::json _root;
 	};

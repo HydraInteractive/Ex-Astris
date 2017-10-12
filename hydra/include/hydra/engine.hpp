@@ -12,10 +12,10 @@
 
 #include <hydra/renderer/renderer.hpp>
 #include <hydra/renderer/uirenderer.hpp>
-#include <hydra/physics/physicsmanager.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/io/textureloader.hpp>
 #include <hydra/io/meshloader.hpp>
+#include <hydra/system/deadsystem.hpp>
 
 #ifndef PRINTFARGS
 #if defined(__clang__) || defined(__GNUC__)
@@ -51,7 +51,7 @@ namespace Hydra {
 
 		virtual IO::ITextureLoader* getTextureLoader() = 0;
 		virtual IO::IMeshLoader* getMeshLoader() = 0;
-		virtual Physics::IPhysicsManager* getPhysicsManager() = 0;
+		virtual World::ISystem* getPhysicsSystem() = 0;
 	};
 	inline IState::~IState() {}
 
@@ -76,6 +76,7 @@ namespace Hydra {
 		virtual View::IView* getView() = 0;
 		virtual Renderer::IRenderer* getRenderer() = 0;
 		virtual Renderer::IUIRenderer* getUIRenderer() = 0;
+		virtual Hydra::System::DeadSystem* getDeadSystem() = 0;
 
 		virtual void log(LogLevel level, const char* fmt, ...) PRINTFARGS(3) = 0;
 

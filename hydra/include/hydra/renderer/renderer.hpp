@@ -135,7 +135,7 @@ namespace Hydra::Renderer {
 	// TODO: Maybe add DrawObject for transparent stuff or just field
 	struct HYDRA_API DrawObject final {
 		std::vector<glm::mat4> transfomationMatrices;
-		int refCounter = 0;
+		size_t refCounter = 0;
 		bool disable = false; // Temporarily disable object
 		IMesh* mesh = nullptr; // & Material // TODO: Change to something else than IMesh?
 		glm::mat4 modelMatrix = glm::mat4(1);

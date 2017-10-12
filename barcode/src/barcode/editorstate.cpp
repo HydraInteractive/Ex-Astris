@@ -7,7 +7,6 @@ namespace Barcode {
 	void EditorState::load() {
 		_textureLoader = Hydra::IO::GLTextureLoader::create();
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
-		_physicsManager = Hydra::Physics::BulletManager::create();
 
 		_finalImage = _engine->getUIRenderer()->addRenderWindow();
 		_finalImage->enabled = true;

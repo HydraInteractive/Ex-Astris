@@ -4,7 +4,6 @@
 #include <hydra/renderer/glshader.hpp>
 #include <hydra/io/gltextureloader.hpp>
 #include <hydra/io/glmeshloader.hpp>
-#include <hydra/physics/bulletmanager.hpp>
 
 #include <barcode/gamestate.hpp>
 #include <imgui/imgui.h>
@@ -15,7 +14,6 @@ namespace Barcode {
 	void MenuState::load() {
 		_textureLoader = Hydra::IO::GLTextureLoader::create();
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
-		_physicsManager = Hydra::Physics::BulletManager::create();
 
 		{
 			auto& batch = _viewBatch;
@@ -42,17 +40,10 @@ namespace Barcode {
 	void MenuState::onMainMenu() {}
 
 	void MenuState::runFrame(float delta) {
-		deadSystem.tick(0);
-
-		{ // Fetch new events
-			_engine->getView()->update(_engine->getUIRenderer());
-			_engine->getUIRenderer()->newFrame();
-		}
-
 		{ // Update UI & views
 			ImGui::Begin("Main menu");
-			/*if (ImGui::Button("Play game"))
-				_engine->setState<GameState>();*/
+			if (ImGui::Button("Play game"))
+				_engine->setState<GameState>();
 
 			if (ImGui::Button("Quit"))
 				_engine->quit();
@@ -63,7 +54,7 @@ namespace Barcode {
 	}
 
 	void MenuState::_initSystem() {
-		const std::vector<Hydra::World::ISystem*> systems = {&deadSystem};
+		const std::vector<Hydra::World::ISystem*> systems = {_engine->getDeadSystem()};
 		_engine->getUIRenderer()->registerSystems(systems);
 	}
 

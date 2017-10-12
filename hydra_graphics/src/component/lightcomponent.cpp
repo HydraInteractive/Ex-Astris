@@ -1,4 +1,4 @@
-#include "hydra/component/lightcomponent.hpp"
+#include <hydra/component/lightcomponent.hpp>
 #include <imgui/imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 

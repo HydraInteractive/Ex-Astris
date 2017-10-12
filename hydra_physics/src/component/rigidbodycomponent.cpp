@@ -27,6 +27,8 @@ inline static btVector3 cast(const glm::vec3& v) { return btVector3{v.x, v.y, v.
 inline static glm::quat cast(const btQuaternion& r) { return glm::quat(r.w(), r.x(), r.y(), r.z()); }
 inline static glm::vec3 cast(const btVector3& v) { return glm::vec3(v.x(), v.y(), v.z()); }
 
+using CollisionShape = Hydra::System::BulletPhysicsSystem::CollisionShape;
+
 class ICallback {
 public:
 	typedef void (*Callback)(void* userptr);
@@ -35,7 +37,9 @@ public:
 
 class MotionStateImpl final : public btMotionState, public ICallback {
 public:
-	MotionStateImpl(IEntity* entity) : _entity(entity) {}
+	MotionStateImpl(EntityID entityID) {
+		_transform = Hydra::World::World::getEntity(entityID)->addComponent<TransformComponent>();
+	}
 
 	~MotionStateImpl() final {}
 
@@ -46,21 +50,18 @@ public:
 
 	// This will only be called once, and only need to return the initial. No cache needed
 	void getWorldTransform(btTransform& worldTransform) const {
-		if (!_transform)
-			const_cast<TransformComponent*&>(_transform) = (TransformComponent*)ComponentManager::createOrGetComponentMap().at("TransformComponent")(_entity);
-		worldTransform = btTransform(cast(_transform->getRotation()), cast(_transform->getPosition()));
+		worldTransform = btTransform(cast(_transform->rotation), cast(_transform->position));
 	}
 
 	void setWorldTransform(const btTransform& worldTransform)	{
-		_transform->setRotation(cast(worldTransform.getRotation()));
-		_transform->setPosition(cast(worldTransform.getOrigin()));
+		_transform->rotation = cast(worldTransform.getRotation());
+		_transform->position = cast(worldTransform.getOrigin());
 
 		if (_cb)
 			_cb(_userptr);
 	}
 private:
-	IEntity* _entity;
-	TransformComponent* _transform = nullptr;
+	std::shared_ptr<TransformComponent> _transform = nullptr;
 	Callback _cb = nullptr;
 	void* _userptr = nullptr;
 };
@@ -171,8 +172,8 @@ static SerializeShape getShapeSerializer(CollisionShape collisionShape) {
 }
 
 struct RigidBodyComponent::Data {
-	Data(IEntity* entity, CollisionShape collisionShape, SerializeShape serializeShape, std::unique_ptr<btCollisionShape> shape, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction) :
-		collisionShape(collisionShape), serializeShape(serializeShape), motionState(entity), shape(std::move(shape)), mass(mass), linearDamping(linearDamping), angularDamping(angularDamping), friction(friction), rollingFriction(rollingFriction) {}
+	Data(EntityID entityID, CollisionShape collisionShape, SerializeShape serializeShape, std::unique_ptr<btCollisionShape> shape, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction) :
+		collisionShape(collisionShape), serializeShape(serializeShape), motionState(entityID), shape(std::move(shape)), mass(mass), linearDamping(linearDamping), angularDamping(angularDamping), friction(friction), rollingFriction(rollingFriction) {}
 
 
 	btRigidBody* getRigidBody() {
@@ -204,11 +205,12 @@ private:
 	std::unique_ptr<btRigidBody> rigidBody;
 };
 
-RigidBodyComponent::RigidBodyComponent(IEntity* entity) : IComponent(entity), _data(nullptr) {}
-RigidBodyComponent::~RigidBodyComponent() {}
+RigidBodyComponent::~RigidBodyComponent() {
+	delete _data;
+}
 
 #define DEFAULT_PARAMS float mass, float linearDamping, float angularDamping, float friction, float rollingFriction
-#define MAKE_DATA(SHAPE_TYPE, SHAPE_PTR) _data = std::make_unique<Data>(entity, CollisionShape::SHAPE_TYPE, getShapeSerializer(CollisionShape::SHAPE_TYPE), std::unique_ptr<btCollisionShape>(SHAPE_PTR), mass, linearDamping,angularDamping, friction, rollingFriction)
+#define MAKE_DATA(SHAPE_TYPE, SHAPE_PTR) _data = new Data(entityID, CollisionShape::SHAPE_TYPE, getShapeSerializer(CollisionShape::SHAPE_TYPE), std::unique_ptr<btCollisionShape>(SHAPE_PTR), mass, linearDamping,angularDamping, friction, rollingFriction)
 
 void RigidBodyComponent::createBox(const glm::vec3& halfExtents, DEFAULT_PARAMS) {
 	MAKE_DATA(Box, new btBoxShape(cast(halfExtents)));
@@ -246,8 +248,6 @@ void RigidBodyComponent::createCylinderZ(const glm::vec3& halfExtents, DEFAULT_P
 #undef DEFAULT_PARAMS
 
 void* RigidBodyComponent::getRigidBody() { return static_cast<void*>(_data->getRigidBody()); }
-
-void RigidBodyComponent::tick(TickAction action, float delta) {(void)action; (void)delta;}
 void RigidBodyComponent::serialize(nlohmann::json& json) const {
 	json = {
 		{"collisionShape", static_cast<size_t>(_data->collisionShape)},
@@ -272,7 +272,7 @@ void RigidBodyComponent::deserialize(nlohmann::json& json) {
 	auto friction = json["friction"].get<float>();
 	auto rollingFriction = json["rollingFriction"].get<float>();
 
-	_data = std::make_unique<Data>(entity, collisionShape, serializeShape, std::move(shape), mass, linearDamping, angularDamping, friction, rollingFriction);
+	_data = new Data(entityID, collisionShape, serializeShape, std::move(shape), mass, linearDamping, angularDamping, friction, rollingFriction);
 }
 
 void RigidBodyComponent::registerUI() {

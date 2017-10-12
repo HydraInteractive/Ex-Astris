@@ -49,14 +49,13 @@ namespace Hydra::Component {
 	};
 
 	struct HYDRA_API ParticleComponent final : public IComponent<ParticleComponent, ComponentBits::Particle> {
-		/*int pps; // Particles per second.
+		int pps; // Particles per second.
 		float accumulator;
 		glm::quat tempRotation;
 		glm::vec2 offsetToTexture;
 		glm::vec3 emitterPos;
-		EmitterBehaviour behaviour;x
-		Hydra::Renderer::DrawObject* drawObject;
-		std::vector<std::sharedptr<Particle>> particles;*/
+		EmitterBehaviour behaviour;
+		std::vector<std::shared_ptr<Particle>> particles;
 
 		/*ParticleComponent(IEntity* entity);
 		ParticleComponent(IEntity* entity, EmitterBehaviour behaviour, ParticleTexture texture, int nrOfParticles, glm::vec3 pos);*/

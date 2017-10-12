@@ -5,6 +5,8 @@
 #include <hydra/abilities/grenadecomponent.hpp>
 #include <hydra/abilities/minecomponent.hpp>
 
+using namespace Hydra::System;
+
 AbilitySystem::~AbilitySystem() {}
 
 void AbilitySystem::tick(float delta) {
@@ -19,7 +21,7 @@ void AbilitySystem::tick(float delta) {
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 
 		g->direction.y += 0.8 * delta;
-		g->velocity = std::max(0, g->velocity - 2.0f * delta);
+		g->velocity = std::max(0.0f, g->velocity - 2.0f * delta);
 
 		if (g->fallingVelocity < 0)
 			g->fallingVelocity = 0;
@@ -32,7 +34,7 @@ void AbilitySystem::tick(float delta) {
 			t->position.y = 0.0f;
 			g->fallingVelocity -= 10.0f;
 			g->velocity -= 5.0f;
-			g->direction.y = -_direction.y;
+			g->direction.y = -g->direction.y;
 		}
 
 		if (g->velocity == 0 && g->fallingVelocity == 0)
@@ -43,11 +45,11 @@ void AbilitySystem::tick(float delta) {
 	world::getEntitiesWithComponents<Hydra::Component::MineComponent, Hydra::Component::TransformComponent>(entities);
 	#pragma omp parallel for
 	for (size_t i = 0; i < entities.size(); i++) {
-		auto m = entities[i]->getComponent<Hydra::Component::GrenadeComponent>();
+		auto m = entities[i]->getComponent<Hydra::Component::MineComponent>();
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 
 		m->direction.y += 0.8 * delta;
-		m->velocity = std::max(0, m->velocity - 2.0f * delta);
+		m->velocity = std::max(0.0f, m->velocity - 2.0f * delta);
 
 		if (m->fallingVelocity < 0)
 			m->fallingVelocity = 0;

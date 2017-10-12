@@ -22,19 +22,18 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 	struct HYDRA_API PlayerComponent final : public IComponent<PlayerComponent, ComponentBits::Player> {
-		glm::vec3 position = glm::vec3(0, 2, 20);
+		glm::vec3 position = glm::vec3(0, 2, 20); //TODO: Remove
+		glm::vec3 velocity = glm::vec3{0, 0, 0};// Same
+		glm::vec3 acceleration = glm::vec3{0, 0, 0}; // Same
 		glm::vec3 weaponOffset = glm::vec3{2, -1.5, -3};
-		glm::vec3 velocity = glm::vec3{0, 0, 0};
-		glm::vec3 acceleration = glm::vec3{0, 0, 0};
 		float movementSpeed = 20.0f;
 		bool onGround = false;
 		bool firstPerson = true;
-		float timer = 0.5;
-		int maxHealth = 100;
-		int health = 100;
-		bool dead = false;
+		int maxHealth = 100; // Move to LifeComponent
+		int health = 100; // SAME
+		bool isDead = false;
 
-		// TODO: Move?
+		// TODO: Move?!
 		AbilityHandler activeAbillies;
 		BuffHandler activeBuffs;
 
@@ -43,14 +42,14 @@ namespace Hydra::Component {
 		std::shared_ptr<Hydra::World::Entity> getWeapon();
 
 		inline const std::string type() const final { return "PlayerComponent"; }
-		void upgradeHealth(){
+		void upgradeHealth() {
 			if (activeBuffs.addBuff(BUFF_HEALTHUPGRADE))
 				activeBuffs.onActivation(maxHealth, health);
 
 			if (activeBuffs.addBuff(BUFF_DAMAGEUPGRADE))
 				activeBuffs.onActivation(maxHealth, health);
 		}
-		void applyDamage(float delta, int damage);
+		void applyDamage(int damage) { health -= damage; }
 
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;

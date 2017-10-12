@@ -3,6 +3,8 @@
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
 
+using namespace Hydra::System;
+
 BulletSystem::~BulletSystem() {}
 
 void BulletSystem::tick(float delta) {

@@ -18,21 +18,13 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-MeshComponent::~MeshComponent() {
-	if (drawObject) {
-		drawObject->mesh = nullptr;
-		drawObject->refCounter--;
-	}
-}
+MeshComponent::~MeshComponent() {}
 
 void MeshComponent::loadMesh(const std::string meshFile) {
 	this->meshFile = meshFile;
-	if (!drawObject) {
-		drawObject = Hydra::IEngine::getInstance()->getRenderer()->aquireDrawObject();
-		drawObject->refCounter++;
-	}
+	drawObject = Hydra::World::World::getEntity(entityID)->addComponent<DrawObjectComponent>();
 	mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(meshFile);
-	drawObject->mesh = mesh.get();
+	drawObject->drawObject->mesh = mesh.get();
 }
 
 void MeshComponent::serialize(nlohmann::json& json) const {
@@ -44,6 +36,5 @@ void MeshComponent::deserialize(nlohmann::json& json) {
 }
 
 void MeshComponent::registerUI() {
-	ImGui::Checkbox("Disable", &drawObject->disable);
 	ImGui::InputText("Mesh file", (char*)meshFile.c_str(), meshFile.length(), ImGuiInputTextFlags_ReadOnly);
 }

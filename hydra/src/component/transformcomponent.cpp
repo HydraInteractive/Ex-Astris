@@ -13,7 +13,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-//#include <imgui/imgui.h>
+#include <imgui/imgui.h>
 
 #include <hydra/engine.hpp>
 
@@ -45,10 +45,10 @@ void TransformComponent::deserialize(nlohmann::json& json) {
 }
 
 void TransformComponent::registerUI() {
-	/*dirty |= ImGui::DragFloat3("Position", glm::value_ptr(position), 0.01f);
+	dirty |= ImGui::DragFloat3("Position", glm::value_ptr(position), 0.01f);
 	dirty |= ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.01f);
 	dirty |= ImGui::DragFloat4("Rotation", glm::value_ptr(rotation), 0.01f);
-	dirty |= ImGui::Checkbox("Ignore parent", &ignoreParent);*/
+	dirty |= ImGui::Checkbox("Ignore parent", &ignoreParent);
 }
 
 void TransformComponent::_recalculateMatrix() {

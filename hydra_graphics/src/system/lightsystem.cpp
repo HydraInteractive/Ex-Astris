@@ -2,6 +2,7 @@
 
 #include <hydra/component/lightcomponent.hpp>
 
+using namespace Hydra::System;
 LightSystem::~LightSystem() {}
 
 void LightSystem::tick(float delta) {

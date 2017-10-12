@@ -2,12 +2,14 @@
 
 #include <hydra/world/world.hpp>
 
-class AISystem final : public Hydra::World::ISystem {
-public:
-	~AISystem() final;
+namespace Hydra::System {
+	class AISystem final : public Hydra::World::ISystem {
+	public:
+		~AISystem() final;
 
-	void tick(float delta) final;
+		void tick(float delta) final;
 
-	inline const std::string type() const final { return "AISystem"; }
-	void registerUI() final;
-};
+		inline const std::string type() const final { return "AISystem"; }
+		void registerUI() final;
+	};
+}

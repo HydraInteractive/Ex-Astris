@@ -20,32 +20,36 @@ using world = Hydra::World::World;
 
 WeaponComponent::~WeaponComponent() { }
 
-//TODO: (Re)move?
+//TODO: (Re)move? to system?
 void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity) {
 	if (!_bullets)
-		_bullets = world::newEntity("Bullets", entity);
+		_bullets = world::newEntity("Bullets", entityID);
 
 	if (fireRateTimer > 0)
 		return;
 
-	if (_bulletSpread == 0.0f) {
+	if (bulletSpread == 0.0f) {
 		auto bullet = world::newEntity("Bullet", _bullets);
-		bullet->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
-		bullet->addComponent<Hydra::Component::BulletComponent>(position, -direction, velocity);
-		auto transform = bullet->addComponent<Hydra::Component::TransformComponent>(position, glm::vec3(_bulletSize));
-
-		transform->setRotation(bulletOrientation);
+		bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge.ATTIC");
+		auto b = bullet->addComponent<Hydra::Component::BulletComponent>();
+		b->position = position;
+		b->direction = -direction;
+		b->velocity = velocity;
+		auto transform = bullet->addComponent<Hydra::Component::TransformComponent>();
+		transform->position = position;
+		transform->scale = glm::vec3(bulletSize);
+		transform->rotation = bulletOrientation;
 	} else {
-		for (int i = 0; i < _bulletsPerShot; i++) {
+		for (int i = 0; i < bulletsPerShot; i++) {
 			auto bullet = world::newEntity("Bullet", _bullets);
-			bullet->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
+			bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge.ATTIC");
 
-			std::random_device rd;
-			std::mt19937 gen(rd());
-			std::uniform_real_distribution<>dis(0, 2 * 3.14);
+			std::random_device rd; //
+			std::mt19937 gen(rd()); // FIXME: Why always the same random?
+			std::uniform_real_distribution<>dis(0, 2 * 3.14); //
 			float phi = dis(gen);
 			dis = std::uniform_real_distribution<>(0, 1.0);
-			float distance = dis(gen) * _bulletSpread;
+			float distance = dis(gen) * bulletSpread;
 			dis = std::uniform_real_distribution<>(0, 3.14);
 			float theta = dis(gen);
 
@@ -55,10 +59,15 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 			bulletDirection.z += distance * cos(theta);
 			bulletDirection = glm::normalize(bulletDirection);
 
-			bullet->addComponent<Hydra::Component::BulletComponent>(position, bulletDirection, velocity);
+			auto b = bullet->addComponent<Hydra::Component::BulletComponent>();
+			b->position = position;
+			b->direction = bulletDirection;
+			b->velocity = velocity;
 
-			auto transform = bullet->addComponent<Hydra::Component::TransformComponent>(position, glm::vec3(_bulletSize));
-			transform->setRotation(bulletOrientation);
+			auto transform = bullet->addComponent<Hydra::Component::TransformComponent>();
+			transform->position = position;
+			transform->scale = glm::vec3(bulletSize);
+			transform->rotation = bulletOrientation;
 		}
 	}
 	fireRateTimer = fireRateRPM / 60000.0;

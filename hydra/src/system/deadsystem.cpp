@@ -1,5 +1,6 @@
 #include <hydra/system/deadsystem.hpp>
 
+using namespace Hydra::System;
 DeadSystem::~DeadSystem() {}
 
 void DeadSystem::tick(float delta) {
