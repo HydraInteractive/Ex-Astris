@@ -343,9 +343,9 @@ namespace Barcode {
 					return glm::distance(glm::vec3(a[3]), cameraPos) < glm::distance(glm::vec3(b[3]), cameraPos);
 				});
 			}
-
+			
 			_engine->getRenderer()->render(_geometryBatch.batch);
-			_engine->getRenderer()->render(_animationBatch.batch);
+			_engine->getRenderer()->renderAnimation(_animationBatch.batch);
 			//_engine->getRenderer()->render(_shadowBatch.batch);
 			//_engine->getRenderer()->renderAnimation(_animationBatch.batch);
 		}
@@ -763,7 +763,19 @@ namespace Barcode {
 
 		auto alienAI = _world->createEntity("AlienAI");
 		alienAI->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
-		alienAnimation->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 1, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));		alienAI->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 5), 500, 2, 2, glm::vec3(2));
+		alienAI->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 0, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
+		alienAI->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 5), 500, 2, 2, glm::vec3(2));
+
+		auto alienAI2 = _world->createEntity("AlienAI2");
+		alienAI2->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
+		alienAI2->addComponent<Hydra::Component::TransformComponent>(glm::vec3(5, 0, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
+		alienAI2->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 5), 500, 2, 2, glm::vec3(2));
+
+
+		//auto tileTest = _world->createEntity("Tiles");
+		//tileTest->addComponent<Hydra::Component::MeshComponent>(5, 5);
+		//tileTest->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
+
 
 		auto test = _world->createEntity("test");
 		test->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");
