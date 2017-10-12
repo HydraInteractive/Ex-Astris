@@ -19,16 +19,6 @@
 using namespace Hydra;
 using namespace Hydra::Renderer;
 
-
-struct weights {
-	int nrOfIndices;
-	std::vector<int> indexPos;
-	std::vector<glm::vec3> polygonVerteciesIndex;
-	std::vector<glm::ivec4> controllers;
-	std::vector<glm::vec4> weightsInfluence;
-};
-weights weightInfo;
-
 class GLMeshImpl final : public IMesh {
 public:
 	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices) {
@@ -42,26 +32,6 @@ public:
 		_currentAnimationIndex = 0;
 		_loadATTICModel(file.c_str(), modelMatrixBuffer);
 	}
-
-	//For tile creation
-	GLMeshImpl(int xSize, int ySize, GLuint modelMatrixBuffer) {
-
-		_setupGrid(xSize, ySize);
-
-		for (int i = 0; i < tiles.size(); i++) {
-
-			//How to call this function?
-
-			//Ask about how the rooms will be set up from the file. With position of doors and so on
-
-			//Multiple animation models get the same animations. AI or me thinking wrong?
-
-			//Reach the model matrix of the room/items model matrix and multiply them with the tiles model matrix
-			//To get the room at the correct position
-
-		}
-	}
-
 
 	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices, bool animation, GLuint modelMatrixBuffer, GLuint particleExtraBuffer) {
 		_makeBuffers();
@@ -114,43 +84,6 @@ public:
 	};
 
 	weights weightInfo;
-
-	struct romInfo {
-
-		int nrOfTiles;
-		int nrOfDoors;
-
-		int roomID;
-
-		bool downDoor = false;
-		bool leftDoor = false;
-		bool upDoor = false;
-		bool rightDoor = false;
-
-		int xPos;
-		int yPos;
-
-		std::vector<int> tileIndices;
-		//Door indices for each room tile
-		//int doorIndices[4];
-
-		//std::vector<newMeshInfo*> realATTICMeshes;
-	};
-
-	struct tileInfo {
-
-		glm::vec3 middlePoint;
-
-		bool taken = false;
-
-		int xTilePos;
-		int yTilePos;
-
-		glm::mat4 tileModelMatrix;
-		romInfo room;
-
-	};
-	std::vector<tileInfo*> tiles;
 
 	Material& getMaterial() final { return _material; }
 
@@ -512,158 +445,6 @@ private:
 			_finishedMatrices[indexNmr].push_back(info);
 			skeleton[indexNmr].push_back(info);
 		}
-	}
-
-	void createMapRecursivly(tileInfo *tile) {
-
-		for (int i = 0; i < tile->room.nrOfDoors; i++) {
-
-			//Go through all doors in the room of the tile, create a random room
-			//That fits with the door, go through that room and so on, until the next
-			//you get to a "end room". Then go back and continue for next door
-
-
-			if (tile->room.downDoor == 1 && tile->yTilePos >= 0) {
-				//Find the tile under the current tile
-				for (int k = 0; k < tiles.size(); k++) {
-
-					if (tile->yTilePos == tiles[k]->yTilePos && tile->xTilePos == tiles[k]->xTilePos - 1) {
-						//Got em
-
-						//Set up fitting room
-						romInfo *rom = new romInfo;
-
-						//readATTICRoom("Models/Rooms/leftUpInfo.ATTIC", "Models/Rooms/leftUpModel.ATTIC", *rom);
-						tiles[k]->room = *rom;
-
-						//call function again from new tile
-						createMapRecursivly(tiles[k]);
-					}
-
-
-				}
-			}
-			//if (tile->room.leftDoor == 1 && tile->xTilePos >= 0) {
-			//	for (int k = 0; k < tiles.size(); k++) {
-			//		if (tile->xTilePos == tiles[k]->xTilePos - 1 && tile->yTilePos == tiles[k]->yTilePos) {
-			//			romInfo *rom = new romInfo;
-			//
-			//			readATTICRoom("Models/Rooms/leftUpRoomInfo.ATTIC", "Models/Rooms/leftUpRoomModel.ATTIC", *rom);
-			//			tiles[k]->room = *rom;
-			//
-			//			//call function again from new tile
-			//			createMapRecursivly(tiles[k]);
-			//		}
-			//	}
-			//}
-			//if (tile->room.upDoor == 1 && tile->yTilePos <= 4) {
-			//	for (int k = 0; k < tiles.size(); k++) {
-			//		if (tile->xTilePos == tiles[k]->xTilePos && tile->yTilePos == tiles[k]->yTilePos + 1) {
-			//			romInfo *rom = new romInfo;
-			//
-			//			readATTICRoom("Models/Rooms/leftUpRoomInfo.ATTIC", "Models/Rooms/leftUpRoomModel.ATTIC", *rom);
-			//			tiles[k]->room = *rom;
-			//
-			//			//call function again from new tile
-			//			createMapRecursivly(tiles[k]);
-			//		}
-			//	}
-			//
-			//}
-			//if (tile->room.rightDoor == 1 && tile->xTilePos <= 4) {
-			//	for (int k = 0; k < tiles.size(); k++) {
-			//		if (tile->xTilePos == tiles[k]->xTilePos + 1 && tile->yTilePos == tiles[k]->yTilePos) {
-			//			romInfo *rom = new romInfo;
-			//
-			//			readATTICRoom("Models/Rooms/leftUpRoomInfo.ATTIC", "Models/Rooms/leftUpRoomModel.ATTIC", *rom);
-			//			tiles[k]->room = *rom;
-			//
-			//			//call function again from new tile
-			//			createMapRecursivly(tiles[k]);
-			//		}
-			//	}
-			//}
-
-
-		}
-
-	}
-
-
-	void _setupGrid(int xSize, int ySize) {
-
-		int tileCount = 0;
-		int positiveXCount = 0;
-		int positiveYCount = 0;
-		int middleTile;
-		//Get the middle tile
-		//If the tiles are for example 4x4 grid, there is no exact middle
-		//Then we cannot subtract with 1
-		if ((xSize * ySize) % 2 == 0) {
-			middleTile = ((xSize * ySize)) / 2;
-		}
-		//Otherwise there is a middle point. We subtract with 1 to get the
-		//tiles in array order
-		else {
-			middleTile = ((xSize * ySize) - 1) / 2;
-		}
-
-		for (int y = 0; y < ySize; y++) {
-
-			positiveXCount = 0;
-			positiveYCount = 0;
-
-			for (int x = 0; x < xSize; x++) {
-
-				tileInfo *tile = new tileInfo;
-
-				float xPos = 34 * (x + 1) - 17;
-				float yPos = 34 * (y + 1) - 17;
-
-				//float xPos;
-				//float yPos;
-				//int xTilePosition = (xSize - (x + 1));
-				//int yTilePosition = (ySize - (y + 1));
-				//
-				//if (xTilePosition > 0) {
-				//	xPos = xTilePosition *(-17);
-				//	//xPos += 17;
-				//}
-				//else {
-				//	xPos = (abs(xTilePosition) + 1) * 17;
-				//	xPos += 17;
-				//}
-				//if (yTilePosition > 0) {
-				//	yPos = yTilePosition * - 17;
-				//	//yPos += 17;
-				//}
-				//else {
-				//	yPos = (abs(yTilePosition) + 1) * 17;
-				//	yPos += 17;
-				//}
-
-				tile->middlePoint = glm::vec3(xPos + 17, 0, yPos + 17);
-				
-				tile->tileModelMatrix = glm::rotate(glm::mat4(), glm::radians(360.0f), glm::vec3(0, 1, 0));
-				tile->tileModelMatrix = glm::scale(glm::vec3(1));
-				tile->tileModelMatrix[3] = glm::vec4(tile->middlePoint, 1);
-
-				//tile->room = *rom;
-
-				tile->xTilePos = x;
-				tile->yTilePos = y;
-				tiles.push_back(tile);
-
-				tileCount++;
-
-				delete[] tile;
-
-			}
-		}
-
-		createMapRecursivly(tiles[middleTile]);
-		//bool si = true;
-
 	}
 
 };
