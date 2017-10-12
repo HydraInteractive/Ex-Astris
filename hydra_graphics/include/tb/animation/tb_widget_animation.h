@@ -6,8 +6,8 @@
 #ifndef TB_WIDGET_ANIMATION_H
 #define TB_WIDGET_ANIMATION_H
 
-#include "tb_widgets_listener.h"
-#include "animation/tb_animation.h"
+#include <tb/tb_widgets_listener.h>
+#include <tb/animation/tb_animation.h>
 
 namespace tb {
 

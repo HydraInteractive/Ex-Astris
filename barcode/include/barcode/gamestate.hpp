@@ -22,15 +22,6 @@
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
 
-#include <tb/tb_widgets.h>
-#include <tb/tb_widgets_common.h>
-#include <tb/tb_widgets_reader.h>
-#include <tb/tb_widgets_listener.h>
-#include <tb/tb_message_window.h>
-#include <tb/tb_msg.h>
-#include <tb/tb_scroller.h>
-#include <tb/tests/tb_test.h>
-
 #include <hydra/io/input.hpp>
 
 namespace Barcode {

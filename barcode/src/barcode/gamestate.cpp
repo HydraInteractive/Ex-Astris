@@ -11,38 +11,6 @@
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
 
-
-#include <tb/tb_core.h>
-#include <tb/tb_widgets.h>
-#include <tb/tb_widgets_common.h>
-#include <tb/tb_widgets_reader.h>
-#include <tb/tb_widgets_listener.h>
-#include <tb/tb_message_window.h>
-#include <tb/tb_msg.h>
-#include <tb/tb_scroller.h>
-
-//#include <tb/renderers/tb_renderer_gl.h>
-//#include <tb/renderers/tb_renderer_batcher.h>
-//#include <tb/tb_config.h>
-//#include <tb/tb_dimension.h>
-//#include <tb/tb_editfield.h>
-//#include <tb/tb_font_renderer.h>
-//#include <tb/tb_font_desc.h>
-//#include <tb/tb_layout.h>
-//#include <tb/tb_window.h>
-//#include <tb/tests/tb_test.h>
-//#include <tb/tb_geometry.h>
-//#include <tb/tb_hash.h>
-//#include <tb/tb_hashtable.h>
-//#include <tb/tb_id.h>
-//#include <tb/tb_inline_select.h>
-//#include <tb/tb_language.h>
-//#include <tb/tb_layout.h>
-//#include <tb/tb_widgets_reader.h>
-//#include <tb/tb_widgets.h>
-//#include <tb/utf8/utf8.h>
-
-
 namespace Barcode {
 	GameState::GameState() : _engine(Hydra::IEngine::getInstance()) {}
 
