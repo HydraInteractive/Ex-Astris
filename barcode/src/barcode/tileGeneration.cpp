@@ -23,71 +23,72 @@ void tileGeneration::_createMapRecursivly(tileInfo *tile) {
 		//That fits with the door, go through that room and so on, until the next
 		//you get to a "end room". Then go back and continue for next door
 
-
 		if (tile->room.downDoor == 1 && tile->yTilePos >= 0) {
 			//Find the tile under the current tile
 			for (int k = 0; k < tiles.size(); k++) {
 
-				if (tile->yTilePos == tiles[k]->yTilePos && tile->xTilePos == tiles[k]->xTilePos - 1) {
-					//Got em
+				if (!tiles[k]->taken) {
+					if (tile->yTilePos == tiles[k]->yTilePos && tile->xTilePos == tiles[k]->xTilePos - 1) {
+						//Got em
 
-					//Set up fitting room
-					roomInfo *rom = new roomInfo;
+						//Set up fitting room
+						roomInfo *rom = new roomInfo;
 
-					//readATTICRoom("Models/Rooms/leftUpInfo.ATTIC", "Models/Rooms/leftUpModel.ATTIC", *rom);
-					tiles[k]->room = *rom;
+						//readATTICRoom("Models/Rooms/leftUpInfo.ATTIC", "Models/Rooms/leftUpModel.ATTIC", *rom);
+						tiles[k]->room = *rom;
 
-					//call function again from new tile
-					_createMapRecursivly(tiles[k]);
+						//call function again from new tile
+						_createMapRecursivly(tiles[k]);
+					}
 				}
-
-
 			}
 		}
 		if (tile->room.leftDoor == 1 && tile->xTilePos >= 0) {
 			for (int k = 0; k < tiles.size(); k++) {
-				if (tile->xTilePos == tiles[k]->xTilePos - 1 && tile->yTilePos == tiles[k]->yTilePos) {
-					roomInfo *rom = new roomInfo;
-		
-					//readATTICRoom("Models/Rooms/leftUpRoomInfo.ATTIC", "Models/Rooms/leftUpRoomModel.ATTIC", *rom);
-					tiles[k]->room = *rom;
-		
-					//call function again from new tile
-					_createMapRecursivly(tiles[k]);
+				if (!tiles[k]->taken) {
+					if (tile->xTilePos == tiles[k]->xTilePos - 1 && tile->yTilePos == tiles[k]->yTilePos) {
+						roomInfo *rom = new roomInfo;
+
+						//readATTICRoom("Models/Rooms/leftUpRoomInfo.ATTIC", "Models/Rooms/leftUpRoomModel.ATTIC", *rom);
+						tiles[k]->room = *rom;
+
+						//call function again from new tile
+						_createMapRecursivly(tiles[k]);
+					}
 				}
 			}
 		}
 		if (tile->room.upDoor == 1 && tile->yTilePos <= 4) {
 			for (int k = 0; k < tiles.size(); k++) {
-				if (tile->xTilePos == tiles[k]->xTilePos && tile->yTilePos == tiles[k]->yTilePos + 1) {
-					roomInfo *rom = new roomInfo;
-		
-					//readATTICRoom("Models/Rooms/leftUpRoomInfo.ATTIC", "Models/Rooms/leftUpRoomModel.ATTIC", *rom);
-					tiles[k]->room = *rom;
-		
-					//call function again from new tile
-					_createMapRecursivly(tiles[k]);
+				if (!tiles[k]->taken) {
+					if (tile->xTilePos == tiles[k]->xTilePos && tile->yTilePos == tiles[k]->yTilePos + 1) {
+						roomInfo *rom = new roomInfo;
+
+						//readATTICRoom("Models/Rooms/leftUpRoomInfo.ATTIC", "Models/Rooms/leftUpRoomModel.ATTIC", *rom);
+						tiles[k]->room = *rom;
+
+						//call function again from new tile
+						_createMapRecursivly(tiles[k]);
+					}
 				}
 			}
-		
 		}
 		if (tile->room.rightDoor == 1 && tile->xTilePos <= 4) {
 			for (int k = 0; k < tiles.size(); k++) {
-				if (tile->xTilePos == tiles[k]->xTilePos + 1 && tile->yTilePos == tiles[k]->yTilePos) {
-					roomInfo *rom = new roomInfo;
-		
-					//readATTICRoom("Models/Rooms/leftUpRoomInfo.ATTIC", "Models/Rooms/leftUpRoomModel.ATTIC", *rom);
-					tiles[k]->room = *rom;
-		
-					//call function again from new tile
-					_createMapRecursivly(tiles[k]);
+				if (!tiles[k]->taken) {
+					if (tile->xTilePos == tiles[k]->xTilePos + 1 && tile->yTilePos == tiles[k]->yTilePos) {
+						roomInfo *rom = new roomInfo;
+
+						//readATTICRoom("Models/Rooms/leftUpRoomInfo.ATTIC", "Models/Rooms/leftUpRoomModel.ATTIC", *rom);
+						tiles[k]->room = *rom;
+
+						//call function again from new tile
+						_createMapRecursivly(tiles[k]);
+					}
 				}
 			}
 		}
-
-
 	}
-
 }
 
 
