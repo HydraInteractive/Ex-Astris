@@ -76,6 +76,7 @@ namespace Barcode {
 		RenderBatch _postTestBatch;
 		RenderBatch _shadowBatch;
 		RenderBatch _ssaoBatch;
+		RenderBatch _hudBatch;
 
 		ParticleRenderBatch _particleBatch;
 
@@ -114,4 +115,14 @@ namespace Barcode {
 
 		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int nrOfTimes, glm::vec2 size, const std::vector<float>& kernel);
 	};
+
+	//class DemoWindow : public TBWindow
+	//{
+	//public:
+	//	DemoWindow(TBWidget *root);
+	//	bool LoadResourceFile(const char *filename);
+	//	void LoadResourceData(const char *data);
+	//	void LoadResource(TBNode &node);
+	//	virtual bool OnEvent(const TBWidgetEvent &ev);
+	//};
 }

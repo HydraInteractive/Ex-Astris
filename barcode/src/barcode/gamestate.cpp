@@ -1,3 +1,4 @@
+
 #include <barcode/gamestate.hpp>
 
 #include <hydra/renderer/glrenderer.hpp>
@@ -515,8 +516,8 @@ namespace Barcode {
 				degres = entity->getComponent<Hydra::Component::CameraComponent>()->getYaw();
 				degres = glm::degrees(degres);
 			}
-
-			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
+			
+			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0));
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, float(0.0f));
 
@@ -557,9 +558,9 @@ namespace Barcode {
 
 			//compas that turns with player
 
-			float degresP = ((float(100) / float(360) * degres) / 100);
+			float degresP = ((float(100) / float(360) * degres)/100);
 			float degresO = float(1000) * degresP;
-			ImGui::SetNextWindowPos(ImVec2(pos.x - 275, +70));
+			ImGui::SetNextWindowPos(ImVec2(pos.x - 275, + 70));
 			ImGui::SetNextWindowSize(ImVec2(600, 20));
 			ImGui::Begin("Compass", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/CompassCut.png")->getID()), ImVec2(550, 20), ImVec2(degresO / float(1000), 0), ImVec2((float(1) - ((float(450) - degresO) / float(1000))), 1));
@@ -619,7 +620,7 @@ namespace Barcode {
 				snprintf(buf, sizeof(buf), "Cooldown%d", i);
 				float yOffset = float(stepSize * float(i + 1));
 				float xOffset = pow(abs((yOffset - (stepSize / float(2)) - float(35))) * 0.1069, 2);
-				ImGui::SetNextWindowPos(pos + ImVec2(-64 + xOffset, -24 + yOffset - ((stepSize + 10.0) / 2.0)));
+				ImGui::SetNextWindowPos(pos + ImVec2(-64 + xOffset , -24 + yOffset - ((stepSize + 10.0) / 2.0)));
 				ImGui::SetNextWindowSize(ImVec2(15, 15));
 				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 				if (coolDownList[i] >= 7)
@@ -728,6 +729,10 @@ namespace Barcode {
 			//ImGui::PopStyleColor();
 			//ImGui::PopStyleVar();
 			//ImGui::PopStyleVar();
+		}
+
+		{//tb
+			
 		}
 
 		{ // Sync with network
