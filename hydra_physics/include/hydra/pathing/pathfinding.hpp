@@ -13,6 +13,8 @@
 #define WORLD_SIZE 64
 #define CELL_SIZE 1.0f
 #include <math.h>
+#include <queue>
+#include <functional>
 
 class PathFinding
 {
@@ -33,24 +35,23 @@ public:
 
 		operator glm::vec3()& { return glm::vec3(baseVec.x, 0, baseVec.y); }
 		operator glm::vec2()& { return baseVec; }
+		
 	};
 	struct Node
 	{
 		MapVec pos;
 		int id;
-		std::shared_ptr<Node> parent;
-		float G;
-		float H;
+		std::shared_ptr<Node> lastNode;
+		float G = 0.0f;
+		float H = 0.0f;
 
-		Node() : parent() {}
-		Node(int x, int z, std::shared_ptr<Node> _parent = nullptr)
+		Node() {}
+		Node(int x, int z, std::shared_ptr<Node> lastNode = nullptr)
 		{
-			pos.x() = x;
-			pos.z() = z;
-			id = z * WORLD_SIZE + x;
-			parent = _parent;
-			G = 0.0f;
-			H = 0.0f;
+			this->pos.x() = x;
+			this->pos.z() = z;
+			this->id = z * WORLD_SIZE + x;
+			this->lastNode = lastNode;
 		}
 
 		float getF() { return G + H; }
@@ -70,27 +71,37 @@ public:
 		{
 			return std::sqrt(std::pow(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::pow(this->pos.z() - nodeEnd->pos.z(), 2.0f));
 		}
+		bool operator<(Node& other) { return this->getF() < other.getF(); }
+		bool operator==(Node& other) { return this->getF() == other.getF(); }
+		bool operator>(Node& other) { return this->getF() > other.getF(); }
 	};
 
 	PathFinding();
 	virtual ~PathFinding();
 
 	void findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, int(&map)[WORLD_SIZE][WORLD_SIZE]);
-	glm::vec3 nextPathPos(const glm::vec3& pos, const float& radius);
+	glm::vec3& nextPathPos(const glm::vec3& pos, const float& radius);
 	void clearVisitedList() { _visitedList.clear(); }
-	void clearOpenList() { _openList.clear(); }
+	void clearOpenList()
+	{ 
+		_openList = PriorityQueue();
+	}
 	void clearPathToGoal() { _pathToEnd.clear(); }
 
 	bool intializedStartGoal;
 	bool foundGoal;
-	std::vector<std::shared_ptr<Node>> _openList;
+	struct QueueCompare {
+		bool operator ()(std::shared_ptr<Node> left, std::shared_ptr<Node> right) { return left->getF() < right->getF(); }
+	};
+	typedef std::priority_queue < std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, QueueCompare> PriorityQueue;
+
 	std::vector<std::shared_ptr<Node>> _visitedList;
 	std::vector<MapVec> _pathToEnd;
 	
 private:
+	PriorityQueue _openList;
 	std::shared_ptr<Node> _startCell;
 	std::shared_ptr<Node> _endCell;
 
-	void _discoverNode(int x, int z, float newCost, std::shared_ptr<Node> parent, int(&map)[WORLD_SIZE][WORLD_SIZE]);
-	std::shared_ptr<Node> _getNextCell();
+	void _discoverNode(int x, int z, std::shared_ptr<Node> lastNode, int(&map)[WORLD_SIZE][WORLD_SIZE]);
 };
