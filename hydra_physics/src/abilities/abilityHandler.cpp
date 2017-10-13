@@ -2,9 +2,7 @@
 
 AbilityHandler::AbilityHandler(){
 	_activeAbility = 0;
-	_abilityList.push_back(&AbilityHandler::grenadeAbility);
 	_abilityList.push_back(&AbilityHandler::mineAbility);
-	_cooldownList.push_back(0);
 	_cooldownList.push_back(0);
 }
 void AbilityHandler::useAbility(Hydra::World::IEntity* abilitiesEntity, glm::vec3 position, glm::vec3 direction) {
