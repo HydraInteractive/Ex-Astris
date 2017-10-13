@@ -44,6 +44,12 @@ public:
 		glDeleteBuffers(sizeof(buffers) / sizeof(*buffers), buffers);
 
 		glDeleteVertexArrays(1, &_vao);
+		
+		for (size_t i = 0; i < 7; i++) {
+			for (size_t k = 0; k < skeleton[i].size(); k++) {
+				delete skeleton[i][k];
+			}
+		}
 	}
 
 	struct skelInfo {
