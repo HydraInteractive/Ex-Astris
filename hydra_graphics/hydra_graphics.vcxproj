@@ -19,6 +19,7 @@
     <ClInclude Include="include\hydra\component\lightcomponent.hpp" />
     <ClInclude Include="include\hydra\component\meshcomponent.hpp" />
     <ClInclude Include="include\hydra\component\particlecomponent.hpp" />
+    <ClInclude Include="include\hydra\component\pointlightcomponent.hpp" />
     <ClInclude Include="include\hydra\component\transformcomponent.hpp" />
     <ClInclude Include="include\hydra\ext\vram.hpp" />
     <ClInclude Include="include\hydra\io\glmeshloader.hpp" />
@@ -38,66 +39,6 @@
     <ClInclude Include="include\imgui\stb_textedit.h" />
     <ClInclude Include="include\imgui\stb_truetype.h" />
     <ClInclude Include="include\KHR\khrplatform.h" />
-    <ClInclude Include="include\tb\animation\tb_animation.h" />
-    <ClInclude Include="include\tb\animation\tb_animation_utils.h" />
-    <ClInclude Include="include\tb\animation\tb_widget_animation.h" />
-    <ClInclude Include="include\tb\image\tb_image_manager.h" />
-    <ClInclude Include="include\tb\image\tb_image_widget.h" />
-    <ClInclude Include="include\tb\parser\tb_parser.h" />
-    <ClInclude Include="include\tb\renderers\tb_renderer_batcher.h" />
-    <ClInclude Include="include\tb\renderers\tb_renderer_gl.h" />
-    <ClInclude Include="include\tb\tb_bitmap_fragment.h" />
-    <ClInclude Include="include\tb\tb_color.h" />
-    <ClInclude Include="include\tb\tb_config.h" />
-    <ClInclude Include="include\tb\tb_core.h" />
-    <ClInclude Include="include\tb\tb_debug.h" />
-    <ClInclude Include="include\tb\tb_dimension.h" />
-    <ClInclude Include="include\tb\tb_editfield.h" />
-    <ClInclude Include="include\tb\tb_font_desc.h" />
-    <ClInclude Include="include\tb\tb_font_renderer.h" />
-    <ClInclude Include="include\tb\tb_geometry.h" />
-    <ClInclude Include="include\tb\tb_hash.h" />
-    <ClInclude Include="include\tb\tb_hashtable.h" />
-    <ClInclude Include="include\tb\tb_id.h" />
-    <ClInclude Include="include\tb\tb_inline_select.h" />
-    <ClInclude Include="include\tb\tb_language.h" />
-    <ClInclude Include="include\tb\tb_layout.h" />
-    <ClInclude Include="include\tb\tb_linklist.h" />
-    <ClInclude Include="include\tb\tb_list.h" />
-    <ClInclude Include="include\tb\tb_menu_window.h" />
-    <ClInclude Include="include\tb\tb_message_window.h" />
-    <ClInclude Include="include\tb\tb_msg.h" />
-    <ClInclude Include="include\tb\tb_node_ref_tree.h" />
-    <ClInclude Include="include\tb\tb_node_tree.h" />
-    <ClInclude Include="include\tb\tb_object.h" />
-    <ClInclude Include="include\tb\tb_popup_window.h" />
-    <ClInclude Include="include\tb\tb_renderer.h" />
-    <ClInclude Include="include\tb\tb_scroller.h" />
-    <ClInclude Include="include\tb\tb_scroll_container.h" />
-    <ClInclude Include="include\tb\tb_select.h" />
-    <ClInclude Include="include\tb\tb_select_item.h" />
-    <ClInclude Include="include\tb\tb_skin.h" />
-    <ClInclude Include="include\tb\tb_skin_util.h" />
-    <ClInclude Include="include\tb\tb_sort.h" />
-    <ClInclude Include="include\tb\tb_str.h" />
-    <ClInclude Include="include\tb\tb_style_edit.h" />
-    <ClInclude Include="include\tb\tb_style_edit_content.h" />
-    <ClInclude Include="include\tb\tb_system.h" />
-    <ClInclude Include="include\tb\tb_tab_container.h" />
-    <ClInclude Include="include\tb\tb_tempbuffer.h" />
-    <ClInclude Include="include\tb\tb_toggle_container.h" />
-    <ClInclude Include="include\tb\tb_types.h" />
-    <ClInclude Include="include\tb\tb_value.h" />
-    <ClInclude Include="include\tb\tb_widgets.h" />
-    <ClInclude Include="include\tb\tb_widgets_common.h" />
-    <ClInclude Include="include\tb\tb_widgets_listener.h" />
-    <ClInclude Include="include\tb\tb_widgets_reader.h" />
-    <ClInclude Include="include\tb\tb_widget_skin_condition_context.h" />
-    <ClInclude Include="include\tb\tb_widget_value.h" />
-    <ClInclude Include="include\tb\tb_window.h" />
-    <ClInclude Include="include\tb\tests\tb_test.h" />
-    <ClInclude Include="include\tb\thirdparty\stb_image.h" />
-    <ClInclude Include="include\tb\thirdparty\stb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\component\animationComponent.cpp" />
@@ -107,6 +48,7 @@
     <ClCompile Include="src\component\lightcomponent.cpp" />
     <ClCompile Include="src\component\meshcomponent.cpp" />
     <ClCompile Include="src\component\particlecomponent.cpp" />
+    <ClCompile Include="src\component\pointlightcomponent.cpp" />
     <ClCompile Include="src\component\transformcomponent.cpp" />
     <ClCompile Include="src\ext\vram.cpp" />
     <ClCompile Include="src\io\input.cpp" />
@@ -126,11 +68,6 @@
     <ClCompile Include="src\renderer\gltexture.cpp" />
     <ClCompile Include="src\renderer\uirenderer.cpp" />
     <ClCompile Include="src\view\sdlview.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="include\tb\tests\test_tb_parser.tb.txt" />
-    <Text Include="include\tb\tests\test_tb_parser_definitions.tb.txt" />
-    <Text Include="include\tb\tests\test_tb_parser_included.tb.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -184,8 +121,8 @@
       <DisableSpecificWarnings>4250;4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(SolutionDir)/lib;$(SolutionDir)/x64/$(Configuration);$(SolutionDir)/lib/turbobadger-debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hydra.lib;SDL2main.lib;opengl32.lib;SDL2.lib;SDL2_image.lib;TurboBadgerLib.lib;SDL2_ttf.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)/lib;$(SolutionDir)/x64/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>hydra.lib;SDL2main.lib;opengl32.lib;SDL2.lib;SDL2_image.lib;SDL2_ttf.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>NotSet</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -206,8 +143,8 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)/lib;$(SolutionDir)/x64/$(Configuration);$(SolutionDir)/lib/turbobadger-release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hydra.lib;SDL2main.lib;opengl32.lib;SDL2.lib;SDL2_image.lib;TurboBadgerLib.lib;SDL2_mixer.lib;SDL2_ttf.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)/lib;$(SolutionDir)/x64/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>hydra.lib;SDL2main.lib;opengl32.lib;SDL2.lib;SDL2_image.lib;SDL2_mixer.lib;SDL2_ttf.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>NotSet</SubSystem>
     </Link>
   </ItemDefinitionGroup>
