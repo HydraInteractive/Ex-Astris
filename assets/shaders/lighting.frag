@@ -42,13 +42,13 @@ vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec3 objectColor){
 	vec3 diffuse = light.color * diff * objectColor;
 
 	// Specular
-	float specularStrength = 0.1f;
+	float specularStrength = 0.5f;
 	vec3 viewDir = normalize(cameraPos - pos);
 	vec3 reflectDir = reflect(-lightDir, normal);
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128);
 	vec3 specular = spec * specularStrength * light.color;
 
-	return (diffuse + specular) * attenuation;
+	return (specular + diffuse) * attenuation;
 }
 
 vec3 calcDirLight(DirLight light, vec3 pos, vec3 normal, vec3 objectColor){
@@ -90,11 +90,12 @@ void main() {
 	vec4 lightPos = texture(lightPositions, texCoords);
 
 	// Lighting 
-	vec3 globalAmbient = dirLight.color * 0.3f;
+	// 0.1f should be ambient coefficient
+	vec3 globalAmbient = dirLight.color * objectColor * 0.1f;
 	vec3 result = vec3(0);
 
 	// Directional light
-	result = calcDirLight(dirLight, pos, normal, objectColor);
+	//result = calcDirLight(dirLight, pos, normal, objectColor);
 
 	// Point Lights
 	for(int i = 0 ; i < nrOfPointLights; i++){

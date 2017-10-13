@@ -45,6 +45,10 @@ public:
 				IEngine::getInstance()->log(LogLevel::error, "FAILED TO LOAD TEXTURE: %s", e.what());
 				return _errorTexture;
 			}
+			catch (const char* e) {
+				IEngine::getInstance()->log(LogLevel::error, "FAILED TO LOAD TEXTURE: %s", e);
+				return _errorTexture;
+			}
 		}
 		return texture;
 	}

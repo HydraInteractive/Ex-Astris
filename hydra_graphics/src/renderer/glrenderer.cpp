@@ -166,9 +166,12 @@ public:
 
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
 
+		batch.pipeline->setValue(5, 0);
+		batch.pipeline->setValue(6, 1);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
-
+			mesh->getMaterial().diffuse->bind(0);
+			mesh->getMaterial().normal->bind(1);
 			size_t size = kv.second.size();
 			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
 			for (size_t i = 0; i < size; i += maxPerLoop) {

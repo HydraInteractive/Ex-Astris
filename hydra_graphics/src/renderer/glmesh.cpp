@@ -251,6 +251,8 @@ private:
 			tempFileName = new char[fileNameLength];
 			in.read(tempFileName, fileNameLength);
 			fileName.append(tempFileName, fileNameLength);
+			_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/" + fileName);
+			_material.normal = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/roadNormal.png");
 
 			delete[] tempFileName;
 
