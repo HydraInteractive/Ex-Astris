@@ -37,10 +37,15 @@ EnemyComponent::EnemyComponent(IEntity* entity, EnemyTypes enemyID, glm::vec3 po
 
 	_mapOffset = glm::vec3(-30.0f, 0, -30.0f);
 
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 5; i++)
 	{
-		_map[10][10+i] = 1;
+		_map[10+i][10+i] = 1;
 	}
+	for (int i = 0; i < 5; i++)
+	{
+		_map[11+i][10+i] = 1;
+	}
+
 }
 
 EnemyComponent::~EnemyComponent() {
@@ -671,10 +676,10 @@ void EnemyComponent::tick(TickAction action, float delta) {
 		//{
 		//	_map[(int)_pathFinding->_openList[i]->m_xcoord][(int)_pathFinding->_openList[i]->m_zcoord] = 3;
 		//}
-		//for (int i = 0; i < _pathFinding->_pathToEnd.size(); i++)
-		//{
-		//	_map[(int)_pathFinding->_pathToEnd[i].x][(int)_pathFinding->_pathToEnd[i].z] = 3;
-		//}
+		for (int i = 0; i < _pathFinding->_pathToEnd.size(); i++)
+		{
+			_map[(int)_pathFinding->_pathToEnd[i].x][(int)_pathFinding->_pathToEnd[i].z] = 3;
+		}
 }
 
 glm::vec3 EnemyComponent::getPosition()
