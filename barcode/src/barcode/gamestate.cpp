@@ -1,4 +1,3 @@
-
 #include <barcode/gamestate.hpp>
 
 #include <hydra/renderer/glrenderer.hpp>

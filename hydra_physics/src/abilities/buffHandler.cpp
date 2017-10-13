@@ -1,16 +1,17 @@
 #include <hydra/abilities/buffHandler.hpp>
 
-BuffHandler::BuffHandler(){
+BuffHandler::BuffHandler() {
 
 }
 
-BuffHandler::~BuffHandler(){
+BuffHandler::~BuffHandler() {
 
 }
 
 std::vector<Buffs> BuffHandler::getActiveBuffs() {
 	return _activeBuffs;
 }
+
 void BuffHandler::getActiveDebuffs() {
 	for (size_t i = 0; i < _activeDebuffs.size(); i++) {
 		switch (_activeDebuffs[i]) {
@@ -26,7 +27,7 @@ void BuffHandler::getActiveDebuffs() {
 
 bool BuffHandler::addBuff(Buffs newBuff) {
 	bool buffCanBeAdded = true;
-	for (size_t i = 0; i < _activeBuffs.size(); i++){
+	for (size_t i = 0; i < _activeBuffs.size(); i++) {
 		if (_activeBuffs[i] == newBuff) {
 			buffCanBeAdded = false;
 		}
@@ -40,19 +41,19 @@ bool BuffHandler::addBuff(Buffs newBuff) {
 }
 
 void BuffHandler::onActivation(int &maxHealth, int &health) {
-	for (size_t i = _lastPickedUpBuff; i < _activeBuffs.size(); i++){
-		switch (_activeBuffs[i]) {
-		case BUFF_HEALTHUPGRADE: {
-			int lastMax = maxHealth;
-			maxHealth *= 1.25;
-			health += maxHealth - lastMax;
-			break;
-		}
-		default:
-			break;
-		}
+	switch (_activeBuffs[_activeBuffs.size() - 1])
+	{
+	case BUFF_HEALTHUPGRADE: {
+		int lastMax = maxHealth;
+		maxHealth *= 1.25f;
+		health += maxHealth - lastMax;
+		break;
 	}
-	_lastPickedUpBuff++;
+	case BUFF_DAMAGEUPGRADE: {
+		health += 1000;
+		break;
+	}
+	}
 }
 
 void BuffHandler::onTick(int &maxHealth, int &health) {
@@ -72,8 +73,8 @@ void BuffHandler::onTick(int &maxHealth, int &health) {
 }
 
 void BuffHandler::onAttack(float &bulletVelocity) {
-	for (size_t i = 0; i < _activeBuffs.size(); i++){
-		switch (_activeBuffs[i]){
+	for (size_t i = 0; i < _activeBuffs.size(); i++) {
+		switch (_activeBuffs[i]) {
 		case BUFF_BULLETVELOCITY:
 			bulletVelocity *= 4.0f;
 			break;

@@ -105,7 +105,6 @@ void tileGeneration::_createMapRecursivly(tileInfo *tile) {
 
 
 void tileGeneration::_setupGrid() {
-
 	int tileCount = 0;
 	int positiveXCount = 0;
 	int positiveYCount = 0;

@@ -31,5 +31,4 @@ private:
 	std::vector<Buffs> _activeBuffs;
 	std::vector<Debuffs> _activeDebuffs;
 	std::vector<Uint32> _activeBuffsTimer;
-	size_t _lastPickedUpBuff;
 };

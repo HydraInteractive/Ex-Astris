@@ -21,9 +21,7 @@ PlayerComponent::PlayerComponent(IEntity* entity) : IComponent(entity) {
 	entity->createEntity("Abilities");
 	SDL_GetKeyboardState(&keysArrayLength);
 	lastKeysArray = new bool[keysArrayLength];
-	_velocity.x = 0;
-	_velocity.y = 0;
-	_velocity.z = 0;
+	_velocity = glm::vec3(0);
 	_position = glm::vec3(0, 2, 20);
 	_maxHealth = 100;
 	_health = 100;
@@ -88,7 +86,7 @@ void PlayerComponent::tick(TickAction action, float delta) {
 
 			//TODO: Make pretty?
 			glm::quat bulletOrientation = glm::angleAxis(-camera->getYaw(), glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->getPitch(), glm::vec3(1, 0, 0)));
-			float bulletVelocity = 1.0f;
+			float bulletVelocity = 30.0f;
 			_activeBuffs.onAttack(bulletVelocity);
 
 			weapon->shoot(_position, forward, bulletOrientation, bulletVelocity);

@@ -82,5 +82,4 @@ private:
 
 	void _setupGrid();
 	void _createMapRecursivly(tileInfo *tile);
-
 };
