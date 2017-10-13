@@ -31,6 +31,7 @@ bool TCPClient::initialize(char* ip, int port) {
 }
 
 int TCPClient::send(void* data, int length) {
+	((Packet*)data)->h.client = -7;
 	return SDLNet_TCP_Send(this->_tcp, data, length);
 }
 

@@ -215,7 +215,7 @@ namespace Barcode {
 		{ // Update physics
 			_world->tick(TickAction::physics, delta);
 			_physicsManager->tick(delta);
-			if (player->newBullet != nullptr){
+			if (player->newBullet != nullptr && net != nullptr){
 				net->sendEntity(player->newBullet);
 				player->newBullet->markDead();
 				player->newBullet = nullptr;

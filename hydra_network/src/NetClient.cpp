@@ -161,7 +161,7 @@ void NetClient::run(Hydra::World::IWorld* world) {
 
     //SendUpdate packet
     {
-        //this->_sendUpdatePacket();
+        this->_sendUpdatePacket();
     }
 
     //Nåt
