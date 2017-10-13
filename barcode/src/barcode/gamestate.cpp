@@ -159,6 +159,24 @@ namespace Barcode {
 			batch.batch.pipeline = batch.pipeline.get();
 		}
 
+		{ // UI
+			auto& batch = _hudBatch;
+			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/particles.vert");
+			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/particles.frag");
+
+			batch.pipeline = Hydra::Renderer::GLPipeline::create();
+			batch.pipeline->attachStage(*batch.vertexShader);
+			batch.pipeline->attachStage(*batch.fragmentShader);
+			batch.pipeline->finalize();
+
+			_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/TempAtlas.png");
+
+			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
+			batch.batch.clearFlags = ClearFlags::depth;
+			batch.batch.renderTarget = _engine->getView();
+			batch.batch.pipeline = batch.pipeline.get();
+		}
+
 		{ // Shadow pass
 			auto& batch = _shadowBatch;
 			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/shadow.vert");
@@ -252,6 +270,9 @@ namespace Barcode {
 	GameState::~GameState() { }
 
 	void GameState::onMainMenu() { }
+
+	//Global variable to maintain a keyframe for now
+
 
 	void GameState::runFrame(float delta) {
 		auto windowSize = _engine->getView()->getSize();
@@ -483,8 +504,8 @@ namespace Barcode {
 			}
 			if (anyParticles) {
 				auto viewMatrix = _cc->getViewMatrix();
-				glm::vec3 rightVector = {viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0]};
-				glm::vec3 upVector = {viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]};
+				glm::vec3 rightVector = { viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0] };
+				glm::vec3 upVector = { viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1] };
 				_particleBatch.pipeline->setValue(0, viewMatrix);
 				_particleBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
 				_particleBatch.pipeline->setValue(2, rightVector);
@@ -730,8 +751,8 @@ namespace Barcode {
 			//ImGui::PopStyleVar();
 		}
 
-		{//tb
-			
+		{
+			//_textureLoader->getTexture("assets/hud/Red.png");
 		}
 
 		{ // Sync with network
@@ -794,6 +815,20 @@ namespace Barcode {
 		weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
 		weaponEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 		weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, -1.5, -2), glm::vec3(1, 1, 1), glm::quat(0, 0, 1, 0))->setIgnoreParent(true);
+		/*
+		auto animatedEntity = _world->createEntity("AnimatedCube");
+		animatedEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/animatedCube.ATTIC");
+		animatedEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-10, 0, -10));
+		*/
+		auto particleEmitter = _world->createEntity("ParticleEmitter");
+		particleEmitter->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::Fire, 150, glm::vec3(0,0,0));
+		/*
+		auto particleEmitter1 = _world->createEntity("ParticleEmitter1");
+		particleEmitter1->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::Knas, 2, glm::vec3(5,0,0));
+
+		auto particleEmitter2 = _world->createEntity("ParticleEmitter2");
+		particleEmitter2->addComponent<Hydra::Component::ParticleComponent>(Hydra::Component::EmitterBehaviour::PerSecond, Hydra::Component::ParticleTexture::BogdanDeluxe, 3, glm::vec3(5, 5, 0));
+		*/
 
 		auto alienEntity = _world->createEntity("Enemy Alien");
 		alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(5, 0, 5), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
