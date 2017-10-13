@@ -3,8 +3,9 @@
 #include <hydra/world/world.hpp>
 
 namespace Hydra::System {
-	class AbilitySystem final : public Hydra::World::ISystem {
+	class HYDRA_PHYSICS_API AbilitySystem final : public Hydra::World::ISystem {
 	public:
+		AbilitySystem();
 		~AbilitySystem() final;
 
 		void tick(float delta) final;

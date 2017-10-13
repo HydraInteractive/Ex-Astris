@@ -8,10 +8,11 @@
 #pragma once
 
 #include <hydra/world/world.hpp>
+#include <hydra/component/rigidbodycomponent.hpp>
 #include <btBulletDynamicsCommon.h>
 
 namespace Hydra::System {
-	class BulletPhysicsSystem final : public Hydra::World::ISystem {
+	class HYDRA_PHYSICS_API BulletPhysicsSystem final : public Hydra::World::ISystem {
 	public:
 		enum class CollisionShape {
 			Box,

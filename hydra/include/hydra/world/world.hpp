@@ -57,19 +57,19 @@ namespace Hydra::World {
 
 namespace Hydra::Component {
 	struct HYDRA_BASE_API TransformComponent;
-	struct HYDRA_BASE_API CameraComponent;
-	struct HYDRA_BASE_API LightComponent;
-	struct HYDRA_BASE_API MeshComponent;
-	struct HYDRA_BASE_API ParticleComponent;
-	struct HYDRA_BASE_API EnemyComponent;
-	struct HYDRA_BASE_API BulletComponent;
-	struct HYDRA_BASE_API PlayerComponent;
-	struct HYDRA_BASE_API WeaponComponent;
-	struct HYDRA_BASE_API GrenadeComponent;
-	struct HYDRA_BASE_API MineComponent;
-	struct HYDRA_BASE_API RigidBodyComponent;
-	struct HYDRA_BASE_API EditorCameraComponent;
-	struct HYDRA_BASE_API DrawObjectComponent;
+	struct HYDRA_GRAPHICS_API CameraComponent;
+	struct HYDRA_GRAPHICS_API LightComponent;
+	struct HYDRA_GRAPHICS_API MeshComponent;
+	struct HYDRA_GRAPHICS_API ParticleComponent;
+	struct HYDRA_PHYSICS_API EnemyComponent;
+	struct HYDRA_PHYSICS_API BulletComponent;
+	struct HYDRA_PHYSICS_API PlayerComponent;
+	struct HYDRA_PHYSICS_API WeaponComponent;
+	struct HYDRA_PHYSICS_API GrenadeComponent;
+	struct HYDRA_PHYSICS_API MineComponent;
+	struct HYDRA_GRAPHICS_API RigidBodyComponent;
+	struct HYDRA_GRAPHICS_API EditorCameraComponent;
+	struct HYDRA_GRAPHICS_API DrawObjectComponent;
 
 	using ComponentTypes = Hydra::Ext::TypeTuple<
 		Hydra::World::IComponent<TransformComponent, ComponentBits::Transform>,
@@ -202,9 +202,6 @@ namespace Hydra::World {
 			_map.erase(entityID);
 		}
 	};
-
-
-	template struct HYDRA_BASE_API Hydra::World::IComponent<Hydra::Component::TransformComponent, Hydra::Component::ComponentBits::Transform>;
 
 	struct HYDRA_BASE_API World final {
 		static std::shared_ptr<Entity> root;

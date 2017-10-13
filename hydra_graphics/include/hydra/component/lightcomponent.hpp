@@ -41,4 +41,5 @@ namespace Hydra::Component {
 			//return glm::translate(glm::mat4cast(orientation), -position);
 		}
 	};
+	template struct HYDRA_GRAPHICS_API Hydra::World::IComponent<Hydra::Component::LightComponent, Hydra::Component::ComponentBits::Light>;
 }

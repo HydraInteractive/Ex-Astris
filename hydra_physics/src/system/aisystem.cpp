@@ -6,6 +6,7 @@
 
 using namespace Hydra::System;
 
+AISystem::AISystem() {}
 AISystem::~AISystem() {}
 
 void AISystem::tick(float delta) {

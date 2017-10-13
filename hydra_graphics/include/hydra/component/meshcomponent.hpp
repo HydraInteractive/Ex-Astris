@@ -36,4 +36,5 @@ namespace Hydra::Component {
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
 	};
+	template struct HYDRA_GRAPHICS_API Hydra::World::IComponent<Hydra::Component::MeshComponent, Hydra::Component::ComponentBits::Mesh>;
 };

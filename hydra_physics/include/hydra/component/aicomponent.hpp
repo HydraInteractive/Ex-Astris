@@ -96,4 +96,5 @@ namespace Hydra::Component {
 		// Private functions
 		bool _checkLine(int levelmap[WORLD_SIZE][WORLD_SIZE], glm::vec3 A, glm::vec3 B);
 	};
+	template struct HYDRA_PHYSICS_API Hydra::World::IComponent<Hydra::Component::EnemyComponent, Hydra::Component::ComponentBits::Enemy>;
 };

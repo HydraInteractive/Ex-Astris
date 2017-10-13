@@ -3,8 +3,9 @@
 #include <hydra/world/world.hpp>
 
 namespace Hydra::System {
-	class CameraSystem final : public Hydra::World::ISystem {
+	class HYDRA_GRAPHICS_API CameraSystem final : public Hydra::World::ISystem {
 	public:
+		CameraSystem();
 		~CameraSystem() final;
 
 		void tick(float delta) final;

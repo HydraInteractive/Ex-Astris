@@ -7,6 +7,8 @@
 #include <algorithm>
 
 using namespace Hydra::System;
+
+CameraSystem::CameraSystem() {}
 CameraSystem::~CameraSystem() {}
 
 void CameraSystem::tick(float delta) {

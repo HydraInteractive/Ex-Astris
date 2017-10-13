@@ -3,9 +3,10 @@
 #include <hydra/world/world.hpp>
 
 namespace Hydra::System {
-	class DeadSystem final : public Hydra::World::ISystem {
+	class HYDRA_BASE_API DeadSystem final : public Hydra::World::ISystem {
 	public:
-		~DeadSystem() final;
+		DeadSystem();
+		virtual ~DeadSystem() final;
 
 		void tick(float delta) final;
 

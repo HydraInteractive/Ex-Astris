@@ -16,6 +16,7 @@ enum Keys {
  H, F, COUNT
 };
 
+PlayerSystem::PlayerSystem() {}
 PlayerSystem::~PlayerSystem() {}
 
 void PlayerSystem::tick(float delta) {

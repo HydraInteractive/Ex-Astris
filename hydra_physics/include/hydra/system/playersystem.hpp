@@ -3,8 +3,9 @@
 #include <hydra/world/world.hpp>
 
 namespace Hydra::System {
-	class PlayerSystem final : public Hydra::World::ISystem {
+	class HYDRA_GRAPHICS_API PlayerSystem final : public Hydra::World::ISystem {
 	public:
+		PlayerSystem();
 		~PlayerSystem() final;
 
 		void tick(float delta) final;

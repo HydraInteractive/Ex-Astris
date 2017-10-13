@@ -7,6 +7,7 @@
 
 using namespace Hydra::System;
 
+BulletSystem::BulletSystem() {}
 BulletSystem::~BulletSystem() {}
 
 void BulletSystem::tick(float delta) {

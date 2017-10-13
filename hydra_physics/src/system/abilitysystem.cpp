@@ -9,6 +9,7 @@
 
 using namespace Hydra::System;
 
+AbilitySystem::AbilitySystem() {}
 AbilitySystem::~AbilitySystem() {}
 
 void AbilitySystem::tick(float delta) {

@@ -5,6 +5,8 @@
 #include <hydra/component/particlecomponent.hpp>
 
 using namespace Hydra::System;
+
+ParticleSystem::ParticleSystem() {}
 ParticleSystem::~ParticleSystem() {}
 
 void ParticleSystem::tick(float delta) {

@@ -75,4 +75,5 @@ namespace Hydra::Component {
 		void _updateTextureCoordInfo(std::shared_ptr<Particle>& p, float delta);
 		void _sortParticles(); // Insertion Sort*/
 	};
+	template struct HYDRA_GRAPHICS_API Hydra::World::IComponent<Hydra::Component::ParticleComponent, Hydra::Component::ComponentBits::Particle>;
 };

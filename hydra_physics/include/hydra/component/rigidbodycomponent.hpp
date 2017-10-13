@@ -45,4 +45,5 @@ namespace Hydra::Component {
 		struct Data;
 		Data* _data;
 	};
+	template struct HYDRA_PHYSICS_API Hydra::World::IComponent<Hydra::Component::RigidBodyComponent, Hydra::Component::ComponentBits::RigidBody>;
 };
