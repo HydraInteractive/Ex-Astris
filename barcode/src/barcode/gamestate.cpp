@@ -160,6 +160,24 @@ namespace Barcode {
 			batch.batch.pipeline = batch.pipeline.get();
 		}
 
+		{ // HUD
+			auto& batch = _hudBatch;
+			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/hud.vert");
+			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/hud.frag");
+
+			batch.pipeline = Hydra::Renderer::GLPipeline::create();
+			batch.pipeline->attachStage(*batch.vertexShader);
+			batch.pipeline->attachStage(*batch.fragmentShader);
+			batch.pipeline->finalize();
+
+			_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/TempAtlas.png");
+
+			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
+			batch.batch.clearFlags = ClearFlags::depth;
+			batch.batch.renderTarget = _engine->getView();
+			batch.batch.pipeline = batch.pipeline.get();
+		}
+
 		{ // Shadow pass
 			auto& batch = _shadowBatch;
 			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/shadow.vert");
@@ -232,21 +250,24 @@ namespace Barcode {
 		}
 
 		{
-			auto& batch = _viewBatch;
-			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/view.vert");
-			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/view.frag");
+			//sould remove
 
-			batch.pipeline = Hydra::Renderer::GLPipeline::create();
-			batch.pipeline->attachStage(*batch.vertexShader);
-			batch.pipeline->attachStage(*batch.fragmentShader);
-			batch.pipeline->finalize();
+			//{ // duno old code sould remove
+			//	auto& batch = _viewBatch;
+			//	batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/view.vert");
+			//	batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/view.frag");
 
-			batch.batch.clearColor = glm::vec4(0, 0.0, 0.0, 1);
-			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::color | Hydra::Renderer::ClearFlags::depth;
-			batch.batch.renderTarget = _engine->getView();
-			batch.batch.pipeline = batch.pipeline.get(); // TODO: Change to "null" pipeline
+			//	batch.pipeline = Hydra::Renderer::GLPipeline::create();
+			//	batch.pipeline->attachStage(*batch.vertexShader);
+			//	batch.pipeline->attachStage(*batch.fragmentShader);
+			//	batch.pipeline->finalize();
+
+			//	batch.batch.clearColor = glm::vec4(0, 0.0, 0.0, 1);
+			//	batch.batch.clearFlags = Hydra::Renderer::ClearFlags::color | Hydra::Renderer::ClearFlags::depth;
+			//	batch.batch.renderTarget = _engine->getView();
+			//	batch.batch.pipeline = batch.pipeline.get(); // TODO: Change to "null" pipeline
+			//}
 		}
-
 		_initWorld();
 	}
 
@@ -731,7 +752,7 @@ namespace Barcode {
 			//ImGui::PopStyleVar();
 		}
 
-		{//tb
+		{//Own ui
 			
 		}
 
