@@ -4,7 +4,9 @@
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
+#include <hydra/component/pointlightcomponent.hpp>
 #include <hydra/component/particlecomponent.hpp>
+#include <hydra/component/EditorCameraComponent.hpp>
 
 namespace Hydra::Component::ComponentManager {
 	void registerComponents_graphics(std::map<std::string, createOrGetComponent_f>& creators) {
@@ -12,6 +14,8 @@ namespace Hydra::Component::ComponentManager {
 		creators["MeshComponent"] = &createOrGetComponentHelper<MeshComponent>;
 		creators["TransformComponent"] = &createOrGetComponentHelper<TransformComponent>;
 		creators["LightComponent"] = &createOrGetComponentHelper<LightComponent>;
+		creators["PointLightComponent"] = &createOrGetComponentHelper<PointLightComponent>;
 		creators["ParticleComponent"] = &createOrGetComponentHelper<ParticleComponent>;
+		creators["EditorCameraComponent"] = &createOrGetComponentHelper<EditorCameraComponent>;
 	}
 }

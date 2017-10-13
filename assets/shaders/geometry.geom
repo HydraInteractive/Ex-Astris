@@ -14,6 +14,7 @@ in VertexData {
 
 out GeometryData {
 	vec3 position;
+	vec3 vPos;
 	vec3 normal;
 	vec3 color;
 	vec2 uv;
@@ -31,7 +32,7 @@ layout(location = 0) uniform mat4 v;
 layout(location = 1) uniform mat4 p;
 layout(location = 2) uniform vec3 cameraPos;
 
-layout(location = 3) uniform bool setting_doBackFaceCulling = false;
+layout(location = 3) uniform bool setting_doBackFaceCulling = true;
 layout(location = 4) uniform mat4 lightS;
 
 
@@ -59,6 +60,7 @@ void main() {
 
 		vec3 triangleNormal = cross(edge0, edge1);
 
+		
 		if (dot(normalize(p0 - cameraPos), triangleNormal) >= 0)
 			return;
 	}
@@ -66,6 +68,7 @@ void main() {
 	for (i = 0; i < 3; i++) {
 		vec4 pos = inData[i].m * vec4(inData[i].position, 1.0f);
 		outData.position = pos.xyz;
+		outData.vPos = vec3(v * pos).xyz;
 
 		mat3 normalMatrix = transpose(inverse(mat3(inData[i].m)));
 		outData.normal = normalize(normalMatrix * inData[i].normal);

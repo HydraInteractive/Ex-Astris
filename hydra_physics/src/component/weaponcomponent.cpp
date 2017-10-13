@@ -19,7 +19,13 @@ using namespace Hydra::Component;
 WeaponComponent::WeaponComponent(IEntity* entity) : IComponent(entity) {
 	entity->createEntity("Bullets");
 }
-
+WeaponComponent::WeaponComponent(IEntity* entity, float fireRateRPM, float bulletSize, float bulletSpread, int bulletsPerShot) : IComponent(entity) {
+	entity->createEntity("Bullets");
+	_fireRateRPM = fireRateRPM;
+	_bulletSize = bulletSize;
+	_bulletSpread = bulletSpread;
+	_bulletsPerShot = bulletsPerShot;
+}
 WeaponComponent::~WeaponComponent() { }
 
 void WeaponComponent::tick(TickAction action, float delta) {
@@ -34,7 +40,7 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 			auto bullet = getBullets()->createEntity("Bullet");
 			
 			bullet->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
-			bullet->addComponent<Hydra::Component::BulletComponent>(position, -direction, 2.0f);
+			bullet->addComponent<Hydra::Component::BulletComponent>(position, -direction, velocity);
 			auto transform = bullet->addComponent<Hydra::Component::TransformComponent>(position, glm::vec3(_bulletSize));
 
 			transform->setRotation(bulletOrientation);
@@ -59,7 +65,7 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 				bulletDirection.z += distance * cos(theta);
 				bulletDirection = glm::normalize(bulletDirection);
 
-				bullet->addComponent<Hydra::Component::BulletComponent>(position, bulletDirection, 2.0f);
+				bullet->addComponent<Hydra::Component::BulletComponent>(position, bulletDirection, velocity);
 
 				auto transform = bullet->addComponent<Hydra::Component::TransformComponent>(position, glm::vec3(_bulletSize));
 				transform->setRotation(bulletOrientation);
@@ -99,7 +105,7 @@ void WeaponComponent::deserialize(nlohmann::json& json) {
 }
 
 void WeaponComponent::registerUI() {
-	ImGui::InputInt("Fire Rate RPM", &_fireRateRPM);
+	ImGui::DragFloat("Fire Rate RPM", &_fireRateRPM);
 	ImGui::DragFloat("Bullet Size", &_bulletSize, 0.001f);
 	ImGui::DragFloat("Bullet Spread", &_bulletSpread, 0.001f);
 	ImGui::InputInt("Bullets Per Shot", &_bulletsPerShot);
