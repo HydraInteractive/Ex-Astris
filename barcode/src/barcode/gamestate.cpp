@@ -589,11 +589,11 @@ namespace Barcode {
 				float leftRight = glm::dot(right2D, enemy2D);
 				if (leftRight < 0)
 				{
-					leftRight = -1;
+					leftRight = 1;
 				}
 				else
 				{
-					leftRight = 1;
+					leftRight = -1;
 				}
 				if (dotPlacment < 0)
 				{
