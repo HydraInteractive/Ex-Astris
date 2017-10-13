@@ -746,7 +746,7 @@ namespace Barcode {
 
 		auto alienEntity = _world->createEntity("Enemy Alien");
 		alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(5, 0, 5), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
-		alienEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+		alienEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
 		
 		auto pointLight1 = _world->createEntity("Pointlight1");
 		pointLight1->addComponent<Hydra::Component::TransformComponent>();
@@ -757,19 +757,19 @@ namespace Barcode {
 		auto pointLight2 = _world->createEntity("Pointlight2");
 		pointLight2->addComponent<Hydra::Component::TransformComponent>();
 
-		auto alienAnimation = _world->createEntity("Alien");
-		alienAnimation->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
-		alienAnimation->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 1, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
+		//auto alienAnimation = _world->createEntity("Alien");
+		//alienAnimation->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
+		//alienAnimation->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 1, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
 
-		auto alienAI = _world->createEntity("AlienAI");
-		alienAI->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
-		alienAI->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 0, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
-		alienAI->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 5), 500, 2, 2, glm::vec3(2));
-
-		auto alienAI2 = _world->createEntity("AlienAI2");
-		alienAI2->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
-		alienAI2->addComponent<Hydra::Component::TransformComponent>(glm::vec3(5, 0, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
-		alienAI2->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 5), 500, 2, 2, glm::vec3(2));
+		//auto alienAI = _world->createEntity("AlienAI");
+		//alienAI->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
+		//alienAI->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 0, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
+		//alienAI->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 5), 500, 2, 2, glm::vec3(2));
+		//
+		//auto alienAI2 = _world->createEntity("AlienAI2");
+		//alienAI2->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
+		//alienAI2->addComponent<Hydra::Component::TransformComponent>(glm::vec3(5, 0, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
+		//alienAI2->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 5), 500, 2, 2, glm::vec3(2));
 
 		//auto tileTest = _world->createEntity("Tiles");
 		//tileTest->addComponent<Hydra::Component::MeshComponent>(5, 5);
