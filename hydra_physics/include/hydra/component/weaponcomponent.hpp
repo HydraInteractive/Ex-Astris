@@ -20,6 +20,7 @@ namespace Hydra::Component {
 	class HYDRA_API WeaponComponent final : public IComponent{
 	public:
 		WeaponComponent(IEntity* entity);
+		WeaponComponent(IEntity* entity, float fireRateRPM, float bulletSize, float bulletSpread, int bulletsPerShot);
 		~WeaponComponent() final;
 
 		void tick(TickAction action, float delta) final;
@@ -35,7 +36,7 @@ namespace Hydra::Component {
 		void registerUI() final;
 	private:
 		unsigned int _fireRateTimer = 0;
-		int _fireRateRPM = 600;
+		float _fireRateRPM = 600;
 		float _bulletSize = 0.2f;
 		float _bulletSpread = 0.0f;
 		int _bulletsPerShot = 14;

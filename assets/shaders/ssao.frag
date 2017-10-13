@@ -4,8 +4,8 @@ out float fragColor;
 
 in vec2 texCoords;
 
-layout(location = 0) uniform sampler2DMS positions;
-layout(location = 1) uniform sampler2DMS normals;
+layout(location = 0) uniform sampler2D positions;
+layout(location = 1) uniform sampler2D normals;
 layout(location = 2) uniform sampler2D texNoise;
 
 layout(location = 3) uniform mat4 projection;
@@ -14,9 +14,8 @@ layout(location = 4) uniform vec3 samples[64];
 const vec2 noiseScale = vec2(1920.0 / 4.0, 1080.0 / 4.0);
 
 void main() {
-	ivec2 iTexCoords = ivec2(texCoords * textureSize(positions));
-	vec3 fragPos = texelFetch(positions, iTexCoords, 0).xyz;
-	vec3 normal = texelFetch(normals, iTexCoords, 0).xyz;
+	vec3 fragPos = texture(positions, texCoords).xyz;
+	vec3 normal = texture(normals, texCoords).xyz;
 
 	float bias = 0.025f;
 	float kernelRadius = 0.5f;
@@ -38,8 +37,7 @@ void main() {
 		offset.xyz /= offset.w;
 		offset.xyz = offset.xyz * 0.5 + 0.5;	
 		
-		ivec2 iOffset = ivec2(offset.xy * textureSize(positions));
-		float sampleDepth = texelFetch(positions, iOffset, 0).z;
+		float sampleDepth = texture(positions, offset.xy).z;
 
 		float rangeCheck = smoothstep(0.0, 1.0, kernelRadius / abs(fragPos.z - sampleDepth));
 		occlusion += (sampleDepth >= samplePoint.z + bias ? 1.0 : 0.0) * rangeCheck; 	

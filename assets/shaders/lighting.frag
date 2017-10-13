@@ -20,10 +20,10 @@ struct PointLight{
 layout(location = 0) out vec3 fragOutput;
 layout(location = 1) out vec3 brightOutput;
 
-layout(location = 0) uniform sampler2DMS positions;
-layout(location = 1) uniform sampler2DMS colors;
-layout(location = 2) uniform sampler2DMS normals;
-layout(location = 3) uniform sampler2DMS lightPositions;
+layout(location = 0) uniform sampler2D positions;
+layout(location = 1) uniform sampler2D colors;
+layout(location = 2) uniform sampler2D normals;
+layout(location = 3) uniform sampler2D lightPositions;
 layout(location = 4) uniform sampler2D depthMap;
 layout(location = 5) uniform sampler2D ssao;
 layout(location = 6) uniform vec3 cameraPos;
@@ -35,30 +35,30 @@ layout(location = 11) uniform PointLight pointLights[MAX_LIGHTS];
 vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec3 objectColor){
 	float distance = length(light.pos - pos);
 	float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+
 	// Diffuse
 	vec3 lightDir = normalize(light.pos - pos);
-	float diff = max(dot(normal, -lightDir), 0.0);
+	float diff = max(dot(normal, lightDir), 0.0);
 	vec3 diffuse = light.color * diff * objectColor;
 
 	// Specular
 	float specularStrength = 0.1f;
 	vec3 viewDir = normalize(cameraPos - pos);
-	vec3 reflectDir = reflect(lightDir, normal);
+	vec3 reflectDir = reflect(-lightDir, normal);
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128);
 	vec3 specular = spec * specularStrength * light.color;
 
-	vec3 ambient = light.color * 1 / nrOfPointLights;
 	return (diffuse + specular) * attenuation;
 }
 
 vec3 calcDirLight(DirLight light, vec3 pos, vec3 normal, vec3 objectColor){
-	vec3 lightDirection = normalize(-light.dir);
-	float diff = max(dot(normal, lightDirection), 0.0f);
+	vec3 lightDir = normalize(-light.dir);
+	float diff = max(dot(normal, lightDir), 0.0f);
 	vec3 diffuse = light.color * diff * objectColor;
 
 	float specularStrength = 0.1f;
 	vec3 viewDir = normalize(cameraPos - pos);
-	vec3 reflectDir = reflect(lightDirection, normal);
+	vec3 reflectDir = reflect(lightDir, normal);
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128);
 	vec3 specular = spec * specularStrength * light.color;
 
@@ -66,22 +66,28 @@ vec3 calcDirLight(DirLight light, vec3 pos, vec3 normal, vec3 objectColor){
 }
 
 void main() {
-	ivec2 iTexCoords = ivec2(texCoords * textureSize(positions));
-	vec3 pos = vec3(0);
-	vec3 objectColor = vec3(0);
-	vec3 normal = vec3(0);
-	vec4 lightPos = vec4(0);
-	for(int i = 0; i < 4; i++){
-		pos += texelFetch(positions, iTexCoords, i).xyz;
-		objectColor += texelFetch(colors, iTexCoords, i).rgb;
-		normal += texelFetch(normals, iTexCoords, i).xyz;
-		lightPos += texelFetch(lightPositions, iTexCoords, i);
-	}
-	
-	pos /= 4;
-	objectColor /= 4;
-	normal /= 4;
-	lightPos /= 4;
+	// MSAA
+	//ivec2 iTexCoords = ivec2(texCoords * textureSize(positions));
+	//ivec2 iTexCoords2 = ivec2(texCoords * textureSize(normals));
+	//vec3 pos = vec3(0);
+	//vec3 objectColor = vec3(0);
+	//vec3 normal = vec3(0);
+	//vec4 lightPos = vec4(0);
+	//for(int i = 0; i < 4; i++){
+	//	pos += texelFetch(positions, iTexCoords, i).xyz;
+	//	objectColor += texelFetch(colors, iTexCoords, i).rgb;
+	//	normal += texelFetch(normals, iTexCoords, i).xyz;
+	//	lightPos += texelFetch(lightPositions, iTexCoords, i);
+	//}
+	//pos /= 4;
+	//objectColor /= 4;
+	//normal /= 4;
+	//lightPos /= 4;
+
+	vec3 pos = texture(positions, texCoords).xyz;
+	vec3 objectColor = texture(colors, texCoords).rgb;
+	vec3 normal = texture(normals, texCoords).xyz;
+	vec4 lightPos = texture(lightPositions, texCoords);
 
 	// Lighting 
 	vec3 globalAmbient = dirLight.color * 0.3f;
@@ -90,7 +96,7 @@ void main() {
 	// Directional light
 	result = calcDirLight(dirLight, pos, normal, objectColor);
 
-	// Point Lights.s
+	// Point Lights
 	for(int i = 0 ; i < nrOfPointLights; i++){
 		result += calcPointLight(pointLights[i], pos, normal, objectColor);
 	}
@@ -126,7 +132,7 @@ void main() {
 	float brightness = dot(vec3(fragOutput), vec3(0.2126, 0.7152, 0.0722));
 
 	if(brightness > 1.0f)
-		brightOutput = vec3(fragOutput.x, 0,0);
+		brightOutput = fragOutput;
 	else
 		brightOutput = vec3(0);
 }
