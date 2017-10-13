@@ -20,6 +20,7 @@ namespace Hydra::Component {
 	private:
 		glm::vec3 _position;
 		glm::vec3 _direction;
+		glm::vec3 _color;
 
 		float _fov = 80.0f;
 		float _zNear = -10.f;
@@ -31,9 +32,10 @@ namespace Hydra::Component {
 
 		void setPosition(const glm::vec3& position);
 		void setDirection(const glm::vec3& direction);
+		void setColor(const glm::vec3& color) { _color = color; }
 		inline const glm::vec3& getPosition() { return _position; }
 		inline const glm::vec3& getDirection() { return _direction; }
-		void translate(const glm::vec3& transform);
+		inline const glm::vec3& getColor() { return _color; }
 
 		//inline Hydra::Renderer::IRenderTarget* getRenderTarget() { return _renderTarget; }
 		//inline void setRenderTarget(Hydra::Renderer::IRenderTarget* renderTarget) { _renderTarget = renderTarget; }
