@@ -45,7 +45,7 @@ void PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos, int (&map)
 		_startCell = std::make_shared<Node>(currentPos.x / CELL_SIZE, currentPos.z / CELL_SIZE, nullptr);
 		_endCell = std::make_shared<Node>(targetPos.x / CELL_SIZE, targetPos.z / CELL_SIZE, nullptr);
 
-		_startCell->H = _startCell->manHattanDistance(_endCell);
+		_startCell->H = _startCell->chebyshevDistance(_endCell);
 		_openList.push_back(_startCell);
 
 		foundGoal = false;
