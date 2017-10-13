@@ -506,7 +506,7 @@ namespace Barcode {
 			for (auto& entity : _world->getActiveComponents<Hydra::Component::PlayerComponent>())
 			{
 				hpP = entity->getComponent<Hydra::Component::PlayerComponent>()->getHealth();
-				//perksList = entity->getComponent<Hydra::Component::PlayerComponent>()->getActiveBuffs();
+				perksList = entity->getComponent<Hydra::Component::PlayerComponent>()->getActiveBuffs();
 
 				//get actives
 			}
@@ -515,8 +515,8 @@ namespace Barcode {
 				degres = entity->getComponent<Hydra::Component::CameraComponent>()->getYaw();
 				degres = glm::degrees(degres);
 			}
-
-			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
+			
+			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0));
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, float(0.0f));
 
@@ -557,9 +557,9 @@ namespace Barcode {
 
 			//compas that turns with player
 
-			float degresP = ((float(100) / float(360) * degres) / 100);
+			float degresP = ((float(100) / float(360) * degres)/100);
 			float degresO = float(1000) * degresP;
-			ImGui::SetNextWindowPos(ImVec2(pos.x - 275, +70));
+			ImGui::SetNextWindowPos(ImVec2(pos.x - 275, + 70));
 			ImGui::SetNextWindowSize(ImVec2(600, 20));
 			ImGui::Begin("Compass", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/CompassCut.png")->getID()), ImVec2(550, 20), ImVec2(degresO / float(1000), 0), ImVec2((float(1) - ((float(450) - degresO) / float(1000))), 1));
@@ -588,11 +588,11 @@ namespace Barcode {
 				float leftRight = glm::dot(right2D, enemy2D);
 				if (leftRight < 0)
 				{
-					leftRight = -1;
+					leftRight = 1;
 				}
 				else
 				{
-					leftRight = 1;
+					leftRight = -1;
 				}
 				if (dotPlacment < 0)
 				{
@@ -619,7 +619,7 @@ namespace Barcode {
 				snprintf(buf, sizeof(buf), "Cooldown%d", i);
 				float yOffset = float(stepSize * float(i + 1));
 				float xOffset = pow(abs((yOffset - (stepSize / float(2)) - float(35))) * 0.1069, 2);
-				ImGui::SetNextWindowPos(pos + ImVec2(-64 + xOffset, -24 + yOffset - ((stepSize + 10.0) / 2.0)));
+				ImGui::SetNextWindowPos(pos + ImVec2(-64 + xOffset , -24 + yOffset - ((stepSize + 10.0) / 2.0)));
 				ImGui::SetNextWindowSize(ImVec2(15, 15));
 				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 				if (coolDownList[i] >= 7)
@@ -730,6 +730,10 @@ namespace Barcode {
 			//ImGui::PopStyleVar();
 		}
 
+		{//tb
+			
+		}
+
 		{ // Sync with network
 			_world->tick(TickAction::network, delta);
 		}
@@ -791,9 +795,9 @@ namespace Barcode {
 		weaponEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 		weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, -1.5, -2), glm::vec3(1, 1, 1), glm::quat(0, 0, 1, 0))->setIgnoreParent(true);
 
-		//auto alienEntity = _world->createEntity("Enemy Alien");
-		//alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(5, 0, 5), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
-		//alienEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+		auto alienEntity = _world->createEntity("Enemy Alien");
+		alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(5, 0, 5), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+		alienEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
 		
 		auto pointLight1 = _world->createEntity("Pointlight1");
 		pointLight1->addComponent<Hydra::Component::TransformComponent>();
@@ -804,19 +808,19 @@ namespace Barcode {
 		auto pointLight2 = _world->createEntity("Pointlight2");
 		pointLight2->addComponent<Hydra::Component::TransformComponent>();
 
-		auto alienAnimation = _world->createEntity("Alien");
-		alienAnimation->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
-		alienAnimation->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 1, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
+		//auto alienAnimation = _world->createEntity("Alien");
+		//alienAnimation->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
+		//alienAnimation->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 1, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
 
-		auto alienAI = _world->createEntity("AlienAI");
-		alienAI->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
-		alienAI->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 0, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
-		alienAI->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 5), 500, 2, 2, glm::vec3(2));
-
-		auto alienAI2 = _world->createEntity("AlienAI2");
-		alienAI2->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
-		alienAI2->addComponent<Hydra::Component::TransformComponent>(glm::vec3(5, 0, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
-		alienAI2->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(5, 0, 5), 500, 2, 2, glm::vec3(2));
+		//auto alienAI = _world->createEntity("AlienAI");
+		//alienAI->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
+		//alienAI->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 0, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
+		//alienAI->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 5), 500, 2, 2, glm::vec3(2));
+		//
+		//auto alienAI2 = _world->createEntity("AlienAI2");
+		//alienAI2->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
+		//alienAI2->addComponent<Hydra::Component::TransformComponent>(glm::vec3(5, 0, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
+		//alienAI2->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 5), 500, 2, 2, glm::vec3(2));
 
 		//auto tileTest = _world->createEntity("Tiles");
 		//tileTest->addComponent<Hydra::Component::MeshComponent>(5, 5);
@@ -881,7 +885,7 @@ namespace Barcode {
 			auto& world = _world->getWorldRoot()->getChildren();
 			_cc = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Player"; })->get()->getComponent<Hydra::Component::CameraComponent>();
 			_cc->setRenderTarget(_geometryBatch.output.get());
-			//_enemy = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Enemy Alien"; })->get()->getComponent<Hydra::Component::EnemyComponent>();
+			_enemy = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Enemy Alien"; })->get()->getComponent<Hydra::Component::EnemyComponent>();
 			for (auto it = world.begin(); it != world.end(); it++)
 				if (auto _ = (*it)->getComponent<Hydra::Component::RigidBodyComponent>()) {
 					_engine->log(Hydra::LogLevel::normal, "Enabling bullet for %s", (*it)->getName().c_str());

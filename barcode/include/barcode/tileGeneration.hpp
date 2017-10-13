@@ -72,6 +72,8 @@ public:
 	};
 	std::vector<tileInfo*> tiles;
 
+	ImporterMenu imorter;
+
 	tileGeneration(int xSize, int ySize);
 	~tileGeneration();
 
@@ -80,5 +82,4 @@ private:
 
 	void _setupGrid();
 	void _createMapRecursivly(tileInfo *tile);
-
 };

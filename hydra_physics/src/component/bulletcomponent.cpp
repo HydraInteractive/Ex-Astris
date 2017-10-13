@@ -39,7 +39,7 @@ std::vector<IEntity*> BulletComponent::getEnemies()
 	std::vector<IEntity*> allEnemies;
 	auto children = world->getChildren();
 	for (size_t i = 0; i < children.size(); i++) {
-		if (!children[i]->getName().find("AlienAI")) {
+		if (!children[i]->getName().find("Enemy")) {
 			allEnemies.push_back(children[i].get());
 		}
 	}

@@ -29,14 +29,26 @@ void tileGeneration::_createMapRecursivly(tileInfo *tile) {
 
 				if (!tiles[k]->taken) {
 					if (tile->yTilePos == tiles[k]->yTilePos && tile->xTilePos == tiles[k]->xTilePos - 1) {
-						//Got em
+						bool fits = false;
+						while (fits == false) {
 
-						//Set up fitting room
-						roomInfo *rom = new roomInfo;
+							//Set up fitting room
+							roomInfo *room = new roomInfo;
 
-						//readATTICRoom("Models/Rooms/leftUpInfo.ATTIC", "Models/Rooms/leftUpModel.ATTIC", *rom);
-						tiles[k]->room = *rom;
+							//Load in a room to either see if it fits, or that the
+							//file name knows if it fits
+							
+							//Have a if-stament to see so that the room doesn't
+							//have a door to a closed wall/map end
 
+							//if true, fits = true;
+							//else, load in new room and try again
+
+							//Apply the mesh/entity to the room with
+							//right coordinates
+							tiles[k]->room = *room;
+							delete[] room;
+						}
 						//call function again from new tile
 						_createMapRecursivly(tiles[k]);
 					}
@@ -47,10 +59,10 @@ void tileGeneration::_createMapRecursivly(tileInfo *tile) {
 			for (int k = 0; k < tiles.size(); k++) {
 				if (!tiles[k]->taken) {
 					if (tile->xTilePos == tiles[k]->xTilePos - 1 && tile->yTilePos == tiles[k]->yTilePos) {
-						roomInfo *rom = new roomInfo;
+						roomInfo *room = new roomInfo;
 
 						//readATTICRoom("Models/Rooms/leftUpRoomInfo.ATTIC", "Models/Rooms/leftUpRoomModel.ATTIC", *rom);
-						tiles[k]->room = *rom;
+						tiles[k]->room = *room;
 
 						//call function again from new tile
 						_createMapRecursivly(tiles[k]);
@@ -62,10 +74,10 @@ void tileGeneration::_createMapRecursivly(tileInfo *tile) {
 			for (int k = 0; k < tiles.size(); k++) {
 				if (!tiles[k]->taken) {
 					if (tile->xTilePos == tiles[k]->xTilePos && tile->yTilePos == tiles[k]->yTilePos + 1) {
-						roomInfo *rom = new roomInfo;
+						roomInfo *room = new roomInfo;
 
 						//readATTICRoom("Models/Rooms/leftUpRoomInfo.ATTIC", "Models/Rooms/leftUpRoomModel.ATTIC", *rom);
-						tiles[k]->room = *rom;
+						tiles[k]->room = *room;
 
 						//call function again from new tile
 						_createMapRecursivly(tiles[k]);
@@ -77,10 +89,10 @@ void tileGeneration::_createMapRecursivly(tileInfo *tile) {
 			for (int k = 0; k < tiles.size(); k++) {
 				if (!tiles[k]->taken) {
 					if (tile->xTilePos == tiles[k]->xTilePos + 1 && tile->yTilePos == tiles[k]->yTilePos) {
-						roomInfo *rom = new roomInfo;
+						roomInfo *room = new roomInfo;
 
 						//readATTICRoom("Models/Rooms/leftUpRoomInfo.ATTIC", "Models/Rooms/leftUpRoomModel.ATTIC", *rom);
-						tiles[k]->room = *rom;
+						tiles[k]->room = *room;
 
 						//call function again from new tile
 						_createMapRecursivly(tiles[k]);
@@ -93,7 +105,6 @@ void tileGeneration::_createMapRecursivly(tileInfo *tile) {
 
 
 void tileGeneration::_setupGrid() {
-
 	int tileCount = 0;
 	int positiveXCount = 0;
 	int positiveYCount = 0;
@@ -144,7 +155,7 @@ void tileGeneration::_setupGrid() {
 			//	yPos += 17;
 			//}
 
-			tile->middlePoint = glm::vec3(xPos + 17, 0, yPos + 17);
+			tile->middlePoint = glm::vec3((xPos + 17) - (34/2), 0, (yPos + 17) - (_ySize / 2));
 
 			tile->tileModelMatrix = glm::rotate(glm::mat4(), glm::radians(360.0f), glm::vec3(0, 1, 0));
 			tile->tileModelMatrix = glm::scale(glm::vec3(1));
@@ -162,8 +173,9 @@ void tileGeneration::_setupGrid() {
 
 		}
 	}
-
-	_createMapRecursivly(tiles[middleTile]);
+	
+	
+	//_createMapRecursivly(tiles[middleTile]);
 	//bool si = true;
 
 }

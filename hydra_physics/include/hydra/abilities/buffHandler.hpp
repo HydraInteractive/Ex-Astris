@@ -21,7 +21,7 @@ class BuffHandler
 public:
 	BuffHandler();
 	~BuffHandler();
-	void getActiveBuffs();
+	std::vector<Buffs> getActiveBuffs();
 	void getActiveDebuffs();
 	bool addBuff(Buffs newBuff);
 	void onActivation(int &maxHealth, int &health);
