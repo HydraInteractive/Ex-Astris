@@ -403,26 +403,43 @@ namespace Barcode {
 			//static float invisF[3] = { 0, 0, 0 };
 			float hpP = 100;
 			float ammoP = 100;
-			
-			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0));
+			float degres = 0;
+			std::vector<Buffs> perksList;
+			for (auto& entity : _world->getActiveComponents<Hydra::Component::PlayerComponent>())
+			{
+				hpP = entity->getComponent<Hydra::Component::PlayerComponent>()->getHealth();
+				perksList = entity->getComponent<Hydra::Component::PlayerComponent>()->getActiveBuffs();
+
+				//get actives
+			}
+			for (auto& entity : _world->getActiveComponents<Hydra::Component::CameraComponent>())
+			{
+				degres = entity->getComponent<Hydra::Component::CameraComponent>()->getYaw();
+				degres = glm::degrees(degres);
+			}
+
+			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, float(0.0f));
 
 			const int x = _engine->getView()->getSize().x / 2;
 			const ImVec2 pos = ImVec2(x, _engine->getView()->getSize().y / 2);
 
+			//Crosshair
 			ImGui::SetNextWindowPos(pos + ImVec2(-10, 1));
 			ImGui::SetNextWindowSize(ImVec2(20, 20));
 			ImGui::Begin("Crosshair", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Crosshair.png")->getID()), ImVec2(20, 20));
 			ImGui::End();
 
+			//AimRing
 			ImGui::SetNextWindowPos(pos + ImVec2(-51, -42));
 			ImGui::SetNextWindowSize(ImVec2(120, 120));
 			ImGui::Begin("AimRing", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/AimRing.png")->getID()), ImVec2(100, 100));
 			ImGui::End();
 
+			//Hp bar on ring
 			float offsetHpF = 72 * hpP * 0.01;
 			int offsetHp = offsetHpF;
 			ImGui::SetNextWindowPos(pos + ImVec2(-47, -26 + 72 - offsetHp));
@@ -431,6 +448,7 @@ namespace Barcode {
 			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HpOnRing.png")->getID()), ImVec2(22, offsetHp), ImVec2(0, 1 - hpP * 0.01), ImVec2(1, 1));
 			ImGui::End();
 
+			//Ammo on bar
 			float offsetAmmoF = 72 * ammoP * 0.01;
 			int offsetAmmo = offsetAmmoF;
 			ImGui::SetNextWindowPos(pos + ImVec2(+25, -26 + 72 - offsetAmmo));
@@ -439,17 +457,18 @@ namespace Barcode {
 			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/AmmoOnRing.png")->getID()), ImVec2(22, offsetAmmo), ImVec2(0, 1 - ammoP * 0.01), ImVec2(1, 1));
 			ImGui::End();
 
-			float degres = 0;
-			float degresP = ((float(100) / float(360) * degres)/100);
+			//compas that turns with player
+
+			float degresP = ((float(100) / float(360) * degres) / 100);
 			float degresO = float(1000) * degresP;
-			ImGui::SetNextWindowPos(ImVec2(pos.x - 275, + 70));
+			ImGui::SetNextWindowPos(ImVec2(pos.x - 275, +70));
 			ImGui::SetNextWindowSize(ImVec2(600, 20));
 			ImGui::Begin("Compass", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Compass.png")->getID()), ImVec2(550, 20), ImVec2(degresO / float(1550), 0), ImVec2((float(1) - ((float(1000) - degresO) / float(1550))), 1));
-			_textureLoader->getTexture("assets/hud/Compass.png")->setRepeat();
+			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/CompassCut.png")->getID()), ImVec2(550, 20), ImVec2(degresO / float(1000), 0), ImVec2((float(1) - ((float(450) - degresO) / float(1000))), 1));
+			_textureLoader->getTexture("assets/hud/CompassCut.png")->setRepeat();
 			ImGui::End();
 
-
+			//Enemys on compas
 			int i = 0;
 			for (auto& entity : _world->getActiveComponents<Hydra::Component::EnemyComponent>())
 			{
@@ -491,9 +510,9 @@ namespace Barcode {
 				i++;
 			}
 
-
+			//Dynamic cooldown dots
 			int amountOfActives = 3;
-			int coolDownList[20] = { 5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5 };
+			int coolDownList[64] = { 5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5 };
 			float pForEatchDot = float(1) / float(amountOfActives);
 			float stepSize = float(70) * pForEatchDot;
 			for (int i = 0; i < amountOfActives; i++)
@@ -502,7 +521,7 @@ namespace Barcode {
 				snprintf(buf, sizeof(buf), "Cooldown%d", i);
 				float yOffset = float(stepSize * float(i + 1));
 				float xOffset = pow(abs((yOffset - (stepSize / float(2)) - float(35))) * 0.1069, 2);
-				ImGui::SetNextWindowPos(pos + ImVec2(-64 + xOffset , -24 + yOffset - ((stepSize + 10.0) / 2.0)));
+				ImGui::SetNextWindowPos(pos + ImVec2(-64 + xOffset, -24 + yOffset - ((stepSize + 10.0) / 2.0)));
 				ImGui::SetNextWindowSize(ImVec2(15, 15));
 				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 				if (coolDownList[i] >= 7)
@@ -517,10 +536,38 @@ namespace Barcode {
 				{
 					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Yellow.png")->getID()), ImVec2(10, 10));
 				}
-				
+
 				ImGui::End();
 			}
-			//70, 24
+
+			//Perk Icons
+			int amountOfPerks = perksList.size();
+			for (int i = 0; i < amountOfPerks; i++)
+			{
+				char buf[128];
+				snprintf(buf, sizeof(buf), "Perk%d", i);
+				float xOffset = float((-10 * amountOfPerks) + (20 * i));
+				ImGui::SetNextWindowPos(pos + ImVec2(xOffset, +480));
+				ImGui::SetNextWindowSize(ImVec2(20, 20));
+				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+				switch (perksList[i])
+				{
+				case BUFF_BULLETVELOCITY:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/BulletVelocity.png")->getID()), ImVec2(20, 20));
+					break;
+				case BUFF_DAMAGEUPGRADE:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/DamageUpgrade.png")->getID()), ImVec2(20, 20));
+					break;
+				case BUFF_HEALING:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Healing.png")->getID()), ImVec2(20, 20));
+					break;
+				case BUFF_HEALTHUPGRADE:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
+					break;
+				}
+
+				ImGui::End();
+			}
 
 			ImGui::PopStyleColor();
 			ImGui::PopStyleVar();
