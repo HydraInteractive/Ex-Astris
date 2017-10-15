@@ -903,7 +903,7 @@ struct ImGuiOnceUponAFrame
 };
 
 // Helper: Parse and apply text filters. In format "aaaaa[,bbbb][,ccccc]"
-struct ImGuiTextFilter
+struct IMGUI_API ImGuiTextFilter
 {
     struct TextRange
     {
@@ -931,7 +931,7 @@ struct ImGuiTextFilter
     bool                Draw(const char* label = "Filter (inc,-exc)", float width = 0.0f);    // Helper calling InputText+Build
     bool                PassFilter(const char* text, const char* text_end = NULL) const;
     bool                IsActive() const { return !Filters.empty(); }
-    IMGUI_API void      Build();
+    void      Build();
 };
 
 // Helper: Text buffer for logging/accumulating text

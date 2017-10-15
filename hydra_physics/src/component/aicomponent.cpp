@@ -541,7 +541,7 @@ float EnemyComponent::getRadius()
 
 std::shared_ptr<Hydra::World::Entity> EnemyComponent::getPlayerComponent()
 {
-	return Hydra::World::World::getEntity(PlayerComponent::getActiveComponents()[0]->entityID);
+	return Hydra::World::World::getEntity(PlayerComponent::componentHandler->getActiveComponents()[0]->entityID);
 }
 
 void EnemyComponent::serialize(nlohmann::json& json) const {

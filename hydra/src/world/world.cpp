@@ -21,10 +21,6 @@ using namespace Hydra::Component;
 
 template <typename T, Hydra::Component::ComponentBits bit>
 IComponent<T, bit>::~IComponent() {}
-template <typename T, Hydra::Component::ComponentBits bit>
-std::unordered_map<EntityID, size_t> IComponent<T, bit>::_map;
-template <typename T, Hydra::Component::ComponentBits bit>
-std::vector<std::shared_ptr<IComponent<T, bit>>> IComponent<T, bit>::_components;
 
 std::shared_ptr<Entity> World::root = nullptr;
 std::unordered_map<EntityID, size_t> World::_map;
@@ -34,7 +30,7 @@ EntityID World::_idCounter = 1;
 template <typename T>
 inline void removeComponent(Entity& this_) {
 	if (this_.hasComponent<T>())
-		T::removeComponent(this_.id);
+		T::componentHandler->removeComponent(this_.id);
 }
 
 template <typename... Args>

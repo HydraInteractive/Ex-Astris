@@ -3,7 +3,7 @@
 #include <hydra/world/world.hpp>
 
 namespace Hydra::System {
-	class HYDRA_GRAPHICS_API PlayerSystem final : public Hydra::World::ISystem {
+	class HYDRA_PHYSICS_API PlayerSystem final : public Hydra::World::ISystem {
 	public:
 		PlayerSystem();
 		~PlayerSystem() final;

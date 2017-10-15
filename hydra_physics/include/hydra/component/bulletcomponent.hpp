@@ -31,5 +31,4 @@ namespace Hydra::Component {
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
 	};
-	template struct HYDRA_PHYSICS_API Hydra::World::IComponent<Hydra::Component::BulletComponent, Hydra::Component::ComponentBits::Bullet>;
 };

@@ -214,7 +214,7 @@ namespace Barcode {
 			// Render to geometryFBO
 
 			// FIXME: Fix this shit code
-			for (auto& light : Hydra::Component::LightComponent::getActiveComponents())
+			for (auto& light : Hydra::Component::LightComponent::componentHandler->getActiveComponents())
 				_light = static_cast<Hydra::Component::LightComponent*>(light.get());
 
 			auto lightViewMX = _light->getViewMatrix();
@@ -367,7 +367,7 @@ namespace Barcode {
 			}
 
 			bool anyParticles = false;
-			for (auto& pc : Hydra::Component::ParticleComponent::getActiveComponents()) {
+			for (auto& pc : Hydra::Component::ParticleComponent::componentHandler->getActiveComponents()) {
 				auto p = static_cast<Hydra::Component::ParticleComponent*>(pc.get());
 				auto drawObj = world::getEntity(p->entityID)->getComponent<Hydra::Component::DrawObjectComponent>();
 				auto& particles = p->particles;
@@ -449,8 +449,8 @@ namespace Barcode {
 
 
 			int i = 0;
-			glm::mat4 viewMat = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::getActiveComponents()[0].get())->getViewMatrix();
-			for (auto& enemy : Hydra::Component::EnemyComponent::getActiveComponents()) {
+			glm::mat4 viewMat = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get())->getViewMatrix();
+			for (auto& enemy : Hydra::Component::EnemyComponent::componentHandler->getActiveComponents()) {
 				char buf[128];
 				snprintf(buf, sizeof(buf), "Enemy is a scrub here is it's scrubID: %d", i);
 				auto playerP = _cc->position;
@@ -698,12 +698,12 @@ namespace Barcode {
 		bp->spawn(world::root);*/
 
 		{
-			_cc = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::getActiveComponents()[0].get());
+			_cc = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get());
 			_cc->renderTarget = _geometryBatch.output.get();
 
-			_enemy = static_cast<Hydra::Component::EnemyComponent*>(Hydra::Component::EnemyComponent::getActiveComponents()[0].get());
+			_enemy = static_cast<Hydra::Component::EnemyComponent*>(Hydra::Component::EnemyComponent::componentHandler->getActiveComponents()[0].get());
 
-			for (auto& rb : Hydra::Component::RigidBodyComponent::getActiveComponents()){
+			for (auto& rb : Hydra::Component::RigidBodyComponent::componentHandler->getActiveComponents()){
 				_engine->log(Hydra::LogLevel::normal, "Enabling bullet for %s", world::getEntity(rb->entityID)->name.c_str());
 				_physicsSystem.enable(static_cast<Hydra::Component::RigidBodyComponent*>(rb.get()));
 			}

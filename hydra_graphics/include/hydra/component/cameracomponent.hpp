@@ -48,5 +48,4 @@ namespace Hydra::Component {
 		inline glm::mat4 getViewMatrix() const { return glm::translate(glm::mat4_cast(orientation), -position); }
 		inline glm::mat4 getProjectionMatrix() const { return glm::perspective(glm::radians(fov), (renderTarget->getSize().x*1.0f) / renderTarget->getSize().y, zNear, zFar); }
 	};
-	template struct HYDRA_GRAPHICS_API Hydra::World::IComponent<Hydra::Component::CameraComponent, Hydra::Component::ComponentBits::Camera>;
 };

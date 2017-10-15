@@ -20,5 +20,4 @@ namespace Hydra::Component {
 
 		const std::string type() const final { return "DrawObjectComponent"; }
 	};
-	template struct HYDRA_GRAPHICS_API Hydra::World::IComponent<Hydra::Component::DrawObjectComponent, Hydra::Component::ComponentBits::DrawObject>;
 }

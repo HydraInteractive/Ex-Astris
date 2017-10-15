@@ -75,5 +75,4 @@ namespace Hydra::Component {
 		void _recalculateMatrix();
 		std::shared_ptr<Hydra::Component::TransformComponent> _getParentComponent();
 	};
-	template struct HYDRA_BASE_API Hydra::World::IComponent<Hydra::Component::TransformComponent, Hydra::Component::ComponentBits::Transform>;
 };

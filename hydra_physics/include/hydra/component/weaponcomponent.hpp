@@ -36,7 +36,7 @@ namespace Hydra::Component {
 	private:
 		std::shared_ptr<Hydra::World::Entity> _bullets;
 	};
-	template struct HYDRA_PHYSICS_API Hydra::World::IComponent<Hydra::Component::WeaponComponent, Hydra::Component::ComponentBits::Weapon>;
+	/*template struct HYDRA_PHYSICS_API Hydra::World::IComponent<Hydra::Component::WeaponComponent, Hydra::Component::ComponentBits::Weapon>;
 	template class HYDRA_PHYSICS_API std::shared_ptr<Hydra::World::IComponent<Hydra::Component::WeaponComponent, Hydra::Component::ComponentBits::Weapon>>;
-	template class HYDRA_PHYSICS_API std::vector<std::shared_ptr<Hydra::World::IComponent<Hydra::Component::WeaponComponent, Hydra::Component::ComponentBits::Weapon>>>;
+	template class HYDRA_PHYSICS_API std::vector<std::shared_ptr<Hydra::World::IComponent<Hydra::Component::WeaponComponent, Hydra::Component::ComponentBits::Weapon>>>;*/
 };

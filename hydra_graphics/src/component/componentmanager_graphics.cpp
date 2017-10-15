@@ -7,21 +7,21 @@
 #include <hydra/component/drawobjectcomponent.hpp>
 #include <hydra/component/EditorCameraComponent.hpp>
 
-using namespace Hydra::Component;
-typedef Hydra::World::IComponent<CameraComponent, ComponentBits::Camera> camera;
-typedef Hydra::World::IComponent<LightComponent, ComponentBits::Light> light;
-typedef Hydra::World::IComponent<MeshComponent, ComponentBits::Mesh> mesh;
-typedef Hydra::World::IComponent<ParticleComponent, ComponentBits::Particle> particle;
-typedef Hydra::World::IComponent<EditorCameraComponent, ComponentBits::EditorCamera> editorCamera;
-typedef Hydra::World::IComponent<DrawObjectComponent, ComponentBits::DrawObject> drawObject;
+using namespace Hydra::World;
 
 namespace Hydra::Component::ComponentManager {
 	void registerComponents_graphics(std::map<std::string, createOrGetComponent_f>& creators) {
+		CameraComponent::componentHandler = new ComponentHandler<CameraComponent>();
 		creators["CameraComponent"] = &createOrGetComponentHelper<CameraComponent>;
+		MeshComponent::componentHandler = new ComponentHandler<MeshComponent>();
 		creators["MeshComponent"] = &createOrGetComponentHelper<MeshComponent>;
+		LightComponent::componentHandler = new ComponentHandler<LightComponent>();
 		creators["LightComponent"] = &createOrGetComponentHelper<LightComponent>;
+		ParticleComponent::componentHandler = new ComponentHandler<ParticleComponent>();
 		creators["ParticleComponent"] = &createOrGetComponentHelper<ParticleComponent>;
+		EditorCameraComponent::componentHandler = new ComponentHandler<EditorCameraComponent>();
 		creators["EditorCameraComponent"] = &createOrGetComponentHelper<EditorCameraComponent>;
+		DrawObjectComponent::componentHandler = new ComponentHandler<DrawObjectComponent>();
 		creators["DrawObjectComponent"] = &createOrGetComponentHelper<DrawObjectComponent>;
 	}
 }

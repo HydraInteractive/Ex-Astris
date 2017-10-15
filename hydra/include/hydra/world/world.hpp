@@ -130,16 +130,16 @@ namespace Hydra::World {
 		template <typename T>
 		inline std::shared_ptr<T> getComponent() const {
 			if (hasComponents(T::bits))
-				return std::static_pointer_cast<T>(T::getComponent(id));
+				return std::static_pointer_cast<T>(T::componentHandler->getComponent(id));
 			return std::shared_ptr<T>();
 		}
 
 		template <typename T>
 		inline std::shared_ptr<T> addComponent() {
 			if (hasComponents(T::bits))
-				return std::static_pointer_cast<T>(T::getComponent(id));
+				return std::static_pointer_cast<T>(T::componentHandler->getComponent(id));
 			activeComponents |= T::bits;
-			return std::static_pointer_cast<T>(T::addComponent(id));
+			return std::static_pointer_cast<T>(T::componentHandler->addComponent(id));
 		}
 
 		template <typename T>
@@ -147,7 +147,7 @@ namespace Hydra::World {
 			if (!hasComponents(T::bits))
 				return;
 			activeComponents &= ~T::bits;
-			T::removeComponent(id);
+			T::componentHandler->removeComponent(id);
 		}
 
 		void serialize(nlohmann::json& json) const;
@@ -155,6 +155,10 @@ namespace Hydra::World {
 	};
 
 	struct HYDRA_BASE_API IComponentBase {
+		friend struct Entity;
+
+		EntityID entityID;
+
 		virtual ~IComponentBase() = 0;
 
 		virtual const std::string type() const = 0;
@@ -164,34 +168,39 @@ namespace Hydra::World {
 	};
 	inline IComponentBase::~IComponentBase() {}
 
-	template <typename T, Hydra::Component::ComponentBits bit>
-	struct HYDRA_BASE_API IComponent : public IComponentBase {
-		friend struct Entity;
-		static constexpr Hydra::Component::ComponentBits bits = bit;
+	class HYDRA_BASE_API IComponentHandler {
+	public:
+		virtual const std::vector<std::shared_ptr<IComponentBase>>& getActiveComponents() = 0;
 
-		EntityID entityID;
-		virtual ~IComponent() = 0;
+		//virtual std::unordered_map<EntityID, size_t> _map;
+		//virtual std::vector<std::shared_ptr<IComponent<T, bit>>> _components;
 
-		// This would work if everything would be in the same library
-		//static inline const std::vector<std::shared_ptr<T>>& getActiveComponents() { return _components; }
-		static inline const std::vector<std::shared_ptr<IComponent<T, bit>>>& getActiveComponents() { return _components; }
+		virtual std::shared_ptr<IComponentBase> getComponent(EntityID entityID) = 0;
+		virtual std::shared_ptr<IComponentBase> addComponent(EntityID entityID) = 0;
+		virtual void removeComponent(EntityID entityID) = 0;
+	};
 
-		static std::unordered_map<EntityID, size_t> _map;
-		static std::vector<std::shared_ptr<IComponent<T, bit>>> _components;
+	template <typename T>
+	class ComponentHandler : public IComponentHandler {
+	public:
+		std::unordered_map<EntityID, size_t> _map;
+		std::vector<std::shared_ptr<IComponentBase>> _components;
 
-		inline static std::shared_ptr<IComponent<T, bit>> getComponent(EntityID entityID) {
+		const std::vector<std::shared_ptr<IComponentBase>>& getActiveComponents() final { return _components; }
+	
+		std::shared_ptr<IComponentBase> getComponent(EntityID entityID) final {
 			return _components[_map[entityID]];
 		}
 
-		inline static std::shared_ptr<IComponent<T, bit>> addComponent(EntityID entityID) {
+		std::shared_ptr<IComponentBase> addComponent(EntityID entityID) final {
 			auto t = new T();
 			t->entityID = entityID;
-			_components.emplace_back(std::shared_ptr<IComponent<T, bit>>(t));
+			_components.emplace_back(std::shared_ptr<IComponentBase>(t));
 			_map[entityID] = _components.size() - 1;
 			return _components.back();
 		}
 
-		inline static void removeComponent(EntityID entityID) {
+		void removeComponent(EntityID entityID) final {
 			const size_t pos = _map[entityID];
 			if (pos != _components.size() - 1) {
 				_map[_components.back()->entityID] = pos;
@@ -202,6 +211,48 @@ namespace Hydra::World {
 			_map.erase(entityID);
 		}
 	};
+
+	template <typename T, Hydra::Component::ComponentBits bit>
+	struct HYDRA_BASE_API IComponent : public IComponentBase {
+		static IComponentHandler* componentHandler;
+
+		friend struct Entity;
+		static constexpr Hydra::Component::ComponentBits bits = bit;
+
+		virtual ~IComponent() = 0;
+	};
+
+#ifdef HYDRA_BASE_EXPORTS
+	IComponentHandler* IComponent<Hydra::Component::TransformComponent, Hydra::Component::ComponentBits::Transform>::componentHandler;
+	IComponentHandler* IComponent<Hydra::Component::CameraComponent, Hydra::Component::ComponentBits::Camera>::componentHandler;
+	IComponentHandler* IComponent<Hydra::Component::LightComponent, Hydra::Component::ComponentBits::Light>::componentHandler;
+	IComponentHandler* IComponent<Hydra::Component::MeshComponent, Hydra::Component::ComponentBits::Mesh>::componentHandler;
+	IComponentHandler* IComponent<Hydra::Component::ParticleComponent, Hydra::Component::ComponentBits::Particle>::componentHandler;
+	IComponentHandler* IComponent<Hydra::Component::EnemyComponent, Hydra::Component::ComponentBits::Enemy>::componentHandler;
+	IComponentHandler* IComponent<Hydra::Component::BulletComponent, Hydra::Component::ComponentBits::Bullet>::componentHandler;
+	IComponentHandler* IComponent<Hydra::Component::PlayerComponent, Hydra::Component::ComponentBits::Player>::componentHandler;
+	IComponentHandler* IComponent<Hydra::Component::WeaponComponent, Hydra::Component::ComponentBits::Weapon>::componentHandler;
+	IComponentHandler* IComponent<Hydra::Component::GrenadeComponent, Hydra::Component::ComponentBits::Grenade>::componentHandler;
+	IComponentHandler* IComponent<Hydra::Component::MineComponent, Hydra::Component::ComponentBits::Mine>::componentHandler;
+	IComponentHandler* IComponent<Hydra::Component::RigidBodyComponent, Hydra::Component::ComponentBits::RigidBody>::componentHandler;
+	IComponentHandler* IComponent<Hydra::Component::EditorCameraComponent, Hydra::Component::ComponentBits::EditorCamera>::componentHandler;
+	IComponentHandler* IComponent<Hydra::Component::DrawObjectComponent, Hydra::Component::ComponentBits::DrawObject>::componentHandler;
+#endif
+
+	template HYDRA_BASE_API struct IComponent<Hydra::Component::TransformComponent, Hydra::Component::ComponentBits::Transform>;
+	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::CameraComponent, Hydra::Component::ComponentBits::Camera>;
+	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::LightComponent, Hydra::Component::ComponentBits::Light>;
+	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::MeshComponent, Hydra::Component::ComponentBits::Mesh>;
+	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::ParticleComponent, Hydra::Component::ComponentBits::Particle>;
+	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::EnemyComponent, Hydra::Component::ComponentBits::Enemy>;
+	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::BulletComponent, Hydra::Component::ComponentBits::Bullet>;
+	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::PlayerComponent, Hydra::Component::ComponentBits::Player>;
+	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::WeaponComponent, Hydra::Component::ComponentBits::Weapon>;
+	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::GrenadeComponent, Hydra::Component::ComponentBits::Grenade>;
+	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::MineComponent, Hydra::Component::ComponentBits::Mine>;
+	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::RigidBodyComponent, Hydra::Component::ComponentBits::RigidBody>;
+	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::EditorCameraComponent, Hydra::Component::ComponentBits::EditorCamera>;
+	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::DrawObjectComponent, Hydra::Component::ComponentBits::DrawObject>;
 
 	struct HYDRA_BASE_API World final {
 		static std::shared_ptr<Entity> root;
@@ -260,7 +311,7 @@ namespace Hydra::World {
 		inline static void getEntitiesWithComponents(std::vector<std::shared_ptr<Entity>>& output) {
 			output.clear();
 			const Hydra::Component::ComponentBits bits = combine<Hydra::Component::ComponentBits>(Components::bits...);
-			for (auto& c : Component0::getActiveComponents())
+			for (auto& c : Component0::componentHandler->getActiveComponents())
 				if (auto e = getEntity(c->entityID); e->hasComponents(bits))
 					output.push_back(e);
 		}
