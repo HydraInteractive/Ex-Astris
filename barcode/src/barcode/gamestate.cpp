@@ -43,9 +43,9 @@ namespace Barcode {
 				.addTexture(1, Hydra::Renderer::TextureType::u8RGBA) // Diffuse
 				.addTexture(2, Hydra::Renderer::TextureType::f16RGB) // Normal
 				.addTexture(3, Hydra::Renderer::TextureType::f16RGBA) // Light pos
-				.addTexture(4, Hydra::Renderer::TextureType::f16Depth) // real depth
-				.addTexture(5, Hydra::Renderer::TextureType::u8RGB) // Position in view-space
-				.addTexture(6, Hydra::Renderer::TextureType::u8RGB) // Glow.
+				.addTexture(4, Hydra::Renderer::TextureType::u8RGB) // Position in view-space
+				.addTexture(5, Hydra::Renderer::TextureType::u8R) // Glow.
+				.addTexture(6, Hydra::Renderer::TextureType::f16Depth) // real depth
 				.finalize();
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
@@ -380,7 +380,7 @@ namespace Barcode {
 
 			_ssaoBatch.pipeline->setValue(3, _cc->getProjectionMatrix());
 
-			(*_geometryBatch.output)[5]->bind(0);
+			(*_geometryBatch.output)[4]->bind(0);
 			(*_geometryBatch.output)[2]->bind(1);
 			_ssaoNoise->bind(2);
 
@@ -425,7 +425,7 @@ namespace Barcode {
 			(*_geometryBatch.output)[3]->bind(3);
 			_shadowBatch.output->getDepth()->bind(4);
 			(*_ssaoBatch.output)[0]->bind(5);
-			(*_geometryBatch.output)[6]->bind(6);
+			(*_geometryBatch.output)[5]->bind(6);
 
 			_engine->getRenderer()->postProcessing(_lightingBatch.batch);
 

@@ -87,7 +87,7 @@ void main() {
 	vec4 objectColor = texture(colors, texCoords);
 	vec3 normal = texture(normals, texCoords).xyz;
 	vec4 lightPos = texture(lightPositions, texCoords);
-	vec3 glowAmnt = texture(glow, texCoords).rgb;
+	float glowAmnt = texture(glow, texCoords).r;
 
 	// Lighting 
 	// 0.1f should be ambient coefficient
@@ -135,7 +135,7 @@ void main() {
 	//if(brightness > 1.0f)
 	//	brightOutput = fragOutput;
 
-	if(glowAmnt.r > 0)
+	if(glowAmnt > 0)
 		brightOutput = fragOutput;
 	else
 		brightOutput = vec3(0);
