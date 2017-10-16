@@ -1,4 +1,5 @@
 #pragma once
+
 #if 0
 #include <string>
 #include <vector>
@@ -21,21 +22,17 @@
 #include <hydra/renderer/uirenderer.hpp>
 #include <hydra/renderer/glrenderer.hpp>
 
-class ImporterMenu
-{
+class ImporterMenu {
 public:
 	std::string executableDir;
 	ImporterMenu();
-	ImporterMenu(Hydra::World::IWorld* world);
 	~ImporterMenu();
 
 	void render(bool &closeBool, Hydra::Renderer::Batch& previewBatch, float delta);
 	void refresh();
-	static std::shared_ptr<IEntity> getRoomEntity(Hydra::World::IWorld* world);
+	static std::shared_ptr<Entity> getRoomEntity();
 private:
-
-	class Node
-	{
+	class Node {
 	public:
 		bool isAllowedFile = false;
 
@@ -49,7 +46,7 @@ private:
 		std::string reverseEngineerPath();
 		int numberOfFiles();
 		void clean();
-		void render(Hydra::World::IWorld* world, Node** selectedNode);
+		void render(Node** selectedNode);
 	private:
 		std::string _name;
 		std::vector<Node*> _subfolders;
@@ -57,14 +54,11 @@ private:
 		Node* _parent;
 		void _getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders) const;
 	};
+
 	Node* _root;
-	std::shared_ptr<Hydra::World::IEntity> _previewEntity;
+	std::shared_ptr<Hydra::World::Entity> _previewEntity;
 	bool _newEntityClicked;
 	float _rotation;
-	Hydra::World::IWorld* _editorWorld;
-	std::unique_ptr<Hydra::World::IWorld> _previewWorld;
 	std::string _getExecutableDir();
-
 };
-
 #endif

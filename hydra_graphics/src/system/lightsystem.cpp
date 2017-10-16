@@ -3,6 +3,7 @@
 #include <hydra/ext/openmp.hpp>
 
 #include <hydra/component/lightcomponent.hpp>
+#include <hydra/component/pointlightcomponent.hpp>
 
 using namespace Hydra::System;
 
@@ -17,6 +18,15 @@ void LightSystem::tick(float delta) {
 	#pragma omp parallel for
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto l = entities[i]->getComponent<Hydra::Component::LightComponent>();
+		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
+		l->position = t->position;
+	}
+
+	//Process PointLightComponent
+	world::getEntitiesWithComponents<Hydra::Component::PointLightComponent, Hydra::Component::TransformComponent>(entities);
+	#pragma omp parallel for
+	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
+		auto l = entities[i]->getComponent<Hydra::Component::PointLightComponent>();
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 		l->position = t->position;
 	}

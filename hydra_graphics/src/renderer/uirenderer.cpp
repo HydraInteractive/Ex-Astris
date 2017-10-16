@@ -237,7 +237,7 @@ public:
 		if (ImGui::BeginMainMenuBar()) {
 			if (ImGui::BeginMenu("File")) {
 				ImGui::MenuItem("Log", nullptr, &_logWindow);
-				//ImGui::MenuItem("Entity List", nullptr, &_entityWindow);
+				ImGui::MenuItem("Entity List", nullptr, &_entityWindow);
 				ImGui::Separator();
 				ImGui::MenuItem("ImGui Test Window", nullptr, &_testWindow);
 				ImGui::Separator();
@@ -387,9 +387,9 @@ private:
 	std::vector<Hydra::World::ISystem*> _systems;
 	std::vector<std::unique_ptr<UIRenderWindow>> _renderWindows;
 
-	bool _logWindow = true;
-	bool _entityWindow = true;
-	bool _performanceWindow = true;
+	bool _logWindow = false;
+	bool _entityWindow = false;
+	bool _performanceWindow = false;
 	bool _testWindow = false;
 
 	ImFont* _normalFont;

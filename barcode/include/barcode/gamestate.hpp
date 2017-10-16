@@ -21,6 +21,7 @@
 #include <hydra/component/particlecomponent.hpp>
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
+#include <hydra/component/pointlightcomponent.hpp>
 
 #include <hydra/system/camerasystem.hpp>
 #include <hydra/system/lightsystem.hpp>
@@ -89,6 +90,8 @@ namespace Barcode {
 		RenderBatch _viewBatch;
 		RenderBatch _postTestBatch;
 		RenderBatch _shadowBatch;
+		RenderBatch _ssaoBatch;
+		RenderBatch _hudBatch;
 
 		ParticleRenderBatch _particleBatch;
 
@@ -114,6 +117,8 @@ namespace Barcode {
 		std::unique_ptr<Hydra::Renderer::IShader> _shadowFragmentShader;
 		std::shared_ptr<Hydra::Renderer::ITexture> _shadowMap;
 
+		std::shared_ptr<Hydra::Renderer::ITexture> _ssaoNoise;
+
 		Hydra::Component::CameraComponent* _cc = nullptr;
 		Hydra::Component::PlayerComponent* player = nullptr;
 		Hydra::Component::EnemyComponent* _enemy = nullptr;
@@ -124,6 +129,16 @@ namespace Barcode {
 		void _initSystem();
 		void _initWorld();
 
-		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int &nrOfTimes, glm::vec2 size);
+		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int nrOfTimes, glm::vec2 size, const std::vector<float>& kernel);
 	};
+
+	//class DemoWindow : public TBWindow
+	//{
+	//public:
+	//	DemoWindow(TBWidget *root);
+	//	bool LoadResourceFile(const char *filename);
+	//	void LoadResourceData(const char *data);
+	//	void LoadResource(TBNode &node);
+	//	virtual bool OnEvent(const TBWidgetEvent &ev);
+	//};
 }

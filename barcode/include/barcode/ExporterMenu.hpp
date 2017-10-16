@@ -19,20 +19,18 @@
 #include <hydra/world/blueprintloader.hpp>
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
-class ExporterMenu
-{
+class ExporterMenu {
 public:
 	std::string executableDir;
 	ExporterMenu();
-	ExporterMenu(Hydra::World::IWorld* world);
+	//ExporterMenu(Hydra::World::IWorld* world);
 	~ExporterMenu();
 
 	void render(bool &closeBool);
 	void refresh();
-	static std::shared_ptr<IEntity> getRoomEntity(Hydra::World::IWorld* world);
+	//static std::shared_ptr<IEntity> getRoomEntity(Hydra::World::IWorld* world);
 private:
-	class Node
-	{
+	class Node {
 	public:
 		bool isAllowedFile = false;
 
@@ -46,7 +44,7 @@ private:
 		std::string reverseEngineerPath();
 		int numberOfFiles();
 		void clean();
-		void render(Hydra::World::IWorld* world, Node** selectedNode, bool& prepExporting);
+		//void render(Hydra::World::IWorld* world, Node** selectedNode, bool& prepExporting);
 	private:
 		std::string _name;
 		std::vector<Node*> _subfolders;
@@ -56,7 +54,7 @@ private:
 		void _getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders) const;
 	};
 	Node* _root;
-	Hydra::World::IWorld* _world;
+	//Hydra::World::IWorld* _world;
 	std::string _getExecutableDir();
 	std::string _selectedPath;
 	char _selectedFileName[128] = "";

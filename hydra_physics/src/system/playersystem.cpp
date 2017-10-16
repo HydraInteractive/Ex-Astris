@@ -9,6 +9,8 @@
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
 
+#include <hydra/engine.hpp>
+
 using namespace Hydra::System;
 using namespace Hydra::Component;
 
@@ -32,13 +34,13 @@ void PlayerSystem::tick(float delta) {
 		auto player = entities[i]->getComponent<PlayerComponent>();
 		auto transform = entities[i]->getComponent<TransformComponent>();
 		auto camera = entities[i]->getComponent<CameraComponent>();
+		auto weapon = player->getWeapon()->getComponent<Hydra::Component::WeaponComponent>();
 
 		player->activeBuffs.onTick(player->maxHealth, player->health);
 
 		if (player->health <= 0)
 			player->isDead = true;
 
-		auto weapon = player->getWeapon()->getComponent<Hydra::Component::WeaponComponent>();
 
 		glm::mat4 rotation = glm::mat4_cast(camera->orientation);
 
@@ -89,6 +91,8 @@ void PlayerSystem::tick(float delta) {
 		movementVector.y = player->acceleration.y;
 
 		player->position += glm::vec3(movementVector) * delta;
+
+		Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "velocity: %.2f, %.2f, %.2f\t\tmovementVector: %.2f, %.2f, %.2f", player->velocity.x, player->velocity.y, player->velocity.z, movementVector.x, movementVector.y, movementVector.z);
 
 		if (player->position.y < 0) {
 			player->position.y = 0;

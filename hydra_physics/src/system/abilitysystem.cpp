@@ -14,7 +14,6 @@ AbilitySystem::~AbilitySystem() {}
 
 void AbilitySystem::tick(float delta) {
 	using world = Hydra::World::World;
-	static std::vector<std::shared_ptr<Entity>> entities;
 
 	//Process GrenadeComponent
 	world::getEntitiesWithComponents<Hydra::Component::GrenadeComponent, Hydra::Component::TransformComponent>(entities);

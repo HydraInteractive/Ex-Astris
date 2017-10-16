@@ -49,6 +49,8 @@ namespace Hydra::Component {
 			if (activeBuffs.addBuff(BUFF_DAMAGEUPGRADE))
 				activeBuffs.onActivation(maxHealth, health);
 		}
+
+		std::vector<Buffs> getActiveBuffs() { return activeBuffs.getActiveBuffs(); }
 		void applyDamage(int damage) { health -= damage; }
 
 		void serialize(nlohmann::json& json) const final;

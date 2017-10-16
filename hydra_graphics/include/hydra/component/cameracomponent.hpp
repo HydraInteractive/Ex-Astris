@@ -28,13 +28,14 @@ namespace Hydra::Component {
 		glm::quat orientation = glm::quat();
 
 		float fov = 90.0f;
-		float zNear = 0.001f;
+		float zNear = 0.1f;
 		float zFar = 75.0f;
 		float aspect = 1920.0f/1080.0f;
 
 		float sensitivity = 0.003f;
 		float cameraYaw = 0.0f;
 		float cameraPitch = 0.0f;
+		bool _mouseControl = true;
 
 		~CameraComponent() final;
 
@@ -46,6 +47,6 @@ namespace Hydra::Component {
 
 		// TODO: Cache these?
 		inline glm::mat4 getViewMatrix() const { return glm::translate(glm::mat4_cast(orientation), -position); }
-		inline glm::mat4 getProjectionMatrix() const { return glm::perspective(glm::radians(fov), (renderTarget->getSize().x*1.0f) / renderTarget->getSize().y, zNear, zFar); }
+		inline glm::mat4 getProjectionMatrix() const { return glm::perspective(glm::radians(fov), aspect, zNear, zFar); }
 	};
 };

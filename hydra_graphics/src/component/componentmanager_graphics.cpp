@@ -3,9 +3,11 @@
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
+#include <hydra/component/pointlightcomponent.hpp>
 #include <hydra/component/particlecomponent.hpp>
 #include <hydra/component/drawobjectcomponent.hpp>
 #include <hydra/component/EditorCameraComponent.hpp>
+#include <hydra/component/pointlightcomponent.hpp>
 
 using namespace Hydra::World;
 
@@ -19,9 +21,13 @@ namespace Hydra::Component::ComponentManager {
 		creators["LightComponent"] = &createOrGetComponentHelper<LightComponent>;
 		ParticleComponent::componentHandler = new ComponentHandler<ParticleComponent>();
 		creators["ParticleComponent"] = &createOrGetComponentHelper<ParticleComponent>;
+		PointLightComponent::componentHandler = new ComponentHandler<PointLightComponent>();
+		creators["PointLightComponent"] = &createOrGetComponentHelper<PointLightComponent>;
 		EditorCameraComponent::componentHandler = new ComponentHandler<EditorCameraComponent>();
 		creators["EditorCameraComponent"] = &createOrGetComponentHelper<EditorCameraComponent>;
 		DrawObjectComponent::componentHandler = new ComponentHandler<DrawObjectComponent>();
 		creators["DrawObjectComponent"] = &createOrGetComponentHelper<DrawObjectComponent>;
+		PointLightComponent::componentHandler = new ComponentHandler<PointLightComponent>();
+		creators["PointLightComponent"] = &createOrGetComponentHelper<PointLightComponent>;
 	}
 }

@@ -1,3 +1,4 @@
+#if 0
 /**
 * Editor state
 *
@@ -130,3 +131,4 @@ namespace Barcode {
 		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int &nrOfTimes, glm::vec2 size);*/
 	};
 }
+#endif

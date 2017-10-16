@@ -13,7 +13,6 @@
 #include <hydra/renderer/uirenderer.hpp>
 #include <hydra/io/meshloader.hpp>
 #include <hydra/io/textureloader.hpp>
-#include <hydra/system/deadsystem.hpp>
 #include <hydra/system/bulletphysicssystem.hpp>
 
 namespace Barcode {

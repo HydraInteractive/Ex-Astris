@@ -40,6 +40,7 @@ namespace Hydra::Component {
 		RigidBody = BIT(11),
 		EditorCamera = BIT(12),
 		DrawObject = BIT(13),
+		PointLight = BIT(14)
 	};
 #undef BIT
 
@@ -70,6 +71,7 @@ namespace Hydra::Component {
 	struct HYDRA_GRAPHICS_API RigidBodyComponent;
 	struct HYDRA_GRAPHICS_API EditorCameraComponent;
 	struct HYDRA_GRAPHICS_API DrawObjectComponent;
+	struct HYDRA_GRAPHICS_API PointLightComponent;
 
 	using ComponentTypes = Hydra::Ext::TypeTuple<
 		Hydra::World::IComponent<TransformComponent, ComponentBits::Transform>,
@@ -85,7 +87,8 @@ namespace Hydra::Component {
 		Hydra::World::IComponent<MineComponent, ComponentBits::Mine>,
 		Hydra::World::IComponent<RigidBodyComponent, ComponentBits::RigidBody>,
 		Hydra::World::IComponent<EditorCameraComponent, ComponentBits::EditorCamera>,
-		Hydra::World::IComponent<DrawObjectComponent, ComponentBits::DrawObject>
+		Hydra::World::IComponent<DrawObjectComponent, ComponentBits::DrawObject>,
+		Hydra::World::IComponent<PointLightComponent, ComponentBits::PointLight>
 	>;
 };
 
@@ -250,6 +253,8 @@ namespace Hydra::World {
 	IComponentHandler* IComponent<Hydra::Component::EditorCameraComponent, Hydra::Component::ComponentBits::EditorCamera>::componentHandler;
 	template <>
 	IComponentHandler* IComponent<Hydra::Component::DrawObjectComponent, Hydra::Component::ComponentBits::DrawObject>::componentHandler;
+	template <>
+	IComponentHandler* IComponent<Hydra::Component::PointLightComponent, Hydra::Component::ComponentBits::PointLight>::componentHandler;
 #endif
 
 	template HYDRA_BASE_API struct IComponent<Hydra::Component::TransformComponent, Hydra::Component::ComponentBits::Transform>;
@@ -266,6 +271,7 @@ namespace Hydra::World {
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::RigidBodyComponent, Hydra::Component::ComponentBits::RigidBody>;
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::EditorCameraComponent, Hydra::Component::ComponentBits::EditorCamera>;
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::DrawObjectComponent, Hydra::Component::ComponentBits::DrawObject>;
+	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::PointLightComponent, Hydra::Component::ComponentBits::PointLight>;
 
 	struct HYDRA_BASE_API World final {
 		static std::shared_ptr<Entity> root;

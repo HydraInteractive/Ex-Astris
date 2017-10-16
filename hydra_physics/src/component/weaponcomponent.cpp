@@ -91,7 +91,7 @@ void WeaponComponent::deserialize(nlohmann::json& json) {
 }
 
 void WeaponComponent::registerUI() {
-	ImGui::InputInt("Fire Rate RPM", &fireRateRPM);
+	ImGui::DragFloat("Fire Rate RPM", &fireRateRPM);
 	ImGui::DragFloat("Bullet Size", &bulletSize, 0.001f);
 	ImGui::DragFloat("Bullet Spread", &bulletSpread, 0.001f);
 	ImGui::InputInt("Bullets Per Shot", &bulletsPerShot);

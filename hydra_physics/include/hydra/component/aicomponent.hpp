@@ -63,7 +63,7 @@ namespace Hydra::Component {
 
 		PathState _pathState = IDLE;
 		PathFinding* _pathFinding = new PathFinding();
-		BossPhase _bossPhase = CHILLING;
+		BossPhase _bossPhase = CLAWING;
 		std::vector<std::shared_ptr<Hydra::World::Entity>> _spawnGroup;
 		int _debugState;
 		float _angle;
@@ -75,6 +75,7 @@ namespace Hydra::Component {
 		int _damage = 0;
 		float _range = 1;
 		float _originalRange = 1;
+		glm::vec3 _mapOffset = glm::vec3{0, 0, 0};
 		glm::vec3 _targetPos;
 		glm::vec3 _position = glm::vec3{0, 0, 0};
 		glm::vec3 _startPosition = glm::vec3{0, 0, 0};
@@ -91,7 +92,10 @@ namespace Hydra::Component {
 		Uint32 _spawnTimer;
 		Uint32 _stunTimer;
 		Uint32 _attackTimer;
+		Uint32 _newPathTimer;
 		int _map[WORLD_SIZE][WORLD_SIZE];
+		int _oldMapPosX = 0;
+		int _oldMapPosZ = 0;
 
 		// Private functions
 		bool _checkLine(int levelmap[WORLD_SIZE][WORLD_SIZE], glm::vec3 A, glm::vec3 B);
