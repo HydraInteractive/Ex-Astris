@@ -25,7 +25,7 @@ namespace Barcode {
 		_physicsManager = Hydra::Physics::BulletManager::create();
 
 		auto windowSize = _engine->getView()->getSize();
-		{
+		{ // Geometry Pass
 			auto& batch = _geometryBatch;
 			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/geometry.vert");
 			batch.geometryShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::geometry, "assets/shaders/geometry.geom");
@@ -351,7 +351,7 @@ namespace Barcode {
 			//_engine->getRenderer()->renderAnimation(_animationBatch.batch);
 		}
 
-		{
+		{ // Shadow Pass
 			for (auto& kv : _shadowBatch.batch.objects)
 				kv.second.clear();
 
@@ -852,8 +852,8 @@ namespace Barcode {
 
 		auto lightEntity = _world->createEntity("Light");
 		_light = lightEntity->addComponent<Hydra::Component::LightComponent>();
-		_light->setPosition(glm::vec3(-5.0, 0.75, 4.3));
-		_light->setDirection(glm::vec3(-1, 0, 0));
+		_light->setPosition(glm::vec3(0, 0, 5));
+		_light->setDirection(glm::vec3(0, 0, -1));
 		_light->setColor(glm::vec3(1));
 		lightEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(8.0, 0, 3.5));
 

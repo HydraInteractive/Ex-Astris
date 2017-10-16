@@ -22,9 +22,9 @@ namespace Hydra::Component {
 		glm::vec3 _direction;
 		glm::vec3 _color;
 
-		float _fov = 80.0f;
-		float _zNear = -10.f;
-		float _zFar = 20.0f;
+		float _fov = 50.0f;
+		float _zNear = 1.0f;
+		float _zFar = 45.0f;
 	public:
 		LightComponent(IEntity* entity);
 		LightComponent(IEntity* entity, Hydra::Renderer::IRenderTarget* renderTarget, const glm::vec3& position = { 0, 0, 0 });
@@ -43,8 +43,8 @@ namespace Hydra::Component {
 		//inline glm::mat4 getViewMatrix() const { return glm::translate(glm::mat4_cast(_orientation), -_position); }s
 		//inline glm::mat4 getProjectionMatrix() const { return glm::perspective(glm::radians(_fov), _aspect, _zNear, _zFar); }
 		
-		inline glm::mat4 getProjectionMatrix() const { return glm::ortho(-10.f, 10.f, -10.f, 10.f, _zNear, _zFar); }
-		//inline glm::mat4 getProjectionMatrix() const { return glm::perspective<float>(glm::radians(_fov), 1.0f, _zNear, _zFar); }
+		//inline glm::mat4 getProjectionMatrix() const { return glm::ortho(-10.f, 10.f, -10.f, 10.f, _zNear, _zFar); }
+		inline glm::mat4 getProjectionMatrix() const { return glm::perspective<float>(glm::radians(_fov), 1.0f, _zNear, _zFar); }
 		inline glm::mat4 getViewMatrix() const {
 			return glm::lookAt(glm::vec3(_position),
 				   glm::vec3(_position + _direction),
