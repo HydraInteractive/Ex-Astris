@@ -364,7 +364,8 @@ namespace Barcode {
 			_shadowBatch.pipeline->setValue(0, _light->getViewMatrix());
 			_shadowBatch.pipeline->setValue(1, _light->getProjectionMatrix());
 
-			_engine->getRenderer()->render(_shadowBatch.batch);
+			//_engine->getRenderer()->render(_shadowBatch.batch);
+			_engine->getRenderer()->renderShadows(_shadowBatch.batch);
 		}
 
 		static bool enableSSAO = true;
