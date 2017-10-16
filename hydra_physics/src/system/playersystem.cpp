@@ -16,12 +16,12 @@ enum Keys {
  H, F, COUNT
 };
 
+using world = Hydra::World::World;
+
 PlayerSystem::PlayerSystem() {}
 PlayerSystem::~PlayerSystem() {}
 
 void PlayerSystem::tick(float delta) {
-	using world = Hydra::World::World;
-	static std::vector<std::shared_ptr<Entity>> entities;
 	const Uint8* keysArray = SDL_GetKeyboardState(nullptr);
 	bool prevKBFrameState[Keys::COUNT] = {false};
 
@@ -63,8 +63,13 @@ void PlayerSystem::tick(float delta) {
 
 			if (keysArray[SDL_SCANCODE_F] && !prevKBFrameState[Keys::F]) {
 				const glm::vec3 forward = glm::vec3(glm::vec4{0, 0, 1, 0} * rotation);
-				auto abilitiesEntity = std::find_if(entities[i]->children.begin(), entities[i]->children.end(), [](Hydra::World::EntityID id) { return Hydra::World::World::getEntity(id)->name == "Abilities"; });
-				player->activeAbillies.useAbility(Hydra::World::World::getEntity(*abilitiesEntity).get(), player->position, -forward);
+				auto abilitiesEntity = std::find_if(entities[i]->children.begin(), entities[i]->children.end(), [](Hydra::World::EntityID id) { return world::getEntity(id)->name == "Abilities"; });
+				std::shared_ptr<Entity> e;
+				if (abilitiesEntity == entities[i]->children.end())
+					e = world::newEntity("Abilities", entities[i]);
+				else
+					e = world::getEntity(*abilitiesEntity);
+				player->activeAbillies.useAbility(e.get(), player->position, -forward);
 			}
 
 			if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && !ImGui::GetIO().WantCaptureMouse) {

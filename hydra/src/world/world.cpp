@@ -19,6 +19,11 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
+#ifdef __linux__
+template <typename T, Hydra::Component::ComponentBits bit>
+IComponentHandler* IComponent<T, bit>::componentHandler;
+#endif
+
 template <typename T, Hydra::Component::ComponentBits bit>
 IComponent<T, bit>::~IComponent() {}
 

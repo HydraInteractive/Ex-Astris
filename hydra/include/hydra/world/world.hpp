@@ -221,21 +221,34 @@ namespace Hydra::World {
 
 		virtual ~IComponent() = 0;
 	};
-
-#ifdef HYDRA_BASE_EXPORTS
+#if defined(HYDRA_BASE_EXPORTS) && !defined(__linux__)
+	template <>
 	IComponentHandler* IComponent<Hydra::Component::TransformComponent, Hydra::Component::ComponentBits::Transform>::componentHandler;
+	template <>
 	IComponentHandler* IComponent<Hydra::Component::CameraComponent, Hydra::Component::ComponentBits::Camera>::componentHandler;
+	template <>
 	IComponentHandler* IComponent<Hydra::Component::LightComponent, Hydra::Component::ComponentBits::Light>::componentHandler;
+	template <>
 	IComponentHandler* IComponent<Hydra::Component::MeshComponent, Hydra::Component::ComponentBits::Mesh>::componentHandler;
+	template <>
 	IComponentHandler* IComponent<Hydra::Component::ParticleComponent, Hydra::Component::ComponentBits::Particle>::componentHandler;
+	template <>
 	IComponentHandler* IComponent<Hydra::Component::EnemyComponent, Hydra::Component::ComponentBits::Enemy>::componentHandler;
+	template <>
 	IComponentHandler* IComponent<Hydra::Component::BulletComponent, Hydra::Component::ComponentBits::Bullet>::componentHandler;
+	template <>
 	IComponentHandler* IComponent<Hydra::Component::PlayerComponent, Hydra::Component::ComponentBits::Player>::componentHandler;
+	template <>
 	IComponentHandler* IComponent<Hydra::Component::WeaponComponent, Hydra::Component::ComponentBits::Weapon>::componentHandler;
+	template <>
 	IComponentHandler* IComponent<Hydra::Component::GrenadeComponent, Hydra::Component::ComponentBits::Grenade>::componentHandler;
+	template <>
 	IComponentHandler* IComponent<Hydra::Component::MineComponent, Hydra::Component::ComponentBits::Mine>::componentHandler;
+	template <>
 	IComponentHandler* IComponent<Hydra::Component::RigidBodyComponent, Hydra::Component::ComponentBits::RigidBody>::componentHandler;
+	template <>
 	IComponentHandler* IComponent<Hydra::Component::EditorCameraComponent, Hydra::Component::ComponentBits::EditorCamera>::componentHandler;
+	template <>
 	IComponentHandler* IComponent<Hydra::Component::DrawObjectComponent, Hydra::Component::ComponentBits::DrawObject>::componentHandler;
 #endif
 
@@ -329,8 +342,11 @@ namespace Hydra::World {
 
 		virtual const std::string type() const = 0;
 		virtual void registerUI() = 0;
+
+	protected:
+		std::vector<std::shared_ptr<Entity>> entities;
 	};
-	inline ISystem::~ISystem() {}
+	inline ISystem::~ISystem() { }
 
 	struct HYDRA_BASE_API Blueprint final {
 		std::string name; // Blueprint Name

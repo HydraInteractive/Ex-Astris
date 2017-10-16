@@ -12,7 +12,6 @@ BulletSystem::~BulletSystem() {}
 
 void BulletSystem::tick(float delta) {
 	using world = Hydra::World::World;
-	static std::vector<std::shared_ptr<Entity>> entities;
 
 	//Process WeaponComponent
 	world::getEntitiesWithComponents<Hydra::Component::WeaponComponent>(entities);

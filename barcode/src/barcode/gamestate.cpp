@@ -201,11 +201,15 @@ namespace Barcode {
 
 	void GameState::runFrame(float delta) {
 		auto windowSize = _engine->getView()->getSize();
-		/*
-		{ // Update physics
-			_world->tick(TickAction::physics, delta);
-			_physicsSystem->tick(delta);
-			}*/
+
+		_physicsSystem.tick(delta);
+		_aiSystem.tick(delta);
+		_bulletSystem.tick(delta);
+		_playerSystem.tick(delta);
+		_abilitySystem.tick(delta);
+		_cameraSystem.tick(delta);
+		_lightSystem.tick(delta);
+		_particleSystem.tick(delta);
 
 		{ // Render objects (Deferred rendering)
 			glm::vec3 cameraPos;
@@ -588,7 +592,7 @@ namespace Barcode {
 	}
 
 	void GameState::_initSystem() {
-		const std::vector<Hydra::World::ISystem*> systems = {_engine->getDeadSystem()};
+		const std::vector<Hydra::World::ISystem*> systems = {_engine->getDeadSystem(), &_cameraSystem, &_lightSystem, &_particleSystem, &_abilitySystem, &_aiSystem, &_physicsSystem, &_bulletSystem, &_playerSystem};
 		_engine->getUIRenderer()->registerSystems(systems);
 	}
 

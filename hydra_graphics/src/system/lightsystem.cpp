@@ -11,7 +11,6 @@ LightSystem::~LightSystem() {}
 
 void LightSystem::tick(float delta) {
 	using world = Hydra::World::World;
-	static std::vector<std::shared_ptr<Entity>> entities;
 
 	//Process LightComponent
 	world::getEntitiesWithComponents<Hydra::Component::LightComponent, Hydra::Component::TransformComponent>(entities);

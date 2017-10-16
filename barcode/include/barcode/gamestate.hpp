@@ -22,7 +22,14 @@
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
 
+#include <hydra/system/camerasystem.hpp>
+#include <hydra/system/lightsystem.hpp>
+#include <hydra/system/particlesystem.hpp>
+#include <hydra/system/abilitysystem.hpp>
+#include <hydra/system/aisystem.hpp>
 #include <hydra/system/bulletphysicssystem.hpp>
+#include <hydra/system/bulletsystem.hpp>
+#include <hydra/system/playersystem.hpp>
 
 #include <hydra/io/input.hpp>
 
@@ -65,8 +72,15 @@ namespace Barcode {
 		Hydra::IEngine* _engine;
 		std::unique_ptr<Hydra::IO::ITextureLoader> _textureLoader;
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
-		Hydra::System::BulletPhysicsSystem _physicsSystem;
 
+		Hydra::System::CameraSystem _cameraSystem;
+		Hydra::System::LightSystem _lightSystem;
+		Hydra::System::ParticleSystem _particleSystem;
+		Hydra::System::AbilitySystem _abilitySystem;
+		Hydra::System::AISystem _aiSystem;
+		Hydra::System::BulletPhysicsSystem _physicsSystem;
+		Hydra::System::BulletSystem _bulletSystem;
+		Hydra::System::PlayerSystem _playerSystem;
 
 		RenderBatch _geometryBatch; // First part of deferred rendering
 		RenderBatch _animationBatch; // AnimationBatch

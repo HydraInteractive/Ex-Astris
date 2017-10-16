@@ -11,7 +11,6 @@ AISystem::~AISystem() {}
 
 void AISystem::tick(float delta) {
 	using world = Hydra::World::World;
-	static std::vector<std::shared_ptr<Entity>> entities;
 
 	//Process AiComponent
 	world::getEntitiesWithComponents<Hydra::Component::EnemyComponent>(entities);

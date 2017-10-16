@@ -13,7 +13,6 @@ CameraSystem::~CameraSystem() {}
 
 void CameraSystem::tick(float delta) {
 	using world = Hydra::World::World;
-	static std::vector<std::shared_ptr<Entity>> entities;
 
 	// Collect data
 	int mouseX = 0;
