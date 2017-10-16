@@ -17,6 +17,7 @@ using namespace Hydra::World;
 using namespace Hydra::Component;
 
 PlayerComponent::PlayerComponent(IEntity* entity) : IComponent(entity) {
+
 	entity->createEntity("Abilities");
 	SDL_GetKeyboardState(&keysArrayLength);
 	lastKeysArray = new bool[keysArrayLength];
@@ -27,6 +28,7 @@ PlayerComponent::PlayerComponent(IEntity* entity) : IComponent(entity) {
 	_maxHealth = 100;
 	_health = 100;
 	_timer = SDL_GetTicks();
+
 }
 
 PlayerComponent::~PlayerComponent(){
@@ -53,8 +55,10 @@ void PlayerComponent::tick(TickAction action, float delta) {
 	{
 		const Uint8* keysArray = SDL_GetKeyboardState(&keysArrayLength);
 		_velocity = glm::vec3{0};
-		if (keysArray[SDL_SCANCODE_W])
+		if (keysArray[SDL_SCANCODE_W]) {
 			_velocity.z -= _movementSpeed;
+			//entity->getChildren()[0]->getDrawObject()->mesh->setAnimationIndex(1);
+		}
 		if (keysArray[SDL_SCANCODE_S])
 			_velocity.z += _movementSpeed;
 
@@ -89,6 +93,11 @@ void PlayerComponent::tick(TickAction action, float delta) {
 
 			weapon->shoot(_position, forward, bulletOrientation, bulletVelocity);
 		}
+		//If the player stands still, do the idle animation
+		if (_velocity.x == 0 && _velocity.y == 0 && _velocity.z == 0) {
+			//entity->getChildren()[0]->getDrawObject()->mesh->setAnimationIndex(0);
+		}
+
 		for (int i = 0; i < keysArrayLength; i++)
 			lastKeysArray[i] = keysArray[i];
 	}

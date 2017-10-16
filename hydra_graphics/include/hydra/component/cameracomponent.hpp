@@ -57,7 +57,7 @@ namespace Hydra::Component {
 
 		// TODO: Cache these?
 		inline glm::mat4 getViewMatrix() const { return glm::translate(glm::mat4_cast(_orientation), -_position); }
-		inline glm::mat4 getProjectionMatrix() const { return glm::perspective(glm::radians(_fov), (_renderTarget->getSize().x*1.0f) / _renderTarget->getSize().y, _zNear, _zFar); }
+		inline glm::mat4 getProjectionMatrix() const { return glm::perspective(glm::radians(_fov), _aspect, _zNear, _zFar); }
 
 	private:
 		Hydra::Renderer::IRenderTarget* _renderTarget;
@@ -65,7 +65,7 @@ namespace Hydra::Component {
 		glm::quat _orientation;
 
 		float _fov = 90.0f;
-		float _zNear = 0.001f;
+		float _zNear = 0.1f;
 		float _zFar = 75.0f;
 		float _aspect = 1920.0f/1080.0f;
 
