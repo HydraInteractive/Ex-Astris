@@ -170,7 +170,7 @@ namespace Barcode {
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 
-			_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/TempAtlas.png");
+			_hudTexture = Hydra::Renderer::GLTexture::createFromFile("assets/hud/AmmoOnRing.png");
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
 			batch.batch.clearFlags = ClearFlags::depth;
@@ -752,8 +752,10 @@ namespace Barcode {
 			//ImGui::PopStyleVar();
 		}
 
-		{//Own ui
-			
+		{//hud
+			glm::vec2 size = windowSize;
+
+			_engine->getRenderer()->postProcessing(_glowBatch.batch);
 		}
 
 		{ // Sync with network

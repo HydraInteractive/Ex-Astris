@@ -83,6 +83,9 @@ namespace Barcode {
 		// ParticleTexture
 		std::shared_ptr<Hydra::Renderer::ITexture> _particleAtlases;
 
+		// HudTextures
+		std::shared_ptr<Hydra::Renderer::ITexture> _hudTexture;
+
 		// Extra framebuffers, pipeline and shaders for glow/bloom/blur
 		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurrExtraFBO1;
 		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurrExtraFBO2;
