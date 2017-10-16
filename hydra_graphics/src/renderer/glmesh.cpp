@@ -257,6 +257,10 @@ private:
 			tempFileName = new char[fileNameLength];
 			in.read(tempFileName, fileNameLength);
 			fileName.append(tempFileName, fileNameLength);
+			_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/" + fileName);
+			_material.normal = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/normals/futuristicNormal.png");
+			_material.specular = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/speculars/brickSpecular.png");
+			_material.glow = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/glow/EscapePodDoorGlow_Fin.png");
 
 			delete[] tempFileName;
 

@@ -131,7 +131,7 @@ public:
 
 			batch.pipeline->setValue(2, mesh->hasAnimation());
 
-			if(mesh->hasAnimation()) {
+			if (mesh->hasAnimation()) {
 				glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
 				glBindVertexArray(mesh->getID());
 				size_t size = kv.second.size();
@@ -172,6 +172,7 @@ public:
 			}
 		}
 	}
+
 
 	void render(ParticleBatch& batch) final { // For particles only.
 		SDL_GL_MakeCurrent(_window, _glContext);
@@ -226,9 +227,16 @@ public:
 
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
 
+		batch.pipeline->setValue(20, 0);
+		batch.pipeline->setValue(21, 1);
+		batch.pipeline->setValue(22, 2);
+		batch.pipeline->setValue(23, 3);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
-
+			mesh->getMaterial().diffuse->bind(0);
+			mesh->getMaterial().normal->bind(1);
+			mesh->getMaterial().specular->bind(2);
+			mesh->getMaterial().glow->bind(3);
 			size_t size = kv.second.size();
 			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
 			for (size_t i = 0; i < size; i += maxPerLoop) {

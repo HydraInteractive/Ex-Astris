@@ -116,6 +116,8 @@ namespace Hydra::Renderer {
 	struct HYDRA_API Material final {
 		std::shared_ptr<ITexture> diffuse;
 		std::shared_ptr<ITexture> normal;
+		std::shared_ptr<ITexture> glow;
+		std::shared_ptr<ITexture> specular;
 	};
 
 	class HYDRA_API IMesh {
