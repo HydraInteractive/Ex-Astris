@@ -56,6 +56,8 @@ std::vector<Packet*> ClientHandler::getReceivedData(int pending) {
 	size_t offset = 0;
 	std::vector<int> tmpvec;
 	for (size_t i = 0; i < this->_clients.size(); i++) {
+		curr = 0;
+		offset = 0;
 		while (SDLNet_SocketReady(this->_clients[i]->socket)) {
 			int len = SDLNet_TCP_Recv(this->_clients[i]->socket, this->_msg + offset, MAX_NETWORK_LENGTH - offset) + offset;
 			if (len > 0) {

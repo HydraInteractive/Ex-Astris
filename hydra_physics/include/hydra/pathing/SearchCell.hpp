@@ -7,7 +7,8 @@
 */
 
 #pragma once
-#define WORLD_SIZE 50
+#define WORLD_SIZE 64
+#define CELL_SIZE 1.0f
 #include <math.h>
 
 struct SearchCell
@@ -15,16 +16,16 @@ struct SearchCell
 	public:
 		int m_xcoord, m_zcoord;
 		int m_id;
-		SearchCell *parent;
+		std::shared_ptr<SearchCell> parent;
 		float G;
 		float H;
 
-		SearchCell() : parent(0) {}
-		SearchCell(int x, int z, SearchCell *_parent = 0) : m_xcoord(x), m_zcoord(z),
-			parent(_parent), m_id(z * WORLD_SIZE + x), G(0), H(0) {}
+		SearchCell() : parent() {}
+		SearchCell(int x, int z, std::shared_ptr<SearchCell> _parent) : m_xcoord(x), m_zcoord(z),
+			m_id(z * WORLD_SIZE + x), parent(_parent), G(0), H(0) {}
 
 		float getF() { return G + H; }
-		float manHattanDistance(SearchCell *nodeEnd)
+		float manHattanDistance(std::shared_ptr<SearchCell> nodeEnd)
 		{
 			float x = (float)(fabs((float)(this->m_xcoord - nodeEnd->m_xcoord)));
 			float z = (float)(fabs((float)(this->m_zcoord - nodeEnd->m_zcoord)));

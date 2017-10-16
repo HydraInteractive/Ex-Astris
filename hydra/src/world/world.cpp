@@ -198,8 +198,8 @@ public:
 	const std::string& getName() const final { return _name; }
 	Hydra::Renderer::DrawObject* getDrawObject() final {
 		if (!_drawObject) {
-			_drawObject = Hydra::IEngine::getInstance()->getRenderer()->aquireDrawObject();
-			_drawObject->refCounter++;
+			//_drawObject = Hydra::IEngine::getInstance()->getRenderer()->aquireDrawObject();
+			//_drawObject->refCounter++;
 		}
 		return _drawObject;
 	}
@@ -214,6 +214,7 @@ public:
 	std::vector<std::shared_ptr<IEntity>> _children;
 
 	Hydra::Renderer::DrawObject* _drawObject = nullptr;
+	Hydra::Physics::PhysicsObject* _physicsObject = nullptr;
 };
 
 std::shared_ptr<IEntity> Blueprint::spawn(IWorld* world) {

@@ -1,53 +1,156 @@
-#include "barcode/ExporterMenu.hpp"
+#include <barcode/ExporterMenu.hpp>
 ExporterMenu::ExporterMenu()
-{	
+{
 	this->executableDir = "";
-	this->root = nullptr;
+	this->_root = nullptr;
 	this->_world = nullptr;
+	this->_selectedPath = "";
 }
 ExporterMenu::ExporterMenu(Hydra::World::IWorld* world)
 {
 	this->executableDir = _getExecutableDir();
-	this->root = nullptr;
+	this->_root = nullptr;
 	this->_world = world;
+	this->_selectedPath = "";
 	refresh();
 }
 ExporterMenu::~ExporterMenu()
 {
-	if (root != nullptr)
-		delete root;
+	if (_root != nullptr)
+		delete _root;
 }
 void ExporterMenu::render(bool &closeBool)
 {
-	ImGui::SetNextWindowSize(ImVec2(500, 800), ImGuiSetCond_Once);
-	ImGui::Begin("Export", &closeBool);
-	ImGui::BeginChild("Test", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y));
-	if (root != nullptr)
-		root->render(0, _world);
+	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiSetCond_Once);
+	ImGui::Begin("Export", &closeBool, ImGuiWindowFlags_MenuBar);
+	if (ImGui::BeginMenuBar())
+	{
+		if (ImGui::BeginMenu("Menu"))
+		{
+			if (ImGui::MenuItem("Refresh", NULL))
+			{
+				refresh();
+			}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenuBar();
+	}
+	Node* selectedNode = nullptr;
+
+	//File tree
+	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 60));
+	if (_root != nullptr)
+		_root->render(_world, &selectedNode, _prepExporting);
 	ImGui::EndChild();
+
 	ImGui::SameLine();
-	ImGui::BeginChild("Test", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y));
-	ImGui::SameLine(); 
-	ImGui::Text("Hello");
+
+	//File name dialog
+	ImGui::BeginChild("File", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 60));
+
+	//Refresh changes from file tree
+	if (selectedNode != nullptr)
+	{
+		_selectedPath = selectedNode->reverseEngineerPath();
+		if (selectedNode->isAllowedFile)
+		{
+			_selectedPath.erase(_selectedPath.end() - selectedNode->name().length(), _selectedPath.end());
+
+			std::string fileNameWithoutExt = selectedNode->name();
+			fileNameWithoutExt.erase(fileNameWithoutExt.end() - selectedNode->getExt().length(), fileNameWithoutExt.end());
+			//Force empty the string before copying the new one
+			memset(_selectedFileName, 0, sizeof(_selectedFileName));
+			strncpy(_selectedFileName, fileNameWithoutExt.c_str(), fileNameWithoutExt.length());
+		}
+		else
+		{
+			_selectedPath.append("/");
+		}
+	}
+
+	//Draw gui
+	ImGui::Text("Path: "); ImGui::SameLine(); ImGui::Text("%s", _selectedPath.c_str());
+	ImGui::InputText(".room", _selectedFileName, 128);
+
+	if (ImGui::Button("Save"))
+	{
+		_prepExporting = true;
+	}
+	if (_prepExporting)
+	{
+		std::string fileToSave = "";
+		fileToSave.append(_selectedPath);
+		fileToSave.append(_selectedFileName);
+		fileToSave.append(".room");
+		std::ifstream infile(fileToSave);
+		bool doExport = false;
+		if (infile.good())
+		{
+			ImGui::OpenPopup("Overwrite?");
+		}
+		else
+		{
+			doExport = true;
+		}
+
+		if (ImGui::BeginPopupModal("Overwrite?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			std::string textline = "This action will overwrite the file at " + fileToSave + ". Continue?";
+			ImGui::Text("%s", textline.c_str());
+			ImGui::Separator();
+
+			if (ImGui::Button("OK", ImVec2(120, 0)))
+			{
+				doExport = true;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel", ImVec2(120, 0)))
+			{	
+				_prepExporting = false;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+
+		if (doExport)
+		{
+			std::ofstream outFile;
+			if (getRoomEntity(_world) != nullptr)
+				BlueprintLoader::save(fileToSave, "Room", getRoomEntity(_world));
+			_prepExporting = false;
+			closeBool = false;
+		}
+	}
 	ImGui::EndChild();
 	ImGui::End();
 }
 void ExporterMenu::refresh()
 {
-	if (root != nullptr)
+	if (_root != nullptr)
 	{
-		delete root;
+		delete _root;
 	}
-	root = new Node(executableDir + "/assets");
-	root->clean();
+	_root = new Node(executableDir + "/assets");
+	//_root->clean();
+}
+std::shared_ptr<IEntity> ExporterMenu::getRoomEntity(Hydra::World::IWorld* world)
+{
+	std::vector<std::shared_ptr<IEntity>> entities = world->getWorldRoot()->getChildren();
+	for (size_t i = 0; i < entities.size(); i++)
+	{
+		if (entities[i]->getName() == "Room")
+			return entities[i];
+	}
+	return nullptr;
 }
 std::string ExporterMenu::_getExecutableDir()
 {
 	std::string path;
-#ifdef _WIN32
+#ifdef _WIN32 ///Windows
 	char unicodePath[MAX_PATH];
 	int bytes = GetModuleFileName(NULL, unicodePath, 500);
-#else
+#else ///Linux
 	char unicodePath[1000];
 	char tempStr[32];
 	sprintf(tempStr, "/proc/%d/exe", getpid());
@@ -68,56 +171,65 @@ std::string ExporterMenu::_getExecutableDir()
 ExporterMenu::Node::Node()
 {
 	this->_name = "";
-	this->subfolders = std::vector<Node*>(0);
-	this->files = std::vector<Node*>(0);
-	this->parent = nullptr;
+	this->_subfolders = std::vector<Node*>(0);
+	this->_files = std::vector<Node*>(0);
+	this->_parent = nullptr;
 }
 ExporterMenu::Node::Node(std::string path, Node* parent, bool isFile)
 {
 	this->_name = pathToName(path);
-	this->subfolders = std::vector<Node*>();
-	this->files = std::vector<Node*>();
-	this->parent = parent;
+	this->_subfolders = std::vector<Node*>();
+	this->_files = std::vector<Node*>();
+	this->_parent = parent;
 	this->isAllowedFile = isFile;
 
 	std::vector<std::string> inFiles;
 	std::vector<std::string> inFolders;
 	_getContentsOfDir(path, inFiles, inFolders);
-	for (int i = 0; i < inFolders.size(); i++)
+	for (size_t i = 0; i < inFolders.size(); i++)
 	{
-		this->subfolders.push_back(new Node(inFolders[i], this));
+		this->_subfolders.push_back(new Node(inFolders[i], this));
 	}
-	for (int i = 0; i < inFiles.size(); i++)
+	for (size_t i = 0; i < inFiles.size(); i++)
 	{
-		this->files.push_back(new Node(inFiles[i], this));
+		this->_files.push_back(new Node(inFiles[i], this, true));
 	}
 }
 ExporterMenu::Node::~Node()
 {
-	for (int i = 0; i < subfolders.size(); i++)
+	for (size_t i = 0; i < _subfolders.size(); i++)
 	{
-		delete subfolders[i];
+		delete _subfolders[i];
 	}
-	subfolders.clear();
-	for (int i = 0; i < files.size(); i++)
+	_subfolders.clear();
+	for (size_t i = 0; i < _files.size(); i++)
 	{
-		delete files[i];
+		delete _files[i];
 	}
-	files.clear();
+	_files.clear();
 }
 std::string ExporterMenu::Node::name()
 {
 	return _name;
 }
+//Returns the file extention from a filename
 std::string ExporterMenu::Node::getExt()
 {
-	int i = _name.find_last_of('.');
-	std::string fileExt = _name.substr(i, _name.size() - i);
-	return fileExt;
+	size_t i = _name.find_last_of('.');
+	if (i == std::string::npos)
+	{
+		return "";
+	}
+	else
+	{
+		std::string fileExt = _name.substr(i, _name.size() - i);
+		return fileExt;
+	}
 }
+//Gets the node's name from it's path
 std::string ExporterMenu::Node::pathToName(std::string path)
 {
-	unsigned int i = path.find_last_of('/');
+	size_t i = path.find_last_of('/');
 	if (i == std::string::npos)
 	{
 		return path;
@@ -130,9 +242,9 @@ std::string ExporterMenu::Node::pathToName(std::string path)
 std::string ExporterMenu::Node::reverseEngineerPath()
 {
 	std::string upperPath = "";
-	if (this->parent != nullptr)
+	if (this->_parent != nullptr)
 	{
-		upperPath = parent->reverseEngineerPath();
+		upperPath = _parent->reverseEngineerPath();
 		return upperPath + "/" + this->_name;
 	}
 	return this->_name;
@@ -142,10 +254,10 @@ int ExporterMenu::Node::numberOfFiles()
 {
 	if (!isAllowedFile)
 	{
-		int allFiles = files.size();
-		for (int i = 0; i < subfolders.size(); i++)
+		int allFiles = _files.size();
+		for (size_t i = 0; i < _subfolders.size(); i++)
 		{
-			allFiles += subfolders[i]->numberOfFiles();
+			allFiles += _subfolders[i]->numberOfFiles();
 		}
 		return allFiles;
 	}
@@ -154,57 +266,58 @@ int ExporterMenu::Node::numberOfFiles()
 //Removes all folders that do not have any files
 void ExporterMenu::Node::clean()
 {
-	for (int i = 0; i < subfolders.size(); i++)
+	for (size_t i = 0; i < _subfolders.size(); i++)
 	{
-		if (subfolders[i]->numberOfFiles() == 0)
+		if (_subfolders[i]->numberOfFiles() == 0)
 		{
-			delete subfolders[i];
-			subfolders.erase(subfolders.begin() + i);
+			delete _subfolders[i];
+			_subfolders.erase(_subfolders.begin() + i);
 			i--;
 		}
 		else
 		{
-			subfolders[i]->clean();
+			_subfolders[i]->clean();
 		}
 	}
 }
-void ExporterMenu::Node::render(int index, Hydra::World::IWorld* world)
+void ExporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode, bool& prepExporting)
 {
-	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
 	//TODO: Folder icon opening
-	if (ImGui::TreeNodeEx((void*)(intptr_t)index, node_flags, ICON_FA_FOLDER " %s", _name.c_str()))
-	{
-		for (int i = 0; i < this->subfolders.size(); i++)
+	if (ImGui::TreeNodeEx(this, node_flags, ICON_FA_FOLDER " %s", _name.c_str()))
+	{	
+		if (ImGui::IsItemClicked())
 		{
-			subfolders[i]->render(i, world);
+			(*selectedNode) = this;
 		}
-		for (int i = 0; i < this->files.size(); i++)
+		for (size_t i = 0; i < this->_subfolders.size(); i++)
 		{
-			std::string ext = this->files[i]->getExt();
+			_subfolders[i]->render(world, selectedNode, prepExporting);
+		}
+		for (size_t i = 0; i < this->_files.size(); i++)
+		{
+			std::string ext = this->_files[i]->getExt();
 			if (ext == ".attic" || ext == ".ATTIC")
 			{
-				ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_CUBE " %s", files[i]->_name.c_str());
-				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
-				{
-					
-				}
+				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBE " %s", _files[i]->_name.c_str());
 			}
-			else if (ext == ".json" || ext == ".JSON")
+			else if (ext == ".room" || ext == ".ROOM")
 			{
-				ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_CUBES " %s", files[i]->_name.c_str());
+				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBES " %s", _files[i]->_name.c_str());
 				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
 				{
-					
+					prepExporting = true;
 				}
 			}
-			else if (ext == ".png" || ext == ".PNG")
+			else
 			{
-				ImGui::TreeNodeEx(files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_FILE_IMAGE_O " %s", files[i]->_name.c_str());
-				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
-				{
-					
-				}
+				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_QUESTION_CIRCLE_O " %s", _files[i]->_name.c_str());
 			}
+			if (ImGui::IsItemClicked())
+			{
+				(*selectedNode) = _files[i];
+			}
+			ImGui::TreePop();
 		}
 		ImGui::TreePop();
 	}
@@ -248,11 +361,15 @@ void ExporterMenu::Node::_getContentsOfDir(const std::string &directory, std::ve
 			{
 				files.push_back(fullFilePath);
 			}
+			else if (fileExt == ".room")
+			{
+				files.push_back(fullFilePath);
+			}
 		}
 	} while (FindNextFile(dir, &fileData));
 
 	FindClose(dir);
-#else ///Unix
+#else ///Linux
 	DIR *dir;
 	class dirent *ent;
 	class stat st;

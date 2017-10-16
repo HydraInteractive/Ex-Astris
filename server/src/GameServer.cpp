@@ -132,7 +132,6 @@ bool GameServer::_addPlayer(int id) {
 		p->connected = true;
 		this->_players.push_back(p);
 	
-		//MAYBE SEND INFO TO CLIENT TROLOLOOL
 		//ADD COLLISION AND FUCK
 		ServerInitializePacket pi;
 		p->entityptr = this->_world->createEntity("Player");
@@ -144,7 +143,7 @@ bool GameServer::_addPlayer(int id) {
 		pi.ti.scale = { 1, 1, 1 };
 		pi.ti.rot = glm::quat();
 		int tmp = this->_server->sendDataToClient((char*)&pi, pi.h.len, id);
-		//MAYBE SEND INFO TO CLIENT TROLOLOOL
+		
 		p->entityptr->addComponent<Hydra::Component::TransformComponent>(pi.ti.pos, pi.ti.scale, pi.ti.rot);
 		this->_networkEntities.push_back(p->entityptr);
 		printf("Player connected with entity id: %d\n", pi.entityid);
@@ -158,12 +157,12 @@ bool GameServer::_addPlayer(int id) {
 			}
 		}
 
-		//SEND INFO TO OTHER BROS
+		
 		ServerPlayerPacket* spp = createServerPlayerPacket("Fjant", pi.ti);
 		spp->entID = p->entityptr->getID();
 		this->_server->sendDataToAllExcept((char*)spp, spp->getSize(), p->serverid);
 		delete[] (char*)spp;
-		//SEND INFO TO OTHER BROS
+		
 		return true;
 	}
 	return false;
@@ -176,7 +175,7 @@ void GameServer::_resolvePackets(std::vector<Packet*> packets) {
 			resolveClientUpdatePacket(this->_world.get(), (ClientUpdatePacket*)packets[i], this->_getEntityID(packets[i]->h.client));
 			break;
 		case PacketType::ClientSpawnEntity:
-			this->_networkEntities.push_back(resolveClientSpawnEntityPacket(this->_world.get(), (ClientSpawnEntityPacket*)packets[i], this->_getEntityID(packets[i]->h.client), this->_server));
+			resolveClientSpawnEntityPacket(this->_world.get(), (ClientSpawnEntityPacket*)packets[i], this->_getEntityID(packets[i]->h.client), this->_server);
 			break;
 		}
 	}
@@ -237,15 +236,15 @@ void GameServer::run() {
 	//Update World
 	{
 		//for (size_t k = 0; k < 10000000; k++); //WORKING KAPPA
-		//this->_world->tick(TickAction::physics, delta);
+		this->_world->tick(TickAction::physics, delta);
 	}
 
 	//Send updated world to clients
 	{
 		this->packetDelay += delta;
-		if (packetDelay >= 0.001) {	
+		if (packetDelay >= 1/30) {
 			this->_sendWorld();
-			this->packetDelay -= 0.001;
+			this->packetDelay = 0;
 		}
 
 		//if (packetDelay >= 0.01) {

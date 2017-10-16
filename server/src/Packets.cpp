@@ -66,8 +66,17 @@ void createAndSendServerEntityPacket(Hydra::World::IEntity* ent, Server* s) {
 	ssep->size = data.size();
 	ssep->h.len = ssep->getSize();
 
-	s->sendDataToAll((char*)ssep, sizeof(ServerSpawnEntityPacket));
-	s->sendDataToAll((char*)data.data(), data.size() * sizeof(uint8_t));
+	char* result = new char[sizeof(ServerSpawnEntityPacket) + data.size() * sizeof(uint8_t)];
+
+	memcpy(result, ssep, sizeof(ServerSpawnEntityPacket));
+	memcpy(result + sizeof(ServerSpawnEntityPacket), data.data(), data.size() * sizeof(uint8_t));
+
+	s->sendDataToAll(result, sizeof(ServerSpawnEntityPacket) + data.size() * sizeof(uint8_t));
+
+	delete[] result;
+
+	//s->sendDataToAll((char*)ssep, sizeof(ServerSpawnEntityPacket));
+	//s->sendDataToAll((char*)data.data(), data.size() * sizeof(uint8_t));
 
 	delete ssep;
 }
@@ -77,7 +86,7 @@ std::shared_ptr<Hydra::World::IEntity> resolveClientSpawnEntityPacket(Hydra::Wor
 	nlohmann::json json;
 	std::vector<uint8_t> data;
 	
-	//INEFFICIENT AS FUUUUUUUUUUUUUUUUUUUUUUUUUCK
+	//Inefficient
 	for (size_t i = 0; i < csep->size; i++) {
 		data.push_back(((uint8_t*)csep->data)[i]);
 	}
@@ -86,7 +95,7 @@ std::shared_ptr<Hydra::World::IEntity> resolveClientSpawnEntityPacket(Hydra::Wor
 	ent->deserialize(json);
 	//ent->setID(world->getFreeID());
 
-	printf("Client Created Entity: \"%d\" with id: %d", ent->getName(), ent->getID());
+	printf("Client Created Entity: \"%s\" with id: %d\n", ent->getName().c_str(), ent->getID());
 	
 	ServerSpawnEntityPacket* ssep = new ServerSpawnEntityPacket();
 	ssep->h.type = PacketType::ServerSpawnEntity;
@@ -94,8 +103,17 @@ std::shared_ptr<Hydra::World::IEntity> resolveClientSpawnEntityPacket(Hydra::Wor
 	ssep->size = data.size();
 	ssep->h.len = ssep->getSize();
 
-	s->sendDataToAll((char*)ssep, sizeof(ServerSpawnEntityPacket));
-	s->sendDataToAll((char*)data.data(), data.size() * sizeof(uint8_t));
+	char* result = new char[sizeof(ServerSpawnEntityPacket) + data.size() * sizeof(uint8_t)];
+
+	memcpy(result, ssep, sizeof(ServerSpawnEntityPacket));
+	memcpy(result + sizeof(ServerSpawnEntityPacket), data.data(), data.size() * sizeof(uint8_t));
+
+	s->sendDataToAll(result, sizeof(ServerSpawnEntityPacket) + data.size() * sizeof(uint8_t));
+
+	delete[] result;
+
+	//s->sendDataToAll((char*)ssep, sizeof(ServerSpawnEntityPacket));
+	//s->sendDataToAll((char*)data.data(), data.size() * sizeof(uint8_t));
 	
 	delete ssep;
 	return ent;

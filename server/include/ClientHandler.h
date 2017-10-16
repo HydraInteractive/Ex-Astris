@@ -3,7 +3,7 @@
 #include <SDL2\SDL_net.h>
 #include <Packets.h>
 
-#define MAX_NETWORK_LENGTH 10000
+#define MAX_NETWORK_LENGTH 100000
 
 
 
@@ -47,7 +47,7 @@ public:
 	int getActivity();
 
 	///<summary>
-	///Delete packets after use!!!
+	///Delete packets after use!
 	///</summary>
 	std::vector<Packet*> getReceivedData(int pending);
 

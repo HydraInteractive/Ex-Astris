@@ -44,6 +44,17 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "server\server.vcx
 		{A7E285FF-CA1B-45A7-BBF6-FBA0F859542E} = {A7E285FF-CA1B-45A7-BBF6-FBA0F859542E}
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E9C75FD3-06CB-478D-AA74-7FAC2E799179}"
+	ProjectSection(SolutionItems) = preProject
+		assets\shaders\geometry.frag = assets\shaders\geometry.frag
+		assets\shaders\geometry.geom = assets\shaders\geometry.geom
+		assets\shaders\geometry.vert = assets\shaders\geometry.vert
+		shadows.frag = shadows.frag
+		shadows.vert = shadows.vert
+		assets\shaders\view.frag = assets\shaders\view.frag
+		assets\shaders\view.vert = assets\shaders\view.vert
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

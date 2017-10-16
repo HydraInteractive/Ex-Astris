@@ -40,7 +40,8 @@ void TransformComponent::serialize(nlohmann::json& json) const {
 	json = {
 		{"position", {_position.x, _position.y, _position.z}},
 		{"scale", {_scale.x, _scale.y, _scale.z}},
-		{"rotation", {_rotation.x, _rotation.y, _rotation.z, _rotation.w}}
+		{"rotation", {_rotation.w, _rotation.x, _rotation.y, _rotation.z}},
+		{"ignoreParent", _ignoreParent}
 	};
 }
 
@@ -53,12 +54,15 @@ void TransformComponent::deserialize(nlohmann::json& json) {
 
 	auto& rotation = json["rotation"];
 	_rotation = glm::quat{rotation[0].get<float>(), rotation[1].get<float>(), rotation[2].get<float>(), rotation[3].get<float>()};
+
+	_ignoreParent = json["ignoreParent"].get<bool>();
 }
 
 void TransformComponent::registerUI() {
 	_dirty |= ImGui::DragFloat3("Position", glm::value_ptr(_position), 0.01f);
 	_dirty |= ImGui::DragFloat3("Scale", glm::value_ptr(_scale), 0.01f);
 	_dirty |= ImGui::DragFloat4("Rotation", glm::value_ptr(_rotation), 0.01f);
+	_dirty |= ImGui::Checkbox("Ignore parent", &_ignoreParent);
 }
 
 void TransformComponent::setPosition(const glm::vec3& position) {
@@ -94,5 +98,5 @@ void TransformComponent::_recalculateMatrix() {
 }
 
 TransformComponent* TransformComponent::_getParentComponent() {
-	return entity->getParent()->getComponent<TransformComponent>();
+	return (_ignoreParent) ? nullptr : entity->getParent()->getComponent<TransformComponent>();
 }

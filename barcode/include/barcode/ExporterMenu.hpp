@@ -6,6 +6,7 @@
 
 #include <string>
 #include <vector>
+#include <fstream>
 #ifdef _WIN32
 #include <Windows.h>
 #else
@@ -14,6 +15,7 @@
 #include <unistd.h>
 #endif
 
+#include <hydra/world/blueprintloader.hpp>
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
 class ExporterMenu
@@ -26,10 +28,13 @@ public:
 
 	void render(bool &closeBool);
 	void refresh();
+	static std::shared_ptr<IEntity> getRoomEntity(Hydra::World::IWorld* world);
 private:
 	class Node
 	{
 	public:
+		bool isAllowedFile = false;
+
 		Node();
 		Node(std::string path, Node* parent = nullptr, bool isFile = false);
 		~Node();
@@ -40,17 +45,19 @@ private:
 		std::string reverseEngineerPath();
 		int numberOfFiles();
 		void clean();
-		void render(int index, Hydra::World::IWorld* world);
+		void render(Hydra::World::IWorld* world, Node** selectedNode, bool& prepExporting);
 	private:
 		std::string _name;
-		std::vector<Node*> subfolders;
-		std::vector<Node*> files;
-		bool isAllowedFile;
-		Node* parent;
+		std::vector<Node*> _subfolders;
+		std::vector<Node*> _files;
+		Node* _parent;
 
 		void _getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders) const;
 	};
-	Node* root;
+	Node* _root;
 	Hydra::World::IWorld* _world;
 	std::string _getExecutableDir();
+	std::string _selectedPath;
+	char _selectedFileName[128] = "";
+	bool _prepExporting = false;
 };

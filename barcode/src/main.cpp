@@ -3,7 +3,7 @@
 #include <SDL2/SDL.h>
 
 #include <memory>
-
+ 
 #include <hydra/view/sdlview.hpp>
 #include <hydra/renderer/glrenderer.hpp>
 
@@ -27,6 +27,7 @@
 #include <crtdbg.h>
 
 static inline void reportMemoryLeaks() {
+	//_crtBreakAlloc = 36672;
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 }
 #else
@@ -137,10 +138,15 @@ namespace Barcode {
 int main(int argc, char** argv) {
 	(void)argc;
 	(void)argv;
-	reportMemoryLeaks();
-	srand(time(NULL));
-	Barcode::Engine engine;
-	engine.setState<Barcode::MenuState>();
-	engine.run();
-	return 0;
+	try {
+		reportMemoryLeaks();
+		srand(time(NULL));
+		Barcode::Engine engine;
+		engine.setState<Barcode::GameState>();
+		engine.run();
+		return 0;
+	} catch (const char * msg) {
+		fprintf(stderr, "%s\n", msg);
+		return 1;
+	}
 }

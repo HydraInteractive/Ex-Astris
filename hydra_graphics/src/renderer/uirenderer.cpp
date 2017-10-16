@@ -249,11 +249,11 @@ public:
 			ImGui::EndMainMenuBar();
 		}
 
-		{ //TODO: Revert this, into multiple windows
+		if (_renderWindows.size()) { //TODO: Revert this, into multiple windows
 			ImGui::Begin("Render Windows");
 			ImGuiWindow* wind = ImGui::GetCurrentWindow();
 			ImGuiStyle& style = ImGui::GetStyle();
-			if (_renderWindows.size()) {
+			{
 				pushFont(UIFont::normalBold);
 				ImGui::BeginTabBar("#RenderWindows");
 				popFont();

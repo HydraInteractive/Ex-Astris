@@ -15,6 +15,8 @@
     <ClInclude Include="include\hydra\component\animationComponent.hpp" />
     <ClInclude Include="include\hydra\component\cameracomponent.hpp" />
     <ClInclude Include="include\hydra\component\componentmanager_graphics.hpp" />
+    <ClInclude Include="include\hydra\component\EditorCameraComponent.hpp" />
+    <ClInclude Include="include\hydra\component\lightcomponent.hpp" />
     <ClInclude Include="include\hydra\component\meshcomponent.hpp" />
     <ClInclude Include="include\hydra\component\particlecomponent.hpp" />
     <ClInclude Include="include\hydra\component\transformcomponent.hpp" />
@@ -41,6 +43,8 @@
     <ClCompile Include="src\component\animationComponent.cpp" />
     <ClCompile Include="src\component\cameracomponent.cpp" />
     <ClCompile Include="src\component\componentmanager_graphics.cpp" />
+    <ClCompile Include="src\component\EditorCameraComponent.cpp" />
+    <ClCompile Include="src\component\lightcomponent.cpp" />
     <ClCompile Include="src\component\meshcomponent.cpp" />
     <ClCompile Include="src\component\particlecomponent.cpp" />
     <ClCompile Include="src\component\transformcomponent.cpp" />
