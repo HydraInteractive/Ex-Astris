@@ -7,9 +7,14 @@ DeadSystem::~DeadSystem() {}
 
 void DeadSystem::tick(float delta) {
 	using world = Hydra::World::World;
-	for (auto it = world::_entities.rbegin(); it != world::_entities.rend(); it++)
-		if ((*it)->dead)
-			world::removeEntity((*it)->id);
+	std::unordered_map<Hydra::World::EntityID, size_t> map = world::_map;
+	for (auto& kv : map) {
+		auto e = world::getEntity(kv.first);
+		if (!e)
+			continue;
+		if (e->dead)
+			world::removeEntity(e->id);
+	}
 }
 
 void DeadSystem::registerUI() {}

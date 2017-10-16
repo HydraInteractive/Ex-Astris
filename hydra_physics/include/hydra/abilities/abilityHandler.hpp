@@ -7,8 +7,7 @@
 #include <hydra/abilities/grenadecomponent.hpp>
 #include <hydra/abilities/minecomponent.hpp>
 
-class AbilityHandler
-{
+class HYDRA_PHYSICS_API AbilityHandler {
 public:
 	AbilityHandler();
 	~AbilityHandler() {};

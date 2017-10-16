@@ -331,7 +331,7 @@ namespace Hydra::World {
 			output.clear();
 			const Hydra::Component::ComponentBits bits = combine<Hydra::Component::ComponentBits>(Components::bits...);
 			for (auto& c : Component0::componentHandler->getActiveComponents())
-				if (auto e = getEntity(c->entityID); e->hasComponents(bits))
+				if (auto e = getEntity(c->entityID); e && e->hasComponents(bits))
 					output.push_back(e);
 		}
 

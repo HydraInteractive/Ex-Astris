@@ -31,6 +31,7 @@ void AbilitySystem::tick(float delta) {
 		glm::vec3 temp{g->velocity, g->fallingVelocity, g->velocity};
 
 		t->position += g->direction * temp * delta;
+		t->dirty = true;
 
 		if (t->position.y > 0.0f) {
 			t->position.y = 0.0f;
@@ -59,6 +60,7 @@ void AbilitySystem::tick(float delta) {
 		glm::vec3 temp(m->velocity, m->fallingVelocity, m->velocity);
 
 		t->position += m->direction * temp * delta;
+		t->dirty = true;
 
 		if (t->position.y > 0.0f) {
 			t->position.y = 0.0f;

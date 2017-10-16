@@ -255,13 +255,14 @@ namespace Barcode {
 		auto windowSize = _engine->getView()->getSize();
 
 		_physicsSystem.tick(delta);
+		_cameraSystem.tick(delta);
 		_aiSystem.tick(delta);
 		_bulletSystem.tick(delta);
 		_playerSystem.tick(delta);
 		_abilitySystem.tick(delta);
-		_cameraSystem.tick(delta);
 		_lightSystem.tick(delta);
 		_particleSystem.tick(delta);
+		_rendererSystem.tick(delta);
 
 		{ // Render objects (Deferred rendering)
 			glm::vec3 cameraPos;
@@ -723,12 +724,12 @@ namespace Barcode {
 		}
 	}
 	void GameState::_initSystem() {
-		const std::vector<Hydra::World::ISystem*> systems = {_engine->getDeadSystem(), &_cameraSystem, &_lightSystem, &_particleSystem, &_abilitySystem, &_aiSystem, &_physicsSystem, &_bulletSystem, &_playerSystem};
+		const std::vector<Hydra::World::ISystem*> systems = {_engine->getDeadSystem(), &_cameraSystem, &_lightSystem, &_particleSystem, &_abilitySystem, &_aiSystem, &_physicsSystem, &_bulletSystem, &_playerSystem, &_rendererSystem};
 		_engine->getUIRenderer()->registerSystems(systems);
 	}
 
 	void GameState::_initWorld() {
-		/*{
+		{
 			auto floor = world::newEntity("Floor", world::root);
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(0, -1, 0);
@@ -740,7 +741,7 @@ namespace Barcode {
 			t->position = glm::vec3(2, 25, 2);
 			physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(glm::vec3(0.5f), 10);
 			physicsBox->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Computer1.ATTIC");
-			}*/
+		}
 
 		{
 			auto playerEntity = world::newEntity("Player", world::root);
@@ -759,7 +760,7 @@ namespace Barcode {
 				t2->rotation = glm::quat(0, 0, 1, 0);
 				t2->ignoreParent = true;
 			}
-		}/*
+		}
 		{
 			auto pointLight1 = world::newEntity("Pointlight1", world::root);
 			pointLight1->addComponent<Hydra::Component::TransformComponent>();
@@ -791,7 +792,7 @@ namespace Barcode {
 			p4LC->position = glm::vec3(45, 0, 45);
 			p4LC->color = glm::vec3(1, 0, 0);
 		}
-
+		
 		{
 			auto test = world::newEntity("test", world::root);
 			test->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
@@ -799,7 +800,7 @@ namespace Barcode {
 			t->position = glm::vec3(-7, 0, 0);
 		}{
 			auto wall1 = world::newEntity("Wall1", world::root);
-			wall1->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Wall_V4.ATTIC");
+			wall1->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Wall_V4.mATTIC");
 			auto t = wall1->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(8, 0, 33);
 		}{
@@ -825,7 +826,7 @@ namespace Barcode {
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(14, -8, 9);
 		}
-*/
+
 		{
 			auto lightEntity = world::newEntity("Light", world::root);
 			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();

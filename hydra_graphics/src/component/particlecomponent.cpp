@@ -7,7 +7,7 @@
 #define frand() (float(rand()) / float(RAND_MAX))
 #define OUTERROW 6 // 24 or 6
 #define INNER_ROW 4
-// Outerrow decides how many particle textures there are.
+// Outerrow decides how many Renderer textures there are.
 
 using namespace Hydra::World;
 using namespace Hydra::Component;
@@ -19,8 +19,8 @@ _behaviour(EmitterBehaviour::PerSecond), _accumulator(0.f), _emitterPos(glm::vec
 	_drawObject->mesh = nullptr;
 }
 
-ParticleComponent::ParticleComponent(IEntity* entity, EmitterBehaviour behaviour, ParticleTexture texture, int nrOfParticles, glm::vec3 pos) : IComponent(entity), _drawObject(entity->getDrawObject()),
-_pps(nrOfParticles), _behaviour(behaviour), _accumulator(0.f), _emitterPos(pos) {
+ParticleComponent::ParticleComponent(IEntity* entity, EmitterBehaviour behaviour, RendererTexture texture, int nrOfRenderers, glm::vec3 pos) : IComponent(entity), _drawObject(entity->getDrawObject()),
+_pps(nrOfRenderers), _behaviour(behaviour), _accumulator(0.f), _emitterPos(pos) {
 	_drawObject->refCounter++;
 	_drawObject->mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getQuad().get();
 	_tempRotation = glm::mat4(1);
@@ -32,25 +32,25 @@ _pps(nrOfParticles), _behaviour(behaviour), _accumulator(0.f), _emitterPos(pos) 
 ParticleComponent::~ParticleComponent() {
 	/*	_drawObject->refCounter--;
 	_drawObject->mesh = nullptr;
-	_particles.clear();*/
+	_Renderers.clear();*/
 }
 /*
 void ParticleComponent::tick(TickAction action, float delta){
-	if (action == TickAction::physics && _particles.size() > 0)
-		_particlePhysics(delta);
+	if (action == TickAction::physics && _Renderers.size() > 0)
+		_RendererPhysics(delta);
 	if (action == TickAction::renderTransparent) {
 		_accumulator += delta;
-		_generateParticles();
-		if (_particles.size() > 1)
-			_sortParticles();
+		_generateRenderers();
+		if (_Renderers.size() > 1)
+			_sortRenderers();
 	}
 }
 
-void ParticleComponent::_generateParticles() {
+void ParticleComponent::_generateRenderers() {
 	switch (_behaviour) {
 	case EmitterBehaviour::PerSecond:
 		if (_accumulator > 1.0f / _pps) {
-			_emmitParticle();
+			_emmitRenderer();
 			_accumulator -= 1.0f / _pps;
 		}
 		break;
@@ -59,22 +59,22 @@ void ParticleComponent::_generateParticles() {
 	}
 }
 
-void ParticleComponent::_emmitParticle() {
-	std::shared_ptr<Particle> p = std::make_shared<Particle>();
+void ParticleComponent::_emmitRenderer() {
+	std::shared_ptr<Renderer> p = std::make_shared<Renderer>();
 	float dirX = frand() * 2 - 2;
 	float dirY = frand() * -6 - 1;
 	float dirZ = 0;
 	glm::vec3 a = glm::vec3(frand() * 2 - 2, frand() * -8.5f, 0);
 	p->spawn(_emitterPos, glm::normalize(glm::vec3(dirX, dirY, dirZ)), a, frand() * 1.f + 1.f);
-	_particles.push_back(p);
+	_Renderers.push_back(p);
 }
 
-void ParticleComponent::_particlePhysics(float delta) {
+void ParticleComponent::_RendererPhysics(float delta) {
 	auto camera = Hydra::IEngine::getInstance()->getState()->getWorld()
 		->getActiveComponents<CameraComponent>()[0]
 		->getComponent<CameraComponent>();
 
-	for (auto& p : _particles) {
+	for (auto& p : _Renderers) {
 		if (p->life <= p->elapsedTime) {
 			p->dead = true;
 			continue;
@@ -89,10 +89,10 @@ void ParticleComponent::_particlePhysics(float delta) {
 		p->elapsedTime += delta;
 		p->fixMX(_tempRotation);
 	}
-	_clearDeadParticles();
+	_clearDeadRenderers();
 }
 
-void ParticleComponent::_updateTextureCoordInfo(std::shared_ptr<Particle>& p, float delta) {
+void ParticleComponent::_updateTextureCoordInfo(std::shared_ptr<Renderer>& p, float delta) {
 	float lifeFactor = p->elapsedTime / p->life;
 	const int innerCount = INNER_ROW * INNER_ROW;
 
@@ -108,28 +108,28 @@ void ParticleComponent::_updateTextureCoordInfo(std::shared_ptr<Particle>& p, fl
 	p->texCoordInfo = glm::vec2(smallImageSize, fmod(innerCount * lifeFactor, 1));
 }
 
-void ParticleComponent::_clearDeadParticles() {
-	_particles.erase(std::remove_if(
-			_particles.begin(),
-			_particles.end(),
-			[](std::shared_ptr<Particle>& p) {
+void ParticleComponent::_clearDeadRenderers() {
+	_Renderers.erase(std::remove_if(
+			_Renderers.begin(),
+			_Renderers.end(),
+			[](std::shared_ptr<Renderer>& p) {
 				return p->dead;
 			}
 		), 
-	_particles.end()
+	_Renderers.end()
 	);
 }
 
-void ParticleComponent::_sortParticles() { // Insertion Sort
+void ParticleComponent::_sortRenderers() { // Insertion Sort
 	int j;
-	std::shared_ptr<Particle> temp;
+	std::shared_ptr<Renderer> temp;
 
-	for (size_t i = 0; i < _particles.size(); i++) {
+	for (size_t i = 0; i < _Renderers.size(); i++) {
 		j = i;
-		while (j > 0 && _particles[j]->distanceToCamera > _particles[j-1]->distanceToCamera) {
-			temp = _particles[j];
-			_particles[j] = _particles[j - 1];
-			_particles[j - 1] = temp;
+		while (j > 0 && _Renderers[j]->distanceToCamera > _Renderers[j-1]->distanceToCamera) {
+			temp = _Renderers[j];
+			_Renderers[j] = _Renderers[j - 1];
+			_Renderers[j - 1] = temp;
 			j--;
 		}
 	}
@@ -167,6 +167,6 @@ void ParticleComponent::deserialize(nlohmann::json & json){
 }
 
 void ParticleComponent::registerUI() {
-	//ImGui::DragInt("ParticlesPerSecond", &_pps, 1.0);
+	//ImGui::DragInt("RenderersPerSecond", &_pps, 1.0);
 	//ImGui::DragFloat3("EmitterPosition", glm::value_ptr(_emitterPos), 0.1f);
 }

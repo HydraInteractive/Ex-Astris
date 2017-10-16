@@ -359,6 +359,8 @@ public:
 	bool isDraging() final { return ImGui::IsMouseDragging(); }
 
 	void renderEntity(Entity* entity) {
+		if (!entity)
+			return;
 		if (!ImGui::TreeNode(entity, ICON_FA_USER_O " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", entity->name.c_str(), entity->id, entity->componentCount(), entity->children.size()))
 			return;
 		using world = Hydra::World::World;
@@ -371,6 +373,8 @@ public:
 	}
 
 	void renderComponent(IComponentBase* component) {
+		if (!component)
+			return;
 		if (!ImGui::TreeNode(component, ICON_FA_MICROCHIP " %s", component->type().c_str()))
 			return;
 

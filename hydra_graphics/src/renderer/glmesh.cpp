@@ -33,9 +33,9 @@ public:
 		_loadATTICModel(file.c_str(), modelMatrixBuffer);
 	}
 
-	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices, bool animation, GLuint modelMatrixBuffer, GLuint particleExtraBuffer) {
+	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices, bool animation, GLuint modelMatrixBuffer, GLuint RendererExtraBuffer) {
 		_makeBuffers();
-		_uploadData(vertices, indices, animation, modelMatrixBuffer, particleExtraBuffer);
+		_uploadData(vertices, indices, animation, modelMatrixBuffer, RendererExtraBuffer);
 	}
 
 
@@ -130,7 +130,7 @@ private:
 		_ibo = buffers[1];
 	}
 
-	void _uploadData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, bool animation, GLuint modelMatrixBuffer, GLuint particleExtraBuffer) {
+	void _uploadData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, bool animation, GLuint modelMatrixBuffer, GLuint RendererExtraBuffer) {
 		_indicesCount = indices.size();
 		glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
@@ -166,8 +166,8 @@ private:
 				glVertexAttribDivisor(VertexLocation::modelMatrix + i, 1);
 			}
 		}
-		if (particleExtraBuffer) {
-			glBindBuffer(GL_ARRAY_BUFFER, particleExtraBuffer);
+		if (RendererExtraBuffer) {
+			glBindBuffer(GL_ARRAY_BUFFER, RendererExtraBuffer);
 			for (int i = 0; i < 3; i++) {
 				glEnableVertexAttribArray(VertexLocation::textureOffset1 + i);
 				glVertexAttribPointer(VertexLocation::textureOffset1 + i, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2) * 3, (GLvoid*)(sizeof(glm::vec2) * i));

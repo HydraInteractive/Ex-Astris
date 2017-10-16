@@ -35,7 +35,7 @@ namespace Hydra::Component {
 		float sensitivity = 0.003f;
 		float cameraYaw = 0.0f;
 		float cameraPitch = 0.0f;
-		bool _mouseControl = true;
+		bool mouseControl = true;
 
 		~CameraComponent() final;
 

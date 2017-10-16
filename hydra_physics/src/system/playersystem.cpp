@@ -92,8 +92,6 @@ void PlayerSystem::tick(float delta) {
 
 		player->position += glm::vec3(movementVector) * delta;
 
-		Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "velocity: %.2f, %.2f, %.2f\t\tmovementVector: %.2f, %.2f, %.2f", player->velocity.x, player->velocity.y, player->velocity.z, movementVector.x, movementVector.y, movementVector.z);
-
 		if (player->position.y < 0) {
 			player->position.y = 0;
 			player->acceleration.y = 0;
@@ -107,9 +105,12 @@ void PlayerSystem::tick(float delta) {
 
 		transform->position = player->position;
 		transform->rotation = camera->orientation;
+		transform->dirty = true;
 
-		player->getWeapon()->getComponent<TransformComponent>()->position = player->position + glm::vec3(glm::vec4{player->weaponOffset, 0} * rotation);
-		player->getWeapon()->getComponent<TransformComponent>()->rotation = glm::normalize(glm::conjugate(camera->orientation) * glm::quat(glm::vec3(glm::radians(180.0f), 0, glm::radians(180.0f))));
+		auto wt = player->getWeapon()->getComponent<TransformComponent>();
+		wt->position = player->position + glm::vec3(glm::vec4{player->weaponOffset, 0} * rotation);
+		wt->rotation = glm::normalize(glm::conjugate(camera->orientation) * glm::quat(glm::vec3(glm::radians(180.0f), 0, glm::radians(180.0f))));
+		wt->dirty = true;
 	}
 
 	prevKBFrameState[Keys::H] = !!keysArray[SDL_SCANCODE_H];

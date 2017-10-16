@@ -29,6 +29,7 @@
     <ClInclude Include="include\hydra\system\camerasystem.hpp" />
     <ClInclude Include="include\hydra\system\lightsystem.hpp" />
     <ClInclude Include="include\hydra\system\particlesystem.hpp" />
+    <ClInclude Include="include\hydra\system\renderersystem.hpp" />
     <ClInclude Include="include\hydra\view\sdlview.hpp" />
     <ClInclude Include="include\imgui\imgui_impl_sdl_gl3.h" />
     <ClInclude Include="include\imgui\stb_rect_pack.h" />
@@ -60,6 +61,7 @@
     <ClCompile Include="src\system\camerasystem.cpp" />
     <ClCompile Include="src\system\lightsystem.cpp" />
     <ClCompile Include="src\system\particlesystem.cpp" />
+    <ClCompile Include="src\system\renderersystem.cpp" />
     <ClCompile Include="src\view\sdlview.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

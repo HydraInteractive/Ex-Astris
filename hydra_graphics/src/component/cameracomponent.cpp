@@ -46,6 +46,10 @@ void CameraComponent::registerUI() {
 	ImGui::DragFloat("Z Near", &zNear, 0.001f);
 	ImGui::DragFloat("Z Far", &zFar);
 
-	float aspect = (renderTarget->getSize().x*1.0f) / renderTarget->getSize().y;
 	ImGui::InputFloat("Aspect", &aspect, 0, 0, -1, ImGuiInputTextFlags_ReadOnly);
+
+	ImGui::DragFloat("Sensitivity", &sensitivity);
+	ImGui::DragFloat("Yaw", &cameraYaw);
+	ImGui::DragFloat("Pitch", &cameraPitch);
+	ImGui::Checkbox("Mouse Control", &mouseControl);
 }

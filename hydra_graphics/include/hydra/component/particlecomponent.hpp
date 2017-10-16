@@ -69,7 +69,7 @@ namespace Hydra::Component {
 		/*
 	private:
 		void _generateParticles();
-		void _particlePhysics(float delta);
+		void _ParticlePhysics(float delta);
 		void _clearDeadParticles();
 		void _emmitParticle();
 		void _updateTextureCoordInfo(std::shared_ptr<Particle>& p, float delta);
