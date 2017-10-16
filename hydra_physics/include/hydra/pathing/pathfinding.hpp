@@ -13,6 +13,7 @@
 #define WORLD_SIZE 64
 #define CELL_SIZE 1.0f
 #include <math.h>
+#include <algorithm>
 
 class PathFinding
 {
@@ -56,6 +57,14 @@ public:
 			float z = (float)(fabs((float)(this->pos.z() - nodeEnd->pos.z())));
 
 			return x + z;
+		}
+
+		float chebyshevDistance(std::shared_ptr<Node> nodeEnd)
+		{
+			float x = (float)(fabs((float)(this->pos.x() - nodeEnd->pos.x())));
+			float z = (float)(fabs((float)(this->pos.z() - nodeEnd->pos.z())));
+			
+			return (std::max)(x, z);
 		}
 	};
 

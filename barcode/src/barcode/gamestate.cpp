@@ -40,11 +40,12 @@ namespace Barcode {
 			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize, 0);
 			batch.output
 				->addTexture(0, Hydra::Renderer::TextureType::f16RGB) // Position
-				.addTexture(1, Hydra::Renderer::TextureType::u8RGB) // Diffuse
+				.addTexture(1, Hydra::Renderer::TextureType::u8RGBA) // Diffuse
 				.addTexture(2, Hydra::Renderer::TextureType::f16RGB) // Normal
 				.addTexture(3, Hydra::Renderer::TextureType::f16RGBA) // Light pos
-				.addTexture(4, Hydra::Renderer::TextureType::f16Depth) // real depth
-				.addTexture(5, Hydra::Renderer::TextureType::u8RGB) // Position in view-space
+				.addTexture(4, Hydra::Renderer::TextureType::u8RGB) // Position in view-space
+				.addTexture(5, Hydra::Renderer::TextureType::u8R) // Glow.
+				.addTexture(6, Hydra::Renderer::TextureType::f16Depth) // real depth
 				.finalize();
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
@@ -385,7 +386,8 @@ namespace Barcode {
 			_shadowBatch.pipeline->setValue(0, _light->getViewMatrix());
 			_shadowBatch.pipeline->setValue(1, _light->getProjectionMatrix());
 
-			_engine->getRenderer()->render(_shadowBatch.batch);
+			//_engine->getRenderer()->render(_shadowBatch.batch);
+			_engine->getRenderer()->renderShadows(_shadowBatch.batch);
 		}
 
 		static bool enableSSAO = true;
@@ -400,7 +402,7 @@ namespace Barcode {
 
 			_ssaoBatch.pipeline->setValue(3, _cc->getProjectionMatrix());
 
-			(*_geometryBatch.output)[5]->bind(0);
+			(*_geometryBatch.output)[4]->bind(0);
 			(*_geometryBatch.output)[2]->bind(1);
 			_ssaoNoise->bind(2);
 
@@ -417,17 +419,18 @@ namespace Barcode {
 			_lightingBatch.pipeline->setValue(3, 3);
 			_lightingBatch.pipeline->setValue(4, 4);
 			_lightingBatch.pipeline->setValue(5, 5);
+			_lightingBatch.pipeline->setValue(6, 6);
 
-			_lightingBatch.pipeline->setValue(6, _cc->getPosition());
-			_lightingBatch.pipeline->setValue(7, enableSSAO);
+			_lightingBatch.pipeline->setValue(7, _cc->getPosition());
+			_lightingBatch.pipeline->setValue(8, enableSSAO);
 			auto& lights = _world->getActiveComponents<Hydra::Component::PointLightComponent>();
 
-			_lightingBatch.pipeline->setValue(8, (int)(lights.size()));
-			_lightingBatch.pipeline->setValue(9, _light->getDirection());
-			_lightingBatch.pipeline->setValue(10, _light->getColor());
-			
+			_lightingBatch.pipeline->setValue(9, (int)(lights.size()));
+			_lightingBatch.pipeline->setValue(10, _light->getDirection());
+			_lightingBatch.pipeline->setValue(11, _light->getColor());
+
 			// good code lmao XD
-			int i = 11;
+			int i = 12;
 			for (auto& le : lights) {
 				auto pc = le->getComponent<Hydra::Component::PointLightComponent>();
 
@@ -444,7 +447,7 @@ namespace Barcode {
 			(*_geometryBatch.output)[3]->bind(3);
 			_shadowBatch.output->getDepth()->bind(4);
 			(*_ssaoBatch.output)[0]->bind(5);
-			
+			(*_geometryBatch.output)[5]->bind(6);
 
 			_engine->getRenderer()->postProcessing(_lightingBatch.batch);
 
@@ -815,41 +818,18 @@ namespace Barcode {
 		playerEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
 
 		auto weaponEntity = playerEntity->createEntity("Weapon");
-		weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
+		weaponEntity->addComponent<Hydra::Component::WeaponComponent>(600, 0.2f, 0.f, 1);
 		weaponEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 		weaponEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, -1.5, -2), glm::vec3(1, 1, 1), glm::quat(0, 0, 1, 0))->setIgnoreParent(true);
-
-		auto alienEntity = _world->createEntity("Enemy Alien");
-		alienEntity->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(5, 0, 5), 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
-		alienEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
 		
 		auto pointLight1 = _world->createEntity("Pointlight1");
 		pointLight1->addComponent<Hydra::Component::TransformComponent>();
-		pointLight1->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");
+		pointLight1->addComponent<Hydra::Component::MeshComponent>("assets/objects/EscapePodDoor.mATTIC");
 		auto p1LC = pointLight1->addComponent<Hydra::Component::PointLightComponent>();
 		p1LC->setColor(glm::vec3(0,1,0));
 
 		auto pointLight2 = _world->createEntity("Pointlight2");
 		pointLight2->addComponent<Hydra::Component::TransformComponent>();
-
-		//auto alienAnimation = _world->createEntity("Alien");
-		//alienAnimation->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
-		//alienAnimation->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 1, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
-
-		//auto alienAI = _world->createEntity("AlienAI");
-		//alienAI->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
-		//alienAI->addComponent<Hydra::Component::TransformComponent>(glm::vec3(2, 0, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
-		//alienAI->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 5), 500, 2, 2, glm::vec3(2));
-		//
-		//auto alienAI2 = _world->createEntity("AlienAI2");
-		//alienAI2->addComponent<Hydra::Component::MeshComponent>("assets/objects/characters/AlienModel1.mATTIC");
-		//alienAI2->addComponent<Hydra::Component::TransformComponent>(glm::vec3(5, 0, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
-		//alienAI2->addComponent<Hydra::Component::EnemyComponent>(Hydra::Component::EnemyTypes::Alien, glm::vec3(0, 0, 5), 500, 2, 2, glm::vec3(2));
-
-		//auto tileTest = _world->createEntity("Tiles");
-		//tileTest->addComponent<Hydra::Component::MeshComponent>(5, 5);
-		//tileTest->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(1), glm::quat(0, 0, -1, 0));
-
 		pointLight2->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");
 		auto p2LC = pointLight2->addComponent<Hydra::Component::PointLightComponent>();
 		p2LC->setPosition(glm::vec3(45, 0, 0));
@@ -871,28 +851,27 @@ namespace Barcode {
 
 		auto test = _world->createEntity("test");
 		test->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");
-		test->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-7, 0, 0), glm::vec3(1, 1, 1), glm::quat(0, 0, -1, 0));
+		test->addComponent<Hydra::Component::TransformComponent>(glm::vec3(-7, 0, 0), glm::vec3(1, 1, 1));
 
-		auto test3 = _world->createEntity("test3");
-		test3->addComponent<Hydra::Component::MeshComponent>("assets/objects/Wall1.ATTIC");
-		test3->addComponent<Hydra::Component::TransformComponent>(glm::vec3(8, 0, 33), glm::vec3(1, 1, 1), glm::quat(1.3, 0, -0.3, 0));
+		auto test3 = _world->createEntity("Wall1");
+		test3->addComponent<Hydra::Component::MeshComponent>("assets/objects/Wall_V4.mATTIC");
+		test3->addComponent<Hydra::Component::TransformComponent>(glm::vec3(8, 0, 33), glm::vec3(1, 1, 1));
 
-		auto test4 = _world->createEntity("test4");
-		test4->addComponent<Hydra::Component::MeshComponent>("assets/objects/Wall1.ATTIC");
-		test4->addComponent<Hydra::Component::TransformComponent>(glm::vec3(55, 0, 15), glm::vec3(1, 1, 1), glm::quat(1.0, 0, 0.8, 0));
+		auto test4 = _world->createEntity("Wall2");
+		test4->addComponent<Hydra::Component::MeshComponent>("assets/objects/Wall_V4.mATTIC");
+		test4->addComponent<Hydra::Component::TransformComponent>(glm::vec3(55, 0, 15), glm::vec3(1, 1, 1));
 
-		auto test5 = _world->createEntity("test5");
-		test5->addComponent<Hydra::Component::MeshComponent>("assets/objects/Wall1.ATTIC");
-		test5->addComponent<Hydra::Component::TransformComponent>(glm::vec3(19.5, 0, -13), glm::vec3(3, 1, 1), glm::quat(-0.1, 0, -1.09, 0));
+		auto test5 = _world->createEntity("Wall3");
+		test5->addComponent<Hydra::Component::MeshComponent>("assets/objects/Wall_V4.mATTIC");
+		test5->addComponent<Hydra::Component::TransformComponent>(glm::vec3(19.5, 0, -13), glm::vec3(1, 1, 1));
 		
-		auto test6 = _world->createEntity("test6");
+		auto test6 = _world->createEntity("Roof");
 		test6->addComponent<Hydra::Component::MeshComponent>("assets/objects/Roof1.ATTIC");
 		test6->addComponent<Hydra::Component::TransformComponent>(glm::vec3(14, 8.0, 9), glm::vec3(40, 40, 40), glm::quat(0, 0, 0, 1));
 
-
-		auto test7 = _world->createEntity("test7");
-		test7->addComponent<Hydra::Component::MeshComponent>("assets/objects/Floor.ATTIC");
-		test7->addComponent<Hydra::Component::TransformComponent>(glm::vec3(14, -8, 9), glm::vec3(100, 1, 100), glm::quat(1.3, 0, -0.06, 0));
+		auto test7 = _world->createEntity("Floor");
+		test7->addComponent<Hydra::Component::MeshComponent>("assets/objects/Floor_v2.mATTIC");
+		test7->addComponent<Hydra::Component::TransformComponent>(glm::vec3(14, -8, 9), glm::vec3(1, 1, 1));
 
 		auto lightEntity = _world->createEntity("Light");
 		_light = lightEntity->addComponent<Hydra::Component::LightComponent>();
@@ -909,7 +888,7 @@ namespace Barcode {
 			auto& world = _world->getWorldRoot()->getChildren();
 			_cc = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Player"; })->get()->getComponent<Hydra::Component::CameraComponent>();
 			_cc->setRenderTarget(_geometryBatch.output.get());
-			_enemy = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Enemy Alien"; })->get()->getComponent<Hydra::Component::EnemyComponent>();
+			//_enemy = std::find_if(world.begin(), world.end(), [](const std::shared_ptr<IEntity>& e) { return e->getName() == "Enemy Alien"; })->get()->getComponent<Hydra::Component::EnemyComponent>();
 			for (auto it = world.begin(); it != world.end(); it++)
 				if (auto _ = (*it)->getComponent<Hydra::Component::RigidBodyComponent>()) {
 					_engine->log(Hydra::LogLevel::normal, "Enabling bullet for %s", (*it)->getName().c_str());
