@@ -15,7 +15,7 @@
 #include <math.h>
 #include <queue>
 #include <functional>
-
+#include <set>
 class PathFinding
 {
 public:
@@ -44,7 +44,7 @@ public:
 		std::shared_ptr<Node> lastNode;
 		float G = 0.0f;
 		float H = 0.0f;
-
+		float F = 0.0f;
 		Node() {}
 		Node(int x, int z, std::shared_ptr<Node> lastNode = nullptr)
 		{
@@ -54,20 +54,23 @@ public:
 			this->lastNode = lastNode;
 		}
 
-		float getF() { return G + H; }
-		//float manHattanDistance(std::shared_ptr<Node> nodeEnd)
+		float getF() { F = G + H; return F; }
+		//Manhattan Distance
+		//float distanceTo(std::shared_ptr<Node> nodeEnd)
 		//{
 		//	float x = fabs((float)(this->pos.x() - nodeEnd->pos.x()));
 		//	float z = fabs((float)(this->pos.z() - nodeEnd->pos.z()));
 		//	return x + z;
 		//}
-		//float chebyshevDistance(std::shared_ptr<Node> nodeEnd)
+		//Chebychev Distance
+		//float distanceTo(std::shared_ptr<Node> nodeEnd)
 		//{
 		//	float x = fabs((float)(this->pos.x() - nodeEnd->pos.x()));
 		//	float z = fabs((float)(this->pos.z() - nodeEnd->pos.z()));
 		//	return std::fmax(x, z);
 		//}
-		float actualDistance(std::shared_ptr<Node> nodeEnd)
+		//Actual Distance
+		float distanceTo(std::shared_ptr<Node> nodeEnd)
 		{
 			return std::sqrt(std::pow(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::pow(this->pos.z() - nodeEnd->pos.z(), 2.0f));
 		}
@@ -84,22 +87,31 @@ public:
 	void clearVisitedList() { _visitedList.clear(); }
 	void clearOpenList()
 	{ 
-		_openList = PriorityQueue();
+		_openList.clear();
 	}
 	void clearPathToGoal() { _pathToEnd.clear(); }
 
 	bool intializedStartGoal;
 	bool foundGoal;
-	struct QueueCompare {
-		bool operator ()(std::shared_ptr<Node> left, std::shared_ptr<Node> right) { return left->getF() < right->getF(); }
-	};
-	typedef std::priority_queue < std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, QueueCompare> PriorityQueue;
 
+	struct {
+		bool operator()(const std::shared_ptr<Node>& _Left, const std::shared_ptr<Node>& _Right) const
+		{
+			if (_Left == nullptr)
+			{
+				return 0;
+			}
+			else if (_Right == nullptr)
+			{
+				return 1;
+			}
+			return (_Left->getF() > _Right->getF());
+		}
+	} comparisonFunctor;
 	std::vector<std::shared_ptr<Node>> _visitedList;
 	std::vector<MapVec> _pathToEnd;
-	
 private:
-	PriorityQueue _openList;
+	std::vector<std::shared_ptr<Node>> _openList;
 	std::shared_ptr<Node> _startCell;
 	std::shared_ptr<Node> _endCell;
 

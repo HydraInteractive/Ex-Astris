@@ -603,46 +603,46 @@ void EnemyComponent::tick(TickAction action, float delta) {
 
 	if (enemy->getPosition().x != _oldMapPosX && enemy->getPosition().z != _oldMapPosZ)
 	{
-		_map[_oldMapPosX][_oldMapPosZ] = 0;
-		if (enemy->getPosition().x <= 0 || enemy->getPosition().z <= 0)
-		{
-			_oldMapPosX = this->getPosition().x - _mapOffset.x;
-			_oldMapPosZ = this->getPosition().z - _mapOffset.z;
-		}
-		else
-		{
-			_oldMapPosX = this->getPosition().x;
-			_oldMapPosZ = this->getPosition().z;
-		}
-		_map[_oldMapPosX][_oldMapPosZ] = 2;
+		//_map[_oldMapPosX][_oldMapPosZ] = 0;
+		//if (enemy->getPosition().x <= 0 || enemy->getPosition().z <= 0)
+		//{
+		//	_oldMapPosX = this->getPosition().x - _mapOffset.x;
+		//	_oldMapPosZ = this->getPosition().z - _mapOffset.z;
+		//}
+		//else
+		//{
+		//	_oldMapPosX = this->getPosition().x;
+		//	_oldMapPosZ = this->getPosition().z;
+		//}
+		//_map[_oldMapPosX][_oldMapPosZ] = 2;
 	}
 	else if (enemy->getPosition().x != _oldMapPosX && enemy->getPosition().z == _oldMapPosZ)
 	{
 
-		_map[_oldMapPosX][_oldMapPosZ] = 0;
-		if (enemy->getPosition().x <= 0 || enemy->getPosition().z <= 0)
-		{
-			_oldMapPosX = this->getPosition().x + _mapOffset.x;
-		}
-		else
-		{
-			_oldMapPosX = this->getPosition().x;
-		}
-		_map[_oldMapPosX][_oldMapPosZ] = 2;
+		//_map[_oldMapPosX][_oldMapPosZ] = 0;
+		//if (enemy->getPosition().x <= 0 || enemy->getPosition().z <= 0)
+		//{
+		//	_oldMapPosX = this->getPosition().x + _mapOffset.x;
+		//}
+		//else
+		//{
+		//	_oldMapPosX = this->getPosition().x;
+		//}
+		//_map[_oldMapPosX][_oldMapPosZ] = 2;
 	}
 	else if (enemy->getPosition().z != _oldMapPosZ && enemy->getPosition().x == _oldMapPosX)
 	{
 
-		_map[_oldMapPosX][_oldMapPosZ] = 0;
-		if (enemy->getPosition().x <= 0 || enemy->getPosition().z <= 0)
-		{
-			_oldMapPosZ = this->getPosition().z + _mapOffset.z;
-		}
-		else
-		{
-			_oldMapPosZ = this->getPosition().z;
-		}
-		_map[_oldMapPosX][_oldMapPosZ] = 2;
+		//_map[_oldMapPosX][_oldMapPosZ] = 0;
+		//if (enemy->getPosition().x <= 0 || enemy->getPosition().z <= 0)
+		//{
+		//	_oldMapPosZ = this->getPosition().z + _mapOffset.z;
+		//}
+		//else
+		//{
+		//	_oldMapPosZ = this->getPosition().z;
+		//}
+		//_map[_oldMapPosX][_oldMapPosZ] = 2;
 	}
 
 	 //debug for pathfinding

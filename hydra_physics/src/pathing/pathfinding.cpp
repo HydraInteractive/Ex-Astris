@@ -11,7 +11,7 @@
 #include <hydra/pathing/pathfinding.hpp>
 
 PathFinding::PathFinding() {
-	clearOpenList();
+	_openList = std::vector<std::shared_ptr<Node>>();
 	intializedStartGoal = false;
 	foundGoal = false;
 }
@@ -31,8 +31,8 @@ void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 		_startCell = std::make_shared<Node>(currentPos.x / CELL_SIZE, currentPos.z / CELL_SIZE, nullptr);
 		_endCell = std::make_shared<Node>(targetPos.x / CELL_SIZE, targetPos.z / CELL_SIZE, nullptr);
 
-		_startCell->H = _startCell->actualDistance(_endCell);
-		_openList.push(_startCell);
+		_startCell->H = _startCell->distanceTo(_endCell);
+		_openList.push_back(_startCell);
 
 		foundGoal = false;
 		intializedStartGoal = true;
@@ -42,14 +42,14 @@ void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 		//TODO: Infinite loop concerns
 		while(!_openList.empty() && !foundGoal)
 		{
-			std::shared_ptr<Node> currentCell = _openList.top();
-			_visitedList.push_back(_openList.top());
-			_openList.pop();
+			std::shared_ptr<Node> currentNode = _openList.back();
+			_visitedList.push_back(_openList.back());
+			_openList.pop_back();
 
 			//End reached
-			if (currentCell->id == _endCell->id)
+			if (currentNode->id == _endCell->id)
 			{
-				_endCell->lastNode = currentCell->lastNode;
+				_endCell->lastNode = currentNode->lastNode;
 
 				std::shared_ptr<Node> getPath = _endCell;
 
@@ -64,28 +64,28 @@ void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 			else
 			{
 				//East
-				_discoverNode(currentCell->pos.x() + 1, currentCell->pos.z(), currentCell, map);
+				_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z(), currentNode, map);
 			
 				//West
-				_discoverNode(currentCell->pos.x() - 1, currentCell->pos.z(), currentCell, map);
+				_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z(), currentNode, map);
 			
 				//North
-				_discoverNode(currentCell->pos.x(), currentCell->pos.z() + 1, currentCell, map);
+				_discoverNode(currentNode->pos.x(), currentNode->pos.z() + 1, currentNode, map);
 			
 				//South
-				_discoverNode(currentCell->pos.x(), currentCell->pos.z() - 1, currentCell, map);
+				_discoverNode(currentNode->pos.x(), currentNode->pos.z() - 1, currentNode, map);
 			
 				//North West
-				_discoverNode(currentCell->pos.x() - 1, currentCell->pos.z() + 1, currentCell, map);
+				_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() + 1, currentNode, map);
 			
 				//North East
-				_discoverNode(currentCell->pos.x() + 1, currentCell->pos.z() + 1, currentCell, map);
+				_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() + 1, currentNode, map);
 			
 				//South West
-				_discoverNode(currentCell->pos.x() - 1, currentCell->pos.z() - 1, currentCell, map);
+				_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() - 1, currentNode, map);
 			
 				//South East
-				_discoverNode(currentCell->pos.x() + 1, currentCell->pos.z() - 1, currentCell, map);
+				_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() - 1, currentNode, map);
 			}
 		}
 
@@ -112,10 +112,10 @@ glm::vec3& PathFinding::nextPathPos(const glm::vec3& pos, const float& radius)
 void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode, int(&map)[WORLD_SIZE][WORLD_SIZE])
 {
 	//If this node is inaccessable, ignore it
-	if (map[x][z] == 1 || map[x][z] == 2)
-	{
-		return;
-	}
+	//if (map[x][z] == 1 || map[x][z] == 2)
+	//{
+	//	return;
+	//}
 
 	int id = z * WORLD_SIZE + x;
 
@@ -128,34 +128,33 @@ void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode, in
 		}
 	}
 	std::shared_ptr<Node> thisNode;
-	PriorityQueue tempQueue = _openList;
 
 	//If this node exists in the open list don't add it again
 	bool found = false;
-	while (!tempQueue.empty() && !found)
+	for (int i = 0; i < _openList.size() && !found;i++)
 	{
-		if (id == tempQueue.top()->id)
+		if (id == _openList[i]->id)
 		{
 			found = true;
-			thisNode = tempQueue.top();
+			thisNode = _openList[i];
 		}
-		tempQueue.pop();
 	}
 	if (!found)
 	{
 		thisNode = std::make_shared<Node>(x, z, lastNode);
 		thisNode->G = INFINITY;
 		thisNode->H = INFINITY;
-		_openList.push(thisNode);
+		_openList.push_back(thisNode);
 	}
 
 	//Check if this node has had a better path to it before
-	float distanceViaLastNode = lastNode->G + lastNode->actualDistance(thisNode);
-	//If this is the best path, replace the old path values
-	if (thisNode->getF() > distanceViaLastNode)
+	float thisPathF = lastNode->G + lastNode->distanceTo(thisNode) + thisNode->distanceTo(_endCell);
+	//If this is a better path than previously, replace the old path values
+	if (thisNode->getF() > thisPathF)
 	{
-		thisNode->G = distanceViaLastNode;
-		thisNode->H = thisNode->actualDistance(_endCell);
+		thisNode->G = lastNode->G + lastNode->distanceTo(thisNode);
+		thisNode->H = thisNode->distanceTo(_endCell);
 		thisNode->lastNode = lastNode;
 	}
+	std::sort(_openList.begin(), _openList.end(), comparisonFunctor);
 }
