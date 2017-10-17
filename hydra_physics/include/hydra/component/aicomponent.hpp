@@ -94,9 +94,8 @@ namespace Hydra::Component {
 		Uint32 _attackTimer;
 		Uint32 _newPathTimer;
 		int _map[WORLD_SIZE][WORLD_SIZE];
-		int _oldMapPosX = 0;
-		int _oldMapPosZ = 0;
-
+		int _oldMapPosX;
+		int _oldMapPosZ;
 		// Private functions
 		bool _checkLine(int levelmap[WORLD_SIZE][WORLD_SIZE], glm::vec3 A, glm::vec3 B);
 	};
