@@ -16,6 +16,7 @@
     <ClInclude Include="include\barcode\gamestate.hpp" />
     <ClInclude Include="include\barcode\ImporterMenu.hpp" />
     <ClInclude Include="include\barcode\menustate.hpp" />
+    <ClInclude Include="include\barcode\tileGeneration.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\barcode\editorstate.cpp" />
@@ -23,6 +24,7 @@
     <ClCompile Include="src\barcode\gamestate.cpp" />
     <ClCompile Include="src\barcode\ImporterMenu.cpp" />
     <ClCompile Include="src\barcode\menustate.cpp" />
+    <ClCompile Include="src\barcode\tileGeneration.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
