@@ -17,24 +17,18 @@
 using namespace Hydra::World;
 
 namespace Hydra::Component {
-	class HYDRA_API BulletComponent final : public IComponent{
-	public:
-		BulletComponent(IEntity* entity);
-		BulletComponent(IEntity* entity, glm::vec3 position, glm::vec3 direction, float velocity);
-		~BulletComponent() final;
+	struct HYDRA_PHYSICS_API BulletComponent final : public IComponent<BulletComponent, ComponentBits::Bullet> {
+		glm::vec3 position = glm::vec3{0, 0, 0};
+		glm::vec3 direction = glm::vec3{0, 0, 0};
+		float velocity = 1;
+		float deleteTimer = 4;
 
-		void tick(TickAction action, float delta) final;
-		inline TickAction wantTick() const final { return TickAction::physics; }
+		~BulletComponent() final;
 
 		inline const std::string type() const final { return "BulletComponent"; }
 
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
-	private:
-		glm::vec3 _position;
-		glm::vec3 _direction;
-		float _velocity;
-		size_t _deleteTimer;
 	};
 };

@@ -45,9 +45,9 @@ public:
 	}
 
 	std::shared_ptr<IMesh> getQuad() final{
-		std::shared_ptr<IMesh> mesh = _storage["particleQuad"];
+		std::shared_ptr<IMesh> mesh = _storage["RendererQuad"];
 		if (!mesh)
-			mesh = _storage["particleQuad"] = GLMesh::createQuad(_renderer);
+			mesh = _storage["RendererQuad"] = GLMesh::createQuad(_renderer);
 		return mesh;
 	}
 

@@ -21,52 +21,40 @@
 using namespace Hydra::World;
 
 namespace Hydra::Component {
-	class HYDRA_API PlayerComponent final : public IComponent{
-	public:
-		PlayerComponent(IEntity* entity);
+	struct HYDRA_PHYSICS_API PlayerComponent final : public IComponent<PlayerComponent, ComponentBits::Player> {
+		glm::vec3 position = glm::vec3(0, 2, 20); //TODO: Remove
+		glm::vec3 velocity = glm::vec3{0, 0, 0};// Same
+		glm::vec3 acceleration = glm::vec3{0, 0, 0}; // Same
+		glm::vec3 weaponOffset = glm::vec3{2, -1.5, -3};
+		float movementSpeed = 20.0f;
+		bool onGround = false;
+		bool firstPerson = true;
+		int maxHealth = 100; // Move to LifeComponent
+		int health = 100; // SAME
+		bool isDead = false;
+
+		// TODO: Move?!
+		AbilityHandler activeAbillies;
+		BuffHandler activeBuffs;
+
 		~PlayerComponent() final;
 
-		void tick(TickAction action, float delta) final;
-		// If you want to add more than one TickAction, combine them with '|' (The bitwise or operator) 
-		inline TickAction wantTick() const final { return TickAction::physics; }
-
-		std::shared_ptr<Hydra::World::IEntity> getWeapon();
+		std::shared_ptr<Hydra::World::Entity> getWeapon();
 
 		inline const std::string type() const final { return "PlayerComponent"; }
-		const glm::vec3 getPosition() { return _position; };
-		int getHealth();
-		void upgradeHealth(){
-			if (_activeBuffs.addBuff(BUFF_HEALTHUPGRADE)) {
-				_activeBuffs.onActivation(_maxHealth, _health);
-			}
-			if (_activeBuffs.addBuff(BUFF_DAMAGEUPGRADE)) {
-				_activeBuffs.onActivation(_maxHealth, _health);
-			}
+		void upgradeHealth() {
+			if (activeBuffs.addBuff(BUFF_HEALTHUPGRADE))
+				activeBuffs.onActivation(maxHealth, health);
+
+			if (activeBuffs.addBuff(BUFF_DAMAGEUPGRADE))
+				activeBuffs.onActivation(maxHealth, health);
 		}
-		void applyDamage(int damage);
+
+		std::vector<Buffs> getActiveBuffs() { return activeBuffs.getActiveBuffs(); }
+		void applyDamage(int damage) { health -= damage; }
+
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
-	private:
-		glm::vec3 _position = glm::vec3(0,-2,3);
-		glm::vec3 _weaponOffset = glm::vec3{2, -1.5, -3};
-		glm::vec3 _velocity;
-		glm::vec3 _acceleration;
-		float _movementSpeed = 20.0f;
-		bool _onGround = false;
-		bool _firstPerson = true;
-		Uint32 _timer;
-		int keysArrayLength;
-		bool *lastKeysArray; //pretty bad. will fix
-		int _maxHealth;
-		int _health;
-		bool _dead;
-
-		AbilityHandler _activeAbillies;
-		BuffHandler _activeBuffs;
-
-		float _debug;
-		glm::vec3 _debugPos;
-
 	};
 };

@@ -27,15 +27,15 @@ public:
 	}
 
 	GLMeshImpl(const std::string& file, GLuint modelMatrixBuffer) {
-
+		_file = file;
 		_currentFrame = 1;
 		_currentAnimationIndex = 0;
 		_loadATTICModel(file.c_str(), modelMatrixBuffer);
 	}
 
-	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices, bool animation, GLuint modelMatrixBuffer, GLuint particleExtraBuffer) {
+	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices, bool animation, GLuint modelMatrixBuffer, GLuint RendererExtraBuffer) {
 		_makeBuffers();
-		_uploadData(vertices, indices, animation, modelMatrixBuffer, particleExtraBuffer);
+		_uploadData(vertices, indices, animation, modelMatrixBuffer, RendererExtraBuffer);
 	}
 
 
@@ -44,6 +44,12 @@ public:
 		glDeleteBuffers(sizeof(buffers) / sizeof(*buffers), buffers);
 
 		glDeleteVertexArrays(1, &_vao);
+		
+		for (size_t i = 0; i < 7; i++) {
+			for (size_t k = 0; k < skeleton[i].size(); k++) {
+				delete skeleton[i][k];
+			}
+		}
 	}
 
 	struct skelInfo {
@@ -100,6 +106,7 @@ public:
 	size_t getIndicesCount() const final { return _indicesCount; }
 
 private:
+	std::string _file = "(null)";
 	Material _material;
 	GLuint _vao; // Vertex Array
 	GLuint _vbo; // Vertices
@@ -124,7 +131,7 @@ private:
 		_ibo = buffers[1];
 	}
 
-	void _uploadData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, bool animation, GLuint modelMatrixBuffer, GLuint particleExtraBuffer) {
+	void _uploadData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, bool animation, GLuint modelMatrixBuffer, GLuint RendererExtraBuffer) {
 		_indicesCount = indices.size();
 		glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
@@ -160,8 +167,8 @@ private:
 				glVertexAttribDivisor(VertexLocation::modelMatrix + i, 1);
 			}
 		}
-		if (particleExtraBuffer) {
-			glBindBuffer(GL_ARRAY_BUFFER, particleExtraBuffer);
+		if (RendererExtraBuffer) {
+			glBindBuffer(GL_ARRAY_BUFFER, RendererExtraBuffer);
 			for (int i = 0; i < 3; i++) {
 				glEnableVertexAttribArray(VertexLocation::textureOffset1 + i);
 				glVertexAttribPointer(VertexLocation::textureOffset1 + i, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2) * 3, (GLvoid*)(sizeof(glm::vec2) * i));
@@ -251,6 +258,10 @@ private:
 			tempFileName = new char[fileNameLength];
 			in.read(tempFileName, fileNameLength);
 			fileName.append(tempFileName, fileNameLength);
+			_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/" + fileName);
+			_material.normal = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/normals/futuristicNormal.png");
+			_material.specular = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/speculars/brickSpecular.png");
+			_material.glow = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/glow/EscapePodDoorGlow_Fin.png");
 
 			delete[] tempFileName;
 

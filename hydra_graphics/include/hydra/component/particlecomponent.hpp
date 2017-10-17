@@ -16,7 +16,7 @@ namespace Hydra::Component {
 	enum EmitterBehaviour : int {PerSecond = 0, Explosion};
 	enum ParticleTexture : int {Fire = 0, Knas, BogdanDeluxe};
 	
-	HYDRA_API struct Particle {
+	struct HYDRA_GRAPHICS_API Particle {
 		glm::mat4 m;
 		glm::vec3 pos;
 		glm::vec3 acceleration;
@@ -48,37 +48,31 @@ namespace Hydra::Component {
 		void fixMX(glm::quat& rot) { m = glm::translate(pos) * glm::scale(scale); }
 	};
 
-	class HYDRA_API ParticleComponent final : public IComponent{
-	public:
-		ParticleComponent(IEntity* entity);
-		ParticleComponent(IEntity* entity, EmitterBehaviour behaviour, ParticleTexture texture, int nrOfParticles, glm::vec3 pos);
-		~ParticleComponent() final;
+	struct HYDRA_GRAPHICS_API ParticleComponent final : public IComponent<ParticleComponent, ComponentBits::Particle> {
+		int pps; // Particles per second.
+		float accumulator;
+		glm::quat tempRotation;
+		glm::vec2 offsetToTexture;
+		glm::vec3 emitterPos;
+		EmitterBehaviour behaviour;
+		std::vector<std::shared_ptr<Particle>> particles;
 
-		void tick(TickAction action, float delta) final;
-		inline TickAction wantTick() const final { return TickAction::physics | TickAction::renderTransparent; }
+		/*ParticleComponent(IEntity* entity);
+		ParticleComponent(IEntity* entity, EmitterBehaviour behaviour, ParticleTexture texture, int nrOfParticles, glm::vec3 pos);*/
+		~ParticleComponent() final;
 
 		inline const std::string type() const final { return "ParticleComponent"; }
 
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
-		const std::vector<std::shared_ptr<Particle>>& getParticles() { return _particles; }
-		const Hydra::Renderer::DrawObject* getDrawObject() { return _drawObject; }
-
+		/*
 	private:
-		int _pps; // Particles per second.
-		float _accumulator;
-		glm::quat _tempRotation;
-		glm::vec2 _offsetToTexture;
-		glm::vec3 _emitterPos;
-		EmitterBehaviour _behaviour;
-		Hydra::Renderer::DrawObject* _drawObject;
-		std::vector<std::shared_ptr<Particle>> _particles;
 		void _generateParticles();
-		void _particlePhysics(float delta);
+		void _ParticlePhysics(float delta);
 		void _clearDeadParticles();
 		void _emmitParticle();
 		void _updateTextureCoordInfo(std::shared_ptr<Particle>& p, float delta);
-		void _sortParticles(); // Insertion Sort
+		void _sortParticles(); // Insertion Sort*/
 	};
 };

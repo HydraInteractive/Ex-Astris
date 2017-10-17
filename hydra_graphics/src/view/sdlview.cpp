@@ -78,6 +78,7 @@ public:
 	bool didChangeSize() final { return false; }
 
 	// ITexture
+	void bind(size_t) final {	glBindFramebuffer(GL_FRAMEBUFFER, 0); }
 	void resize(glm::ivec2 size) final { SDL_SetWindowSize(_window, size.x, size.y); }
 
 	glm::ivec2 getSize() final { return _size; }

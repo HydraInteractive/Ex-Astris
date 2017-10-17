@@ -1,17 +1,25 @@
 #include <barcode/menustate.hpp>
 
+#include <hydra/renderer/glrenderer.hpp>
+#include <hydra/renderer/glshader.hpp>
+#include <hydra/io/gltextureloader.hpp>
+#include <hydra/io/glmeshloader.hpp>
+
+#include <barcode/gamestate.hpp>
+#include <barcode/editorstate.hpp>
+#include <imgui/imgui.h>
+
 namespace Barcode {
 	MenuState::MenuState() : _engine(Hydra::IEngine::getInstance()) {}
 
 	void MenuState::load() {
 		_textureLoader = Hydra::IO::GLTextureLoader::create();
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
-		_physicsManager = Hydra::Physics::BulletManager::create();
 
 		{
 			auto& batch = _viewBatch;
 			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/view.vert");
-			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/view.frag");
+			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/null.frag");
 
 			batch.pipeline = Hydra::Renderer::GLPipeline::create();
 			batch.pipeline->attachStage(*batch.vertexShader);
@@ -24,6 +32,7 @@ namespace Barcode {
 			batch.batch.pipeline = batch.pipeline.get();
 		}
 
+		_initSystem();
 		_initWorld();
 	}
 
@@ -32,46 +41,31 @@ namespace Barcode {
 	void MenuState::onMainMenu() {}
 
 	void MenuState::runFrame(float delta) {
-		{ // Fetch new events
-			_engine->getView()->update(_engine->getUIRenderer());
-			_engine->getUIRenderer()->newFrame();
-		}
-
-		{ // Update physics
-			_world->tick(Hydra::World::TickAction::physics, delta);
-		}
-
-		{ // Render objects (Deferred rendering)
-			_world->tick(Hydra::World::TickAction::render, delta);
-		}
-
-		{ // Render transparent objects	(Forward rendering)
-			_world->tick(Hydra::World::TickAction::renderTransparent, delta);
-		}
-
 		{ // Update UI & views
 			ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse;
 			ImGui::SetNextWindowSize(ImVec2(300, 400), ImGuiSetCond_Once);
 			ImGui::Begin("Main menu", nullptr, windowFlags);
 			if (ImGui::Button("Play game"))
 				_engine->setState<GameState>();
-			if (ImGui::Button("Editor"))
-				_engine->setState<EditorState>();
+			/* if (ImGui::Button("Editor"))
+				_engine->setState<EditorState>();*/
 			if (ImGui::Button("Quit"))
 				_engine->quit();
 			ImGui::End();
 
-			_engine->getRenderer()->render(_viewBatch.batch);
-		}
-
-		{ // Sync with network
-			_world->tick(Hydra::World::TickAction::network, delta);
+			_engine->getView()->bind(0);
 		}
 	}
 
+	void MenuState::_initSystem() {
+		const std::vector<Hydra::World::ISystem*> systems = {_engine->getDeadSystem()};
+		_engine->getUIRenderer()->registerSystems(systems);
+	}
+
 	void MenuState::_initWorld() {
-		_world = Hydra::World::World::create();
-		auto a = _world->createEntity("Menu entity");
+		using world = Hydra::World::World;
+
+		world::newEntity("Menu entity", world::root);
 	}
 
 }

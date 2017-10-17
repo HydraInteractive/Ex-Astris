@@ -13,9 +13,8 @@
 #define WORLD_SIZE 64
 #define CELL_SIZE 1.0f
 #include <math.h>
-#include <queue>
-#include <functional>
-#include <set>
+#include <algorithm>
+
 class PathFinding
 {
 public:
@@ -29,13 +28,11 @@ public:
 
 		float& x() { return baseVec.x; }
 		float& z() { return baseVec.y; }
-		glm::vec3& vec3() { return glm::vec3(baseVec.x, 0, baseVec.y); }
 		void set(glm::vec2 &vec) { baseVec = vec; }
 		void set(glm::vec3 &vec) { baseVec = glm::vec2(vec.x,vec.z); }
 
 		operator glm::vec3()& { return glm::vec3(baseVec.x, 0, baseVec.y); }
 		operator glm::vec2()& { return baseVec; }
-		
 	};
 	struct Node
 	{

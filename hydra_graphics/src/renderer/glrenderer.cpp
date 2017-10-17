@@ -113,6 +113,67 @@ public:
 		}
 	}
 
+	void renderShadows(Batch& batch) final {
+		SDL_GL_MakeCurrent(_window, _glContext);
+		glBindFramebuffer(GL_FRAMEBUFFER, batch.renderTarget->getID());
+		const auto& size = batch.renderTarget->getSize();
+		glViewport(0, 0, size.x, size.y);
+
+		glClearColor(batch.clearColor.r, batch.clearColor.g, batch.clearColor.b, batch.clearColor.a);
+		GLenum clearFlags = 0;
+		clearFlags |= (batch.clearFlags & ClearFlags::depth) == ClearFlags::depth ? GL_DEPTH_BUFFER_BIT : 0;
+		glClear(clearFlags);
+
+		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
+
+		for (auto& kv : batch.objects) {
+			auto& mesh = kv.first;
+
+			batch.pipeline->setValue(2, mesh->hasAnimation());
+
+			if (mesh->hasAnimation()) {
+				glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
+				glBindVertexArray(mesh->getID());
+				size_t size = kv.second.size();
+				const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
+				for (size_t i = 0; i < size; i += maxPerLoop) {
+
+					int currentFrame = mesh->getCurrentKeyframe();
+					if (currentFrame < mesh->getMaxFramesForAnimation()) {
+						mesh->setCurrentKeyframe(currentFrame + 1);
+					}
+					else {
+						mesh->setCurrentKeyframe(1);
+					}
+
+					glm::mat4 tempMat;
+					for (int i = 0; i < mesh->getNrOfJoints(); i++) {
+						tempMat = mesh->getTransformationMatrices(i);
+						batch.pipeline->setValue(11 + i, tempMat);
+					}
+
+					size_t amount = std::min(size - i, maxPerLoop);
+					glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
+					glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &kv.second[i]);
+					glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
+				}
+			}
+			else {
+				size_t size = kv.second.size();
+				const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
+				for (size_t i = 0; i < size; i += maxPerLoop) {
+					size_t amount = std::min(size - i, maxPerLoop);
+					glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
+					glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
+					glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &kv.second[i]);
+					glBindVertexArray(mesh->getID());
+					glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
+				}
+			}
+		}
+	}
+
+
 	void render(ParticleBatch& batch) final { // For particles only.
 		SDL_GL_MakeCurrent(_window, _glContext);
 		glBindFramebuffer(GL_FRAMEBUFFER, batch.renderTarget->getID());
@@ -166,9 +227,16 @@ public:
 
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
 
+		batch.pipeline->setValue(20, 0);
+		batch.pipeline->setValue(21, 1);
+		batch.pipeline->setValue(22, 2);
+		batch.pipeline->setValue(23, 3);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
-
+			mesh->getMaterial().diffuse->bind(0);
+			mesh->getMaterial().normal->bind(1);
+			mesh->getMaterial().specular->bind(2);
+			mesh->getMaterial().glow->bind(3);
 			size_t size = kv.second.size();
 			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
 			for (size_t i = 0; i < size; i += maxPerLoop) {

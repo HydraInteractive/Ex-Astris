@@ -26,41 +26,40 @@ layout(location = 2) uniform sampler2D normals;
 layout(location = 3) uniform sampler2D lightPositions;
 layout(location = 4) uniform sampler2D depthMap;
 layout(location = 5) uniform sampler2D ssao;
-layout(location = 6) uniform vec3 cameraPos;
-layout(location = 7) uniform bool enableSSAO = true;
-layout(location = 8) uniform int nrOfPointLights;
-layout(location = 9) uniform DirLight dirLight;
-layout(location = 11) uniform PointLight pointLights[MAX_LIGHTS];
+layout(location = 6) uniform sampler2D glow;
+layout(location = 7) uniform vec3 cameraPos;
+layout(location = 8) uniform bool enableSSAO = true;
+layout(location = 9) uniform int nrOfPointLights;
+layout(location = 10) uniform DirLight dirLight;
+layout(location = 12) uniform PointLight pointLights[MAX_LIGHTS];
 
-vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec3 objectColor){
+vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec4 objectColor){
 	float distance = length(light.pos - pos);
 	float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
 
 	// Diffuse
 	vec3 lightDir = normalize(light.pos - pos);
 	float diff = max(dot(normal, lightDir), 0.0);
-	vec3 diffuse = light.color * diff * objectColor;
+	vec3 diffuse = light.color * diff * objectColor.rgb;
 
 	// Specular
-	float specularStrength = 0.1f;
 	vec3 viewDir = normalize(cameraPos - pos);
 	vec3 reflectDir = reflect(-lightDir, normal);
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128);
-	vec3 specular = spec * specularStrength * light.color;
+	vec3 specular = spec * objectColor.a * light.color;
 
-	return (diffuse + specular) * attenuation;
+	return (specular + diffuse) * attenuation;
 }
 
-vec3 calcDirLight(DirLight light, vec3 pos, vec3 normal, vec3 objectColor){
+vec3 calcDirLight(DirLight light, vec3 pos, vec3 normal, vec4 objectColor){
 	vec3 lightDir = normalize(-light.dir);
 	float diff = max(dot(normal, lightDir), 0.0f);
-	vec3 diffuse = light.color * diff * objectColor;
+	vec3 diffuse = light.color * diff * objectColor.rgb;
 
-	float specularStrength = 0.1f;
 	vec3 viewDir = normalize(cameraPos - pos);
 	vec3 reflectDir = reflect(lightDir, normal);
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128);
-	vec3 specular = spec * specularStrength * light.color;
+	vec3 specular = spec * objectColor.a * light.color;
 
 	return (diffuse + specular);
 }
@@ -85,12 +84,14 @@ void main() {
 	//lightPos /= 4;
 
 	vec3 pos = texture(positions, texCoords).xyz;
-	vec3 objectColor = texture(colors, texCoords).rgb;
+	vec4 objectColor = texture(colors, texCoords);
 	vec3 normal = texture(normals, texCoords).xyz;
 	vec4 lightPos = texture(lightPositions, texCoords);
+	float glowAmnt = texture(glow, texCoords).r;
 
 	// Lighting 
-	vec3 globalAmbient = dirLight.color * 0.3f;
+	// 0.1f should be ambient coefficient
+	vec3 globalAmbient = dirLight.color * objectColor.rgb * 0.1f;
 	vec3 result = vec3(0);
 
 	// Directional light
@@ -129,9 +130,12 @@ void main() {
 	fragOutput = result;
 
 	// Picking out bright regions for glow.
-	float brightness = dot(vec3(fragOutput), vec3(0.2126, 0.7152, 0.0722));
+	//float brightness = dot(vec3(fragOutput), vec3(0.2126, 0.7152, 0.0722));
 
-	if(brightness > 1.0f)
+	//if(brightness > 1.0f)
+	//	brightOutput = fragOutput;
+
+	if(glowAmnt > 0)
 		brightOutput = fragOutput;
 	else
 		brightOutput = vec3(0);

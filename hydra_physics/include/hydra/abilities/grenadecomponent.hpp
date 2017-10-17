@@ -16,24 +16,17 @@
 using namespace Hydra::World;
 
 namespace Hydra::Component {
-	class HYDRA_API GrenadeComponent final : public IComponent{
-	public:
-		GrenadeComponent(IEntity* entity);
-		GrenadeComponent(IEntity* entity, glm::vec3 position, glm::vec3 direction);
-		~GrenadeComponent() final;
+	struct HYDRA_PHYSICS_API GrenadeComponent final : public IComponent<GrenadeComponent, ComponentBits::Grenade> {
+		glm::vec3 direction = glm::vec3{0, 0, 0};
+		float velocity = 20;
+		float fallingVelocity = 20;
 
-		void tick(TickAction action, float delta) final;
-		inline TickAction wantTick() const final { return TickAction::physics; }
+		~GrenadeComponent() final;
 
 		inline const std::string type() const final { return "GrenadeComponent"; }
 
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
-	private:
-		glm::vec3 _position;
-		glm::vec3 _direction;
-		float _velocity;
-		float _fallingVelocity;
 	};
 };

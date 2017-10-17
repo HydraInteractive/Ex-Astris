@@ -12,10 +12,10 @@
 
 #include <hydra/renderer/renderer.hpp>
 #include <hydra/renderer/uirenderer.hpp>
-#include <hydra/physics/physicsmanager.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/io/textureloader.hpp>
 #include <hydra/io/meshloader.hpp>
+#include <hydra/system/deadsystem.hpp>
 
 #ifndef PRINTFARGS
 #if defined(__clang__) || defined(__GNUC__)
@@ -28,18 +28,18 @@
 namespace Hydra::View { class IView; }
 
 namespace Hydra {
-	enum class HYDRA_API LogLevel {
+	enum class HYDRA_BASE_API LogLevel {
 		verbose,
 		normal,
 		warning,
 		error
 	};
-	HYDRA_API inline const char* toString(LogLevel level) {
+	HYDRA_BASE_API inline const char* toString(LogLevel level) {
 		static const char* name[4] = {"verbose", "normal", "warning", "error"};
 		return name[static_cast<int>(level)];
 	}
 
-	class HYDRA_API IState {
+	class HYDRA_BASE_API IState {
 	public:
 		virtual ~IState() = 0;
 
@@ -49,14 +49,13 @@ namespace Hydra {
 		/// Update and render a frame
 		virtual void runFrame(float delta) = 0;
 
-		virtual World::IWorld* getWorld() = 0;
 		virtual IO::ITextureLoader* getTextureLoader() = 0;
 		virtual IO::IMeshLoader* getMeshLoader() = 0;
-		virtual Physics::IPhysicsManager* getPhysicsManager() = 0;
+		virtual World::ISystem* getPhysicsSystem() = 0;
 	};
 	inline IState::~IState() {}
 
-	class HYDRA_API IEngine {
+	class HYDRA_BASE_API IEngine {
 	public:
 		virtual ~IEngine() = 0;
 
@@ -77,6 +76,7 @@ namespace Hydra {
 		virtual View::IView* getView() = 0;
 		virtual Renderer::IRenderer* getRenderer() = 0;
 		virtual Renderer::IUIRenderer* getUIRenderer() = 0;
+		virtual Hydra::System::DeadSystem* getDeadSystem() = 0;
 
 		virtual void log(LogLevel level, const char* fmt, ...) PRINTFARGS(3) = 0;
 
