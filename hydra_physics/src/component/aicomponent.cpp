@@ -94,7 +94,7 @@ void EnemyComponent::tick(TickAction action, float delta) {
 		break;
 	}
 
-	
+	_checkHealth();
 
 	 //debug for pathfinding
 	//int tempX = enemy->getPosition().x;
@@ -224,7 +224,7 @@ int Hydra::Component::EnemyComponent::getWall(int x, int y)
 	return _map[x][y];
 }
 
-bool Hydra::Component::EnemyComponent::_checkLine(int levelmap[WORLD_SIZE][WORLD_SIZE], glm::vec3 A, glm::vec3 B)
+bool Hydra::Component::EnemyComponent::_checkLOS(int levelmap[WORLD_SIZE][WORLD_SIZE], glm::vec3 A, glm::vec3 B)
 {
 	// New code, not optimal
 	double x = B.x - A.x;
@@ -328,35 +328,9 @@ void Hydra::Component::EnemyComponent::_alien(float delta)
 	{
 		//While the enemy is searching, play the walking animation
 		entity->getDrawObject()[0].mesh->setAnimationIndex(1);
-		if (SDL_GetTicks() > _timer + 5000)
-		{
-			_pathState = IDLE;
-		}
-		if (glm::length(enemy->getPosition() - player->getPosition()) < _range)
-		{
-			_isAtGoal = true;
-			_pathFinding->foundGoal = true;
-			_pathState = ATTACKING;
-		}
 
-		if (player->getPosition().x <= _mapOffset.x || player->getPosition().x >= WORLD_SIZE || player->getPosition().z <= _mapOffset.z || player->getPosition().z >= WORLD_SIZE)
-		{
-			_pathState = IDLE;
-		}
+		_pathfind();
 
-		_pathFinding->findPath(enemy->getPosition(), player->getPosition(), _map);
-		_isAtGoal = false;
-
-
-		if (_pathFinding->foundGoal)
-		{
-			if (!_pathFinding->_pathToEnd.empty())
-			{
-				_targetPos = _pathFinding->_pathToEnd[0];
-			}
-			_pathState = FOUND_GOAL;
-			_newPathTimer = SDL_GetTicks();
-		}
 	}break;
 	case FOUND_GOAL:
 	{
@@ -445,7 +419,7 @@ void Hydra::Component::EnemyComponent::_alien(float delta)
 	}break;
 	}
 
-	_playerSeen = _checkLine(_map, enemy->getPosition(), player->getPosition());
+	_playerSeen = _checkLOS(_map, enemy->getPosition(), player->getPosition());
 
 	if (_playerSeen == false)
 	{
@@ -491,35 +465,7 @@ void Hydra::Component::EnemyComponent::_robot(float delta)
 	}break;
 	case SEARCHING:
 	{
-		if (SDL_GetTicks() > _timer + 5000)
-		{
-			_timer = SDL_GetTicks();
-			_pathState = IDLE;
-		}
-
-		if (glm::length(enemy->getPosition() - player->getPosition()) < _range)
-		{
-			_isAtGoal = true;
-			_pathState = ATTACKING;
-		}
-
-		if (player->getPosition().x <= _mapOffset.x || player->getPosition().x >= WORLD_SIZE || player->getPosition().z <= _mapOffset.z || player->getPosition().z >= WORLD_SIZE)
-		{
-			_pathState = IDLE;
-		}
-
-		_pathFinding->findPath(enemy->getPosition(), player->getPosition(), _map);
-
-		_isAtGoal = false;
-		if (_pathFinding->foundGoal)
-		{
-			if (!_pathFinding->_pathToEnd.empty())
-			{
-				_targetPos = _pathFinding->_pathToEnd[0];
-			}
-			_pathState = FOUND_GOAL;
-			_newPathTimer = SDL_GetTicks();
-		}
+		_pathfind();
 	}break;
 	case FOUND_GOAL:
 	{
@@ -602,7 +548,7 @@ void Hydra::Component::EnemyComponent::_robot(float delta)
 	}break;
 	}
 
-	_playerSeen = _checkLine(_map, enemy->getPosition(), player->getPosition());
+	_playerSeen = _checkLOS(_map, enemy->getPosition(), player->getPosition());
 
 	if (_playerSeen == false)
 	{
@@ -647,35 +593,7 @@ void Hydra::Component::EnemyComponent::_alienBoss(float delta)
 	}break;
 	case SEARCHING:
 	{
-		if (SDL_GetTicks() > _timer + 5000)
-		{
-			_timer = SDL_GetTicks();
-			_pathState = IDLE;
-		}
-
-		if (glm::length(enemy->getPosition() - player->getPosition()) < _range)
-		{
-			_isAtGoal = true;
-			_pathState = ATTACKING;
-		}
-
-		if (player->getPosition().x <= _mapOffset.x || player->getPosition().x >= WORLD_SIZE || player->getPosition().z <= _mapOffset.z || player->getPosition().z >= WORLD_SIZE)
-		{
-			_pathState = IDLE;
-		}
-
-		_pathFinding->findPath(enemy->getPosition(), player->getPosition(), _map);
-		_isAtGoal = false;
-
-		if (_pathFinding->foundGoal)
-		{
-			if (!_pathFinding->_pathToEnd.empty())
-			{
-				_targetPos = _pathFinding->_pathToEnd[0];
-			}
-			_pathState = FOUND_GOAL;
-			_newPathTimer = SDL_GetTicks();
-		}
+		_pathfind();
 	}break;
 	case FOUND_GOAL:
 	{
@@ -907,6 +825,51 @@ void Hydra::Component::EnemyComponent::_mapUpdateEnemy()
 			_oldMapPosZ = this->getPosition().z;
 		}
 		_map[_oldMapPosX][_oldMapPosZ] = 2;
+	}
+}
+
+void Hydra::Component::EnemyComponent::_pathfind()
+{
+	auto enemy = entity->getComponent<Component::TransformComponent>();
+	std::shared_ptr<Hydra::World::IEntity> playerEntity = getPlayerComponent();
+	auto player = playerEntity->getComponent<Component::PlayerComponent>();
+
+	if (SDL_GetTicks() > _timer + 5000)
+	{
+		_pathState = IDLE;
+	}
+	if (glm::length(enemy->getPosition() - player->getPosition()) < _range)
+	{
+		_isAtGoal = true;
+		_pathFinding->foundGoal = true;
+		_pathState = ATTACKING;
+	}
+
+	if (player->getPosition().x <= _mapOffset.x || player->getPosition().x >= WORLD_SIZE || player->getPosition().z <= _mapOffset.z || player->getPosition().z >= WORLD_SIZE)
+	{
+		_pathState = IDLE;
+	}
+
+	_pathFinding->findPath(enemy->getPosition(), player->getPosition(), _map);
+	_isAtGoal = false;
+
+
+	if (_pathFinding->foundGoal)
+	{
+		if (!_pathFinding->_pathToEnd.empty())
+		{
+			_targetPos = _pathFinding->_pathToEnd[0];
+		}
+		_pathState = FOUND_GOAL;
+		_newPathTimer = SDL_GetTicks();
+	}
+}
+
+void Hydra::Component::EnemyComponent::_checkHealth()
+{
+	if (_health <= 0)
+	{
+		entity->markDead();
 	}
 }
 

@@ -106,12 +106,14 @@ namespace Hydra::Component {
 		int _oldMapPosZ;
 
 		// Private functions
-		bool _checkLine(int levelmap[WORLD_SIZE][WORLD_SIZE], glm::vec3 A, glm::vec3 B);
+		bool _checkLOS(int levelmap[WORLD_SIZE][WORLD_SIZE], glm::vec3 A, glm::vec3 B);
 		void _alien(float delta);
 		void _robot(float delta);
 		void _alienBoss(float delta);
 		void _alienSpawner(float delta);
 		void _robotSpawner(float delta);
 		void _mapUpdateEnemy();
+		void _pathfind();
+		void _checkHealth();
 	};
 };
