@@ -171,7 +171,7 @@ namespace Barcode {
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 			
-			batch.output = Hydra::Renderer::GLFramebuffer::create(glm::vec2(1024), 0);
+			batch.output = Hydra::Renderer::GLFramebuffer::create(glm::vec2(512), 0);
 			batch.output->addTexture(0, Hydra::Renderer::TextureType::f16Depth).finalize();
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
@@ -856,6 +856,7 @@ namespace Barcode {
 		_light->setDirection(glm::vec3(0, 0, -1));
 		_light->setColor(glm::vec3(1));
 		lightEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(8.0, 0, 3.5));
+		lightEntity->addComponent<Hydra::Component::MeshComponent>("assets/objects/CylinderContainer.ATTIC");
 
 		BlueprintLoader::save("world.blueprint", "World Blueprint", _world->getWorldRoot());
 		auto bp = BlueprintLoader::load("world.blueprint");
