@@ -24,14 +24,14 @@ void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 {
 	if (!intializedStartGoal) 
 	{
-		clearOpenList();
+		_openList.clear();
 		_visitedList.clear();
 		_pathToEnd.clear();
 		
 		_startCell = std::make_shared<Node>(currentPos.x / CELL_SIZE, currentPos.z / CELL_SIZE, nullptr);
 		_endCell = std::make_shared<Node>(targetPos.x / CELL_SIZE, targetPos.z / CELL_SIZE, nullptr);
 
-		_startCell->H = _startCell->distanceTo(_endCell);
+		_startCell->H = _startCell->hDistanceTo(_endCell);
 		_openList.push_back(_startCell);
 
 		foundGoal = false;
@@ -148,12 +148,12 @@ void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode, in
 	}
 
 	//Check if this node has had a better path to it before
-	float thisPathF = lastNode->G + lastNode->distanceTo(thisNode) + thisNode->distanceTo(_endCell);
+	float thisPathF = lastNode->G + lastNode->gDistanceTo(thisNode) + thisNode->hDistanceTo(_endCell);
 	//If this is a better path than previously, replace the old path values
 	if (thisNode->getF() > thisPathF)
 	{
-		thisNode->G = lastNode->G + lastNode->distanceTo(thisNode);
-		thisNode->H = thisNode->distanceTo(_endCell);
+		thisNode->G = lastNode->G + lastNode->gDistanceTo(thisNode);
+		thisNode->H = thisNode->hDistanceTo(_endCell);
 		thisNode->lastNode = lastNode;
 	}
 	std::sort(_openList.begin(), _openList.end(), comparisonFunctor);

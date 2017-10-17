@@ -55,24 +55,33 @@ public:
 		}
 
 		float getF() { F = G + H; return F; }
-		//Manhattan Distance
-		//float distanceTo(std::shared_ptr<Node> nodeEnd)
+
+		//Manhattan Distance - should not be used, may give invalid values
+		//float hDistanceTo(std::shared_ptr<Node> nodeEnd)
 		//{
 		//	float x = fabs((float)(this->pos.x() - nodeEnd->pos.x()));
 		//	float z = fabs((float)(this->pos.z() - nodeEnd->pos.z()));
 		//	return x + z;
 		//}
-		//Chebychev Distance
-		//float distanceTo(std::shared_ptr<Node> nodeEnd)
+
+		//Chebychev Distance - inaccurate but pretty safe
+		//float hDistanceTo(std::shared_ptr<Node> nodeEnd)
 		//{
 		//	float x = fabs((float)(this->pos.x() - nodeEnd->pos.x()));
 		//	float z = fabs((float)(this->pos.z() - nodeEnd->pos.z()));
 		//	return std::fmax(x, z);
 		//}
-		//Actual Distance
-		float distanceTo(std::shared_ptr<Node> nodeEnd)
+
+		//Actual Distance - probably the best maybe, float inaccuracies may break it
+		float hDistanceTo(std::shared_ptr<Node> nodeEnd)
 		{
 			return std::sqrt(std::pow(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::pow(this->pos.z() - nodeEnd->pos.z(), 2.0f));
+		}
+
+		//Must always be used to calculate G distance
+		float gDistanceTo(std::shared_ptr<Node> nodeEnd)
+		{
+			return std::sqrt(std::pow(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::pow(this->pos.z() - nodeEnd->pos.z(), 2.0f)) * 0.99;
 		}
 		bool operator<(Node& other) { return this->getF() < other.getF(); }
 		bool operator==(Node& other) { return this->getF() == other.getF(); }
