@@ -74,7 +74,7 @@ void main() {
 		outData.normal = normalize(normalMatrix * inData[i].normal);
 
 		outData.color = inData[i].color;
-		outData.uv = inData[i].uv;
+		outData.uv = vec2(inData[i].uv.x, 1 - inData[i].uv.y);
 		outData.tbn = calcTBN(normalMatrix, inData[i].normal, i);
 
 		gl_Position = p * v * pos;
