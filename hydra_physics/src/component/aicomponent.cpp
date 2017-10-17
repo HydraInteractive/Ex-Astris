@@ -108,10 +108,10 @@ void EnemyComponent::tick(TickAction action, float delta) {
 		//{
 		//	_map[(int)_pathFinding->_openList[i]->m_xcoord][(int)_pathFinding->_openList[i]->m_zcoord] = 3;
 		//}
-		for (int i = 0; i < _pathFinding->_pathToEnd.size(); i++)
-		{
-			_map[(int)_pathFinding->_pathToEnd[i].x][(int)_pathFinding->_pathToEnd[i].z] = 3;
-		}
+		//for (int i = 0; i < _pathFinding->_pathToEnd.size(); i++)
+		//{
+		//	_map[(int)_pathFinding->_pathToEnd[i].x][(int)_pathFinding->_pathToEnd[i].z] = 3;
+		//}
 }
 
 glm::vec3 EnemyComponent::getPosition()
@@ -459,7 +459,7 @@ void Hydra::Component::EnemyComponent::_alien(float delta)
 		_range = _originalRange;
 	}
 
-	_position = _position + glm::vec3(_velocityX, _velocityY, _velocityZ);
+	_position = _position + _velocity;
 	enemy->setPosition(_position);
 	enemy->setRotation(_rotation);
 
@@ -534,8 +534,8 @@ void Hydra::Component::EnemyComponent::_robot(float delta)
 
 				glm::vec3 direction = glm::normalize(targetDistance);
 
-				_velocityX = (4.0f * direction.x) * delta;
-				_velocityZ = (4.0f * direction.z) * delta;
+				_velocity.x = (4.0f * direction.x) * delta;
+				_velocity.z = (4.0f * direction.z) * delta;
 
 				if (glm::length(enemy->getPosition() - player->getPosition()) < _range)
 				{
@@ -616,7 +616,7 @@ void Hydra::Component::EnemyComponent::_robot(float delta)
 		_range = _originalRange;
 	}
 
-	_position = _position + glm::vec3(_velocityX, _velocityY, _velocityZ);
+	_position = _position + _velocity;
 	enemy->setPosition(_position);
 	enemy->setRotation(_rotation);
 }
@@ -691,8 +691,8 @@ void Hydra::Component::EnemyComponent::_alienBoss(float delta)
 
 				glm::vec3 direction = glm::normalize(targetDistance);
 
-				_velocityX = (7.0f * direction.x) * delta;
-				_velocityZ = (7.0f * direction.z) * delta;
+				_velocity.x = (7.0f * direction.x) * delta;
+				_velocity.z = (7.0f * direction.z) * delta;
 
 				if (glm::length(enemy->getPosition() - player->getPosition()) < _range)
 				{
@@ -814,7 +814,7 @@ void Hydra::Component::EnemyComponent::_alienBoss(float delta)
 	}break;
 	}
 
-	_position = _position + glm::vec3(_velocityX, _velocityY, _velocityZ);
+	_position = _position + _velocity;
 	enemy->setPosition(_position);
 	enemy->setRotation(_rotation);
 }
