@@ -11,6 +11,6 @@
 #include <string>
 
 namespace Hydra::Ext {
-	HYDRA_API size_t getPeakRSS();
-	HYDRA_API size_t getCurrentRSS();
+	HYDRA_BASE_API size_t getPeakRSS();
+	HYDRA_BASE_API size_t getCurrentRSS();
 };

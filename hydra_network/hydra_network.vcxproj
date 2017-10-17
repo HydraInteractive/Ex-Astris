@@ -10,6 +10,12 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\hydra\component\componentmanager_network.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\component\componentmanager_network.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{A7E285FF-CA1B-45A7-BBF6-FBA0F859542E}</ProjectGuid>
@@ -56,7 +62,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_network/include;$(SolutionDir)/hydra/include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_NETWORK_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <DisableSpecificWarnings>4250;4251</DisableSpecificWarnings>
@@ -77,7 +83,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_network/include;$(SolutionDir)/hydra/include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_NETWORK_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4250;4251</DisableSpecificWarnings>
     </ClCompile>
@@ -89,12 +95,6 @@
       <SubSystem>NotSet</SubSystem>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="include\hydra\component\componentmanager_network.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\component\componentmanager_network.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

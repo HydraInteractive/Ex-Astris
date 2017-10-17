@@ -38,7 +38,7 @@ namespace Hydra::Renderer {
 		textureCoordInfo = 13
 	};
 
-	struct HYDRA_API Vertex final {
+	struct HYDRA_BASE_API Vertex final {
 		glm::vec3 position;
 		glm::vec3 normal;
 		glm::vec3 color;
@@ -48,7 +48,7 @@ namespace Hydra::Renderer {
 		glm::ivec4 controllers{};
 	};
 
-	class HYDRA_API ITexture {
+	class HYDRA_BASE_API ITexture {
 	public:
 		virtual ~ITexture() = 0;
 
@@ -64,7 +64,7 @@ namespace Hydra::Renderer {
 	};
 	inline ITexture::~ITexture() {}
 
-	class HYDRA_API IRenderTarget : public ITexture {
+	class HYDRA_BASE_API IRenderTarget : public ITexture {
 	public:
 		virtual ~IRenderTarget() = 0;
 		inline void setRepeat() final{}
@@ -72,7 +72,7 @@ namespace Hydra::Renderer {
 	};
 	inline IRenderTarget::~IRenderTarget() {}
 
-	enum class HYDRA_API TextureType {
+	enum class HYDRA_BASE_API TextureType {
 		u8R = 0,
 		u8RG,
 		u8RGB,
@@ -94,14 +94,13 @@ namespace Hydra::Renderer {
 		f32Depth
 	};
 
-	class HYDRA_API IFramebuffer : public IRenderTarget {
+	class HYDRA_BASE_API IFramebuffer : public IRenderTarget {
 	public:
 		virtual ~IFramebuffer() = 0;
 
 		virtual IFramebuffer& addTexture(size_t id, TextureType type) = 0;
 
 		virtual void finalize() = 0;
-		inline void bind(size_t) final {}
 
 		virtual std::shared_ptr<ITexture> getDepth() = 0;
 
@@ -113,14 +112,14 @@ namespace Hydra::Renderer {
 	};
 	inline IFramebuffer::~IFramebuffer() {}
 
-	struct HYDRA_API Material final {
+	struct HYDRA_BASE_API Material final {
 		std::shared_ptr<ITexture> diffuse;
 		std::shared_ptr<ITexture> normal;
 		std::shared_ptr<ITexture> glow;
 		std::shared_ptr<ITexture> specular;
 	};
 
-	class HYDRA_API IMesh {
+	class HYDRA_BASE_API IMesh {
 	public:
 		virtual ~IMesh() = 0;
 
@@ -141,20 +140,20 @@ namespace Hydra::Renderer {
 	// Components updates this object
 	// Renderer uses these to know what to render and where
 	// TODO: Maybe add DrawObject for transparent stuff or just field
-	struct HYDRA_API DrawObject final {
+	struct HYDRA_BASE_API DrawObject final {
 		std::vector<glm::mat4> transfomationMatrices;
-		int refCounter = 0;
+		size_t refCounter = 0;
 		bool disable = false; // Temporarily disable object
 		IMesh* mesh = nullptr; // & Material // TODO: Change to something else than IMesh?
 		glm::mat4 modelMatrix = glm::mat4(1);
 	};
 
-	struct HYDRA_API Camera final {
+	struct HYDRA_BASE_API Camera final {
 		glm::mat4 viewMatrix;
 		glm::mat4 projectionMatrix;
 	};
 
-	enum class HYDRA_API ClearFlags {
+	enum class HYDRA_BASE_API ClearFlags {
 		none = 0,
 		color = 1 << 0,
 		depth = 1 << 1
@@ -162,7 +161,7 @@ namespace Hydra::Renderer {
 	inline ClearFlags operator| (ClearFlags a, ClearFlags b) { return static_cast<ClearFlags>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b)); }
 	inline ClearFlags operator& (ClearFlags a, ClearFlags b) { return static_cast<ClearFlags>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b)); }
 
-	struct HYDRA_API Batch {
+	struct HYDRA_BASE_API Batch {
 		glm::vec4 clearColor;
 		ClearFlags clearFlags;
 		IRenderTarget* renderTarget;
@@ -170,7 +169,7 @@ namespace Hydra::Renderer {
 		std::map<IMesh*, std::vector<glm::mat4 /* Model matrix */>> objects;
 	};
 
-	struct HYDRA_API ParticleBatch {
+	struct HYDRA_BASE_API ParticleBatch {
 		glm::vec4 clearColor;
 		ClearFlags clearFlags;
 		IRenderTarget* renderTarget;
@@ -179,7 +178,7 @@ namespace Hydra::Renderer {
 		std::vector<glm::vec2> textureInfo;
 	};
 
-	class HYDRA_API IRenderer {
+	class HYDRA_BASE_API IRenderer {
 	public:
 		virtual ~IRenderer() = 0;
 

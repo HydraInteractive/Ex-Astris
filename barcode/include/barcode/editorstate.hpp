@@ -1,3 +1,4 @@
+#if 0
 /**
 * Editor state
 *
@@ -6,7 +7,6 @@
 *  - Dan Printzell
 */
 #pragma once
-
 #include <hydra/engine.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/renderer/renderer.hpp>
@@ -14,14 +14,15 @@
 #include <hydra/io/meshloader.hpp>
 #include <hydra/io/textureloader.hpp>
 #include <hydra/world/blueprintloader.hpp>
-#include <hydra/physics/bulletmanager.hpp>
 #include <hydra/renderer/glrenderer.hpp>
 #include <hydra/renderer/glshader.hpp>
 #include <hydra/io/gltextureloader.hpp>
 #include <hydra/io/glmeshloader.hpp>
 
+#include <hydra/system/bulletphysicssystem.hpp>
+
 #include <imgui/imgui.h>
-#include <barcode/ImporterMenu.hpp>
+/*#include <barcode/ImporterMenu.hpp>
 #include <barcode/ExporterMenu.hpp>
 
 #include <hydra/component/meshcomponent.hpp>
@@ -31,7 +32,7 @@
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/EditorCameraComponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
-#include <hydra/component/rigidbodycomponent.hpp>
+#include <hydra/component/rigidbodycomponent.hpp>*/
 
 #include <hydra/io/input.hpp>
 
@@ -48,13 +49,13 @@ namespace Barcode {
 		void load() final;
 		int currentFrame = 0;
 		void runFrame(float delta) final;
-
-		inline Hydra::World::IWorld* getWorld() final { return _world.get(); };
+;
 		inline Hydra::IO::ITextureLoader* getTextureLoader() final { return _textureLoader.get(); }
 		inline Hydra::IO::IMeshLoader* getMeshLoader() final { return _meshLoader.get(); }
-		inline Hydra::Physics::IPhysicsManager* getPhysicsManager() final { return _physicsManager.get(); }
+		inline Hydra::World::ISystem* getPhysicsSystem() final { return &_physicsSystem; }
 
 	private:
+		/*
 		ImporterMenu* _importerMenu;
 		ExporterMenu* _exporterMenu;
 		bool _showImporter = false;
@@ -82,12 +83,11 @@ namespace Barcode {
 			Hydra::Renderer::ParticleBatch batch;
 		};
 
-		Hydra::IEngine* _engine;
-		std::unique_ptr<Hydra::World::IWorld> _world;
+		Hydra::IEngine* _engine;*/
 		std::unique_ptr<Hydra::IO::ITextureLoader> _textureLoader;
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
-		std::unique_ptr<Hydra::Physics::IPhysicsManager> _physicsManager;
-
+		Hydra::System::BulletPhysicsSystem _physicsSystem;
+		/*
 		RenderBatch _geometryBatch; // First part of deferred rendering
 		RenderBatch _animationBatch; // AnimationBatch
 		RenderBatch _lightingBatch; // Second part of deferred rendering
@@ -128,6 +128,7 @@ namespace Barcode {
 
 		void _initWorld();
 
-		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int &nrOfTimes, glm::vec2 size);
+		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int &nrOfTimes, glm::vec2 size);*/
 	};
 }
+#endif

@@ -32,28 +32,14 @@
 using namespace Hydra::World;
 
 namespace Hydra::Component {
-	class HYDRA_API PointLightComponent final : public IComponent{
-	private:
-		glm::vec3 _position;
-		glm::vec3 _color;
-		float _constant;
-		float _linear;
-		float _quadratic;
-	public:
-		PointLightComponent(IEntity* entity);
-		PointLightComponent(IEntity* entity, Hydra::Renderer::IRenderTarget* renderTarget, const glm::vec3& position = { 0, 0, 0 });
+	struct HYDRA_GRAPHICS_API PointLightComponent final : public IComponent<PointLightComponent, ComponentBits::PointLight> {
+		glm::vec3 position = glm::vec3{0, 0, 0};
+		glm::vec3 color = glm::vec3{1, 1, 1};
+		float constant = 1;
+		float linear = 0.045;
+		float quadratic = 0.0075;
+
 		~PointLightComponent() final;
-
-		void setPosition(const glm::vec3& position) { this->entity->getComponent<Hydra::Component::TransformComponent>()->setPosition(position); }
-		void setColor(const glm::vec3& color) { _color = color; }
-		inline const glm::vec3& getPosition() { return _position; }
-		inline const glm::vec3& getColor() { return _color; }
-		inline const float& getConstant() { return _constant; }
-		inline const float& getLinear() { return _linear; }
-		inline const float& getQuadratic() { return _quadratic; }
-
-		void tick(TickAction action, float delta);
-		TickAction wantTick() const { return TickAction::physics; }
 
 		const std::string type() const final { return "PointLightComponent"; }
 

@@ -14,12 +14,12 @@
 
 namespace Hydra::Renderer {
 	namespace GLShader {
-		HYDRA_API std::unique_ptr<IShader> createFromSource(PipelineStage stage, const std::string& file);
+		HYDRA_GRAPHICS_API std::unique_ptr<IShader> createFromSource(PipelineStage stage, const std::string& file);
 
 		// TODO: Implement createFromBinary -- https://www.khronos.org/opengl/wiki/Shader_Compilation#Binary_upload
 	};
 
 	namespace GLPipeline {
-		HYDRA_API std::unique_ptr<IPipeline> create();
+		HYDRA_GRAPHICS_API std::unique_ptr<IPipeline> create();
 	};
 }

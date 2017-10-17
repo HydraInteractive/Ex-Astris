@@ -138,7 +138,7 @@ void main() {
 	//	brightOutput = fragOutput;
 
 	if(glowAmnt > 0)
-		brightOutput = vec3(0);
+		brightOutput = fragOutput;
 	else
 		brightOutput = vec3(0);
 }

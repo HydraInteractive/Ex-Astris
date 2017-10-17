@@ -127,7 +127,7 @@ namespace ImGui
                                  const float shadow_alpha = 0.075f);
 
     /// Struct containing TabBar data
-    IMGUI_API struct TabBar{
+    struct IMGUI_API TabBar{
 
         /// Constructor
         TabBar(const char* label, const ImVec2 tab_bar_size);
@@ -187,7 +187,7 @@ namespace ImGui
     };
 
     /// Struct containing global TabBar status
-    IMGUI_API struct TabBarStack{
+	struct IMGUI_API TabBarStack{
         /// Vector containing all of our tab bars
         std::vector <TabBar> TabBars;
 

@@ -24,11 +24,11 @@ public:
 		
 		float& x() { return baseVec.x; }
 		float& z() { return baseVec.y; }
-		glm::vec3& vec3() { return glm::vec3(baseVec.x, 0, baseVec.y); }
+		operator glm::vec3() { return glm::vec3(baseVec.x, 0, baseVec.y); }
 		void set(glm::vec2 &vec) { baseVec = vec; }
 		void set(glm::vec3 &vec) { baseVec = glm::vec2(vec.x,vec.z); }
-		glm::vec3 MapVec::operator=(glm::vec3 vec) { return glm::vec3(baseVec.x, 0, baseVec.y); }
-		glm::vec2 MapVec::operator=(glm::vec2 vec) { return baseVec; }
+		//glm::vec3 operator&() { return glm::vec3(baseVec.x, 0, baseVec.y); }
+		//glm::vec2 operator&() { return baseVec; }
 	};
 	struct Node
 	{
