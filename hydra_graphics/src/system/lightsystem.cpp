@@ -20,6 +20,10 @@ void LightSystem::tick(float delta) {
 		auto l = entities[i]->getComponent<Hydra::Component::LightComponent>();
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 		l->position = t->position;
+		// ALWAYS ORIENTAT AROUND FIXED UP AND FORWARD.
+		l->direction = t->rotation * glm::vec3(0,0,-1);
+		l->up = t->rotation * glm::vec3(0,1,0);
+		printf("%f, %f, %f, %f\n", t->rotation.x, t->rotation.y, t->rotation.z, t->rotation.w);
 	}
 
 	//Process PointLightComponent

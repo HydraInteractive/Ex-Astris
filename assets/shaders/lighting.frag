@@ -111,20 +111,23 @@ void main() {
 	float closestDepth = texture(depthMap, projCoords.xy).r;
 	float currentDepth = projCoords.z;
 	
-	float bias = max(0.05 * (1.0 - dot(normal, dirLight.dir)), 0.005);
-	//float shadow = 0.0;
-	//vec2 texelSize = 1.0 / textureSize(depthMap, 0);
+	float bias = max(0.001 * (1.0 - dot(normal, dirLight.dir)), 0.001);
+	float shadow = 0.0;
+	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
 	// PCF
-	//for(int x = -1; x <= 1; x++) {
-	//	for(int y = -1; y <= 1; y++) {
-	//		float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
-	//		shadow += currentDepth - bias > pcfDepth ? 1 : 0;
-	//	}
-	//}
+	for(int x = -1; x <= 1; x++) {
+		for(int y = -1; y <= 1; y++) {
+			float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
+			shadow += currentDepth - bias > pcfDepth ? 1 : 0;
+		}
+	}
 
-	float shadow = 1.0f;
-	if(currentDepth - bias > closestDepth)
-		shadow = 0;
+	shadow /= 9;
+	shadow = 1 - shadow;
+
+	//float shadow = 1.0f;
+	//if(currentDepth - bias > closestDepth)
+	//	shadow = 0;
 
 	result *= shadow;
 	result += globalAmbient;
