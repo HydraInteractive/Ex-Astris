@@ -19,7 +19,7 @@ namespace Barcode {
 		{
 			auto& batch = _viewBatch;
 			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/view.vert");
-			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/view.frag");
+			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/null.frag");
 
 			batch.pipeline = Hydra::Renderer::GLPipeline::create();
 			batch.pipeline->attachStage(*batch.vertexShader);
@@ -53,7 +53,7 @@ namespace Barcode {
 				_engine->quit();
 			ImGui::End();
 
-			_engine->getRenderer()->render(_viewBatch.batch);
+			_engine->getView()->bind(0);
 		}
 	}
 

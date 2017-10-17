@@ -114,7 +114,14 @@ namespace Barcode {
 		void log(LogLevel level, const char* fmt, ...) {
 			va_list va;
 			va_start(va, fmt);
+#ifdef __linux__
+			static const char* color[] = {"\x1b[39;1m", "\x1b[33;1m", "\x1b[31;1m", "\x1b[37;41;1m"};
+			fputs(color[static_cast<int>(level)], stderr);
+#endif
 			vfprintf(stderr, fmt, va);
+#ifdef __linux__
+			fputs("\x1b[0m", stderr);
+#endif
 			fputc('\n', stderr);
 			va_end(va);
 

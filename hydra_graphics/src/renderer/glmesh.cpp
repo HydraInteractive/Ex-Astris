@@ -27,7 +27,7 @@ public:
 	}
 
 	GLMeshImpl(const std::string& file, GLuint modelMatrixBuffer) {
-
+		_file = file;
 		_currentFrame = 1;
 		_currentAnimationIndex = 0;
 		_loadATTICModel(file.c_str(), modelMatrixBuffer);
@@ -106,6 +106,7 @@ public:
 	size_t getIndicesCount() const final { return _indicesCount; }
 
 private:
+	std::string _file = "(null)";
 	Material _material;
 	GLuint _vao; // Vertex Array
 	GLuint _vbo; // Vertices

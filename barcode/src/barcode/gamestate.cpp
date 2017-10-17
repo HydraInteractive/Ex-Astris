@@ -357,7 +357,8 @@ namespace Barcode {
 			_shadowBatch.pipeline->setValue(0, _light->getViewMatrix());
 			_shadowBatch.pipeline->setValue(1, _light->getProjectionMatrix());
 
-			_engine->getRenderer()->render(_shadowBatch.batch);
+			//_engine->getRenderer()->render(_shadowBatch.batch);
+			_engine->getRenderer()->renderShadows(_shadowBatch.batch);
 		}
 
 		static bool enableSSAO = true;
@@ -511,7 +512,6 @@ namespace Barcode {
 			const int x = _engine->getView()->getSize().x / 2;
 			const ImVec2 pos = ImVec2(x, _engine->getView()->getSize().y / 2);
 
-
 			//Crosshair
 			ImGui::SetNextWindowPos(pos + ImVec2(-10, 1));
 			ImGui::SetNextWindowSize(ImVec2(20, 20));
@@ -544,7 +544,6 @@ namespace Barcode {
 			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/AmmoOnRing.png")->getID()), ImVec2(22, offsetAmmo), ImVec2(0, 1 - ammoP * 0.01), ImVec2(1, 1));
 			ImGui::End();
 
-
 			//compas that turns with player
 			float degreesP = ((float(100) / float(360) * degrees)/100);
 			float degreesO = float(1000) * degreesP;
@@ -554,7 +553,6 @@ namespace Barcode {
 			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/CompassCut.png")->getID()), ImVec2(550, 20), ImVec2(degreesO / float(1000), 0), ImVec2((float(1) - ((float(450) - degreesO) / float(1000))), 1));
 			_textureLoader->getTexture("assets/hud/CompassCut.png")->setRepeat();
 			ImGui::End();
-
 
 			//Enemys on compas
 			int i = 0;
@@ -719,10 +717,12 @@ namespace Barcode {
 			//ImGui::PopStyleVar();
 		}
 
+
 		{ // Sync with network
 			// _world->tick(TickAction::network, delta);
 		}
 	}
+
 	void GameState::_initSystem() {
 		const std::vector<Hydra::World::ISystem*> systems = {_engine->getDeadSystem(), &_cameraSystem, &_lightSystem, &_particleSystem, &_abilitySystem, &_aiSystem, &_physicsSystem, &_bulletSystem, &_playerSystem, &_rendererSystem};
 		_engine->getUIRenderer()->registerSystems(systems);
@@ -792,7 +792,7 @@ namespace Barcode {
 			p4LC->position = glm::vec3(45, 0, 45);
 			p4LC->color = glm::vec3(1, 0, 0);
 		}
-		
+
 		{
 			auto test = world::newEntity("test", world::root);
 			test->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
@@ -805,24 +805,24 @@ namespace Barcode {
 			t->position = glm::vec3(8, 0, 33);
 		}{
 			auto wall2 = world::newEntity("Wall2", world::root);
-			wall2->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Wall_V4.ATTIC");
+			wall2->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Wall_V4.mATTIC");
 			auto t = wall2->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(55, 0, 15);
 		}{
 			auto wall3 = world::newEntity("Wall3", world::root);
-			wall3->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Wall_V4.ATTIC");
+			wall3->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Wall_V4.mATTIC");
 			auto t = wall3->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(19.5, 0, -13);
 		}{
 			auto roof = world::newEntity("Roof", world::root);
-			roof->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Roof1.ATTIC");
+			roof->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Roof_V2.mATTIC");
 			auto t = roof->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(14, 8, 9);
 			t->scale = glm::vec3(40, 40, 40);
 			t->rotation = glm::quat(0, 0, 0, 1);
 		}{
 			auto floor = world::newEntity("Floor", world::root);
-			floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.ATTIC");
+			floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(14, -8, 9);
 		}

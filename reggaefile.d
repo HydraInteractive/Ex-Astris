@@ -23,7 +23,7 @@ enum LFlagsHydraGraphicsLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/ba
 enum LFlagsHydraNetworkLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -lhydra -lhydra_graphics -lSDL2_net";
 enum LFlagsHydraPhysicsLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -lhydra -lhydra_graphics -lSDL2 -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath";
 enum LFlagsHydraSoundLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -lhydra -lhydra_graphics -lSDL2_mixer";
-enum LFlagsExec = "-O0 -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath " ~ SubProjectsLink;
+enum LFlagsExec = "-O0 -rdynamic -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath " ~ SubProjectsLink;
 
 enum CompileCommand : string {
 	CompileExec = "g++ -c " ~ CFlagsExec ~ " $in -o $out",

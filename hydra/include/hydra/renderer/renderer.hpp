@@ -101,7 +101,6 @@ namespace Hydra::Renderer {
 		virtual IFramebuffer& addTexture(size_t id, TextureType type) = 0;
 
 		virtual void finalize() = 0;
-		inline void bind(size_t) final {}
 
 		virtual std::shared_ptr<ITexture> getDepth() = 0;
 
@@ -186,6 +185,7 @@ namespace Hydra::Renderer {
 		virtual void render(Batch& batch) = 0;
 		virtual void renderAnimation(Batch& batch) = 0;
 		virtual void render(ParticleBatch& batch) = 0;
+		virtual void renderShadows(Batch& batch) = 0;
 		// Note: this will ignore batch.objects
 		virtual void postProcessing(Batch& batch) = 0;
 
