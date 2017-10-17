@@ -75,11 +75,6 @@ void EnemyComponent::tick(float delta) {
 					if (glm::length(enemy->position - player->position) < 50)
 					{
 						_timer = SDL_GetTicks();
-						_pathFinding->intializedStartGoal = false;
-						_pathFinding->foundGoal = false;
-						_pathFinding->clearVisitedList();
-						_pathFinding->clearOpenList();
-						_pathFinding->clearPathToGoal();
 						_pathState = SEARCHING;
 					}
 				}
@@ -88,10 +83,10 @@ void EnemyComponent::tick(float delta) {
 			{
 				//While the enemy is searching, play the walking animation
 				drawObject->drawObject->mesh->setAnimationIndex(1);
-				if (SDL_GetTicks() > _timer + 5000)
-				{
-					_pathState = IDLE;
-				}
+				//if (SDL_GetTicks() > _timer + 5000)
+				//{
+				//	_pathState = IDLE;
+				//}
 				if (glm::length(enemy->position - player->position) < _range)
 				{
 					_isAtGoal = true;
@@ -103,7 +98,7 @@ void EnemyComponent::tick(float delta) {
 				{
 					_pathState = IDLE;
 				}
-
+				_pathFinding->intializedStartGoal = false;
 				_pathFinding->findPath(enemy->position, player->position, _map);
 				_isAtGoal = false;
 
@@ -143,17 +138,11 @@ void EnemyComponent::tick(float delta) {
 
 						if (glm::length(enemy->position - _targetPos) <= 4.0f)
 						{
-							_pathFinding->intializedStartGoal = false;
-							_pathFinding->foundGoal = false;
-							_pathFinding->clearPathToGoal();
 							_pathState = SEARCHING;
 							_timer = SDL_GetTicks();
 						}
 						else if (glm::length(player->position - _targetPos) > 25.0f)
 						{
-							_pathFinding->intializedStartGoal = false;
-							_pathFinding->foundGoal = false;
-							_pathFinding->clearPathToGoal();
 							_pathState = SEARCHING;
 							_timer = SDL_GetTicks();
 						}
@@ -162,9 +151,6 @@ void EnemyComponent::tick(float delta) {
 
 				if (SDL_GetTicks() > _newPathTimer + 4000)
 				{
-					_pathFinding->intializedStartGoal = false;
-					_pathFinding->foundGoal = false;
-					_pathFinding->clearPathToGoal();
 					_pathState = SEARCHING;
 					_timer = SDL_GetTicks();
 				}
@@ -181,9 +167,6 @@ void EnemyComponent::tick(float delta) {
 				drawObject->drawObject->mesh->setAnimationIndex(2);
 				if (glm::length(enemy->position - player->position) >= _range)
 				{
-					_pathFinding->intializedStartGoal = false;
-					_pathFinding->foundGoal = false;
-					_pathFinding->clearPathToGoal();
 					_pathState = SEARCHING;
 					_timer = SDL_GetTicks();
 				}
@@ -235,11 +218,6 @@ void EnemyComponent::tick(float delta) {
 					if (glm::length(enemy->position - player->position) < 50)
 					{
 						_timer = SDL_GetTicks();
-						_pathFinding->intializedStartGoal = false;
-						_pathFinding->foundGoal = false;
-						_pathFinding->clearVisitedList();
-						_pathFinding->clearOpenList();
-						_pathFinding->clearPathToGoal();
 						_pathState = SEARCHING;
 					}
 				}
@@ -263,7 +241,7 @@ void EnemyComponent::tick(float delta) {
 				{
 					_pathState = IDLE;
 				}
-
+				_pathFinding->intializedStartGoal = false;
 				_pathFinding->findPath(enemy->position, player->position, _map);
 
 				_isAtGoal = false;
@@ -302,17 +280,11 @@ void EnemyComponent::tick(float delta) {
 
 						if (glm::length(enemy->position - _targetPos) <= 8.0f)
 						{
-							_pathFinding->intializedStartGoal = false;
-							_pathFinding->foundGoal = false;
-							_pathFinding->clearPathToGoal();
 							_pathState = SEARCHING;
 							_timer = SDL_GetTicks();
 						}
 						else if (glm::length(player->position - _targetPos) > 25.0f)
 						{
-							_pathFinding->intializedStartGoal = false;
-							_pathFinding->foundGoal = false;
-							_pathFinding->clearPathToGoal();
 							_pathState = SEARCHING;
 							_timer = SDL_GetTicks();
 						}
@@ -321,9 +293,6 @@ void EnemyComponent::tick(float delta) {
 
 				if (SDL_GetTicks() > _newPathTimer + 4000)
 				{
-					_pathFinding->intializedStartGoal = false;
-					_pathFinding->foundGoal = false;
-					_pathFinding->clearPathToGoal();
 					_pathState = SEARCHING;
 					_timer = SDL_GetTicks();
 				}
@@ -337,9 +306,6 @@ void EnemyComponent::tick(float delta) {
 			{
 				if (glm::length(enemy->position - player->position) > _range)
 				{
-					_pathFinding->intializedStartGoal = false;
-					_pathFinding->foundGoal = false;
-					_pathFinding->clearPathToGoal();
 					_pathState = SEARCHING;
 					_timer = SDL_GetTicks();
 				}
@@ -422,11 +388,6 @@ void EnemyComponent::tick(float delta) {
 					if (glm::length(enemy->position - player->position) < 50)
 					{
 						_timer = SDL_GetTicks();
-						_pathFinding->intializedStartGoal = false;
-						_pathFinding->foundGoal = false;
-						_pathFinding->clearVisitedList();
-						_pathFinding->clearOpenList();
-						_pathFinding->clearPathToGoal();
 						_pathState = SEARCHING;
 					}
 				}
@@ -449,7 +410,7 @@ void EnemyComponent::tick(float delta) {
 				{
 					_pathState = IDLE;
 				}
-
+				_pathFinding->intializedStartGoal = false;
 				_pathFinding->findPath(enemy->position, player->position, _map);
 				_isAtGoal = false;
 
@@ -489,17 +450,11 @@ void EnemyComponent::tick(float delta) {
 
 						if (glm::length(enemy->position - _targetPos) <= 6.0f)
 						{
-							_pathFinding->intializedStartGoal = false;
-							_pathFinding->foundGoal = false;
-							_pathFinding->clearPathToGoal();
 							_pathState = SEARCHING;
 							_timer = SDL_GetTicks();
 						}
 						else if (glm::length(player->position - _targetPos) > 25.0f)
 						{
-							_pathFinding->intializedStartGoal = false;
-							_pathFinding->foundGoal = false;
-							_pathFinding->clearPathToGoal();
 							_pathState = SEARCHING;
 							_timer = SDL_GetTicks();
 						}
@@ -508,9 +463,6 @@ void EnemyComponent::tick(float delta) {
 
 				if (SDL_GetTicks() > _newPathTimer + 4000)
 				{
-					_pathFinding->intializedStartGoal = false;
-					_pathFinding->foundGoal = false;
-					_pathFinding->clearPathToGoal();
 					_pathState = SEARCHING;
 					_timer = SDL_GetTicks();
 				}
@@ -524,9 +476,6 @@ void EnemyComponent::tick(float delta) {
 			{
 				if (glm::length(enemy->position - player->position) > _range && _stunned == false)
 				{
-					_pathFinding->intializedStartGoal = false;
-					_pathFinding->foundGoal = false;
-					_pathFinding->clearPathToGoal();
 					_pathState = SEARCHING;
 					_timer = SDL_GetTicks();
 				}

@@ -90,12 +90,6 @@ public:
 
 	void findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, int(&map)[WORLD_SIZE][WORLD_SIZE]);
 	glm::vec3& nextPathPos(const glm::vec3& pos, const float& radius);
-	void clearVisitedList() { _visitedList.clear(); }
-	void clearOpenList()
-	{ 
-		_openList.clear();
-	}
-	void clearPathToGoal() { _pathToEnd.clear(); }
 
 	bool intializedStartGoal;
 	bool foundGoal;
@@ -118,8 +112,8 @@ public:
 	std::vector<MapVec> _pathToEnd;
 private:
 	std::vector<std::shared_ptr<Node>> _openList;
-	std::shared_ptr<Node> _startCell;
-	std::shared_ptr<Node> _endCell;
+	std::shared_ptr<Node> _startNode;
+	std::shared_ptr<Node> _endNode;
 
 	void _discoverNode(int x, int z, std::shared_ptr<Node> lastNode, int(&map)[WORLD_SIZE][WORLD_SIZE]);
 };
