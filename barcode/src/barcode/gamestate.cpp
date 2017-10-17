@@ -745,12 +745,13 @@ namespace Barcode {
 
 		{
 			auto playerEntity = world::newEntity("Player", world::root);
-			playerEntity->addComponent<Hydra::Component::PlayerComponent>();
+			auto p = playerEntity->addComponent<Hydra::Component::PlayerComponent>();
+			p->position = glm::vec3{0, 0, 20};
 			auto c = playerEntity->addComponent<Hydra::Component::CameraComponent>();
 			c->renderTarget = _geometryBatch.output.get();
-			c->position = glm::vec3{ 5, 0, -3 };
+			//c->position = glm::vec3{ 5, 0, -3 };
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3(0, 0, 0);
+			//t->position = glm::vec3(0, 0, 0);
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
 				weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
@@ -836,10 +837,12 @@ namespace Barcode {
 			t->position = glm::vec3(8.0, 0, 3.5);
 		}
 
-		/*		BlueprintLoader::save("world.blueprint", "World Blueprint", world::root);
-		Hydra::World::World::reset();
-		auto bp = BlueprintLoader::load("world.blueprint");
-		bp->spawn(world::root);*/
+		{
+			BlueprintLoader::save("world.blueprint", "World Blueprint", world::root);
+			Hydra::World::World::reset();
+			auto bp = BlueprintLoader::load("world.blueprint");
+			bp->spawn(world::root);
+		}
 
 		{
 			_cc = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get());

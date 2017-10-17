@@ -19,6 +19,8 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
+using world = Hydra::World::World;
+
 #ifdef __linux__
 template <typename T, Hydra::Component::ComponentBits bit>
 IComponentHandler* IComponent<T, bit>::componentHandler;
@@ -99,7 +101,7 @@ void Entity::serialize(nlohmann::json& json) const {
 	{
 		auto& c = json["children"];
 		for (size_t i = 0; i < children.size(); i++)
-			Hydra::World::World::getEntity(children[i])->serialize(c[i]);
+			world::getEntity(children[i])->serialize(c[i]);
 	}
 }
 
@@ -107,17 +109,23 @@ void Entity::deserialize(nlohmann::json& json) {
 	name = json["name"].get<std::string>();
 
 	{
-		auto& components = json["components"];
-		auto it = components.begin();
+		auto& c = json["components"];
+		auto it = c.begin();
 		auto& createMap = ComponentManager::createOrGetComponentMap();
-		for (size_t i = 0; i < components.size(); i++, it++) {
+		for (size_t i = 0; i < c.size(); i++, it++) {
 			try {
-				auto c = createMap.at(it.key())(this); // TODO: Change to find?
-				c->deserialize(components[i]);
+				auto component = createMap.at(it.key())(this); // TODO: Change to find?
+				component->deserialize(it.value());
 			} catch (const std::out_of_range&)	{
 				Hydra::IEngine::getInstance()->log(Hydra::LogLevel::error, "Component type '%s' not found!", it.key().c_str());
 			}
 		}
+	}
+
+	{
+		auto& c = json["children"];
+		for (size_t i = 0; i < c.size(); i++)
+			world::newEntity("", this)->deserialize(c[i]);
 	}
 }
 

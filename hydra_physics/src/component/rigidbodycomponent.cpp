@@ -56,6 +56,7 @@ public:
 	void setWorldTransform(const btTransform& worldTransform)	{
 		_transform->rotation = cast(worldTransform.getRotation());
 		_transform->position = cast(worldTransform.getOrigin());
+		_transform->dirty = true;
 
 		if (_cb)
 			_cb(_userptr);
