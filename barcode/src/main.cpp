@@ -1,6 +1,7 @@
 #include <hydra/engine.hpp>
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 
 #include <memory>
 
@@ -159,6 +160,7 @@ int main(int argc, char** argv) {
 	try {
 		reportMemoryLeaks();
 		srand(time(NULL));
+		Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 		Barcode::Engine engine;
 		engine.setState<Barcode::MenuState>();
 		engine.run();

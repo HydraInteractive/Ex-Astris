@@ -8,6 +8,7 @@
 #pragma once
 #include <hydra/ext/api.hpp>
 #include <SDL2/SDL_keyboard.h>
+#include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
 #include <hydra/world/world.hpp>
@@ -19,6 +20,10 @@
 #include <hydra/abilities/buffHandler.hpp>
 
 using namespace Hydra::World;
+
+enum Keys {
+	H, F, COUNT
+};
 
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API PlayerComponent final : public IComponent<PlayerComponent, ComponentBits::Player> {
@@ -32,6 +37,9 @@ namespace Hydra::Component {
 		int maxHealth = 100; // Move to LifeComponent
 		int health = 100; // SAME
 		bool isDead = false;
+		bool prevKBFrameState[Keys::COUNT] = { false };
+
+		Mix_Chunk* testSound = Mix_LoadWAV("assets/sounds/testSound.wav");
 
 		// TODO: Move?!
 		AbilityHandler activeAbillies;

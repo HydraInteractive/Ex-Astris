@@ -76,7 +76,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)/lib;$(SolutionDir)/x64/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hydra.lib;hydra_graphics.lib;hydra_network.lib;hydra_physics.lib;hydra_sound.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>hydra.lib;hydra_graphics.lib;hydra_network.lib;hydra_physics.lib;hydra_sound.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /sy "$(SolutionDir)bin" "$(SolutionDir)\x64\$(Configuration)"
