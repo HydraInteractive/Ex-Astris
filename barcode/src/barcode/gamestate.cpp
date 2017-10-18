@@ -762,6 +762,21 @@ namespace Barcode {
 				t2->ignoreParent = true;
 			}
 		}
+
+		{
+			auto alienEntity = world::newEntity("Alien", world::root);
+			auto a = alienEntity->addComponent<Hydra::Component::EnemyComponent>();
+			a->_enemyID = Hydra::Component::EnemyTypes::Alien;
+			a->_position = glm::vec3{ 10, 0, 20 };
+			a->_health = 80;
+			a->_damage = 4;
+			a->_range = 8.0f;
+			a->_scale = glm::vec3{ 1,1,1 };
+			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+			t->setScale(glm::vec3{ 1,1,1 });
+			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
+		}
+
 		{
 			auto pointLight1 = world::newEntity("Pointlight1", world::root);
 			pointLight1->addComponent<Hydra::Component::TransformComponent>();
