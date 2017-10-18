@@ -746,7 +746,7 @@ namespace Barcode {
 		{
 			auto playerEntity = world::newEntity("Player", world::root);
 			auto p = playerEntity->addComponent<Hydra::Component::PlayerComponent>();
-			p->position = glm::vec3{ 0, 0, 20 };
+			//p->position = glm::vec3{ 0, 0, 20 };
 			auto c = playerEntity->addComponent<Hydra::Component::CameraComponent>();
 			c->renderTarget = _geometryBatch.output.get();
 			//c->position = glm::vec3{ 5, 0, -3 };

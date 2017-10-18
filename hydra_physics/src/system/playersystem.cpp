@@ -67,10 +67,12 @@ void PlayerSystem::tick(float delta) {
 					e = world::getEntity(*abilitiesEntity);
 				player->activeAbillies.useAbility(e.get(), player->position, -forward);
 				
-				int channel = Mix_PlayChannel(-1, player->testSound, 0);
+				int playerDirAngle = glm::degrees(atan2(-forward.x, forward.z));
 				float angle = glm::degrees(atan2(-player->position.x, player->position.z));
-				angle = ((int)angle + 360) % 360;
-				Mix_SetPosition(channel, angle, 100);
+				playerDirAngle = ((int)(angle - playerDirAngle) + 360) % 360;
+
+				int channel = Mix_PlayChannel(-1, player->testSound, 0);
+				Mix_SetPosition(channel, playerDirAngle, 100);
 			}
 
 			if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && !ImGui::GetIO().WantCaptureMouse) {
