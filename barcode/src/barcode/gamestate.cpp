@@ -770,10 +770,10 @@ namespace Barcode {
 			a->_position = glm::vec3{ 10, 0, 20 };
 			a->_health = 80;
 			a->_damage = 4;
-			a->_range = 8.0f;
-			a->_scale = glm::vec3{ 1,1,1 };
+			a->_originalRange = 3.0f;
 			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->setScale(glm::vec3{ 1,1,1 });
+			t->setScale(glm::vec3{ 2,2,2 });
+			a->_scale = glm::vec3{ 2,2,2 };
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
 		}
 

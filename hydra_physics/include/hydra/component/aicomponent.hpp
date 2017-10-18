@@ -83,6 +83,8 @@ namespace Hydra::Component {
 
 		inline const std::string type() const final { return "EnemyComponent"; }
 
+		std::shared_ptr<Hydra::World::Entity> EnemyComponent::getPlayerComponent();
+
 		float getRadius(){ return _scale.x; }
 
 		int getWall(int x, int y) { return _map[x][y]; }

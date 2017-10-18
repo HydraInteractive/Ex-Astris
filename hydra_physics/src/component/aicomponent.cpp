@@ -191,3 +191,8 @@ bool Hydra::Component::EnemyComponent::_checkLOS(int levelmap[WORLD_SIZE][WORLD_
 	return true;*/
 }
 
+std::shared_ptr<Hydra::World::Entity> EnemyComponent::getPlayerComponent()
+{
+	return Hydra::World::World::getEntity(PlayerComponent::componentHandler->getActiveComponents()[0]->entityID);
+}
+

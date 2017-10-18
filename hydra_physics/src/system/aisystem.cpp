@@ -22,7 +22,9 @@ void AISystem::tick(float delta) {
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto enemy = entities[i]->getComponent<Component::EnemyComponent>();
 		auto transform = entities[i]->getComponent<Component::TransformComponent>();
-		auto player = entities[i]->getComponent<Component::PlayerComponent>();
+		auto p = enemy->getPlayerComponent();
+		auto player = p->getComponent<Component::PlayerComponent>();
+		auto playerTransform = p->getComponent<Component::TransformComponent>();
 		auto drawObject = entities[i]->getComponent<Component::DrawObjectComponent>();
 		auto weapon = entities[i]->getComponent<Hydra::Component::WeaponComponent>();
 
@@ -45,9 +47,9 @@ void AISystem::tick(float delta) {
 			{
 			case Component::PathState::IDLE:
 			{
-				if (player->position.x > enemy->_mapOffset.x && player->position.x < WORLD_SIZE && player->position.z > enemy->_mapOffset.z && player->position.z < WORLD_SIZE)
+				if (playerTransform->position.x > enemy->_mapOffset.x && playerTransform->position.x < WORLD_SIZE && playerTransform->position.z > enemy->_mapOffset.z && playerTransform->position.z < WORLD_SIZE)
 				{
-					if (glm::length(enemy->_position - player->position) < 50)
+					if (glm::length(enemy->_position - playerTransform->position) < 50)
 					{
 						enemy->_timer = SDL_GetTicks();
 						enemy->_pathState = Component::PathState::SEARCHING;
@@ -62,19 +64,19 @@ void AISystem::tick(float delta) {
 				//{
 				//	_pathState = IDLE;
 				//}
-				if (glm::length(enemy->_position - player->position) < enemy->_range)
+				if (glm::length(enemy->_position - playerTransform->position) < enemy->_range)
 				{
 					enemy->_isAtGoal = true;
 					enemy->_pathFinding->foundGoal = true;
 					enemy->_pathState = Component::PathState::ATTACKING;
 				}
 
-				if (player->position.x <= enemy->_mapOffset.x || player->position.x >= WORLD_SIZE || player->position.z <= enemy->_mapOffset.z || player->position.z >= WORLD_SIZE)
+				if (playerTransform->position.x <= enemy->_mapOffset.x || playerTransform->position.x >= WORLD_SIZE || playerTransform->position.z <= enemy->_mapOffset.z || playerTransform->position.z >= WORLD_SIZE)
 				{
 					enemy->_pathState = Component::PathState::IDLE;
 				}
 				enemy->_pathFinding->intializedStartGoal = false;
-				enemy->_pathFinding->findPath(enemy->_position, player->position, enemy->_map);
+				enemy->_pathFinding->findPath(enemy->_position, playerTransform->position, enemy->_map);
 				enemy->_isAtGoal = false;
 
 
@@ -104,19 +106,19 @@ void AISystem::tick(float delta) {
 						enemy->_velocity.x = (10.0f * direction.x) * delta;
 						enemy->_velocity.z = (10.0f * direction.z) * delta;
 
-						if (glm::length(enemy->_position - player->position) <= enemy->_range)
+						if (glm::length(enemy->_position - playerTransform->position) <= enemy->_range)
 						{
 							enemy->_isAtGoal = true;
 							enemy->_pathFinding->foundGoal = true;
 							enemy->_pathState = Component::PathState::ATTACKING;
 						}
 
-						if (glm::length(enemy->_position - enemy->_targetPos) <= 4.0f)
+						if (glm::length(enemy->_position - enemy->_targetPos) <= 2.0f)
 						{
 							enemy->_pathState = Component::PathState::SEARCHING;
 							enemy->_timer = SDL_GetTicks();
 						}
-						else if (glm::length(player->position - enemy->_targetPos) > 25.0f)
+						else if (glm::length(playerTransform->position.x - enemy->_targetPos.x) > 25.0f || glm::length(playerTransform->position.z - enemy->_targetPos.z) > 25.0f)
 						{
 							enemy->_pathState = Component::PathState::SEARCHING;
 							enemy->_timer = SDL_GetTicks();
@@ -130,7 +132,7 @@ void AISystem::tick(float delta) {
 					enemy->_timer = SDL_GetTicks();
 				}
 
-				if (player->position.x <= enemy->_mapOffset.x || player->position.x >= WORLD_SIZE || player->position.z <= enemy->_mapOffset.z || player->position.z >= WORLD_SIZE)
+				if (playerTransform->position.x <= enemy->_mapOffset.x || playerTransform->position.x >= WORLD_SIZE || playerTransform->position.z <= enemy->_mapOffset.z || playerTransform->position.z >= WORLD_SIZE)
 				{
 					enemy->_pathState = Component::PathState::IDLE;
 				}
@@ -140,7 +142,7 @@ void AISystem::tick(float delta) {
 			{
 				//When the enemy attack, start the attack animation
 				drawObject->drawObject->mesh->setAnimationIndex(2);
-				if (glm::length(enemy->_position - player->position) >= enemy->_range)
+				if (glm::length(enemy->_position - playerTransform->position) >= enemy->_range)
 				{
 					enemy->_pathState = Component::PathState::SEARCHING;
 					enemy->_timer = SDL_GetTicks();
@@ -155,7 +157,7 @@ void AISystem::tick(float delta) {
 						enemy->_attackTimer = SDL_GetTicks();
 					}
 
-					glm::vec3 playerDir = player->position - enemy->_position;
+					glm::vec3 playerDir = playerTransform->position - enemy->_position;
 					playerDir = glm::normalize(playerDir);
 					enemy->_angle = atan2(playerDir.x, playerDir.z);
 					enemy->_rotation = glm::angleAxis(enemy->_angle, glm::vec3(0, 1, 0));
@@ -163,13 +165,13 @@ void AISystem::tick(float delta) {
 			}break;
 			}
 
-			enemy->_playerSeen = enemy->_checkLOS(enemy->_map, enemy->_position, player->position);
+			enemy->_playerSeen = enemy->_checkLOS(enemy->_map, enemy->_position, playerTransform->position);
 
 			if (enemy->_playerSeen == false)
 			{
-				if (enemy->_range > 2.0f)
+				if (enemy->_range > 0.5f)
 				{
-					enemy->_range -= 1.0f;
+					enemy->_range -= 0.5f;
 				}
 			}
 			else
@@ -188,9 +190,9 @@ void AISystem::tick(float delta) {
 			{
 			case Component::PathState::IDLE:
 			{
-				if (player->position.x > enemy->_mapOffset.x && player->position.x < WORLD_SIZE && player->position.z > enemy->_mapOffset.z && player->position.z < WORLD_SIZE)
+				if (playerTransform->position.x > enemy->_mapOffset.x && playerTransform->position.x < WORLD_SIZE && playerTransform->position.z > enemy->_mapOffset.z && playerTransform->position.z < WORLD_SIZE)
 				{
-					if (glm::length(enemy->_position - player->position) < 50)
+					if (glm::length(enemy->_position - playerTransform->position) < 50)
 					{
 						enemy->_timer = SDL_GetTicks();
 						enemy->_pathState = Component::PathState::SEARCHING;
@@ -205,19 +207,19 @@ void AISystem::tick(float delta) {
 					enemy->_pathState = Component::PathState::IDLE;
 				}
 
-				if (glm::length(enemy->_position - player->position) < enemy->_range)
+				if (glm::length(enemy->_position - playerTransform->position) < enemy->_range)
 				{
 					enemy->_isAtGoal = true;
 					enemy->_pathState = Component::PathState::ATTACKING;
 				}
 
 
-				if (player->position.x <= enemy->_mapOffset.x || player->position.x >= WORLD_SIZE || player->position.z <= enemy->_mapOffset.z || player->position.z >= WORLD_SIZE)
+				if (playerTransform->position.x <= enemy->_mapOffset.x || playerTransform->position.x >= WORLD_SIZE || playerTransform->position.z <= enemy->_mapOffset.z || playerTransform->position.z >= WORLD_SIZE)
 				{
 					enemy->_pathState = Component::PathState::IDLE;
 				}
 				enemy->_pathFinding->intializedStartGoal = false;
-				enemy->_pathFinding->findPath(enemy->_position, player->position, enemy->_map);
+				enemy->_pathFinding->findPath(enemy->_position, playerTransform->position, enemy->_map);
 
 				enemy->_isAtGoal = false;
 				if (enemy->_pathFinding->foundGoal)
@@ -246,7 +248,7 @@ void AISystem::tick(float delta) {
 						enemy->_velocity.x = (4.0f * direction.x) * delta;
 						enemy->_velocity.z = (4.0f * direction.z) * delta;
 
-						if (glm::length(enemy->_position - player->position) < enemy->_range)
+						if (glm::length(enemy->_position - playerTransform->position) < enemy->_range)
 						{
 							enemy->_isAtGoal = true;
 							enemy->_pathFinding->foundGoal = true;
@@ -258,7 +260,7 @@ void AISystem::tick(float delta) {
 							enemy->_pathState = Component::PathState::SEARCHING;
 							enemy->_timer = SDL_GetTicks();
 						}
-						else if (glm::length(player->position - enemy->_targetPos) > 25.0f)
+						else if (glm::length(playerTransform->position - enemy->_targetPos) > 25.0f)
 						{
 							enemy->_pathState = Component::PathState::SEARCHING;
 							enemy->_timer = SDL_GetTicks();
@@ -272,14 +274,14 @@ void AISystem::tick(float delta) {
 					enemy->_timer = SDL_GetTicks();
 				}
 
-				if (player->position.x <= enemy->_mapOffset.x || player->position.x >= WORLD_SIZE || player->position.z <= enemy->_mapOffset.z || player->position.z >= WORLD_SIZE)
+				if (playerTransform->position.x <= enemy->_mapOffset.x || playerTransform->position.x >= WORLD_SIZE || playerTransform->position.z <= enemy->_mapOffset.z || playerTransform->position.z >= WORLD_SIZE)
 				{
 					enemy->_pathState = Component::PathState::IDLE;
 				}
 			}break;
 			case Component::PathState::ATTACKING:
 			{
-				if (glm::length(enemy->_position - player->position) > enemy->_range)
+				if (glm::length(enemy->_position - playerTransform->position) > enemy->_range)
 				{
 					enemy->_pathState = Component::PathState::SEARCHING;
 					enemy->_timer = SDL_GetTicks();
@@ -287,7 +289,7 @@ void AISystem::tick(float delta) {
 				else
 				{
 
-					glm::vec3 playerDir = player->position - enemy->_position;
+					glm::vec3 playerDir = playerTransform->position - enemy->_position;
 					playerDir = glm::normalize(playerDir);
 
 					weapon->shoot(enemy->_position, -playerDir, glm::quat(), 8.0f);
@@ -298,7 +300,7 @@ void AISystem::tick(float delta) {
 			}break;
 			}
 
-			enemy->_playerSeen = enemy->_checkLOS(enemy->_map, enemy->_position, player->position);
+			enemy->_playerSeen = enemy->_checkLOS(enemy->_map, enemy->_position, playerTransform->position);
 
 			if (enemy->_playerSeen == false)
 			{
@@ -343,9 +345,9 @@ void AISystem::tick(float delta) {
 			{
 			case Component::PathState::IDLE:
 			{
-				if (player->position.x > enemy->_mapOffset.x && player->position.x < WORLD_SIZE && player->position.z > enemy->_mapOffset.z && player->position.z < WORLD_SIZE)
+				if (playerTransform->position.x > enemy->_mapOffset.x && playerTransform->position.x < WORLD_SIZE && playerTransform->position.z > enemy->_mapOffset.z && playerTransform->position.z < WORLD_SIZE)
 				{
-					if (glm::length(enemy->_position - player->position) < 50)
+					if (glm::length(enemy->_position - playerTransform->position) < 50)
 					{
 						enemy->_timer = SDL_GetTicks();
 						enemy->_pathState = Component::PathState::SEARCHING;
@@ -360,18 +362,18 @@ void AISystem::tick(float delta) {
 					enemy->_pathState = Component::PathState::IDLE;
 				}
 
-				if (glm::length(enemy->_position - player->position) < enemy->_range)
+				if (glm::length(enemy->_position - playerTransform->position) < enemy->_range)
 				{
 					enemy->_isAtGoal = true;
 					enemy->_pathState = Component::PathState::ATTACKING;
 				}
 
-				if (player->position.x <= enemy->_mapOffset.x || player->position.x >= WORLD_SIZE || player->position.z <= enemy->_mapOffset.z || player->position.z >= WORLD_SIZE)
+				if (playerTransform->position.x <= enemy->_mapOffset.x || playerTransform->position.x >= WORLD_SIZE || playerTransform->position.z <= enemy->_mapOffset.z || playerTransform->position.z >= WORLD_SIZE)
 				{
 					enemy->_pathState = Component::PathState::IDLE;
 				}
 				enemy->_pathFinding->intializedStartGoal = false;
-				enemy->_pathFinding->findPath(enemy->_position, player->position, enemy->_map);
+				enemy->_pathFinding->findPath(enemy->_position, playerTransform->position, enemy->_map);
 				enemy->_isAtGoal = false;
 
 				if (enemy->_pathFinding->foundGoal)
@@ -401,7 +403,7 @@ void AISystem::tick(float delta) {
 						enemy->_velocity.x = (7.0f * direction.x) * delta;
 						enemy->_velocity.z = (7.0f * direction.z) * delta;
 
-						if (glm::length(enemy->_position - player->position) < enemy->_range)
+						if (glm::length(enemy->_position - playerTransform->position) < enemy->_range)
 						{
 							enemy->_isAtGoal = true;
 							enemy->_pathFinding->foundGoal = true;
@@ -413,7 +415,7 @@ void AISystem::tick(float delta) {
 							enemy->_pathState = Component::PathState::SEARCHING;
 							enemy->_timer = SDL_GetTicks();
 						}
-						else if (glm::length(player->position - enemy->_targetPos) > 25.0f)
+						else if (glm::length(playerTransform->position - enemy->_targetPos) > 25.0f)
 						{
 							enemy->_pathState = Component::PathState::SEARCHING;
 							enemy->_timer = SDL_GetTicks();
@@ -427,21 +429,21 @@ void AISystem::tick(float delta) {
 					enemy->_timer = SDL_GetTicks();
 				}
 
-				if (player->position.x <= enemy->_mapOffset.x || player->position.x >= WORLD_SIZE || player->position.z <= enemy->_mapOffset.z || player->position.z >= WORLD_SIZE)
+				if (playerTransform->position.x <= enemy->_mapOffset.x || playerTransform->position.x >= WORLD_SIZE || playerTransform->position.z <= enemy->_mapOffset.z || playerTransform->position.z >= WORLD_SIZE)
 				{
 					enemy->_pathState = Component::PathState::IDLE;
 				}
 			}break;
 			case Component::PathState::ATTACKING:
 			{
-				if (glm::length(enemy->_position - player->position) > enemy->_range && enemy->_stunned == false)
+				if (glm::length(enemy->_position - playerTransform->position) > enemy->_range && enemy->_stunned == false)
 				{
 					enemy->_pathState = Component::PathState::SEARCHING;
 					enemy->_timer = SDL_GetTicks();
 				}
 				else
 				{
-					glm::vec3 playerDir = player->position - enemy->_position;
+					glm::vec3 playerDir = playerTransform->position - enemy->_position;
 					playerDir = glm::normalize(playerDir);
 					switch (enemy->_bossPhase)
 					{
