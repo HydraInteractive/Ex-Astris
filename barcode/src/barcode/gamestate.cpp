@@ -277,11 +277,11 @@ namespace Barcode {
 			auto lightViewMX = _light->getViewMatrix();
 			auto lightPMX = _light->getProjectionMatrix();
 			glm::mat4 biasMatrix(
-				0.5, 0.0, 0.0, 0.0,
-				0.0, 0.5, 0.0, 0.0,
-				0.0, 0.0, 0.5, 0.0,
-				0.5, 0.5, 0.5, 1.0
-			);
+													 0.5, 0.0, 0.0, 0.0,
+														 0.0, 0.5, 0.0, 0.0,
+														 0.0, 0.0, 0.5, 0.0,
+														 0.5, 0.5, 0.5, 1.0
+													 );
 			glm::mat4 lightS = biasMatrix * lightPMX * lightViewMX;
 
 			_geometryBatch.pipeline->setValue(0, _cc->getViewMatrix());
@@ -298,7 +298,7 @@ namespace Barcode {
 
 			for (auto& kv : _animationBatch.batch.objects)
 				kv.second.clear();
-
+		
 			for (auto& drawObj : _engine->getRenderer()->activeDrawObjects()) {
 				if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false)
 					_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
@@ -328,16 +328,16 @@ namespace Barcode {
 				std::vector<glm::mat4>& list = kv.second;
 
 				std::sort(list.begin(), list.end(), [cameraPos](const glm::mat4& a, const glm::mat4& b) {
-					return glm::distance(glm::vec3(a[3]), cameraPos) < glm::distance(glm::vec3(b[3]), cameraPos);
-				});
+						return glm::distance(glm::vec3(a[3]), cameraPos) < glm::distance(glm::vec3(b[3]), cameraPos);
+					});
 			}
 			// Sort Front to back for animation
 			for (auto& kv : _animationBatch.batch.objects) {
 				std::vector<glm::mat4>& list = kv.second;
 
 				std::sort(list.begin(), list.end(), [cameraPos](const glm::mat4& a, const glm::mat4& b) {
-					return glm::distance(glm::vec3(a[3]), cameraPos) < glm::distance(glm::vec3(b[3]), cameraPos);
-				});
+						return glm::distance(glm::vec3(a[3]), cameraPos) < glm::distance(glm::vec3(b[3]), cameraPos);
+					});
 			}
 
 			_engine->getRenderer()->render(_geometryBatch.batch);
@@ -410,7 +410,6 @@ namespace Barcode {
 				_lightingBatch.pipeline->setValue(i++, pc->linear);
 				_lightingBatch.pipeline->setValue(i++, pc->quadratic);
 			}
-
 			(*_geometryBatch.output)[0]->bind(0);
 			(*_geometryBatch.output)[1]->bind(1);
 			(*_geometryBatch.output)[2]->bind(2);
@@ -451,7 +450,7 @@ namespace Barcode {
 		}
 
 		{ // Render transparent objects	(Forward rendering)
-		  //_world->tick(TickAction::renderTransparent, delta);
+			//_world->tick(TickAction::renderTransparent, delta);
 		}
 
 		{ // Particle batch
@@ -463,11 +462,13 @@ namespace Barcode {
 			bool anyParticles = false;
 			for (auto& pc : Hydra::Component::ParticleComponent::componentHandler->getActiveComponents()) {
 				auto p = static_cast<Hydra::Component::ParticleComponent*>(pc.get());
-				auto drawObj = world::getEntity(p->entityID)->getComponent<Hydra::Component::DrawObjectComponent>();
+				auto e = world::getEntity(p->entityID);
+				auto t = e->getComponent<Hydra::Component::TransformComponent>();
+				auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>();
 				auto& particles = p->particles;
 				if (particles.size() > 0) {
 					for (auto& particle : particles) {
-						_particleBatch.batch.objects[drawObj->drawObject->mesh].push_back(particle->m);
+						_particleBatch.batch.objects[drawObj->drawObject->mesh].push_back(t->getMatrix() * particle->getMatrix());
 						_particleBatch.batch.textureInfo.push_back(particle->texOffset1);
 						_particleBatch.batch.textureInfo.push_back(particle->texOffset2);
 						_particleBatch.batch.textureInfo.push_back(particle->texCoordInfo);
@@ -574,17 +575,17 @@ namespace Barcode {
 				float dotPlacment = glm::dot(forward2D, enemy2D); // -1 - +1
 				float leftRight = glm::dot(right2D, enemy2D);
 				if (leftRight < 0)
-				{
-					leftRight = 1;
-				}
+					{
+						leftRight = 1;
+					}
 				else
-				{
-					leftRight = -1;
-				}
+					{
+						leftRight = -1;
+					}
 				if (dotPlacment < 0)
-				{
-					dotPlacment = 0;
-				}
+					{
+						dotPlacment = 0;
+					}
 				dotPlacment = dotPlacment;
 				dotPlacment = leftRight * (1 - dotPlacment) * 275;
 				ImGui::SetNextWindowPos(ImVec2(x + dotPlacment, 75)); //- 275
@@ -601,58 +602,58 @@ namespace Barcode {
 			float pForEatchDot = float(1) / float(amountOfActives);
 			float stepSize = float(70) * pForEatchDot;
 			for (int i = 0; i < amountOfActives; i++)
-			{
-				char buf[128];
-				snprintf(buf, sizeof(buf), "Cooldown%d", i);
-				float yOffset = float(stepSize * float(i + 1));
-				float xOffset = pow(abs((yOffset - (stepSize / float(2)) - float(35))) * 0.1069, 2);
-				ImGui::SetNextWindowPos(pos + ImVec2(-64 + xOffset, -24 + yOffset - ((stepSize + 10.0) / 2.0)));
-				ImGui::SetNextWindowSize(ImVec2(15, 15));
-				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-				if (coolDownList[i] >= 7)
 				{
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(10, 10));
-				}
-				else if (coolDownList[i] <= 0)
-				{
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Green.png")->getID()), ImVec2(10, 10));
-				}
-				else
-				{
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Yellow.png")->getID()), ImVec2(10, 10));
-				}
+					char buf[128];
+					snprintf(buf, sizeof(buf), "Cooldown%d", i);
+					float yOffset = float(stepSize * float(i + 1));
+					float xOffset = pow(abs((yOffset - (stepSize / float(2)) - float(35))) * 0.1069, 2);
+					ImGui::SetNextWindowPos(pos + ImVec2(-64 + xOffset, -24 + yOffset - ((stepSize + 10.0) / 2.0)));
+					ImGui::SetNextWindowSize(ImVec2(15, 15));
+					ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+					if (coolDownList[i] >= 7)
+						{
+							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(10, 10));
+						}
+					else if (coolDownList[i] <= 0)
+						{
+							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Green.png")->getID()), ImVec2(10, 10));
+						}
+					else
+						{
+							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Yellow.png")->getID()), ImVec2(10, 10));
+						}
 
-				ImGui::End();
-			}
+					ImGui::End();
+				}
 
 			//Perk Icons
 			int amountOfPerks = perksList.size();
 			for (int i = 0; i < amountOfPerks; i++)
-			{
-				char buf[128];
-				snprintf(buf, sizeof(buf), "Perk%d", i);
-				float xOffset = float((-10 * amountOfPerks) + (20 * i));
-				ImGui::SetNextWindowPos(pos + ImVec2(xOffset, +480));
-				ImGui::SetNextWindowSize(ImVec2(20, 20));
-				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-				switch (perksList[i])
 				{
-				case BUFF_BULLETVELOCITY:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/BulletVelocity.png")->getID()), ImVec2(20, 20));
-					break;
-				case BUFF_DAMAGEUPGRADE:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/DamageUpgrade.png")->getID()), ImVec2(20, 20));
-					break;
-				case BUFF_HEALING:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Healing.png")->getID()), ImVec2(20, 20));
-					break;
-				case BUFF_HEALTHUPGRADE:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
-					break;
-				}
+					char buf[128];
+					snprintf(buf, sizeof(buf), "Perk%d", i);
+					float xOffset = float((-10 * amountOfPerks) + (20 * i));
+					ImGui::SetNextWindowPos(pos + ImVec2(xOffset, +480));
+					ImGui::SetNextWindowSize(ImVec2(20, 20));
+					ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+					switch (perksList[i])
+						{
+						case BUFF_BULLETVELOCITY:
+							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/BulletVelocity.png")->getID()), ImVec2(20, 20));
+							break;
+						case BUFF_DAMAGEUPGRADE:
+							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/DamageUpgrade.png")->getID()), ImVec2(20, 20));
+							break;
+						case BUFF_HEALING:
+							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Healing.png")->getID()), ImVec2(20, 20));
+							break;
+						case BUFF_HEALTHUPGRADE:
+							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
+							break;
+						}
 
-				ImGui::End();
-			}
+					ImGui::End();
+				}
 
 			ImGui::PopStyleColor();
 			ImGui::PopStyleVar();
@@ -826,6 +827,14 @@ namespace Barcode {
 			floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(14, -8, 9);
+		}
+
+		{
+			auto particleEmitter = world::newEntity("ParticleEmitter", world::root);
+			particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/R2D3.mATTIC");
+			auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
+			p->delay = 1.0f/15.0f;
+			auto t = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
 		}
 
 		{

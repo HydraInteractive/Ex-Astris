@@ -11,68 +11,53 @@
 using namespace Hydra::World;
 
 // TODO: Implement LOD
-
 namespace Hydra::Component {
-	enum EmitterBehaviour : int {PerSecond = 0, Explosion};
-	enum ParticleTexture : int {Fire = 0, Knas, BogdanDeluxe};
-	
-	struct HYDRA_GRAPHICS_API Particle {
-		glm::mat4 m;
-		glm::vec3 pos;
-		glm::vec3 acceleration;
-		glm::vec3 vel;
-		glm::vec3 scale;
-		glm::vec2 texOffset1;
-		glm::vec2 texOffset2;
-		glm::vec2 texCoordInfo;
-		float life;
-		float elapsedTime;
-		float grav;
-		float distanceToCamera;
-		bool dead;
-		void spawn(glm::vec3 pos, glm::vec3 vel, glm::vec3 acceleration, float life) {
-			this->pos = pos;
-			this->vel = vel;
-			this->acceleration = acceleration;
-			this->life = life;
-			this->scale = glm::vec3(1.0f);
-			this->elapsedTime = 0.f;
-			this->dead = false;
-			this->texOffset1 = glm::vec2(0);
-			this->texOffset2 = glm::vec2(0);
-			this->texCoordInfo = glm::vec2(0);
-			this->distanceToCamera = 0;
-			// Gonna fix rotation soon...
-			this->m = glm::translate(pos) * glm::scale(scale);
-		}
-		void fixMX(glm::quat& rot) { m = glm::translate(pos) * glm::scale(scale); }
-	};
-
 	struct HYDRA_GRAPHICS_API ParticleComponent final : public IComponent<ParticleComponent, ComponentBits::Particle> {
-		int pps; // Particles per second.
-		float accumulator;
-		glm::quat tempRotation;
-		glm::vec2 offsetToTexture;
-		glm::vec3 emitterPos;
-		EmitterBehaviour behaviour;
+		enum class EmitterBehaviour : int { PerSecond = 0, Explosion, MAX_COUNT };
+		static constexpr const char* EmitterBehaviourStr[] = { "PerSecond", "Explosion" };
+		enum class ParticleTexture : int { Fire = 0, Knas, BogdanDeluxe, MAX_COUNT };
+		static constexpr const char* ParticleTextureStr[] = { "Fire", "Knas", "BogdanDeluxe" };
+
+		struct HYDRA_GRAPHICS_API Particle {
+			glm::vec3 position;
+			glm::vec3 acceleration;
+			glm::vec3 velocity;
+			glm::vec3 scale = glm::vec3(1.0f);
+			glm::vec2 texOffset1;
+			glm::vec2 texOffset2;
+			glm::vec2 texCoordInfo;
+			float life;
+			float startLife;
+			float grav;
+			float distanceToCamera;
+			void spawn(glm::vec3 position, glm::vec3 velocity, glm::vec3 acceleration, float life) {
+				this->position = position;
+				this->velocity = velocity;
+				this->acceleration = acceleration;
+				this->life = life;
+			}
+			glm::mat4 getMatrix() { return glm::translate(position) * glm::scale(scale); }
+		};
+
+		static constexpr size_t TextureOuterGrid = 6; // 6x6
+		static constexpr size_t TextureInnerGrid = 4; // 4x4
+		static constexpr float ParticleSize = 1.0f / (TextureInnerGrid * TextureOuterGrid);
+
+		float delay = 1; // 0.1 = 10 Particle/Second
+		float accumulator = 0;
+		glm::vec3 emitterPos = glm::vec3{0, 0, 0};
+		EmitterBehaviour behaviour = EmitterBehaviour::PerSecond;
+		ParticleTexture texture = ParticleTexture::Fire;
 		std::vector<std::shared_ptr<Particle>> particles;
 
-		/*ParticleComponent(IEntity* entity);
-		ParticleComponent(IEntity* entity, EmitterBehaviour behaviour, ParticleTexture texture, int nrOfParticles, glm::vec3 pos);*/
 		~ParticleComponent() final;
+
+		void spawnParticles();
 
 		inline const std::string type() const final { return "ParticleComponent"; }
 
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
-		/*
-	private:
-		void _generateParticles();
-		void _ParticlePhysics(float delta);
-		void _clearDeadParticles();
-		void _emmitParticle();
-		void _updateTextureCoordInfo(std::shared_ptr<Particle>& p, float delta);
-		void _sortParticles(); // Insertion Sort*/
 	};
 };
