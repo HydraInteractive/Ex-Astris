@@ -24,7 +24,7 @@ namespace Hydra::Component {
 
 		float fov = 80.0f;
 		float zNear = 1.0f;
-		float zFar = 20.0f;
+		float zFar = 80.0f;
 
 		~LightComponent() final;
 

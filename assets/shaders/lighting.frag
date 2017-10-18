@@ -85,7 +85,7 @@ void main() {
 
 	vec3 pos = texture(positions, texCoords).xyz;
 	vec4 objectColor = texture(colors, texCoords);
-	vec3 normal = texture(normals, texCoords).xyz;
+	vec3 normal = normalize(texture(normals, texCoords).xyz);
 	vec4 lightPos = texture(lightPositions, texCoords);
 	float glowAmnt = texture(glow, texCoords).r;
 
@@ -95,8 +95,8 @@ void main() {
 	vec3 result = vec3(0);
 
 	// Directional light
-	//result = calcDirLight(dirLight, pos, normal, objectColor);
-
+	result = calcDirLight(dirLight, pos, normal, objectColor);
+	
 	// Point Lights
 	for(int i = 0 ; i < nrOfPointLights; i++){
 		result += calcPointLight(pointLights[i], pos, normal, objectColor);
@@ -107,38 +107,28 @@ void main() {
 		globalAmbient *= ambientOcclusion;
 
 	// Shadow
-	vec3 projCoords = lightPos.xyz / lightPos.w;
-	float closestDepth = texture(depthMap, projCoords.xy).r;
-	float currentDepth = projCoords.z;
 	
-	float bias = max(0.001 * (1.0 - dot(normal, dirLight.dir)), 0.001);
-	float shadow = 0.0;
-	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
-	// PCF
-	for(int x = -1; x <= 1; x++) {
-		for(int y = -1; y <= 1; y++) {
-			float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
-			shadow += currentDepth - bias > pcfDepth ? 1 : 0;
+	if(lightPos.w > 1){
+		vec3 projCoords = lightPos.xyz / lightPos.w;
+		float closestDepth = texture(depthMap, projCoords.xy).r;
+		float currentDepth = projCoords.z;
+		float bias = max(0.05 * (1.0 - dot(normal, -dirLight.dir)), 0.005);
+		float shadow = 0.0f;
+		vec2 texelSize = 1.0 / textureSize(depthMap, 0);
+		for(int x = -1; x <= 1; x++) {
+			for(int y = -1; y <= 1; y++) {
+				float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
+				shadow += currentDepth - bias > pcfDepth ? 1 : 0;
+			}
 		}
+		shadow /= 9;
+		shadow = 1 - shadow;
+		result *= shadow;
 	}
 
-	shadow /= 9;
-	shadow = 1 - shadow;
-
-	//float shadow = 1.0f;
-	//if(currentDepth - bias > closestDepth)
-	//	shadow = 0;
-
-	result *= shadow;
 	result += globalAmbient;
 
 	fragOutput = result;
-
-	// Picking out bright regions for glow.
-	//float brightness = dot(vec3(fragOutput), vec3(0.2126, 0.7152, 0.0722));
-
-	//if(brightness > 1.0f)
-	//	brightOutput = fragOutput;
 
 	if(glowAmnt > 0)
 		brightOutput = fragOutput;

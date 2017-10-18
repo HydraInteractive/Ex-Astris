@@ -41,8 +41,6 @@ void CameraSystem::tick(float delta) {
 
 	//Process CameraComponent
 	world::getEntitiesWithComponents<Hydra::Component::CameraComponent>(entities);
-
-#pragma omp parallel for
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto cc = entities[i]->getComponent<Hydra::Component::CameraComponent>();
 
@@ -61,7 +59,6 @@ void CameraSystem::tick(float delta) {
 
 	//Process EditorCameraComponent
 	world::getEntitiesWithComponents<Hydra::Component::EditorCameraComponent>(entities);
-#pragma omp parallel for
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto ec = entities[i]->getComponent<Hydra::Component::EditorCameraComponent>();
 
