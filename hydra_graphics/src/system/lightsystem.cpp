@@ -21,8 +21,8 @@ void LightSystem::tick(float delta) {
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 		l->position = t->position;
 		// ALWAYS ORIENTAT AROUND FIXED UP AND FORWARD.
-		l->direction = t->rotation * glm::vec3(0,0,-1);
-		l->up = t->rotation * glm::vec3(0,1,0);
+		l->direction = glm::normalize(t->rotation * glm::vec3(0,0,-1));
+		l->up = glm::normalize(t->rotation * glm::vec3(0,1,0));
 	}
 
 	//Process PointLightComponent
