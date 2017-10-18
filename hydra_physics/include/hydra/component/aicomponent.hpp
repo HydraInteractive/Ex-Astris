@@ -65,38 +65,43 @@ namespace Hydra::Component {
 		PathFinding* _pathFinding = new PathFinding();
 		BossPhase _bossPhase = CLAWING;
 		std::vector<std::shared_ptr<Hydra::World::Entity>> _spawnGroup;
-		int _debugState;
-		float _angle;
-		float _velocityX = 0;
-		float _velocityY = 0;
-		float _velocityZ = 0;
-		int _spawnAmount = 0;
-		int _health = 1;
-		int _damage = 0;
+		EnemyTypes _enemyID = EnemyTypes::Alien;
+
+		float _angle = 1;
 		float _range = 1;
 		float _originalRange = 1;
-		glm::vec3 _mapOffset = glm::vec3{0, 0, 0};
-		glm::vec3 _targetPos;
-		glm::vec3 _position = glm::vec3{0, 0, 0};
-		glm::vec3 _startPosition = glm::vec3{0, 0, 0};
+
+		int _debugState;
+		int _spawnAmount;
+		int _health = 1;
+		int _damage = 0;
+
+		glm::vec3 _velocity = glm::vec3{ 0, 0, 0 };
+		glm::vec3 _mapOffset = glm::vec3{ 0, 0, 0 };
+		glm::vec3 _targetPos = glm::vec3{ 0, 0, 0 };
+		glm::vec3 _position = glm::vec3{ 0, 0, 0 };
+		glm::vec3 _startPosition = glm::vec3{ 0, 0, 0 };
+		glm::vec3 _scale = glm::vec3{ 1, 1, 1 };
+
 		glm::quat _rotation = glm::quat();
-		glm::vec3 _scale = glm::vec3{1, 1, 1};
-		bool _isAtGoal;
+
+		bool _isAtGoal = false;
 		bool _falling = false;
 		bool _patrolPointReached = false;
-		bool _playerSeen;
+		bool _playerSeen = false;
 		bool _stunned = false;
-		EnemyTypes _enemyID = EnemyTypes::Alien;
+		
 		std::random_device rd;
 		Uint32 _timer;
 		Uint32 _spawnTimer;
 		Uint32 _stunTimer;
 		Uint32 _attackTimer;
 		Uint32 _newPathTimer;
+
 		int _map[WORLD_SIZE][WORLD_SIZE];
 		int _oldMapPosX;
 		int _oldMapPosZ;
 		// Private functions
-		bool _checkLine(int levelmap[WORLD_SIZE][WORLD_SIZE], glm::vec3 A, glm::vec3 B);
+		bool _checkLOS(int levelmap[WORLD_SIZE][WORLD_SIZE], glm::vec3 A, glm::vec3 B);
 	};
 };
