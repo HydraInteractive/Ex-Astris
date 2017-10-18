@@ -12,6 +12,6 @@
 
 namespace Hydra::Ext {
 
-	HYDRA_API std::string getStackTrace();
+	HYDRA_BASE_API std::string getStackTrace();
 
 };

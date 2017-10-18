@@ -18,26 +18,18 @@
 using namespace Hydra::World;
 
 namespace Hydra::Component {
-	class HYDRA_API MineComponent final : public IComponent{
-	public:
-		MineComponent(IEntity* entity);
-		MineComponent(IEntity* entity, glm::vec3 position, glm::vec3 direction);
-		~MineComponent() final;
+	struct HYDRA_PHYSICS_API MineComponent final : public IComponent<MineComponent, ComponentBits::Mine> {
+		glm::vec3 direction = glm::vec3{0, 0, 0};
+		float velocity = 02;
+		float fallingVelocity = 20;
+		float timer = 5;
 
-		void tick(TickAction action, float delta) final;
-		inline TickAction wantTick() const final { return TickAction::physics; }
+		~MineComponent() final;
 
 		inline const std::string type() const final { return "GrenadeComponent"; }
 
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
-	private:
-		glm::vec3 _position;
-		glm::vec3 _direction;
-		float _velocity;
-		float _fallingVelocity;
-		Uint32 _tickSpawned;
-		Uint32 _timeUntilDelete;
 	};
 };

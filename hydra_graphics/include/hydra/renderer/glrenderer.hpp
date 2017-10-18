@@ -17,24 +17,24 @@
 
 namespace Hydra::Renderer {
 	namespace GLRenderer {
-		HYDRA_API std::unique_ptr<IRenderer> create(Hydra::View::IView& view);
+		HYDRA_GRAPHICS_API std::unique_ptr<IRenderer> create(Hydra::View::IView& view);
 	};
 
 	namespace GLMesh {
-		HYDRA_API std::unique_ptr<IMesh> create(const std::string& file, IRenderer* renderer);
-		HYDRA_API std::unique_ptr<IMesh> createQuad(IRenderer* renderer);
-		HYDRA_API std::unique_ptr<IMesh> createFullscreenQuad();
+		HYDRA_GRAPHICS_API std::unique_ptr<IMesh> create(const std::string& file, IRenderer* renderer);
+		HYDRA_GRAPHICS_API std::unique_ptr<IMesh> createQuad(IRenderer* renderer);
+		HYDRA_GRAPHICS_API std::unique_ptr<IMesh> createFullscreenQuad();
 	};
 
 	namespace GLTexture {
-		HYDRA_API std::shared_ptr<ITexture> createFromID(uint32_t id, glm::ivec2 size, TextureType format = TextureType::u8RGBA, size_t samples = 0, bool own = true);
-		HYDRA_API std::shared_ptr<ITexture> createFromFile(const std::string& file);
-		HYDRA_API std::shared_ptr<ITexture> createEmpty(uint32_t width, uint32_t height, TextureType format = TextureType::u8RGBA, size_t samples = 0);
-		HYDRA_API std::shared_ptr<ITexture> createFromData(uint32_t width, uint32_t height, TextureType format, void* data);
-		HYDRA_API std::shared_ptr<ITexture> createFromDataExt(const char* ext, void* data, uint32_t size);
+		HYDRA_GRAPHICS_API std::shared_ptr<ITexture> createFromID(uint32_t id, glm::ivec2 size, TextureType format = TextureType::u8RGBA, size_t samples = 0, bool own = true);
+		HYDRA_GRAPHICS_API std::shared_ptr<ITexture> createFromFile(const std::string& file);
+		HYDRA_GRAPHICS_API std::shared_ptr<ITexture> createEmpty(uint32_t width, uint32_t height, TextureType format = TextureType::u8RGBA, size_t samples = 0);
+		HYDRA_GRAPHICS_API std::shared_ptr<ITexture> createFromData(uint32_t width, uint32_t height, TextureType format, void* data);
+		HYDRA_GRAPHICS_API std::shared_ptr<ITexture> createFromDataExt(const char* ext, void* data, uint32_t size);
 	};
 
 	namespace GLFramebuffer {
-		HYDRA_API std::shared_ptr<IFramebuffer> create(glm::ivec2 size, size_t samples);
+		HYDRA_GRAPHICS_API std::shared_ptr<IFramebuffer> create(glm::ivec2 size, size_t samples);
 	};
 }

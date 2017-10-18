@@ -12,15 +12,12 @@
 #include <memory>
 
 #include <hydra/world/world.hpp>
-#include <hydra/physics/physicsmanager.hpp>
+#include <hydra/system/bulletphysicssystem.hpp>
 
 #include <hydra/component/transformcomponent.hpp>
 
 namespace Hydra::Component {
-	class HYDRA_API RigidBodyComponent final : public Hydra::World::IComponent {
-	public:
-		struct Data;
-		RigidBodyComponent(IEntity* entity);
+	struct HYDRA_PHYSICS_API RigidBodyComponent final : public Hydra::World::IComponent<RigidBodyComponent, ComponentBits::RigidBody> {
 		~RigidBodyComponent() final;
 
 #define DEFAULT_PARAMS float mass = 0, float linearDamping = 0, float angularDamping = 0, float friction = 0, float rollingFriction = 0
@@ -38,9 +35,6 @@ namespace Hydra::Component {
 
 		void* getRigidBody();
 
-		void tick(Hydra::World::TickAction action, float delta) final;
-		inline Hydra::World::TickAction wantTick() const final { return Hydra::World::TickAction::none; }
-
 		inline const std::string type() const final { return "RigidBodyComponent"; }
 
 		void serialize(nlohmann::json& json) const final;
@@ -48,6 +42,7 @@ namespace Hydra::Component {
 		void registerUI() final;
 
 	private:
-		std::unique_ptr<Data> _data;
+		struct Data;
+		Data* _data;
 	};
 };

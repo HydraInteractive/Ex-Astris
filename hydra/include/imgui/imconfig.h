@@ -13,11 +13,20 @@
 
 //---- Define attributes of all API symbols declarations, e.g. for DLL under Windows.
 #ifdef _WIN32
-#ifdef HYDRA_GRAPHICS_EXPORTS
+#ifdef HYDRA_BASE_EXPORTS
 #define IMGUI_API __declspec( dllexport )
 #else
 #define IMGUI_API __declspec( dllimport )
 #endif
+
+#ifdef HYDRA_GRAPHICS_EXPORTS
+#define IMGUI_API_SDL2 __declspec( dllexport )
+#else
+#define IMGUI_API_SDL2 __declspec( dllimport )
+#endif
+#else
+#define IMGUI_API
+#define IMGUI_API_SDL2
 #endif
 
 //---- Include imgui_user.h at the end of imgui.h

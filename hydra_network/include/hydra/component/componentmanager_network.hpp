@@ -5,6 +5,6 @@
 
 namespace Hydra::Component {
 	namespace ComponentManager {
-		HYDRA_API void registerComponents_network(std::map<std::string, createOrGetComponent_f>& creators);
+		HYDRA_NETWORK_API void registerComponents_network(std::map<std::string, createOrGetComponent_f>& creators);
 	};
 };

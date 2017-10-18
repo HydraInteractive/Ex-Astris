@@ -13,6 +13,6 @@
 
 namespace Hydra::IO {
 	namespace GLTextureLoader {
-		HYDRA_API std::unique_ptr<ITextureLoader> create();
+		HYDRA_GRAPHICS_API std::unique_ptr<ITextureLoader> create();
 	};
 };

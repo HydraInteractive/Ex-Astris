@@ -1,22 +1,16 @@
 #include <barcode/tileGeneration.hpp>
 
-
-tileGeneration::tileGeneration(int xSize, int ySize)
-{
-
+#if 0
+tileGeneration::tileGeneration(int xSize, int ySize) {
 	_xSize = xSize;
 	_ySize = ySize;
 
 	_setupGrid();
-	
 }
 
-tileGeneration::~tileGeneration()
-{
-}
+tileGeneration::~tileGeneration() {}
 
 void tileGeneration::_createMapRecursivly(tileInfo *tile) {
-
 	for (int i = 0; i < tile->room.nrOfDoors; i++) {
 
 		//Go through all doors in the room of the tile, create a random room
@@ -25,7 +19,7 @@ void tileGeneration::_createMapRecursivly(tileInfo *tile) {
 
 		if (tile->room.downDoor == 1 && tile->yTilePos >= 0) {
 			//Find the tile under the current tile
-			for (int k = 0; k < tiles.size(); k++) {
+			for (size_t k = 0; k < tiles.size(); k++) {
 
 				if (!tiles[k]->taken) {
 					if (tile->yTilePos == tiles[k]->yTilePos && tile->xTilePos == tiles[k]->xTilePos - 1) {
@@ -56,7 +50,7 @@ void tileGeneration::_createMapRecursivly(tileInfo *tile) {
 			}
 		}
 		if (tile->room.leftDoor == 1 && tile->xTilePos >= 0) {
-			for (int k = 0; k < tiles.size(); k++) {
+			for (size_t k = 0; k < tiles.size(); k++) {
 				if (!tiles[k]->taken) {
 					if (tile->xTilePos == tiles[k]->xTilePos - 1 && tile->yTilePos == tiles[k]->yTilePos) {
 						roomInfo *room = new roomInfo;
@@ -71,7 +65,7 @@ void tileGeneration::_createMapRecursivly(tileInfo *tile) {
 			}
 		}
 		if (tile->room.upDoor == 1 && tile->yTilePos <= 4) {
-			for (int k = 0; k < tiles.size(); k++) {
+			for (size_t k = 0; k < tiles.size(); k++) {
 				if (!tiles[k]->taken) {
 					if (tile->xTilePos == tiles[k]->xTilePos && tile->yTilePos == tiles[k]->yTilePos + 1) {
 						roomInfo *room = new roomInfo;
@@ -86,7 +80,7 @@ void tileGeneration::_createMapRecursivly(tileInfo *tile) {
 			}
 		}
 		if (tile->room.rightDoor == 1 && tile->xTilePos <= 4) {
-			for (int k = 0; k < tiles.size(); k++) {
+			for (size_t k = 0; k < tiles.size(); k++) {
 				if (!tiles[k]->taken) {
 					if (tile->xTilePos == tiles[k]->xTilePos + 1 && tile->yTilePos == tiles[k]->yTilePos) {
 						roomInfo *room = new roomInfo;
@@ -105,7 +99,6 @@ void tileGeneration::_createMapRecursivly(tileInfo *tile) {
 
 
 void tileGeneration::_setupGrid() {
-
 	int tileCount = 0;
 	int positiveXCount = 0;
 	int positiveYCount = 0;
@@ -174,9 +167,9 @@ void tileGeneration::_setupGrid() {
 
 		}
 	}
-	
-	
+
 	//_createMapRecursivly(tiles[middleTile]);
 	//bool si = true;
 
 }
+#endif
