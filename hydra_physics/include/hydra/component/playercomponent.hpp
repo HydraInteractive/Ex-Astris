@@ -27,7 +27,7 @@ enum Keys {
 
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API PlayerComponent final : public IComponent<PlayerComponent, ComponentBits::Player> {
-		glm::vec3 position = glm::vec3(0, 2, 20); //TODO: Remove
+		glm::vec3 position = glm::vec3(0, 0, 0); //TODO: Remove
 		glm::vec3 velocity = glm::vec3{0, 0, 0};// Same
 		glm::vec3 acceleration = glm::vec3{0, 0, 0}; // Same
 		glm::vec3 weaponOffset = glm::vec3{2, -1.5, -3};

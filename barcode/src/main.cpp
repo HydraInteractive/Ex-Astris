@@ -71,6 +71,7 @@ namespace Barcode {
 				}
 
 				_deadSystem.tick(delta);
+				_renderer->cleanup();
 
 				_state->runFrame(delta);
 				_uiRenderer->render(delta);

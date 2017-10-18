@@ -24,7 +24,6 @@ void PlayerSystem::tick(float delta) {
 
 	//Process PlayerComponent
 	world::getEntitiesWithComponents<PlayerComponent, TransformComponent, CameraComponent>(entities);
-	#pragma omp parallel for
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto player = entities[i]->getComponent<PlayerComponent>();
 		auto transform = entities[i]->getComponent<TransformComponent>();
