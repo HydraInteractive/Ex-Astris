@@ -19,7 +19,7 @@ void Hydra::Component::EditorCameraComponent::deserialize(nlohmann::json & json)
 	position = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
 
 	auto& ori = json["orientation"];
-	orientation = glm::quat{ori[0].get<float>(), ori[1].get<float>(), ori[2].get<float>(), ori[3].get<float>()};
+	orientation = glm::quat{ori[3].get<float>(), ori[0].get<float>(), ori[1].get<float>(), ori[2].get<float>()};
 
 	fov = json["fov"].get<float>();
 	zNear = json["zNear"].get<float>();

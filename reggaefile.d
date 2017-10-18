@@ -3,27 +3,30 @@ import std.algorithm;
 import std.array;
 import std.conv;
 
+enum optimization = "-O0 -ggdb -fopenmp -ffat-lto-objects";
+//enum optimization = "-O3 -ggdb -fopenmp -ffat-lto-objects -Wno-error=maybe-uninitialized -Wno-error=null-dereference";
+
 enum string[] SubProjects = ["hydra", "hydra_graphics", "hydra_network", "hydra_physics", "hydra_sound"];
 enum string SubProjectsInclude = SubProjects.map!((string x) => "-I" ~ x ~ "/include").joiner(" ").array.to!string;
 enum string SubProjectsLink = SubProjects.map!((string x) => "-l" ~ x).joiner(" ").array.to!string;
 
 enum warnings = "-Wall -Wextra -Werror -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wrestrict -Wnull-dereference -Wformat=2 -Wno-error=unused-parameter -Wno-error=format-nonliteral -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=reorder";
 
-enum string CFlagsLib = "-O0 -std=c++1z -ffat-lto-objects -ggdb " ~ warnings ~ " -fdiagnostics-color=always -fopenmp -fPIC " ~ SubProjectsInclude;
+enum string CFlagsLib = optimization ~ " -std=c++1z " ~ warnings ~ " -fdiagnostics-color=always -fPIC " ~ SubProjectsInclude;
 
 enum string CFlagsHydraBaseLib = "-DHYDRA_BASE_EXPORTS " ~ CFlagsLib;
 enum string CFlagsHydraGraphicsLib = "-DHYDRA_GRAPHICS_EXPORTS " ~ CFlagsLib;
 enum string CFlagsHydraNetworkLib = "-DHYDRA_NETWORK_EXPORTS " ~ CFlagsLib;
 enum string CFlagsHydraPhysicsLib = "-DHYDRA_PHYSICS_EXPORTS " ~ CFlagsLib;
 enum string CFlagsHydraSoundLib = "-DHYDRA_SOUND_EXPORTS " ~ CFlagsLib;
-enum string CFlagsExec = "-DBARCODE_EXPORTS -O0 -std=c++1z -ffat-lto-objects -ggdb " ~ warnings ~ " -fdiagnostics-color=always -fopenmp -fPIC -Ibarcode/include " ~ SubProjectsInclude;
+enum string CFlagsExec = "-DBARCODE_EXPORTS -O0 -std=c++1z -ffat-lto-objects " ~ warnings ~ " -fdiagnostics-color=always -fopenmp -fPIC -Ibarcode/include " ~ SubProjectsInclude;
 
-enum LFlagsHydraBaseLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -lm -ldl -lSDL2";
-enum LFlagsHydraGraphicsLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -ldl -lhydra -lGL -lSDL2 -lSDL2_image -lSDL2_ttf";
-enum LFlagsHydraNetworkLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -lhydra -lhydra_graphics -lSDL2_net";
-enum LFlagsHydraPhysicsLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -lhydra -lhydra_graphics -lSDL2 -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath";
-enum LFlagsHydraSoundLib = "-O0 -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -lhydra -lhydra_graphics -lSDL2_mixer";
-enum LFlagsExec = "-O0 -rdynamic -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -ggdb -fdiagnostics-color=always -fopenmp -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath " ~ SubProjectsLink;
+enum LFlagsHydraBaseLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -fdiagnostics-color=always -lm -ldl -lSDL2";
+enum LFlagsHydraGraphicsLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -fdiagnostics-color=always -ldl -lhydra -lGL -lSDL2 -lSDL2_image -lSDL2_ttf";
+enum LFlagsHydraNetworkLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -fdiagnostics-color=always -lhydra -lhydra_graphics -lSDL2_net";
+enum LFlagsHydraPhysicsLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -fdiagnostics-color=always -lhydra -lhydra_graphics -lSDL2 -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath";
+enum LFlagsHydraSoundLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -fdiagnostics-color=always -lhydra -lhydra_graphics -lSDL2_mixer";
+enum LFlagsExec = optimization ~ " -rdynamic -Wl,--no-undefined -Wl,-rpath,. -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -fdiagnostics-color=always -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath " ~ SubProjectsLink;
 
 enum CompileCommand : string {
 	CompileExec = "g++ -c " ~ CFlagsExec ~ " $in -o $out",
@@ -67,5 +70,7 @@ Build myBuild() {
 	auto libhydra_sound = Target("libhydra_sound.so", Link!(LFlagsHydraSoundLib), MakeObjects!("hydra_sound/src/", Compile!(CFlagsHydraSoundLib)), [libhydra, libhydra_graphics]);
 	auto barcode = Target("barcodegame", CompileCommand.LinkExec, MakeObjects!("barcode/src/", CompileCommand.CompileExec), [libhydra, libhydra_graphics, libhydra_network, libhydra_physics, libhydra_sound]);
 
-	return Build(barcode);
+	auto dist = optional(Target.phony("dist", `tar cfz dist-$$(git describe --long --tags | sed 's/\([^-]*-\)g/r\1/').tar.xz barcodegame assets -C objs/barcodegame.objs libhydra{,_{graphics,network,physics,sound}}.so`));
+
+	return Build(barcode, dist);
 }
