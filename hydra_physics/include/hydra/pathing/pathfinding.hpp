@@ -28,11 +28,11 @@ public:
 
 		float& x() { return baseVec.x; }
 		float& z() { return baseVec.y; }
-		void set(glm::vec2 &vec) { baseVec = vec; }
-		void set(glm::vec3 &vec) { baseVec = glm::vec2(vec.x,vec.z); }
+		void set(const glm::vec2 &vec) { baseVec = vec; }
+		void set(const glm::vec3 &vec) { baseVec = glm::vec2(vec.x,vec.z); }
 
-		operator glm::vec3()& { return glm::vec3(baseVec.x, 0, baseVec.y); }
-		operator glm::vec2()& { return baseVec; }
+		operator glm::vec3() { return glm::vec3(baseVec.x, 0, baseVec.y); }
+		operator glm::vec2() { return baseVec; }
 	};
 	struct Node
 	{
@@ -89,7 +89,7 @@ public:
 	virtual ~PathFinding();
 
 	void findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, int(&map)[WORLD_SIZE][WORLD_SIZE]);
-	glm::vec3& nextPathPos(const glm::vec3& pos, const float& radius);
+	glm::vec3 nextPathPos(const glm::vec3& pos, const float& radius);
 
 	bool intializedStartGoal;
 	bool foundGoal;
