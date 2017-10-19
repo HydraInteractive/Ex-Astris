@@ -95,8 +95,8 @@ namespace Barcode {
 					setState<MenuState>();
 				if (ImGui::MenuItem("GameState", NULL, typeid(*_state) == typeid(GameState)))
 					setState<GameState>();
-				/*if (ImGui::MenuItem("EditorState", NULL, typeid(*_state) == typeid(EditorState)))
-					setState<EditorState>();*/
+				if (ImGui::MenuItem("EditorState", NULL, typeid(*_state) == typeid(EditorState)))
+					setState<EditorState>();
 				ImGui::EndMenu();
 			}
 			if (_state)
