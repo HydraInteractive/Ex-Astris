@@ -8,7 +8,7 @@
  *  - Dan Printzell
  */
 #include <hydra/renderer/glrenderer.hpp>
-
+#include <glm/gtx/transform.hpp>
 #include <glad/glad.h>
 
 #include <hydra/engine.hpp>
@@ -19,72 +19,6 @@
 using namespace Hydra;
 using namespace Hydra::Renderer;
 
-struct meshInfo {
-
-	std::string name;
-	std::vector<glm::vec3> verts;
-	std::vector<int> indices;
-	std::vector<glm::vec3> norms;
-	std::vector<glm::vec3> tangent;
-	std::vector<glm::vec3> biNormals;
-	std::vector<glm::vec2> uvs;
-
-	std::string fileName;
-	glm::vec3 ambient;
-	glm::vec3 diffuse;
-	glm::vec3 specular;
-
-	glm::vec3 position;
-	glm::vec3 rotation;
-	glm::vec3 scale;
-
-	GLuint texture;
-	GLuint normalMap;
-	GLuint movingTexture;
-	GLuint VAO;
-
-	glm::mat4 modelMatrix;
-
-};
-
-struct skelInfo {
-
-	int nrOfClusters;
-	std::string jointName;
-	glm::vec4 globalBindPose0;
-	glm::vec4 globalBindPose1;
-	glm::vec4 globalBindPose2;
-	glm::vec4 globalBindPose3;
-
-	glm::mat4 globalBindPosMat;
-
-	std::vector<glm::vec4> transRow0;
-	std::vector<glm::vec4> transRow1;
-	std::vector<glm::vec4> transRow2;
-	std::vector<glm::vec4> transRow3;
-
-	std::vector<glm::vec4> finishedTransRow0;
-	std::vector<glm::vec4> finishedTransRow1;
-	std::vector<glm::vec4> finishedTransRow2;
-	std::vector<glm::vec4> finishedTransRow3;
-
-	std::vector<glm::mat4> transformMat;
-	std::vector<glm::mat4> finishedTransformMat;
-
-	int nrOfKeys;
-};
-std::vector<skelInfo*> skeleton[7];
-int animationIndex;
-
-struct weights {
-	int nrOfIndices;
-	std::vector<int> indexPos;
-	std::vector<glm::vec3> polygonVerteciesIndex;
-	std::vector<glm::ivec4> controllers;
-	std::vector<glm::vec4> weightsInfluence;
-};
-weights weightInfo;
-
 class GLMeshImpl final : public IMesh {
 public:
 	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices) {
@@ -93,13 +27,15 @@ public:
 	}
 
 	GLMeshImpl(const std::string& file, GLuint modelMatrixBuffer) {
-
+		_file = file;
+		_currentFrame = 1;
+		_currentAnimationIndex = 0;
 		_loadATTICModel(file.c_str(), modelMatrixBuffer);
 	}
 
-	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices, bool animation, GLuint modelMatrixBuffer, GLuint particleExtraBuffer) {
+	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices, bool animation, GLuint modelMatrixBuffer, GLuint RendererExtraBuffer) {
 		_makeBuffers();
-		_uploadData(vertices, indices, animation, modelMatrixBuffer, particleExtraBuffer);
+		_uploadData(vertices, indices, animation, modelMatrixBuffer, RendererExtraBuffer);
 	}
 
 
@@ -108,14 +44,13 @@ public:
 		glDeleteBuffers(sizeof(buffers) / sizeof(*buffers), buffers);
 
 		glDeleteVertexArrays(1, &_vao);
+		
+		for (size_t i = 0; i < 7; i++) {
+			for (size_t k = 0; k < skeleton[i].size(); k++) {
+				delete skeleton[i][k];
+			}
+		}
 	}
-
-	//void loadWeight(const char* filePath){
-	//	_loadWeight(filePath);
-	//}
-	//void loadAnimation(const char* filePath) {
-	//	_loadSkeleton(filePath);
-	//}
 
 	struct skelInfo {
 
@@ -153,14 +88,25 @@ public:
 		std::vector<glm::ivec4> controllers;
 		std::vector<glm::vec4> weightsInfluence;
 	};
+
 	weights weightInfo;
 
 	Material& getMaterial() final { return _material; }
+
 	bool hasAnimation() final { return _meshHasAnimation; }
-	glm::mat4 getTransformationMatrices(int animationIndex, int joint, int currentFrame) final { return _finishedMatrices[animationIndex][joint]->finishedTransformMat[currentFrame]; }
+	glm::mat4 getTransformationMatrices(int joint) final { return _finishedMatrices[_currentAnimationIndex][joint]->finishedTransformMat[_currentFrame - 1]; }
+	int getNrOfJoints() final { return _finishedMatrices[_currentAnimationIndex][0]->nrOfClusters; }
+	int getCurrentKeyframe() final { return _currentFrame; }
+	int getMaxFramesForAnimation() final { return _finishedMatrices[_currentAnimationIndex][0]->nrOfKeys; }
+	int getCurrentAnimationIndex() final { return _currentAnimationIndex; }
+	void setCurrentKeyframe(int frame) { _currentFrame = frame; }
+	void setAnimationIndex(int index) { _currentAnimationIndex = index; }
+
 	GLuint getID() const final { return _vao; }
 	size_t getIndicesCount() const final { return _indicesCount; }
+
 private:
+	std::string _file = "(null)";
 	Material _material;
 	GLuint _vao; // Vertex Array
 	GLuint _vbo; // Vertices
@@ -169,6 +115,11 @@ private:
 	
 	std::vector<skelInfo*> _finishedMatrices[7];
 	bool _meshHasAnimation = false;
+
+	int _nrOfJoints;
+	int _maxFramesForAnimation;
+	int _currentFrame;
+	int _currentAnimationIndex;
 
 	void _makeBuffers() {
 		glGenVertexArrays(1, &_vao);
@@ -180,7 +131,7 @@ private:
 		_ibo = buffers[1];
 	}
 
-	void _uploadData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, bool animation, GLuint modelMatrixBuffer, GLuint particleExtraBuffer) {
+	void _uploadData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, bool animation, GLuint modelMatrixBuffer, GLuint RendererExtraBuffer) {
 		_indicesCount = indices.size();
 		glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
@@ -216,8 +167,8 @@ private:
 				glVertexAttribDivisor(VertexLocation::modelMatrix + i, 1);
 			}
 		}
-		if (particleExtraBuffer) {
-			glBindBuffer(GL_ARRAY_BUFFER, particleExtraBuffer);
+		if (RendererExtraBuffer) {
+			glBindBuffer(GL_ARRAY_BUFFER, RendererExtraBuffer);
 			for (int i = 0; i < 3; i++) {
 				glEnableVertexAttribArray(VertexLocation::textureOffset1 + i);
 				glVertexAttribPointer(VertexLocation::textureOffset1 + i, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2) * 3, (GLvoid*)(sizeof(glm::vec2) * i));
@@ -307,6 +258,10 @@ private:
 			tempFileName = new char[fileNameLength];
 			in.read(tempFileName, fileNameLength);
 			fileName.append(tempFileName, fileNameLength);
+			_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/" + fileName);
+			_material.normal = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/normals/futuristicNormal.png");
+			_material.specular = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/speculars/brickSpecular.png");
+			_material.glow = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/glow/EscapePodDoorGlow_Fin.png");
 
 			delete[] tempFileName;
 
@@ -335,21 +290,53 @@ private:
 			_makeBuffers();
 
 			if (hasAnimation) {
-				//HardCoded for now
-				_loadWeight("assets/objects/animatedCubeWeights.ATTIC", vertices);
-				_loadSkeleton("assets/objects/animatedCubeSkeleton.ATTIC", vertices);
+
 				_meshHasAnimation = true;
+				int nrOfAnimationFiles;
+				in.read(reinterpret_cast<char*>(&nrOfAnimationFiles), sizeof(int));
+				bool test = true;
+				std::string animationFilePath = "assets/objects/characters/";
+				std::string animationFileName;
+				int nrOfFileChars = 0;
+
+				//Read the weight info
+				in.read(reinterpret_cast<char*>(&nrOfFileChars), sizeof(int));
+				char *tempAnimationFileName;
+				tempAnimationFileName = new char[nrOfFileChars];
+				in.read(tempAnimationFileName, nrOfFileChars);
+				animationFileName.append(tempAnimationFileName, nrOfFileChars);
+				delete[] tempAnimationFileName;
+				animationFileName += ".wATTIC";
+				animationFilePath += animationFileName;
+
+				_loadWeight(animationFilePath.c_str(), vertices);
+
+				//Read all the skeleton info. In other words, all different animations
+				for (int animationFile = 0; animationFile < nrOfAnimationFiles; animationFile++) {
+
+					in.read(reinterpret_cast<char*>(&nrOfFileChars), sizeof(int));
+					animationFilePath = "assets/objects/characters/";
+					animationFileName = "";
+					tempAnimationFileName = new char[nrOfFileChars];
+					in.read(tempAnimationFileName, nrOfFileChars);
+					animationFileName.append(tempAnimationFileName, nrOfFileChars);
+					animationFileName += ".sATTIC";
+					animationFilePath += animationFileName;
+
+					delete[] tempAnimationFileName;
+
+					_loadSkeleton(animationFilePath.c_str(), vertices);
+
+
+				}
 				_uploadData(vertices, indices, true, modelMatrixBuffer, 0);
+
 			}
 			else {
 				_meshHasAnimation = false;
 				_uploadData(vertices, indices, false, modelMatrixBuffer, 0);
 			}
 
-			//const char *test = fileName.c_str();
-			//info->texture = createTexture(test);
-			//glGenVertexArrays(1, &info->VAO);
-			//ATTICMeshes.push_back(info);
 		}
 	
 	}
@@ -404,6 +391,7 @@ private:
 
 			skelInfo *info = new skelInfo;
 			info->nrOfKeys = nrOfKeyframes;
+			info->nrOfClusters = clusterNr;
 			info->jointName = name;
 
 			glm::vec4 globalBindVec0;
@@ -467,9 +455,7 @@ private:
 			}
 			_finishedMatrices[indexNmr].push_back(info);
 			skeleton[indexNmr].push_back(info);
-			delete[] info;
 		}
-
 	}
 
 };

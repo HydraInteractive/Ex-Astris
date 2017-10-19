@@ -14,7 +14,7 @@
 #include <glm/glm.hpp>
 
 namespace Hydra::Renderer {
-	enum class HYDRA_API PipelineStage : uint32_t {
+	enum class HYDRA_BASE_API PipelineStage : uint32_t {
 		vertex = 1 << 0,
 		geometry = 1 << 1,
 		fragment = 1 << 2
@@ -22,7 +22,7 @@ namespace Hydra::Renderer {
 
 	inline PipelineStage operator& (PipelineStage a, PipelineStage b) { return static_cast<PipelineStage>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b)); }
 
-	class HYDRA_API IShader {
+	class HYDRA_BASE_API IShader {
 	public:
 		virtual ~IShader() = 0;
 
@@ -32,7 +32,7 @@ namespace Hydra::Renderer {
 	};
 	inline IShader::~IShader() {}
 
-	class HYDRA_API IPipeline {
+	class HYDRA_BASE_API IPipeline {
 	public:
 		virtual ~IPipeline() = 0;
 

@@ -5,6 +5,6 @@
 
 namespace Hydra::Component {
 	namespace ComponentManager {
-		HYDRA_API void registerComponents_sound(std::map<std::string, createOrGetComponent_f>& creators);
+		HYDRA_SOUND_API void registerComponents_sound(std::map<std::string, createOrGetComponent_f>& creators);
 	};
 };

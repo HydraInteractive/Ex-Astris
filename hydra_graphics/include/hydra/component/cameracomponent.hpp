@@ -22,14 +22,22 @@
 using namespace Hydra::World;
 
 namespace Hydra::Component {
-	class HYDRA_API CameraComponent final : public IComponent{
-	public:
-		CameraComponent(IEntity* entity);
-		CameraComponent(IEntity* entity, Hydra::Renderer::IRenderTarget* renderTarget, const glm::vec3& position = {0, 0, 0});
-		~CameraComponent() final;
+	struct HYDRA_GRAPHICS_API CameraComponent final : public IComponent<CameraComponent, ComponentBits::Camera> {
+		Hydra::Renderer::IRenderTarget* renderTarget = nullptr;
+		glm::vec3 position = glm::vec3{0, 0, 0};
+		glm::quat orientation = glm::quat();
 
-		void tick(TickAction action, float delta) final;
-		inline TickAction wantTick() const final { return TickAction::physics; }
+		float fov = 90.0f;
+		float zNear = 0.1f;
+		float zFar = 75.0f;
+		float aspect = 1920.0f/1080.0f;
+
+		float sensitivity = 0.003f;
+		float cameraYaw = 0.0f;
+		float cameraPitch = 0.0f;
+		bool mouseControl = true;
+
+		~CameraComponent() final;
 
 		inline const std::string type() const final { return "CameraComponent"; }
 
@@ -37,41 +45,8 @@ namespace Hydra::Component {
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
 
-		void translate(const glm::vec3& transform);
-		void rotation(float angle, const glm::vec3& axis);
-
-		CameraComponent& yaw(float angle);
-		CameraComponent& pitch(float angle);
-		CameraComponent& roll(float angle);
-
-		inline Hydra::Renderer::IRenderTarget* getRenderTarget() { return _renderTarget; }
-		inline void setRenderTarget(Hydra::Renderer::IRenderTarget* renderTarget) { _renderTarget = renderTarget; }
-
-		inline const glm::vec3& getPosition() const { return _position; }
-
-		void setPosition(const glm::vec3& position);
-
-		inline const float& getYaw() const { return _cameraYaw; }
-		inline const float& getPitch() const { return _cameraPitch; }
-		inline const glm::quat& getOrientation() const { return _orientation; }
-
 		// TODO: Cache these?
-		inline glm::mat4 getViewMatrix() const { return glm::translate(glm::mat4_cast(_orientation), -_position); }
-		inline glm::mat4 getProjectionMatrix() const { return glm::perspective(glm::radians(_fov), _aspect, _zNear, _zFar); }
-
-	private:
-		Hydra::Renderer::IRenderTarget* _renderTarget;
-		glm::vec3 _position;
-		glm::quat _orientation;
-
-		float _fov = 90.0f;
-		float _zNear = 0.001f;
-		float _zFar = 75.0f;
-		float _aspect = 1920.0f/1080.0f;
-
-		float _sensitivity = 0.003f;
-		float _cameraYaw = 0.0f;
-		float _cameraPitch = 0.0f;
-		bool _mouseControl = true;
+		inline glm::mat4 getViewMatrix() const { return glm::translate(glm::mat4_cast(orientation), -position); }
+		inline glm::mat4 getProjectionMatrix() const { return glm::perspective(glm::radians(fov), aspect, zNear, zFar); }
 	};
 };

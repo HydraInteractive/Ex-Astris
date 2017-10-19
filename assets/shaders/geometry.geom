@@ -32,7 +32,7 @@ layout(location = 0) uniform mat4 v;
 layout(location = 1) uniform mat4 p;
 layout(location = 2) uniform vec3 cameraPos;
 
-layout(location = 3) uniform bool setting_doBackFaceCulling = false;
+layout(location = 3) uniform bool setting_doBackFaceCulling = true;
 layout(location = 4) uniform mat4 lightS;
 
 
@@ -60,6 +60,7 @@ void main() {
 
 		vec3 triangleNormal = cross(edge0, edge1);
 
+		
 		if (dot(normalize(p0 - cameraPos), triangleNormal) >= 0)
 			return;
 	}
@@ -71,10 +72,9 @@ void main() {
 
 		mat3 normalMatrix = transpose(inverse(mat3(inData[i].m)));
 		outData.normal = normalize(normalMatrix * inData[i].normal);
-		//outData.normal = normalize(inData[i].normal);	
 
 		outData.color = inData[i].color;
-		outData.uv = inData[i].uv;
+		outData.uv = vec2(inData[i].uv.x, 1 - inData[i].uv.y);
 		outData.tbn = calcTBN(normalMatrix, inData[i].normal, i);
 
 		gl_Position = p * v * pos;

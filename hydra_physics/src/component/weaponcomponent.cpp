@@ -16,92 +16,83 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-WeaponComponent::WeaponComponent(IEntity* entity) : IComponent(entity) {
-	entity->createEntity("Bullets");
-}
+using world = Hydra::World::World;
 
 WeaponComponent::~WeaponComponent() { }
 
-void WeaponComponent::tick(TickAction action, float delta) {
-	// If you only have one TickAction in 'wantTick' you don't need to check the tickaction here.
+//TODO: (Re)move? to system?
+void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity) {
+	if (!_bullets)
+		_bullets = world::newEntity("Bullets", entityID);
 
-}
+	if (fireRateTimer > 0)
+		return;
 
-void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity)
-{
-	if (SDL_GetTicks() > _fireRateTimer + 1000/(_fireRateRPM/60)){
-		if (_bulletSpread == 0.0f){
-			auto bullet = getBullets()->createEntity("Bullet");
-			
-			bullet->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
-			bullet->addComponent<Hydra::Component::BulletComponent>(position, -direction, velocity);
-			auto transform = bullet->addComponent<Hydra::Component::TransformComponent>(position, glm::vec3(_bulletSize));
+	if (bulletSpread == 0.0f) {
+		auto bullet = world::newEntity("Bullet", _bullets);
+		bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge.ATTIC");
+		auto b = bullet->addComponent<Hydra::Component::BulletComponent>();
+		b->position = position;
+		b->direction = -direction;
+		b->velocity = velocity;
+		auto transform = bullet->addComponent<Hydra::Component::TransformComponent>();
+		transform->position = position;
+		transform->scale = glm::vec3(bulletSize);
+		transform->rotation = bulletOrientation;
+	} else {
+		for (int i = 0; i < bulletsPerShot; i++) {
+			auto bullet = world::newEntity("Bullet", _bullets);
+			bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge.ATTIC");
 
-			transform->setRotation(bulletOrientation);
-		}
-		else {
-			for (int i = 0; i < _bulletsPerShot; i++) {
-				auto bullet = getBullets()->createEntity("Bullet");
-				bullet->addComponent<Hydra::Component::MeshComponent>("assets/objects/Fridge.ATTIC");
+			std::random_device rd; //
+			std::mt19937 gen(rd()); // FIXME: Why always the same random?
+			std::uniform_real_distribution<>dis(0, 2 * 3.14); //
+			float phi = dis(gen);
+			dis = std::uniform_real_distribution<>(0, 1.0);
+			float distance = dis(gen) * bulletSpread;
+			dis = std::uniform_real_distribution<>(0, 3.14);
+			float theta = dis(gen);
 
-				std::random_device rd;
-				std::mt19937 gen(rd());
-				std::uniform_real_distribution<>dis(0, 2 * 3.14);
-				float phi = dis(gen);
-				dis = std::uniform_real_distribution<>(0, 1.0);
-				float distance = dis(gen) * _bulletSpread;
-				dis = std::uniform_real_distribution<>(0, 3.14);
-				float theta = dis(gen);
+			glm::vec3 bulletDirection = -direction;
+			bulletDirection.x += distance * sin(theta) * cos(phi);
+			bulletDirection.y += distance * sin(theta) * sin(phi);
+			bulletDirection.z += distance * cos(theta);
+			bulletDirection = glm::normalize(bulletDirection);
 
-				glm::vec3 bulletDirection = -direction;
-				bulletDirection.x += distance * sin(theta) * cos(phi);
-				bulletDirection.y += distance * sin(theta) * sin(phi);
-				bulletDirection.z += distance * cos(theta);
-				bulletDirection = glm::normalize(bulletDirection);
+			auto b = bullet->addComponent<Hydra::Component::BulletComponent>();
+			b->position = position;
+			b->direction = bulletDirection;
+			b->velocity = velocity;
 
-				bullet->addComponent<Hydra::Component::BulletComponent>(position, bulletDirection, velocity);
-
-				auto transform = bullet->addComponent<Hydra::Component::TransformComponent>(position, glm::vec3(_bulletSize));
-				transform->setRotation(bulletOrientation);
-			}
-		}
-		_fireRateTimer = SDL_GetTicks();
-	}
-}
-
-std::shared_ptr<Hydra::World::IEntity> WeaponComponent::getBullets() {
-	std::shared_ptr<Hydra::World::IEntity> bullets;
-	std::vector<std::shared_ptr<Hydra::World::IEntity>> children = entity->getChildren();
-	
-	for (size_t i = 0; i < children.size(); i++) {
-		if (children[i]->getName() == "Bullets") {
-			bullets = children[i];
+			auto transform = bullet->addComponent<Hydra::Component::TransformComponent>();
+			transform->position = position;
+			transform->scale = glm::vec3(bulletSize);
+			transform->rotation = bulletOrientation;
 		}
 	}
+	fireRateTimer = fireRateRPM / 60000.0;
 
-	return bullets;
 }
 
 void WeaponComponent::serialize(nlohmann::json& json) const {
 	json = {
-		{ "fireRateRPM", _fireRateRPM },
-		{ "bulletSize", _bulletSize},
-		{ "bulletSpread", _bulletSpread},
-		{ "bulletsPerShot", _bulletsPerShot}
+		{ "fireRateRPM", fireRateRPM },
+		{ "bulletSize", bulletSize},
+		{ "bulletSpread", bulletSpread},
+		{ "bulletsPerShot", bulletsPerShot}
 	};
 }
 
 void WeaponComponent::deserialize(nlohmann::json& json) {
-	_fireRateRPM = json["fireRateRPM"].get<int>();
-	_bulletSize = json["bulletSize"].get<float>();
-	_bulletSpread = json["bulletSpread"].get<float>();
-	_bulletsPerShot = json["bulletsPerShot"].get<int>();
+	fireRateRPM = json["fireRateRPM"].get<int>();
+	bulletSize = json["bulletSize"].get<float>();
+	bulletSpread = json["bulletSpread"].get<float>();
+	bulletsPerShot = json["bulletsPerShot"].get<int>();
 }
 
 void WeaponComponent::registerUI() {
-	ImGui::InputInt("Fire Rate RPM", &_fireRateRPM);
-	ImGui::DragFloat("Bullet Size", &_bulletSize, 0.001f);
-	ImGui::DragFloat("Bullet Spread", &_bulletSpread, 0.001f);
-	ImGui::InputInt("Bullets Per Shot", &_bulletsPerShot);
-	ImGui::DragFloat3("DEBUG", glm::value_ptr(_debug));
+	ImGui::DragFloat("Fire Rate RPM", &fireRateRPM);
+	ImGui::DragFloat("Bullet Size", &bulletSize, 0.001f);
+	ImGui::DragFloat("Bullet Spread", &bulletSpread, 0.001f);
+	ImGui::InputInt("Bullets Per Shot", &bulletsPerShot);
 }

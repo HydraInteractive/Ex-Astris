@@ -13,6 +13,6 @@
 
 namespace Hydra::IO {
 	namespace GLMeshLoader {
-		HYDRA_API std::unique_ptr<IMeshLoader> create(IRenderer* renderer);
+		HYDRA_GRAPHICS_API std::unique_ptr<IMeshLoader> create(IRenderer* renderer);
 	};
 };

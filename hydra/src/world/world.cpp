@@ -13,222 +13,123 @@
 #include <hydra/renderer/renderer.hpp>
 #include <hydra/engine.hpp>
 #include <hydra/component/componentmanager.hpp>
+#include <hydra/ext/macros.hpp>
+#include <tuple>
 
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-class WorldImpl : public IWorld {
-public:
-	WorldImpl() : _id(0) {
-		_root = Entity::createEmpty(this, "World");
-	}
+using world = Hydra::World::World;
 
-	~WorldImpl() final {
-		_root.reset();
-	}
+#ifdef __linux__
+template <typename T, Hydra::Component::ComponentBits bit>
+IComponentHandler* IComponent<T, bit>::componentHandler;
+#endif
 
-	size_t getFreeID() final { return _id++; }
+template <typename T, Hydra::Component::ComponentBits bit>
+IComponent<T, bit>::~IComponent() {}
 
-	std::shared_ptr<IEntity> createEntity(const std::string& name) final { return _root->createEntity(name); }
-	void tick(TickAction action, float delta) final { _root->tick(action, delta); }
-	void setWorldRoot(std::shared_ptr<IEntity> root) final { _root = root; }
-	std::shared_ptr<IEntity> getWorldRoot() final { return _root; }
-	std::map<std::type_index, std::vector<IEntity*>>& getActiveComponentMap() { return _activeComponents; }
+std::shared_ptr<Entity> World::root = nullptr;
+std::unordered_map<EntityID, size_t> World::_map;
+std::vector<std::shared_ptr<Entity>> World::_entities;
+EntityID World::_idCounter = 1;
 
-private:
-	std::shared_ptr<IEntity> _root;
-	std::map<std::type_index, std::vector<IEntity*>> _activeComponents;
-	size_t _id;
+template <typename T>
+inline void removeComponent(Entity& this_) {
+	if (this_.hasComponent<T>())
+		T::componentHandler->removeComponent(this_.id);
+}
+
+template <typename... Args>
+struct RemoveComponents;
+
+template <>
+struct RemoveComponents<Hydra::Ext::TypeTuple<>> {
+	constexpr static void apply(Entity&) {}
 };
 
-class EntityImpl : public IEntity {
-public:
-	EntityImpl(IWorld* world, const std::string& name = "", IEntity* parent = nullptr) : IEntity(world), _name(name), _parent(parent) {}
-	EntityImpl(IWorld* world, nlohmann::json& json, IEntity* parent = nullptr) : IEntity(world), _parent(parent) {
-		_name = json["name"].get<std::string>();
+template <typename T, typename... Args>
+struct RemoveComponents<Hydra::Ext::TypeTuple<T, Args...>> {
+	constexpr static void apply(Entity& this_) {
+		//(removeComponent<Args>(this_), ...);
 
-		{
-			auto& components = json["components"];
-			auto it = components.begin();
-			auto& createMap = ComponentManager::createOrGetComponentMap();
-			for (size_t i = 0; i < components.size(); i++, it++) {
-				try {
-					auto* c = createMap.at(it.key())(this);
-					c->deserialize(it.value());
-				} catch (const std::out_of_range&)	{
-					Hydra::IEngine::getInstance()->log(Hydra::LogLevel::error, "Component type '%s' not found!", it.key().c_str());
-				}
-			}
-		}
+		removeComponent<T>(this_);
+		RemoveComponents<Hydra::Ext::TypeTuple<Args...>>::apply(this_);
+	}
+};
 
-		{
-			auto& children = json["children"];
-			for (size_t i = 0; i < children.size(); i++)
-				createEntity(children[i]);
-		}
+Entity::~Entity() {
+	for (EntityID child : children)
+		World::removeEntity(child);
+	RemoveComponents<ComponentTypes>::apply(*this);
+}
+
+template <typename T>
+inline void serializeComponent(const Entity& this_, nlohmann::json& json) {
+	if (this_.hasComponent<T>()) {
+		auto component = this_.getComponent<T>();
+		component->serialize(json[component->type()]);
+	}
+}
+
+template <typename... Args>
+struct SerializeComponents;
+
+template <>
+struct SerializeComponents<Hydra::Ext::TypeTuple<>> {
+	constexpr static void apply(const Entity&, nlohmann::json&) {}
+};
+
+template <typename T, typename... Args>
+struct SerializeComponents<Hydra::Ext::TypeTuple<T, Args...>> {
+	constexpr static void apply(const Entity& this_, nlohmann::json& json) {
+		//(serializeComponent<Args>(this_, json), ...);
+
+		serializeComponent<T>(this_, json);
+		SerializeComponents<Hydra::Ext::TypeTuple<Args...>>::apply(this_, json);
+	}
+};
+
+void Entity::serialize(nlohmann::json& json) const {
+	json["name"] = name;
+
+	{
+		auto& c = json["components"];
+		SerializeComponents<ComponentTypes>::apply(*this, c);
 	}
 
-	virtual ~EntityImpl() {
-		if (_drawObject)
-			_drawObject->refCounter--;
-
-		for (auto& map : world->getActiveComponentMap())
-			world->getActiveComponentMap()[map.first].erase(
-				std::remove_if(
-					world->getActiveComponentMap()[map.first].begin(),
-					world->getActiveComponentMap()[map.first].end(),
-					[this](const IEntity* e) {
-						return e == this;
-					}
-				),
-				world->getActiveComponentMap()[map.first].end()
-			);
+	{
+		auto& c = json["children"];
+		for (size_t i = 0; i < children.size(); i++)
+			world::getEntity(children[i])->serialize(c[i]);
 	}
+}
 
-	void tick(TickAction action, float delta) final {
-		if (action == TickAction::checkDead) {
-			auto it = std::remove_if(_children.begin(), _children.end(), [](const std::shared_ptr<IEntity>& e) { return e->isDead(); });
-			_children.erase(it, _children.end());
-		} else
-			for (auto& component : _components)
-				if ((action & component.second->wantTick()) == action)
-					component.second->tick(action, delta);
+void Entity::deserialize(nlohmann::json& json) {
+	name = json["name"].get<std::string>();
 
-		for (auto& child : _children)
-			if ((action & child->wantTick()) == action)
-				child->tick(action, delta);
-	}
-
-	TickAction wantTick() final {
-		static TickAction want = TickAction::checkDead;
-
-		if (!_wantDirty)
-			return want;
-
-		_wantDirty = false;
-
-		for (auto& component : _components)
-			want = want | component.second->wantTick();
-
-		for (auto& child : _children)
-			want = want | child->wantTick();
-
-		return want;
-	}
-
-	void markDead() final { _dead = true; }
-
-	IComponent* addComponent_(const std::type_index& id, std::unique_ptr<IComponent> component) final {
-		_wantDirty = true;
-		IComponent* ptr = component.get();
-		_components[id] = std::move(component);
-		world->getActiveComponentMap()[id].push_back(this);
-		return ptr;
-	}
-
-	void removeComponent_(const std::type_index& id) final {
-		_wantDirty = true;
-		_components.erase(id);
-		world->getActiveComponentMap()[id].erase(
-			std::remove_if(
-				world->getActiveComponentMap()[id].begin(),
-				world->getActiveComponentMap()[id].end(),
-				[this](const IEntity* e) {
-					return e == this;
-				}
-			),
-			world->getActiveComponentMap()[id].end()
-		);
-	}
-
-	std::map<std::type_index, std::unique_ptr<IComponent>>& getComponents() final { return _components; }
-
-	std::shared_ptr<IEntity> spawn(std::shared_ptr<IEntity> entity) final {
-		_wantDirty = true;
-		_children.push_back(entity);
-		entity->setParent(this);
-		return entity;
-	}
-	std::shared_ptr<IEntity> createEntity(const std::string& name) final {
-		return spawn(std::shared_ptr<IEntity>(new EntityImpl(world, name, this)));
-	}
-	std::shared_ptr<IEntity> createEntity(nlohmann::json& json) final {
-		return spawn(std::shared_ptr<IEntity>(new EntityImpl(world, json, this)));
-	}
-
-	void setParent(IEntity* parent) final { _parent = parent; }
-	IEntity* getParent() final { return _parent; }
-	const std::vector<std::shared_ptr<IEntity>>& getChildren() final { return _children; }
-
-	void serialize(nlohmann::json& json, bool serializeChildren) const final {
-		json["name"] = _name;
-
-		{
-			auto& c = json["components"];
-			for (auto& component : _components)
-				component.second->serialize(c[component.second->type()]);
-		}
-
-		if (serializeChildren) {
-			auto& children = json["children"];
-			for (size_t i = 0; i < _children.size(); i++)
-				_children[i]->serialize(children[i]);
-		}
-	}
-
-	void deserialize(nlohmann::json& json) final {
-		_name = json["name"].get<std::string>();
-
-		{
-			auto& components = json["components"];
-			auto it = components.begin();
-			auto& createMap = ComponentManager::createOrGetComponentMap();
-			for (size_t i = 0; i < components.size(); i++, it++) {
-				try {
-					auto* c = createMap.at(it.key())(this); // TODO: Change to find?
-					c->deserialize(components[i]);
-				} catch (const std::out_of_range&)	{
-					Hydra::IEngine::getInstance()->log(Hydra::LogLevel::error, "Component type '%s' not found!", it.key().c_str());
-				}
+	{
+		auto& c = json["components"];
+		auto it = c.begin();
+		auto& createMap = ComponentManager::createOrGetComponentMap();
+		for (size_t i = 0; i < c.size(); i++, it++) {
+			try {
+				auto component = createMap.at(it.key())(this); // TODO: Change to find?
+				component->deserialize(it.value());
+			} catch (const std::out_of_range&)	{
+				Hydra::IEngine::getInstance()->log(Hydra::LogLevel::error, "Component type '%s' not found!", it.key().c_str());
 			}
 		}
 	}
 
-	const std::string& getName() const final { return _name; }
-	Hydra::Renderer::DrawObject* getDrawObject() final {
-		if (!_drawObject) {
-			_drawObject = Hydra::IEngine::getInstance()->getRenderer()->aquireDrawObject();
-			_drawObject->refCounter++;
-		}
-		return _drawObject;
+	{
+		auto& c = json["children"];
+		for (size_t i = 0; i < c.size(); i++)
+			world::newEntity("", this)->deserialize(c[i]);
 	}
-	bool isDead() const final { return _dead; }
-
- protected:
-	bool _wantDirty = false;
-	std::string _name;
-	bool _dead = false;
-	IEntity* _parent = nullptr;
-	std::map<std::type_index, std::unique_ptr<IComponent>> _components;
-	std::vector<std::shared_ptr<IEntity>> _children;
-
-	Hydra::Renderer::DrawObject* _drawObject = nullptr;
-	Hydra::Physics::PhysicsObject* _physicsObject = nullptr;
-};
-
-std::shared_ptr<IEntity> Blueprint::spawn(IWorld* world) {
-	return Entity::createFromBlueprint(world, getData());
 }
 
-std::unique_ptr<IWorld> World::create() {
-	return std::unique_ptr<IWorld>(new WorldImpl());
-}
 
-std::shared_ptr<IEntity> Entity::createEmpty(IWorld* world, const std::string& name) {
-	return std::shared_ptr<IEntity>(new EntityImpl(world, name, nullptr));
+void Blueprint::spawn(std::shared_ptr<Entity>& root) {
+	root->deserialize(getData());
 }
-
-std::shared_ptr<IEntity> Entity::createFromBlueprint(IWorld* world, nlohmann::json& json) {
-	return std::shared_ptr<IEntity>(new EntityImpl(world, json, nullptr));
-}
-

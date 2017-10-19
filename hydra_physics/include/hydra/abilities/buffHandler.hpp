@@ -2,26 +2,25 @@
 #include <vector>
 #include <SDL2/SDL.h>
 
-enum Buffs
-{
+#include <hydra/ext/api.hpp>
+
+enum Buffs {
 	BUFF_HEALING,
 	BUFF_HEALTHUPGRADE,
 	BUFF_DAMAGEUPGRADE,
 	BUFF_BULLETVELOCITY
 };
 
-enum Debuffs
-{
+enum Debuffs {
 	DEBUFF_POISON,
 	DEBUFF_BURNING
 };
 
-class BuffHandler
-{
+class HYDRA_PHYSICS_API BuffHandler {
 public:
 	BuffHandler();
 	~BuffHandler();
-	void getActiveBuffs();
+	std::vector<Buffs> getActiveBuffs();
 	void getActiveDebuffs();
 	bool addBuff(Buffs newBuff);
 	void onActivation(int &maxHealth, int &health);

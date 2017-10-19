@@ -20,7 +20,19 @@
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/particlecomponent.hpp>
 #include <hydra/component/aicomponent.hpp>
+#include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
+#include <hydra/component/pointlightcomponent.hpp>
+
+#include <hydra/system/camerasystem.hpp>
+#include <hydra/system/lightsystem.hpp>
+#include <hydra/system/particlesystem.hpp>
+#include <hydra/system/abilitysystem.hpp>
+#include <hydra/system/aisystem.hpp>
+#include <hydra/system/bulletphysicssystem.hpp>
+#include <hydra/system/bulletsystem.hpp>
+#include <hydra/system/playersystem.hpp>
+#include <hydra/system/renderersystem.hpp>
 
 #include <hydra/io/input.hpp>
 
@@ -35,10 +47,9 @@ namespace Barcode {
 		int currentFrame = 0;
 		void runFrame(float delta) final;
 
-		inline Hydra::World::IWorld* getWorld() final { return _world.get(); };
 		inline Hydra::IO::ITextureLoader* getTextureLoader() final { return _textureLoader.get(); }
 		inline Hydra::IO::IMeshLoader* getMeshLoader() final { return _meshLoader.get(); }
-		inline Hydra::Physics::IPhysicsManager* getPhysicsManager() final { return _physicsManager.get(); }
+		inline Hydra::World::ISystem* getPhysicsSystem() final { return &_physicsSystem; }
 
 	private:
 		struct RenderBatch final {
@@ -62,10 +73,18 @@ namespace Barcode {
 		};
 
 		Hydra::IEngine* _engine;
-		std::unique_ptr<Hydra::World::IWorld> _world;
 		std::unique_ptr<Hydra::IO::ITextureLoader> _textureLoader;
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
-		std::unique_ptr<Hydra::Physics::IPhysicsManager> _physicsManager;
+
+		Hydra::System::CameraSystem _cameraSystem;
+		Hydra::System::LightSystem _lightSystem;
+		Hydra::System::ParticleSystem _particleSystem;
+		Hydra::System::AbilitySystem _abilitySystem;
+		Hydra::System::AISystem _aiSystem;
+		Hydra::System::BulletPhysicsSystem _physicsSystem;
+		Hydra::System::BulletSystem _bulletSystem;
+		Hydra::System::PlayerSystem _playerSystem;
+		Hydra::System::RendererSystem _rendererSystem;
 
 		RenderBatch _geometryBatch; // First part of deferred rendering
 		RenderBatch _animationBatch; // AnimationBatch
@@ -75,6 +94,7 @@ namespace Barcode {
 		RenderBatch _postTestBatch;
 		RenderBatch _shadowBatch;
 		RenderBatch _ssaoBatch;
+		RenderBatch _hudBatch;
 
 		ParticleRenderBatch _particleBatch;
 
@@ -109,8 +129,19 @@ namespace Barcode {
 
 		Input _input;
 
+		void _initSystem();
 		void _initWorld();
 
 		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int nrOfTimes, glm::vec2 size, const std::vector<float>& kernel);
 	};
+
+	//class DemoWindow : public TBWindow
+	//{
+	//public:
+	//	DemoWindow(TBWidget *root);
+	//	bool LoadResourceFile(const char *filename);
+	//	void LoadResourceData(const char *data);
+	//	void LoadResource(TBNode &node);
+	//	virtual bool OnEvent(const TBWidgetEvent &ev);
+	//};
 }
