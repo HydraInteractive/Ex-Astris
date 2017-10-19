@@ -92,7 +92,7 @@ void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 	}
 }
 
-glm::vec3& PathFinding::nextPathPos(const glm::vec3& pos, const float& radius)
+glm::vec3 PathFinding::nextPathPos(const glm::vec3& pos, const float& radius)
 {
 	glm::vec3 nextPos = _pathToEnd.back();
 	nextPos.x += (CELL_SIZE / 2);
@@ -131,7 +131,7 @@ void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode, in
 
 	//If this node exists in the open list don't add it again
 	bool found = false;
-	for (int i = 0; i < _openList.size() && !found;i++)
+	for (size_t i = 0; i < _openList.size() && !found;i++)
 	{
 		if (id == _openList[i]->id)
 		{
