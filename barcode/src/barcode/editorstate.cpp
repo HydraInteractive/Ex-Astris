@@ -520,7 +520,11 @@ namespace Barcode {
 				_engine->getRenderer()->render(_particleBatch.batch);
 			}
 		}
-
+		//if (_showImporter)
+		//	_importerMenu->render(_showImporter, _previewBatch.batch, delta);
+		//if (_showExporter)
+		//	_exporterMenu->render(_showExporter);
+		_glowBatch.output->resolve(0, _finalImage->image);
 		{ // Sync with network
 			//_world->tick(TickAction::network, delta);
 		}
