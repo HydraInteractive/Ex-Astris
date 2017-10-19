@@ -33,6 +33,7 @@
 #include <hydra/system/bulletsystem.hpp>
 #include <hydra/system/playersystem.hpp>
 #include <hydra/system/renderersystem.hpp>
+#include <hydra/system/soundfxsystem.hpp>
 
 #include <hydra/io/input.hpp>
 
@@ -85,6 +86,8 @@ namespace Barcode {
 		Hydra::System::BulletSystem _bulletSystem;
 		Hydra::System::PlayerSystem _playerSystem;
 		Hydra::System::RendererSystem _rendererSystem;
+		Hydra::System::SoundFxSystem _soundFxSystem;
+
 
 		RenderBatch _geometryBatch; // First part of deferred rendering
 		RenderBatch _animationBatch; // AnimationBatch

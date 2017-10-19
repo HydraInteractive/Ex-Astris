@@ -13,10 +13,12 @@
   <ItemGroup>
     <ClInclude Include="include\hydra\component\componentmanager_sound.hpp" />
     <ClInclude Include="include\hydra\component\soundfxcomponent.hpp" />
+    <ClInclude Include="include\hydra\system\soundfxsystem.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\component\componentmanager_sound.cpp" />
     <ClCompile Include="src\component\soundfxcomponent.cpp" />
+    <ClCompile Include="src\system\soundfxsystem.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
