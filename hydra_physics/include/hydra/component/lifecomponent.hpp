@@ -22,6 +22,9 @@ namespace Hydra::Component {
 
 	~LifeComponent() final;
 
+	void applyDamage(int damage);
+	bool statusCheck();
+
 	inline const std::string type() const final { return "LifeComponent"; }
 
 	void serialize(nlohmann::json& json) const final;

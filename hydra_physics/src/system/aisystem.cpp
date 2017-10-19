@@ -31,6 +31,10 @@ void AISystem::tick(float delta) {
 		auto life = entities[i]->getComponent<Component::LifeComponent>();
 
 		enemy->_velocity = glm::vec3(0, 0, 0);
+		if (!life->statusCheck())
+		{
+			entities[i]->dead = true;
+		}
 
 		enemy->_debugState = enemy->_pathState;
 		
@@ -121,7 +125,7 @@ void AISystem::tick(float delta) {
 							enemy->_pathState = Component::PathState::ATTACKING;
 						}
 
-						if (glm::length(enemy->_position - enemy->_targetPos) <= 2.0f)
+						if (glm::length(enemy->_position - enemy->_targetPos) <= 1.0f)
 						{
 							enemy->_pathState = Component::PathState::SEARCHING;
 							enemy->_timer = 0;

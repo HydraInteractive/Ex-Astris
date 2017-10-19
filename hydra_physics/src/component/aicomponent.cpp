@@ -43,7 +43,6 @@ EnemyComponent::~EnemyComponent() {
 void EnemyComponent::serialize(nlohmann::json& json) const {
 	json = {
 		{ "position",{ _position.x, _position.y, _position.z } },
-		{ "startPosition",{ _startPosition.x, _startPosition.y, _startPosition.z } },
 		{ "scale",{ _scale.x, _scale.y, _scale.z } },
 		{ "mapOffset",{ _mapOffset.x, _mapOffset.y, _mapOffset.z } },
 		{ "velocity",{ _velocity.x, _velocity.y, _velocity.z } },
@@ -67,9 +66,6 @@ void EnemyComponent::serialize(nlohmann::json& json) const {
 void EnemyComponent::deserialize(nlohmann::json& json) {
 	auto& pos = json["position"];
 	_position = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
-
-	auto& startpos = json["startPosition"];
-	_startPosition = glm::vec3{ startpos[0].get<float>(), startpos[1].get<float>(), startpos[2].get<float>() };
 
 	auto& scale = json["scale"];
 	_scale = glm::vec3{ scale[0].get<float>(), scale[1].get<float>(), scale[2].get<float>() };
@@ -103,7 +99,6 @@ void EnemyComponent::registerUI() {
 	ImGui::InputFloat("X", &_position.x);
 	ImGui::InputFloat("Y", &_position.y);
 	ImGui::InputFloat("Z", &_position.z);
-	ImGui::InputFloat("startY", &_startPosition.y);
 	ImGui::InputInt("pathState", &_debugState);
 	ImGui::InputFloat("targetX", &_targetPos.x);
 	ImGui::InputFloat("targetY", &_targetPos.y);

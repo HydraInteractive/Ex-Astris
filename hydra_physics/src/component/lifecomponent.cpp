@@ -8,6 +8,26 @@ Hydra::Component::LifeComponent::~LifeComponent()
 {
 }
 
+void Hydra::Component::LifeComponent::applyDamage(int damage)
+{
+	if (health > 0)
+	{
+		health = -damage;
+	}
+}
+
+bool Hydra::Component::LifeComponent::statusCheck()
+{
+	if (health <= 0)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
 void Hydra::Component::LifeComponent::serialize(nlohmann::json & json) const
 {
 	json = {
