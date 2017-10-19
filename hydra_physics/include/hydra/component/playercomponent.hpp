@@ -39,8 +39,6 @@ namespace Hydra::Component {
 		bool isDead = false;
 		bool prevKBFrameState[Keys::COUNT] = { false };
 
-		Mix_Chunk* testSound = Mix_LoadWAV("assets/sounds/testSound.wav");
-
 		// TODO: Move?!
 		AbilityHandler activeAbillies;
 		BuffHandler activeBuffs;

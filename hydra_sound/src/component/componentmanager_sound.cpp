@@ -7,7 +7,7 @@ using namespace Hydra::World;
 namespace Hydra::Component::ComponentManager {
 	void registerComponents_sound(std::map<std::string, createOrGetComponent_f>& creators) {
 		(void)creators;
-		//SoundFxComponent::componentHandler = new ComponentHandler<SoundFxComponent>();
-		//creators["SoundFxComponent"] = &createOrGetComponentHelper<SoundFxComponent>;
+		SoundFxComponent::componentHandler = new ComponentHandler<SoundFxComponent>();
+		creators["SoundFxComponent"] = &createOrGetComponentHelper<SoundFxComponent>;
 	}
 }

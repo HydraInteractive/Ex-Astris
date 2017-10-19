@@ -8,6 +8,7 @@
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
+#include <hydra/component/soundfxcomponent.hpp>
 
 #include <hydra/engine.hpp>
 
@@ -23,12 +24,13 @@ void PlayerSystem::tick(float delta) {
 	const Uint8* keysArray = SDL_GetKeyboardState(nullptr);
 
 	//Process PlayerComponent
-	world::getEntitiesWithComponents<PlayerComponent, TransformComponent, CameraComponent>(entities);
+	world::getEntitiesWithComponents<PlayerComponent, TransformComponent, CameraComponent, SoundFxComponent>(entities);
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto player = entities[i]->getComponent<PlayerComponent>();
 		auto transform = entities[i]->getComponent<TransformComponent>();
 		auto camera = entities[i]->getComponent<CameraComponent>();
 		auto weapon = player->getWeapon()->getComponent<Hydra::Component::WeaponComponent>();
+		auto soundFx = entities[i]->getComponent<SoundFxComponent>();
 
 		player->activeBuffs.onTick(player->maxHealth, player->health);
 
@@ -71,7 +73,7 @@ void PlayerSystem::tick(float delta) {
 				float angle = glm::degrees(atan2(-player->position.x, player->position.z));
 				playerDirAngle = ((int)(angle - playerDirAngle) + 360) % 360;
 
-				int channel = Mix_PlayChannel(-1, player->testSound, 0);
+				int channel = Mix_PlayChannel(-1, soundFx->testSound, 0);
 				Mix_SetPosition(channel, playerDirAngle, 100);
 			}
 

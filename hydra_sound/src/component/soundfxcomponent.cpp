@@ -28,7 +28,5 @@ void SoundFxComponent::deserialize(nlohmann::json& json) {
 	
 }
 
-// Register UI buttons in the debug UI
-// Note: This function won't always be called
 void SoundFxComponent::registerUI() {
 }

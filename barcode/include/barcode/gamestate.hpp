@@ -22,6 +22,7 @@
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
+#include <hydra/component/soundfxcomponent.hpp>
 
 #include <hydra/system/camerasystem.hpp>
 #include <hydra/system/lightsystem.hpp>
