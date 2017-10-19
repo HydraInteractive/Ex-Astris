@@ -20,6 +20,7 @@
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/particlecomponent.hpp>
 #include <hydra/component/aicomponent.hpp>
+#include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
 

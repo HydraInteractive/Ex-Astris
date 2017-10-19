@@ -7,6 +7,7 @@
 #include <hydra/component/playercomponent.hpp>
 #include <hydra/component/drawobjectcomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
+#include <hydra/component/lifecomponent.hpp>
 
 using namespace Hydra::System;
 
@@ -17,7 +18,7 @@ void AISystem::tick(float delta) {
 	using world = Hydra::World::World;
 
 	//Process AiComponent
-	world::getEntitiesWithComponents<Component::EnemyComponent, Component::TransformComponent>(entities);
+	world::getEntitiesWithComponents<Component::EnemyComponent, Component::TransformComponent, Component::LifeComponent>(entities);
 	#pragma omp parallel for
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto enemy = entities[i]->getComponent<Component::EnemyComponent>();
@@ -27,12 +28,19 @@ void AISystem::tick(float delta) {
 		auto playerTransform = p->getComponent<Component::TransformComponent>();
 		auto drawObject = entities[i]->getComponent<Component::DrawObjectComponent>();
 		auto weapon = entities[i]->getComponent<Hydra::Component::WeaponComponent>();
+		auto life = entities[i]->getComponent<Component::LifeComponent>();
 
 		enemy->_velocity = glm::vec3(0, 0, 0);
 
 		enemy->_debugState = enemy->_pathState;
+		
+		enemy->_timer += delta;
+		enemy->_attackTimer += delta;
+		enemy->_stunTimer += delta;
+		enemy->_spawnTimer += delta;
+		enemy->_newPathTimer += delta;
 
-		if (glm::length(enemy->_position - enemy->_position) > 50)
+		if (glm::length(enemy->_position - playerTransform->position) > 50)
 		{
 			enemy->_pathState = Component::PathState::IDLE;
 			//If the enemy is out of range, play the idle animation
@@ -51,8 +59,8 @@ void AISystem::tick(float delta) {
 				{
 					if (glm::length(enemy->_position - playerTransform->position) < 50)
 					{
-						enemy->_timer = SDL_GetTicks();
 						enemy->_pathState = Component::PathState::SEARCHING;
+						enemy->_timer = 0;
 					}
 				}
 			}break;
@@ -60,10 +68,10 @@ void AISystem::tick(float delta) {
 			{
 				//While the enemy is searching, play the walking animation
 				drawObject->drawObject->mesh->setAnimationIndex(1);
-				//if (SDL_GetTicks() > _timer + 5000)
-				//{
-				//	_pathState = IDLE;
-				//}
+				if (enemy->_timer >= 5)
+				{
+					enemy->_pathState = Component::PathState::IDLE;
+				}
 				if (glm::length(enemy->_position - playerTransform->position) < enemy->_range)
 				{
 					enemy->_isAtGoal = true;
@@ -87,7 +95,7 @@ void AISystem::tick(float delta) {
 						enemy->_targetPos = enemy->_pathFinding->_pathToEnd[0];
 					}
 					enemy->_pathState = Component::PathState::FOUND_GOAL;
-					enemy->_newPathTimer = SDL_GetTicks();
+					enemy->_newPathTimer = 0;
 				}
 			}break;
 			case Component::PathState::FOUND_GOAL:
@@ -116,20 +124,20 @@ void AISystem::tick(float delta) {
 						if (glm::length(enemy->_position - enemy->_targetPos) <= 2.0f)
 						{
 							enemy->_pathState = Component::PathState::SEARCHING;
-							enemy->_timer = SDL_GetTicks();
+							enemy->_timer = 0;
 						}
 						else if (glm::length(playerTransform->position.x - enemy->_targetPos.x) > 25.0f || glm::length(playerTransform->position.z - enemy->_targetPos.z) > 25.0f)
 						{
 							enemy->_pathState = Component::PathState::SEARCHING;
-							enemy->_timer = SDL_GetTicks();
+							enemy->_timer = 0;
 						}
 					}
 				}
 
-				if (SDL_GetTicks() > enemy->_newPathTimer + 4000)
+				if (enemy->_newPathTimer >= 4)
 				{
 					enemy->_pathState = Component::PathState::SEARCHING;
-					enemy->_timer = SDL_GetTicks();
+					enemy->_timer = 0;
 				}
 
 				if (playerTransform->position.x <= enemy->_mapOffset.x || playerTransform->position.x >= WORLD_SIZE || playerTransform->position.z <= enemy->_mapOffset.z || playerTransform->position.z >= WORLD_SIZE)
@@ -145,16 +153,16 @@ void AISystem::tick(float delta) {
 				if (glm::length(enemy->_position - playerTransform->position) >= enemy->_range)
 				{
 					enemy->_pathState = Component::PathState::SEARCHING;
-					enemy->_timer = SDL_GetTicks();
+					enemy->_timer = 0;
 				}
 				else
 				{
 					std::mt19937 rng(enemy->rd());
 					std::uniform_int_distribution<> randDmg(enemy->_damage - 1, enemy->_damage + 2);
-					if (SDL_GetTicks() > enemy->_attackTimer + 1500)
+					if (enemy->_attackTimer > 1.5)
 					{
 						player->applyDamage(randDmg(rng));
-						enemy->_attackTimer = SDL_GetTicks();
+						enemy->_attackTimer = 0;
 					}
 
 					glm::vec3 playerDir = playerTransform->position - enemy->_position;
@@ -194,16 +202,15 @@ void AISystem::tick(float delta) {
 				{
 					if (glm::length(enemy->_position - playerTransform->position) < 50)
 					{
-						enemy->_timer = SDL_GetTicks();
+						enemy->_timer = 0;
 						enemy->_pathState = Component::PathState::SEARCHING;
 					}
 				}
 			}break;
 			case Component::PathState::SEARCHING:
 			{
-				if (SDL_GetTicks() > enemy->_timer + 5000)
+				if (enemy->_timer >= 5)
 				{
-					enemy->_timer = SDL_GetTicks();
 					enemy->_pathState = Component::PathState::IDLE;
 				}
 
@@ -229,7 +236,7 @@ void AISystem::tick(float delta) {
 						enemy->_targetPos = enemy->_pathFinding->_pathToEnd[0];
 					}
 					enemy->_pathState = Component::PathState::FOUND_GOAL;
-					enemy->_newPathTimer = SDL_GetTicks();
+					enemy->_newPathTimer = 0;
 				}
 			}break;
 			case Component::PathState::FOUND_GOAL:
@@ -268,7 +275,7 @@ void AISystem::tick(float delta) {
 					}
 				}
 
-				if (SDL_GetTicks() > enemy->_newPathTimer + 4000)
+				if (enemy->_newPathTimer >= 4)
 				{
 					enemy->_pathState = Component::PathState::SEARCHING;
 					enemy->_timer = SDL_GetTicks();
@@ -284,7 +291,7 @@ void AISystem::tick(float delta) {
 				if (glm::length(enemy->_position - playerTransform->position) > enemy->_range)
 				{
 					enemy->_pathState = Component::PathState::SEARCHING;
-					enemy->_timer = SDL_GetTicks();
+					enemy->_timer = 0;
 				}
 				else
 				{
@@ -323,7 +330,7 @@ void AISystem::tick(float delta) {
 		{
 			if (enemy->_spawnGroup.size() <= 5)
 			{
-				if (SDL_GetTicks() > enemy->_spawnTimer + 10000)
+				if (enemy->_spawnTimer >= 10)
 				{
 
 				}
@@ -333,7 +340,7 @@ void AISystem::tick(float delta) {
 		{
 			if (enemy->_spawnGroup.size() <= 5)
 			{
-				if (SDL_GetTicks() > enemy->_spawnTimer + 10000)
+				if (enemy->_spawnTimer >= 10)
 				{
 
 				}
@@ -349,16 +356,15 @@ void AISystem::tick(float delta) {
 				{
 					if (glm::length(enemy->_position - playerTransform->position) < 50)
 					{
-						enemy->_timer = SDL_GetTicks();
+						enemy->_timer = 0;
 						enemy->_pathState = Component::PathState::SEARCHING;
 					}
 				}
 			}break;
 			case Component::PathState::SEARCHING:
 			{
-				if (SDL_GetTicks() > enemy->_timer + 5000)
+				if (enemy->_timer >= 5)
 				{
-					enemy->_timer = SDL_GetTicks();
 					enemy->_pathState = Component::PathState::IDLE;
 				}
 
@@ -383,7 +389,7 @@ void AISystem::tick(float delta) {
 						enemy->_targetPos = enemy->_pathFinding->_pathToEnd[0];
 					}
 					enemy->_pathState = Component::PathState::FOUND_GOAL;
-					enemy->_newPathTimer = SDL_GetTicks();
+					enemy->_newPathTimer = 0;
 				}
 			}break;
 			case Component::PathState::FOUND_GOAL:
@@ -413,20 +419,20 @@ void AISystem::tick(float delta) {
 						if (glm::length(enemy->_position - enemy->_targetPos) <= 6.0f)
 						{
 							enemy->_pathState = Component::PathState::SEARCHING;
-							enemy->_timer = SDL_GetTicks();
+							enemy->_timer = 0;
 						}
 						else if (glm::length(playerTransform->position - enemy->_targetPos) > 25.0f)
 						{
 							enemy->_pathState = Component::PathState::SEARCHING;
-							enemy->_timer = SDL_GetTicks();
+							enemy->_timer = 0;
 						}
 					}
 				}
 
-				if (SDL_GetTicks() > enemy->_newPathTimer + 4000)
+				if (enemy->_newPathTimer >= 4)
 				{
 					enemy->_pathState = Component::PathState::SEARCHING;
-					enemy->_timer = SDL_GetTicks();
+					enemy->_timer = 0;
 				}
 
 				if (playerTransform->position.x <= enemy->_mapOffset.x || playerTransform->position.x >= WORLD_SIZE || playerTransform->position.z <= enemy->_mapOffset.z || playerTransform->position.z >= WORLD_SIZE)
@@ -439,7 +445,7 @@ void AISystem::tick(float delta) {
 				if (glm::length(enemy->_position - playerTransform->position) > enemy->_range && enemy->_stunned == false)
 				{
 					enemy->_pathState = Component::PathState::SEARCHING;
-					enemy->_timer = SDL_GetTicks();
+					enemy->_timer = 0;
 				}
 				else
 				{
@@ -452,10 +458,10 @@ void AISystem::tick(float delta) {
 						enemy->_range = 9.0f;
 						std::mt19937 rng(enemy->rd());
 						std::uniform_int_distribution<> randDmg(enemy->_damage - 1, enemy->_damage + 2);
-						if (SDL_GetTicks() > enemy->_attackTimer + 3000)
+						if (enemy->_attackTimer >= 3)
 						{
 							player->applyDamage(randDmg(rng));
-							enemy->_attackTimer = SDL_GetTicks();
+							enemy->_attackTimer = 0;
 						}
 					}break;
 					case Component::BossPhase::SPITTING:
@@ -469,23 +475,17 @@ void AISystem::tick(float delta) {
 
 						/*if (_spawnAmount <= 3)
 						{
-						if (SDL_GetTicks() > _spawnTimer + 2000)
+						if (_spawnTimer > 2)
 						{
-						auto robotSpawn = Hydra::World::World::newEntity("Enemy Alien", Hydra::World::World::root);
-						robotSpawn->addComponent<Hydra::Component::EnemyComponent>()->init(Hydra::Component::EnemyTypes::Alien, enemy->position, 80, 8, 8.5f, glm::vec3(1.0f, 1.0f, 1.0f));
-						auto transform = robotSpawn->addComponent<Hydra::Component::TransformComponent>();
-						transform->position = enemy->position;
-						robotSpawn->addComponent<Hydra::Component::WeaponComponent>();
-						alienSpawn->addComponent<Hydra::Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
 						_spawnAmount++;
-						_spawnTimer = SDL_GetTicks();
+						_spawnTimer = 0;
 						}
 						}*/
 					}break;
 					case Component::BossPhase::CHILLING:
 					{
 						enemy->_range = 30.0f;
-						if (SDL_GetTicks() > enemy->_stunTimer + 10000)
+						if (enemy->_stunTimer > 10)
 						{
 							if (!enemy->_stunned) { enemy->_stunned = true; }
 							else
@@ -493,7 +493,7 @@ void AISystem::tick(float delta) {
 								enemy->_stunned = false;
 								enemy->_bossPhase = Component::BossPhase::CLAWING;
 							}
-							enemy->_stunTimer = SDL_GetTicks();
+							enemy->_stunTimer = 0;
 						}
 					}break;
 					}
