@@ -7,7 +7,6 @@
 
 #include <hydra/world/blueprintloader.hpp>
 #include <imgui/imgui.h>
-#include <hydra/component/aicomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
@@ -768,9 +767,11 @@ namespace Barcode {
 			auto a = alienEntity->addComponent<Hydra::Component::EnemyComponent>();
 			a->_enemyID = Hydra::Component::EnemyTypes::Alien;
 			a->_position = glm::vec3{ 10, 0, 20 };
-			a->_health = 80;
 			a->_damage = 4;
 			a->_originalRange = 3.0f;
+			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+			h->maxHP = 80;
+			h->health = 80;
 			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->setScale(glm::vec3{ 2,2,2 });
 			a->_scale = glm::vec3{ 2,2,2 };

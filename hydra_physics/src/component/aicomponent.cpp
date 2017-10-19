@@ -51,7 +51,6 @@ void EnemyComponent::serialize(nlohmann::json& json) const {
 		{ "pathState", (int)_pathState },
 		{ "bossPhase", (int)_bossPhase },
 		{ "damage", _damage },
-		{ "health", _health },
 		{ "range", _range },
 		{ "Original range", _originalRange }
 
@@ -88,7 +87,6 @@ void EnemyComponent::deserialize(nlohmann::json& json) {
 	_pathState = (PathState)json["pathState"].get<int>();
 	_bossPhase = (BossPhase)json["bossPhase"].get<int>();
 	_damage = json["damage"].get<int>();
-	_health = json["health"].get<int>();
 
 	for (size_t i = 0; i < 64; i++)
 	{
