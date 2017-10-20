@@ -41,6 +41,7 @@ public:
 		if (_depth)
 			_depth->resize(size);
 	}
+	void bind(size_t) final {	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer); }
 
 	size_t getSamples() final { return _samples; }
 	glm::ivec2 getSize() final { return _size; }

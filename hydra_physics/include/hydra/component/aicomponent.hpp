@@ -8,6 +8,7 @@
 #pragma once
 #include <hydra/ext/api.hpp>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
@@ -29,7 +30,7 @@ namespace Hydra::Component {
 		RobotBoss = 5,
 	};
 
-	enum PathState{
+	enum PathState {
 		IDLE = 0,
 		SEARCHING = 1,
 		FOUND_GOAL = 2,
@@ -43,64 +44,53 @@ namespace Hydra::Component {
 		CHILLING = 3
 	};
 
-	class HYDRA_API EnemyComponent final : public IComponent{
-	public:
-		EnemyComponent(IEntity* entity);
-		EnemyComponent(IEntity* entity, EnemyTypes enemyID, glm::vec3 pos, int hp, int dmg, float range, glm::vec3 scale);
+	struct HYDRA_PHYSICS_API EnemyComponent final : public IComponent<EnemyComponent, ComponentBits::Enemy> {
+		PathState _pathState = IDLE;
+		PathFinding* _pathFinding = new PathFinding();
+		BossPhase _bossPhase = CLAWING;
+		std::vector<std::shared_ptr<Hydra::World::Entity>> _spawnGroup;
+		EnemyTypes _enemyID = EnemyTypes::Alien;
+		glm::vec3 _mapOffset = glm::vec3(-30.0f, 0, -30.0f);
+		glm::vec3 _targetPos = glm::vec3{ 0, 0, 0 };
+		glm::vec3 _scale = glm::vec3{ 1, 1, 1 };
+		glm::quat _rotation = glm::quat();
+		float _angle = 1;
+		float _range = 1;
+		float _originalRange = 1;
+		int _debugState;
+		int _spawnAmount;
+		int _damage = 0;
+		int _map[WORLD_SIZE][WORLD_SIZE];
+		int _oldMapPosX = 0;
+		int _oldMapPosZ = 0;
+		bool _isAtGoal = false;
+		bool _falling = false;
+		bool _patrolPointReached = false;
+		bool _playerSeen = false;
+		bool _stunned = false;
+		std::random_device rd;
+		float _timer = 0;
+		float _spawnTimer = 0;
+		float _stunTimer = 0;
+		float _attackTimer = 0;
+		float _newPathTimer = 0;
+
 		~EnemyComponent() final;
 
-		void tick(TickAction action, float delta) final;
-		// If you want to add more than one TickAction, combine them with '|' (The bitwise or operator) 
-		inline TickAction wantTick() const final { return TickAction::physics; }
 
 		inline const std::string type() const final { return "EnemyComponent"; }
 
-		glm::vec3 getPosition();
-		float getRadius();
-		std::shared_ptr<Hydra::World::IEntity> getPlayerComponent();
+		std::shared_ptr<Hydra::World::Entity> EnemyComponent::getPlayerComponent();
+
+		float getRadius(){ return _scale.x; }
+
+		int getWall(int x, int y) { return _map[x][y]; }
+
+		bool _checkLOS(int levelmap[WORLD_SIZE][WORLD_SIZE], glm::vec3 A, glm::vec3 B);
 
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
-		int getWall(int x, int y);
-	private:
-		PathState _pathState;
-		PathFinding* _pathFinding = new PathFinding();
-		BossPhase _bossPhase;
-		std::vector<std::shared_ptr<Hydra::World::IEntity>> _spawnGroup;
-		int _debugState;
-		float _angle;
-		float _velocityX;
-		float _velocityY;
-		float _velocityZ;
-		int _spawnAmount;
-		int _health;
-		int _damage;
-		float _range;
-		float _originalRange;
-		glm::vec3 _mapOffset;
-		glm::vec3 _targetPos;
-		glm::vec3 _position;
-		glm::vec3 _startPosition;
-		glm::quat _rotation;
-		glm::vec3 _scale;
-		bool _isAtGoal;
-		bool _falling;
-		bool _patrolPointReached;
-		bool _playerSeen;
-		bool _stunned;
-		EnemyTypes _enemyID = EnemyTypes::Alien;
-		std::random_device rd;
-		Uint32 _timer;
-		Uint32 _spawnTimer;
-		Uint32 _stunTimer;
-		Uint32 _attackTimer;
-		Uint32 _newPathTimer;
-		int _map[WORLD_SIZE][WORLD_SIZE];
-		int _oldMapPosX;
-		int _oldMapPosZ;
 
-		// Private functions
-		bool _checkLine(int levelmap[WORLD_SIZE][WORLD_SIZE], glm::vec3 A, glm::vec3 B);
 	};
 };

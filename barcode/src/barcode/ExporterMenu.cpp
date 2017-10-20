@@ -1,4 +1,5 @@
 #include <barcode/ExporterMenu.hpp>
+#if 0
 ExporterMenu::ExporterMenu()
 {
 	this->executableDir = "";
@@ -400,3 +401,4 @@ void ExporterMenu::Node::_getContentsOfDir(const std::string &directory, std::ve
 	closedir(dir);
 #endif
 }
+#endif
