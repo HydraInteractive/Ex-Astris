@@ -8,6 +8,7 @@
 #pragma once
 #include <hydra/ext/api.hpp>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
@@ -49,11 +50,8 @@ namespace Hydra::Component {
 		BossPhase _bossPhase = CLAWING;
 		std::vector<std::shared_ptr<Hydra::World::Entity>> _spawnGroup;
 		EnemyTypes _enemyID = EnemyTypes::Alien;
-		glm::vec3 _velocity = glm::vec3{ 0, 0, 0 };
 		glm::vec3 _mapOffset = glm::vec3(-30.0f, 0, -30.0f);
 		glm::vec3 _targetPos = glm::vec3{ 0, 0, 0 };
-		glm::vec3 _position = glm::vec3{ 0, 0, 0 };
-		glm::vec3 _startPosition = glm::vec3{ 0, 0, 0 };
 		glm::vec3 _scale = glm::vec3{ 1, 1, 1 };
 		glm::quat _rotation = glm::quat();
 		float _angle = 1;
@@ -61,7 +59,6 @@ namespace Hydra::Component {
 		float _originalRange = 1;
 		int _debugState;
 		int _spawnAmount;
-		int _health = 1;
 		int _damage = 0;
 		int _map[WORLD_SIZE][WORLD_SIZE];
 		int _oldMapPosX = 0;
@@ -72,11 +69,11 @@ namespace Hydra::Component {
 		bool _playerSeen = false;
 		bool _stunned = false;
 		std::random_device rd;
-		Uint32 _timer;
-		Uint32 _spawnTimer = SDL_GetTicks();
-		Uint32 _stunTimer = SDL_GetTicks();
-		Uint32 _attackTimer = SDL_GetTicks();
-		Uint32 _newPathTimer;
+		float _timer = 0;
+		float _spawnTimer = 0;
+		float _stunTimer = 0;
+		float _attackTimer = 0;
+		float _newPathTimer = 0;
 
 		~EnemyComponent() final;
 

@@ -288,6 +288,19 @@ public:
 
 	const std::vector<std::unique_ptr<DrawObject>>& activeDrawObjects() final { return _activeDrawObjects; }
 
+	void clear(Batch& batch) final{
+		SDL_GL_MakeCurrent(_window, _glContext);
+		glBindFramebuffer(GL_FRAMEBUFFER, batch.renderTarget->getID());
+		const auto& size = batch.renderTarget->getSize();
+		glViewport(0, 0, size.x, size.y);
+
+		glClearColor(batch.clearColor.r, batch.clearColor.g, batch.clearColor.b, batch.clearColor.a);
+		GLenum clearFlags = 0;
+		clearFlags |= (batch.clearFlags & ClearFlags::color) == ClearFlags::color ? GL_COLOR_BUFFER_BIT : 0;
+		clearFlags |= (batch.clearFlags & ClearFlags::depth) == ClearFlags::depth ? GL_DEPTH_BUFFER_BIT : 0;
+		glClear(clearFlags);
+	}
+
 	void cleanup() final {
 		auto isInactive = [this](auto& drawObj) {
 			if (drawObj->refCounter)

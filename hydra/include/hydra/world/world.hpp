@@ -37,10 +37,12 @@ namespace Hydra::Component {
 		Weapon = BIT(8),
 		Grenade = BIT(9),
 		Mine = BIT(10),
-		RigidBody = BIT(11),
-		EditorCamera = BIT(12),
-		DrawObject = BIT(13),
-		PointLight = BIT(14)
+		Life = BIT(11),
+		RigidBody = BIT(12),
+		EditorCamera = BIT(13),
+		DrawObject = BIT(14),
+		PointLight = BIT(15),
+		Movement = BIT(16)
 	};
 #undef BIT
 
@@ -72,6 +74,9 @@ namespace Hydra::Component {
 	struct HYDRA_GRAPHICS_API EditorCameraComponent;
 	struct HYDRA_GRAPHICS_API DrawObjectComponent;
 	struct HYDRA_GRAPHICS_API PointLightComponent;
+	struct HYDRA_PHYSICS_API LifeComponent;
+	struct HYDRA_PHYSICS_API MovementComponent;
+
 
 	using ComponentTypes = Hydra::Ext::TypeTuple<
 		Hydra::World::IComponent<TransformComponent, ComponentBits::Transform>,
@@ -88,7 +93,9 @@ namespace Hydra::Component {
 		Hydra::World::IComponent<RigidBodyComponent, ComponentBits::RigidBody>,
 		Hydra::World::IComponent<EditorCameraComponent, ComponentBits::EditorCamera>,
 		Hydra::World::IComponent<DrawObjectComponent, ComponentBits::DrawObject>,
-		Hydra::World::IComponent<PointLightComponent, ComponentBits::PointLight>
+		Hydra::World::IComponent<PointLightComponent, ComponentBits::PointLight>,
+		Hydra::World::IComponent<LifeComponent, ComponentBits::Life>,
+		Hydra::World::IComponent<MovementComponent, ComponentBits::Movement>
 	>;
 };
 
@@ -255,6 +262,10 @@ namespace Hydra::World {
 	IComponentHandler* IComponent<Hydra::Component::DrawObjectComponent, Hydra::Component::ComponentBits::DrawObject>::componentHandler;
 	template <>
 	IComponentHandler* IComponent<Hydra::Component::PointLightComponent, Hydra::Component::ComponentBits::PointLight>::componentHandler;
+	template <>
+	IComponentHandler* IComponent<Hydra::Component::LifeComponent, Hydra::Component::ComponentBits::Life>::componentHandler;
+	template <>
+	IComponentHandler* IComponent<Hydra::Component::MovementComponent, Hydra::Component::ComponentBits::Movement>::componentHandler;
 #endif
 
 	template HYDRA_BASE_API struct IComponent<Hydra::Component::TransformComponent, Hydra::Component::ComponentBits::Transform>;
@@ -272,6 +283,8 @@ namespace Hydra::World {
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::EditorCameraComponent, Hydra::Component::ComponentBits::EditorCamera>;
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::DrawObjectComponent, Hydra::Component::ComponentBits::DrawObject>;
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::PointLightComponent, Hydra::Component::ComponentBits::PointLight>;
+	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::LifeComponent, Hydra::Component::ComponentBits::Life>;
+	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::MovementComponent, Hydra::Component::ComponentBits::Movement>;
 
 	struct HYDRA_BASE_API World final {
 		static std::shared_ptr<Entity> root;

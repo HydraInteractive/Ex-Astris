@@ -42,16 +42,12 @@ EnemyComponent::~EnemyComponent() {
 
 void EnemyComponent::serialize(nlohmann::json& json) const {
 	json = {
-		{ "position",{ _position.x, _position.y, _position.z } },
-		{ "startPosition",{ _startPosition.x, _startPosition.y, _startPosition.z } },
 		{ "scale",{ _scale.x, _scale.y, _scale.z } },
 		{ "mapOffset",{ _mapOffset.x, _mapOffset.y, _mapOffset.z } },
-		{ "velocity",{ _velocity.x, _velocity.y, _velocity.z } },
 		{ "enemyID", (int)_enemyID },
 		{ "pathState", (int)_pathState },
 		{ "bossPhase", (int)_bossPhase },
 		{ "damage", _damage },
-		{ "health", _health },
 		{ "range", _range },
 		{ "Original range", _originalRange }
 
@@ -66,20 +62,11 @@ void EnemyComponent::serialize(nlohmann::json& json) const {
 }
 
 void EnemyComponent::deserialize(nlohmann::json& json) {
-	auto& pos = json["position"];
-	_position = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
-
-	auto& startpos = json["startPosition"];
-	_startPosition = glm::vec3{ startpos[0].get<float>(), startpos[1].get<float>(), startpos[2].get<float>() };
-
 	auto& scale = json["scale"];
 	_scale = glm::vec3{ scale[0].get<float>(), scale[1].get<float>(), scale[2].get<float>() };
 
 	auto& mapOffset = json["mapOffset"];
 	_mapOffset = glm::vec3{ mapOffset[0].get<float>(), mapOffset[1].get<float>(), mapOffset[2].get<float>() };
-
-	auto& velocity = json["velocity"];
-	_velocity = glm::vec3{ velocity[0].get<float>(), velocity[1].get<float>(), velocity[2].get<float>() };
 
 	_range = json["range"].get<float>();
 	_originalRange = json["Original range"].get<float>();
@@ -88,7 +75,6 @@ void EnemyComponent::deserialize(nlohmann::json& json) {
 	_pathState = (PathState)json["pathState"].get<int>();
 	_bossPhase = (BossPhase)json["bossPhase"].get<int>();
 	_damage = json["damage"].get<int>();
-	_health = json["health"].get<int>();
 
 	for (size_t i = 0; i < 64; i++)
 	{
@@ -102,14 +88,8 @@ void EnemyComponent::deserialize(nlohmann::json& json) {
 // Register UI buttons in the debug UI
 // Note: This function won't always be called
 void EnemyComponent::registerUI() {
-	ImGui::InputFloat("X", &_position.x);
-	ImGui::InputFloat("Y", &_position.y);
-	ImGui::InputFloat("Z", &_position.z);
-	ImGui::InputFloat("startY", &_startPosition.y);
 	ImGui::InputInt("pathState", &_debugState);
-	ImGui::InputFloat("targetX", &_targetPos.x);
-	ImGui::InputFloat("targetY", &_targetPos.y);
-	ImGui::InputFloat("targetZ", &_targetPos.z);
+	ImGui::DragFloat3("targetPos", glm::value_ptr(_targetPos), 0.01f);
 	ImGui::Checkbox("isAtGoal", &_isAtGoal);
 	ImGui::Checkbox("playerCanBeSeen", &_playerSeen);
 	ImGui::InputFloat("range", &_range);

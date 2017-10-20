@@ -7,7 +7,6 @@
 
 #include <hydra/world/blueprintloader.hpp>
 #include <imgui/imgui.h>
-#include <hydra/component/aicomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
@@ -499,7 +498,6 @@ namespace Barcode {
 			std::vector<Buffs> perksList;
 			for (auto& p : Hydra::Component::PlayerComponent::componentHandler->getActiveComponents()) {
 				auto player = static_cast<Hydra::Component::PlayerComponent*>(p.get());
-				hpP = player->health;
 				perksList = player->activeBuffs.getActiveBuffs();
 			}
 			for (auto& camera : Hydra::Component::CameraComponent::componentHandler->getActiveComponents())
@@ -746,12 +744,16 @@ namespace Barcode {
 		{
 			auto playerEntity = world::newEntity("Player", world::root);
 			auto p = playerEntity->addComponent<Hydra::Component::PlayerComponent>();
-			p->position = glm::vec3{ 0, 0, 20 };
 			auto c = playerEntity->addComponent<Hydra::Component::CameraComponent>();
+			auto h = playerEntity->addComponent<Hydra::Component::LifeComponent>();
+			auto m = playerEntity->addComponent<Hydra::Component::MovementComponent>();
+			h->health = 100;
+			h->maxHP = 100;
+			m->movementSpeed = 20.0f;
 			c->renderTarget = _geometryBatch.output.get();
 			//c->position = glm::vec3{ 5, 0, -3 };
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
-			//t->position = glm::vec3(0, 0, 0);
+			t->position = glm::vec3{ 0, 0, 20 };
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
 				weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
@@ -767,12 +769,16 @@ namespace Barcode {
 			auto alienEntity = world::newEntity("Alien", world::root);
 			auto a = alienEntity->addComponent<Hydra::Component::EnemyComponent>();
 			a->_enemyID = Hydra::Component::EnemyTypes::Alien;
-			a->_position = glm::vec3{ 10, 0, 20 };
-			a->_health = 80;
 			a->_damage = 4;
-			a->_originalRange = 3.0f;
+			a->_originalRange = 4;
+			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+			h->maxHP = 80;
+			h->health = 80;
+			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+			m->movementSpeed = 8.0f;
 			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->setScale(glm::vec3{ 2,2,2 });
+			t->position = glm::vec3{ 10, 0, 20 };
+			t->scale =  glm::vec3{ 2,2,2 };
 			a->_scale = glm::vec3{ 2,2,2 };
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
 		}
