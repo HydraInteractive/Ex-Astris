@@ -95,9 +95,11 @@ namespace Barcode {
 		Hydra::IEngine* _engine;
 		std::unique_ptr<Hydra::IO::ITextureLoader> _textureLoader;
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
+
+		//Image drawn in the render window
 		Hydra::Renderer::UIRenderWindow* _finalImage;
 
-
+		//Render batches
 		RenderBatch _geometryBatch; // First part of deferred rendering
 		RenderBatch _animationBatch; // AnimationBatch
 		RenderBatch _lightingBatch; // Second part of deferred rendering
@@ -106,10 +108,7 @@ namespace Barcode {
 		RenderBatch _postTestBatch;
 		RenderBatch _shadowBatch;
 		RenderBatch _ssaoBatch;
-		//RenderBatch _previewBatch;
 		ParticleRenderBatch _particleBatch;
-
-
 
 		//// ParticleTexture
 		std::shared_ptr<Hydra::Renderer::ITexture> _particleAtlases;

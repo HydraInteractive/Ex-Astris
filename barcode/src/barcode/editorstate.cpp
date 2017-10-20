@@ -61,8 +61,8 @@ namespace Barcode {
 
 		{ // Lighting pass batch
 			auto& batch = _lightingBatch;
-			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/lighting.vert");
-			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/lighting.frag");
+			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/editorLighting.vert");
+			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/editorLighting.frag");
 
 			batch.pipeline = Hydra::Renderer::GLPipeline::create();
 			batch.pipeline->attachStage(*batch.vertexShader);
@@ -476,14 +476,8 @@ namespace Barcode {
 			_blurredIMG1->bind(2);
 			_blurredIMG2->bind(3);
 
-			_glowBatch.batch.renderTarget = _engine->getView();
 			_engine->getRenderer()->postProcessing(_glowBatch.batch);
-			_glowBatch.batch.renderTarget = _glowBatch.output.get();
 			_glowBatch.batch.pipeline = _glowBatch.pipeline.get();
-		}
-
-		{ // Render transparent objects	(Forward rendering)
-		  //_world->tick(TickAction::renderTransparent, delta);
 		}
 
 		{ // Particle batch
@@ -525,6 +519,10 @@ namespace Barcode {
 		//if (_showExporter)
 		//	_exporterMenu->render(_showExporter);
 		_glowBatch.output->resolve(0, _finalImage->image);
+		_glowBatch.batch.renderTarget = _engine->getView();
+		_engine->getRenderer()->clear(_glowBatch.batch);
+		_glowBatch.batch.renderTarget = _glowBatch.output.get();
+
 		{ // Sync with network
 			//_world->tick(TickAction::network, delta);
 		}
@@ -543,7 +541,6 @@ namespace Barcode {
 			c->renderTarget = _geometryBatch.output.get();
 			//c->position = glm::vec3{ 5, 0, -3 };
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
-			//t->position = glm::vec3(0, 0, 0);
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
 				weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
