@@ -49,7 +49,14 @@ namespace Barcode {
 			_setupComponents();
 		}
 
-		~Engine() final { setState_(nullptr); }
+		~Engine() final {
+			setState_(nullptr);
+
+			// Mirror Hydra::World::World::reset, but without create a new world root
+			Hydra::World::World::_isResetting = true;
+			Hydra::World::World::_entities.clear();
+			Hydra::World::World::_map.clear();
+		}
 
 		void run() final {
 			auto lastTime = std::chrono::high_resolution_clock::now();

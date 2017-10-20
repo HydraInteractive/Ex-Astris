@@ -65,7 +65,7 @@ namespace Barcode {
 	void MenuState::_initWorld() {
 		using world = Hydra::World::World;
 
-		world::newEntity("Menu entity", world::root);
+		world::newEntity("Menu entity", world::root());
 	}
 
 }

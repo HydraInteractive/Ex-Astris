@@ -729,13 +729,13 @@ namespace Barcode {
 
 	void GameState::_initWorld() {
 		{
-			auto floor = world::newEntity("Floor", world::root);
+			auto floor = world::newEntity("Floor", world::root());
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(0, -1, 0);
 			floor->addComponent<Hydra::Component::RigidBodyComponent>()->createStaticPlane(glm::vec3(0, 1, 0), 1);
 		}
 		{
-			auto physicsBox = world::newEntity("Physics box", world::root);
+			auto physicsBox = world::newEntity("Physics box", world::root());
 			auto t = physicsBox->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(2, 25, 2);
 			physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(glm::vec3(0.5f), 10);
@@ -743,7 +743,7 @@ namespace Barcode {
 		}
 
 		{
-			auto playerEntity = world::newEntity("Player", world::root);
+			auto playerEntity = world::newEntity("Player", world::root());
 			auto p = playerEntity->addComponent<Hydra::Component::PlayerComponent>();
 			p->position = glm::vec3{ 0, 0, 20 };
 			auto c = playerEntity->addComponent<Hydra::Component::CameraComponent>();
@@ -763,7 +763,7 @@ namespace Barcode {
 		}
 
 		{
-			auto alienEntity = world::newEntity("Alien", world::root);
+			auto alienEntity = world::newEntity("Alien", world::root());
 			auto a = alienEntity->addComponent<Hydra::Component::EnemyComponent>();
 			a->_enemyID = Hydra::Component::EnemyTypes::Alien;
 			a->_position = glm::vec3{ 10, 0, 20 };
@@ -779,13 +779,13 @@ namespace Barcode {
 		}
 
 		{
-			auto pointLight1 = world::newEntity("Pointlight1", world::root);
+			auto pointLight1 = world::newEntity("Pointlight1", world::root());
 			pointLight1->addComponent<Hydra::Component::TransformComponent>();
 			pointLight1->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/EscapePodDoor.mATTIC");
 			auto p1LC = pointLight1->addComponent<Hydra::Component::PointLightComponent>();
 			p1LC->color = glm::vec3(0, 1, 0);
 		} {
-			auto pointLight2 = world::newEntity("Pointlight2", world::root);
+			auto pointLight2 = world::newEntity("Pointlight2", world::root());
 			auto t = pointLight2->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(45, 0, 0);
 			pointLight2->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
@@ -793,7 +793,7 @@ namespace Barcode {
 			p2LC->position = glm::vec3(45, 0, 0);
 			p2LC->color = glm::vec3(1, 0, 0);
 		} {
-			auto pointLight3 = world::newEntity("Pointlight3", world::root);
+			auto pointLight3 = world::newEntity("Pointlight3", world::root());
 			auto t = pointLight3->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(45, 0, 0);
 			pointLight3->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
@@ -801,7 +801,7 @@ namespace Barcode {
 			p3LC->position = glm::vec3(0, 0, 45);
 			p3LC->color = glm::vec3(1, 0, 0);
 		} {
-			auto pointLight4 = world::newEntity("Pointlight4", world::root);
+			auto pointLight4 = world::newEntity("Pointlight4", world::root());
 			auto t = pointLight4->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(45, 0, 0);
 			pointLight4->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
@@ -811,41 +811,41 @@ namespace Barcode {
 		}
 
 		{
-			auto test = world::newEntity("test", world::root);
+			auto test = world::newEntity("test", world::root());
 			test->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
 			auto t = test->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(-7, 0, 0);
 		} {
-			auto wall1 = world::newEntity("Wall1", world::root);
+			auto wall1 = world::newEntity("Wall1", world::root());
 			wall1->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Wall_V4.mATTIC");
 			auto t = wall1->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(8, 0, 33);
 		} {
-			auto wall2 = world::newEntity("Wall2", world::root);
+			auto wall2 = world::newEntity("Wall2", world::root());
 			wall2->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Wall_V4.mATTIC");
 			auto t = wall2->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(55, 0, 15);
 		} {
-			auto wall3 = world::newEntity("Wall3", world::root);
+			auto wall3 = world::newEntity("Wall3", world::root());
 			wall3->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Wall_V4.mATTIC");
 			auto t = wall3->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(19.5, 0, -13);
 		} {
-			auto roof = world::newEntity("Roof", world::root);
+			auto roof = world::newEntity("Roof", world::root());
 			roof->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Roof_V2.mATTIC");
 			auto t = roof->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(14, 8, 9);
 			t->scale = glm::vec3(40, 40, 40);
 			t->rotation = glm::quat(0, 0, 0, 1);
 		} {
-			auto floor = world::newEntity("Floor", world::root);
+			auto floor = world::newEntity("Floor", world::root());
 			floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(14, -8, 9);
 		}
 
 		{
-			auto lightEntity = world::newEntity("Light", world::root);
+			auto lightEntity = world::newEntity("Light", world::root());
 			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
 			l->position = glm::vec3(-5, 0.75, 4.3);
 			l->direction = glm::vec3(-1, 0, 0);
@@ -854,10 +854,10 @@ namespace Barcode {
 		}
 
 		{
-			BlueprintLoader::save("world.blueprint", "World Blueprint", world::root);
+			BlueprintLoader::save("world.blueprint", "World Blueprint", world::root());
 			Hydra::World::World::reset();
 			auto bp = BlueprintLoader::load("world.blueprint");
-			bp->spawn(world::root);
+			bp->spawn(world::root());
 		}
 
 		{

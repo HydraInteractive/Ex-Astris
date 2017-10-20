@@ -194,7 +194,7 @@ namespace Hydra::World {
 		std::vector<std::shared_ptr<IComponentBase>> _components;
 
 		const std::vector<std::shared_ptr<IComponentBase>>& getActiveComponents() final { return _components; }
-	
+
 		std::shared_ptr<IComponentBase> getComponent(EntityID entityID) final {
 			return _components[_map[entityID]];
 		}
@@ -281,17 +281,16 @@ namespace Hydra::World {
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::LifeComponent, Hydra::Component::ComponentBits::Life>;
 
 	struct HYDRA_BASE_API World final {
-		static std::shared_ptr<Entity> root;
+		inline static std::shared_ptr<Entity>& root() {
+			// I'm doing this because the World object will be invalid if it doesn't have an root object
+			return _entities[_map[rootID]];
+		}
 
 		World() = delete;
 		static constexpr EntityID invalidID = 0;
+		static constexpr EntityID rootID = 1;
 
-		static void reset() {
-			_entities.clear();
-			_map.clear();
-			_idCounter = 1;
-			root = newEntity("World Root", invalidID);
-		}
+		static void reset();
 
 		inline static std::shared_ptr<Entity> newEntity(const std::string& name, std::shared_ptr<Entity>& parent) {
 			return newEntity(name, parent->id);
@@ -300,32 +299,8 @@ namespace Hydra::World {
 			return newEntity(name, parent->id);
 		}
 
-		inline static std::shared_ptr<Entity> newEntity(const std::string& name, EntityID parent) {
-			EntityID id = _idCounter++;
-			std::shared_ptr<Entity> e = std::make_shared<Entity>();
-			e->id = id;
-			e->name = name;
-			e->parent = parent;
-			if (parent)
-				getEntity(parent)->children.push_back(id);
-
-			_entities.emplace_back(std::move(e));
-			_map[id] = _entities.size() - 1;
-			return _entities.back();
-		}
-
-		inline static void removeEntity(EntityID entityID) {
-			if (!getEntity(entityID))
-				return;
-			const size_t pos = _map[entityID];
-			if (pos != _entities.size() - 1) {
-				_map[_entities.back()->id] = pos;
-				std::swap(_entities[pos], _entities.back());
-			}
-
-			_entities.pop_back();
-			_map.erase(entityID);
-		}
+		static std::shared_ptr<Entity> newEntity(const std::string& name, EntityID parent);
+		static void removeEntity(EntityID entityID);
 
 		inline static std::shared_ptr<Entity> getEntity(EntityID id) {
 			if (!_map.count(id))
@@ -345,6 +320,7 @@ namespace Hydra::World {
 		static std::unordered_map<EntityID, size_t> _map;
 		static std::vector<std::shared_ptr<Entity>> _entities;
 		static EntityID _idCounter;
+		static bool _isResetting;
 	};
 
 	class HYDRA_BASE_API ISystem {
