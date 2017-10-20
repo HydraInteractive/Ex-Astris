@@ -1,5 +1,5 @@
 /**
-* Get a life stuff
+* stuff used in movement
 *
 * License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
 * Authors:
@@ -8,6 +8,7 @@
 
 #pragma once
 #include <hydra/ext/api.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <glm/glm.hpp>
 #include <SDL2/SDL.h>
 #include <hydra/world/world.hpp>
@@ -16,19 +17,18 @@
 using namespace Hydra::World;
 
 namespace Hydra::Component {
-	struct HYDRA_PHYSICS_API LifeComponent final : public IComponent<LifeComponent, ComponentBits::Life>{
-	int maxHP = 100;
-	int health = 100;
+	struct HYDRA_PHYSICS_API MovementComponent final : public IComponent<MovementComponent, ComponentBits::Movement>{
+	glm::vec3 velocity = glm::vec3{ 0, 0, 0 };
+	glm::vec3 acceleration = glm::vec3{ 0, 0, 0 };
+	float movementSpeed = 20.0f;
 
-	~LifeComponent() final;
+	~MovementComponent() final;
 
-	void applyDamage(int damage);
-	bool statusCheck();
-
-	inline const std::string type() const final { return "LifeComponent"; }
+	inline const std::string type() const final { return "MovementComponent"; }
 
 	void serialize(nlohmann::json& json) const final;
 	void deserialize(nlohmann::json& json) final;
 	void registerUI() final;
 	};
 };
+

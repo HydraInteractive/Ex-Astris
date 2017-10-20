@@ -21,6 +21,7 @@
 #include <hydra/component/particlecomponent.hpp>
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
+#include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
 
