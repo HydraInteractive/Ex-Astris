@@ -8,6 +8,8 @@
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
+#include <hydra/component/lifecomponent.hpp>
+#include <hydra/component/movementcomponent.hpp>
 
 #include <hydra/engine.hpp>
 
@@ -34,33 +36,35 @@ void PlayerSystem::tick(float delta) {
 		auto transform = entities[i]->getComponent<TransformComponent>();
 		auto camera = entities[i]->getComponent<CameraComponent>();
 		auto weapon = player->getWeapon()->getComponent<Hydra::Component::WeaponComponent>();
+		auto life = entities[i]->getComponent<Component::LifeComponent>();
+		auto movement = entities[i]->getComponent<Component::MovementComponent>();
 
-		player->activeBuffs.onTick(player->maxHealth, player->health);
+		player->activeBuffs.onTick(life->maxHP, life->health);
 
-		if (player->health <= 0)
+		if (life->health <= 0)
 			player->isDead = true;
 
 
 		glm::mat4 rotation = glm::mat4_cast(camera->orientation);
 
 		{
-			player->velocity = glm::vec3{0};
+			movement->velocity = glm::vec3{0};
 			if (keysArray[SDL_SCANCODE_W])
-				player->velocity.z -= player->movementSpeed;
+				movement->velocity.z -= movement->movementSpeed;
 			if (keysArray[SDL_SCANCODE_S])
-				player->velocity.z += player->movementSpeed;
+				movement->velocity.z += movement->movementSpeed;
 
 			if (keysArray[SDL_SCANCODE_A])
-				player->velocity.x -= player->movementSpeed;
+				movement->velocity.x -= movement->movementSpeed;
 			if (keysArray[SDL_SCANCODE_D])
-				player->velocity.x += player->movementSpeed;
+				movement->velocity.x += movement->movementSpeed;
 
 			if (keysArray[SDL_SCANCODE_SPACE] && player->onGround){
-				player->acceleration.y += 6.0f;
+				movement->acceleration.y += 6.0f;
 				player->onGround = false;
 			}
 			if (keysArray[SDL_SCANCODE_H] && !prevKBFrameState[Keys::H])
-					player->upgradeHealth();
+					//player->upgradeHealth();
 
 			if (keysArray[SDL_SCANCODE_F] && !prevKBFrameState[Keys::F]) {
 				const glm::vec3 forward = glm::vec3(glm::vec4{0, 0, 1, 0} * rotation);
@@ -70,7 +74,7 @@ void PlayerSystem::tick(float delta) {
 					e = world::newEntity("Abilities", entities[i]);
 				else
 					e = world::getEntity(*abilitiesEntity);
-				player->activeAbillies.useAbility(e.get(), player->position, -forward);
+				player->activeAbillies.useAbility(e.get(), transform->position, -forward);
 			}
 
 			if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && !ImGui::GetIO().WantCaptureMouse) {
@@ -81,33 +85,32 @@ void PlayerSystem::tick(float delta) {
 				float bulletVelocity = 1.0f;
 				player->activeBuffs.onAttack(bulletVelocity);
 
-				weapon->shoot(player->position, forward, bulletOrientation, bulletVelocity);
+				weapon->shoot(transform->position, forward, bulletOrientation, bulletVelocity);
 			}
 		}
 
-		player->acceleration.y -= 10.0f * delta;
-		glm::vec4 movementVector = glm::vec4(player->velocity, 0) * rotation;
-		movementVector.y = player->acceleration.y;
+		movement->acceleration.y -= 10.0f * delta;
+		glm::vec4 movementVector = glm::vec4(movement->velocity, 0) * rotation;
+		movementVector.y = movement->acceleration.y;
 
-		player->position += glm::vec3(movementVector) * delta;
+		transform->position += glm::vec3(movementVector) * delta;
 
-		if (player->position.y < 0) {
-			player->position.y = 0;
-			player->acceleration.y = 0;
+		if (transform->position.y < 0) {
+			transform->position.y = 0;
+			movement->acceleration.y = 0;
 			player->onGround = true;
 		}
 
 		if (player->firstPerson)
-			camera->position = player->position;
+			camera->position = transform->position;
 		else
-			camera->position = player->position + glm::vec3(0, 3, 0) + glm::vec3(glm::vec4{-4, 0, 4, 0} * rotation);
+			camera->position = transform->position + glm::vec3(0, 3, 0) + glm::vec3(glm::vec4{-4, 0, 4, 0} * rotation);
 
-		transform->position = player->position;
 		transform->rotation = camera->orientation;
 		transform->dirty = true;
 
 		auto wt = player->getWeapon()->getComponent<TransformComponent>();
-		wt->position = player->position + glm::vec3(glm::vec4{player->weaponOffset, 0} * rotation);
+		wt->position = transform->position + glm::vec3(glm::vec4{player->weaponOffset, 0} * rotation);
 		wt->rotation = glm::normalize(glm::conjugate(camera->orientation) * glm::quat(glm::vec3(glm::radians(180.0f), 0, glm::radians(180.0f))));
 		wt->dirty = true;
 	}
