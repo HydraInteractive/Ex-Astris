@@ -754,7 +754,7 @@ namespace Barcode {
 			//c->position = glm::vec3{ 5, 0, -3 };
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
 			//t->position = glm::vec3(0, 0, 0);
-			playerEntity->addComponent<Hydra::Component::SoundFxComponent>();
+			//playerEntity->addComponent<Hydra::Component::SoundFxComponent>();
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
 				weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
@@ -817,6 +817,7 @@ namespace Barcode {
 			test->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
 			auto t = test->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(-7, 0, 0);
+			test->addComponent<Hydra::Component::SoundFxComponent>();
 		} {
 			auto wall1 = world::newEntity("Wall1", world::root);
 			wall1->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Wall_V4.mATTIC");

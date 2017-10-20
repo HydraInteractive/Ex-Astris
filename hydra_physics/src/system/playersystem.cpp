@@ -24,13 +24,13 @@ void PlayerSystem::tick(float delta) {
 	const Uint8* keysArray = SDL_GetKeyboardState(nullptr);
 
 	//Process PlayerComponent
-	world::getEntitiesWithComponents<PlayerComponent, TransformComponent, CameraComponent, SoundFxComponent>(entities);
+	world::getEntitiesWithComponents<PlayerComponent, TransformComponent, CameraComponent>(entities);
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto player = entities[i]->getComponent<PlayerComponent>();
 		auto transform = entities[i]->getComponent<TransformComponent>();
 		auto camera = entities[i]->getComponent<CameraComponent>();
 		auto weapon = player->getWeapon()->getComponent<Hydra::Component::WeaponComponent>();
-		auto soundFx = entities[i]->getComponent<SoundFxComponent>();
+		//auto soundFx = entities[i]->getComponent<SoundFxComponent>();
 
 		player->activeBuffs.onTick(player->maxHealth, player->health);
 
@@ -69,12 +69,12 @@ void PlayerSystem::tick(float delta) {
 					e = world::getEntity(*abilitiesEntity);
 				player->activeAbillies.useAbility(e.get(), player->position, -forward);
 				
-				int playerDirAngle = glm::degrees(atan2(-forward.x, forward.z));
-				float angle = glm::degrees(atan2(-player->position.x, player->position.z));
-				playerDirAngle = ((int)(angle - playerDirAngle) + 360) % 360;
+				//int playerDirAngle = glm::degrees(atan2(-forward.x, forward.z));
+				//float angle = glm::degrees(atan2(-player->position.x, player->position.z));
+				//playerDirAngle = ((int)(angle - playerDirAngle) + 360) % 360;
 
-				int channel = Mix_PlayChannel(-1, soundFx->testSound, 0);
-				Mix_SetPosition(channel, playerDirAngle, 100);
+				//int channel = Mix_PlayChannel(-1, soundFx->testSound, 0);
+				//Mix_SetPosition(channel, playerDirAngle, 100);
 			}
 
 			if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && !ImGui::GetIO().WantCaptureMouse) {

@@ -15,7 +15,11 @@ using namespace Hydra::World;
 namespace Hydra::Component {
 	struct HYDRA_SOUND_API SoundFxComponent final : public IComponent<SoundFxComponent, ComponentBits::SoundFx>{
 	
-	Mix_Chunk* testSound = Mix_LoadWAV("assets/sounds/testSound.wav");
+	int channel = -1;
+
+	Mix_Chunk* testSound = Mix_LoadWAV("assets/sounds/piano.wav");
+
+	float debug = 0;
 
 	~SoundFxComponent() final;
 
