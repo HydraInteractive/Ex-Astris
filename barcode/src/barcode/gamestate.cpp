@@ -770,7 +770,7 @@ namespace Barcode {
 			auto a = alienEntity->addComponent<Hydra::Component::EnemyComponent>();
 			a->_enemyID = Hydra::Component::EnemyTypes::Alien;
 			a->_damage = 4;
-			a->_originalRange = 4;
+			a->_originalRange = 5;
 			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 			h->maxHP = 80;
 			h->health = 80;
