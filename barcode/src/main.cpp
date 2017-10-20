@@ -49,7 +49,14 @@ namespace Barcode {
 			_setupComponents();
 		}
 
-		~Engine() final { setState_(nullptr); }
+		~Engine() final {
+			setState_(nullptr);
+
+			// Mirror Hydra::World::World::reset, but without create a new world root
+			Hydra::World::World::_isResetting = true;
+			Hydra::World::World::_entities.clear();
+			Hydra::World::World::_map.clear();
+		}
 
 		void run() final {
 			auto lastTime = std::chrono::high_resolution_clock::now();
@@ -95,8 +102,8 @@ namespace Barcode {
 					setState<MenuState>();
 				if (ImGui::MenuItem("GameState", NULL, typeid(*_state) == typeid(GameState)))
 					setState<GameState>();
-				/*if (ImGui::MenuItem("EditorState", NULL, typeid(*_state) == typeid(EditorState)))
-					setState<EditorState>();*/
+				if (ImGui::MenuItem("EditorState", NULL, typeid(*_state) == typeid(EditorState)))
+					setState<EditorState>();
 				ImGui::EndMenu();
 			}
 			if (_state)

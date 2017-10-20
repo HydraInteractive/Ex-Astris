@@ -277,11 +277,11 @@ namespace Barcode {
 			auto lightViewMX = _light->getViewMatrix();
 			auto lightPMX = _light->getProjectionMatrix();
 			glm::mat4 biasMatrix(
-													 0.5, 0.0, 0.0, 0.0,
-														 0.0, 0.5, 0.0, 0.0,
-														 0.0, 0.0, 0.5, 0.0,
-														 0.5, 0.5, 0.5, 1.0
-													 );
+				0.5, 0.0, 0.0, 0.0,
+				0.0, 0.5, 0.0, 0.0,
+				0.0, 0.0, 0.5, 0.0,
+				0.5, 0.5, 0.5, 1.0
+			);
 			glm::mat4 lightS = biasMatrix * lightPMX * lightViewMX;
 
 			_geometryBatch.pipeline->setValue(0, _cc->getViewMatrix());
@@ -298,7 +298,7 @@ namespace Barcode {
 
 			for (auto& kv : _animationBatch.batch.objects)
 				kv.second.clear();
-		
+
 			for (auto& drawObj : _engine->getRenderer()->activeDrawObjects()) {
 				if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false)
 					_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
@@ -328,16 +328,16 @@ namespace Barcode {
 				std::vector<glm::mat4>& list = kv.second;
 
 				std::sort(list.begin(), list.end(), [cameraPos](const glm::mat4& a, const glm::mat4& b) {
-						return glm::distance(glm::vec3(a[3]), cameraPos) < glm::distance(glm::vec3(b[3]), cameraPos);
-					});
+					return glm::distance(glm::vec3(a[3]), cameraPos) < glm::distance(glm::vec3(b[3]), cameraPos);
+				});
 			}
 			// Sort Front to back for animation
 			for (auto& kv : _animationBatch.batch.objects) {
 				std::vector<glm::mat4>& list = kv.second;
 
 				std::sort(list.begin(), list.end(), [cameraPos](const glm::mat4& a, const glm::mat4& b) {
-						return glm::distance(glm::vec3(a[3]), cameraPos) < glm::distance(glm::vec3(b[3]), cameraPos);
-					});
+					return glm::distance(glm::vec3(a[3]), cameraPos) < glm::distance(glm::vec3(b[3]), cameraPos);
+				});
 			}
 
 			_engine->getRenderer()->render(_geometryBatch.batch);
@@ -410,6 +410,7 @@ namespace Barcode {
 				_lightingBatch.pipeline->setValue(i++, pc->linear);
 				_lightingBatch.pipeline->setValue(i++, pc->quadratic);
 			}
+
 			(*_geometryBatch.output)[0]->bind(0);
 			(*_geometryBatch.output)[1]->bind(1);
 			(*_geometryBatch.output)[2]->bind(2);
@@ -450,7 +451,7 @@ namespace Barcode {
 		}
 
 		{ // Render transparent objects	(Forward rendering)
-			//_world->tick(TickAction::renderTransparent, delta);
+		  //_world->tick(TickAction::renderTransparent, delta);
 		}
 
 		{ // Particle batch
@@ -500,7 +501,6 @@ namespace Barcode {
 			std::vector<Buffs> perksList;
 			for (auto& p : Hydra::Component::PlayerComponent::componentHandler->getActiveComponents()) {
 				auto player = static_cast<Hydra::Component::PlayerComponent*>(p.get());
-				hpP = player->health;
 				perksList = player->activeBuffs.getActiveBuffs();
 			}
 			for (auto& camera : Hydra::Component::CameraComponent::componentHandler->getActiveComponents())
@@ -575,17 +575,17 @@ namespace Barcode {
 				float dotPlacment = glm::dot(forward2D, enemy2D); // -1 - +1
 				float leftRight = glm::dot(right2D, enemy2D);
 				if (leftRight < 0)
-					{
-						leftRight = 1;
-					}
+				{
+					leftRight = 1;
+				}
 				else
-					{
-						leftRight = -1;
-					}
+				{
+					leftRight = -1;
+				}
 				if (dotPlacment < 0)
-					{
-						dotPlacment = 0;
-					}
+				{
+					dotPlacment = 0;
+				}
 				dotPlacment = dotPlacment;
 				dotPlacment = leftRight * (1 - dotPlacment) * 275;
 				ImGui::SetNextWindowPos(ImVec2(x + dotPlacment, 75)); //- 275
@@ -602,58 +602,58 @@ namespace Barcode {
 			float pForEatchDot = float(1) / float(amountOfActives);
 			float stepSize = float(70) * pForEatchDot;
 			for (int i = 0; i < amountOfActives; i++)
+			{
+				char buf[128];
+				snprintf(buf, sizeof(buf), "Cooldown%d", i);
+				float yOffset = float(stepSize * float(i + 1));
+				float xOffset = pow(abs((yOffset - (stepSize / float(2)) - float(35))) * 0.1069, 2);
+				ImGui::SetNextWindowPos(pos + ImVec2(-64 + xOffset, -24 + yOffset - ((stepSize + 10.0) / 2.0)));
+				ImGui::SetNextWindowSize(ImVec2(15, 15));
+				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+				if (coolDownList[i] >= 7)
 				{
-					char buf[128];
-					snprintf(buf, sizeof(buf), "Cooldown%d", i);
-					float yOffset = float(stepSize * float(i + 1));
-					float xOffset = pow(abs((yOffset - (stepSize / float(2)) - float(35))) * 0.1069, 2);
-					ImGui::SetNextWindowPos(pos + ImVec2(-64 + xOffset, -24 + yOffset - ((stepSize + 10.0) / 2.0)));
-					ImGui::SetNextWindowSize(ImVec2(15, 15));
-					ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-					if (coolDownList[i] >= 7)
-						{
-							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(10, 10));
-						}
-					else if (coolDownList[i] <= 0)
-						{
-							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Green.png")->getID()), ImVec2(10, 10));
-						}
-					else
-						{
-							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Yellow.png")->getID()), ImVec2(10, 10));
-						}
-
-					ImGui::End();
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(10, 10));
 				}
+				else if (coolDownList[i] <= 0)
+				{
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Green.png")->getID()), ImVec2(10, 10));
+				}
+				else
+				{
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Yellow.png")->getID()), ImVec2(10, 10));
+				}
+
+				ImGui::End();
+			}
 
 			//Perk Icons
 			int amountOfPerks = perksList.size();
 			for (int i = 0; i < amountOfPerks; i++)
+			{
+				char buf[128];
+				snprintf(buf, sizeof(buf), "Perk%d", i);
+				float xOffset = float((-10 * amountOfPerks) + (20 * i));
+				ImGui::SetNextWindowPos(pos + ImVec2(xOffset, +480));
+				ImGui::SetNextWindowSize(ImVec2(20, 20));
+				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+				switch (perksList[i])
 				{
-					char buf[128];
-					snprintf(buf, sizeof(buf), "Perk%d", i);
-					float xOffset = float((-10 * amountOfPerks) + (20 * i));
-					ImGui::SetNextWindowPos(pos + ImVec2(xOffset, +480));
-					ImGui::SetNextWindowSize(ImVec2(20, 20));
-					ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-					switch (perksList[i])
-						{
-						case BUFF_BULLETVELOCITY:
-							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/BulletVelocity.png")->getID()), ImVec2(20, 20));
-							break;
-						case BUFF_DAMAGEUPGRADE:
-							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/DamageUpgrade.png")->getID()), ImVec2(20, 20));
-							break;
-						case BUFF_HEALING:
-							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Healing.png")->getID()), ImVec2(20, 20));
-							break;
-						case BUFF_HEALTHUPGRADE:
-							ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
-							break;
-						}
-
-					ImGui::End();
+				case BUFF_BULLETVELOCITY:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/BulletVelocity.png")->getID()), ImVec2(20, 20));
+					break;
+				case BUFF_DAMAGEUPGRADE:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/DamageUpgrade.png")->getID()), ImVec2(20, 20));
+					break;
+				case BUFF_HEALING:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Healing.png")->getID()), ImVec2(20, 20));
+					break;
+				case BUFF_HEALTHUPGRADE:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
+					break;
 				}
+
+				ImGui::End();
+			}
 
 			ImGui::PopStyleColor();
 			ImGui::PopStyleVar();
@@ -731,13 +731,13 @@ namespace Barcode {
 
 	void GameState::_initWorld() {
 		{
-			auto floor = world::newEntity("Floor", world::root);
+			auto floor = world::newEntity("Floor", world::root());
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(0, -1, 0);
 			floor->addComponent<Hydra::Component::RigidBodyComponent>()->createStaticPlane(glm::vec3(0, 1, 0), 1);
 		}
 		{
-			auto physicsBox = world::newEntity("Physics box", world::root);
+			auto physicsBox = world::newEntity("Physics box", world::root());
 			auto t = physicsBox->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(2, 25, 2);
 			physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(glm::vec3(0.5f), 10);
@@ -745,14 +745,18 @@ namespace Barcode {
 		}
 
 		{
-			auto playerEntity = world::newEntity("Player", world::root);
+			auto playerEntity = world::newEntity("Player", world::root());
 			auto p = playerEntity->addComponent<Hydra::Component::PlayerComponent>();
-			p->position = glm::vec3{ 0, 0, 20 };
 			auto c = playerEntity->addComponent<Hydra::Component::CameraComponent>();
+			auto h = playerEntity->addComponent<Hydra::Component::LifeComponent>();
+			auto m = playerEntity->addComponent<Hydra::Component::MovementComponent>();
+			h->health = 100;
+			h->maxHP = 100;
+			m->movementSpeed = 20.0f;
 			c->renderTarget = _geometryBatch.output.get();
 			//c->position = glm::vec3{ 5, 0, -3 };
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
-			//t->position = glm::vec3(0, 0, 0);
+			t->position = glm::vec3{ 0, 0, 20 };
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
 				weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
@@ -763,14 +767,33 @@ namespace Barcode {
 				t2->ignoreParent = true;
 			}
 		}
+
 		{
-			auto pointLight1 = world::newEntity("Pointlight1", world::root);
+			auto alienEntity = world::newEntity("Alien", world::root());
+			auto a = alienEntity->addComponent<Hydra::Component::EnemyComponent>();
+			a->_enemyID = Hydra::Component::EnemyTypes::Alien;
+			a->_damage = 4;
+			a->_originalRange = 4;
+			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+			h->maxHP = 80;
+			h->health = 80;
+			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+			m->movementSpeed = 8.0f;
+			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+			t->position = glm::vec3{ 10, 0, 20 };
+			t->scale =  glm::vec3{ 2,2,2 };
+			a->_scale = glm::vec3{ 2,2,2 };
+			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
+		}
+
+		{
+			auto pointLight1 = world::newEntity("Pointlight1", world::root());
 			pointLight1->addComponent<Hydra::Component::TransformComponent>();
 			pointLight1->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/EscapePodDoor.mATTIC");
 			auto p1LC = pointLight1->addComponent<Hydra::Component::PointLightComponent>();
 			p1LC->color = glm::vec3(0, 1, 0);
 		} {
-			auto pointLight2 = world::newEntity("Pointlight2", world::root);
+			auto pointLight2 = world::newEntity("Pointlight2", world::root());
 			auto t = pointLight2->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(45, 0, 0);
 			pointLight2->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
@@ -778,7 +801,7 @@ namespace Barcode {
 			p2LC->position = glm::vec3(45, 0, 0);
 			p2LC->color = glm::vec3(1, 0, 0);
 		} {
-			auto pointLight3 = world::newEntity("Pointlight3", world::root);
+			auto pointLight3 = world::newEntity("Pointlight3", world::root());
 			auto t = pointLight3->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(45, 0, 0);
 			pointLight3->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
@@ -786,7 +809,7 @@ namespace Barcode {
 			p3LC->position = glm::vec3(0, 0, 45);
 			p3LC->color = glm::vec3(1, 0, 0);
 		} {
-			auto pointLight4 = world::newEntity("Pointlight4", world::root);
+			auto pointLight4 = world::newEntity("Pointlight4", world::root());
 			auto t = pointLight4->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(45, 0, 0);
 			pointLight4->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
@@ -796,41 +819,41 @@ namespace Barcode {
 		}
 
 		{
-			auto test = world::newEntity("test", world::root);
+			auto test = world::newEntity("test", world::root());
 			test->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
 			auto t = test->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(-7, 0, 0);
 		} {
-			auto wall1 = world::newEntity("Wall1", world::root);
+			auto wall1 = world::newEntity("Wall1", world::root());
 			wall1->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Wall_V4.mATTIC");
 			auto t = wall1->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(8, 0, 33);
 		} {
-			auto wall2 = world::newEntity("Wall2", world::root);
+			auto wall2 = world::newEntity("Wall2", world::root());
 			wall2->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Wall_V4.mATTIC");
 			auto t = wall2->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(55, 0, 15);
 		} {
-			auto wall3 = world::newEntity("Wall3", world::root);
+			auto wall3 = world::newEntity("Wall3", world::root());
 			wall3->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Wall_V4.mATTIC");
 			auto t = wall3->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(19.5, 0, -13);
 		} {
-			auto roof = world::newEntity("Roof", world::root);
+			auto roof = world::newEntity("Roof", world::root());
 			roof->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Roof_V2.mATTIC");
 			auto t = roof->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(14, 8, 9);
 			t->scale = glm::vec3(40, 40, 40);
 			t->rotation = glm::quat(0, 0, 0, 1);
 		} {
-			auto floor = world::newEntity("Floor", world::root);
+			auto floor = world::newEntity("Floor", world::root());
 			floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(14, -8, 9);
 		}
 
 		{
-			auto particleEmitter = world::newEntity("ParticleEmitter", world::root);
+			auto particleEmitter = world::newEntity("ParticleEmitter", world::root());
 			particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/R2D3.mATTIC");
 			auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
 			p->delay = 1.0f/15.0f;
@@ -838,7 +861,7 @@ namespace Barcode {
 		}
 
 		{
-			auto lightEntity = world::newEntity("Light", world::root);
+			auto lightEntity = world::newEntity("Light", world::root());
 			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
 			l->position = glm::vec3(-5, 0.75, 4.3);
 			l->direction = glm::vec3(-1, 0, 0);
@@ -847,10 +870,10 @@ namespace Barcode {
 		}
 
 		{
-			BlueprintLoader::save("world.blueprint", "World Blueprint", world::root);
+			BlueprintLoader::save("world.blueprint", "World Blueprint", world::root());
 			Hydra::World::World::reset();
 			auto bp = BlueprintLoader::load("world.blueprint");
-			bp->spawn(world::root);
+			bp->spawn(world::root());
 		}
 
 		{

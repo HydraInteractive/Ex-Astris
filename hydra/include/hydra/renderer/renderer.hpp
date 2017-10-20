@@ -194,6 +194,7 @@ namespace Hydra::Renderer {
 		virtual const std::vector<std::unique_ptr<DrawObject>>& activeDrawObjects() = 0;
 
 		virtual void cleanup() = 0;
+		virtual void clear(Batch& batch) = 0;
 
 		virtual void* getModelMatrixBuffer() = 0;
 		virtual void* getParticleExtraBuffer() = 0;
