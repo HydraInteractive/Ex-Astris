@@ -754,7 +754,7 @@ namespace Barcode {
 			//c->position = glm::vec3{ 5, 0, -3 };
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
 			//t->position = glm::vec3(0, 0, 0);
-			//playerEntity->addComponent<Hydra::Component::SoundFxComponent>();
+			playerEntity->addComponent<Hydra::Component::SoundFxComponent>();
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
 				weaponEntity->addComponent<Hydra::Component::WeaponComponent>();

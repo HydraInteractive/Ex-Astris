@@ -30,7 +30,7 @@ void PlayerSystem::tick(float delta) {
 		auto transform = entities[i]->getComponent<TransformComponent>();
 		auto camera = entities[i]->getComponent<CameraComponent>();
 		auto weapon = player->getWeapon()->getComponent<Hydra::Component::WeaponComponent>();
-		//auto soundFx = entities[i]->getComponent<SoundFxComponent>();
+		auto soundFx = entities[i]->getComponent<SoundFxComponent>();
 
 		player->activeBuffs.onTick(player->maxHealth, player->health);
 
@@ -68,13 +68,9 @@ void PlayerSystem::tick(float delta) {
 				else
 					e = world::getEntity(*abilitiesEntity);
 				player->activeAbillies.useAbility(e.get(), player->position, -forward);
-				
-				//int playerDirAngle = glm::degrees(atan2(-forward.x, forward.z));
-				//float angle = glm::degrees(atan2(-player->position.x, player->position.z));
-				//playerDirAngle = ((int)(angle - playerDirAngle) + 360) % 360;
 
-				//int channel = Mix_PlayChannel(-1, soundFx->testSound, 0);
-				//Mix_SetPosition(channel, playerDirAngle, 100);
+				soundFx->playingSounds.push_back(Mix_LoadWAV("assets/sounds/piano.wav"));
+				soundFx->playingChannels.push_back(Mix_PlayChannel(-1, soundFx->playingSounds.back(), 0));
 			}
 
 			if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && !ImGui::GetIO().WantCaptureMouse) {
