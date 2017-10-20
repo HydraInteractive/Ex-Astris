@@ -8,6 +8,7 @@
 #pragma once
 #include <hydra/ext/api.hpp>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
@@ -49,11 +50,8 @@ namespace Hydra::Component {
 		BossPhase _bossPhase = CLAWING;
 		std::vector<std::shared_ptr<Hydra::World::Entity>> _spawnGroup;
 		EnemyTypes _enemyID = EnemyTypes::Alien;
-		glm::vec3 _velocity = glm::vec3{ 0, 0, 0 };
 		glm::vec3 _mapOffset = glm::vec3(-30.0f, 0, -30.0f);
 		glm::vec3 _targetPos = glm::vec3{ 0, 0, 0 };
-		glm::vec3 _position = glm::vec3{ 0, 0, 0 };
-		glm::vec3 _startPosition = glm::vec3{ 0, 0, 0 };
 		glm::vec3 _scale = glm::vec3{ 1, 1, 1 };
 		glm::quat _rotation = glm::quat();
 		float _angle = 1;
