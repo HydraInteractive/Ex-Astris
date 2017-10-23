@@ -125,7 +125,7 @@ namespace Barcode {
 
 		Hydra::Component::CameraComponent* _cc = nullptr;
 		Hydra::Component::PlayerComponent* player = nullptr;
-		Hydra::Component::EnemyComponent* _enemy = nullptr;
+		Hydra::Component::AIComponent* _enemy = nullptr;
 		Hydra::Component::LightComponent* _light = nullptr;
 
 		Input _input;

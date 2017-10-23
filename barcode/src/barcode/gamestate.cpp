@@ -562,9 +562,9 @@ namespace Barcode {
 			//Enemys on compas
 			int i = 0;
 			glm::mat4 viewMat = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get())->getViewMatrix();
-			for (auto& enemy : Hydra::Component::EnemyComponent::componentHandler->getActiveComponents()) {
+			for (auto& enemy : Hydra::Component::AIComponent::componentHandler->getActiveComponents()) {
 				char buf[128];
-				snprintf(buf, sizeof(buf), "Enemy is a scrub here is it's scrubID: %d", i);
+				snprintf(buf, sizeof(buf), "AI is a scrub here is it's scrubID: %d", i);
 				auto playerP = _cc->position;
 				auto enemyP = world::getEntity(enemy->entityID)->getComponent<Hydra::Component::TransformComponent>()->position;
 				auto enemyDir = normalize(enemyP - playerP);
@@ -669,7 +669,7 @@ namespace Barcode {
 			//ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, float(0.0f));
 
 			//int k = 0;
-			//for (auto& entity : _world->getActiveComponents<Hydra::Component::EnemyComponent>())
+			//for (auto& entity : _world->getActiveComponents<Hydra::Component::AIComponent>())
 			//{
 			//	for (int i = 0; i < 30; i++)
 			//	{
@@ -679,7 +679,7 @@ namespace Barcode {
 			//			{
 			//				char buf[128];
 			//				snprintf(buf, sizeof(buf), "%d%d", i, j);
-			//				if (entity->getComponent<Hydra::Component::EnemyComponent>()->getWall(i, j) == 1)
+			//				if (entity->getComponent<Hydra::Component::AIComponent>()->getWall(i, j) == 1)
 			//				{
 			//					ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
 			//					ImGui::SetNextWindowSize(ImVec2(20, 20));
@@ -687,7 +687,7 @@ namespace Barcode {
 			//					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(20, 20));
 			//					ImGui::End();
 			//				}
-			//				if (entity->getComponent<Hydra::Component::EnemyComponent>()->getWall(i, j) == 2)
+			//				if (entity->getComponent<Hydra::Component::AIComponent>()->getWall(i, j) == 2)
 			//				{
 			//					ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
 			//					ImGui::SetNextWindowSize(ImVec2(20, 20));
@@ -695,7 +695,7 @@ namespace Barcode {
 			//					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Blue.png")->getID()), ImVec2(20, 20));
 			//					ImGui::End();
 			//				}
-			//				else if (entity->getComponent<Hydra::Component::EnemyComponent>()->getWall(i, j) == 3)
+			//				else if (entity->getComponent<Hydra::Component::AIComponent>()->getWall(i, j) == 3)
 			//				{
 			//					ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
 			//					ImGui::SetNextWindowSize(ImVec2(20, 20));
@@ -703,7 +703,7 @@ namespace Barcode {
 			//					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Yellow.png")->getID()), ImVec2(20, 20));
 			//					ImGui::End();
 			//				}
-			//				//else if (entity->getComponent<Hydra::Component::EnemyComponent>()->getWall(i, j) == 0)
+			//				//else if (entity->getComponent<Hydra::Component::AIComponent>()->getWall(i, j) == 0)
 			//				//{
 			//				//	ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
 			//				//	ImGui::SetNextWindowSize(ImVec2(20, 20));
@@ -747,9 +747,8 @@ namespace Barcode {
 			physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(glm::vec3(0.5f), 10);
 			physicsBox->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Computer1.ATTIC");
 		}
-
+		auto playerEntity = world::newEntity("Player", world::root());
 		{
-			auto playerEntity = world::newEntity("Player", world::root());
 			auto p = playerEntity->addComponent<Hydra::Component::PlayerComponent>();
 			auto c = playerEntity->addComponent<Hydra::Component::CameraComponent>();
 			auto h = playerEntity->addComponent<Hydra::Component::LifeComponent>();
@@ -774,10 +773,11 @@ namespace Barcode {
 
 		{
 			auto alienEntity = world::newEntity("Alien", world::root());
-			auto a = alienEntity->addComponent<Hydra::Component::EnemyComponent>();
-			a->_enemyID = Hydra::Component::EnemyTypes::Alien;
+			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+			//a->_enemyID = Hydra::Component::EnemyTypes::Alien;
 			a->_damage = 4;
 			a->_originalRange = 4;
+			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity, playerEntity);
 			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 			h->maxHP = 80;
 			h->health = 80;
