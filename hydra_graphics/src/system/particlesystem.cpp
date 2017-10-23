@@ -21,7 +21,6 @@ void ParticleSystem::tick(float delta) {
 	//#pragma omp parallel for
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto p = entities[i]->getComponent<Hydra::Component::ParticleComponent>();
-		auto camera = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get());
 
 		const size_t id = static_cast<size_t>(p->texture);
 		const glm::vec2 outerOffset = glm::vec2(id %  ParticleComponent::TextureOuterGrid, id /  ParticleComponent::TextureOuterGrid) / (float)  ParticleComponent::TextureOuterGrid;
@@ -32,26 +31,24 @@ void ParticleSystem::tick(float delta) {
 		}
 
 #pragma omp parallel for
-		for (int_openmp_t i = 0; i < (int_openmp_t)p->particles.size(); i++) {
+		for (int_openmp_t i = 0; i < (int_openmp_t) Hydra::Component::ParticleComponent::MaxParticleAmount /*p->particles.size()*/; i++) {
 			auto& particle = p->particles[i];
-			particle->life -= delta;
+			particle.life = std::max(0.0f, particle.life - delta);
 
-			particle->position += particle->velocity * delta + (particle->acceleration * delta * delta) / 2.0f;
-			particle->velocity += particle->acceleration * delta;
-			particle->distanceToCamera = glm::distance(camera->position, particle->position);
+			particle.transform.position += particle.velocity * delta + (particle.acceleration * delta * delta) / 2.0f;
+			particle.transform.dirty = true;
+			particle.velocity += particle.acceleration * delta;
 
 			{
-				const float lifeFactor = particle->life / particle->startLife;
+				const float lifeFactor = particle.life / particle.startLife;
 				const int innerID = innerCount * lifeFactor;
 				const int nextInnerID = (innerID + 1) % ParticleComponent::TextureInnerGrid;
 
-				particle->texOffset1 = outerOffset + glm::vec2(innerID %  ParticleComponent::TextureInnerGrid, innerID /  ParticleComponent::TextureInnerGrid) * smallImageSize;
-				particle->texOffset2 = outerOffset + glm::vec2(nextInnerID %  ParticleComponent::TextureInnerGrid, nextInnerID /  ParticleComponent::TextureInnerGrid) * smallImageSize;
-				particle->texCoordInfo = glm::vec2(smallImageSize, fmod(innerCount * lifeFactor, 1));
+				particle.texOffset1 = outerOffset + glm::vec2(innerID %  ParticleComponent::TextureInnerGrid, innerID /  ParticleComponent::TextureInnerGrid) * smallImageSize;
+				particle.texOffset2 = outerOffset + glm::vec2(nextInnerID %  ParticleComponent::TextureInnerGrid, nextInnerID /  ParticleComponent::TextureInnerGrid) * smallImageSize;
+				particle.texCoordInfo = glm::vec2(smallImageSize, fmod(innerCount * lifeFactor, 1));
 			}
 		}
-
-		p->particles.erase(std::remove_if(p->particles.begin(), p->particles.end(), [](auto& x) { return x->life <= 0; }), p->particles.end());
 	}
 }
 

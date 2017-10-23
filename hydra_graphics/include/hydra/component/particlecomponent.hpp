@@ -8,6 +8,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include <hydra/component/transformcomponent.hpp>
+
 using namespace Hydra::World;
 
 // TODO: Implement LOD
@@ -19,36 +21,34 @@ namespace Hydra::Component {
 		static constexpr const char* ParticleTextureStr[] = { "Fire", "Knas", "BogdanDeluxe" };
 
 		struct HYDRA_GRAPHICS_API Particle {
-			glm::vec3 position;
-			glm::vec3 acceleration;
-			glm::vec3 velocity;
-			glm::vec3 scale = glm::vec3(1.0f);
+			TransformComponent transform;
+			glm::vec3 velocity = glm::vec3{0, 0, 0};
+			glm::vec3 acceleration = glm::vec3{0, 0, 0}; // TODO: Drop?
+			float life = 0;
+			float startLife = 0;
 			glm::vec2 texOffset1;
 			glm::vec2 texOffset2;
 			glm::vec2 texCoordInfo;
-			float life;
-			float startLife;
-			float grav;
-			float distanceToCamera;
-			void spawn(glm::vec3 position, glm::vec3 velocity, glm::vec3 acceleration, float life) {
-				this->position = position;
-				this->velocity = velocity;
-				this->acceleration = acceleration;
-				this->life = life;
+			void respawn(TransformComponent t, glm::vec3 vel, glm::vec3 acc, float l) {
+				transform = t;
+				// transform.ignoreParent = true;
+				velocity = vel;
+				acceleration = acc;
+				life = startLife = l;
 			}
-			glm::mat4 getMatrix() { return glm::translate(position) * glm::scale(scale); }
+			inline glm::mat4 getMatrix() { return transform.getMatrix(); }
 		};
 
 		static constexpr size_t TextureOuterGrid = 6; // 6x6
 		static constexpr size_t TextureInnerGrid = 4; // 4x4
 		static constexpr float ParticleSize = 1.0f / (TextureInnerGrid * TextureOuterGrid);
+		static constexpr size_t MaxParticleAmount = 64;
 
 		float delay = 1; // 0.1 = 10 Particle/Second
 		float accumulator = 0;
-		glm::vec3 emitterPos = glm::vec3{0, 0, 0};
 		EmitterBehaviour behaviour = EmitterBehaviour::PerSecond;
 		ParticleTexture texture = ParticleTexture::Fire;
-		std::vector<std::shared_ptr<Particle>> particles;
+		Particle particles[MaxParticleAmount];
 
 		~ParticleComponent() final;
 

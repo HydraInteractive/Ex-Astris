@@ -15,7 +15,6 @@ void ParticleComponent::serialize(nlohmann::json & json) const{
 	json = {
 		{ "delay", delay},
 		{ "accumulator", accumulator},
-		{ "emitterPos", { emitterPos.x, emitterPos.y, emitterPos.z } },
 		{ "behaviour", static_cast<int>(behaviour)},
 		{ "texture", static_cast<int>(texture)}
 	};
@@ -24,9 +23,6 @@ void ParticleComponent::serialize(nlohmann::json & json) const{
 void ParticleComponent::deserialize(nlohmann::json & json){
 	delay = json["delay"].get<float>();
 	accumulator = json["accumulator"].get<int>();
-
-	auto& pos = json["emitterPos"];
-	emitterPos = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
 
 	behaviour = static_cast<EmitterBehaviour>(json["behaviour"].get<int>());
 	texture = static_cast<ParticleTexture>(json["texture"].get<int>());
@@ -40,24 +36,83 @@ void ParticleComponent::registerUI() {
 	}
 	ImGui::InputFloat("Delay between particles", &delay, 0, 0, -1, ImGuiInputTextFlags_ReadOnly);
 	ImGui::DragFloat("Accumulator", &accumulator, 1.0);
-	ImGui::DragFloat3("Emitter Position", glm::value_ptr(emitterPos), 0.1f);
 
 	ImGui::Combo("Emitter Behaviour", reinterpret_cast<int*>(&behaviour), EmitterBehaviourStr, static_cast<int>(EmitterBehaviour::MAX_COUNT));
 	ImGui::Combo("Particle Texture", reinterpret_cast<int*>(&texture), ParticleTextureStr, static_cast<int>(ParticleTexture::MAX_COUNT));
+
+	if (!ImGui::CollapsingHeader("Particles"))
+		return;
+	int i = -1;
+	for (auto& p : particles) {
+		i++;
+		ImGui::PushID((void*)&p);
+		ImGui::Text("Particle #%d", i);
+		ImGui::SameLine();
+
+		if (ImGui::Button("Edit"))
+			ImGui::OpenPopup((std::string("particle") + std::to_string(i)).c_str());
+
+		if (ImGui::BeginPopup((std::string("particle") + std::to_string(i)).c_str())) {
+			ImGui::Text("Editing Particle #%d", i);
+
+			p.transform.registerUI();
+
+			ImGui::Text("Velocity");
+			ImGui::DragFloat3("##velocity", glm::value_ptr(p.velocity));
+			ImGui::Text("Acceleration");
+			ImGui::DragFloat3("##acceleration", glm::value_ptr(p.acceleration));
+			ImGui::Text("Life");
+			ImGui::DragFloat("##life", &p.life);
+			ImGui::Text("Start Life");
+			ImGui::DragFloat("##startlife", &p.startLife);
+
+			if (ImGui::Button("Close"))
+				ImGui::CloseCurrentPopup();
+
+			ImGui::EndPopup();
+		}
+		ImGui::NextColumn();
+		ImGui::PopID();
+	}
 }
 
 void ParticleComponent::spawnParticles() {
+	using world = Hydra::World::World;
+	auto t = world::getEntity(entityID)->getComponent<Hydra::Component::TransformComponent>();
+
+	auto findFree = [this]() -> Particle* {
+		static size_t orgI = 0;
+		size_t i = orgI;
+		do {
+			if (particles[i].life <= 0) {
+				orgI = (i+1) % MaxParticleAmount;
+				return &particles[i];
+			}
+			i = (i + 1) % MaxParticleAmount;
+		} while (i != orgI);
+		return nullptr;
+	};
 	switch (behaviour) {
 	case EmitterBehaviour::PerSecond:
 		while (accumulator >= delay) {
+			Particle* p = findFree();
+			if (!p)
+				break;
+
 			accumulator -= delay;
-			std::shared_ptr<Particle> p = std::make_shared<Particle>();
-			float dirX = frand() * 2 - 2;
-			float dirY = frand() * 6 - 1;
-			float dirZ = 0;
-			glm::vec3 a = glm::vec3(frand() * 2 - 2, frand() * 8.5f, 0);
-			p->spawn(emitterPos, glm::normalize(glm::vec3(dirX, dirY, dirZ)), a, frand() * 1.f + 1.f);
-			particles.push_back(p);
+			const float velX = frand() * 2 - 2;
+			const float velY = frand() * 6 - 1;
+			const float velZ = frand() * 2 - 2;
+
+			const float accX = frand() * 2 - 2;
+			const float accY = frand() * 8.5f;
+			const float accZ = frand() * 2 - 2;
+
+			const float life = frand() + 1.f;
+
+			const glm::vec3 vel = glm::normalize(glm::vec3(velX, velY, velZ));
+			const glm::vec3 acc = glm::vec3(accX, accY, accZ);
+			p->respawn(*t, vel, acc, life);
 		}
 		break;
 	default:
