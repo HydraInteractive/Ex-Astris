@@ -187,8 +187,9 @@ namespace Barcode {
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 
-			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize, 0);
+			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize/4, 0);
 			batch.output->addTexture(0, Hydra::Renderer::TextureType::f16R).finalize();
+
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
 			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::color | Hydra::Renderer::ClearFlags::depth;
