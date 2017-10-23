@@ -1,4 +1,7 @@
 #include <barcode/editorstate.hpp>
+
+#include <hydra/component/rigidbodycomponent.hpp>
+
 using world = Hydra::World::World;
 namespace Barcode {
 	EditorState::EditorState() : _engine(Hydra::IEngine::getInstance()) {}
@@ -534,7 +537,7 @@ namespace Barcode {
 	void EditorState::_initWorld() {
 
 		{
-			auto playerEntity = world::newEntity("Player", world::root);
+			auto playerEntity = world::newEntity("Player", world::root());
 			auto p = playerEntity->addComponent<Hydra::Component::PlayerComponent>();
 			//p->position = glm::vec3{ 0, 0, 20 };
 			auto c = playerEntity->addComponent<Hydra::Component::CameraComponent>();
@@ -554,24 +557,24 @@ namespace Barcode {
 			}
 		}
 		{
-			auto room = world::newEntity("Room", world::root);
+			auto room = world::newEntity("Room", world::root());
 			auto r = room->addComponent<Hydra::Component::TransformComponent>();
 		}
 		{
-			auto test = world::newEntity("test", world::root);
+			auto test = world::newEntity("test", world::root());
 			test->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
 			auto t = test->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(-7, 0, 0);
 		}
 		{
-			auto pointLight1 = world::newEntity("Pointlight1", world::root);
+			auto pointLight1 = world::newEntity("Pointlight1", world::root());
 			pointLight1->addComponent<Hydra::Component::TransformComponent>();
 			pointLight1->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/EscapePodDoor.mATTIC");
 			auto p1LC = pointLight1->addComponent<Hydra::Component::PointLightComponent>();
 			p1LC->color = glm::vec3(0, 1, 0);
 		}
 		{
-			auto lightEntity = world::newEntity("Light", world::root);
+			auto lightEntity = world::newEntity("Light", world::root());
 			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
 			l->position = glm::vec3(-5, 0.75, 4.3);
 			l->direction = glm::vec3(-1, 0, 0);
@@ -579,10 +582,10 @@ namespace Barcode {
 			t->position = glm::vec3(8.0, 0, 3.5);
 		}
 		{
-			BlueprintLoader::save("world.blueprint", "World Blueprint", world::root);
+			BlueprintLoader::save("world.blueprint", "World Blueprint", world::root());
 			Hydra::World::World::reset();
 			auto bp = BlueprintLoader::load("world.blueprint");
-			bp->spawn(world::root);
+			bp->spawn(world::root());
 		}
 
 		{

@@ -261,7 +261,7 @@ private:
 			_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/" + fileName);
 			_material.normal = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/normals/futuristicNormal.png");
 			_material.specular = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/speculars/brickSpecular.png");
-			_material.glow = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/glow/errorGlow.png");
+			_material.glow = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/glow/EscapePodDoorGlow_Fin.png");
 
 			delete[] tempFileName;
 
@@ -387,7 +387,7 @@ private:
 			in.read(tempName, nrOfChars);
 			name.append(tempName, nrOfChars);
 
-			delete tempName;
+			delete[] tempName;
 
 			skelInfo *info = new skelInfo;
 			info->nrOfKeys = nrOfKeyframes;
