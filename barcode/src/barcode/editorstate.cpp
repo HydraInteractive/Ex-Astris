@@ -284,8 +284,9 @@ namespace Barcode {
 		_particleSystem.tick(delta);
 		_rendererSystem.tick(delta);
 
+		const glm::vec3 cameraPos = _cc->position;
+
 		{ // Render objects (Deferred rendering)
-			glm::vec3 cameraPos;
 			//_world->tick(TickAction::render, delta);
 
 			// Render to geometryFBO
@@ -306,12 +307,12 @@ namespace Barcode {
 
 			_geometryBatch.pipeline->setValue(0, _cc->getViewMatrix());
 			_geometryBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
-			_geometryBatch.pipeline->setValue(2, cameraPos = _cc->position);
+			_geometryBatch.pipeline->setValue(2, cameraPos);
 			_geometryBatch.pipeline->setValue(4, lightS);
 
 			_animationBatch.pipeline->setValue(0, _cc->getViewMatrix());
 			_animationBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
-			_animationBatch.pipeline->setValue(2, cameraPos = _cc->position);
+			_animationBatch.pipeline->setValue(2, cameraPos);
 
 			for (auto& kv : _geometryBatch.batch.objects)
 				kv.second.clear();
@@ -489,22 +490,22 @@ namespace Barcode {
 				_particleBatch.batch.textureInfo.clear();
 			}
 
-			bool anyParticles = false;
 			for (auto& pc : Hydra::Component::ParticleComponent::componentHandler->getActiveComponents()) {
 				auto p = static_cast<Hydra::Component::ParticleComponent*>(pc.get());
-				auto drawObj = world::getEntity(p->entityID)->getComponent<Hydra::Component::DrawObjectComponent>();
+				auto e = world::getEntity(p->entityID);
+				auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>();
+				auto t = e->getComponent<Hydra::Component::TransformComponent>();
 				auto& particles = p->particles;
-				if (particles.size() > 0) {
-					for (auto& particle : particles) {
-						_particleBatch.batch.objects[drawObj->drawObject->mesh].push_back(particle->m);
-						_particleBatch.batch.textureInfo.push_back(particle->texOffset1);
-						_particleBatch.batch.textureInfo.push_back(particle->texOffset2);
-						_particleBatch.batch.textureInfo.push_back(particle->texCoordInfo);
-					}
-					anyParticles = true;
+				for (auto& particle : particles) {
+					if (particle.life <= 0)
+						continue;
+					_particleBatch.batch.objects[drawObj->drawObject->mesh].push_back(/*t->getMatrix() */ particle.getMatrix());
+					_particleBatch.batch.textureInfo.push_back(particle.texOffset1);
+					_particleBatch.batch.textureInfo.push_back(particle.texOffset2);
+					_particleBatch.batch.textureInfo.push_back(particle.texCoordInfo);
 				}
 			}
-			if (anyParticles) {
+			{
 				auto viewMatrix = _cc->getViewMatrix();
 				glm::vec3 rightVector = { viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0] };
 				glm::vec3 upVector = { viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1] };
@@ -514,6 +515,15 @@ namespace Barcode {
 				_particleBatch.pipeline->setValue(3, upVector);
 				_particleBatch.pipeline->setValue(4, 0);
 				_particleAtlases->bind(0);
+
+				for (auto& kv : _particleBatch.batch.objects) {
+					std::vector<glm::mat4>& list = kv.second;
+
+					std::sort(list.begin(), list.end(), [cameraPos](const glm::mat4& a, const glm::mat4& b) {
+						return glm::distance(glm::vec3(a[3]), cameraPos) < glm::distance(glm::vec3(b[3]), cameraPos);
+					});
+				}
+
 				_engine->getRenderer()->render(_particleBatch.batch);
 			}
 		}
