@@ -430,7 +430,7 @@ namespace Barcode {
 
 			_blurGlowTexture((*_glowBatch.output)[0], nrOfTimes, size * 0.25f, _fiveGaussianKernel2)
 				->resolve(0, _blurredIMG1);
-			_blurGlowTexture(_blurredIMG1, nrOfTimes + 1, size * 0.25f, _fiveGaussianKernel2)
+			_blurGlowTexture(_blurredIMG1, nrOfTimes, size * 0.25f, _fiveGaussianKernel2)
 				->resolve(0, _blurredIMG2);
 
 			_glowBatch.batch.pipeline = _glowPipeline.get();
