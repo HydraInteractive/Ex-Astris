@@ -387,7 +387,7 @@ private:
 			in.read(tempName, nrOfChars);
 			name.append(tempName, nrOfChars);
 
-			delete tempName;
+			delete[] tempName;
 
 			skelInfo *info = new skelInfo;
 			info->nrOfKeys = nrOfKeyframes;
