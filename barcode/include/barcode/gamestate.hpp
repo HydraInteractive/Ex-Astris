@@ -24,6 +24,7 @@
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
+#include <hydra/component/spawnercomponent.hpp>
 
 #include <hydra/system/camerasystem.hpp>
 #include <hydra/system/lightsystem.hpp>
