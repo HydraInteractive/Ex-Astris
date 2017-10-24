@@ -104,6 +104,7 @@
     <ClCompile Include="src\component\playercomponent.cpp" />
     <ClCompile Include="src\component\rigidbodycomponent.cpp" />
     <ClCompile Include="src\component\weaponcomponent.cpp" />
+    <ClCompile Include="src\pathing\behaviour.cpp" />
     <ClCompile Include="src\pathing\pathfinding.cpp" />
     <ClCompile Include="src\system\abilitysystem.cpp" />
     <ClCompile Include="src\system\aisystem.cpp" />
@@ -124,13 +125,15 @@
     <ClInclude Include="include\hydra\component\playercomponent.hpp" />
     <ClInclude Include="include\hydra\component\rigidbodycomponent.hpp" />
     <ClInclude Include="include\hydra\component\weaponcomponent.hpp" />
+    <ClInclude Include="include\hydra\pathing\behaviour.hpp" />
     <ClInclude Include="include\hydra\pathing\pathfinding.hpp" />
     <ClInclude Include="include\hydra\pathing\SearchCell.hpp" />
     <ClInclude Include="include\hydra\system\abilitysystem.hpp" />
     <ClInclude Include="include\hydra\system\aisystem.hpp" />
     <ClInclude Include="include\hydra\system\bulletphysicssystem.hpp" />
     <ClInclude Include="include\hydra\system\bulletsystem.hpp" />
-    <ClInclude Include="include\hydra\system\playersystem.hpp" />  </ItemGroup>
+    <ClInclude Include="include\hydra\system\playersystem.hpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
