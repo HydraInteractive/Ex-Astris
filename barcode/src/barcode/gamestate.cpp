@@ -788,6 +788,7 @@ namespace Barcode {
 			t->scale =  glm::vec3{ 2,2,2 };
 			a->_scale = glm::vec3{ 2,2,2 };
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
+			a->behaviour->refreshComponents();
 		}
 
 		{
@@ -873,13 +874,13 @@ namespace Barcode {
 			auto t = lightEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(8.0, 0, 3.5);
 		}
-
-		{
-			BlueprintLoader::save("world.blueprint", "World Blueprint", world::root());
-			Hydra::World::World::reset();
-			auto bp = BlueprintLoader::load("world.blueprint");
-			bp->spawn(world::root());
-		}
+		//TODO: Fix AI Serialization
+		//{
+		//	BlueprintLoader::save("world.blueprint", "World Blueprint", world::root());
+		//	Hydra::World::World::reset();
+		//	auto bp = BlueprintLoader::load("world.blueprint");
+		//	bp->spawn(world::root());
+		//}
 
 		{
 			_cc = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get());

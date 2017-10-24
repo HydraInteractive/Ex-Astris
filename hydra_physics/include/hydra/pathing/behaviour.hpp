@@ -18,9 +18,10 @@ public:
 	enum {IDLE, SEARCHING, FOUND_GOAL, ATTACKING};
 	unsigned int state = IDLE;
 
-	virtual void run(float dt);
+	virtual void run(float dt) = 0;
 	void setEnemyEntity(std::shared_ptr<Hydra::World::Entity>& enemy);
 	void setTargetPlayer(std::shared_ptr<Hydra::World::Entity>& player);
+	void refreshComponents();
 protected:
 	struct ComponentSet
 	{
@@ -42,8 +43,7 @@ protected:
 	virtual unsigned int foundState(float dt);
 	virtual unsigned int attackingState(float dt);
 
-	//TODO: PLS HELP
-	virtual void iHaveNoIdeaWhatThisIsAbout();
+	virtual void executeTransforms();
 };
 
 class HYDRA_PHYSICS_API AlienBehaviour : public Behaviour
@@ -53,6 +53,7 @@ public:
 	AlienBehaviour();
 	~AlienBehaviour();
 	void run(float dt);
+	unsigned int attackingState(float dt);
 private:
 
 };
@@ -64,6 +65,7 @@ public:
 	RobotBehaviour();
 	~RobotBehaviour();
 	void run(float dt);
+	unsigned int attackingState(float dt);
 private:
 
 };
@@ -75,6 +77,7 @@ public:
 	AlienBossBehaviour();
 	~AlienBossBehaviour();
 	void run(float dt);
+	unsigned int attackingState(float dt);
 private:
 
 };

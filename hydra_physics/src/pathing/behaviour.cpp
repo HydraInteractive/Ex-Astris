@@ -35,28 +35,6 @@ Behaviour::~Behaviour()
 
 }
 
-void Behaviour::run(float dt)
-{
-	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
-	if (!thisEnemy.life->statusCheck())
-	{
-		thisEnemy.entity->dead = true;
-	}
-
-	thisEnemy.ai->_debugState = state;
-
-	thisEnemy.ai->_timer += dt;
-	thisEnemy.ai->_attackTimer += dt;
-	thisEnemy.ai->_stunTimer += dt;
-	thisEnemy.ai->_spawnTimer += dt;
-	thisEnemy.ai->_newPathTimer += dt;
-
-	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 50)
-	{
-		state = IDLE;
-	}
-}
-
 void Behaviour::setEnemyEntity(std::shared_ptr<Hydra::World::Entity>& enemy)
 {
 	thisEnemy.entity = enemy;
@@ -73,6 +51,19 @@ void Behaviour::setTargetPlayer(std::shared_ptr<Hydra::World::Entity>& player)
 	targetPlayer.entity = player;
 	targetPlayer.life = player->getComponent<Hydra::Component::LifeComponent>();
 	targetPlayer.transform = player->getComponent<Hydra::Component::TransformComponent>();
+}
+//Sets all components without setting new entities, use after adding new components to either entity
+void Behaviour::refreshComponents()
+{
+	thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>();
+	thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>();
+	thisEnemy.drawObject = thisEnemy.entity->getComponent<Hydra::Component::DrawObjectComponent>();
+	thisEnemy.weapon = thisEnemy.entity->getComponent<Hydra::Component::WeaponComponent>();
+	thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>();
+	thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>();
+	
+	targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>();
+	targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>();
 }
 
 unsigned int Behaviour::idleState(float dt)
@@ -203,8 +194,12 @@ unsigned int Behaviour::attackingState(float dt)
 	return state;
 }
 
-void Behaviour::iHaveNoIdeaWhatThisIsAbout()
+void Behaviour::executeTransforms()
 {
+	thisEnemy.transform->position += glm::vec3(thisEnemy.movement->velocity.x, thisEnemy.movement->velocity.y, thisEnemy.movement->velocity.z);
+	thisEnemy.transform->setPosition(thisEnemy.transform->position);
+	thisEnemy.transform->setRotation(thisEnemy.ai->_rotation);
+
 	if (thisEnemy.transform->position.x != thisEnemy.ai->_oldMapPosX && thisEnemy.transform->position.z != thisEnemy.ai->_oldMapPosZ)
 	{
 		thisEnemy.ai->_map[thisEnemy.ai->_oldMapPosX][thisEnemy.ai->_oldMapPosZ] = 0;
@@ -265,7 +260,24 @@ AlienBehaviour::~AlienBehaviour()
 
 void AlienBehaviour::run(float dt)
 {
-	Behaviour::run(dt);
+	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
+	if (!thisEnemy.life->statusCheck())
+	{
+		thisEnemy.entity->dead = true;
+	}
+
+	thisEnemy.ai->_debugState = state;
+
+	thisEnemy.ai->_timer += dt;
+	thisEnemy.ai->_attackTimer += dt;
+	thisEnemy.ai->_stunTimer += dt;
+	thisEnemy.ai->_spawnTimer += dt;
+	thisEnemy.ai->_newPathTimer += dt;
+
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 50)
+	{
+		state = IDLE;
+	}
 	switch (state)
 	{
 	case IDLE:
@@ -281,7 +293,34 @@ void AlienBehaviour::run(float dt)
 		state = attackingState(dt);
 		break;
 	}
-	iHaveNoIdeaWhatThisIsAbout();
+	executeTransforms();
+}
+
+unsigned int AlienBehaviour::attackingState(float dt)
+{
+	//When the enemy attack, start the attack animation
+	thisEnemy.drawObject->drawObject->mesh->setAnimationIndex(2);
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) >= thisEnemy.ai->_range)
+	{
+		thisEnemy.ai->_timer = 0;
+		return SEARCHING;
+	}
+	else
+	{
+		std::mt19937 rng(thisEnemy.ai->rd());
+		std::uniform_int_distribution<> randDmg(thisEnemy.ai->_damage - 1, thisEnemy.ai->_damage + 2);
+		if (thisEnemy.ai->_attackTimer > 1.5)
+		{
+			//player->applyDamage(randDmg(rng));
+			thisEnemy.ai->_attackTimer = 0;
+		}
+
+		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
+		playerDir = glm::normalize(playerDir);
+		thisEnemy.ai->_angle = atan2(playerDir.x, playerDir.z);
+		thisEnemy.ai->_rotation = glm::angleAxis(thisEnemy.ai->_angle, glm::vec3(0, 1, 0));
+	}
+	return state;
 }
 
 RobotBehaviour::RobotBehaviour(std::shared_ptr<Hydra::World::Entity>& enemy, std::shared_ptr<Hydra::World::Entity>& player) : Behaviour(enemy,player)
@@ -301,7 +340,24 @@ RobotBehaviour::~RobotBehaviour()
 
 void RobotBehaviour::run(float dt)
 {
-	Behaviour::run(dt);
+	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
+	if (!thisEnemy.life->statusCheck())
+	{
+		thisEnemy.entity->dead = true;
+	}
+
+	thisEnemy.ai->_debugState = state;
+
+	thisEnemy.ai->_timer += dt;
+	thisEnemy.ai->_attackTimer += dt;
+	thisEnemy.ai->_stunTimer += dt;
+	thisEnemy.ai->_spawnTimer += dt;
+	thisEnemy.ai->_newPathTimer += dt;
+
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 50)
+	{
+		state = IDLE;
+	}
 	switch (state)
 	{
 	case IDLE:
@@ -317,7 +373,25 @@ void RobotBehaviour::run(float dt)
 		state = attackingState(dt);
 		break;
 	}
-	iHaveNoIdeaWhatThisIsAbout();
+	executeTransforms();
+}
+
+unsigned int RobotBehaviour::attackingState(float dt)
+{
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > thisEnemy.ai->_range)
+	{
+		thisEnemy.ai->_timer = 0;
+		return SEARCHING;
+	}
+	else
+	{
+		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
+		playerDir = glm::normalize(playerDir);
+		thisEnemy.weapon->shoot(thisEnemy.transform->position, -playerDir, glm::quat(), 8.0f);
+		thisEnemy.ai->_angle = atan2(playerDir.x, playerDir.z);
+		thisEnemy.ai->_rotation = glm::angleAxis(thisEnemy.ai->_angle, glm::vec3(0, 1, 0));
+	}
+	return state;
 }
 
 AlienBossBehaviour::AlienBossBehaviour(std::shared_ptr<Hydra::World::Entity>& enemy, std::shared_ptr<Hydra::World::Entity>& player) : Behaviour(enemy, player)
@@ -337,7 +411,24 @@ AlienBossBehaviour::~AlienBossBehaviour()
 
 void AlienBossBehaviour::run(float dt)
 {
-	Behaviour::run(dt);
+	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
+	if (!thisEnemy.life->statusCheck())
+	{
+		thisEnemy.entity->dead = true;
+	}
+
+	thisEnemy.ai->_debugState = state;
+
+	thisEnemy.ai->_timer += dt;
+	thisEnemy.ai->_attackTimer += dt;
+	thisEnemy.ai->_stunTimer += dt;
+	thisEnemy.ai->_spawnTimer += dt;
+	thisEnemy.ai->_newPathTimer += dt;
+
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 50)
+	{
+		state = IDLE;
+	}
 	switch (state)
 	{
 	case IDLE:
@@ -353,5 +444,10 @@ void AlienBossBehaviour::run(float dt)
 		state = attackingState(dt);
 		break;
 	}
-	iHaveNoIdeaWhatThisIsAbout();
+	executeTransforms();
+}
+
+unsigned int AlienBossBehaviour::attackingState(float dt)
+{
+	return IDLE;
 }
