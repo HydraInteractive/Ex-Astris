@@ -34,30 +34,58 @@ std::vector<std::shared_ptr<Entity>> World::_entities;
 EntityID World::_idCounter = 1;
 bool World::_isResetting = false;
 
-template <typename T>
-inline void removeComponent(Entity& this_) {
-	if (this_.hasComponent<T>())
-		T::componentHandler->removeComponent(this_.id);
-}
-
-template <typename... Args>
-struct RemoveComponents;
-
-template <>
-struct RemoveComponents<Hydra::Ext::TypeTuple<>> {
-	constexpr static void apply(Entity&) {}
-};
-
-template <typename T, typename... Args>
-struct RemoveComponents<Hydra::Ext::TypeTuple<T, Args...>> {
-	constexpr static void apply(Entity& this_) {
-		//(removeComponent<Args>(this_), ...);
-
-		removeComponent<T>(this_);
-		RemoveComponents<Hydra::Ext::TypeTuple<Args...>>::apply(this_);
+namespace {
+	template <typename T>
+	inline void removeComponent(Entity& this_) {
+		if (this_.hasComponent<T>())
+			T::componentHandler->removeComponent(this_.id);
 	}
-};
 
+	template <typename... Args>
+	struct RemoveComponents;
+
+	template <>
+	struct RemoveComponents<Hydra::Ext::TypeTuple<>> {
+		constexpr static void apply(Entity&) {}
+	};
+
+	template <typename T, typename... Args>
+	struct RemoveComponents<Hydra::Ext::TypeTuple<T, Args...>> {
+		constexpr static void apply(Entity& this_) {
+			//(removeComponent<Args>(this_), ...);
+
+			removeComponent<T>(this_);
+			RemoveComponents<Hydra::Ext::TypeTuple<Args...>>::apply(this_);
+		}
+	};
+
+
+	template <typename T>
+	inline void serializeComponent(const Entity& this_, nlohmann::json& json) {
+		if (this_.hasComponent<T>()) {
+			auto component = this_.getComponent<T>();
+			component->serialize(json[component->type()]);
+		}
+	}
+
+	template <typename... Args>
+	struct SerializeComponents;
+
+	template <>
+	struct SerializeComponents<Hydra::Ext::TypeTuple<>> {
+		constexpr static void apply(const Entity&, nlohmann::json&) {}
+	};
+
+	template <typename T, typename... Args>
+	struct SerializeComponents<Hydra::Ext::TypeTuple<T, Args...>> {
+		constexpr static void apply(const Entity& this_, nlohmann::json& json) {
+			//(serializeComponent<Args>(this_, json), ...);
+
+			serializeComponent<T>(this_, json);
+			SerializeComponents<Hydra::Ext::TypeTuple<Args...>>::apply(this_, json);
+		}
+	};
+}
 Entity::~Entity() {
 	if (!World::_isResetting) {
 		if (parent != World::invalidID)
@@ -70,32 +98,6 @@ Entity::~Entity() {
 
 	RemoveComponents<ComponentTypes>::apply(*this);
 }
-
-template <typename T>
-inline void serializeComponent(const Entity& this_, nlohmann::json& json) {
-	if (this_.hasComponent<T>()) {
-		auto component = this_.getComponent<T>();
-		component->serialize(json[component->type()]);
-	}
-}
-
-template <typename... Args>
-struct SerializeComponents;
-
-template <>
-struct SerializeComponents<Hydra::Ext::TypeTuple<>> {
-	constexpr static void apply(const Entity&, nlohmann::json&) {}
-};
-
-template <typename T, typename... Args>
-struct SerializeComponents<Hydra::Ext::TypeTuple<T, Args...>> {
-	constexpr static void apply(const Entity& this_, nlohmann::json& json) {
-		//(serializeComponent<Args>(this_, json), ...);
-
-		serializeComponent<T>(this_, json);
-		SerializeComponents<Hydra::Ext::TypeTuple<Args...>>::apply(this_, json);
-	}
-};
 
 void Entity::serialize(nlohmann::json& json) const {
 	json["name"] = name;

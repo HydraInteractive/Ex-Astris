@@ -187,8 +187,9 @@ namespace Barcode {
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 
-			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize, 0);
+			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize / 4, 0);
 			batch.output->addTexture(0, Hydra::Renderer::TextureType::f16R).finalize();
+
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
 			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::color | Hydra::Renderer::ClearFlags::depth;
@@ -267,11 +268,11 @@ namespace Barcode {
 		const glm::vec3 cameraPos = _cc->position;
 
 		{ // Render objects (Deferred rendering)
-			//_world->tick(TickAction::render, delta);
+		  //_world->tick(TickAction::render, delta);
 
-			// Render to geometryFBO
+		  // Render to geometryFBO
 
-			// FIXME: Fix this shit code
+		  // FIXME: Fix this shit code
 			for (auto& light : Hydra::Component::LightComponent::componentHandler->getActiveComponents())
 				_light = static_cast<Hydra::Component::LightComponent*>(light.get());
 
@@ -785,7 +786,7 @@ namespace Barcode {
 			m->movementSpeed = 8.0f;
 			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ 10, 0, 20 };
-			t->scale =  glm::vec3{ 2,2,2 };
+			t->scale = glm::vec3{ 2,2,2 };
 			a->_scale = glm::vec3{ 2,2,2 };
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
 			a->behaviour->refreshComponents();
@@ -861,9 +862,9 @@ namespace Barcode {
 			auto particleEmitter = world::newEntity("ParticleEmitter", world::root());
 			particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/R2D3.mATTIC");
 			auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
-			p->delay = 1.0f/15.0f;
+			p->delay = 1.0f / 15.0f;
 			auto t = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{4, 0, 4};
+			t->position = glm::vec3{ 4, 0, 4 };
 		}
 
 		{
