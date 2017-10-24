@@ -29,10 +29,10 @@ IComponentHandler* IComponent<T, bit>::componentHandler;
 template <typename T, Hydra::Component::ComponentBits bit>
 IComponent<T, bit>::~IComponent() {}
 
-std::shared_ptr<Entity> World::root = nullptr;
 std::unordered_map<EntityID, size_t> World::_map;
 std::vector<std::shared_ptr<Entity>> World::_entities;
 EntityID World::_idCounter = 1;
+bool World::_isResetting = false;
 
 template <typename T>
 inline void removeComponent(Entity& this_) {
@@ -59,8 +59,15 @@ struct RemoveComponents<Hydra::Ext::TypeTuple<T, Args...>> {
 };
 
 Entity::~Entity() {
-	for (EntityID child : children)
-		World::removeEntity(child);
+	if (!World::_isResetting) {
+		if (parent != World::invalidID)
+			if (auto p = World::getEntity(parent); p)
+				p->children.erase(std::remove(p->children.begin(), p->children.end(), id), p->children.end());
+
+		for (EntityID child : children)
+			World::removeEntity(child);
+	}
+
 	RemoveComponents<ComponentTypes>::apply(*this);
 }
 
@@ -129,6 +136,51 @@ void Entity::deserialize(nlohmann::json& json) {
 	}
 }
 
+
+void World::reset() {
+	// Update barcode/src/main.cpp when changing here
+	_isResetting = true;
+	_entities.clear();
+	_map.clear();
+	_isResetting = false;
+	_idCounter = rootID;
+	newEntity("World Root", invalidID);
+}
+
+std::shared_ptr<Entity> World::newEntity(const std::string& name, EntityID parent) {
+	EntityID id = _idCounter++;
+	std::shared_ptr<Entity> e = std::make_shared<Entity>();
+	e->id = id;
+	e->name = name;
+	e->parent = parent;
+	if (parent != invalidID)
+		getEntity(parent)->children.push_back(id);
+
+	_entities.emplace_back(std::move(e));
+	_map[id] = _entities.size() - 1;
+	return _entities.back();
+}
+
+void World::removeEntity(EntityID entityID) {
+	if (_isResetting)
+		return;
+
+	if (auto e = getEntity(entityID); e) {
+		for (auto& el : e->children)
+			if (auto ent = getEntity(el); ent)
+			ent->parent = invalidID;
+	} else
+		return;
+
+	const size_t pos = _map[entityID];
+	if (pos != _entities.size() - 1) {
+		_map[_entities.back()->id] = pos;
+		std::swap(_entities[pos], _entities.back());
+	}
+
+	_entities.pop_back();
+	_map.erase(entityID);
+}
 
 void Blueprint::spawn(std::shared_ptr<Entity>& root) {
 	root->deserialize(getData());

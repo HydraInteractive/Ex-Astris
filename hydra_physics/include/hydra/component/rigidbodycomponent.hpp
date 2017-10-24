@@ -18,6 +18,7 @@
 
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API RigidBodyComponent final : public Hydra::World::IComponent<RigidBodyComponent, ComponentBits::RigidBody> {
+		friend class Hydra::System::BulletPhysicsSystem;
 		~RigidBodyComponent() final;
 
 #define DEFAULT_PARAMS float mass = 0, float linearDamping = 0, float angularDamping = 0, float friction = 0, float rollingFriction = 0
@@ -44,5 +45,6 @@ namespace Hydra::Component {
 	private:
 		struct Data;
 		Data* _data;
+		Hydra::System::BulletPhysicsSystem* _handler;
 	};
 };
