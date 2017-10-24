@@ -61,6 +61,7 @@ namespace Hydra::Renderer {
 		virtual void setRepeat() = 0;
 		virtual void setClamp() = 0;
 
+		virtual void setData(const glm::ivec2& offset, const glm::ivec2& size, const void* data) = 0;
 	};
 	inline ITexture::~ITexture() {}
 
@@ -69,6 +70,8 @@ namespace Hydra::Renderer {
 		virtual ~IRenderTarget() = 0;
 		inline void setRepeat() final{}
 		inline void setClamp() final{}
+
+		inline void setData(const glm::ivec2& offset, const glm::ivec2& size, const void* data) { }
 	};
 	inline IRenderTarget::~IRenderTarget() {}
 
