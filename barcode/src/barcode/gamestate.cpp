@@ -61,7 +61,7 @@ namespace Barcode {
 			batch.pipeline->attachStage(*batch.vertexShader);
 			batch.pipeline->attachStage(*batch.geometryShader);
 			batch.pipeline->attachStage(*batch.fragmentShader);
-			batch.pipeline->finalize();;
+			batch.pipeline->finalize();
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
 			batch.batch.clearFlags = ClearFlags::none;
@@ -294,6 +294,7 @@ namespace Barcode {
 			_animationBatch.pipeline->setValue(0, _cc->getViewMatrix());
 			_animationBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
 			_animationBatch.pipeline->setValue(2, cameraPos);
+			_animationBatch.pipeline->setValue(4, lightS);
 
 			for (auto& kv : _geometryBatch.batch.objects)
 				kv.second.clear();
