@@ -7,8 +7,6 @@
 */
 
 #pragma once
-#include <hydra/ext/api.hpp>
-
 #include <glm/glm.hpp>
 #include <vector>
 #include <memory>
@@ -17,7 +15,7 @@
 #include <math.h>
 #include <algorithm>
 
-class HYDRA_PHYSICS_API PathFinding
+class PathFinding
 {
 public:
 	//A 2D vector with x and z axies instead of x and y
@@ -55,14 +53,14 @@ public:
 
 		float getF() { F = G + H; return F; }
 
-		//Manhattan Distance - do not use, gives invalid values
+		//Manhattan Distance - should not be used, may give invalid values
 		//Distance to adjacent nodes is 1, diagonal is 2
-		//float hDistanceTo(std::shared_ptr<Node> nodeEnd)
-		//{
-		//	float x = fabs((float)(this->pos.x() - nodeEnd->pos.x()));
-		//	float z = fabs((float)(this->pos.z() - nodeEnd->pos.z()));
-		//	return x + z;
-		//}
+		float hDistanceTo(std::shared_ptr<Node> nodeEnd)
+		{
+			float x = fabs((float)(this->pos.x() - nodeEnd->pos.x()));
+			float z = fabs((float)(this->pos.z() - nodeEnd->pos.z()));
+			return x + z;
+		}
 
 		//Chebychev Distance - inaccurate but pretty safe
 		//Distance to adjacent nodes is 1
@@ -74,15 +72,15 @@ public:
 		//}
 
 		//Actual Distance - probably the best maybe, float inaccuracies may break it
-		float hDistanceTo(std::shared_ptr<Node> nodeEnd)
-		{
-			return std::sqrtf(std::powf(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::powf(this->pos.z() - nodeEnd->pos.z(), 2.0f));
-		}
+		//float hDistanceTo(std::shared_ptr<Node> nodeEnd)
+		//{
+		//	return std::sqrt(std::pow(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::pow(this->pos.z() - nodeEnd->pos.z(), 2.0f));
+		//}
 
 		//Must always be used to calculate G distance
 		float gDistanceTo(std::shared_ptr<Node> nodeEnd)
 		{
-			return std::sqrtf(std::powf(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::powf(this->pos.z() - nodeEnd->pos.z(), 2.0f)) * 0.99;
+			return std::sqrt(std::pow(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::pow(this->pos.z() - nodeEnd->pos.z(), 2.0f)) * 0.99;
 		}
 		bool operator<(Node& other) { return this->getF() < other.getF(); }
 		bool operator==(Node& other) { return this->getF() == other.getF(); }
