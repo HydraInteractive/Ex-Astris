@@ -37,6 +37,13 @@ namespace Hydra::Component {
 		float cameraPitch = 0.0f;
 		bool mouseControl = true;
 
+		enum {
+			TOP = 0, BOTTOM, LEFT,
+			RIGHT, NEAR, FAR
+		};
+
+
+
 		~CameraComponent() final;
 
 		inline const std::string type() const final { return "CameraComponent"; }

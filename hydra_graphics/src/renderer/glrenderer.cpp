@@ -82,9 +82,17 @@ public:
 
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
 
+
+		batch.pipeline->setValue(7, 0);
+		batch.pipeline->setValue(8, 1);
+		batch.pipeline->setValue(9, 2);
+		batch.pipeline->setValue(10, 3);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
-
+			mesh->getMaterial().diffuse->bind(0);
+			mesh->getMaterial().normal->bind(1);
+			mesh->getMaterial().specular->bind(2);
+			mesh->getMaterial().glow->bind(3);
 			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
 			glBindVertexArray(mesh->getID());
 			size_t size = kv.second.size();
