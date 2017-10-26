@@ -43,13 +43,13 @@ void AIComponent::deserialize(nlohmann::json& json) {
 	switch (behaviourType)
 	{
 	case Behaviour::Type::ALIEN:
-		behaviour = std::make_shared<AlienBehaviour>(Hydra::World::World::getEntity(entityID), getPlayerEntity());
+		behaviour = std::make_shared<AlienBehaviour>(Hydra::World::World::getEntity(entityID));
 		break;
 	case Behaviour::Type::ROBOT:
-		behaviour = std::make_shared<RobotBehaviour>(Hydra::World::World::getEntity(entityID), getPlayerEntity());
+		behaviour = std::make_shared<RobotBehaviour>(Hydra::World::World::getEntity(entityID));
 		break;
 	case Behaviour::Type::ALIENBOSS:
-		behaviour = std::make_shared<AlienBossBehaviour>(Hydra::World::World::getEntity(entityID), getPlayerEntity());
+		behaviour = std::make_shared<AlienBossBehaviour>(Hydra::World::World::getEntity(entityID));
 		break;
 	default:
 		std::cout << "Invalid AI Behaviour Type" << std::endl;

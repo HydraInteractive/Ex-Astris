@@ -34,7 +34,6 @@ namespace Hydra::Component {
 		BossPhase bossPhase = CLAWING;
 		std::shared_ptr<Behaviour> behaviour;
 		std::vector<std::shared_ptr<Hydra::World::Entity>> spawnGroup;
-		//EnemyTypes enemytype = EnemyTypes::Alien;
 
 		glm::vec3 mapOffset = glm::vec3(-30.0f, 0, -30.0f);
 		glm::vec3 _targetPos = glm::vec3{ 0, 0, 0 };
