@@ -793,7 +793,7 @@ namespace Barcode {
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
 		}
 
-		{
+		/*{
 			auto alienSpawner = world::newEntity("AlienSpawner", world::root());
 			auto a = alienSpawner->addComponent<Hydra::Component::SpawnerComponent>();
 			a->spawnerID = Hydra::Component::SpawnerType::AlienSpawner;
@@ -804,7 +804,7 @@ namespace Barcode {
 			t->position = glm::vec3{ 20, 0, 15 };
 			t->scale = glm::vec3{ 2,2,2 };
 			alienSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge.ATTIC");
-		}
+		}*/
 
 		{
 			auto pointLight1 = world::newEntity("Pointlight1", world::root());
