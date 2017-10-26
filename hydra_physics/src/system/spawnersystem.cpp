@@ -10,11 +10,11 @@
 
 using namespace Hydra::System;
 
-Hydra::System::SpawnerSystem::SpawnerSystem()	{}
+SpawnerSystem::SpawnerSystem()	{}
 
-Hydra::System::SpawnerSystem::~SpawnerSystem()	{}
+SpawnerSystem::~SpawnerSystem()	{}
 
-void Hydra::System::SpawnerSystem::tick(float delta)
+void SpawnerSystem::tick(float delta)
 {
 	using world = Hydra::World::World;
 
@@ -58,11 +58,33 @@ void Hydra::System::SpawnerSystem::tick(float delta)
 			}break;
 			case Component::SpawnerType::RobotSpawner:
 			{
-
+				if (spawner->spawnGroup.size() <= 5)
+				{
+					if (spawner->spawnTimer >= 5)
+					{
+						auto RobotSpawn = world::newEntity("RobotSpawn", world::root());
+						auto a = RobotSpawn->addComponent<Hydra::Component::EnemyComponent>();
+						a->_enemyID = Hydra::Component::EnemyTypes::Robot;
+						a->_damage = 8;
+						a->_originalRange = 25;
+						auto h = RobotSpawn->addComponent<Hydra::Component::LifeComponent>();
+						h->maxHP = 60;
+						h->health = 60;
+						auto m = RobotSpawn->addComponent<Hydra::Component::MovementComponent>();
+						m->movementSpeed = 4.0f;
+						auto t = RobotSpawn->addComponent<Hydra::Component::TransformComponent>();
+						t->position = transform->position;
+						t->scale = glm::vec3{ 1,1,1 };
+						a->_scale = glm::vec3{ 1,1,1 };
+						RobotSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/alphaGunModel.ATTIC");
+						spawner->spawnGroup.push_back(RobotSpawn);
+						spawner->spawnTimer = 0;
+					}
+				}
 			}break;
 		}
 
 	}
 }
 
-void Hydra::System::SpawnerSystem::registerUI()	{}
+void SpawnerSystem::registerUI()	{}

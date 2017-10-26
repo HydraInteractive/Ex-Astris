@@ -264,6 +264,7 @@ namespace Barcode {
 		_lightSystem.tick(delta);
 		_particleSystem.tick(delta);
 		_rendererSystem.tick(delta);
+		_spawnerSystem.tick(delta);
 
 		const glm::vec3 cameraPos = _cc->position;
 
@@ -730,7 +731,7 @@ namespace Barcode {
 	}
 
 	void GameState::_initSystem() {
-		const std::vector<Hydra::World::ISystem*> systems = { _engine->getDeadSystem(), &_cameraSystem, &_lightSystem, &_particleSystem, &_abilitySystem, &_aiSystem, &_physicsSystem, &_bulletSystem, &_playerSystem, &_rendererSystem };
+		const std::vector<Hydra::World::ISystem*> systems = { _engine->getDeadSystem(), &_cameraSystem, &_lightSystem, &_particleSystem, &_abilitySystem, &_aiSystem, &_physicsSystem, &_bulletSystem, &_playerSystem, &_rendererSystem, &_spawnerSystem };
 		_engine->getUIRenderer()->registerSystems(systems);
 	}
 
