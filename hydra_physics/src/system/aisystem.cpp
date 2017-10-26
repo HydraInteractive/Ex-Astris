@@ -27,6 +27,7 @@ void AISystem::tick(float delta) {
 		auto p = enemy->getPlayerComponent();
 		auto player = p->getComponent<Component::PlayerComponent>();
 		auto playerTransform = p->getComponent<Component::TransformComponent>();
+		auto playerHealth = p->getComponent<Component::LifeComponent>();
 		auto drawObject = entities[i]->getComponent<Component::DrawObjectComponent>();
 		auto weapon = entities[i]->getComponent<Hydra::Component::WeaponComponent>();
 		auto life = entities[i]->getComponent<Component::LifeComponent>();
@@ -78,7 +79,7 @@ void AISystem::tick(float delta) {
 				{
 					enemy->_pathState = Component::PathState::IDLE;
 				}
-				if (glm::length(transform->position - playerTransform->position) < enemy->_range)
+				if (glm::length(transform->position - playerTransform->position) <= enemy->_range)
 				{
 					enemy->_isAtGoal = true;
 					enemy->_pathFinding->foundGoal = true;
@@ -127,7 +128,7 @@ void AISystem::tick(float delta) {
 							enemy->_pathState = Component::PathState::ATTACKING;
 						}
 
-						if (glm::length(transform->position - enemy->_targetPos) <= 1.0f)
+						if (glm::length(transform->position - enemy->_targetPos) <= 3.0f)
 						{
 							enemy->_pathState = Component::PathState::SEARCHING;
 							enemy->_timer = 0;
@@ -140,7 +141,7 @@ void AISystem::tick(float delta) {
 					}
 				}
 
-				if (enemy->_newPathTimer >= 4)
+				if (enemy->_newPathTimer >= 3)
 				{
 					enemy->_pathState = Component::PathState::SEARCHING;
 					enemy->_timer = 0;
@@ -167,7 +168,7 @@ void AISystem::tick(float delta) {
 					std::uniform_int_distribution<> randDmg(enemy->_damage - 1, enemy->_damage + 2);
 					if (enemy->_attackTimer > 1.5)
 					{
-						//player->applyDamage(randDmg(rng));
+						playerHealth->health -= randDmg(rng);
 						enemy->_attackTimer = 0;
 					}
 
@@ -220,9 +221,10 @@ void AISystem::tick(float delta) {
 					enemy->_pathState = Component::PathState::IDLE;
 				}
 
-				if (glm::length(transform->position - playerTransform->position) < enemy->_range)
+				if (glm::length(transform->position - playerTransform->position) <= enemy->_range)
 				{
 					enemy->_isAtGoal = true;
+					enemy->_pathFinding->foundGoal = true;
 					enemy->_pathState = Component::PathState::ATTACKING;
 				}
 
@@ -281,7 +283,7 @@ void AISystem::tick(float delta) {
 					}
 				}
 
-				if (enemy->_newPathTimer >= 4)
+				if (enemy->_newPathTimer >= 3)
 				{
 					enemy->_pathState = Component::PathState::SEARCHING;
 					enemy->_timer = SDL_GetTicks();
@@ -374,9 +376,10 @@ void AISystem::tick(float delta) {
 					enemy->_pathState = Component::PathState::IDLE;
 				}
 
-				if (glm::length(transform->position - playerTransform->position) < enemy->_range)
+				if (glm::length(transform->position - playerTransform->position) <= enemy->_range)
 				{
 					enemy->_isAtGoal = true;
+					enemy->_pathFinding->foundGoal = true;
 					enemy->_pathState = Component::PathState::ATTACKING;
 				}
 
@@ -435,7 +438,7 @@ void AISystem::tick(float delta) {
 					}
 				}
 
-				if (enemy->_newPathTimer >= 4)
+				if (enemy->_newPathTimer >= 3)
 				{
 					enemy->_pathState = Component::PathState::SEARCHING;
 					enemy->_timer = 0;

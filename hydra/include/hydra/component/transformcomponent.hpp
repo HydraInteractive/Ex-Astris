@@ -27,7 +27,6 @@ namespace Hydra::Component {
 		bool ignoreParent = false;
 		bool dirty = true; // Set this to true whenever some is changed
 
-		//TransformComponent(IEntity* entity, const glm::vec3& position = glm::vec3(), const glm::vec3& scale = glm::vec3(1), const glm::quat& rotation = glm::quat());
 		~TransformComponent() final;
 
 		inline const std::string type() const final { return "TransformComponent"; }

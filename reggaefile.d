@@ -3,7 +3,7 @@ import std.algorithm;
 import std.array;
 import std.conv;
 
-enum optimization = "-O0 -ggdb -fopenmp -ffat-lto-objects";
+enum optimization = "-O1 -ggdb -fopenmp -ffat-lto-objects -Wno-error=maybe-uninitialized -Wno-error=null-dereference";
 //enum optimization = "-O3 -ggdb -fopenmp -ffat-lto-objects -Wno-error=maybe-uninitialized -Wno-error=null-dereference";
 
 enum string[] SubProjects = ["hydra", "hydra_graphics", "hydra_network", "hydra_physics", "hydra_sound"];
