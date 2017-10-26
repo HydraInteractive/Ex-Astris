@@ -3,7 +3,7 @@ import std.algorithm;
 import std.array;
 import std.conv;
 
-enum optimization = "-O0 -ggdb -fopenmp -ffat-lto-objects";
+enum optimization = "-O1 -ggdb -fopenmp -ffat-lto-objects -Wno-error=maybe-uninitialized -Wno-error=null-dereference";
 //enum optimization = "-O3 -ggdb -fopenmp -ffat-lto-objects -Wno-error=maybe-uninitialized -Wno-error=null-dereference";
 
 enum string[] SubProjects = ["hydra", "hydra_graphics", "hydra_network", "hydra_physics", "hydra_sound"];
@@ -17,7 +17,7 @@ enum string CFlagsLib = optimization ~ " -std=c++1z " ~ warnings ~ " -fdiagnosti
 enum string CFlagsHydraBaseLib = "-DHYDRA_BASE_EXPORTS " ~ CFlagsLib;
 enum string CFlagsHydraGraphicsLib = "-DHYDRA_GRAPHICS_EXPORTS " ~ CFlagsLib;
 enum string CFlagsHydraNetworkLib = "-DHYDRA_NETWORK_EXPORTS " ~ CFlagsLib;
-enum string CFlagsHydraPhysicsLib = "-DHYDRA_PHYSICS_EXPORTS " ~ CFlagsLib;
+enum string CFlagsHydraPhysicsLib = "-DHYDRA_PHYSICS_EXPORTS -DBT_THREADSAFE -I/usr/include/bullet " ~ CFlagsLib;
 enum string CFlagsHydraSoundLib = "-DHYDRA_SOUND_EXPORTS " ~ CFlagsLib;
 enum string CFlagsExec = "-DBARCODE_EXPORTS -O0 -std=c++1z -ffat-lto-objects " ~ warnings ~ " -fdiagnostics-color=always -fopenmp -fPIC -Ibarcode/include " ~ SubProjectsInclude;
 

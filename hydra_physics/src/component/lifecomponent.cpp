@@ -8,7 +8,7 @@
 *  - Dan Printzell
 */
 
-#include "hydra\component\lifecomponent.hpp"
+#include <hydra/component/lifecomponent.hpp>
 #include <imgui/imgui.h>
 
 using namespace Hydra::World;

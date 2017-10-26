@@ -8,7 +8,7 @@
 *  - Dan Printzell
 */
 
-#include "hydra\component\movementcomponent.hpp"
+#include <hydra/component/movementcomponent.hpp>
 #include <imgui/imgui.h>
 
 Hydra::Component::MovementComponent::~MovementComponent()

@@ -56,7 +56,7 @@ void TransformComponent::_recalculateMatrix() {
 	glm::mat4 parent = p ? p->getMatrix() : glm::mat4(1);
 	dirty = false;
 
-	_matrix = parent * (glm::translate(position) * glm::mat4_cast(rotation) * glm::scale(scale));
+	_matrix = parent * (glm::translate(position) * glm::mat4_cast(glm::normalize(rotation)) * glm::scale(scale));
 }
 
 std::shared_ptr<Hydra::Component::TransformComponent> TransformComponent::_getParentComponent() {

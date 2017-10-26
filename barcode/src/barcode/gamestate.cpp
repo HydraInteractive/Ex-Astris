@@ -1,3 +1,4 @@
+
 #include <barcode/gamestate.hpp>
 
 #include <hydra/renderer/glrenderer.hpp>
@@ -7,6 +8,7 @@
 
 #include <hydra/world/blueprintloader.hpp>
 #include <imgui/imgui.h>
+#include <hydra/component/aicomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
@@ -186,8 +188,9 @@ namespace Barcode {
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 
-			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize, 0);
+			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize / 4, 0);
 			batch.output->addTexture(0, Hydra::Renderer::TextureType::f16R).finalize();
+
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
 			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::color | Hydra::Renderer::ClearFlags::depth;
@@ -262,14 +265,16 @@ namespace Barcode {
 		_lightSystem.tick(delta);
 		_particleSystem.tick(delta);
 		_rendererSystem.tick(delta);
+		_spawnerSystem.tick(delta);
+
+		const glm::vec3 cameraPos = _cc->position;
 
 		{ // Render objects (Deferred rendering)
-			glm::vec3 cameraPos;
-			//_world->tick(TickAction::render, delta);
+		  //_world->tick(TickAction::render, delta);
 
-			// Render to geometryFBO
+		  // Render to geometryFBO
 
-			// FIXME: Fix this shit code
+		  // FIXME: Fix this shit code
 			for (auto& light : Hydra::Component::LightComponent::componentHandler->getActiveComponents())
 				_light = static_cast<Hydra::Component::LightComponent*>(light.get());
 
@@ -285,12 +290,12 @@ namespace Barcode {
 
 			_geometryBatch.pipeline->setValue(0, _cc->getViewMatrix());
 			_geometryBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
-			_geometryBatch.pipeline->setValue(2, cameraPos = _cc->position);
+			_geometryBatch.pipeline->setValue(2, cameraPos);
 			_geometryBatch.pipeline->setValue(4, lightS);
 
 			_animationBatch.pipeline->setValue(0, _cc->getViewMatrix());
 			_animationBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
-			_animationBatch.pipeline->setValue(2, cameraPos = _cc->position);
+			_animationBatch.pipeline->setValue(2, cameraPos);
 
 			for (auto& kv : _geometryBatch.batch.objects)
 				kv.second.clear();
@@ -428,20 +433,16 @@ namespace Barcode {
 			_lightingBatch.output->resolve(0, _blurredOriginal);
 			_lightingBatch.output->resolve(1, (*_glowBatch.output)[0]);
 
-			_blurGlowTexture((*_glowBatch.output)[0], nrOfTimes, size * 0.25f, _fiveGaussianKernel2)
+			_blurGlowTexture((*_glowBatch.output)[0], nrOfTimes + 1, size * 0.5f, _fiveGaussianKernel2)
 				->resolve(0, _blurredIMG1);
-			_blurGlowTexture(_blurredIMG1, nrOfTimes + 1, size * 0.25f, _fiveGaussianKernel2)
-				->resolve(0, _blurredIMG2);
 
 			_glowBatch.batch.pipeline = _glowPipeline.get();
 
 			_glowBatch.batch.pipeline->setValue(1, 1);
 			_glowBatch.batch.pipeline->setValue(2, 2);
-			_glowBatch.batch.pipeline->setValue(3, 3);
 
 			_blurredOriginal->bind(1);
 			_blurredIMG1->bind(2);
-			_blurredIMG2->bind(3);
 
 			_glowBatch.batch.renderTarget = _engine->getView();
 			_engine->getRenderer()->postProcessing(_glowBatch.batch);
@@ -459,22 +460,22 @@ namespace Barcode {
 				_particleBatch.batch.textureInfo.clear();
 			}
 
-			bool anyParticles = false;
 			for (auto& pc : Hydra::Component::ParticleComponent::componentHandler->getActiveComponents()) {
 				auto p = static_cast<Hydra::Component::ParticleComponent*>(pc.get());
-				auto drawObj = world::getEntity(p->entityID)->getComponent<Hydra::Component::DrawObjectComponent>();
+				auto e = world::getEntity(p->entityID);
+				auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>();
+				auto t = e->getComponent<Hydra::Component::TransformComponent>();
 				auto& particles = p->particles;
-				if (particles.size() > 0) {
-					for (auto& particle : particles) {
-						_particleBatch.batch.objects[drawObj->drawObject->mesh].push_back(particle->m);
-						_particleBatch.batch.textureInfo.push_back(particle->texOffset1);
-						_particleBatch.batch.textureInfo.push_back(particle->texOffset2);
-						_particleBatch.batch.textureInfo.push_back(particle->texCoordInfo);
-					}
-					anyParticles = true;
+				for (auto& particle : particles) {
+					if (particle.life <= 0)
+						continue;
+					_particleBatch.batch.objects[drawObj->drawObject->mesh].push_back(/*t->getMatrix() */ particle.getMatrix());
+					_particleBatch.batch.textureInfo.push_back(particle.texOffset1);
+					_particleBatch.batch.textureInfo.push_back(particle.texOffset2);
+					_particleBatch.batch.textureInfo.push_back(particle.texCoordInfo);
 				}
 			}
-			if (anyParticles) {
+			{
 				auto viewMatrix = _cc->getViewMatrix();
 				glm::vec3 rightVector = { viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0] };
 				glm::vec3 upVector = { viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1] };
@@ -484,6 +485,15 @@ namespace Barcode {
 				_particleBatch.pipeline->setValue(3, upVector);
 				_particleBatch.pipeline->setValue(4, 0);
 				_particleAtlases->bind(0);
+
+				for (auto& kv : _particleBatch.batch.objects) {
+					std::vector<glm::mat4>& list = kv.second;
+
+					std::sort(list.begin(), list.end(), [cameraPos](const glm::mat4& a, const glm::mat4& b) {
+						return glm::distance(glm::vec3(a[3]), cameraPos) < glm::distance(glm::vec3(b[3]), cameraPos);
+					});
+				}
+
 				_engine->getRenderer()->render(_particleBatch.batch);
 			}
 		}
@@ -722,19 +732,19 @@ namespace Barcode {
 	}
 
 	void GameState::_initSystem() {
-		const std::vector<Hydra::World::ISystem*> systems = { _engine->getDeadSystem(), &_cameraSystem, &_lightSystem, &_particleSystem, &_abilitySystem, &_aiSystem, &_physicsSystem, &_bulletSystem, &_playerSystem, &_rendererSystem };
+		const std::vector<Hydra::World::ISystem*> systems = { _engine->getDeadSystem(), &_cameraSystem, &_lightSystem, &_particleSystem, &_abilitySystem, &_aiSystem, &_physicsSystem, &_bulletSystem, &_playerSystem, &_rendererSystem, &_spawnerSystem };
 		_engine->getUIRenderer()->registerSystems(systems);
 	}
 
 	void GameState::_initWorld() {
 		{
-			auto floor = world::newEntity("Floor", world::root);
+			auto floor = world::newEntity("Floor", world::root());
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(0, -1, 0);
 			floor->addComponent<Hydra::Component::RigidBodyComponent>()->createStaticPlane(glm::vec3(0, 1, 0), 1);
 		}
 		{
-			auto physicsBox = world::newEntity("Physics box", world::root);
+			auto physicsBox = world::newEntity("Physics box", world::root());
 			auto t = physicsBox->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(2, 25, 2);
 			physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(glm::vec3(0.5f), 10);
@@ -742,7 +752,7 @@ namespace Barcode {
 		}
 
 		{
-			auto playerEntity = world::newEntity("Player", world::root);
+			auto playerEntity = world::newEntity("Player", world::root());
 			auto p = playerEntity->addComponent<Hydra::Component::PlayerComponent>();
 			auto c = playerEntity->addComponent<Hydra::Component::CameraComponent>();
 			auto h = playerEntity->addComponent<Hydra::Component::LifeComponent>();
@@ -766,7 +776,7 @@ namespace Barcode {
 		}
 
 		{
-			auto alienEntity = world::newEntity("Alien", world::root);
+			auto alienEntity = world::newEntity("Alien", world::root());
 			auto a = alienEntity->addComponent<Hydra::Component::EnemyComponent>();
 			a->_enemyID = Hydra::Component::EnemyTypes::Alien;
 			a->_damage = 4;
@@ -778,19 +788,32 @@ namespace Barcode {
 			m->movementSpeed = 8.0f;
 			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ 10, 0, 20 };
-			t->scale =  glm::vec3{ 2,2,2 };
+			t->scale = glm::vec3{ 2,2,2 };
 			a->_scale = glm::vec3{ 2,2,2 };
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
 		}
 
 		{
-			auto pointLight1 = world::newEntity("Pointlight1", world::root);
+			auto alienSpawner = world::newEntity("AlienSpawner", world::root());
+			auto a = alienSpawner->addComponent<Hydra::Component::SpawnerComponent>();
+			a->spawnerID = Hydra::Component::SpawnerType::AlienSpawner;
+			auto h = alienSpawner->addComponent<Hydra::Component::LifeComponent>();
+			h->maxHP = 150;
+			h->health = 150;
+			auto t = alienSpawner->addComponent<Hydra::Component::TransformComponent>();
+			t->position = glm::vec3{ 20, 0, 15 };
+			t->scale = glm::vec3{ 2,2,2 };
+			alienSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge.ATTIC");
+		}
+
+		{
+			auto pointLight1 = world::newEntity("Pointlight1", world::root());
 			pointLight1->addComponent<Hydra::Component::TransformComponent>();
 			pointLight1->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/EscapePodDoor.mATTIC");
 			auto p1LC = pointLight1->addComponent<Hydra::Component::PointLightComponent>();
 			p1LC->color = glm::vec3(0, 1, 0);
 		} {
-			auto pointLight2 = world::newEntity("Pointlight2", world::root);
+			auto pointLight2 = world::newEntity("Pointlight2", world::root());
 			auto t = pointLight2->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(45, 0, 0);
 			pointLight2->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
@@ -798,7 +821,7 @@ namespace Barcode {
 			p2LC->position = glm::vec3(45, 0, 0);
 			p2LC->color = glm::vec3(1, 0, 0);
 		} {
-			auto pointLight3 = world::newEntity("Pointlight3", world::root);
+			auto pointLight3 = world::newEntity("Pointlight3", world::root());
 			auto t = pointLight3->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(45, 0, 0);
 			pointLight3->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
@@ -806,7 +829,7 @@ namespace Barcode {
 			p3LC->position = glm::vec3(0, 0, 45);
 			p3LC->color = glm::vec3(1, 0, 0);
 		} {
-			auto pointLight4 = world::newEntity("Pointlight4", world::root);
+			auto pointLight4 = world::newEntity("Pointlight4", world::root());
 			auto t = pointLight4->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(45, 0, 0);
 			pointLight4->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
@@ -816,41 +839,50 @@ namespace Barcode {
 		}
 
 		{
-			auto test = world::newEntity("test", world::root);
+			auto test = world::newEntity("test", world::root());
 			test->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
 			auto t = test->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(-7, 0, 0);
 		} {
-			auto wall1 = world::newEntity("Wall1", world::root);
+			auto wall1 = world::newEntity("Wall1", world::root());
 			wall1->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Wall_V4.mATTIC");
 			auto t = wall1->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(8, 0, 33);
 		} {
-			auto wall2 = world::newEntity("Wall2", world::root);
+			auto wall2 = world::newEntity("Wall2", world::root());
 			wall2->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Wall_V4.mATTIC");
 			auto t = wall2->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(55, 0, 15);
 		} {
-			auto wall3 = world::newEntity("Wall3", world::root);
+			auto wall3 = world::newEntity("Wall3", world::root());
 			wall3->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Wall_V4.mATTIC");
 			auto t = wall3->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(19.5, 0, -13);
 		} {
-			auto roof = world::newEntity("Roof", world::root);
+			auto roof = world::newEntity("Roof", world::root());
 			roof->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Roof_V2.mATTIC");
 			auto t = roof->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(14, 8, 9);
 			t->scale = glm::vec3(40, 40, 40);
 			t->rotation = glm::quat(0, 0, 0, 1);
 		} {
-			auto floor = world::newEntity("Floor", world::root);
+			auto floor = world::newEntity("Floor", world::root());
 			floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(14, -8, 9);
 		}
 
 		{
-			auto lightEntity = world::newEntity("Light", world::root);
+			auto particleEmitter = world::newEntity("ParticleEmitter", world::root());
+			particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/R2D3.mATTIC");
+			auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
+			p->delay = 1.0f / 15.0f;
+			auto t = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
+			t->position = glm::vec3{ 4, 0, 4 };
+		}
+
+		{
+			auto lightEntity = world::newEntity("Light", world::root());
 			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
 			l->position = glm::vec3(-5, 0.75, 4.3);
 			l->direction = glm::vec3(-1, 0, 0);
@@ -859,10 +891,10 @@ namespace Barcode {
 		}
 
 		{
-			BlueprintLoader::save("world.blueprint", "World Blueprint", world::root);
+			BlueprintLoader::save("world.blueprint", "World Blueprint", world::root());
 			Hydra::World::World::reset();
 			auto bp = BlueprintLoader::load("world.blueprint");
-			bp->spawn(world::root);
+			bp->spawn(world::root());
 		}
 
 		{
