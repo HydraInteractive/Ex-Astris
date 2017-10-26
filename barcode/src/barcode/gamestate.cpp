@@ -773,24 +773,63 @@ namespace Barcode {
 			}
 		}
 
+		//{
+		//	auto alienEntity = world::newEntity("Alien", world::root());
+		//	auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+		//	//a->_enemyID = Hydra::Component::EnemyTypes::Alien;
+		//	a->_damage = 4;
+		//	a->_originalRange = 4;
+		//	a->behaviour = std::make_shared<AlienBehaviour>(alienEntity, playerEntity);
+		//	auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+		//	h->maxHP = 80;
+		//	h->health = 80;
+		//	auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+		//	m->movementSpeed = 8.0f;
+		//	auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+		//	t->position = glm::vec3{ 10, 0, 20 };
+		//	t->scale = glm::vec3{ 2,2,2 };
+		//	a->_scale = glm::vec3{ 2,2,2 };
+		//	alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
+		//	a->behaviour->refreshComponents();
+		//}
+		//
+		//{
+		//	auto robotEntity = world::newEntity("Robot", world::root());
+		//	auto r = robotEntity->addComponent<Hydra::Component::AIComponent>();
+		//	r->_damage = 4;
+		//	r->_originalRange = 10;
+		//	r->behaviour = std::make_shared<AlienBehaviour>(robotEntity, playerEntity);
+		//	auto h = robotEntity->addComponent<Hydra::Component::LifeComponent>();
+		//	h->maxHP = 80;
+		//	h->health = 80;
+		//	auto m = robotEntity->addComponent<Hydra::Component::MovementComponent>();
+		//	m->movementSpeed = 6.0f;
+		//	auto t = robotEntity->addComponent<Hydra::Component::TransformComponent>();
+		//	t->position = glm::vec3{ 10, 0, 20 };
+		//	t->scale = glm::vec3{ 2,2,2 };
+		//	r->_scale = glm::vec3{ 2,2,2 };
+		//	robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
+		//	r->behaviour->refreshComponents();
+		//}
+
 		{
-			auto alienEntity = world::newEntity("Alien", world::root());
-			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
-			//a->_enemyID = Hydra::Component::EnemyTypes::Alien;
-			a->_damage = 4;
-			a->_originalRange = 4;
-			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity, playerEntity);
-			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+			auto playerAIEntity = world::newEntity("PlayerAI", world::root());
+			auto r = playerAIEntity->addComponent<Hydra::Component::AIComponent>();
+			r->_damage = 4;
+			r->_originalRange = 30;
+			r->behaviour = std::make_shared<AlienBehaviour>(playerAIEntity, playerEntity);
+			auto h = playerAIEntity->addComponent<Hydra::Component::LifeComponent>();
 			h->maxHP = 80;
 			h->health = 80;
-			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
-			m->movementSpeed = 8.0f;
-			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+			auto m = playerAIEntity->addComponent<Hydra::Component::MovementComponent>();
+			m->movementSpeed = 6.0f;
+			auto t = playerAIEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ 10, 0, 20 };
+			t->rotation = glm::vec3{ 0, -90, 0 };
 			t->scale = glm::vec3{ 2,2,2 };
-			a->_scale = glm::vec3{ 2,2,2 };
-			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
-			a->behaviour->refreshComponents();
+			r->_scale = glm::vec3{ 2,2,2 };
+			playerAIEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/PlayerModelOrange2.mATTIC");
+			r->behaviour->refreshComponents();
 		}
 
 		{
