@@ -32,6 +32,7 @@ namespace Hydra::Renderer {
 		HYDRA_GRAPHICS_API std::shared_ptr<ITexture> createEmpty(uint32_t width, uint32_t height, TextureType format = TextureType::u8RGBA, size_t samples = 0);
 		HYDRA_GRAPHICS_API std::shared_ptr<ITexture> createFromData(uint32_t width, uint32_t height, TextureType format, void* data);
 		HYDRA_GRAPHICS_API std::shared_ptr<ITexture> createFromDataExt(const char* ext, void* data, uint32_t size);
+		HYDRA_GRAPHICS_API std::shared_ptr<ITexture> createDataTexture(uint32_t width, uint32_t height, TextureType format);
 	};
 
 	namespace GLFramebuffer {

@@ -61,6 +61,7 @@ namespace Hydra::Renderer {
 		virtual void setRepeat() = 0;
 		virtual void setClamp() = 0;
 
+		virtual void setData(const glm::ivec2& offset, const glm::ivec2& size, const void* data) = 0;
 	};
 	inline ITexture::~ITexture() {}
 
@@ -102,6 +103,8 @@ namespace Hydra::Renderer {
 
 		virtual void finalize() = 0;
 
+		inline void setData(const glm::ivec2&, const glm::ivec2&, const void*) { }
+
 		virtual std::shared_ptr<ITexture> getDepth() = 0;
 
 		virtual std::shared_ptr<ITexture> resolve(size_t idx, std::shared_ptr<ITexture> result) = 0;
@@ -130,6 +133,7 @@ namespace Hydra::Renderer {
 		virtual int getCurrentKeyframe() = 0;
 		virtual int getMaxFramesForAnimation() = 0;
 		virtual int getCurrentAnimationIndex() = 0;
+		virtual int& getAnimationCounter() = 0;
 		virtual void setCurrentKeyframe(int frame) = 0;
 		virtual void setAnimationIndex(int index) = 0;
 		virtual uint32_t getID() const = 0;
