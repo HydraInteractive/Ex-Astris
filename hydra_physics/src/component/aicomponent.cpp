@@ -22,7 +22,7 @@ void AIComponent::serialize(nlohmann::json& json) const {
 	json = {
 		{ "scale",{ _scale.x, _scale.y, _scale.z } },
 		{ "behaviourType", (unsigned int)behaviour->type},
-		{ "pathState", behaviour->state },
+		//{ "pathState", behaviour->state },
 		{ "bossPhase", (int)bossPhase },
 		{ "damage", _damage },
 		{ "range", _range },
@@ -51,7 +51,7 @@ void AIComponent::deserialize(nlohmann::json& json) {
 		std::cout << "Invalid AI Behaviour Type" << std::endl;
 		break;
 	}
-	behaviour->state = json["pathState"].get<int>();
+	//behaviour->state = json["pathState"].get<int>();
 	bossPhase = (BossPhase)json["bossPhase"].get<int>();
 	_damage = json["damage"].get<int>();
 

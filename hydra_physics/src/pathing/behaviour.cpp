@@ -14,16 +14,7 @@
 Behaviour::Behaviour(std::shared_ptr<Hydra::World::Entity> enemy)
 {
 	thisEnemy.entity = enemy;
-	thisEnemy.ai = enemy->getComponent<Hydra::Component::AIComponent>();
-	thisEnemy.transform = enemy->getComponent<Hydra::Component::TransformComponent>();
-	thisEnemy.drawObject = enemy->getComponent<Hydra::Component::DrawObjectComponent>();
-	thisEnemy.weapon = enemy->getComponent<Hydra::Component::WeaponComponent>();
-	thisEnemy.life = enemy->getComponent<Hydra::Component::LifeComponent>();
-	thisEnemy.movement = enemy->getComponent<Hydra::Component::MovementComponent>();
-
-	targetPlayer.entity = thisEnemy.ai->getPlayerEntity();
-	targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>();
-	targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>();
+	refreshComponents();
 
 	pathFinding = std::make_shared<PathFinding>();
 
@@ -41,12 +32,7 @@ Behaviour::~Behaviour()
 void Behaviour::setEnemyEntity(std::shared_ptr<Hydra::World::Entity> enemy)
 {
 	thisEnemy.entity = enemy;
-	thisEnemy.ai = enemy->getComponent<Hydra::Component::AIComponent>();
-	thisEnemy.transform = enemy->getComponent<Hydra::Component::TransformComponent>();
-	thisEnemy.drawObject = enemy->getComponent<Hydra::Component::DrawObjectComponent>();
-	thisEnemy.weapon = enemy->getComponent<Hydra::Component::WeaponComponent>();
-	thisEnemy.life = enemy->getComponent<Hydra::Component::LifeComponent>();
-	thisEnemy.movement = enemy->getComponent<Hydra::Component::MovementComponent>();
+	refreshComponents();
 }
 
 void Behaviour::setTargetPlayer(std::shared_ptr<Hydra::World::Entity> player)
@@ -65,7 +51,7 @@ void Behaviour::refreshComponents()
 	thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>();
 	thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>();
 	
-	targetPlayer.ai->getPlayerEntity();
+	targetPlayer.entity = thisEnemy.ai->getPlayerEntity();
 	targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>();
 	targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>();
 }

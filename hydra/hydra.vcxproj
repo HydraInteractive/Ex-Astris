@@ -91,6 +91,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\component\componentmanager.cpp" />
+    <ClCompile Include="src\component\roomcomponent.cpp" />
     <ClCompile Include="src\component\transformcomponent.cpp" />
     <ClCompile Include="src\engine.cpp" />
     <ClCompile Include="src\ext\ram.cpp" />
@@ -106,6 +107,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\hydra\component\componentmanager.hpp" />
+    <ClInclude Include="include\hydra\component\roomcomponent.hpp" />
     <ClInclude Include="include\hydra\component\transformcomponent.hpp" />
     <ClInclude Include="include\hydra\engine.hpp" />
     <ClInclude Include="include\hydra\ext\api.hpp" />
