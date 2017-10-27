@@ -82,7 +82,7 @@ public:
 		//Must always be used to calculate G distance
 		float gDistanceTo(std::shared_ptr<Node> nodeEnd)
 		{
-			return std::sqrtf(std::powf(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::powf(this->pos.z() - nodeEnd->pos.z(), 2.0f));
+			return std::sqrt(std::pow(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::pow(this->pos.z() - nodeEnd->pos.z(), 2.0f));
 		}
 		bool operator<(Node& other) { return this->getF() < other.getF(); }
 		bool operator==(Node& other) { return this->getF() == other.getF(); }

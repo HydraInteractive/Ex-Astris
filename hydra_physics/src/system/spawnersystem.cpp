@@ -33,7 +33,7 @@ void SpawnerSystem::tick(float delta)
 		{
 		case Component::SpawnerType::AlienSpawner:
 		{
-			if (spawner->spawnGroup.size() <= 5)
+			if (spawner->spawnGroup.size() <= 4)
 			{
 				if (spawner->spawnTimer >= 5)
 				{
@@ -59,7 +59,7 @@ void SpawnerSystem::tick(float delta)
 		}break;
 		case Component::SpawnerType::RobotSpawner:
 		{
-			if (spawner->spawnGroup.size() <= 5)
+			if (spawner->spawnGroup.size() <= 4)
 			{
 				if (spawner->spawnTimer >= 5)
 				{

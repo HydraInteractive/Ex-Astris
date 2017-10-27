@@ -11,19 +11,10 @@
 #include <hydra/component/lightcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
 
-Behaviour::Behaviour(std::shared_ptr<Hydra::World::Entity>& enemy)
+Behaviour::Behaviour(std::shared_ptr<Hydra::World::Entity> enemy)
 {
 	thisEnemy.entity = enemy;
-	thisEnemy.ai = enemy->getComponent<Hydra::Component::AIComponent>();
-	thisEnemy.transform = enemy->getComponent<Hydra::Component::TransformComponent>();
-	thisEnemy.drawObject = enemy->getComponent<Hydra::Component::DrawObjectComponent>();
-	thisEnemy.weapon = enemy->getComponent<Hydra::Component::WeaponComponent>();
-	thisEnemy.life = enemy->getComponent<Hydra::Component::LifeComponent>();
-	thisEnemy.movement = enemy->getComponent<Hydra::Component::MovementComponent>();
-
-	targetPlayer.entity = thisEnemy.ai->getPlayerEntity();
-	targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>();
-	targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>();
+	refreshComponents();
 
 	pathFinding = std::make_shared<PathFinding>();
 
@@ -38,18 +29,13 @@ Behaviour::~Behaviour()
 
 }
 
-void Behaviour::setEnemyEntity(std::shared_ptr<Hydra::World::Entity>& enemy)
+void Behaviour::setEnemyEntity(std::shared_ptr<Hydra::World::Entity> enemy)
 {
 	thisEnemy.entity = enemy;
-	thisEnemy.ai = enemy->getComponent<Hydra::Component::AIComponent>();
-	thisEnemy.transform = enemy->getComponent<Hydra::Component::TransformComponent>();
-	thisEnemy.drawObject = enemy->getComponent<Hydra::Component::DrawObjectComponent>();
-	thisEnemy.weapon = enemy->getComponent<Hydra::Component::WeaponComponent>();
-	thisEnemy.life = enemy->getComponent<Hydra::Component::LifeComponent>();
-	thisEnemy.movement = enemy->getComponent<Hydra::Component::MovementComponent>();
+	refreshComponents();
 }
 
-void Behaviour::setTargetPlayer(std::shared_ptr<Hydra::World::Entity>& player)
+void Behaviour::setTargetPlayer(std::shared_ptr<Hydra::World::Entity> player)
 {
 	targetPlayer.entity = player;
 	targetPlayer.life = player->getComponent<Hydra::Component::LifeComponent>();
@@ -65,7 +51,7 @@ void Behaviour::refreshComponents()
 	thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>();
 	thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>();
 	
-	targetPlayer.ai->getPlayerEntity();
+	targetPlayer.entity = thisEnemy.ai->getPlayerEntity();
 	targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>();
 	targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>();
 }
@@ -261,7 +247,7 @@ void Behaviour::executeTransforms()
 	}*/
 }
 
-AlienBehaviour::AlienBehaviour(std::shared_ptr<Hydra::World::Entity>& enemy) : Behaviour(enemy)
+AlienBehaviour::AlienBehaviour(std::shared_ptr<Hydra::World::Entity> enemy) : Behaviour(enemy)
 {
 	this->type = Type::ALIEN;
 }
@@ -341,7 +327,7 @@ unsigned int AlienBehaviour::attackingState(float dt)
 	return state;
 }
 
-RobotBehaviour::RobotBehaviour(std::shared_ptr<Hydra::World::Entity>& enemy) : Behaviour(enemy)
+RobotBehaviour::RobotBehaviour(std::shared_ptr<Hydra::World::Entity> enemy) : Behaviour(enemy)
 {
 	this->type = Type::ROBOT;
 }
@@ -412,7 +398,7 @@ unsigned int RobotBehaviour::attackingState(float dt)
 	return state;
 }
 
-AlienBossBehaviour::AlienBossBehaviour(std::shared_ptr<Hydra::World::Entity>& enemy) : Behaviour(enemy)
+AlienBossBehaviour::AlienBossBehaviour(std::shared_ptr<Hydra::World::Entity> enemy) : Behaviour(enemy)
 {
 	this->type = Type::ALIENBOSS;
 }

@@ -1,6 +1,5 @@
 #pragma once
 
-#if 0
 #include <string>
 #include <vector>
 #include <fstream>
@@ -61,4 +60,3 @@ private:
 	float _rotation;
 	std::string _getExecutableDir();
 };
-#endif
