@@ -544,7 +544,7 @@ namespace Barcode {
 
 			//Ammo on bar
 			float offsetAmmoF = 72 * ammoP * 0.01;
-			int offsetAmmo = offsetAmmoF;
+			size_t offsetAmmo = offsetAmmoF;
 			ImGui::SetNextWindowPos(pos + ImVec2(+25, -26 + 72 - offsetAmmo));
 			ImGui::SetNextWindowSize(ImVec2(100, 100));
 			ImGui::Begin("AmmoOnRing", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
@@ -633,7 +633,7 @@ namespace Barcode {
 			}
 
 			//Perk Icons
-			int amountOfPerks = perksList.size();
+			size_t amountOfPerks = perksList.size();
 			for (int i = 0; i < amountOfPerks; i++)
 			{
 				char buf[128];

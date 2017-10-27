@@ -42,7 +42,8 @@ namespace Hydra::Component {
 		EditorCamera = BIT(13),
 		DrawObject = BIT(14),
 		PointLight = BIT(15),
-		Movement = BIT(16)
+		Movement = BIT(16),
+		Room = BIT(17)
 	};
 #undef BIT
 
@@ -76,6 +77,7 @@ namespace Hydra::Component {
 	struct HYDRA_GRAPHICS_API PointLightComponent;
 	struct HYDRA_PHYSICS_API LifeComponent;
 	struct HYDRA_PHYSICS_API MovementComponent;
+	struct HYDRA_PHYSICS_API RoomComponent;
 
 
 	using ComponentTypes = Hydra::Ext::TypeTuple<
@@ -95,7 +97,8 @@ namespace Hydra::Component {
 		Hydra::World::IComponent<DrawObjectComponent, ComponentBits::DrawObject>,
 		Hydra::World::IComponent<PointLightComponent, ComponentBits::PointLight>,
 		Hydra::World::IComponent<LifeComponent, ComponentBits::Life>,
-		Hydra::World::IComponent<MovementComponent, ComponentBits::Movement>
+		Hydra::World::IComponent<MovementComponent, ComponentBits::Movement>,
+		Hydra::World::IComponent<RoomComponent, ComponentBits::Room>
 	>;
 };
 
@@ -266,6 +269,8 @@ namespace Hydra::World {
 	IComponentHandler* IComponent<Hydra::Component::LifeComponent, Hydra::Component::ComponentBits::Life>::componentHandler;
 	template <>
 	IComponentHandler* IComponent<Hydra::Component::MovementComponent, Hydra::Component::ComponentBits::Movement>::componentHandler;
+	template <>
+	IComponentHandler* IComponent<Hydra::Component::RoomComponent, Hydra::Component::ComponentBits::Room>::componentHandler;
 #endif
 
 	template HYDRA_BASE_API struct IComponent<Hydra::Component::TransformComponent, Hydra::Component::ComponentBits::Transform>;
@@ -285,6 +290,7 @@ namespace Hydra::World {
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::PointLightComponent, Hydra::Component::ComponentBits::PointLight>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::LifeComponent, Hydra::Component::ComponentBits::Life>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::MovementComponent, Hydra::Component::ComponentBits::Movement>;
+	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::RoomComponent, Hydra::Component::ComponentBits::Room>;
 
 	struct HYDRA_BASE_API World final {
 		inline static std::shared_ptr<Entity>& root() {
