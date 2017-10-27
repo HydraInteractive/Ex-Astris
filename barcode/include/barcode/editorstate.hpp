@@ -19,10 +19,15 @@
 #include <hydra/io/glmeshloader.hpp>
 
 #include <hydra/system/bulletphysicssystem.hpp>
-
-#include <imgui/imgui.h>
-#include <barcode/ImporterMenu.hpp>
-//#include <barcode/ExporterMenu.hpp>
+#include <hydra/system/camerasystem.hpp>
+#include <hydra/system/lightsystem.hpp>
+#include <hydra/system/particlesystem.hpp>
+#include <hydra/system/abilitysystem.hpp>
+#include <hydra/system/aisystem.hpp>
+#include <hydra/system/bulletphysicssystem.hpp>
+#include <hydra/system/bulletsystem.hpp>
+#include <hydra/system/playersystem.hpp>
+#include <hydra/system/renderersystem.hpp>
 
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
@@ -37,15 +42,9 @@
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
 
-#include <hydra/system/camerasystem.hpp>
-#include <hydra/system/lightsystem.hpp>
-#include <hydra/system/particlesystem.hpp>
-#include <hydra/system/abilitysystem.hpp>
-#include <hydra/system/aisystem.hpp>
-#include <hydra/system/bulletphysicssystem.hpp>
-#include <hydra/system/bulletsystem.hpp>
-#include <hydra/system/playersystem.hpp>
-#include <hydra/system/renderersystem.hpp>
+#include <imgui/imgui.h>
+#include <barcode/ImporterMenu.hpp>
+#include <barcode/ExporterMenu.hpp>
 
 #include <hydra/io/input.hpp>
 
@@ -69,7 +68,8 @@ namespace Barcode {
 
 	private:
 		ImporterMenu* _importerMenu;
-		//ExporterMenu* _exporterMenu;
+		ExporterMenu* _exporterMenu;
+
 		bool _showImporter = false;
 		bool _showExporter = false;
 

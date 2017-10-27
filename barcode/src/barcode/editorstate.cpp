@@ -1,7 +1,6 @@
 #include <barcode/editorstate.hpp>
 
 #include <hydra/component/rigidbodycomponent.hpp>
-
 using world = Hydra::World::World;
 namespace Barcode {
 	EditorState::EditorState() : _engine(Hydra::IEngine::getInstance()) {}
@@ -258,7 +257,7 @@ namespace Barcode {
 
 		_initWorld();
 		this->_importerMenu = new ImporterMenu();
-		//this->_exporterMenu = new ExporterMenu(_world.get());
+		this->_exporterMenu = new ExporterMenu();
 	}
 
 	EditorState::~EditorState() { }
@@ -275,8 +274,8 @@ namespace Barcode {
 			if (ImGui::MenuItem("Export..."))
 			{
 				_showExporter = !_showExporter;
-				//if (_showExporter)
-					//_exporterMenu->refresh();
+				if (_showExporter)
+					_exporterMenu->refresh();
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem("Clear room"))
@@ -308,10 +307,7 @@ namespace Barcode {
 		const glm::vec3 cameraPos = _cc->position;
 
 		{ // Render objects (Deferred rendering)
-			//_world->tick(TickAction::render, delta);
-
 			// Render to geometryFBO
-
 			// FIXME: Fix this shit code
 			for (auto& light : Hydra::Component::LightComponent::componentHandler->getActiveComponents())
 				_light = static_cast<Hydra::Component::LightComponent*>(light.get());
@@ -550,8 +546,8 @@ namespace Barcode {
 		}
 		if (_showImporter)
 			_importerMenu->render(_showImporter, _previewBatch.batch, delta);
-		//if (_showExporter)
-		//	_exporterMenu->render(_showExporter);
+		if (_showExporter)
+			_exporterMenu->render(_showExporter);
 		_glowBatch.output->resolve(0, _finalImage->image);
 		_glowBatch.batch.renderTarget = _engine->getView();
 		_engine->getRenderer()->clear(_glowBatch.batch);
