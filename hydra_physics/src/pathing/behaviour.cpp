@@ -11,7 +11,7 @@
 #include <hydra/component/lightcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
 
-Behaviour::Behaviour(std::shared_ptr<Hydra::World::Entity>& enemy)
+Behaviour::Behaviour(std::shared_ptr<Hydra::World::Entity> enemy)
 {
 	thisEnemy.entity = enemy;
 	thisEnemy.ai = enemy->getComponent<Hydra::Component::AIComponent>();
@@ -38,7 +38,7 @@ Behaviour::~Behaviour()
 
 }
 
-void Behaviour::setEnemyEntity(std::shared_ptr<Hydra::World::Entity>& enemy)
+void Behaviour::setEnemyEntity(std::shared_ptr<Hydra::World::Entity> enemy)
 {
 	thisEnemy.entity = enemy;
 	thisEnemy.ai = enemy->getComponent<Hydra::Component::AIComponent>();
@@ -49,7 +49,7 @@ void Behaviour::setEnemyEntity(std::shared_ptr<Hydra::World::Entity>& enemy)
 	thisEnemy.movement = enemy->getComponent<Hydra::Component::MovementComponent>();
 }
 
-void Behaviour::setTargetPlayer(std::shared_ptr<Hydra::World::Entity>& player)
+void Behaviour::setTargetPlayer(std::shared_ptr<Hydra::World::Entity> player)
 {
 	targetPlayer.entity = player;
 	targetPlayer.life = player->getComponent<Hydra::Component::LifeComponent>();
@@ -261,7 +261,7 @@ void Behaviour::executeTransforms()
 	}*/
 }
 
-AlienBehaviour::AlienBehaviour(std::shared_ptr<Hydra::World::Entity>& enemy) : Behaviour(enemy)
+AlienBehaviour::AlienBehaviour(std::shared_ptr<Hydra::World::Entity> enemy) : Behaviour(enemy)
 {
 	this->type = Type::ALIEN;
 }
@@ -341,7 +341,7 @@ unsigned int AlienBehaviour::attackingState(float dt)
 	return state;
 }
 
-RobotBehaviour::RobotBehaviour(std::shared_ptr<Hydra::World::Entity>& enemy) : Behaviour(enemy)
+RobotBehaviour::RobotBehaviour(std::shared_ptr<Hydra::World::Entity> enemy) : Behaviour(enemy)
 {
 	this->type = Type::ROBOT;
 }
@@ -412,7 +412,7 @@ unsigned int RobotBehaviour::attackingState(float dt)
 	return state;
 }
 
-AlienBossBehaviour::AlienBossBehaviour(std::shared_ptr<Hydra::World::Entity>& enemy) : Behaviour(enemy)
+AlienBossBehaviour::AlienBossBehaviour(std::shared_ptr<Hydra::World::Entity> enemy) : Behaviour(enemy)
 {
 	this->type = Type::ALIENBOSS;
 }

@@ -10,7 +10,7 @@
 class HYDRA_PHYSICS_API Behaviour
 {
 public:
-	Behaviour(std::shared_ptr<Hydra::World::Entity>& enemy);
+	Behaviour(std::shared_ptr<Hydra::World::Entity> enemy);
 	Behaviour();
 	virtual ~Behaviour();
 
@@ -21,8 +21,8 @@ public:
 	unsigned int state = IDLE;
 
 	virtual void run(float dt) = 0;
-	void setEnemyEntity(std::shared_ptr<Hydra::World::Entity>& enemy);
-	void setTargetPlayer(std::shared_ptr<Hydra::World::Entity>& player);
+	void setEnemyEntity(std::shared_ptr<Hydra::World::Entity> enemy);
+	void setTargetPlayer(std::shared_ptr<Hydra::World::Entity> player);
 	void refreshComponents();
 protected:
 	struct ComponentSet
@@ -60,7 +60,7 @@ protected:
 class HYDRA_PHYSICS_API AlienBehaviour : public Behaviour
 {
 public:
-	AlienBehaviour(std::shared_ptr<Hydra::World::Entity>& enemy);
+	AlienBehaviour(std::shared_ptr<Hydra::World::Entity> enemy);
 	AlienBehaviour();
 	~AlienBehaviour();
 	void run(float dt);
@@ -72,7 +72,7 @@ private:
 class HYDRA_PHYSICS_API RobotBehaviour : public Behaviour
 {
 public:
-	RobotBehaviour(std::shared_ptr<Hydra::World::Entity>& enemy);
+	RobotBehaviour(std::shared_ptr<Hydra::World::Entity> enemy);
 	RobotBehaviour();
 	~RobotBehaviour();
 	void run(float dt);
@@ -84,7 +84,7 @@ private:
 class HYDRA_PHYSICS_API AlienBossBehaviour : public Behaviour
 {
 public:
-	AlienBossBehaviour(std::shared_ptr<Hydra::World::Entity>& enemy);
+	AlienBossBehaviour(std::shared_ptr<Hydra::World::Entity> enemy);
 	AlienBossBehaviour();
 	~AlienBossBehaviour();
 	void run(float dt);

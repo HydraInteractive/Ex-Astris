@@ -58,7 +58,7 @@ namespace Hydra::Component {
 
 		inline const std::string type() const final { return "AIComponent"; }
 
-		std::shared_ptr<Hydra::World::Entity> AIComponent::getPlayerEntity();
+		std::shared_ptr<Hydra::World::Entity> getPlayerEntity();
 
 		float getRadius(){ return _scale.x; }
 
