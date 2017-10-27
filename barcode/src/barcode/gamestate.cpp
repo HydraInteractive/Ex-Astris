@@ -315,6 +315,7 @@ namespace Barcode {
 
 				else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
 					_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+					drawObj->mesh->getAnimationCounter() += 1 * delta;
 
 					//int currentFrame = drawObj->mesh->getCurrentKeyframe();
 

@@ -98,13 +98,10 @@ public:
 			size_t size = kv.second.size();
 			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
 			for (size_t i = 0; i < size; i += maxPerLoop) {
-
 				int currentFrame = mesh->getCurrentKeyframe();
-				if (currentFrame < mesh->getMaxFramesForAnimation()) {
+				if (mesh->getAnimationCounter() > 24 && currentFrame < mesh->getMaxFramesForAnimation()) {
+					mesh->getAnimationCounter() = 0;
 					mesh->setCurrentKeyframe(currentFrame + 1);
-				}
-				else {
-					mesh->setCurrentKeyframe(1);
 				}
 
 				glm::mat4 tempMat;

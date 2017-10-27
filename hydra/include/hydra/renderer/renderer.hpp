@@ -133,6 +133,7 @@ namespace Hydra::Renderer {
 		virtual int getCurrentKeyframe() = 0;
 		virtual int getMaxFramesForAnimation() = 0;
 		virtual int getCurrentAnimationIndex() = 0;
+		virtual int& getAnimationCounter() = 0;
 		virtual void setCurrentKeyframe(int frame) = 0;
 		virtual void setAnimationIndex(int index) = 0;
 		virtual uint32_t getID() const = 0;
