@@ -40,56 +40,55 @@ void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 	if (!foundGoal)
 	{
 		//TODO: Infinite loop concerns
-		while(!_openList.empty() && !foundGoal)
-		{
-			std::shared_ptr<Node> currentNode = _openList.back();
-			_visitedList.push_back(_openList.back());
-			_openList.pop_back();
-
-			//End reached
-			if (currentNode->id == _endNode->id)
+			while (!_openList.empty() && !foundGoal)
 			{
-				_endNode->lastNode = currentNode->lastNode;
+				std::shared_ptr<Node> currentNode = _openList.back();
+				_visitedList.push_back(_openList.back());
+				_openList.pop_back();
 
-				std::shared_ptr<Node> getPath = _endNode;
-
-				while (getPath != nullptr)
+				//End reached
+				if (currentNode->id == _endNode->id)
 				{
-					_pathToEnd.push_back(MapVec(getPath->pos.x() * CELL_SIZE, getPath->pos.z() * CELL_SIZE));
-					getPath = getPath->lastNode;
+					_endNode->lastNode = currentNode->lastNode;
+
+					std::shared_ptr<Node> getPath = _endNode;
+
+					while (getPath != nullptr)
+					{
+						_pathToEnd.push_back(MapVec(getPath->pos.x() * CELL_SIZE, getPath->pos.z() * CELL_SIZE));
+						getPath = getPath->lastNode;
+					}
+					foundGoal = true;
 				}
-				foundGoal = true;
-			}
-			//Navigate map
-			else
-			{
-				//East
-				_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z(), currentNode, map);
-			
-				//West
-				_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z(), currentNode, map);
-			
-				//North
-				_discoverNode(currentNode->pos.x(), currentNode->pos.z() + 1, currentNode, map);
-			
-				//South
-				_discoverNode(currentNode->pos.x(), currentNode->pos.z() - 1, currentNode, map);
-			
-				//North West
-				_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() + 1, currentNode, map);
-			
-				//North East
-				_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() + 1, currentNode, map);
-			
-				//South West
-				_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() - 1, currentNode, map);
-			
-				//South East
-				_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() - 1, currentNode, map);
+				//Navigate map
+				else
+				{
+					//East
+					_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z(), currentNode, map);
+
+					//West
+					_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z(), currentNode, map);
+
+					//North
+					_discoverNode(currentNode->pos.x(), currentNode->pos.z() + 1, currentNode, map);
+
+					//South
+					_discoverNode(currentNode->pos.x(), currentNode->pos.z() - 1, currentNode, map);
+
+					//North West
+					_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() + 1, currentNode, map);
+
+					//North East
+					_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() + 1, currentNode, map);
+
+					//South West
+					_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() - 1, currentNode, map);
+
+					//South East
+					_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() - 1, currentNode, map);
+				}
 			}
 		}
-
-	}
 }
 
 glm::vec3 PathFinding::nextPathPos(const glm::vec3& pos, const float& radius)

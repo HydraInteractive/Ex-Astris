@@ -39,9 +39,15 @@ namespace Hydra::Component {
 
 		float _range = 1;
 		float _originalRange = 1;
-
+		glm::vec3 mapOffset = glm::vec3(-30.0f, 0, -30.0f);
+		glm::vec3 _targetPos = glm::vec3{ 0, 0, 0 };
+		glm::quat _rotation = glm::quat();
+		float _angle = 1;
+		int _oldMapPosX = 0;
+		int _oldMapPosZ = 0;
 		int _debugState;
 		int _damage = 0;
+		int _map[WORLD_SIZE][WORLD_SIZE];
 		bool _isAtGoal = false;
 		bool _falling = false;
 		bool _patrolPointReached = false;
@@ -68,5 +74,6 @@ namespace Hydra::Component {
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
 
+		int getWall(int x, int y) { return _map[x][y]; }
 	};
 };

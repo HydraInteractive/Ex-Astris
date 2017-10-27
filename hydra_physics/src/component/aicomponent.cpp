@@ -26,14 +26,25 @@ void AIComponent::serialize(nlohmann::json& json) const {
 		{ "bossPhase", (int)bossPhase },
 		{ "damage", _damage },
 		{ "range", _range },
+		{ "mapOffset",{ mapOffset.x, mapOffset.y, mapOffset.z } },
 		{ "Original range", _originalRange }
-
 	};
+
+	for (size_t i = 0; i < 64; i++)
+	{
+		for (size_t j = 0; j < 64; j++)
+		{
+			json["map"][i][j] = _map[i][j];
+		}
+	}
 }
 
 void AIComponent::deserialize(nlohmann::json& json) {
 	auto& scale = json["scale"];
 	_scale = glm::vec3{ scale[0].get<float>(), scale[1].get<float>(), scale[2].get<float>() };
+
+	auto& _mapOffset = json["mapOffset"];
+	mapOffset = glm::vec3{ _mapOffset[0].get<float>(), _mapOffset[1].get<float>(), _mapOffset[2].get<float>() };
 
 	Behaviour::Type behaviourType = (Behaviour::Type)json["behaviourType"].get<unsigned int>();
 	switch (behaviourType)
@@ -55,8 +66,17 @@ void AIComponent::deserialize(nlohmann::json& json) {
 	bossPhase = (BossPhase)json["bossPhase"].get<int>();
 	_damage = json["damage"].get<int>();
 
+
 	_range = json["range"].get<float>();
 	_originalRange = json["Original range"].get<float>();
+
+	for (size_t i = 0; i < 64; i++)
+	{
+		for (size_t j = 0; j < 64; j++)
+		{
+			_map[i][j] = json["map"][i][j].get<int>();
+		}
+	}
 }
 
 // Register UI buttons in the debug UI
