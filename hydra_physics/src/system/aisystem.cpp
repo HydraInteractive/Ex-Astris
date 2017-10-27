@@ -525,47 +525,47 @@ void AISystem::tick(float delta) {
 			break;
 		}
 
-		if (transform->position.x != enemy->_oldMapPosX && transform->position.z != enemy->_oldMapPosZ)
-		{
-			enemy->_map[enemy->_oldMapPosX][enemy->_oldMapPosZ] = 0;
-			if (transform->position.x <= 0 || transform->position.z <= 0)
-			{
-				enemy->_oldMapPosX = transform->position.x - enemy->_mapOffset.x;
-				enemy->_oldMapPosZ = transform->position.z - enemy->_mapOffset.z;
-			}
-			else
-			{
-				enemy->_oldMapPosX = transform->position.x;
-				enemy->_oldMapPosZ = transform->position.z;
-			}
-			enemy->_map[enemy->_oldMapPosX][enemy->_oldMapPosZ] = 2;
-		}
-		else if (transform->position.x != enemy->_oldMapPosX && transform->position.z == enemy->_oldMapPosZ)
-		{
-			enemy->_map[enemy->_oldMapPosX][enemy->_oldMapPosZ] = 0;
-			if (transform->position.x <= 0 || transform->position.z <= 0)
-			{
-				enemy->_oldMapPosX = transform->position.x + enemy->_mapOffset.x;
-			}
-			else
-			{
-				enemy->_oldMapPosX = transform->position.x;
-			}
-			enemy->_map[enemy->_oldMapPosX][enemy->_oldMapPosZ] = 2;
-		}
-		else if (transform->position.z != enemy->_oldMapPosZ && transform->position.x == enemy->_oldMapPosX)
-		{
-			enemy->_map[enemy->_oldMapPosX][enemy->_oldMapPosZ] = 0;
-			if (transform->position.x <= 0 || transform->position.z <= 0)
-			{
-				enemy->_oldMapPosZ = transform->position.z + enemy->_mapOffset.z;
-			}
-			else
-			{
-				enemy->_oldMapPosZ = transform->position.z;
-			}
-			enemy->_map[enemy->_oldMapPosX][enemy->_oldMapPosZ] = 2;
-		}
+		//if (transform->position.x != enemy->_oldMapPosX && transform->position.z != enemy->_oldMapPosZ)
+		//{
+		//	enemy->_map[enemy->_oldMapPosX][enemy->_oldMapPosZ] = 0;
+		//	if (transform->position.x <= 0 || transform->position.z <= 0)
+		//	{
+		//		enemy->_oldMapPosX = transform->position.x - enemy->_mapOffset.x;
+		//		enemy->_oldMapPosZ = transform->position.z - enemy->_mapOffset.z;
+		//	}
+		//	else
+		//	{
+		//		enemy->_oldMapPosX = transform->position.x;
+		//		enemy->_oldMapPosZ = transform->position.z;
+		//	}
+		//	enemy->_map[enemy->_oldMapPosX][enemy->_oldMapPosZ] = 2;
+		//}
+		//else if (transform->position.x != enemy->_oldMapPosX && transform->position.z == enemy->_oldMapPosZ)
+		//{
+		//	enemy->_map[enemy->_oldMapPosX][enemy->_oldMapPosZ] = 0;
+		//	if (transform->position.x <= 0 || transform->position.z <= 0)
+		//	{
+		//		enemy->_oldMapPosX = transform->position.x + enemy->_mapOffset.x;
+		//	}
+		//	else
+		//	{
+		//		enemy->_oldMapPosX = transform->position.x;
+		//	}
+		//	enemy->_map[enemy->_oldMapPosX][enemy->_oldMapPosZ] = 2;
+		//}
+		//else if (transform->position.z != enemy->_oldMapPosZ && transform->position.x == enemy->_oldMapPosX)
+		//{
+		//	enemy->_map[enemy->_oldMapPosX][enemy->_oldMapPosZ] = 0;
+		//	if (transform->position.x <= 0 || transform->position.z <= 0)
+		//	{
+		//		enemy->_oldMapPosZ = transform->position.z + enemy->_mapOffset.z;
+		//	}
+		//	else
+		//	{
+		//		enemy->_oldMapPosZ = transform->position.z;
+		//	}
+		//	enemy->_map[enemy->_oldMapPosX][enemy->_oldMapPosZ] = 2;
+		//}
 
 		//debug for pathfinding
 		//int tempX = transform->getPosition().x;
