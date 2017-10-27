@@ -188,7 +188,7 @@ public:
 		glTexParameteri(_textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	}
 
-	void setData(glm::ivec2 offset, glm::ivec2 size, const void* data) final {
+	void setData(const glm::ivec2& offset, const glm::ivec2& size, const void* data) final {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(_textureType, _texture);
 		glTexSubImage2D(_textureType, 0, offset.x, offset.y, _size.x, _size.y, toGLBase(_format), toGLDataType(_format), data);
@@ -249,5 +249,5 @@ std::shared_ptr<ITexture> GLTexture::createFromDataExt(const char* ext, void* da
 
 
 std::shared_ptr<ITexture> GLTexture::createDataTexture(uint32_t width, uint32_t height, TextureType format) {
-	return std::shared_ptr<ITexture>(new ::GlTextureImpl(width, height, format));
+	return std::shared_ptr<ITexture>(new ::GLTextureImpl(width, height, format));
 }

@@ -27,6 +27,8 @@ namespace Hydra::View {
 		virtual void hide() = 0;
 		virtual void quit() = 0;
 
+		inline void setData(const glm::ivec2&, const glm::ivec2&, const void*) { }
+
 		virtual void* getHandler() = 0;
 		virtual void finalize() = 0;
 		inline size_t getSamples() final { return 1; }

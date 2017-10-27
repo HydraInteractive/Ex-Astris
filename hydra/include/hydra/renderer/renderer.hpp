@@ -70,8 +70,6 @@ namespace Hydra::Renderer {
 		virtual ~IRenderTarget() = 0;
 		inline void setRepeat() final{}
 		inline void setClamp() final{}
-
-		inline void setData(const glm::ivec2& offset, const glm::ivec2& size, const void* data) { }
 	};
 	inline IRenderTarget::~IRenderTarget() {}
 
@@ -104,6 +102,8 @@ namespace Hydra::Renderer {
 		virtual IFramebuffer& addTexture(size_t id, TextureType type) = 0;
 
 		virtual void finalize() = 0;
+
+		inline void setData(const glm::ivec2&, const glm::ivec2&, const void*) { }
 
 		virtual std::shared_ptr<ITexture> getDepth() = 0;
 

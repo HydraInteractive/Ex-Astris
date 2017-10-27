@@ -102,6 +102,8 @@ namespace Barcode {
 
 		ParticleRenderBatch _particleBatch;
 
+		std::shared_ptr<Hydra::Renderer::ITexture> _animationData;
+
 		// ParticleTexture
 		std::shared_ptr<Hydra::Renderer::ITexture> _particleAtlases;
 
