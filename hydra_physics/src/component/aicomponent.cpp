@@ -21,7 +21,6 @@ AIComponent::~AIComponent() {
 void AIComponent::serialize(nlohmann::json& json) const {
 	json = {
 		{ "scale",{ _scale.x, _scale.y, _scale.z } },
-		{ "mapOffset",{ mapOffset.x, mapOffset.y, mapOffset.z } },
 		{ "behaviourType", (unsigned int)behaviour->type},
 		//{ "pathState", behaviour->state },
 		{ "bossPhase", (int)bossPhase },
@@ -35,9 +34,6 @@ void AIComponent::serialize(nlohmann::json& json) const {
 void AIComponent::deserialize(nlohmann::json& json) {
 	auto& scale = json["scale"];
 	_scale = glm::vec3{ scale[0].get<float>(), scale[1].get<float>(), scale[2].get<float>() };
-
-	auto& mapOffset = json["mapOffset"];
-	this->mapOffset = glm::vec3{ mapOffset[0].get<float>(), mapOffset[1].get<float>(), mapOffset[2].get<float>() };
 
 	Behaviour::Type behaviourType = (Behaviour::Type)json["behaviourType"].get<unsigned int>();
 	switch (behaviourType)
@@ -67,7 +63,6 @@ void AIComponent::deserialize(nlohmann::json& json) {
 // Note: This function won't always be called
 void AIComponent::registerUI() {
 	ImGui::InputInt("pathState", &_debugState);
-	ImGui::DragFloat3("targetPos", glm::value_ptr(_targetPos), 0.01f);
 	ImGui::Checkbox("isAtGoal", &_isAtGoal);
 	ImGui::Checkbox("playerCanBeSeen", &_playerSeen);
 	ImGui::InputFloat("range", &_range);

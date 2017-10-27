@@ -43,7 +43,9 @@ namespace Hydra::Component {
 		DrawObject = BIT(14),
 		PointLight = BIT(15),
 		Movement = BIT(16),
-		Room = BIT(17)
+		Room = BIT(17),
+		Spawner = BIT(18)
+		
 	};
 #undef BIT
 
@@ -78,7 +80,7 @@ namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API LifeComponent;
 	struct HYDRA_PHYSICS_API MovementComponent;
 	struct HYDRA_PHYSICS_API RoomComponent;
-
+	struct HYDRA_PHYSICS_API SpawnerComponent;
 
 	using ComponentTypes = Hydra::Ext::TypeTuple<
 		Hydra::World::IComponent<TransformComponent, ComponentBits::Transform>,
@@ -98,7 +100,8 @@ namespace Hydra::Component {
 		Hydra::World::IComponent<PointLightComponent, ComponentBits::PointLight>,
 		Hydra::World::IComponent<LifeComponent, ComponentBits::Life>,
 		Hydra::World::IComponent<MovementComponent, ComponentBits::Movement>,
-		Hydra::World::IComponent<RoomComponent, ComponentBits::Room>
+		Hydra::World::IComponent<RoomComponent, ComponentBits::Room>,
+		Hydra::World::IComponent<SpawnerComponent, ComponentBits::Spawner>
 	>;
 };
 
@@ -271,6 +274,8 @@ namespace Hydra::World {
 	IComponentHandler* IComponent<Hydra::Component::MovementComponent, Hydra::Component::ComponentBits::Movement>::componentHandler;
 	template <>
 	IComponentHandler* IComponent<Hydra::Component::RoomComponent, Hydra::Component::ComponentBits::Room>::componentHandler;
+	template <>
+	IComponentHandler* IComponent<Hydra::Component::SpawnerComponent, Hydra::Component::ComponentBits::Spawner>::componentHandler;
 #endif
 
 	template HYDRA_BASE_API struct IComponent<Hydra::Component::TransformComponent, Hydra::Component::ComponentBits::Transform>;
@@ -291,6 +296,7 @@ namespace Hydra::World {
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::LifeComponent, Hydra::Component::ComponentBits::Life>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::MovementComponent, Hydra::Component::ComponentBits::Movement>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::RoomComponent, Hydra::Component::ComponentBits::Room>;
+	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::SpawnerComponent, Hydra::Component::ComponentBits::Spawner>;
 
 	struct HYDRA_BASE_API World final {
 		inline static std::shared_ptr<Entity>& root() {
