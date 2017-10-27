@@ -27,6 +27,8 @@ namespace Hydra::View {
 		virtual void hide() = 0;
 		virtual void quit() = 0;
 
+		virtual void blit(Hydra::Renderer::IFramebuffer* fb, size_t imageIdx = 0) = 0;
+
 		virtual void* getHandler() = 0;
 		virtual void finalize() = 0;
 		inline size_t getSamples() final { return 1; }

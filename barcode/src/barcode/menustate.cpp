@@ -250,13 +250,19 @@ namespace Barcode {
 								ImGui::Begin("Main menu 5", nullptr, windowFlags);
 								if (ImGui::IsItemHovered())
 								{
-									if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/newSelected.png")->getID()),
-										ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/newSelected.png")->getID()), 
+										ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
+									{									
+										_engine->setState<Barcode::GameState>();
+									}
 								}
 								else
 								{
 									if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/newTransparent.png")->getID()),
-										ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+										ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
+									{
+										_engine->setState<Barcode::GameState>();
+									}
 								}
 								ImGui::End();
 							}
@@ -338,12 +344,18 @@ namespace Barcode {
 							if (ImGui::IsItemHovered())
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/nothingSelected.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
+								{
+									_engine->setState<Barcode::EditorState>();
+								}
 							}
 							else
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/nothingTransparent.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
+								{
+
+								}
 							}
 
 
