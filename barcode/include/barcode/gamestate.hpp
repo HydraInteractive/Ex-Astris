@@ -24,6 +24,7 @@
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
+#include <hydra/component/spawnercomponent.hpp>
 
 #include <hydra/system/camerasystem.hpp>
 #include <hydra/system/lightsystem.hpp>
@@ -34,6 +35,7 @@
 #include <hydra/system/bulletsystem.hpp>
 #include <hydra/system/playersystem.hpp>
 #include <hydra/system/renderersystem.hpp>
+#include <hydra/system/spawnersystem.hpp>
 
 #include <hydra/io/input.hpp>
 
@@ -86,6 +88,7 @@ namespace Barcode {
 		Hydra::System::BulletSystem _bulletSystem;
 		Hydra::System::PlayerSystem _playerSystem;
 		Hydra::System::RendererSystem _rendererSystem;
+		Hydra::System::SpawnerSystem _spawnerSystem;
 
 		RenderBatch _geometryBatch; // First part of deferred rendering
 		RenderBatch _animationBatch; // AnimationBatch
