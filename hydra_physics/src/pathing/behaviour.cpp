@@ -202,15 +202,15 @@ void Behaviour::executeTransforms()
 {
 	/*thisEnemy.ai->_playerSeen = thisEnemy.ai->_checkLOS(thisEnemy.ai->_map, thisEnemy.transform->position, targetPlayer.transform->position);*/
 
-	//if (thisEnemy.ai->_playerSeen == false)
-	//{
-	//	if (thisEnemy.ai->_range > 0.5f)
-	//	{
-	//		thisEnemy.ai->_range -= 0.5f;
-	//	}
-	//}
-	//else
-	//{
+	/*if (thisEnemy.ai->_playerSeen == false)
+	{
+		if (thisEnemy.ai->_range > 0.5f)
+		{
+			thisEnemy.ai->_range -= 0.5f;
+		}
+	}
+	else
+	{*/
 		thisEnemy.ai->_range = thisEnemy.ai->_originalRange;
 	//}
 
