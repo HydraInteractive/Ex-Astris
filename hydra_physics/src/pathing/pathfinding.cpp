@@ -112,10 +112,10 @@ glm::vec3 PathFinding::nextPathPos(const glm::vec3& pos, const float& radius)
 void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode, int(&map)[WORLD_SIZE][WORLD_SIZE])
 {
 	//If this node is inaccessable, ignore it
-	if (map[x][z] == 1 || map[x][z] == 2)
-	{
-		return;
-	}
+	//if (map[x][z] == 1 || map[x][z] == 2)
+	//{
+	//	return;
+	//}
 
 	int id = z * WORLD_SIZE + x;
 

@@ -74,7 +74,7 @@ unsigned int Behaviour::idleState(float dt)
 {
 	thisEnemy.drawObject->drawObject->mesh->setAnimationIndex(0);
 	//Play the idle animation
-	if (targetPlayer.transform->position.x > mapOffset.x && targetPlayer.transform->position.x < WORLD_SIZE && targetPlayer.transform->position.z > mapOffset.z && targetPlayer.transform->position.z < WORLD_SIZE)
+	if (targetPlayer.transform->position.x > thisEnemy.ai->mapOffset.x && targetPlayer.transform->position.x < WORLD_SIZE && targetPlayer.transform->position.z > thisEnemy.ai->mapOffset.z && targetPlayer.transform->position.z < WORLD_SIZE)
 	{
 		if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 50)
 		{
@@ -101,12 +101,12 @@ unsigned int Behaviour::searchingState(float dt)
 		state = ATTACKING;
 	}
 
-	if (targetPlayer.transform->position.x <= mapOffset.x || targetPlayer.transform->position.x >= WORLD_SIZE || targetPlayer.transform->position.z <= mapOffset.z || targetPlayer.transform->position.z >= WORLD_SIZE)
+	if (targetPlayer.transform->position.x <= thisEnemy.ai->mapOffset.x || targetPlayer.transform->position.x >= WORLD_SIZE || targetPlayer.transform->position.z <= thisEnemy.ai->mapOffset.z || targetPlayer.transform->position.z >= WORLD_SIZE)
 	{
 		state = IDLE;
 	}
 	pathFinding->intializedStartGoal = false;
-	pathFinding->findPath(thisEnemy.transform->position, targetPlayer.transform->position, _map);
+	pathFinding->findPath(thisEnemy.transform->position, targetPlayer.transform->position, thisEnemy.ai->_map);
 	thisEnemy.ai->_isAtGoal = false;
 
 
@@ -114,7 +114,7 @@ unsigned int Behaviour::searchingState(float dt)
 	{
 		if (!pathFinding->_pathToEnd.empty())
 		{
-			_targetPos = pathFinding->_pathToEnd[0];
+			thisEnemy.ai->_targetPos = pathFinding->_pathToEnd[0];
 		}
 		thisEnemy.ai->_newPathTimer = 0;
 		return FOUND_GOAL;
@@ -130,8 +130,8 @@ unsigned int Behaviour::foundState(float dt)
 		{
 			glm::vec3 targetDistance = pathFinding->nextPathPos(thisEnemy.transform->position, thisEnemy.ai->getRadius()) - thisEnemy.transform->position;
 
-			_angle = atan2(targetDistance.x, targetDistance.z);
-			_rotation = glm::angleAxis(_angle, glm::vec3(0, 1, 0));
+			thisEnemy.ai->_angle = atan2(targetDistance.x, targetDistance.z);
+			thisEnemy.ai->_rotation = glm::angleAxis(thisEnemy.ai->_angle, glm::vec3(0, 1, 0));
 
 			glm::vec3 direction = glm::normalize(targetDistance);
 
@@ -145,12 +145,12 @@ unsigned int Behaviour::foundState(float dt)
 				state = ATTACKING;
 			}
 
-			if (glm::length(thisEnemy.transform->position - _targetPos) <= 3.0f)
+			if (glm::length(thisEnemy.transform->position - thisEnemy.ai->_targetPos) <= 3.0f)
 			{
 				state = SEARCHING;
 				thisEnemy.ai->_timer = 0;
 			}
-			else if (glm::length(targetPlayer.transform->position.x - _targetPos.x) > 25.0f || glm::length(targetPlayer.transform->position.z - _targetPos.z) > 25.0f)
+			else if (glm::length(targetPlayer.transform->position.x - thisEnemy.ai->_targetPos.x) > 25.0f || glm::length(targetPlayer.transform->position.z - thisEnemy.ai->_targetPos.z) > 25.0f)
 			{
 				state = SEARCHING;
 				thisEnemy.ai->_timer = 0;
@@ -164,7 +164,7 @@ unsigned int Behaviour::foundState(float dt)
 		thisEnemy.ai->_timer = 0;
 	}
 
-	if (targetPlayer.transform->position.x <= mapOffset.x || targetPlayer.transform->position.x >= WORLD_SIZE || targetPlayer.transform->position.z <= mapOffset.z || targetPlayer.transform->position.z >= WORLD_SIZE)
+	if (targetPlayer.transform->position.x <= thisEnemy.ai->mapOffset.x || targetPlayer.transform->position.x >= WORLD_SIZE || targetPlayer.transform->position.z <= thisEnemy.ai->mapOffset.z || targetPlayer.transform->position.z >= WORLD_SIZE)
 	{
 		return IDLE;
 	}
@@ -192,31 +192,31 @@ unsigned int Behaviour::attackingState(float dt)
 
 		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
 		playerDir = glm::normalize(playerDir);
-		_angle = atan2(playerDir.x, playerDir.z);
-		_rotation = glm::angleAxis(_angle, glm::vec3(0, 1, 0));
+		thisEnemy.ai->_angle = atan2(playerDir.x, playerDir.z);
+		thisEnemy.ai->_rotation = glm::angleAxis(thisEnemy.ai->_angle, glm::vec3(0, 1, 0));
 	}
 	return state;
 }
 
 void Behaviour::executeTransforms()
 {
-	thisEnemy.ai->_playerSeen = thisEnemy.ai->_checkLOS(_map, thisEnemy.transform->position, targetPlayer.transform->position);
+	/*thisEnemy.ai->_playerSeen = thisEnemy.ai->_checkLOS(thisEnemy.ai->_map, thisEnemy.transform->position, targetPlayer.transform->position);*/
 
-	if (thisEnemy.ai->_playerSeen == false)
-	{
-		if (thisEnemy.ai->_range > 0.5f)
-		{
-			thisEnemy.ai->_range -= 0.5f;
-		}
-	}
-	else
-	{
+	//if (thisEnemy.ai->_playerSeen == false)
+	//{
+	//	if (thisEnemy.ai->_range > 0.5f)
+	//	{
+	//		thisEnemy.ai->_range -= 0.5f;
+	//	}
+	//}
+	//else
+	//{
 		thisEnemy.ai->_range = thisEnemy.ai->_originalRange;
-	}
+	//}
 
 	thisEnemy.transform->position += glm::vec3(thisEnemy.movement->velocity.x, thisEnemy.movement->velocity.y, thisEnemy.movement->velocity.z);
 	thisEnemy.transform->setPosition(thisEnemy.transform->position);
-	thisEnemy.transform->setRotation(_rotation);
+	thisEnemy.transform->setRotation(thisEnemy.ai->_rotation);
 
 	/*if (thisEnemy.transform->position.x != _oldMapPosX && thisEnemy.transform->position.z != _oldMapPosZ)
 	{
@@ -335,8 +335,8 @@ unsigned int AlienBehaviour::attackingState(float dt)
 
 		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
 		playerDir = glm::normalize(playerDir);
-		_angle = atan2(playerDir.x, playerDir.z);
-		_rotation = glm::angleAxis(_angle, glm::vec3(0, 1, 0));
+		thisEnemy.ai->_angle = atan2(playerDir.x, playerDir.z);
+		thisEnemy.ai->_rotation = glm::angleAxis(thisEnemy.ai->_angle, glm::vec3(0, 1, 0));
 	}
 	return state;
 }
@@ -406,8 +406,8 @@ unsigned int RobotBehaviour::attackingState(float dt)
 		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
 		playerDir = glm::normalize(playerDir);
 		thisEnemy.weapon->shoot(thisEnemy.transform->position, -playerDir, glm::quat(), 8.0f);
-		_angle = atan2(playerDir.x, playerDir.z);
-		_rotation = glm::angleAxis(_angle, glm::vec3(0, 1, 0));
+		thisEnemy.ai->_angle = atan2(playerDir.x, playerDir.z);
+		thisEnemy.ai->_rotation = glm::angleAxis(thisEnemy.ai->_angle, glm::vec3(0, 1, 0));
 	}
 	return state;
 }
