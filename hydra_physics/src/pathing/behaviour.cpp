@@ -315,7 +315,7 @@ unsigned int AlienBehaviour::attackingState(float dt)
 		std::uniform_int_distribution<> randDmg(thisEnemy.ai->_damage - 1, thisEnemy.ai->_damage + 2);
 		if (thisEnemy.ai->_attackTimer > 1.5)
 		{
-			//player->applyDamage(randDmg(rng));
+			targetPlayer.life->applyDamage(randDmg(rng));
 			thisEnemy.ai->_attackTimer = 0;
 		}
 
@@ -428,6 +428,8 @@ void AlienBossBehaviour::run(float dt)
 	thisEnemy.ai->_attackTimer += dt;
 	thisEnemy.ai->_stunTimer += dt;
 	thisEnemy.ai->_newPathTimer += dt;
+	thisEnemy.ai->_phaseTimer += dt;
+	thisEnemy.ai->_spawnTimer += dt;
 
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 50)
 	{
@@ -440,9 +442,11 @@ void AlienBossBehaviour::run(float dt)
 		break;
 	case SEARCHING:
 		state = searchingState(dt);
+		thisEnemy.ai->_phaseTimer = 0;
 		break;
 	case FOUND_GOAL:
 		state = foundState(dt);
+		thisEnemy.ai->_phaseTimer = 0;
 		break;
 	case ATTACKING:
 		state = attackingState(dt);
@@ -453,5 +457,101 @@ void AlienBossBehaviour::run(float dt)
 
 unsigned int AlienBossBehaviour::attackingState(float dt)
 {
-	return IDLE;
+	using world = Hydra::World::World;
+
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > thisEnemy.ai->_range && thisEnemy.ai->_stunned == false)
+	{
+		thisEnemy.ai->_timer = 0;
+		return SEARCHING;
+	}
+	else
+	{
+		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
+		playerDir = glm::normalize(playerDir);
+
+		switch (bossPhase)
+		{
+			case BossPhase::CLAWING:
+			{
+				thisEnemy.ai->_originalRange = 9.0f;
+				thisEnemy.movement->movementSpeed = 3.0f;
+				std::mt19937 rng(thisEnemy.ai->rd());
+				std::uniform_int_distribution<> randDmg(thisEnemy.ai->_damage - 1, thisEnemy.ai->_damage + 2);
+				if (thisEnemy.ai->_attackTimer >= 3)
+				{
+					targetPlayer.life->applyDamage(randDmg(rng));
+					thisEnemy.ai->_attackTimer = 0;
+				}
+
+				if (thisEnemy.ai->_phaseTimer >= 10)
+				{
+					bossPhase = SPITTING;
+					thisEnemy.ai->_phaseTimer = 0;
+				}
+			}break;
+			case BossPhase::SPITTING:
+			{
+				thisEnemy.ai->_range = 30.0f;
+				thisEnemy.weapon->shoot(thisEnemy.transform->position, -playerDir, glm::quat(), 15.0f);
+				if (thisEnemy.ai->_phaseTimer >= 10)
+				{
+					bossPhase = SPAWNING;
+					thisEnemy.ai->_phaseTimer = 0;
+				}
+			}break;
+			case BossPhase::SPAWNING:
+			{
+				thisEnemy.ai->_range = 30.0f;
+				if (thisEnemy.ai->_spawnAmount <= 3)
+				{
+					if (thisEnemy.ai->_spawnTimer >= 2)
+					{
+						auto alienSpawn = world::newEntity("AlienSpawn", world::root());
+						auto a = alienSpawn->addComponent <Hydra::Component::AIComponent>();
+						a->behaviour = std::make_shared<AlienBehaviour>(alienSpawn);
+						a->_damage = 4;
+						a->_originalRange = 4;
+						auto h = alienSpawn->addComponent<Hydra::Component::LifeComponent>();
+						h->maxHP = 80;
+						h->health = 80;
+						auto m = alienSpawn->addComponent<Hydra::Component::MovementComponent>();
+						m->movementSpeed = 8.0f;
+						auto t = alienSpawn->addComponent<Hydra::Component::TransformComponent>();
+						t->position = thisEnemy.transform->position + glm::vec3(3, thisEnemy.transform->position.y, 3);
+						t->scale = glm::vec3{ 2,2,2 };
+						a->_scale = glm::vec3{ 2,2,2 };
+						alienSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
+						thisEnemy.ai->_spawnAmount++;
+						thisEnemy.ai->_spawnTimer = 0;
+					}
+				}
+
+				if (thisEnemy.ai->_phaseTimer >= 10)
+				{
+					bossPhase = CHILLING;
+					thisEnemy.ai->_phaseTimer = 0;
+					thisEnemy.ai->_stunTimer = 0;
+				}
+			}break;
+			case BossPhase::CHILLING:
+			{
+				thisEnemy.ai->_range = 30.0f;
+				if (thisEnemy.ai->_stunTimer >= 10)
+				{
+					if (!thisEnemy.ai->_stunned) { thisEnemy.ai->_stunned = true; }
+					else
+					{
+						thisEnemy.ai->_stunned = false;
+						bossPhase = CLAWING;
+					}
+				}
+			}break;
+		}
+
+		if (thisEnemy.ai->_stunned = false)
+		{
+			thisEnemy.ai->_angle = atan2(playerDir.x, playerDir.z);
+			thisEnemy.ai->_rotation = glm::angleAxis(thisEnemy.ai->_angle, glm::vec3(0, 1, 0));
+		}
+	}
 }
