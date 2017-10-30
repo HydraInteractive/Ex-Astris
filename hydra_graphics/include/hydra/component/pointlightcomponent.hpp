@@ -13,7 +13,7 @@
 
 #include <SDL2/SDL.h>
 
-// Below are values to specific when the light should fall off. (Attenuation).
+// Below are values to specify when the light should fall off. (Attenuation).
 //Range constant linear quadratic
 //3250, 1.0, 0.0014, 0.000007
 //600, 1.0, 0.007, 0.0002
