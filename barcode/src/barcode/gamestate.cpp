@@ -150,7 +150,7 @@ namespace Barcode {
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 
-			_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/TempAtlas.png");
+			_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/ParticleAtlases.png");
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
 			batch.batch.clearFlags = ClearFlags::depth;
@@ -652,10 +652,10 @@ namespace Barcode {
 
 			//Perk Icons
 			size_t amountOfPerks = perksList.size();
-			for (int i = 0; i < amountOfPerks; i++)
+			for (size_t i = 0; i < amountOfPerks; i++)
 			{
 				char buf[128];
-				snprintf(buf, sizeof(buf), "Perk%d", i);
+				snprintf(buf, sizeof(buf), "Perk%lu", i);
 				float xOffset = float((-10 * amountOfPerks) + (20 * i));
 				ImGui::SetNextWindowPos(pos + ImVec2(xOffset, +480));
 				ImGui::SetNextWindowSize(ImVec2(20, 20));
@@ -892,7 +892,7 @@ namespace Barcode {
 
 		{
 			auto particleEmitter = world::newEntity("ParticleEmitter", world::root());
-			particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/R2D3.mATTIC");
+			particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("QUAD");
 			auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
 			p->delay = 1.0f / 15.0f;
 			auto t = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
