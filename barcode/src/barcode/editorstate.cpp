@@ -280,7 +280,8 @@ namespace Barcode {
 			ImGui::Separator();
 			if (ImGui::MenuItem("Clear room"))
 			{
-				ImporterMenu::getRoomEntity()->dead = true;
+				if(ImporterMenu::getRoomEntity() != nullptr)
+					ImporterMenu::getRoomEntity()->dead = true;
 
 				auto room = world::newEntity("Room", world::root());
 				auto t = room->addComponent<Hydra::Component::TransformComponent>();
@@ -568,7 +569,6 @@ namespace Barcode {
 			auto playerEntity = world::newEntity("Player", world::root());
 			auto c = playerEntity->addComponent<Hydra::Component::FreeCameraComponent>();
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
-			c->renderTarget = _geometryBatch.output.get();
 		}
 		{
 			auto lightEntity = world::newEntity("Light", world::root());
@@ -587,7 +587,6 @@ namespace Barcode {
 
 		{
 			_cc = static_cast<Hydra::Component::FreeCameraComponent*>(Hydra::Component::FreeCameraComponent::componentHandler->getActiveComponents()[0].get());
-			_cc->renderTarget = _geometryBatch.output.get();
 			for (auto& rb : Hydra::Component::RigidBodyComponent::componentHandler->getActiveComponents()) {
 				_engine->log(Hydra::LogLevel::normal, "Enabling bullet for %s", world::getEntity(rb->entityID)->name.c_str());
 				_physicsSystem.enable(static_cast<Hydra::Component::RigidBodyComponent*>(rb.get()));

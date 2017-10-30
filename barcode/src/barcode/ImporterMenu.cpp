@@ -40,7 +40,7 @@ void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch& previewBatch,
 	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.3f, ImGui::GetWindowContentRegionMax().y - 60));
 	if(_root != nullptr)
 		_root->render(&selectedNode);
-	if (selectedNode != nullptr &&selectedNode->getExt() == ".mATTIC") {
+	if (selectedNode != nullptr && selectedNode->getExt() == ".mATTIC") {
 		std::string fileName = selectedNode->reverseEngineerPath();
 		std::cout << fileName.c_str() << std::endl;
 
@@ -62,7 +62,6 @@ void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch& previewBatch,
 
 			auto tc = _previewEntity->addComponent<Hydra::Component::TransformComponent>();
 			auto cc = _previewEntity->addComponent<Hydra::Component::CameraComponent>();
-			cc->renderTarget = previewBatch.renderTarget;
 			cc->position = glm::vec3{0, 0, 5};
 			tc->setRotation(glm::angleAxis(glm::radians(_rotation), glm::vec3(0,1,0)));
 		}

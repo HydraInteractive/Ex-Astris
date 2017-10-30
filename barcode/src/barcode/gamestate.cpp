@@ -778,7 +778,6 @@ namespace Barcode {
 			h->health = 100;
 			h->maxHP = 100;
 			m->movementSpeed = 20.0f;
-			c->renderTarget = _geometryBatch.output.get();
 			//c->position = glm::vec3{ 5, 0, -3 };
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ 0, 0, 20 };
@@ -918,7 +917,6 @@ namespace Barcode {
 
 		{
 			_cc = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get());
-			_cc->renderTarget = _geometryBatch.output.get();
 
 			for (auto& rb : Hydra::Component::RigidBodyComponent::componentHandler->getActiveComponents()) {
 				_engine->log(Hydra::LogLevel::normal, "Enabling bullet for %s", world::getEntity(rb->entityID)->name.c_str());
