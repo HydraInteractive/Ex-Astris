@@ -23,7 +23,6 @@ void AIComponent::serialize(nlohmann::json& json) const {
 		{ "scale",{ _scale.x, _scale.y, _scale.z } },
 		{ "behaviourType", (unsigned int)behaviour->type},
 		//{ "pathState", behaviour->state },
-		{ "bossPhase", (int)bossPhase },
 		{ "damage", damage },
 		{ "range", range },
 		{ "mapOffset",{ mapOffset.x, mapOffset.y, mapOffset.z } },
@@ -63,7 +62,6 @@ void AIComponent::deserialize(nlohmann::json& json) {
 		break;
 	}
 	//behaviour->state = json["pathState"].get<int>();
-	bossPhase = (BossPhase)json["bossPhase"].get<int>();
 	damage = json["damage"].get<int>();
 
 
