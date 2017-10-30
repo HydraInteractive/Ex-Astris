@@ -548,10 +548,11 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 			}break;
 		}
 
-		if (thisEnemy.ai->stunned = false)
+		if (thisEnemy.ai->stunned == false)
 		{
 			thisEnemy.ai->angle = atan2(playerDir.x, playerDir.z);
 			thisEnemy.ai->rotation = glm::angleAxis(thisEnemy.ai->angle, glm::vec3(0, 1, 0));
 		}
+		return state;
 	}
 }
