@@ -12,6 +12,7 @@
 #include <SDL2/SDL.h>
 
 #include <hydra/renderer/uirenderer.hpp>
+#include <hydra/renderer/renderer.hpp>
 
 #include <glad/glad.h>
 
@@ -71,6 +72,16 @@ public:
 	void show() final { SDL_ShowWindow(_window); }
 	void hide() final {	SDL_HideWindow(_window); }
 	void quit() final { _wantToClose = true; }
+
+	void blit(Hydra::Renderer::IFramebuffer* fb, size_t imageIdx = 0) final {
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, fb->getID());
+		glReadBuffer(static_cast<GLenum>(GL_COLOR_ATTACHMENT0+imageIdx));
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+		auto fromS = fb->getSize();
+		auto& toS = _size;
+		glBlitFramebuffer(0, 0, fromS.x, fromS.y, 0, 0, toS.x, toS.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	}
 
 	void* getHandler() final { return _window; }
 
