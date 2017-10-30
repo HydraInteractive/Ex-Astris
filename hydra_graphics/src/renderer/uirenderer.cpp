@@ -382,7 +382,8 @@ public:
 			ImGui::TreePop();
 		}
 		bool deleteThis = false;
-		if (ImGui::BeginPopupContextItem(entity->name.c_str()))
+		std::string pls = std::to_string(entity->id);
+		if (ImGui::BeginPopupContextItem(pls.c_str()))
 		{
 			ImGui::MenuItem("Delete", "", &deleteThis);
 			if (deleteThis)
