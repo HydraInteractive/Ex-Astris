@@ -375,23 +375,38 @@ public:
 		using world = Hydra::World::World;
 		if (ImGui::TreeNode(entity, ICON_FA_USER_O " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", entity->name.c_str(), entity->id, entity->componentCount(), entity->children.size()))
 		{
+			bool deleteThis = false;
+			std::string pls = std::to_string(entity->id);
+			if (ImGui::BeginPopupContextItem(pls.c_str()))
+			{
+				ImGui::MenuItem("Delete", "", &deleteThis);
+				if (deleteThis)
+				{
+					world::removeEntity(entity->id);
+				}
+				ImGui::EndPopup();
+			}
 			RenderComponents<Hydra::Component::ComponentTypes>::apply(this, entity);
 
 			for (auto& child : entity->children)
 				renderEntity(world::getEntity(child).get());
 			ImGui::TreePop();
 		}
-		bool deleteThis = false;
-		std::string pls = std::to_string(entity->id);
-		if (ImGui::BeginPopupContextItem(pls.c_str()))
+		else
 		{
-			ImGui::MenuItem("Delete", "", &deleteThis);
-			if (deleteThis)
+			bool deleteThis = false;
+			std::string pls = std::to_string(entity->id);
+			if (ImGui::BeginPopupContextItem(pls.c_str()))
 			{
-				world::removeEntity(entity->id);
+				ImGui::MenuItem("Delete", "", &deleteThis);
+				if (deleteThis)
+				{
+					world::removeEntity(entity->id);
+				}
+				ImGui::EndPopup();
 			}
-			ImGui::EndPopup();
 		}
+
 	}
 
 	void renderComponent(IComponentBase* component) {
