@@ -36,8 +36,6 @@ void Hydra::Component::FreeCameraComponent::registerUI() {
 	ImGui::DragFloat("FOV", &fov);
 	ImGui::DragFloat("Z Near", &zNear, 0.001f);
 	ImGui::DragFloat("Z Far", &zFar);
-
-	float aspect = (renderTarget->getSize().x*1.0f) / renderTarget->getSize().y;
 	ImGui::InputFloat("Aspect Ratio", &aspect, 0, 0, -1, ImGuiInputTextFlags_ReadOnly);
 
 }
