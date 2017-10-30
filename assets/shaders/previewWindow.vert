@@ -20,6 +20,7 @@ layout(location = 0) uniform mat4 view;
 layout(location = 1) uniform mat4 proj;
 
 void main() {
+	position = vec3(position.x, -position.y, position.z);
 	outData.position = position;
 	outData.normal = normal;
 	outData.color = color;
