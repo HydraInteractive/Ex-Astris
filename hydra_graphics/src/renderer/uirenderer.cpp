@@ -372,15 +372,25 @@ public:
 	void renderEntity(Entity* entity) {
 		if (!entity)
 			return;
-		if (!ImGui::TreeNode(entity, ICON_FA_USER_O " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", entity->name.c_str(), entity->id, entity->componentCount(), entity->children.size()))
-			return;
 		using world = Hydra::World::World;
+		if (ImGui::TreeNode(entity, ICON_FA_USER_O " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", entity->name.c_str(), entity->id, entity->componentCount(), entity->children.size()))
+		{
+			RenderComponents<Hydra::Component::ComponentTypes>::apply(this, entity);
 
-		RenderComponents<Hydra::Component::ComponentTypes>::apply(this, entity);
-
-		for (auto& child : entity->children)
-			renderEntity(world::getEntity(child).get());
-		ImGui::TreePop();
+			for (auto& child : entity->children)
+				renderEntity(world::getEntity(child).get());
+			ImGui::TreePop();
+		}
+		bool deleteThis = false;
+		if (ImGui::BeginPopupContextItem(entity->name.c_str()))
+		{
+			ImGui::MenuItem("Delete", "", &deleteThis);
+			if (deleteThis)
+			{
+				world::removeEntity(entity->id);
+			}
+			ImGui::EndPopup();
+		}
 	}
 
 	void renderComponent(IComponentBase* component) {
