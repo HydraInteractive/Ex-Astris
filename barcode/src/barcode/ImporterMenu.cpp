@@ -62,7 +62,6 @@ void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch& previewBatch,
 
 			auto tc = _previewEntity->addComponent<Hydra::Component::TransformComponent>();
 			auto cc = _previewEntity->addComponent<Hydra::Component::CameraComponent>();
-			cc->renderTarget = previewBatch.renderTarget;
 			cc->position = glm::vec3{0, 0, 5};
 			tc->setRotation(glm::angleAxis(glm::radians(_rotation), glm::vec3(0,1,0)));
 		}
