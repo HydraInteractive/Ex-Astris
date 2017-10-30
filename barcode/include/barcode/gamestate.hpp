@@ -24,6 +24,7 @@
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
+#include <hydra/component/spawnercomponent.hpp>
 #include <hydra/component/soundfxcomponent.hpp>
 
 #include <hydra/system/camerasystem.hpp>
@@ -35,6 +36,7 @@
 #include <hydra/system/bulletsystem.hpp>
 #include <hydra/system/playersystem.hpp>
 #include <hydra/system/renderersystem.hpp>
+#include <hydra/system/spawnersystem.hpp>
 #include <hydra/system/soundfxsystem.hpp>
 
 #include <hydra/io/input.hpp>
@@ -88,8 +90,8 @@ namespace Barcode {
 		Hydra::System::BulletSystem _bulletSystem;
 		Hydra::System::PlayerSystem _playerSystem;
 		Hydra::System::RendererSystem _rendererSystem;
+		Hydra::System::SpawnerSystem _spawnerSystem;
 		Hydra::System::SoundFxSystem _soundFxSystem;
-
 
 		RenderBatch _geometryBatch; // First part of deferred rendering
 		RenderBatch _animationBatch; // AnimationBatch
@@ -102,6 +104,8 @@ namespace Barcode {
 		RenderBatch _hudBatch;
 
 		ParticleRenderBatch _particleBatch;
+
+		std::shared_ptr<Hydra::Renderer::ITexture> _animationData;
 
 		// ParticleTexture
 		std::shared_ptr<Hydra::Renderer::ITexture> _particleAtlases;
@@ -129,7 +133,7 @@ namespace Barcode {
 
 		Hydra::Component::CameraComponent* _cc = nullptr;
 		Hydra::Component::PlayerComponent* player = nullptr;
-		Hydra::Component::EnemyComponent* _enemy = nullptr;
+		Hydra::Component::AIComponent* _enemy = nullptr;
 		Hydra::Component::LightComponent* _light = nullptr;
 
 		Input _input;

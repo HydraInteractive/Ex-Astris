@@ -82,23 +82,31 @@ public:
 
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
 
+
+		batch.pipeline->setValue(7, 0);
+		batch.pipeline->setValue(8, 1);
+		batch.pipeline->setValue(9, 2);
+		batch.pipeline->setValue(10, 3);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
-
+			mesh->getMaterial().diffuse->bind(0);
+			mesh->getMaterial().normal->bind(1);
+			mesh->getMaterial().specular->bind(2);
+			mesh->getMaterial().glow->bind(3);
 			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
 			glBindVertexArray(mesh->getID());
 			size_t size = kv.second.size();
 			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
+
+			int currentFrame = mesh->getCurrentKeyframe();
+			if (mesh->getAnimationCounter() > 24 && currentFrame < mesh->getMaxFramesForAnimation()) {
+				mesh->getAnimationCounter() = 0;
+				mesh->setCurrentKeyframe(currentFrame + 1);
+			}
+			else if (currentFrame > mesh->getMaxFramesForAnimation())
+				mesh->setCurrentKeyframe(1);
+
 			for (size_t i = 0; i < size; i += maxPerLoop) {
-
-				int currentFrame = mesh->getCurrentKeyframe();
-				if (currentFrame < mesh->getMaxFramesForAnimation()) {
-					mesh->setCurrentKeyframe(currentFrame + 1);
-				}
-				else {
-					mesh->setCurrentKeyframe(1);
-				}
-
 				glm::mat4 tempMat;
 				for (int i = 0; i < mesh->getNrOfJoints(); i++) {
 					tempMat = mesh->getTransformationMatrices(i);

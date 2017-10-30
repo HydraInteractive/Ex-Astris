@@ -1,7 +1,7 @@
-#if 0
 #include <barcode/ImporterMenu.hpp>
 #include <hydra/engine.hpp>
 #include <hydra/component/cameracomponent.hpp>
+#include <hydra/component/roomcomponent.hpp>
 
 using world = Hydra::World::World;
 
@@ -120,14 +120,17 @@ std::string ImporterMenu::_getExecutableDir()
 
 	path = std::string(unicodePath);
 	std::replace(path.begin(), path.end(), '\\', '/');
-	int index = path.find_last_of('/');
+	size_t index = path.find_last_of('/');
 	path.erase(path.begin() + index, path.end());
 	return path;
 }
 std::shared_ptr<Entity> ImporterMenu::getRoomEntity() {
-	for (auto& e; world::entities)
-		if (e->name == "Room")
-			return e;
+	std::vector<std::shared_ptr<Entity>> entities;
+	world::getEntitiesWithComponents<Hydra::Component::TransformComponent, Hydra::Component::RoomComponent>(entities);
+	if (entities.size() > 0)
+	{
+		return entities[0];
+	}
 	return nullptr;
 }
 
@@ -178,7 +181,7 @@ std::string ImporterMenu::Node::name()
 }
 std::string ImporterMenu::Node::getExt()
 {
-	int i = _name.find_last_of('.');
+	size_t i = _name.find_last_of('.');
 	std::string fileExt = _name.substr(i, _name.size() - i);
 	return fileExt;
 }
@@ -209,12 +212,12 @@ int ImporterMenu::Node::numberOfFiles()
 {	
 	if (!isAllowedFile)
 	{
-		int allFiles = _files.size();
+		size_t allFiles = _files.size();
 		for (size_t i = 0; i < _subfolders.size(); i++)
 		{
 			allFiles += _subfolders[i]->numberOfFiles();
 		}
-		return allFiles;
+		return (unsigned int)allFiles;
 	}
 	return -1;
 }
@@ -238,16 +241,17 @@ void ImporterMenu::Node::clean()
 void ImporterMenu::Node::render(Node** selectedNode)
 {
 	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
-	//TODO: Folder icon opening
-	if (ImGui::TreeNodeEx(this, node_flags, ICON_FA_FOLDER " %s", _name.c_str()))
-	{	
+	auto label = ICON_FA_FOLDER " %s";
+	if (ImGui::TreeNodeEx(this, node_flags, label, _name.c_str()))
+	{
+		label = ICON_FA_FOLDER_OPEN " %s";
 		if (ImGui::IsItemClicked())
 		{
 			(*selectedNode) = this;
 		}
 		for (size_t i = 0; i < this->_subfolders.size(); i++)
 		{
-			_subfolders[i]->render(world, selectedNode);
+			_subfolders[i]->render(selectedNode);
 		}
 		for (size_t i = 0; i < this->_files.size(); i++)
 		{
@@ -258,11 +262,11 @@ void ImporterMenu::Node::render(Node** selectedNode)
 				if (ImGui::IsItemClicked())
 				{
 					(*selectedNode) = _files[i];
-					if (ImGui::IsMouseDoubleClicked(0) && getRoomEntity(world) != nullptr)
+					if (ImGui::IsMouseDoubleClicked(0) && getRoomEntity() != nullptr)
 					{
-						Hydra::World::Entity* newEntity = getRoomEntity(world)->createEntity(_files[i]->name()).get();
-						newEntity->addComponent<Hydra::Component::MeshComponent>(_files[i]->reverseEngineerPath());
-						newEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
+						std::shared_ptr<Hydra::World::Entity> newEntity = world::newEntity(_files[i]->name(), getRoomEntity().get());
+						newEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh(_files[i]->reverseEngineerPath());
+						newEntity->addComponent<Hydra::Component::TransformComponent>();
 					}
 				}
 			}
@@ -274,11 +278,13 @@ void ImporterMenu::Node::render(Node** selectedNode)
 					(*selectedNode) = _files[i];
 					if (ImGui::IsMouseDoubleClicked(0))
 					{
-						if (getRoomEntity(world) != nullptr)
+						if (getRoomEntity() != nullptr)
 						{
-							getRoomEntity(world)->markDead();
+							getRoomEntity().get()->dead = true;
 						}
-						world->getWorldRoot()->spawn(BlueprintLoader::load(_files[i]->reverseEngineerPath())->spawn(world));
+						auto room = world::newEntity("Room", world::root());
+						auto bp = BlueprintLoader::load(_files[i]->reverseEngineerPath());
+						bp->spawn(room);
 					}
 				}
 			}
@@ -319,7 +325,7 @@ void ImporterMenu::Node::_getContentsOfDir(const std::string &directory, std::ve
 		}
 		else
 		{	
-			int i = fileName.find_last_of('.');
+			size_t i = fileName.find_last_of('.');
 			std::string fileExt = fileName.substr(i, fileName.size() - i);
 			if (fileExt == ".ATTIC")
 			{
@@ -369,4 +375,3 @@ void ImporterMenu::Node::_getContentsOfDir(const std::string &directory, std::ve
 	closedir(dir);
 #endif
 }
-#endif

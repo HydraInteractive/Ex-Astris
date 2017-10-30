@@ -38,7 +38,7 @@ void PlayerSystem::tick(float delta) {
 
 		player->activeBuffs.onTick(life->maxHP, life->health);
 
-		if (life->health <= 0)
+		if (!life->statusCheck())
 			player->isDead = true;
 
 

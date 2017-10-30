@@ -47,13 +47,15 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetExt>.dll</TargetExt>
+    <LinkIncremental>
+    </LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_sound/include;$(SolutionDir)/hydra_physics/include;$(SolutionDir)/hydra/include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_sound/include;$(SolutionDir)/hydra_graphics/lib-include;$(SolutionDir)/hydra_physics/include;$(SolutionDir)/hydra/include;$(SolutionDir)/hydra/lib-include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_PHYSICS_EXPORTS;BT_THREADSAFE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -74,7 +76,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_physics/include;$(SolutionDir)/hydra/include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_graphics/lib-include;$(SolutionDir)/hydra_physics/include;$(SolutionDir)/hydra/include;$(SolutionDir)/hydra/lib-include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_PHYSICS_EXPORTS;BT_THREADSAFE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -85,7 +87,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)/lib;$(SolutionDir)/lib/bullet3-release;$(SolutionDir)/x64/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hydra.lib;hydra_graphics.lib;BulletSoftBody.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>hydra.lib;hydra_graphics.lib;SDL2.lib;SDL2main.lib;BulletSoftBody.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>NotSet</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -101,13 +103,16 @@
     <ClCompile Include="src\component\movementcomponent.cpp" />
     <ClCompile Include="src\component\playercomponent.cpp" />
     <ClCompile Include="src\component\rigidbodycomponent.cpp" />
+    <ClCompile Include="src\component\spawnercomponent.cpp" />
     <ClCompile Include="src\component\weaponcomponent.cpp" />
+    <ClCompile Include="src\pathing\behaviour.cpp" />
     <ClCompile Include="src\pathing\pathfinding.cpp" />
     <ClCompile Include="src\system\abilitysystem.cpp" />
     <ClCompile Include="src\system\aisystem.cpp" />
     <ClCompile Include="src\system\bulletphysicssystem.cpp" />
     <ClCompile Include="src\system\bulletsystem.cpp" />
     <ClCompile Include="src\system\playersystem.cpp" />
+    <ClCompile Include="src\system\spawnersystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\hydra\abilities\abilityHandler.hpp" />
@@ -121,14 +126,18 @@
     <ClInclude Include="include\hydra\component\movementcomponent.hpp" />
     <ClInclude Include="include\hydra\component\playercomponent.hpp" />
     <ClInclude Include="include\hydra\component\rigidbodycomponent.hpp" />
+    <ClInclude Include="include\hydra\component\spawnercomponent.hpp" />
     <ClInclude Include="include\hydra\component\weaponcomponent.hpp" />
+    <ClInclude Include="include\hydra\pathing\behaviour.hpp" />
     <ClInclude Include="include\hydra\pathing\pathfinding.hpp" />
     <ClInclude Include="include\hydra\pathing\SearchCell.hpp" />
     <ClInclude Include="include\hydra\system\abilitysystem.hpp" />
     <ClInclude Include="include\hydra\system\aisystem.hpp" />
     <ClInclude Include="include\hydra\system\bulletphysicssystem.hpp" />
     <ClInclude Include="include\hydra\system\bulletsystem.hpp" />
-    <ClInclude Include="include\hydra\system\playersystem.hpp" />  </ItemGroup>
+    <ClInclude Include="include\hydra\system\playersystem.hpp" />
+    <ClInclude Include="include\hydra\system\spawnersystem.hpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

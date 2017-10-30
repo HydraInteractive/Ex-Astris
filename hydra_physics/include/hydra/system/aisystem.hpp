@@ -9,7 +9,6 @@ namespace Hydra::System {
 		~AISystem() final;
 
 		void tick(float delta) final;
-
 		inline const std::string type() const final { return "AISystem"; }
 		void registerUI() final;
 	};
