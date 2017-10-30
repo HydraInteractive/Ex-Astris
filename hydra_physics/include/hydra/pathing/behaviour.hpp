@@ -20,6 +20,9 @@ public:
 	enum {IDLE, SEARCHING, FOUND_GOAL, ATTACKING};
 	unsigned int state = IDLE;
 
+	enum BossPhase {CLAWING, SPITTING, SPAWNING, CHILLING};
+	BossPhase bossPhase = BossPhase::CLAWING;
+
 	virtual void run(float dt) = 0;
 	void setEnemyEntity(std::shared_ptr<Hydra::World::Entity> enemy);
 	void setTargetPlayer(std::shared_ptr<Hydra::World::Entity> player);
@@ -40,13 +43,6 @@ protected:
 
 	std::shared_ptr<PathFinding> pathFinding = std::make_shared<PathFinding>();
 
-	glm::vec3 mapOffset = glm::vec3(-30.0f, 0, -30.0f);
-	glm::vec3 _targetPos = glm::vec3{ 0, 0, 0 };
-	glm::quat _rotation = glm::quat();
-	float _angle = 1;
-	int _oldMapPosX = 0;
-	int _oldMapPosZ = 0;
-	int _map[WORLD_SIZE][WORLD_SIZE];
 	virtual unsigned int idleState(float dt);
 	virtual unsigned int searchingState(float dt);
 	virtual unsigned int foundState(float dt);
@@ -54,7 +50,6 @@ protected:
 
 	virtual void executeTransforms();
 
-	int getWall(int x, int y) { return _map[x][y]; }
 };
 
 class HYDRA_PHYSICS_API AlienBehaviour : public Behaviour

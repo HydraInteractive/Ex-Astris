@@ -33,15 +33,15 @@ void SpawnerSystem::tick(float delta)
 		{
 		case Component::SpawnerType::AlienSpawner:
 		{
-			if (spawner->spawnGroup.size() <= 5)
+			if (spawner->spawnGroup.size() <= 4)
 			{
 				if (spawner->spawnTimer >= 5)
 				{
 					auto alienSpawn = world::newEntity("AlienSpawn", world::root());
 					auto a = alienSpawn->addComponent <Hydra::Component::AIComponent> ();
 					a->behaviour = std::make_shared<AlienBehaviour>(alienSpawn);
-					a->_damage = 4;
-					a->_originalRange = 4;
+					a->damage = 4;
+					a->originalRange = 4;
 					auto h = alienSpawn->addComponent<Hydra::Component::LifeComponent>();
 					h->maxHP = 80;
 					h->health = 80;
@@ -59,15 +59,15 @@ void SpawnerSystem::tick(float delta)
 		}break;
 		case Component::SpawnerType::RobotSpawner:
 		{
-			if (spawner->spawnGroup.size() <= 5)
+			if (spawner->spawnGroup.size() <= 4)
 			{
 				if (spawner->spawnTimer >= 5)
 				{
 					auto robotSpawn = world::newEntity("RobotSpawn", world::root());
 					auto a = robotSpawn->addComponent<Hydra::Component::AIComponent>();
 					a->behaviour = std::make_shared<AlienBehaviour>(robotSpawn);
-					a->_damage = 8;
-					a->_originalRange = 25;
+					a->damage = 8;
+					a->originalRange = 25;
 					auto h = robotSpawn->addComponent<Hydra::Component::LifeComponent>();
 					h->maxHP = 60;
 					h->health = 60;

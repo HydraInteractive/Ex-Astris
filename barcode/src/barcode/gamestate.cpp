@@ -561,7 +561,7 @@ namespace Barcode {
 
 			//Ammo on bar
 			float offsetAmmoF = 72 * ammoP * 0.01;
-			int offsetAmmo = offsetAmmoF;
+			size_t offsetAmmo = offsetAmmoF;
 			ImGui::SetNextWindowPos(pos + ImVec2(+25, -26 + 72 - offsetAmmo));
 			ImGui::SetNextWindowSize(ImVec2(100, 100));
 			ImGui::Begin("AmmoOnRing", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
@@ -650,7 +650,7 @@ namespace Barcode {
 			}
 
 			//Perk Icons
-			int amountOfPerks = perksList.size();
+			size_t amountOfPerks = perksList.size();
 			for (int i = 0; i < amountOfPerks; i++)
 			{
 				char buf[128];
@@ -794,8 +794,8 @@ namespace Barcode {
 		{
 			auto alienEntity = world::newEntity("Alien1", world::root());
 			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
-			a->_damage = 4;
-			a->_originalRange = 4;
+			a->damage = 4;
+			a->originalRange = 4;
 			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 			h->maxHP = 80;
@@ -805,22 +805,22 @@ namespace Barcode {
 			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ 10, 0, 20 };
 			t->scale = glm::vec3{ 2,2,2 };
-			a->_scale = glm::vec3{ 2,2,2 };
+			a->_scale = t->scale;
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
 		}
 
-		//{
-		//	auto alienSpawner = world::newEntity("AlienSpawner", world::root());
-		//	auto a = alienSpawner->addComponent<Hydra::Component::SpawnerComponent>();
-		//	a->spawnerID = Hydra::Component::SpawnerType::AlienSpawner;
-		//	auto h = alienSpawner->addComponent<Hydra::Component::LifeComponent>();
-		//	h->maxHP = 150;
-		//	h->health = 150;
-		//	auto t = alienSpawner->addComponent<Hydra::Component::TransformComponent>();
-		//	t->position = glm::vec3{ 20, 0, 15 };
-		//	t->scale = glm::vec3{ 2,2,2 };
-		//	alienSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge.ATTIC");
-		//}
+		{
+			auto alienSpawner = world::newEntity("AlienSpawner", world::root());
+			auto a = alienSpawner->addComponent<Hydra::Component::SpawnerComponent>();
+			a->spawnerID = Hydra::Component::SpawnerType::AlienSpawner;
+			auto h = alienSpawner->addComponent<Hydra::Component::LifeComponent>();
+			h->maxHP = 150;
+			h->health = 150;
+			auto t = alienSpawner->addComponent<Hydra::Component::TransformComponent>();
+			t->position = glm::vec3{ 20, 0, 15 };
+			t->scale = glm::vec3{ 2,2,2 };
+			alienSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge.ATTIC");
+		}
 
 		{
 			auto pointLight1 = world::newEntity("Pointlight1", world::root());
