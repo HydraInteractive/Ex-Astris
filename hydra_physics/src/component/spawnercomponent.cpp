@@ -16,7 +16,7 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-Hydra::Component::SpawnerComponent::~SpawnerComponent(){}
+Hydra::Component::SpawnerComponent::~SpawnerComponent() {}
 
 void Hydra::Component::SpawnerComponent::serialize(nlohmann::json & json) const
 {

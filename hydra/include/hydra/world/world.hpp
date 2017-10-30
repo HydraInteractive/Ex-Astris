@@ -31,7 +31,7 @@ namespace Hydra::Component {
 		Light = BIT(2),
 		Mesh = BIT(3),
 		Particle = BIT(4),
-		Enemy = BIT(5),
+		AI = BIT(5),
 		Bullet = BIT(6),
 		Player = BIT(7),
 		Weapon = BIT(8),
@@ -43,7 +43,9 @@ namespace Hydra::Component {
 		DrawObject = BIT(14),
 		PointLight = BIT(15),
 		Movement = BIT(16),
-		Spawner = BIT(17)
+		Room = BIT(17),
+		Spawner = BIT(18)
+		
 	};
 #undef BIT
 
@@ -65,7 +67,7 @@ namespace Hydra::Component {
 	struct HYDRA_GRAPHICS_API LightComponent;
 	struct HYDRA_GRAPHICS_API MeshComponent;
 	struct HYDRA_GRAPHICS_API ParticleComponent;
-	struct HYDRA_PHYSICS_API EnemyComponent;
+	struct HYDRA_PHYSICS_API AIComponent;
 	struct HYDRA_PHYSICS_API BulletComponent;
 	struct HYDRA_PHYSICS_API PlayerComponent;
 	struct HYDRA_PHYSICS_API WeaponComponent;
@@ -77,8 +79,8 @@ namespace Hydra::Component {
 	struct HYDRA_GRAPHICS_API PointLightComponent;
 	struct HYDRA_PHYSICS_API LifeComponent;
 	struct HYDRA_PHYSICS_API MovementComponent;
+	struct HYDRA_PHYSICS_API RoomComponent;
 	struct HYDRA_PHYSICS_API SpawnerComponent;
-
 
 	using ComponentTypes = Hydra::Ext::TypeTuple<
 		Hydra::World::IComponent<TransformComponent, ComponentBits::Transform>,
@@ -86,7 +88,7 @@ namespace Hydra::Component {
 		Hydra::World::IComponent<LightComponent, ComponentBits::Light>,
 		Hydra::World::IComponent<MeshComponent, ComponentBits::Mesh>,
 		Hydra::World::IComponent<ParticleComponent, ComponentBits::Particle>,
-		Hydra::World::IComponent<EnemyComponent, ComponentBits::Enemy>,
+		Hydra::World::IComponent<AIComponent, ComponentBits::AI>,
 		Hydra::World::IComponent<BulletComponent, ComponentBits::Bullet>,
 		Hydra::World::IComponent<PlayerComponent, ComponentBits::Player>,
 		Hydra::World::IComponent<WeaponComponent, ComponentBits::Weapon>,
@@ -98,6 +100,7 @@ namespace Hydra::Component {
 		Hydra::World::IComponent<PointLightComponent, ComponentBits::PointLight>,
 		Hydra::World::IComponent<LifeComponent, ComponentBits::Life>,
 		Hydra::World::IComponent<MovementComponent, ComponentBits::Movement>,
+		Hydra::World::IComponent<RoomComponent, ComponentBits::Room>,
 		Hydra::World::IComponent<SpawnerComponent, ComponentBits::Spawner>
 	>;
 };
@@ -246,7 +249,7 @@ namespace Hydra::World {
 	template <>
 	IComponentHandler* IComponent<Hydra::Component::ParticleComponent, Hydra::Component::ComponentBits::Particle>::componentHandler;
 	template <>
-	IComponentHandler* IComponent<Hydra::Component::EnemyComponent, Hydra::Component::ComponentBits::Enemy>::componentHandler;
+	IComponentHandler* IComponent<Hydra::Component::AIComponent, Hydra::Component::ComponentBits::AI>::componentHandler;
 	template <>
 	IComponentHandler* IComponent<Hydra::Component::BulletComponent, Hydra::Component::ComponentBits::Bullet>::componentHandler;
 	template <>
@@ -270,6 +273,8 @@ namespace Hydra::World {
 	template <>
 	IComponentHandler* IComponent<Hydra::Component::MovementComponent, Hydra::Component::ComponentBits::Movement>::componentHandler;
 	template <>
+	IComponentHandler* IComponent<Hydra::Component::RoomComponent, Hydra::Component::ComponentBits::Room>::componentHandler;
+	template <>
 	IComponentHandler* IComponent<Hydra::Component::SpawnerComponent, Hydra::Component::ComponentBits::Spawner>::componentHandler;
 #endif
 
@@ -278,7 +283,7 @@ namespace Hydra::World {
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::LightComponent, Hydra::Component::ComponentBits::Light>;
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::MeshComponent, Hydra::Component::ComponentBits::Mesh>;
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::ParticleComponent, Hydra::Component::ComponentBits::Particle>;
-	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::EnemyComponent, Hydra::Component::ComponentBits::Enemy>;
+	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::AIComponent, Hydra::Component::ComponentBits::AI>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::BulletComponent, Hydra::Component::ComponentBits::Bullet>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::PlayerComponent, Hydra::Component::ComponentBits::Player>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::WeaponComponent, Hydra::Component::ComponentBits::Weapon>;
@@ -290,6 +295,7 @@ namespace Hydra::World {
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::PointLightComponent, Hydra::Component::ComponentBits::PointLight>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::LifeComponent, Hydra::Component::ComponentBits::Life>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::MovementComponent, Hydra::Component::ComponentBits::Movement>;
+	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::RoomComponent, Hydra::Component::ComponentBits::Room>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::SpawnerComponent, Hydra::Component::ComponentBits::Spawner>;
 
 	struct HYDRA_BASE_API World final {

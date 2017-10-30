@@ -22,16 +22,16 @@ namespace Hydra::Component {
 
 	struct HYDRA_PHYSICS_API SpawnerComponent final : public IComponent<SpawnerComponent, ComponentBits::Spawner>{
 		SpawnerType spawnerID = SpawnerType::AlienSpawner;
-		std::vector<std::shared_ptr<Hydra::World::Entity>> spawnGroup;
-		float spawnTimer = 0;
+	std::vector<std::shared_ptr<Hydra::World::Entity>> spawnGroup;
+	float spawnTimer = 0;
 
-		~SpawnerComponent() final;
+	~SpawnerComponent() final;
 
-		inline const std::string type() const final { return "SpawnerComponent"; }
+	inline const std::string type() const final { return "SpawnerComponent"; }
 
-		void serialize(nlohmann::json& json) const final;
-		void deserialize(nlohmann::json& json) final;
-		void registerUI() final;
+	void serialize(nlohmann::json& json) const final;
+	void deserialize(nlohmann::json& json) final;
+	void registerUI() final;
 
 	};
 };

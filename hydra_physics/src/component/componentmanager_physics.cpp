@@ -17,8 +17,8 @@ namespace Hydra::Component::ComponentManager {
 	void registerComponents_physics(std::map<std::string, createOrGetComponent_f>& creators) {
 		PlayerComponent::componentHandler = new ComponentHandler<PlayerComponent>();
 		creators["PlayerComponent"] = &createOrGetComponentHelper<PlayerComponent>;
-		EnemyComponent::componentHandler = new ComponentHandler<EnemyComponent>();
-		creators["EnemyComponent"] = &createOrGetComponentHelper<EnemyComponent>;
+		AIComponent::componentHandler = new ComponentHandler<AIComponent>();
+		creators["AIComponent"] = &createOrGetComponentHelper<AIComponent>;
 		RigidBodyComponent::componentHandler = new ComponentHandler<RigidBodyComponent>();
 		creators["RigidBodyComponent"] = &createOrGetComponentHelper<RigidBodyComponent>;
 		WeaponComponent::componentHandler = new ComponentHandler<WeaponComponent>();

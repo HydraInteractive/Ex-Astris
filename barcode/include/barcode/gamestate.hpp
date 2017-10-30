@@ -102,6 +102,8 @@ namespace Barcode {
 
 		ParticleRenderBatch _particleBatch;
 
+		std::shared_ptr<Hydra::Renderer::ITexture> _animationData;
+
 		// ParticleTexture
 		std::shared_ptr<Hydra::Renderer::ITexture> _particleAtlases;
 
@@ -128,7 +130,7 @@ namespace Barcode {
 
 		Hydra::Component::CameraComponent* _cc = nullptr;
 		Hydra::Component::PlayerComponent* player = nullptr;
-		Hydra::Component::EnemyComponent* _enemy = nullptr;
+		Hydra::Component::AIComponent* _enemy = nullptr;
 		Hydra::Component::LightComponent* _light = nullptr;
 
 		Input _input;

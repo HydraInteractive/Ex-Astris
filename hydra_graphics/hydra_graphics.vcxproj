@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\glad\glad.h" />
+    <ClInclude Include="lib-include\glad\glad.h" />
     <ClInclude Include="include\hydra\component\cameracomponent.hpp" />
     <ClInclude Include="include\hydra\component\componentmanager_graphics.hpp" />
     <ClInclude Include="include\hydra\component\drawobjectcomponent.hpp" />
@@ -31,11 +31,11 @@
     <ClInclude Include="include\hydra\system\particlesystem.hpp" />
     <ClInclude Include="include\hydra\system\renderersystem.hpp" />
     <ClInclude Include="include\hydra\view\sdlview.hpp" />
-    <ClInclude Include="include\imgui\imgui_impl_sdl_gl3.h" />
-    <ClInclude Include="include\imgui\stb_rect_pack.h" />
-    <ClInclude Include="include\imgui\stb_textedit.h" />
-    <ClInclude Include="include\imgui\stb_truetype.h" />
-    <ClInclude Include="include\KHR\khrplatform.h" />
+    <ClInclude Include="lib-include\imgui\imgui_impl_sdl_gl3.h" />
+    <ClInclude Include="lib-include\imgui\stb_rect_pack.h" />
+    <ClInclude Include="lib-include\imgui\stb_textedit.h" />
+    <ClInclude Include="lib-include\imgui\stb_truetype.h" />
+    <ClInclude Include="lib-include\KHR\khrplatform.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\component\cameracomponent.cpp" />
@@ -107,7 +107,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra/include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_graphics/lib-include;$(SolutionDir)/hydra/include;$(SolutionDir)/hydra/lib-include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_GRAPHICS_EXPORTS</PreprocessorDefinitions>
@@ -128,7 +128,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra/include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_graphics/lib-include;$(SolutionDir)/hydra/include;$(SolutionDir)/hydra/lib-include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_GRAPHICS_EXPORTS</PreprocessorDefinitions>
