@@ -10,6 +10,7 @@
 #include <hydra/view/sdlview.hpp>
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 
 #include <hydra/renderer/uirenderer.hpp>
 #include <hydra/renderer/renderer.hpp>
@@ -22,7 +23,7 @@ class SDLViewImpl final : public IView {
 public:
 	SDLViewImpl() {
 		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER);
-
+		Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 		_size = glm::ivec2(1920, 1080);
 		_wantToClose = false;
 		_fullScreen = false;

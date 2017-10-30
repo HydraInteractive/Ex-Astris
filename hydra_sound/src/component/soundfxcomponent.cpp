@@ -29,5 +29,5 @@ void SoundFxComponent::deserialize(nlohmann::json& json) {
 }
 
 void SoundFxComponent::registerUI() {
-	ImGui::DragFloat("DEBUG", &debug);
+
 }
