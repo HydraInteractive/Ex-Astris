@@ -74,7 +74,7 @@ namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API GrenadeComponent;
 	struct HYDRA_PHYSICS_API MineComponent;
 	struct HYDRA_GRAPHICS_API RigidBodyComponent;
-	struct HYDRA_GRAPHICS_API EditorCameraComponent;
+	struct HYDRA_GRAPHICS_API FreeCameraComponent;
 	struct HYDRA_GRAPHICS_API DrawObjectComponent;
 	struct HYDRA_GRAPHICS_API PointLightComponent;
 	struct HYDRA_PHYSICS_API LifeComponent;
@@ -95,7 +95,7 @@ namespace Hydra::Component {
 		Hydra::World::IComponent<GrenadeComponent, ComponentBits::Grenade>,
 		Hydra::World::IComponent<MineComponent, ComponentBits::Mine>,
 		Hydra::World::IComponent<RigidBodyComponent, ComponentBits::RigidBody>,
-		Hydra::World::IComponent<EditorCameraComponent, ComponentBits::EditorCamera>,
+		Hydra::World::IComponent<FreeCameraComponent, ComponentBits::EditorCamera>,
 		Hydra::World::IComponent<DrawObjectComponent, ComponentBits::DrawObject>,
 		Hydra::World::IComponent<PointLightComponent, ComponentBits::PointLight>,
 		Hydra::World::IComponent<LifeComponent, ComponentBits::Life>,
@@ -263,7 +263,7 @@ namespace Hydra::World {
 	template <>
 	IComponentHandler* IComponent<Hydra::Component::RigidBodyComponent, Hydra::Component::ComponentBits::RigidBody>::componentHandler;
 	template <>
-	IComponentHandler* IComponent<Hydra::Component::EditorCameraComponent, Hydra::Component::ComponentBits::EditorCamera>::componentHandler;
+	IComponentHandler* IComponent<Hydra::Component::FreeCameraComponent, Hydra::Component::ComponentBits::EditorCamera>::componentHandler;
 	template <>
 	IComponentHandler* IComponent<Hydra::Component::DrawObjectComponent, Hydra::Component::ComponentBits::DrawObject>::componentHandler;
 	template <>
@@ -290,7 +290,7 @@ namespace Hydra::World {
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::GrenadeComponent, Hydra::Component::ComponentBits::Grenade>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::MineComponent, Hydra::Component::ComponentBits::Mine>;
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::RigidBodyComponent, Hydra::Component::ComponentBits::RigidBody>;
-	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::EditorCameraComponent, Hydra::Component::ComponentBits::EditorCamera>;
+	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::FreeCameraComponent, Hydra::Component::ComponentBits::EditorCamera>;
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::DrawObjectComponent, Hydra::Component::ComponentBits::DrawObject>;
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::PointLightComponent, Hydra::Component::ComponentBits::PointLight>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::LifeComponent, Hydra::Component::ComponentBits::Life>;

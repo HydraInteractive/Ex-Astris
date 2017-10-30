@@ -558,38 +558,17 @@ namespace Barcode {
 		_engine->getUIRenderer()->registerSystems(systems);
 	}
 	void EditorState::_initWorld() {
-
-		auto room = world::newEntity("Room", world::root());
-		auto t = room->addComponent<Hydra::Component::TransformComponent>();
-		auto r = room->addComponent<Hydra::Component::RoomComponent>();
-
+		
+		{
+			auto room = world::newEntity("Room", world::root());
+			auto t = room->addComponent<Hydra::Component::TransformComponent>();
+			auto r = room->addComponent<Hydra::Component::RoomComponent>();
+		}
 		{
 			auto playerEntity = world::newEntity("Player", world::root());
-			auto p = playerEntity->addComponent<Hydra::Component::PlayerComponent>();
-			//p->position = glm::vec3{ 0, 0, 20 };
-			auto c = playerEntity->addComponent<Hydra::Component::CameraComponent>();
-			auto l = playerEntity->addComponent<Hydra::Component::LifeComponent>();
-			auto m = playerEntity->addComponent<Hydra::Component::MovementComponent>();
-			c->renderTarget = _geometryBatch.output.get();
-			//c->position = glm::vec3{ 5, 0, -3 };
+			auto c = playerEntity->addComponent<Hydra::Component::FreeCameraComponent>();
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
-			{
-				auto weaponEntity = world::newEntity("Weapon", playerEntity);
-				weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
-				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/alphaGunModel.ATTIC");
-				auto t2 = weaponEntity->addComponent<Hydra::Component::TransformComponent>();
-				t2->position = glm::vec3(2, -1.5, -2);
-				t2->rotation = glm::quat(0, 0, 1, 0);
-				t2->ignoreParent = true;
-			}
-		}
-
-		{
-			auto pointLight1 = world::newEntity("Pointlight1", world::root());
-			pointLight1->addComponent<Hydra::Component::TransformComponent>();
-			pointLight1->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/EscapePodDoor.mATTIC");
-			auto p1LC = pointLight1->addComponent<Hydra::Component::PointLightComponent>();
-			p1LC->color = glm::vec3(0, 1, 0);
+			c->renderTarget = _geometryBatch.output.get();
 		}
 		{
 			auto lightEntity = world::newEntity("Light", world::root());
@@ -607,9 +586,8 @@ namespace Barcode {
 		}
 
 		{
-			_cc = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get());
+			_cc = static_cast<Hydra::Component::FreeCameraComponent*>(Hydra::Component::FreeCameraComponent::componentHandler->getActiveComponents()[0].get());
 			_cc->renderTarget = _geometryBatch.output.get();
-
 			for (auto& rb : Hydra::Component::RigidBodyComponent::componentHandler->getActiveComponents()) {
 				_engine->log(Hydra::LogLevel::normal, "Enabling bullet for %s", world::getEntity(rb->entityID)->name.c_str());
 				_physicsSystem.enable(static_cast<Hydra::Component::RigidBodyComponent*>(rb.get()));
