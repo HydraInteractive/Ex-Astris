@@ -271,6 +271,7 @@ namespace Barcode {
 		_particleSystem.tick(delta);
 		_rendererSystem.tick(delta);
 		_spawnerSystem.tick(delta);
+		_soundFxSystem.tick(delta);
 
 		const glm::vec3 cameraPos = _cc->position;
 

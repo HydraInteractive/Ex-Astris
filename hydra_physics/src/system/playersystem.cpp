@@ -70,8 +70,6 @@ void PlayerSystem::tick(float delta) {
 				else
 					e = world::getEntity(*abilitiesEntity);
 
-				player->activeAbillies.useAbility(e.get(), transform->position, -forward);
-
 				soundFx->playingSounds.push_back(Mix_LoadWAV("assets/sounds/piano.wav"));
 				soundFx->playingChannels.push_back(Mix_PlayChannel(-1, soundFx->playingSounds.back(), 0));
 				player->activeAbillies.useAbility(e.get(), transform->position, -forward);
