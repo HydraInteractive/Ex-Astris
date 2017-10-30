@@ -150,7 +150,7 @@ namespace Barcode {
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 
-			_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/TempAtlas.png");
+			_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/ParticleAtlases.png");
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
 			batch.batch.clearFlags = ClearFlags::depth;
@@ -271,6 +271,7 @@ namespace Barcode {
 		_particleSystem.tick(delta);
 		_rendererSystem.tick(delta);
 		_spawnerSystem.tick(delta);
+		_soundFxSystem.tick(delta);
 
 		const glm::vec3 cameraPos = _cc->position;
 
@@ -374,6 +375,8 @@ namespace Barcode {
 
 		static bool enableSSAO = true;
 		ImGui::Checkbox("Enable SSAO", &enableSSAO);
+		static bool enableBlur = true;
+		ImGui::Checkbox("Enable blur", &enableBlur);
 
 		{
 
@@ -390,7 +393,7 @@ namespace Barcode {
 
 			_engine->getRenderer()->postProcessing(_ssaoBatch.batch);
 			int nrOfTImes = 1;
-			_blurGlowTexture((*_ssaoBatch.output)[0], nrOfTImes, (*_ssaoBatch.output)[0]->getSize(), _fiveGaussianKernel1)
+			_blurGlowTexture((*_ssaoBatch.output)[0], nrOfTImes, (*_ssaoBatch.output)[0]->getSize(), _fiveGaussianKernel1, enableBlur)
 				->resolve(0, (*_ssaoBatch.output)[0]);
 		}
 
@@ -433,28 +436,35 @@ namespace Barcode {
 			_engine->getRenderer()->postProcessing(_lightingBatch.batch);
 		}
 
+
 		{ // Glow
-			int nrOfTimes = 1;
-			glm::vec2 size = windowSize;
+			if (enableBlur) {
+				int nrOfTimes;
+				nrOfTimes = 1;
 
-			_lightingBatch.output->resolve(0, _blurredOriginal);
-			_lightingBatch.output->resolve(1, (*_glowBatch.output)[0]);
+				glm::vec2 size = windowSize;
 
-			_blurGlowTexture((*_glowBatch.output)[0], nrOfTimes + 1, size * 0.5f, _fiveGaussianKernel2)
-				->resolve(0, _blurredIMG1);
+				_lightingBatch.output->resolve(0, _blurredOriginal);
+				_lightingBatch.output->resolve(1, (*_glowBatch.output)[0]);
 
-			_glowBatch.batch.pipeline = _glowPipeline.get();
+				_blurGlowTexture((*_glowBatch.output)[0], nrOfTimes + 1, size * 0.5f, _fiveGaussianKernel2, enableBlur)->resolve(0, _blurredIMG1);
 
-			_glowBatch.batch.pipeline->setValue(1, 1);
-			_glowBatch.batch.pipeline->setValue(2, 2);
+				_glowBatch.batch.pipeline = _glowPipeline.get();
 
-			_blurredOriginal->bind(1);
-			_blurredIMG1->bind(2);
+				_glowBatch.batch.pipeline->setValue(1, 1);
+				_glowBatch.batch.pipeline->setValue(2, 2);
+				_glowBatch.batch.pipeline->setValue(3, enableBlur);
 
-			_glowBatch.batch.renderTarget = _engine->getView();
-			_engine->getRenderer()->postProcessing(_glowBatch.batch);
-			_glowBatch.batch.renderTarget = _glowBatch.output.get();
-			_glowBatch.batch.pipeline = _glowBatch.pipeline.get();
+				_blurredOriginal->bind(1);
+				_blurredIMG1->bind(2);
+
+				_glowBatch.batch.renderTarget = _engine->getView();
+				_engine->getRenderer()->postProcessing(_glowBatch.batch);
+				_glowBatch.batch.renderTarget = _glowBatch.output.get();
+				_glowBatch.batch.pipeline = _glowBatch.pipeline.get();
+			}
+			else
+				_engine->getView()->blit(_lightingBatch.output.get(), 0);
 		}
 
 		{ // Render transparent objects	(Forward rendering)
@@ -642,10 +652,10 @@ namespace Barcode {
 
 			//Perk Icons
 			size_t amountOfPerks = perksList.size();
-			for (int i = 0; i < amountOfPerks; i++)
+			for (size_t i = 0; i < amountOfPerks; i++)
 			{
 				char buf[128];
-				snprintf(buf, sizeof(buf), "Perk%d", i);
+				snprintf(buf, sizeof(buf), "Perk%lu", i);
 				float xOffset = float((-10 * amountOfPerks) + (20 * i));
 				ImGui::SetNextWindowPos(pos + ImVec2(xOffset, +480));
 				ImGui::SetNextWindowSize(ImVec2(20, 20));
@@ -764,6 +774,7 @@ namespace Barcode {
 			auto c = playerEntity->addComponent<Hydra::Component::CameraComponent>();
 			auto h = playerEntity->addComponent<Hydra::Component::LifeComponent>();
 			auto m = playerEntity->addComponent<Hydra::Component::MovementComponent>();
+			auto s = playerEntity->addComponent<Hydra::Component::SoundFxComponent>();
 			h->health = 100;
 			h->maxHP = 100;
 			m->movementSpeed = 20.0f;
@@ -785,8 +796,8 @@ namespace Barcode {
 		{
 			auto alienEntity = world::newEntity("Alien1", world::root());
 			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
-			a->_damage = 4;
-			a->_originalRange = 4;
+			a->damage = 4;
+			a->originalRange = 4;
 			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 			h->maxHP = 80;
@@ -796,7 +807,7 @@ namespace Barcode {
 			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ 10, 0, 20 };
 			t->scale = glm::vec3{ 2,2,2 };
-			a->_scale = glm::vec3{ 2,2,2 };
+			a->_scale = t->scale;
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
 		}
 
@@ -881,7 +892,7 @@ namespace Barcode {
 
 		{
 			auto particleEmitter = world::newEntity("ParticleEmitter", world::root());
-			particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/R2D3.mATTIC");
+			particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("QUAD");
 			auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
 			p->delay = 1.0f / 15.0f;
 			auto t = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
@@ -916,13 +927,15 @@ namespace Barcode {
 		}
 	}
 
-	std::shared_ptr<Hydra::Renderer::IFramebuffer> GameState::_blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int nrOfTimes, glm::vec2 size, const std::vector<float>& kernel) { // TO-DO: Make it agile so it can blur any texture
+	std::shared_ptr<Hydra::Renderer::IFramebuffer> GameState::_blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int nrOfTimes, glm::vec2 size, const std::vector<float>& kernel, bool blurEnabled) {
+		// TO-DO: Make it agile so it can blur any texture
 		_glowBatch.pipeline->setValue(1, 1); // This bind will never change
 		bool horizontal = true;
 		bool firstPass = true;
 		_blurrExtraFBO1->resize(size);
 		_blurrExtraFBO2->resize(size);
 		_glowBatch.pipeline->setValue(3, 5);
+
 		for (int i = 0; i < 5; i++) {
 			_glowBatch.pipeline->setValue(4 + i, kernel[i]);
 		}
@@ -944,6 +957,7 @@ namespace Barcode {
 			_engine->getRenderer()->postProcessing(_glowBatch.batch);
 			horizontal = !horizontal;
 		}
+
 		// Change back to normal rendertarget.
 		_glowBatch.batch.renderTarget = _glowBatch.output.get();
 		return _blurrExtraFBO1;

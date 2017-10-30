@@ -25,6 +25,7 @@
 #include <hydra/component/lightcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
 #include <hydra/component/spawnercomponent.hpp>
+#include <hydra/component/soundfxcomponent.hpp>
 
 #include <hydra/system/camerasystem.hpp>
 #include <hydra/system/lightsystem.hpp>
@@ -36,6 +37,7 @@
 #include <hydra/system/playersystem.hpp>
 #include <hydra/system/renderersystem.hpp>
 #include <hydra/system/spawnersystem.hpp>
+#include <hydra/system/soundfxsystem.hpp>
 
 #include <hydra/io/input.hpp>
 
@@ -89,6 +91,7 @@ namespace Barcode {
 		Hydra::System::PlayerSystem _playerSystem;
 		Hydra::System::RendererSystem _rendererSystem;
 		Hydra::System::SpawnerSystem _spawnerSystem;
+		Hydra::System::SoundFxSystem _soundFxSystem;
 
 		RenderBatch _geometryBatch; // First part of deferred rendering
 		RenderBatch _animationBatch; // AnimationBatch
@@ -138,7 +141,7 @@ namespace Barcode {
 		void _initSystem();
 		void _initWorld();
 
-		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int nrOfTimes, glm::vec2 size, const std::vector<float>& kernel);
+		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int nrOfTimes, glm::vec2 size, const std::vector<float>& kernel, bool blurEnabled);
 	};
 
 	//class DemoWindow : public TBWindow

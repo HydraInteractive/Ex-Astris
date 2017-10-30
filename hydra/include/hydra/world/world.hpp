@@ -44,8 +44,8 @@ namespace Hydra::Component {
 		PointLight = BIT(15),
 		Movement = BIT(16),
 		Room = BIT(17),
-		Spawner = BIT(18)
-		
+		Spawner = BIT(18),
+		SoundFx = BIT(19)
 	};
 #undef BIT
 
@@ -81,6 +81,7 @@ namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API MovementComponent;
 	struct HYDRA_PHYSICS_API RoomComponent;
 	struct HYDRA_PHYSICS_API SpawnerComponent;
+	struct HYDRA_SOUND_API SoundFxComponent;
 
 	using ComponentTypes = Hydra::Ext::TypeTuple<
 		Hydra::World::IComponent<TransformComponent, ComponentBits::Transform>,
@@ -101,7 +102,8 @@ namespace Hydra::Component {
 		Hydra::World::IComponent<LifeComponent, ComponentBits::Life>,
 		Hydra::World::IComponent<MovementComponent, ComponentBits::Movement>,
 		Hydra::World::IComponent<RoomComponent, ComponentBits::Room>,
-		Hydra::World::IComponent<SpawnerComponent, ComponentBits::Spawner>
+		Hydra::World::IComponent<SpawnerComponent, ComponentBits::Spawner>,
+		Hydra::World::IComponent<SoundFxComponent, ComponentBits::SoundFx>
 	>;
 };
 
@@ -276,6 +278,8 @@ namespace Hydra::World {
 	IComponentHandler* IComponent<Hydra::Component::RoomComponent, Hydra::Component::ComponentBits::Room>::componentHandler;
 	template <>
 	IComponentHandler* IComponent<Hydra::Component::SpawnerComponent, Hydra::Component::ComponentBits::Spawner>::componentHandler;
+	template <>
+	IComponentHandler* IComponent<Hydra::Component::SoundFxComponent, Hydra::Component::ComponentBits::SoundFx>::componentHandler;
 #endif
 
 	template HYDRA_BASE_API struct IComponent<Hydra::Component::TransformComponent, Hydra::Component::ComponentBits::Transform>;
@@ -297,6 +301,7 @@ namespace Hydra::World {
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::MovementComponent, Hydra::Component::ComponentBits::Movement>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::RoomComponent, Hydra::Component::ComponentBits::Room>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::SpawnerComponent, Hydra::Component::ComponentBits::Spawner>;
+	template HYDRA_SOUND_API struct IComponent<Hydra::Component::SoundFxComponent, Hydra::Component::ComponentBits::SoundFx>;
 
 	struct HYDRA_BASE_API World final {
 		inline static std::shared_ptr<Entity>& root() {
