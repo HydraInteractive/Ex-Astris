@@ -67,6 +67,16 @@ namespace Barcode {
 			Hydra::Renderer::Batch batch;
 		};
 
+		struct AnimationRenderBatch final {
+			std::unique_ptr<Hydra::Renderer::IShader> vertexShader;
+			std::unique_ptr<Hydra::Renderer::IShader> geometryShader;
+			std::unique_ptr<Hydra::Renderer::IShader> fragmentShader;
+			std::unique_ptr<Hydra::Renderer::IPipeline> pipeline;
+
+			std::shared_ptr<Hydra::Renderer::IFramebuffer> output;
+			Hydra::Renderer::AnimationBatch batch;
+		};
+
 		struct ParticleRenderBatch final {
 			std::unique_ptr<Hydra::Renderer::IShader> vertexShader;
 			std::unique_ptr<Hydra::Renderer::IShader> geometryShader;
@@ -94,7 +104,7 @@ namespace Barcode {
 		Hydra::System::SoundFxSystem _soundFxSystem;
 
 		RenderBatch _geometryBatch; // First part of deferred rendering
-		RenderBatch _animationBatch; // AnimationBatch
+		AnimationRenderBatch _animationBatch; // AnimationBatch
 		RenderBatch _lightingBatch; // Second part of deferred rendering
 		RenderBatch _glowBatch; // Glow batch.
 		RenderBatch _viewBatch;

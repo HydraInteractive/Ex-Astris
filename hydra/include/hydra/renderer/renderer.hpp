@@ -128,7 +128,7 @@ namespace Hydra::Renderer {
 
 		virtual Material& getMaterial() = 0;
 		virtual bool hasAnimation() = 0;
-		virtual glm::mat4 getTransformationMatrices(int joint) = 0;
+		virtual glm::mat4 getTransformationMatrices(int joint, int currentFrame) = 0;
 		virtual int getNrOfJoints() = 0;
 		virtual int getCurrentKeyframe() = 0;
 		virtual int getMaxFramesForAnimation() = 0;
@@ -173,6 +173,15 @@ namespace Hydra::Renderer {
 		std::map<IMesh*, std::vector<glm::mat4 /* Model matrix */>> objects;
 	};
 
+	struct HYDRA_BASE_API AnimationBatch {
+		glm::vec4 clearColor;
+		ClearFlags clearFlags;
+		IRenderTarget* renderTarget;
+		IPipeline* pipeline;
+		std::map<IMesh*, std::vector<glm::mat4 /* Model matrix */>> objects;
+		std::map<IMesh*, std::vector<int>> currentFrames;
+	};
+
 	struct HYDRA_BASE_API ParticleBatch {
 		glm::vec4 clearColor;
 		ClearFlags clearFlags;
@@ -187,7 +196,7 @@ namespace Hydra::Renderer {
 		virtual ~IRenderer() = 0;
 
 		virtual void render(Batch& batch) = 0;
-		virtual void renderAnimation(Batch& batch) = 0;
+		virtual void renderAnimation(AnimationBatch& batch) = 0;
 		virtual void render(ParticleBatch& batch) = 0;
 		virtual void renderShadows(Batch& batch) = 0;
 		// Note: this will ignore batch.objects

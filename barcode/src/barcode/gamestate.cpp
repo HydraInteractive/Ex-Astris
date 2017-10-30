@@ -315,7 +315,16 @@ namespace Barcode {
 					_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
 				else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
+					int currentFrame = drawObj->mesh->getCurrentKeyframe();
+					if (drawObj->mesh->getAnimationCounter() > 24 && currentFrame < drawObj->mesh->getMaxFramesForAnimation()) {
+						drawObj->mesh->getAnimationCounter() = 0;
+						drawObj->mesh->setCurrentKeyframe(currentFrame + 1);
+					}
+					else if (currentFrame > drawObj->mesh->getMaxFramesForAnimation())
+						drawObj->mesh->setCurrentKeyframe(1);
+
 					_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+					_animationBatch.batch.currentFrames[drawObj->mesh].push_back(drawObj->mesh->getCurrentKeyframe());
 					drawObj->mesh->getAnimationCounter() += 1 * delta;
 
 					//int currentFrame = drawObj->mesh->getCurrentKeyframe();

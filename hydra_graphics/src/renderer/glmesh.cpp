@@ -31,6 +31,7 @@ public:
 		_currentFrame = 1;
 		_currentAnimationIndex = 0;
 		_animationCounter = 0;
+		_animDataUploaded = false;
 		_loadATTICModel(file.c_str(), modelMatrixBuffer);
 	}
 
@@ -95,7 +96,7 @@ public:
 	Material& getMaterial() final { return _material; }
 
 	bool hasAnimation() final { return _meshHasAnimation; }
-	glm::mat4 getTransformationMatrices(int joint) final { return _finishedMatrices[_currentAnimationIndex][joint]->finishedTransformMat[_currentFrame - 1]; }
+	glm::mat4 getTransformationMatrices(int joint, int currentFrame) final { return _finishedMatrices[_currentAnimationIndex][joint]->finishedTransformMat[currentFrame - 1]; }
 	int getNrOfJoints() final { return _finishedMatrices[_currentAnimationIndex][0]->nrOfClusters; }
 	int getCurrentKeyframe() final { return _currentFrame; }
 	int getMaxFramesForAnimation() final { return _finishedMatrices[_currentAnimationIndex][0]->nrOfKeys; }
@@ -123,6 +124,7 @@ private:
 	int _currentFrame;
 	int _currentAnimationIndex;
 	int _animationCounter;
+	bool _animDataUploaded;
 
 	void _makeBuffers() {
 		glGenVertexArrays(1, &_vao);
@@ -462,7 +464,6 @@ private:
 			skeleton[indexNmr].push_back(info);
 		}
 	}
-
 };
 
 std::unique_ptr<IMesh> GLMesh::create(const std::string& file, IRenderer* renderer) {
