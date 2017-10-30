@@ -20,6 +20,9 @@ public:
 	enum {IDLE, SEARCHING, FOUND_GOAL, ATTACKING};
 	unsigned int state = IDLE;
 
+	enum BossPhase {CLAWING, SPITTING, SPAWNING, CHILLING};
+	BossPhase bossPhase = BossPhase::CLAWING;
+
 	virtual void run(float dt) = 0;
 	void setEnemyEntity(std::shared_ptr<Hydra::World::Entity> enemy);
 	void setTargetPlayer(std::shared_ptr<Hydra::World::Entity> player);
