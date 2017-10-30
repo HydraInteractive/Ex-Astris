@@ -18,7 +18,7 @@ using namespace Hydra::World;
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API GrenadeComponent final : public IComponent<GrenadeComponent, ComponentBits::Grenade> {
 		glm::vec3 direction = glm::vec3{0, 0, 0};
-		float velocity = 20;
+		float velocity = 50;
 		float fallingVelocity = 20;
 
 		~GrenadeComponent() final;

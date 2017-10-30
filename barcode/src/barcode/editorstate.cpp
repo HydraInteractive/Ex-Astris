@@ -262,7 +262,7 @@ namespace Barcode {
 
 	EditorState::~EditorState() { }
 
-	void EditorState::onMainMenu() { 
+	void EditorState::onMainMenu() {
 		if (ImGui::BeginMenu("Editor"))
 		{
 			if (ImGui::MenuItem("Import..."))
@@ -307,8 +307,8 @@ namespace Barcode {
 		const glm::vec3 cameraPos = _cc->position;
 
 		{ // Render objects (Deferred rendering)
-			// Render to geometryFBO
-			// FIXME: Fix this shit code
+		  // Render to geometryFBO
+		  // FIXME: Fix this shit code
 			for (auto& light : Hydra::Component::LightComponent::componentHandler->getActiveComponents())
 				_light = static_cast<Hydra::Component::LightComponent*>(light.get());
 

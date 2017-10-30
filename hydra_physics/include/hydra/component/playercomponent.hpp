@@ -8,6 +8,7 @@
 #pragma once
 #include <hydra/ext/api.hpp>
 #include <SDL2/SDL_keyboard.h>
+#include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
 #include <hydra/world/world.hpp>
@@ -20,12 +21,17 @@
 
 using namespace Hydra::World;
 
+enum Keys {
+	H, F, COUNT
+};
+
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API PlayerComponent final : public IComponent<PlayerComponent, ComponentBits::Player> {
 		glm::vec3 weaponOffset = glm::vec3{2, -1.5, -3};
 		bool onGround = false;
 		bool firstPerson = true;
 		bool isDead = false;
+		bool prevKBFrameState[Keys::COUNT] = { false };
 
 		// TODO: Move?!
 		AbilityHandler activeAbillies;
@@ -36,13 +42,6 @@ namespace Hydra::Component {
 		std::shared_ptr<Hydra::World::Entity> getWeapon();
 
 		inline const std::string type() const final { return "PlayerComponent"; }
-		//void upgradeHealth() {
-		//	if (activeBuffs.addBuff(BUFF_HEALTHUPGRADE))
-		//		activeBuffs.onActivation(maxHealth, health);
-
-		//	if (activeBuffs.addBuff(BUFF_DAMAGEUPGRADE))
-		//		activeBuffs.onActivation(maxHealth, health);
-		//}
 
 		std::vector<Buffs> getActiveBuffs() { return activeBuffs.getActiveBuffs(); }
 

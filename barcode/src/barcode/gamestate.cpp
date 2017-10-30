@@ -271,6 +271,7 @@ namespace Barcode {
 		_particleSystem.tick(delta);
 		_rendererSystem.tick(delta);
 		_spawnerSystem.tick(delta);
+		_soundFxSystem.tick(delta);
 
 		const glm::vec3 cameraPos = _cc->position;
 
@@ -764,6 +765,7 @@ namespace Barcode {
 			auto c = playerEntity->addComponent<Hydra::Component::CameraComponent>();
 			auto h = playerEntity->addComponent<Hydra::Component::LifeComponent>();
 			auto m = playerEntity->addComponent<Hydra::Component::MovementComponent>();
+			auto s = playerEntity->addComponent<Hydra::Component::SoundFxComponent>();
 			h->health = 100;
 			h->maxHP = 100;
 			m->movementSpeed = 20.0f;
