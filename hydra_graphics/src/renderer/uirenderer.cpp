@@ -407,7 +407,7 @@ private:
 		ImGui::Begin("Entity List", &_entityWindow);
 
 		using world = Hydra::World::World;
-		auto worldRoot = world::root.get();
+		auto worldRoot = world::root().get();
 
 		// This doesn't use _renderEntity, because I want a globe instad of a user
 		if (ImGui::TreeNode(worldRoot, ICON_FA_GLOBE " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", worldRoot->name.c_str(), worldRoot->id, worldRoot->componentCount(), worldRoot->children.size())) {

@@ -8,8 +8,6 @@
 #pragma once
 
 #include <hydra/world/world.hpp>
-#include <hydra/component/rigidbodycomponent.hpp>
-#include <btBulletDynamicsCommon.h>
 
 namespace Hydra::System {
 	class HYDRA_PHYSICS_API BulletPhysicsSystem final : public Hydra::World::ISystem {
@@ -39,10 +37,7 @@ namespace Hydra::System {
 		void registerUI() final;
 
 	private:
-		std::unique_ptr<btBroadphaseInterface> _broadphase;
-		std::unique_ptr<btDefaultCollisionConfiguration> _collisionConfiguration;
-		std::unique_ptr<btCollisionDispatcher> _dispatcher;
-		std::unique_ptr<btSequentialImpulseConstraintSolver> _solver;
-		std::unique_ptr<btDiscreteDynamicsWorld> _dynamicsWorld;
+		struct Data;
+		Data* _data;
 	};
 }

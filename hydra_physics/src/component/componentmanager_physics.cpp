@@ -7,6 +7,8 @@
 #include <hydra/abilities/grenadecomponent.hpp>
 #include <hydra/abilities/minecomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
+#include <hydra/component/lifecomponent.hpp>
+#include <hydra/component/movementcomponent.hpp>
 
 using namespace Hydra::World;
 
@@ -26,5 +28,9 @@ namespace Hydra::Component::ComponentManager {
 		creators["GrenadeComponent"] = &createOrGetComponentHelper<GrenadeComponent>;
 		MineComponent::componentHandler = new ComponentHandler<MineComponent>();
 		creators["MineComponent"] = &createOrGetComponentHelper<MineComponent>;
+		LifeComponent::componentHandler = new ComponentHandler<LifeComponent>();
+		creators["LifeComponent"] = &createOrGetComponentHelper<LifeComponent>;
+		MovementComponent::componentHandler = new ComponentHandler<MovementComponent>();
+		creators["MovementComponent"] = &createOrGetComponentHelper<MovementComponent>;
 	}
 }

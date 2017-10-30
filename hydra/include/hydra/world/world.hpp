@@ -37,11 +37,13 @@ namespace Hydra::Component {
 		Weapon = BIT(8),
 		Grenade = BIT(9),
 		Mine = BIT(10),
-		RigidBody = BIT(11),
-		EditorCamera = BIT(12),
-		DrawObject = BIT(13),
-		PointLight = BIT(14),
-		SoundFx = BIT(15)
+		Life = BIT(11),
+		RigidBody = BIT(12),
+		EditorCamera = BIT(13),
+		DrawObject = BIT(14),
+		PointLight = BIT(15),
+		Movement = BIT(16),
+		SoundFx = BIT(17)
 	};
 #undef BIT
 
@@ -73,6 +75,8 @@ namespace Hydra::Component {
 	struct HYDRA_GRAPHICS_API EditorCameraComponent;
 	struct HYDRA_GRAPHICS_API DrawObjectComponent;
 	struct HYDRA_GRAPHICS_API PointLightComponent;
+	struct HYDRA_PHYSICS_API LifeComponent;
+	struct HYDRA_PHYSICS_API MovementComponent;
 	struct HYDRA_SOUND_API SoundFxComponent;
 
 	using ComponentTypes = Hydra::Ext::TypeTuple<
@@ -91,6 +95,8 @@ namespace Hydra::Component {
 		Hydra::World::IComponent<EditorCameraComponent, ComponentBits::EditorCamera>,
 		Hydra::World::IComponent<DrawObjectComponent, ComponentBits::DrawObject>,
 		Hydra::World::IComponent<PointLightComponent, ComponentBits::PointLight>,
+		Hydra::World::IComponent<LifeComponent, ComponentBits::Life>,
+		Hydra::World::IComponent<MovementComponent, ComponentBits::Movement>,
 		Hydra::World::IComponent<SoundFxComponent, ComponentBits::SoundFx>
 	>;
 };
@@ -193,7 +199,7 @@ namespace Hydra::World {
 		std::vector<std::shared_ptr<IComponentBase>> _components;
 
 		const std::vector<std::shared_ptr<IComponentBase>>& getActiveComponents() final { return _components; }
-	
+
 		std::shared_ptr<IComponentBase> getComponent(EntityID entityID) final {
 			return _components[_map[entityID]];
 		}
@@ -259,6 +265,10 @@ namespace Hydra::World {
 	template <>
 	IComponentHandler* IComponent<Hydra::Component::PointLightComponent, Hydra::Component::ComponentBits::PointLight>::componentHandler;
 	template <>
+	IComponentHandler* IComponent<Hydra::Component::LifeComponent, Hydra::Component::ComponentBits::Life>::componentHandler;
+	template <>
+	IComponentHandler* IComponent<Hydra::Component::MovementComponent, Hydra::Component::ComponentBits::Movement>::componentHandler;
+	template <>
 	IComponentHandler* IComponent<Hydra::Component::SoundFxComponent, Hydra::Component::ComponentBits::SoundFx>::componentHandler;
 #endif
 
@@ -277,20 +287,21 @@ namespace Hydra::World {
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::EditorCameraComponent, Hydra::Component::ComponentBits::EditorCamera>;
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::DrawObjectComponent, Hydra::Component::ComponentBits::DrawObject>;
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::PointLightComponent, Hydra::Component::ComponentBits::PointLight>;
+	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::LifeComponent, Hydra::Component::ComponentBits::Life>;
+	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::MovementComponent, Hydra::Component::ComponentBits::Movement>;
 	template HYDRA_SOUND_API struct IComponent<Hydra::Component::SoundFxComponent, Hydra::Component::ComponentBits::SoundFx>;
 
 	struct HYDRA_BASE_API World final {
-		static std::shared_ptr<Entity> root;
+		inline static std::shared_ptr<Entity>& root() {
+			// I'm doing this because the World object will be invalid if it doesn't have an root object
+			return _entities[_map[rootID]];
+		}
 
 		World() = delete;
 		static constexpr EntityID invalidID = 0;
+		static constexpr EntityID rootID = 1;
 
-		static void reset() {
-			_entities.clear();
-			_map.clear();
-			_idCounter = 1;
-			root = newEntity("World Root", invalidID);
-		}
+		static void reset();
 
 		inline static std::shared_ptr<Entity> newEntity(const std::string& name, std::shared_ptr<Entity>& parent) {
 			return newEntity(name, parent->id);
@@ -299,32 +310,8 @@ namespace Hydra::World {
 			return newEntity(name, parent->id);
 		}
 
-		inline static std::shared_ptr<Entity> newEntity(const std::string& name, EntityID parent) {
-			EntityID id = _idCounter++;
-			std::shared_ptr<Entity> e = std::make_shared<Entity>();
-			e->id = id;
-			e->name = name;
-			e->parent = parent;
-			if (parent)
-				getEntity(parent)->children.push_back(id);
-
-			_entities.emplace_back(std::move(e));
-			_map[id] = _entities.size() - 1;
-			return _entities.back();
-		}
-
-		inline static void removeEntity(EntityID entityID) {
-			if (!getEntity(entityID))
-				return;
-			const size_t pos = _map[entityID];
-			if (pos != _entities.size() - 1) {
-				_map[_entities.back()->id] = pos;
-				std::swap(_entities[pos], _entities.back());
-			}
-
-			_entities.pop_back();
-			_map.erase(entityID);
-		}
+		static std::shared_ptr<Entity> newEntity(const std::string& name, EntityID parent);
+		static void removeEntity(EntityID entityID);
 
 		inline static std::shared_ptr<Entity> getEntity(EntityID id) {
 			if (!_map.count(id))
@@ -344,6 +331,7 @@ namespace Hydra::World {
 		static std::unordered_map<EntityID, size_t> _map;
 		static std::vector<std::shared_ptr<Entity>> _entities;
 		static EntityID _idCounter;
+		static bool _isResetting;
 	};
 
 	class HYDRA_BASE_API ISystem {

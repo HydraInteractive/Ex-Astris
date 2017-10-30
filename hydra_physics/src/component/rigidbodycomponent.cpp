@@ -207,6 +207,8 @@ private:
 };
 
 RigidBodyComponent::~RigidBodyComponent() {
+	if (_handler)
+		_handler->disable(this);
 	delete _data;
 }
 

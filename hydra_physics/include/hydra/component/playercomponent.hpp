@@ -27,15 +27,9 @@ enum Keys {
 
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API PlayerComponent final : public IComponent<PlayerComponent, ComponentBits::Player> {
-		glm::vec3 position = glm::vec3(0, 0, 0); //TODO: Remove
-		glm::vec3 velocity = glm::vec3{0, 0, 0};// Same
-		glm::vec3 acceleration = glm::vec3{0, 0, 0}; // Same
 		glm::vec3 weaponOffset = glm::vec3{2, -1.5, -3};
-		float movementSpeed = 20.0f;
 		bool onGround = false;
 		bool firstPerson = true;
-		int maxHealth = 100; // Move to LifeComponent
-		int health = 100; // SAME
 		bool isDead = false;
 		bool prevKBFrameState[Keys::COUNT] = { false };
 
@@ -48,16 +42,8 @@ namespace Hydra::Component {
 		std::shared_ptr<Hydra::World::Entity> getWeapon();
 
 		inline const std::string type() const final { return "PlayerComponent"; }
-		void upgradeHealth() {
-			if (activeBuffs.addBuff(BUFF_HEALTHUPGRADE))
-				activeBuffs.onActivation(maxHealth, health);
-
-			if (activeBuffs.addBuff(BUFF_DAMAGEUPGRADE))
-				activeBuffs.onActivation(maxHealth, health);
-		}
 
 		std::vector<Buffs> getActiveBuffs() { return activeBuffs.getActiveBuffs(); }
-		void applyDamage(int damage) { health -= damage; }
 
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
