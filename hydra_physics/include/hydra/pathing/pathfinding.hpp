@@ -12,8 +12,8 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <memory>
-#define WORLD_SIZE 64
-#define CELL_SIZE 1.0f
+#define MAP_SIZE 64 //The size in both X and Z of the map(/room?)
+#define NODE_SCALE 1.0f //The size in both X and Z of a Node
 #include <math.h>
 #include <algorithm>
 
@@ -49,7 +49,7 @@ public:
 		{
 			this->pos.x() = x;
 			this->pos.z() = z;
-			this->id = z * WORLD_SIZE + x;
+			this->id = z * MAP_SIZE + x;
 			this->lastNode = lastNode;
 		}
 
@@ -92,7 +92,7 @@ public:
 	PathFinding();
 	virtual ~PathFinding();
 
-	void findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, int(&map)[WORLD_SIZE][WORLD_SIZE]);
+	void findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, int(&map)[MAP_SIZE][MAP_SIZE]);
 	glm::vec3 nextPathPos(const glm::vec3& pos, const float& radius);
 
 	bool intializedStartGoal;
@@ -119,5 +119,5 @@ private:
 	std::shared_ptr<Node> _startNode;
 	std::shared_ptr<Node> _endNode;
 
-	void _discoverNode(int x, int z, std::shared_ptr<Node> lastNode, int(&map)[WORLD_SIZE][WORLD_SIZE]);
+	void _discoverNode(int x, int z, std::shared_ptr<Node> lastNode, int(&map)[MAP_SIZE][MAP_SIZE]);
 };
