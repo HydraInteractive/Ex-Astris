@@ -378,7 +378,7 @@ namespace Barcode {
 		static bool enableBlur = true;
 		ImGui::Checkbox("Enable blur", &enableBlur);
 
-		{
+		if (enableSSAO) {
 
 			_ssaoBatch.pipeline->setValue(0, 0);
 			_ssaoBatch.pipeline->setValue(1, 1);
@@ -392,8 +392,8 @@ namespace Barcode {
 			_ssaoNoise->bind(2);
 
 			_engine->getRenderer()->postProcessing(_ssaoBatch.batch);
-			int nrOfTImes = 1;
-			_blurGlowTexture((*_ssaoBatch.output)[0], nrOfTImes, (*_ssaoBatch.output)[0]->getSize(), _fiveGaussianKernel1, enableBlur)
+			int nrOfTimes = 1;
+			_blurGlowTexture((*_ssaoBatch.output)[0], nrOfTimes, (*_ssaoBatch.output)[0]->getSize(), _fiveGaussianKernel1, enableBlur)
 				->resolve(0, (*_ssaoBatch.output)[0]);
 		}
 
