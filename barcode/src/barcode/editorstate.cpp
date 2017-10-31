@@ -564,6 +564,7 @@ namespace Barcode {
 			auto room = world::newEntity("Room", world::root());
 			auto t = room->addComponent<Hydra::Component::TransformComponent>();
 			auto r = room->addComponent<Hydra::Component::RoomComponent>();
+
 		}
 		{
 			auto playerEntity = world::newEntity("Player", world::root());

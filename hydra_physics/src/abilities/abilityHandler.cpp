@@ -24,7 +24,7 @@ void AbilityHandler::grenadeAbility(Hydra::World::Entity* abilitiesEntity, glm::
 	auto grenade = world::newEntity("Grenade", abilitiesEntity);
 	auto g = grenade->addComponent<Hydra::Component::GrenadeComponent>();
 	g->direction = direction;
-	grenade->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge.ATTIC");
+	grenade->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge1.mATTIC");
 	auto t = grenade->addComponent<Hydra::Component::TransformComponent>();
 	t->position = position;
 }
@@ -32,7 +32,7 @@ void AbilityHandler::mineAbility(Hydra::World::Entity* abilitiesEntity, glm::vec
 	auto mine = world::newEntity("Mine", abilitiesEntity);
 	auto m = mine->addComponent<Hydra::Component::MineComponent>();
 	m->direction = direction;
-	mine->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge.ATTIC");
+	mine->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge1.mATTIC");
 	auto t = mine->addComponent<Hydra::Component::TransformComponent>();
 	t->position = position;
 }

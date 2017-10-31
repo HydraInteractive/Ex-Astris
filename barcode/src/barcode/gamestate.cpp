@@ -765,7 +765,7 @@ namespace Barcode {
 			auto t = physicsBox->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(2, 25, 2);
 			physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(glm::vec3(0.5f), 10);
-			physicsBox->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Computer1.ATTIC");
+			physicsBox->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BigMonitor.mATTIC");
 		}
 
 		{
@@ -784,7 +784,7 @@ namespace Barcode {
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
 				weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
-				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/alphaGunModel.ATTIC");
+				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/MainWeapon.mATTIC");
 				auto t2 = weaponEntity->addComponent<Hydra::Component::TransformComponent>();
 				t2->position = glm::vec3(2, -1.5, -2);
 				t2->rotation = glm::quat(0, 0, 1, 0);
@@ -806,8 +806,9 @@ namespace Barcode {
 			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ 10, 0, 20 };
 			t->scale = glm::vec3{ 2,2,2 };
-			a->_scale = t->scale;
-			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
+			a->_scale = glm::vec3{ 2,2,2 };
+			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+			a->behaviour->refreshComponents();
 		}
 
 		{
@@ -821,6 +822,46 @@ namespace Barcode {
 			t->position = glm::vec3{ 20, 0, 15 };
 			t->scale = glm::vec3{ 2,2,2 };
 			alienSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge.ATTIC");
+
+		}
+		
+		{
+			auto robotEntity = world::newEntity("Robot", world::root());
+			auto r = robotEntity->addComponent<Hydra::Component::AIComponent>();
+			r->damage = 4;
+			r->originalRange = 10;
+			r->behaviour = std::make_shared<AlienBehaviour>(robotEntity);
+			auto h = robotEntity->addComponent<Hydra::Component::LifeComponent>();
+			h->maxHP = 80;
+			h->health = 80;
+			auto m = robotEntity->addComponent<Hydra::Component::MovementComponent>();
+			m->movementSpeed = 6.0f;
+			auto t = robotEntity->addComponent<Hydra::Component::TransformComponent>();
+			t->position = glm::vec3{ 0, 0, 20 };
+			t->scale = glm::vec3{ 2,2,2 };
+			r->_scale = glm::vec3{ 2,2,2 };
+			robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
+			r->behaviour->refreshComponents();
+		}
+
+		{
+			auto playerAIEntity = world::newEntity("PlayerAI", world::root());
+			auto r = playerAIEntity->addComponent<Hydra::Component::AIComponent>();
+			r->damage = 4;
+			r->originalRange = 30;
+			r->behaviour = std::make_shared<AlienBehaviour>(playerAIEntity);
+			auto h = playerAIEntity->addComponent<Hydra::Component::LifeComponent>();
+			h->maxHP = 80;
+			h->health = 80;
+			auto m = playerAIEntity->addComponent<Hydra::Component::MovementComponent>();
+			m->movementSpeed = 6.0f;
+			auto t = playerAIEntity->addComponent<Hydra::Component::TransformComponent>();
+			t->position = glm::vec3{ 10, 0, 20 };
+			t->rotation = glm::vec3{ 0, -90, 0 };
+			t->scale = glm::vec3{ 2,2,2 };
+			r->_scale = glm::vec3{ 2,2,2 };
+			playerAIEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/PlayerModelOrange.mATTIC");
+			r->behaviour->refreshComponents();
 		}
 
 		{
@@ -833,7 +874,7 @@ namespace Barcode {
 			auto pointLight2 = world::newEntity("Pointlight2", world::root());
 			auto t = pointLight2->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(45, 0, 0);
-			pointLight2->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
+			pointLight2->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
 			auto p2LC = pointLight2->addComponent<Hydra::Component::PointLightComponent>();
 			p2LC->position = glm::vec3(45, 0, 0);
 			p2LC->color = glm::vec3(1, 0, 0);
@@ -841,7 +882,7 @@ namespace Barcode {
 			auto pointLight3 = world::newEntity("Pointlight3", world::root());
 			auto t = pointLight3->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(45, 0, 0);
-			pointLight3->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
+			pointLight3->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
 			auto p3LC = pointLight3->addComponent<Hydra::Component::PointLightComponent>();
 			p3LC->position = glm::vec3(0, 0, 45);
 			p3LC->color = glm::vec3(1, 0, 0);
@@ -849,15 +890,20 @@ namespace Barcode {
 			auto pointLight4 = world::newEntity("Pointlight4", world::root());
 			auto t = pointLight4->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(45, 0, 0);
-			pointLight4->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
+			pointLight4->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
 			auto p4LC = pointLight4->addComponent<Hydra::Component::PointLightComponent>();
 			p4LC->position = glm::vec3(45, 0, 45);
 			p4LC->color = glm::vec3(1, 0, 0);
 		}
-
+		
 		{
+		auto test = world::newEntity("test", world::root());
+		test->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/EscapeMonitor.mATTIC");
+		auto t = test->addComponent<Hydra::Component::TransformComponent>();
+		t->position = glm::vec3(-4, 0, 0);
+		} {
 			auto test = world::newEntity("test", world::root());
-			test->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
+			test->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
 			auto t = test->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(-7, 0, 0);
 		} {
