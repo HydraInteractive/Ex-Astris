@@ -30,9 +30,6 @@ void BulletSystem::tick(float delta) {
 		auto b = entities[i]->getComponent<Hydra::Component::BulletComponent>();
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 
-		b->position += b->velocity * b->direction * delta;
-		t->position = b->position;
-
 		b->deleteTimer -= delta;
 		if (b->deleteTimer <= 0)
 			entities[i]->dead = true;

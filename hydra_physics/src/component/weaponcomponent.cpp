@@ -9,6 +9,10 @@
 */
 
 #include <hydra/component/weaponcomponent.hpp>
+#include <hydra/component/rigidbodycomponent.hpp>
+#include <btBulletDynamicsCommon.h>
+#include <hydra/engine.hpp>
+
 #include <imgui/imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <random>
@@ -30,28 +34,42 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 
 	if (bulletSpread == 0.0f) {
 		auto bullet = world::newEntity("Bullet", _bullets);
-		bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge.ATTIC");
+		bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SmallCargo.mATTIC");
 		auto b = bullet->addComponent<Hydra::Component::BulletComponent>();
-		b->position = position;
 		b->direction = -direction;
 		b->velocity = velocity;
-		auto transform = bullet->addComponent<Hydra::Component::TransformComponent>();
-		transform->position = position;
-		transform->scale = glm::vec3(bulletSize);
-		transform->rotation = bulletOrientation;
+		auto t = bullet->addComponent<Hydra::Component::TransformComponent>();
+		t->position = position;
+		t->scale = glm::vec3(bulletSize);
+		t->rotation = bulletOrientation;
+
+		auto bulletPhysWorld = static_cast<Hydra::System::BulletPhysicsSystem*>(IEngine::getInstance()->getState()->getPhysicsSystem());
+
+		auto rbc = bullet->addComponent<Hydra::Component::RigidBodyComponent>();
+		rbc->createBox(glm::vec3(0.5f), 1.0f);
+		auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
+		bulletPhysWorld->enable(rbc.get());
+		rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 3000);
+		rigidBody->setActivationState(DISABLE_DEACTIVATION);
+
 	} else {
 		for (int i = 0; i < bulletsPerShot; i++) {
 			auto bullet = world::newEntity("Bullet", _bullets);
-			bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge.ATTIC");
+			bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SmallCargo.mATTIC");
 
-			std::random_device rd; //
-			std::mt19937 gen(rd()); // FIXME: Why always the same random?
-			std::uniform_real_distribution<>dis(0, 2 * 3.14); //
-			float phi = dis(gen);
-			dis = std::uniform_real_distribution<>(0, 1.0);
-			float distance = dis(gen) * bulletSpread;
-			dis = std::uniform_real_distribution<>(0, 3.14);
-			float theta = dis(gen);
+			//std::random_device rd; //
+			//std::mt19937 gen(rd()); // FIXME: Why always the same random?
+			//debug = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
+			//std::uniform_real_distribution<>dis(0, 2 * 3.14); //
+			//float phi = dis(gen);
+			//dis = std::uniform_real_distribution<>(0, 1.0);
+			//float distance = dis(gen) * bulletSpread;
+			//dis = std::uniform_real_distribution<>(0, 3.14);
+			//float theta = dis(gen);
+
+			float phi = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
+			float distance = bulletSpread * ((float)rand() / (float)(RAND_MAX));
+			float theta = ((float)rand() / (float)(RAND_MAX)) * 3.14f;
 
 			glm::vec3 bulletDirection = -direction;
 			bulletDirection.x += distance * sin(theta) * cos(phi);
@@ -60,17 +78,25 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 			bulletDirection = glm::normalize(bulletDirection);
 
 			auto b = bullet->addComponent<Hydra::Component::BulletComponent>();
-			b->position = position;
 			b->direction = bulletDirection;
 			b->velocity = velocity;
 
-			auto transform = bullet->addComponent<Hydra::Component::TransformComponent>();
-			transform->position = position;
-			transform->scale = glm::vec3(bulletSize);
-			transform->rotation = bulletOrientation;
+			auto t = bullet->addComponent<Hydra::Component::TransformComponent>();
+			t->position = position;
+			t->scale = glm::vec3(bulletSize);
+			t->rotation = bulletOrientation;
+
+			auto bulletPhysWorld = static_cast<Hydra::System::BulletPhysicsSystem*>(IEngine::getInstance()->getState()->getPhysicsSystem());
+
+			auto rbc = bullet->addComponent<Hydra::Component::RigidBodyComponent>();
+			rbc->createBox(glm::vec3(0.5f), 1.0f);
+			auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
+			bulletPhysWorld->enable(rbc.get());
+			rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 3000);
+			rigidBody->setActivationState(DISABLE_DEACTIVATION);
 		}
 	}
-	fireRateTimer = fireRateRPM / 60000.0;
+	fireRateTimer = fireRateRPM / 60000.0f;
 
 }
 
@@ -95,4 +121,5 @@ void WeaponComponent::registerUI() {
 	ImGui::DragFloat("Bullet Size", &bulletSize, 0.001f);
 	ImGui::DragFloat("Bullet Spread", &bulletSpread, 0.001f);
 	ImGui::InputInt("Bullets Per Shot", &bulletsPerShot);
+	ImGui::DragFloat("DEBUG", &debug);
 }
