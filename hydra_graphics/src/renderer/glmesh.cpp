@@ -249,11 +249,6 @@ private:
 					indices.push_back(indexData);
 				}
 			}
-			//_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/error.png");
-			//_material.normal = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/normals/futuristicNormal.png");
-			_material.specular = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/speculars/brickSpecular.png");
-			//_material.glow = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/glow/EscapePodDoorGlow_Fin.png");
-
 
 			//Read the materials for the mesh as well as the Texture file name
 			int fileNameLength = 0;
@@ -267,43 +262,17 @@ private:
 			tempFileName = new char[fileNameLength];
 			in.read(tempFileName, fileNameLength);
 			fileName.append(tempFileName, fileNameLength);
-			if (fileName != "NULL" && fileNameLength != 0)
-				_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/" + fileName);
-			else
-				_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/error.png");
-			delete[] tempFileName;			
+			glowName.append(fileName, 0, fileName.find("Texture"));
+			_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/" + fileName);
+			_material.normal = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/normals/pillowNormal.png");
+			_material.specular = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/speculars/brickSpecular.png");
+			_material.glow = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/glow/" + glowName + "Glow.png");
 
-			_material.specular = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/glow/errorGlow.png");
+			delete[] tempFileName;
 
 			//Read the diffuse and specular value
 			in.read(reinterpret_cast<char*>(&diffuse), sizeof(diffuse));
 			in.read(reinterpret_cast<char*>(&specular), sizeof(specular));
-
-			//Read the normal Texture
-			fileName = "";
-			in.read(reinterpret_cast<char*>(&fileNameLength), sizeof(int));
-			char *tempNormalFileName;
-			tempNormalFileName = new char[fileNameLength];
-			in.read(tempNormalFileName, fileNameLength);
-			fileName.append(tempNormalFileName, fileNameLength);
-			if(fileName != "NULL" && fileNameLength != 0)
-				_material.normal = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/normals/" + fileName);
-			else
-				_material.normal = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/normals/futuristicNormal.png");
-			delete[] tempNormalFileName;
-
-			//Read the glow Texture
-			fileName = "";
-			in.read(reinterpret_cast<char*>(&fileNameLength), sizeof(int));
-			char *tempGlowFileName;
-			tempGlowFileName = new char[fileNameLength];
-			in.read(tempGlowFileName, fileNameLength);
-			fileName.append(tempGlowFileName, fileNameLength);
-			if(fileName != "NULL" && fileNameLength != 0)
-				_material.glow = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/glow/" + fileName);
-			else
-				_material.glow = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/glow/errorGlow.png");
-			delete[] tempGlowFileName;
 
 			for (size_t d = 0; d < vertices.size(); d++)
 				vertices[d].color = diffuse;
