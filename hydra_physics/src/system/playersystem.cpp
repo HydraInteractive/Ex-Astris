@@ -36,7 +36,7 @@ void PlayerSystem::tick(float delta) {
 		auto movement = entities[i]->getComponent<Component::MovementComponent>();
 		auto soundFx = entities[i]->getComponent<SoundFxComponent>();
 
-		player->activeBuffs.onTick(life->maxHP, life->health);
+		//player->activeBuffs.onTick(life->maxHP, life->health);
 
 		if (!life->statusCheck())
 			player->isDead = true;
@@ -80,8 +80,7 @@ void PlayerSystem::tick(float delta) {
 
 				//TODO: Make pretty?
 				glm::quat bulletOrientation = glm::angleAxis(-camera->cameraYaw, glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->cameraPitch, glm::vec3(1, 0, 0)));
-				float bulletVelocity = 1.0f;
-				player->activeBuffs.onAttack(bulletVelocity);
+				float bulletVelocity = 20.0f;
 
 				weapon->shoot(transform->position, forward, bulletOrientation, bulletVelocity);
 			}
