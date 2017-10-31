@@ -175,6 +175,13 @@ namespace Barcode {
 			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::depth;
 			batch.batch.renderTarget = batch.output.get();
 			batch.batch.pipeline = batch.pipeline.get();
+		
+
+			auto& animBatch = _shadowAnimationBatch;
+			animBatch.batch.clearColor = batch.batch.clearColor;
+			animBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::none;
+			animBatch.batch.renderTarget = batch.batch.renderTarget;
+			animBatch.batch.pipeline = batch.batch.pipeline;
 		}
 
 		{ // SSAO
@@ -310,38 +317,48 @@ namespace Barcode {
 			for (auto& kv : _animationBatch.batch.objects)
 				kv.second.clear();
 
+			for (auto& kv : _animationBatch.batch.currentFrames)
+				kv.second.clear();
+
+			for (auto& kv : _animationBatch.batch.currAnimIndices)
+				kv.second.clear();
+
 			for (auto& drawObj : _engine->getRenderer()->activeDrawObjects()) {
-				if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false)
+				if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false) {
 					_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-
-				else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
-					int currentFrame = drawObj->mesh->getCurrentKeyframe();
-					if (drawObj->mesh->getAnimationCounter() > 24 && currentFrame < drawObj->mesh->getMaxFramesForAnimation()) {
-						drawObj->mesh->getAnimationCounter() = 0;
-						drawObj->mesh->setCurrentKeyframe(currentFrame + 1);
-					}
-					else if (currentFrame > drawObj->mesh->getMaxFramesForAnimation())
-						drawObj->mesh->setCurrentKeyframe(1);
-
-					_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-					_animationBatch.batch.currentFrames[drawObj->mesh].push_back(drawObj->mesh->getCurrentKeyframe());
-					drawObj->mesh->getAnimationCounter() += 1 * delta;
-
-					//int currentFrame = drawObj->mesh->getCurrentKeyframe();
-
-					//if (currentFrame < drawObj->mesh->getMaxFramesForAnimation()) {
-					//	drawObj->mesh->setCurrentKeyframe(currentFrame + 1);
-					//}
-					//else {
-					//	drawObj->mesh->setCurrentKeyframe(1);
-					//}
-
-					//glm::mat4 tempMat;
-					//for (int i = 0; i < drawObj->mesh->getNrOfJoints(); i++) {
-					//	tempMat = drawObj->mesh->getTransformationMatrices(i);
-					//	_animationBatch.pipeline->setValue(11 + i, tempMat);
-					//}
+					_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 				}
+			}
+
+			// Should fix so drawobject has pointer to entity so i don't have to use getEntitiesWithComponents since it unnecessary
+			std::vector<std::shared_ptr<Hydra::World::Entity>> animatedMeshes;
+			world::getEntitiesWithComponents<Hydra::Component::MeshComponent, Hydra::Component::DrawObjectComponent, Hydra::Component::TransformComponent>(animatedMeshes);
+			int i = 0;
+			for (auto e : animatedMeshes) {
+				auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
+				auto mesh = drawObj->mesh;
+				if (mesh->hasAnimation() == false || drawObj->disable || !drawObj->mesh)
+					continue;
+
+				auto mc = e->getComponent<Hydra::Component::MeshComponent>();
+				int currentFrame = mc->currentFrame;
+				float animationCounter = mc->animationCounter;
+
+				if (animationCounter > 1 / 24.0f && currentFrame < mesh->getMaxFramesForAnimation(mc->animationIndex)) {
+					mc->animationCounter -= 1 / 24.0f;
+					mc->currentFrame += 1;
+				}
+				else if (currentFrame >= mesh->getMaxFramesForAnimation(mc->animationIndex))
+					mc->currentFrame = 1;
+
+				_animationBatch.batch.objects[mesh].push_back(drawObj->modelMatrix);
+				_animationBatch.batch.currentFrames[mesh].push_back(mc->currentFrame);
+				_animationBatch.batch.currAnimIndices[mesh].push_back(mc->animationIndex);
+				_shadowAnimationBatch.batch.objects[mesh].push_back(drawObj->modelMatrix);
+				_shadowAnimationBatch.batch.currentFrames[mesh].push_back(mc->currentFrame);
+				_shadowAnimationBatch.batch.currAnimIndices[mesh].push_back(mc->animationIndex);
+
+				mc->animationCounter += 1 * delta;
 			}
 
 			// Sort Front to back
@@ -371,15 +388,12 @@ namespace Barcode {
 			for (auto& kv : _shadowBatch.batch.objects)
 				kv.second.clear();
 
-			for (auto& drawObj : _engine->getRenderer()->activeDrawObjects())
-				if (!drawObj->disable && drawObj->mesh)
-					_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-
 			_shadowBatch.pipeline->setValue(0, _light->getViewMatrix());
 			_shadowBatch.pipeline->setValue(1, _light->getProjectionMatrix());
 
 			//_engine->getRenderer()->render(_shadowBatch.batch);
 			_engine->getRenderer()->renderShadows(_shadowBatch.batch);
+			_engine->getRenderer()->renderShadows(_shadowAnimationBatch.batch);
 		}
 
 		static bool enableSSAO = true;

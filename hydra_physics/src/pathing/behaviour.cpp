@@ -58,7 +58,7 @@ void Behaviour::refreshComponents()
 
 unsigned int Behaviour::idleState(float dt)
 {
-	thisEnemy.drawObject->drawObject->mesh->setAnimationIndex(0);
+	thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->animationIndex = 0;
 	//Play the idle animation
 	if (targetPlayer.transform->position.x > thisEnemy.ai->mapOffset.x && targetPlayer.transform->position.x < WORLD_SIZE && targetPlayer.transform->position.z > thisEnemy.ai->mapOffset.z && targetPlayer.transform->position.z < WORLD_SIZE)
 	{
@@ -75,7 +75,7 @@ unsigned int Behaviour::idleState(float dt)
 unsigned int Behaviour::searchingState(float dt)
 {
 	//While the enemy is searching, play the walking animation
-	thisEnemy.drawObject->drawObject->mesh->setAnimationIndex(1);
+	thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->animationIndex = 1;
 	if (thisEnemy.ai->idleTimer >= 5)
 	{
 		state = IDLE;
@@ -160,7 +160,7 @@ unsigned int Behaviour::foundState(float dt)
 unsigned int Behaviour::attackingState(float dt)
 {
 	//When the enemy attack, start the attack animation
-	thisEnemy.drawObject->drawObject->mesh->setAnimationIndex(2);
+	thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->animationIndex = 2;
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) >= thisEnemy.ai->range)
 	{
 		thisEnemy.ai->idleTimer = 0;
@@ -303,7 +303,7 @@ void AlienBehaviour::run(float dt)
 unsigned int AlienBehaviour::attackingState(float dt)
 {
 	//When the enemy attack, start the attack animation
-	thisEnemy.drawObject->drawObject->mesh->setAnimationIndex(2);
+	thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->animationIndex = 2;
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) >= thisEnemy.ai->range)
 	{
 		thisEnemy.ai->idleTimer = 0;

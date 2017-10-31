@@ -110,6 +110,7 @@ namespace Barcode {
 		RenderBatch _viewBatch;
 		RenderBatch _postTestBatch;
 		RenderBatch _shadowBatch;
+		AnimationRenderBatch _shadowAnimationBatch;
 		RenderBatch _ssaoBatch;
 		RenderBatch _hudBatch;
 

@@ -25,14 +25,21 @@ void MeshComponent::loadMesh(const std::string meshFile) {
 	drawObject = Hydra::World::World::getEntity(entityID)->addComponent<DrawObjectComponent>();
 	mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(meshFile);
 	drawObject->drawObject->mesh = mesh.get();
+	currentFrame = 1;
+	animationCounter = 0;
+	animationIndex = 0;
 }
 
 void MeshComponent::serialize(nlohmann::json& json) const {
 	json["meshFile"] = meshFile;
+	json["currentFrame"] = currentFrame;
+	json["animationCounter"] = animationCounter;
 }
 
 void MeshComponent::deserialize(nlohmann::json& json) {
 	loadMesh(json["meshFile"].get<std::string>());
+	currentFrame = json["currentFrame"].get<int>();
+	animationCounter = json["animationCounter"].get<float>();
 }
 
 void MeshComponent::registerUI() {
