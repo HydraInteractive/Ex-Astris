@@ -47,7 +47,7 @@ void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 			_openList.pop_back();
 
 			//End reached
-			if (currentNode->id == _endNode->id)
+			if (currentNode->pos == _endNode->pos)
 			{
 				_endNode->lastNode = currentNode->lastNode;
 
@@ -118,12 +118,12 @@ void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode, in
 		return;
 	}
 
-	int currentId = z * MAP_SIZE + x;
+	MapVec currentPos = MapVec(x, z);
 
 	//If the node has already been visited, don't worry about it
 	for (size_t i = 0; i < _visitedList.size(); i++)
 	{
-		if (currentId == _visitedList[i]->id)
+		if (currentPos == _visitedList[i]->pos)
 		{
 			return;
 		}
@@ -134,7 +134,7 @@ void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode, in
 	bool found = false;
 	for (size_t i = 0; i < _openList.size() && !found;i++)
 	{
-		if (currentId == _openList[i]->id)
+		if (currentPos == _openList[i]->pos)
 		{
 			found = true;
 			thisNode = _openList[i];

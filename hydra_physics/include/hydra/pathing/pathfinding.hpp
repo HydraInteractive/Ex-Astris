@@ -33,13 +33,14 @@ public:
 		void set(const glm::vec2 &vec) { baseVec = vec; }
 		void set(const glm::vec3 &vec) { baseVec = glm::vec2(vec.x,vec.z); }
 
+
+		bool operator==(MapVec& other) { return this->baseVec == other.baseVec; }
 		operator glm::vec3() { return glm::vec3(baseVec.x, 0, baseVec.y); }
 		operator glm::vec2() { return baseVec; }
 	};
 	struct Node
 	{
 		MapVec pos;
-		int id;
 		std::shared_ptr<Node> lastNode;
 		float G = 0.0f;
 		float H = 0.0f;
@@ -49,7 +50,6 @@ public:
 		{
 			this->pos.x() = x;
 			this->pos.z() = z;
-			this->id = z * MAP_SIZE + x;
 			this->lastNode = lastNode;
 		}
 
