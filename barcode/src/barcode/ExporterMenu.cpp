@@ -1,17 +1,11 @@
 #include <barcode/ExporterMenu.hpp>
-#if 0
+#include <hydra/component/roomcomponent.hpp>
+
+using world = Hydra::World::World; 
 ExporterMenu::ExporterMenu()
-{
-	this->executableDir = "";
-	this->_root = nullptr;
-	this->_world = nullptr;
-	this->_selectedPath = "";
-}
-ExporterMenu::ExporterMenu(Hydra::World::IWorld* world)
 {
 	this->executableDir = _getExecutableDir();
 	this->_root = nullptr;
-	this->_world = world;
 	this->_selectedPath = "";
 	refresh();
 }
@@ -41,7 +35,7 @@ void ExporterMenu::render(bool &closeBool)
 	//File tree
 	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 60));
 	if (_root != nullptr)
-		_root->render(_world, &selectedNode, _prepExporting);
+		_root->render(&selectedNode, _prepExporting);
 	ImGui::EndChild();
 
 	ImGui::SameLine();
@@ -117,8 +111,8 @@ void ExporterMenu::render(bool &closeBool)
 		if (doExport)
 		{
 			std::ofstream outFile;
-			if (getRoomEntity(_world) != nullptr)
-				BlueprintLoader::save(fileToSave, "Room", getRoomEntity(_world));
+			if (getRoomEntity() != nullptr)
+				BlueprintLoader::save(fileToSave, "Room", getRoomEntity());
 			_prepExporting = false;
 			closeBool = false;
 		}
@@ -135,13 +129,13 @@ void ExporterMenu::refresh()
 	_root = new Node(executableDir + "/assets");
 	//_root->clean();
 }
-std::shared_ptr<IEntity> ExporterMenu::getRoomEntity(Hydra::World::IWorld* world)
+std::shared_ptr<Entity> ExporterMenu::getRoomEntity()
 {
-	std::vector<std::shared_ptr<IEntity>> entities = world->getWorldRoot()->getChildren();
-	for (size_t i = 0; i < entities.size(); i++)
+	std::vector<std::shared_ptr<Entity>> entities;
+	world::getEntitiesWithComponents<Hydra::Component::TransformComponent, Hydra::Component::RoomComponent>(entities);
+	if (entities.size() > 0)
 	{
-		if (entities[i]->getName() == "Room")
-			return entities[i];
+		return entities[0];
 	}
 	return nullptr;
 }
@@ -281,19 +275,21 @@ void ExporterMenu::Node::clean()
 		}
 	}
 }
-void ExporterMenu::Node::render(Hydra::World::IWorld* world, Node** selectedNode, bool& prepExporting)
+void ExporterMenu::Node::render(Node** selectedNode, bool& prepExporting)
 {
 	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
 	//TODO: Folder icon opening
-	if (ImGui::TreeNodeEx(this, node_flags, ICON_FA_FOLDER " %s", _name.c_str()))
-	{	
+	auto label = ICON_FA_FOLDER " %s";
+	if (ImGui::TreeNodeEx(this, node_flags, label, _name.c_str()))
+	{
+		label = ICON_FA_FOLDER_OPEN " %s";
 		if (ImGui::IsItemClicked())
 		{
 			(*selectedNode) = this;
 		}
 		for (size_t i = 0; i < this->_subfolders.size(); i++)
 		{
-			_subfolders[i]->render(world, selectedNode, prepExporting);
+			_subfolders[i]->render(selectedNode, prepExporting);
 		}
 		for (size_t i = 0; i < this->_files.size(); i++)
 		{
@@ -401,4 +397,3 @@ void ExporterMenu::Node::_getContentsOfDir(const std::string &directory, std::ve
 	closedir(dir);
 #endif
 }
-#endif

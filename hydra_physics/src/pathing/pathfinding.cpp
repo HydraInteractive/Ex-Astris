@@ -40,7 +40,7 @@ void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 	if (!foundGoal)
 	{
 		//TODO: Infinite loop concerns
-		while(!_openList.empty() && !foundGoal)
+		while (!_openList.empty() && !foundGoal)
 		{
 			std::shared_ptr<Node> currentNode = _openList.back();
 			_visitedList.push_back(_openList.back());
@@ -65,30 +65,29 @@ void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 			{
 				//East
 				_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z(), currentNode, map);
-			
+
 				//West
 				_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z(), currentNode, map);
-			
+
 				//North
 				_discoverNode(currentNode->pos.x(), currentNode->pos.z() + 1, currentNode, map);
-			
+
 				//South
 				_discoverNode(currentNode->pos.x(), currentNode->pos.z() - 1, currentNode, map);
-			
+
 				//North West
 				_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() + 1, currentNode, map);
-			
+
 				//North East
 				_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() + 1, currentNode, map);
-			
+
 				//South West
 				_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() - 1, currentNode, map);
-			
+
 				//South East
 				_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() - 1, currentNode, map);
 			}
 		}
-
 	}
 }
 
@@ -112,10 +111,10 @@ glm::vec3 PathFinding::nextPathPos(const glm::vec3& pos, const float& radius)
 void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode, int(&map)[WORLD_SIZE][WORLD_SIZE])
 {
 	//If this node is inaccessable, ignore it
-	//if (map[x][z] == 1 || map[x][z] == 2)
-	//{
-	//	return;
-	//}
+	if (map[x][z] == 1 || map[x][z] == 2)
+	{
+		return;
+	}
 
 	int id = z * WORLD_SIZE + x;
 

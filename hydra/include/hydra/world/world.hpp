@@ -42,7 +42,10 @@ namespace Hydra::Component {
 		EditorCamera = BIT(13),
 		DrawObject = BIT(14),
 		PointLight = BIT(15),
-		Movement = BIT(16)
+		Movement = BIT(16),
+		Room = BIT(17),
+		Spawner = BIT(18),
+		SoundFx = BIT(19)
 	};
 #undef BIT
 
@@ -71,12 +74,14 @@ namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API GrenadeComponent;
 	struct HYDRA_PHYSICS_API MineComponent;
 	struct HYDRA_GRAPHICS_API RigidBodyComponent;
-	struct HYDRA_GRAPHICS_API EditorCameraComponent;
+	struct HYDRA_GRAPHICS_API FreeCameraComponent;
 	struct HYDRA_GRAPHICS_API DrawObjectComponent;
 	struct HYDRA_GRAPHICS_API PointLightComponent;
 	struct HYDRA_PHYSICS_API LifeComponent;
 	struct HYDRA_PHYSICS_API MovementComponent;
-
+	struct HYDRA_PHYSICS_API RoomComponent;
+	struct HYDRA_PHYSICS_API SpawnerComponent;
+	struct HYDRA_SOUND_API SoundFxComponent;
 
 	using ComponentTypes = Hydra::Ext::TypeTuple<
 		Hydra::World::IComponent<TransformComponent, ComponentBits::Transform>,
@@ -91,11 +96,14 @@ namespace Hydra::Component {
 		Hydra::World::IComponent<GrenadeComponent, ComponentBits::Grenade>,
 		Hydra::World::IComponent<MineComponent, ComponentBits::Mine>,
 		Hydra::World::IComponent<RigidBodyComponent, ComponentBits::RigidBody>,
-		Hydra::World::IComponent<EditorCameraComponent, ComponentBits::EditorCamera>,
+		Hydra::World::IComponent<FreeCameraComponent, ComponentBits::EditorCamera>,
 		Hydra::World::IComponent<DrawObjectComponent, ComponentBits::DrawObject>,
 		Hydra::World::IComponent<PointLightComponent, ComponentBits::PointLight>,
 		Hydra::World::IComponent<LifeComponent, ComponentBits::Life>,
-		Hydra::World::IComponent<MovementComponent, ComponentBits::Movement>
+		Hydra::World::IComponent<MovementComponent, ComponentBits::Movement>,
+		Hydra::World::IComponent<RoomComponent, ComponentBits::Room>,
+		Hydra::World::IComponent<SpawnerComponent, ComponentBits::Spawner>,
+		Hydra::World::IComponent<SoundFxComponent, ComponentBits::SoundFx>
 	>;
 };
 
@@ -257,7 +265,7 @@ namespace Hydra::World {
 	template <>
 	IComponentHandler* IComponent<Hydra::Component::RigidBodyComponent, Hydra::Component::ComponentBits::RigidBody>::componentHandler;
 	template <>
-	IComponentHandler* IComponent<Hydra::Component::EditorCameraComponent, Hydra::Component::ComponentBits::EditorCamera>::componentHandler;
+	IComponentHandler* IComponent<Hydra::Component::FreeCameraComponent, Hydra::Component::ComponentBits::EditorCamera>::componentHandler;
 	template <>
 	IComponentHandler* IComponent<Hydra::Component::DrawObjectComponent, Hydra::Component::ComponentBits::DrawObject>::componentHandler;
 	template <>
@@ -266,6 +274,12 @@ namespace Hydra::World {
 	IComponentHandler* IComponent<Hydra::Component::LifeComponent, Hydra::Component::ComponentBits::Life>::componentHandler;
 	template <>
 	IComponentHandler* IComponent<Hydra::Component::MovementComponent, Hydra::Component::ComponentBits::Movement>::componentHandler;
+	template <>
+	IComponentHandler* IComponent<Hydra::Component::RoomComponent, Hydra::Component::ComponentBits::Room>::componentHandler;
+	template <>
+	IComponentHandler* IComponent<Hydra::Component::SpawnerComponent, Hydra::Component::ComponentBits::Spawner>::componentHandler;
+	template <>
+	IComponentHandler* IComponent<Hydra::Component::SoundFxComponent, Hydra::Component::ComponentBits::SoundFx>::componentHandler;
 #endif
 
 	template HYDRA_BASE_API struct IComponent<Hydra::Component::TransformComponent, Hydra::Component::ComponentBits::Transform>;
@@ -280,11 +294,14 @@ namespace Hydra::World {
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::GrenadeComponent, Hydra::Component::ComponentBits::Grenade>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::MineComponent, Hydra::Component::ComponentBits::Mine>;
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::RigidBodyComponent, Hydra::Component::ComponentBits::RigidBody>;
-	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::EditorCameraComponent, Hydra::Component::ComponentBits::EditorCamera>;
+	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::FreeCameraComponent, Hydra::Component::ComponentBits::EditorCamera>;
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::DrawObjectComponent, Hydra::Component::ComponentBits::DrawObject>;
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::PointLightComponent, Hydra::Component::ComponentBits::PointLight>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::LifeComponent, Hydra::Component::ComponentBits::Life>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::MovementComponent, Hydra::Component::ComponentBits::Movement>;
+	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::RoomComponent, Hydra::Component::ComponentBits::Room>;
+	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::SpawnerComponent, Hydra::Component::ComponentBits::Spawner>;
+	template HYDRA_SOUND_API struct IComponent<Hydra::Component::SoundFxComponent, Hydra::Component::ComponentBits::SoundFx>;
 
 	struct HYDRA_BASE_API World final {
 		inline static std::shared_ptr<Entity>& root() {

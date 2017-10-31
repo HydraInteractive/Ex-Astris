@@ -3,7 +3,7 @@
 #include <hydra/ext/openmp.hpp>
 
 #include <hydra/component/cameracomponent.hpp>
-#include <hydra/component/EditorCameraComponent.hpp>
+#include <hydra/component/freecameracomponent.hpp>
 #include <algorithm>
 
 using namespace Hydra::System;
@@ -57,10 +57,10 @@ void CameraSystem::tick(float delta) {
 		cc->orientation = glm::normalize(cc->orientation);
 	}
 
-	//Process EditorCameraComponent
-	world::getEntitiesWithComponents<Hydra::Component::EditorCameraComponent>(entities);
+	//Process FreeCameraComponent
+	world::getEntitiesWithComponents<Hydra::Component::FreeCameraComponent>(entities);
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
-		auto ec = entities[i]->getComponent<Hydra::Component::EditorCameraComponent>();
+		auto ec = entities[i]->getComponent<Hydra::Component::FreeCameraComponent>();
 
 		ec->cameraYaw = ec->cameraYaw + mouseX * ec->sensitivity; //std::min(std::max(ec->cameraYaw + mouseX * ec->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
 		ec->cameraPitch = std::min(std::max(ec->cameraPitch + mouseY * ec->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));

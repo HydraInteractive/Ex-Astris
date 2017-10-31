@@ -1,6 +1,8 @@
 #pragma once
 #include <hydra/pathing/pathfinding.hpp>
 #include <hydra/world/world.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <hydra/component/componentmanager.hpp>
 #include <hydra/ext/api.hpp>
 #include <memory>
@@ -8,9 +10,9 @@
 class HYDRA_PHYSICS_API Behaviour
 {
 public:
-	Behaviour(std::shared_ptr<Hydra::World::Entity>& enemy, std::shared_ptr<Hydra::World::Entity>& player);
+	Behaviour(std::shared_ptr<Hydra::World::Entity> enemy);
 	Behaviour();
-	~Behaviour();
+	virtual ~Behaviour();
 
 	enum class Type{ALIEN,ROBOT,ALIENBOSS};
 	Type type = Type::ALIEN;
@@ -18,9 +20,12 @@ public:
 	enum {IDLE, SEARCHING, FOUND_GOAL, ATTACKING};
 	unsigned int state = IDLE;
 
+	enum BossPhase {CLAWING, SPITTING, SPAWNING, CHILLING};
+	BossPhase bossPhase = BossPhase::CLAWING;
+
 	virtual void run(float dt) = 0;
-	void setEnemyEntity(std::shared_ptr<Hydra::World::Entity>& enemy);
-	void setTargetPlayer(std::shared_ptr<Hydra::World::Entity>& player);
+	void setEnemyEntity(std::shared_ptr<Hydra::World::Entity> enemy);
+	void setTargetPlayer(std::shared_ptr<Hydra::World::Entity> player);
 	void refreshComponents();
 protected:
 	struct ComponentSet
@@ -44,12 +49,13 @@ protected:
 	virtual unsigned int attackingState(float dt);
 
 	virtual void executeTransforms();
+
 };
 
 class HYDRA_PHYSICS_API AlienBehaviour : public Behaviour
 {
 public:
-	AlienBehaviour(std::shared_ptr<Hydra::World::Entity>& enemy, std::shared_ptr<Hydra::World::Entity>& player);
+	AlienBehaviour(std::shared_ptr<Hydra::World::Entity> enemy);
 	AlienBehaviour();
 	~AlienBehaviour();
 	void run(float dt);
@@ -61,7 +67,7 @@ private:
 class HYDRA_PHYSICS_API RobotBehaviour : public Behaviour
 {
 public:
-	RobotBehaviour(std::shared_ptr<Hydra::World::Entity>& enemy, std::shared_ptr<Hydra::World::Entity>& player);
+	RobotBehaviour(std::shared_ptr<Hydra::World::Entity> enemy);
 	RobotBehaviour();
 	~RobotBehaviour();
 	void run(float dt);
@@ -73,7 +79,7 @@ private:
 class HYDRA_PHYSICS_API AlienBossBehaviour : public Behaviour
 {
 public:
-	AlienBossBehaviour(std::shared_ptr<Hydra::World::Entity>& enemy, std::shared_ptr<Hydra::World::Entity>& player);
+	AlienBossBehaviour(std::shared_ptr<Hydra::World::Entity> enemy);
 	AlienBossBehaviour();
 	~AlienBossBehaviour();
 	void run(float dt);
