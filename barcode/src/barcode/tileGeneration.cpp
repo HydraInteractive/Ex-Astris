@@ -51,7 +51,7 @@
 //							//Take a random room and read it. Don't spawn it until it fits
 //							std::string roomFile = _roomFileNames[std::rand() % _roomFileNames.size()];
 //							auto loadedRoom = Hydra::World::World::root()->spawn(BlueprintLoader::load(roomFile.c_str())->spawn(world));
-//
+//							
 //							if (loadedRoom.get()->getComponent<Hydra::Component::RoomComponent>()->getUpDoor()) {
 //								//If the tile is at the end of the grid or at the corner of the
 //								//dont spawn a room downards outside the grid
@@ -245,7 +245,7 @@
 //	}
 //}
 //
-//void tileGeneration::setUpMiddleRoom(std::string middleRoomPath, Hydra::World::IWorld * world) {
+//void tileGeneration::setUpMiddleRoom(std::string middleRoomPath) {
 //
 //	tiles[middleTile].get()->room.downDoor = true;
 //	tiles[middleTile].get()->room.upDoor = true;

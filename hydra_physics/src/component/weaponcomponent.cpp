@@ -30,7 +30,7 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 
 	if (bulletSpread == 0.0f) {
 		auto bullet = world::newEntity("Bullet", _bullets);
-		bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge.ATTIC");
+		bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge1.mATTIC");
 		auto b = bullet->addComponent<Hydra::Component::BulletComponent>();
 		b->position = position;
 		b->direction = -direction;
@@ -42,7 +42,7 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 	} else {
 		for (int i = 0; i < bulletsPerShot; i++) {
 			auto bullet = world::newEntity("Bullet", _bullets);
-			bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge.ATTIC");
+			bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge1.mATTIC");
 
 			std::random_device rd; //
 			std::mt19937 gen(rd()); // FIXME: Why always the same random?
