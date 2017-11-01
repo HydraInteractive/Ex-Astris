@@ -33,7 +33,11 @@ void SoundFxSystem::tick(float delta) {
 		auto soundFx = entities[i]->getComponent<SoundFxComponent>();
 		auto transform = entities[i]->getComponent<TransformComponent>();
 
-		soundFx->debug = soundFx->playingChannels.size();
+		for (size_t i = 0; i < soundFx->soundsToPlay.size(); i++) {
+			soundFx->playingSounds.push_back(Mix_LoadWAV(soundFx->soundsToPlay.back().c_str()));
+			soundFx->playingChannels.push_back(Mix_PlayChannel(-1, soundFx->playingSounds.back(), 0));
+			soundFx->soundsToPlay.pop_back();
+		}
 
 		for (size_t i = 0; i < soundFx->playingChannels.size(); i++){
 			if (Mix_Playing(soundFx->playingChannels[i])){
@@ -63,30 +67,3 @@ void SoundFxSystem::tick(float delta) {
 }
 
 void SoundFxSystem::registerUI() {}
-
-/*
-if (Mix_Playing(soundFx->channel)){
-float playerDirAngle = glm::degrees(atan2(forward.x, forward.z));
-float angle = glm::degrees(atan2(transform->position.x - playerPos.x, transform->position.z - playerPos.z));
-Sint16 angleToPlayer = ((int)(angle - (int)playerDirAngle) + 360) % 360;
-
-float range = glm::distance(transform->position, playerPos);
-
-Uint8 distance = std::min(255, (int)(range / 70 * 255));
-
-Mix_SetPosition(soundFx->channel, angleToPlayer, distance);
-}
-else{
-soundFx->channel = Mix_PlayChannel(-1, soundFx->testSound, 0);
-
-float playerDirAngle = glm::degrees(atan2(forward.x, forward.z));
-float angle = glm::degrees(atan2(transform->position.x - playerPos.x, transform->position.z - playerPos.z));
-Sint16 angleToPlayer = ((int)(angle - (int)playerDirAngle) + 360) % 360;
-
-float range = glm::distance(transform->position, playerPos);
-
-Uint8 distance = std::min(255, (int)(range / 70 * 255));
-
-Mix_SetPosition(soundFx->channel, angleToPlayer, distance);
-}
-*/

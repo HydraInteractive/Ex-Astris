@@ -28,6 +28,9 @@ void MeshComponent::loadMesh(const std::string meshFile) {
 	currentFrame = 1;
 	animationCounter = 0;
 	animationIndex = 0;
+
+	if (meshFile == "QUAD")
+		drawObject->drawObject->disable = true;
 }
 
 void MeshComponent::serialize(nlohmann::json& json) const {

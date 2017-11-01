@@ -15,10 +15,9 @@ using namespace Hydra::World;
 namespace Hydra::Component {
 	struct HYDRA_SOUND_API SoundFxComponent final : public IComponent<SoundFxComponent, ComponentBits::SoundFx>{
 	
+	std::vector<std::string> soundsToPlay;
 	std::vector<int> playingChannels;
 	std::vector<Mix_Chunk*> playingSounds;
-
-	float debug = 0;
 
 	~SoundFxComponent() final;
 

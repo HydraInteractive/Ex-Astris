@@ -1,8 +1,8 @@
-#include <hydra/component/EditorCameraComponent.hpp>
+#include <hydra/component/freecameracomponent.hpp>
 
-Hydra::Component::EditorCameraComponent::~EditorCameraComponent() {}
+Hydra::Component::FreeCameraComponent::~FreeCameraComponent() {}
 
-void Hydra::Component::EditorCameraComponent::serialize(nlohmann::json & json) const {
+void Hydra::Component::FreeCameraComponent::serialize(nlohmann::json & json) const {
 	json = {
 		{ "position", { position.x, position.y, position.z } },
 		{ "orientation", { orientation.x, orientation.y, orientation.z, orientation.w } },
@@ -14,7 +14,7 @@ void Hydra::Component::EditorCameraComponent::serialize(nlohmann::json & json) c
 	};
 }
 
-void Hydra::Component::EditorCameraComponent::deserialize(nlohmann::json & json) {
+void Hydra::Component::FreeCameraComponent::deserialize(nlohmann::json & json) {
 	auto& pos = json["position"];
 	position = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
 
@@ -28,7 +28,7 @@ void Hydra::Component::EditorCameraComponent::deserialize(nlohmann::json & json)
 	shiftMultiplier = json["shiftMultiplier"].get<float>();
 }
 
-void Hydra::Component::EditorCameraComponent::registerUI() {
+void Hydra::Component::FreeCameraComponent::registerUI() {
 	ImGui::DragFloat3("Position", glm::value_ptr(position), 0.01f);
 	ImGui::InputFloat("Movement Speed", &movementSpeed);
 	ImGui::InputFloat("Shift Multiplier", &shiftMultiplier);
@@ -36,8 +36,6 @@ void Hydra::Component::EditorCameraComponent::registerUI() {
 	ImGui::DragFloat("FOV", &fov);
 	ImGui::DragFloat("Z Near", &zNear, 0.001f);
 	ImGui::DragFloat("Z Far", &zFar);
-
-	float aspect = (renderTarget->getSize().x*1.0f) / renderTarget->getSize().y;
 	ImGui::InputFloat("Aspect Ratio", &aspect, 0, 0, -1, ImGuiInputTextFlags_ReadOnly);
 
 }

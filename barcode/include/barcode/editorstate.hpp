@@ -41,6 +41,7 @@
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
+#include <hydra/component/freecameracomponent.hpp>
 
 #include <imgui/imgui.h>
 #include <barcode/ImporterMenu.hpp>
@@ -148,10 +149,8 @@ namespace Barcode {
 
 		std::shared_ptr<Hydra::Renderer::ITexture> _ssaoNoise;
 
-		Hydra::Component::CameraComponent* _cc = nullptr;
+		Hydra::Component::FreeCameraComponent* _cc = nullptr;
 		Hydra::Component::LightComponent* _light = nullptr;
-
-		//Input _input;
 
 		Hydra::System::CameraSystem _cameraSystem;
 		Hydra::System::LightSystem _lightSystem;

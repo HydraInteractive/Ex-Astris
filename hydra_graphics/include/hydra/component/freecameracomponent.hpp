@@ -15,9 +15,7 @@
 using namespace Hydra::World;
 
 namespace Hydra::Component {
-	struct HYDRA_GRAPHICS_API EditorCameraComponent final : public IComponent<EditorCameraComponent, ComponentBits::EditorCamera> {
-		Hydra::Renderer::IRenderTarget* renderTarget = nullptr;
-
+	struct HYDRA_GRAPHICS_API FreeCameraComponent final : public IComponent<FreeCameraComponent, ComponentBits::EditorCamera> {
 		glm::vec3 position = glm::vec3(0, 5, 0);
 		float movementSpeed = 10.0f;
 		float shiftMultiplier = 5.0f;
@@ -33,9 +31,9 @@ namespace Hydra::Component {
 		float cameraYaw = 0.0f;
 		float cameraPitch = 0.0f;
 
-		~EditorCameraComponent() final;
+		~FreeCameraComponent() final;
 
-		inline const std::string type() const final { return "EditorCameraComponent"; }
+		inline const std::string type() const final { return "FreeCameraComponent"; }
 
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
@@ -43,7 +41,7 @@ namespace Hydra::Component {
 
 		// TODO: Cache these?
 		inline glm::mat4 getViewMatrix() const { return glm::translate(glm::mat4_cast(orientation), -position); }
-		inline glm::mat4 getProjectionMatrix() const { return glm::perspective(glm::radians(fov), (renderTarget->getSize().x*1.0f) / renderTarget->getSize().y, zNear, zFar); }
+		inline glm::mat4 getProjectionMatrix() const { return glm::perspective(glm::radians(fov), aspect, zNear, zFar); }
 	};
 };
 
