@@ -176,12 +176,19 @@ namespace Barcode {
 			batch.batch.renderTarget = batch.output.get();
 			batch.batch.pipeline = batch.pipeline.get();
 		
-
 			auto& animBatch = _shadowAnimationBatch;
-			animBatch.batch.clearColor = batch.batch.clearColor;
+			animBatch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/shadowAnimation.vert");
+			animBatch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/shadow.frag");
+
+			animBatch.pipeline = Hydra::Renderer::GLPipeline::create();
+			animBatch.pipeline->attachStage(*animBatch.vertexShader);
+			animBatch.pipeline->attachStage(*animBatch.fragmentShader);
+			animBatch.pipeline->finalize();
+
+			animBatch.batch.clearColor = glm::vec4(0,0,0,0);
 			animBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::none;
-			animBatch.batch.renderTarget = batch.batch.renderTarget;
-			animBatch.batch.pipeline = batch.batch.pipeline;
+			animBatch.batch.renderTarget = batch.output.get();
+			animBatch.batch.pipeline = animBatch.pipeline.get();
 		}
 
 		{ // SSAO
@@ -323,6 +330,18 @@ namespace Barcode {
 			for (auto& kv : _animationBatch.batch.currAnimIndices)
 				kv.second.clear();
 
+			for (auto& kv : _shadowBatch.batch.objects)
+				kv.second.clear();
+
+			for (auto& kv : _shadowAnimationBatch.batch.objects)
+				kv.second.clear();
+
+			for (auto& kv : _shadowAnimationBatch.batch.currAnimIndices)
+				kv.second.clear();
+
+			for (auto& kv : _shadowAnimationBatch.batch.currentFrames)
+				kv.second.clear();
+
 			for (auto& drawObj : _engine->getRenderer()->activeDrawObjects()) {
 				if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false) {
 					_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
@@ -385,11 +404,11 @@ namespace Barcode {
 		}
 
 		{
-			for (auto& kv : _shadowBatch.batch.objects)
-				kv.second.clear();
-
 			_shadowBatch.pipeline->setValue(0, _light->getViewMatrix());
 			_shadowBatch.pipeline->setValue(1, _light->getProjectionMatrix());
+
+			_shadowAnimationBatch.pipeline->setValue(0, _light->getViewMatrix());
+			_shadowAnimationBatch.pipeline->setValue(1, _light->getProjectionMatrix());
 
 			//_engine->getRenderer()->render(_shadowBatch.batch);
 			_engine->getRenderer()->renderShadows(_shadowBatch.batch);

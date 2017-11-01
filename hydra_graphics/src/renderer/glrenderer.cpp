@@ -139,11 +139,14 @@ public:
 
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
 
-		batch.pipeline->setValue(2, true);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
-
+			
+			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
+			glBindVertexArray(mesh->getID());
+			
 			batch.pipeline->setValue(20, 0);
+
 			constexpr unsigned int h = 1; // Width is always going to be 1
 			auto& currentFrames = batch.currentFrames[mesh];
 			auto& currAnimIndices = batch.currAnimIndices[mesh];
@@ -184,18 +187,17 @@ public:
 
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
 
-		batch.pipeline->setValue(2, false);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
 
+			glBindVertexArray(mesh->getID());
+			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
 			size_t size = kv.second.size();
 			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
 			for (size_t i = 0; i < size; i += maxPerLoop) {
 				size_t amount = std::min(size - i, maxPerLoop);
-				glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
 				glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
 				glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &kv.second[i]);
-				glBindVertexArray(mesh->getID());
 				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
 			}
 		}
