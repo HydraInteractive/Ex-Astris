@@ -51,24 +51,15 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 		bulletPhysWorld->enable(rbc.get());
 		rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 3000);
 		rigidBody->setActivationState(DISABLE_DEACTIVATION);
+		rigidBody->setGravity(btVector3(0, 0, 0));
 
 	} else {
 		for (int i = 0; i < bulletsPerShot; i++) {
 			auto bullet = world::newEntity("Bullet", _bullets);
 			bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SmallCargo.mATTIC");
 
-			//std::random_device rd; //
-			//std::mt19937 gen(rd()); // FIXME: Why always the same random?
-			//debug = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
-			//std::uniform_real_distribution<>dis(0, 2 * 3.14); //
-			//float phi = dis(gen);
-			//dis = std::uniform_real_distribution<>(0, 1.0);
-			//float distance = dis(gen) * bulletSpread;
-			//dis = std::uniform_real_distribution<>(0, 3.14);
-			//float theta = dis(gen);
-
 			float phi = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
-			float distance = bulletSpread * ((float)rand() / (float)(RAND_MAX));
+			float distance = ((float)rand() / (float)(RAND_MAX)) * bulletSpread;
 			float theta = ((float)rand() / (float)(RAND_MAX)) * 3.14f;
 
 			glm::vec3 bulletDirection = -direction;
@@ -94,6 +85,7 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 			bulletPhysWorld->enable(rbc.get());
 			rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 3000);
 			rigidBody->setActivationState(DISABLE_DEACTIVATION);
+			rigidBody->setGravity(btVector3(0,0,0));
 		}
 	}
 	fireRateTimer = fireRateRPM / 60000.0f;

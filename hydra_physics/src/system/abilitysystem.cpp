@@ -21,7 +21,9 @@ void AbilitySystem::tick(float delta) {
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto g = entities[i]->getComponent<Hydra::Component::GrenadeComponent>();
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
-
+		
+		//OLD CODE BEFORE BULLLETPHYSICS
+		/*
 		g->direction.y -= 0.8 * delta;
 		g->velocity = std::max(0.0f, g->velocity - 2.0f * delta);
 
@@ -42,6 +44,7 @@ void AbilitySystem::tick(float delta) {
 
 		if (g->velocity == 0 && g->fallingVelocity == 0)
 			entities[i]->dead = true;
+		*/
 	}
 
 	//Process MineComponent
@@ -51,7 +54,8 @@ void AbilitySystem::tick(float delta) {
 		auto m = entities[i]->getComponent<Hydra::Component::MineComponent>();
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 
-		m->direction.y -= 0.8 * delta;
+		//OLD CODE BEFORE BULLLETPHYSICS
+		/*m->direction.y -= 0.8 * delta;
 		m->velocity = std::max(0.0f, m->velocity - 2.0f * delta);
 
 		if (m->fallingVelocity < 0)
@@ -70,7 +74,7 @@ void AbilitySystem::tick(float delta) {
 
 		m->timer -= delta;
 		if (m->timer <= 0)
-			entities[i]->dead = true;
+			entities[i]->dead = true;*/
 	}
 }
 
