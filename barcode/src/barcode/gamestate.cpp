@@ -895,7 +895,7 @@ namespace Barcode {
 			auto particleEmitter = world::newEntity("ParticleEmitter", world::root());
 			particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("QUAD");
 			auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
-			p->delay = 1.0f / 15.0f;
+			p->delay = 1.0f / 256.0f;
 			auto t = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ 4, 0, 4 };
 		}
