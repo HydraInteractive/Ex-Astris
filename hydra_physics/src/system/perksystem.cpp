@@ -19,7 +19,7 @@ void PerkSystem::tick(float delta) {
 		auto perks = entities[i]->getComponent<PerkComponent>();
 
 		for (size_t i = 0; i < perks->newPerks.size(); i++){
-			onActivation(perks->newPerks.back(), entities[i].get());
+			onPickUp(perks->newPerks.back(), entities[i].get());
 			perks->newPerks.pop_back();
 		}
 
@@ -29,13 +29,20 @@ void PerkSystem::tick(float delta) {
 		}
 	}
 }
-void PerkSystem::onActivation(Perk newPerk, Entity* entity) {
+void PerkSystem::onPickUp(Perk newPerk, Entity* playerEntity) {
 	switch (newPerk){
-	case PERK_MAGNETICBULLEETS:
+	case PERK_MAGNETICBULLEETS:	{
+		
+	}
 		break;
-	case PERK_HOMINGBULLETS:
+	case PERK_HOMINGBULLETS: {
+
+	}
 		break;
-	case PERK_GRENADE:
+	case PERK_GRENADE: {
+		auto player = playerEntity->getComponent<PlayerComponent>();
+		player->activeAbillies.addAbility(&AbilityHandler::grenadeAbility);
+	}
 		break;
 	default:
 		break;

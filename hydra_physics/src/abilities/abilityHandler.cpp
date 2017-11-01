@@ -4,11 +4,16 @@ using world = Hydra::World::World;
 
 AbilityHandler::AbilityHandler(){
 	_activeAbility = 0;
-	_abilityList.push_back(&AbilityHandler::mineAbility);
+	//_abilityList.push_back(&AbilityHandler::mineAbility);
+	//_cooldownList.push_back(0);
+}
+void AbilityHandler::addAbility(void(AbilityHandler::*newAbility)(Hydra::World::Entity*, glm::vec3, glm::vec3))
+{
+	_abilityList.push_back(newAbility);
 	_cooldownList.push_back(0);
 }
 void AbilityHandler::useAbility(Hydra::World::Entity* abilitiesEntity, glm::vec3 position, glm::vec3 direction) {
-	if (_cooldownList[_activeAbility] == 0)
+	if (_cooldownList.size() > 0 && _cooldownList[_activeAbility] == 0)
 	{
 		(this->*_abilityList[_activeAbility])(abilitiesEntity, position, direction);
 		

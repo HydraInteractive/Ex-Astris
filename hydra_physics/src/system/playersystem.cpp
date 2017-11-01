@@ -11,6 +11,7 @@
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/soundfxcomponent.hpp>
+#include <hydra/component/perkcomponent.hpp>
 
 #include <hydra/engine.hpp>
 
@@ -35,6 +36,7 @@ void PlayerSystem::tick(float delta) {
 		auto life = entities[i]->getComponent<Component::LifeComponent>();
 		auto movement = entities[i]->getComponent<Component::MovementComponent>();
 		auto soundFx = entities[i]->getComponent<SoundFxComponent>();
+		auto perks = entities[i]->getComponent<PerkComponent>();
 
 		//player->activeBuffs.onTick(life->maxHP, life->health);
 
@@ -62,6 +64,12 @@ void PlayerSystem::tick(float delta) {
 			}
 
 			if (keysArray[SDL_SCANCODE_F] && !player->prevKBFrameState[Keys::F]) {
+				if (weapon->debug != 1.0f)
+				{
+					weapon->debug = 1.0f;
+					perks->newPerks.push_back(PERK_GRENADE);
+				}
+
 				const glm::vec3 forward = glm::vec3(glm::vec4{0, 0, 1, 0} * rotation);
 				auto abilitiesEntity = std::find_if(entities[i]->children.begin(), entities[i]->children.end(), [](Hydra::World::EntityID id) { return world::getEntity(id)->name == "Abilities"; });
 				std::shared_ptr<Entity> e;

@@ -776,6 +776,7 @@ namespace Barcode {
 			auto h = playerEntity->addComponent<Hydra::Component::LifeComponent>();
 			auto m = playerEntity->addComponent<Hydra::Component::MovementComponent>();
 			auto s = playerEntity->addComponent<Hydra::Component::SoundFxComponent>();
+			auto perks = playerEntity->addComponent<Hydra::Component::PerkComponent>();
 			h->health = 100;
 			h->maxHP = 100;
 			m->movementSpeed = 20.0f;

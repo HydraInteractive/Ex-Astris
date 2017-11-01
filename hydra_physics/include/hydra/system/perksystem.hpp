@@ -11,10 +11,10 @@ namespace Hydra::System {
 		~PerkSystem() final;
 
 		void tick(float delta) final;
-		void onActivation(Perk newPerk, Entity* entity);
+		void onPickUp(Perk newPerk, Entity* playerEntity);
 		void onTick(Perk activePerk);
 
-		inline const std::string type() const final { return "PlayerSystem"; }
+		inline const std::string type() const final { return "PerkSystem"; }
 		void registerUI() final;
 	};
 }
