@@ -342,87 +342,94 @@ namespace Barcode {
 			for (auto& kv : _shadowAnimationBatch.batch.currentFrames)
 				kv.second.clear();
 
-			//for (auto& drawObj : _engine->getRenderer()->activeDrawObjects()) {
-			//	if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false) {
-			//		_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-			//		_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-			//	}
-			//}
+			static bool enableFrustumCulling = true;
 
-			float radius = 5.f;
-			std::vector<std::shared_ptr<Entity>> entities;
-			world::getEntitiesWithComponents<Hydra::Component::MeshComponent, Hydra::Component::DrawObjectComponent, Hydra::Component::TransformComponent>(entities);
+			ImGui::Checkbox("Enable VF Culling", &enableFrustumCulling);
+			if (enableFrustumCulling) {
+				float radius = 5.f;
+				std::vector<std::shared_ptr<Entity>> entities;
+				world::getEntitiesWithComponents<Hydra::Component::MeshComponent, Hydra::Component::DrawObjectComponent, Hydra::Component::TransformComponent>(entities);
 
-			auto viewMatrix = _cc->getViewMatrix();
-			glm::vec3 rightVector = { viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0] };
-			glm::vec3 upVector = { viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1] };
-			glm::vec3 dir = glm::cross(rightVector, upVector);
-			_cameraSystem.setCamInternals(*_cc);
-			_cameraSystem.setCamDef(_cc->position, dir, upVector, rightVector, *_cc);
+				auto viewMatrix = _cc->getViewMatrix();
+				glm::vec3 rightVector = { viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0] };
+				glm::vec3 upVector = { viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1] };
+				glm::vec3 dir = glm::cross(rightVector, upVector);
+				_cameraSystem.setCamInternals(*_cc);
+				_cameraSystem.setCamDef(_cc->position, dir, upVector, rightVector, *_cc);
 
-			for (auto e : entities) {
-				auto tc = e->getComponent<Hydra::Component::TransformComponent>();
-				auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
-				int result = _cameraSystem.sphereInFrustum(tc->position, radius, *_cc);
-				if (result == _cc->INSIDE || result == _cc->INTERSECT) {
+				for (auto e : entities) {
+					auto tc = e->getComponent<Hydra::Component::TransformComponent>();
+					auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
+					int result = _cameraSystem.sphereInFrustum(tc->position, radius, *_cc);
+					if (result == _cc->INSIDE || result == _cc->INTERSECT) {
+						if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false) {
+							_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+							_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+						}
+
+						else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
+							_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+
+							auto& mc = e->getComponent < Hydra::Component::MeshComponent>();
+							int currentFrame = mc->currentFrame;
+							float animationCounter = mc->animationCounter;
+
+							if (animationCounter > 1 / 24.0f && currentFrame < drawObj->mesh->getMaxFramesForAnimation(mc->animationIndex)) {
+								mc->animationCounter -= 1 / 24.0f;
+								mc->currentFrame += 1;
+							}
+							else if (currentFrame >= drawObj->mesh->getMaxFramesForAnimation(mc->animationIndex))
+								mc->currentFrame = 1;
+
+							_animationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
+							_animationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
+							_shadowAnimationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+							_shadowAnimationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
+							_shadowAnimationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
+							mc->animationCounter += 1 * delta;
+						}
+					}
+				}
+			}
+			else {
+				// This is so stupid; someone save this code I need to do other stuff.
+				for (auto& drawObj : _engine->getRenderer()->activeDrawObjects()) {
 					if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false) {
 						_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 						_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 					}
+				}
 
-					else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
-						_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-
-						auto& mc = e->getComponent < Hydra::Component::MeshComponent>();
-						int currentFrame = mc->currentFrame;
-						float animationCounter = mc->animationCounter;
-
-						if (animationCounter > 1 / 24.0f && currentFrame < drawObj->mesh->getMaxFramesForAnimation(mc->animationIndex)) {
-							mc->animationCounter -= 1 / 24.0f;
-							mc->currentFrame += 1;
-						}
-						else if (currentFrame >= drawObj->mesh->getMaxFramesForAnimation(mc->animationIndex))
-							mc->currentFrame = 1;
-
-						_animationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
-						_animationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
-						_shadowAnimationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-						_shadowAnimationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
-						_shadowAnimationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
-						mc->animationCounter += 1 * delta;
+				// Should fix so drawobject has pointer to entity so i don't have to use getEntitiesWithComponents since it unnecessary
+				std::vector<std::shared_ptr<Hydra::World::Entity>> meshEntities;
+				world::getEntitiesWithComponents<Hydra::Component::MeshComponent, Hydra::Component::DrawObjectComponent, Hydra::Component::TransformComponent>(meshEntities);
+				int i = 0;
+				for (auto e : meshEntities) {
+					auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
+					auto mesh = drawObj->mesh;
+					if (mesh->hasAnimation() == false || drawObj->disable || !drawObj->mesh)
+						continue;
+				
+					auto mc = e->getComponent<Hydra::Component::MeshComponent>();
+					int currentFrame = mc->currentFrame;
+					float animationCounter = mc->animationCounter;
+				
+					if (animationCounter > 1 / 24.0f && currentFrame < mesh->getMaxFramesForAnimation(mc->animationIndex)) {
+						mc->animationCounter -= 1 / 24.0f;
+						mc->currentFrame += 1;
 					}
+					else if (currentFrame >= mesh->getMaxFramesForAnimation(mc->animationIndex))
+						mc->currentFrame = 1;
+				
+					_animationBatch.batch.objects[mesh].push_back(drawObj->modelMatrix);
+					_animationBatch.batch.currentFrames[mesh].push_back(mc->currentFrame);
+					_animationBatch.batch.currAnimIndices[mesh].push_back(mc->animationIndex);
+					_shadowAnimationBatch.batch.objects[mesh].push_back(drawObj->modelMatrix);
+					_shadowAnimationBatch.batch.currentFrames[mesh].push_back(mc->currentFrame);
+					_shadowAnimationBatch.batch.currAnimIndices[mesh].push_back(mc->animationIndex);
+				
+					mc->animationCounter += 1 * delta;
 				}
-			}
-
-			// Should fix so drawobject has pointer to entity so i don't have to use getEntitiesWithComponents since it unnecessary
-			std::vector<std::shared_ptr<Hydra::World::Entity>> animatedMeshes;
-			world::getEntitiesWithComponents<Hydra::Component::MeshComponent, Hydra::Component::DrawObjectComponent, Hydra::Component::TransformComponent>(animatedMeshes);
-			int i = 0;
-			for (auto e : animatedMeshes) {
-				auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
-				auto mesh = drawObj->mesh;
-				if (mesh->hasAnimation() == false || drawObj->disable || !drawObj->mesh)
-					continue;
-			
-				auto mc = e->getComponent<Hydra::Component::MeshComponent>();
-				int currentFrame = mc->currentFrame;
-				float animationCounter = mc->animationCounter;
-			
-				if (animationCounter > 1 / 24.0f && currentFrame < mesh->getMaxFramesForAnimation(mc->animationIndex)) {
-					mc->animationCounter -= 1 / 24.0f;
-					mc->currentFrame += 1;
-				}
-				else if (currentFrame >= mesh->getMaxFramesForAnimation(mc->animationIndex))
-					mc->currentFrame = 1;
-			
-				_animationBatch.batch.objects[mesh].push_back(drawObj->modelMatrix);
-				_animationBatch.batch.currentFrames[mesh].push_back(mc->currentFrame);
-				_animationBatch.batch.currAnimIndices[mesh].push_back(mc->animationIndex);
-				_shadowAnimationBatch.batch.objects[mesh].push_back(drawObj->modelMatrix);
-				_shadowAnimationBatch.batch.currentFrames[mesh].push_back(mc->currentFrame);
-				_shadowAnimationBatch.batch.currAnimIndices[mesh].push_back(mc->animationIndex);
-			
-				mc->animationCounter += 1 * delta;
 			}
 
 			// Sort Front to back
