@@ -379,7 +379,7 @@ namespace Barcode {
 		static bool enableBlur = true;
 		ImGui::Checkbox("Enable blur", &enableBlur);
 
-		{
+		if (enableSSAO) {
 
 			_ssaoBatch.pipeline->setValue(0, 0);
 			_ssaoBatch.pipeline->setValue(1, 1);
@@ -393,8 +393,8 @@ namespace Barcode {
 			_ssaoNoise->bind(2);
 
 			_engine->getRenderer()->postProcessing(_ssaoBatch.batch);
-			int nrOfTImes = 1;
-			_blurGlowTexture((*_ssaoBatch.output)[0], nrOfTImes, (*_ssaoBatch.output)[0]->getSize(), _fiveGaussianKernel1, enableBlur)
+			int nrOfTimes = 1;
+			_blurGlowTexture((*_ssaoBatch.output)[0], nrOfTimes, (*_ssaoBatch.output)[0]->getSize(), _fiveGaussianKernel1, enableBlur)
 				->resolve(0, (*_ssaoBatch.output)[0]);
 		}
 
@@ -780,7 +780,6 @@ namespace Barcode {
 			h->health = 100;
 			h->maxHP = 100;
 			m->movementSpeed = 20.0f;
-			c->renderTarget = _geometryBatch.output.get();
 			//c->position = glm::vec3{ 5, 0, -3 };
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ 0, 0, 20 };
@@ -798,9 +797,11 @@ namespace Barcode {
 		{
 			auto alienEntity = world::newEntity("Alien1", world::root());
 			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
-			a->damage = 4;
-			a->originalRange = 4;
 			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+			a->damage = 4;
+			a->behaviour->originalRange = 4;
+			a->radius = 2;
+
 			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 			h->maxHP = 80;
 			h->health = 80;
@@ -809,7 +810,7 @@ namespace Barcode {
 			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ 10, 0, 20 };
 			t->scale = glm::vec3{ 2,2,2 };
-			a->_scale = t->scale;
+			
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
 		}
 
@@ -920,7 +921,6 @@ namespace Barcode {
 
 		{
 			_cc = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get());
-			_cc->renderTarget = _geometryBatch.output.get();
 
 			for (auto& rb : Hydra::Component::RigidBodyComponent::componentHandler->getActiveComponents()) {
 				_engine->log(Hydra::LogLevel::normal, "Enabling bullet for %s", world::getEntity(rb->entityID)->name.c_str());

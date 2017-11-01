@@ -25,13 +25,14 @@ enum string CFlagsHydraSoundLib = "-DHYDRA_SOUND_EXPORTS " ~ CFlagsLib;
 enum string CFlagsExec = "-DBARCODE_EXPORTS " ~ CFlagsExecBase ~ warnings ~ " -Ibarcode/include " ~ SubProjectsInclude;
 
 enum LFlagsHydraBaseLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -fdiagnostics-color=always -lm -ldl -lSDL2";
-enum LFlagsHydraGraphicsLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -fdiagnostics-color=always -ldl -lhydra -lGL -lSDL2 -lSDL2_image -lSDL2_ttf";
+enum LFlagsHydraGraphicsLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -fdiagnostics-color=always -ldl -lhydra -lGL -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer";
 enum LFlagsHydraNetworkLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -fdiagnostics-color=always -lhydra -lhydra_graphics -lSDL2_net";
 enum LFlagsHydraPhysicsLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -fdiagnostics-color=always -lhydra -lhydra_graphics -lSDL2 -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath -lSDL2_mixer";
-enum LFlagsHydraSoundLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -fdiagnostics-color=always -lhydra -lhydra_graphics -lSDL2_mixer";
+enum LFlagsHydraSoundLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -fdiagnostics-color=always -lhydra -lhydra_graphics -lSDL2 -lSDL2_mixer";
 enum LFlagsExec = optimization ~ " -rdynamic -Wl,--no-undefined -Wl,-rpath,. -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -fdiagnostics-color=always -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath -lSDL2_mixer " ~ SubProjectsLink;
 
-enum CC = "distcc g++";
+enum CC = "g++";
+//enum CC = "distcc g++";
 
 enum CompileCommand : string {
 	CompileExec = CC ~ " -c " ~ CFlagsExec ~ " $in -o $out",

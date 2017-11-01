@@ -16,8 +16,6 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 	struct HYDRA_GRAPHICS_API FreeCameraComponent final : public IComponent<FreeCameraComponent, ComponentBits::EditorCamera> {
-		Hydra::Renderer::IRenderTarget* renderTarget = nullptr;
-
 		glm::vec3 position = glm::vec3(0, 5, 0);
 		float movementSpeed = 10.0f;
 		float shiftMultiplier = 5.0f;

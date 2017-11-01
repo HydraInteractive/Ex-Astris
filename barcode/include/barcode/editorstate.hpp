@@ -142,8 +142,6 @@ namespace Barcode {
 		Hydra::Component::FreeCameraComponent* _cc = nullptr;
 		Hydra::Component::LightComponent* _light = nullptr;
 
-		//Input _input;
-
 		Hydra::System::CameraSystem _cameraSystem;
 		Hydra::System::LightSystem _lightSystem;
 		Hydra::System::ParticleSystem _particleSystem;

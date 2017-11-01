@@ -40,7 +40,7 @@ void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch& previewBatch,
 	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.3f, ImGui::GetWindowContentRegionMax().y - 60));
 	if(_root != nullptr)
 		_root->render(&selectedNode);
-	if (selectedNode != nullptr) {
+	if (selectedNode != nullptr && selectedNode->getExt() == ".mATTIC") {
 		std::string fileName = selectedNode->reverseEngineerPath();
 		std::cout << fileName.c_str() << std::endl;
 
@@ -54,7 +54,7 @@ void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch& previewBatch,
 		previewBatch.objects.clear();
 		// Because of issues with the engine adding components will always be added to the global world
 		// So we need to disable the meshes to have them be only viewed in the previewWindow
-		if (_newEntityClicked && selectedNode->getExt() == ".ATTIC") {
+		if (_newEntityClicked && selectedNode->getExt() == ".mATTIC") {
 			_previewEntity = world::newEntity(fileName, world::invalidID); // invalidID - Will not show up in the entity list
 			_previewEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh(fileName);
 			auto drawObject = _previewEntity->getComponent<Hydra::Component::DrawObjectComponent>();
@@ -62,7 +62,6 @@ void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch& previewBatch,
 
 			auto tc = _previewEntity->addComponent<Hydra::Component::TransformComponent>();
 			auto cc = _previewEntity->addComponent<Hydra::Component::CameraComponent>();
-			cc->renderTarget = previewBatch.renderTarget;
 			cc->position = glm::vec3{0, 0, 5};
 			tc->setRotation(glm::angleAxis(glm::radians(_rotation), glm::vec3(0,1,0)));
 		}
@@ -256,7 +255,7 @@ void ImporterMenu::Node::render(Node** selectedNode)
 		for (size_t i = 0; i < this->_files.size(); i++)
 		{
 			std::string ext = this->_files[i]->getExt();
-			if (ext == ".attic" || ext == ".ATTIC")
+			if (ext == ".mattic" || ext == ".mATTIC")
 			{
 				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_CUBE " %s", _files[i]->_name.c_str());
 				if (ImGui::IsItemClicked())
@@ -327,7 +326,7 @@ void ImporterMenu::Node::_getContentsOfDir(const std::string &directory, std::ve
 		{	
 			size_t i = fileName.find_last_of('.');
 			std::string fileExt = fileName.substr(i, fileName.size() - i);
-			if (fileExt == ".ATTIC")
+			if (fileExt == ".mATTIC")
 			{
 				files.push_back(fullFilePath);
 			}

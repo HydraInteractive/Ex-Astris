@@ -23,9 +23,7 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 
-	//enum { TOP = 0, BOTTOM, LEFT, RIGHT, NEAR, FAR };
 	struct HYDRA_GRAPHICS_API CameraComponent final : public IComponent<CameraComponent, ComponentBits::Camera> {
-		Hydra::Renderer::IRenderTarget* renderTarget = nullptr;
 		glm::vec3 position = glm::vec3{0, 0, 0};
 		glm::quat orientation = glm::quat();
 
@@ -39,6 +37,7 @@ namespace Hydra::Component {
 		float cameraPitch = 0.0f;
 		bool mouseControl = true;
 
+		//enum { TOP = 0, BOTTOM, LEFT, RIGHT, NEAR, FAR };
 
 		~CameraComponent() final;
 
