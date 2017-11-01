@@ -11,6 +11,7 @@
 #include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
+#include <string>
 
 using world = Hydra::World::World;
 
@@ -301,29 +302,56 @@ namespace Barcode {
 			for (auto& kv : _animationBatch.batch.objects)
 				kv.second.clear();
 
-			for (auto& drawObj : _engine->getRenderer()->activeDrawObjects()) {
-				if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false)
-					_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+			float radius = 5.f;
+			std::vector<std::shared_ptr<Entity>> entities;
+			world::getEntitiesWithComponents<Hydra::Component::MeshComponent, Hydra::Component::DrawObjectComponent, Hydra::Component::TransformComponent>(entities);
+			
+			auto viewMatrix = _cc->getViewMatrix();
+			glm::vec3 rightVector = { viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0] };
+			glm::vec3 upVector = { viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1] };
+			glm::vec3 dir = glm::cross(rightVector, upVector);
+			_cameraSystem.setCamInternals(*_cc);
+			_cameraSystem.setCamDef(_cc->position, dir, upVector, rightVector, *_cc);
 
-				else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
-					_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+			for (auto e : entities) {
+				auto tc = e->getComponent<Hydra::Component::TransformComponent>();
+				auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
+				int result = _cameraSystem.sphereInFrustum(tc->position, radius, *_cc);
+				if (result == _cc->INSIDE || result == _cc->INTERSECT) {
+					if(!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false)
+						_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
-					//int currentFrame = drawObj->mesh->getCurrentKeyframe();
-
-					//if (currentFrame < drawObj->mesh->getMaxFramesForAnimation()) {
-					//	drawObj->mesh->setCurrentKeyframe(currentFrame + 1);
-					//}
-					//else {
-					//	drawObj->mesh->setCurrentKeyframe(1);
-					//}
-
-					//glm::mat4 tempMat;
-					//for (int i = 0; i < drawObj->mesh->getNrOfJoints(); i++) {
-					//	tempMat = drawObj->mesh->getTransformationMatrices(i);
-					//	_animationBatch.pipeline->setValue(11 + i, tempMat);
-					//}
+					else if(!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true)
+						_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 				}
+				
 			}
+
+			//for (auto& drawObj : _engine->getRenderer()->activeDrawObjects()) {
+			//	if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false) {
+			//		_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+			//
+			//	}
+			//
+			//	else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
+			//		_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+			//
+			//		//int currentFrame = drawObj->mesh->getCurrentKeyframe();
+			//
+			//		//if (currentFrame < drawObj->mesh->getMaxFramesForAnimation()) {
+			//		//	drawObj->mesh->setCurrentKeyframe(currentFrame + 1);
+			//		//}
+			//		//else {
+			//		//	drawObj->mesh->setCurrentKeyframe(1);
+			//		//}
+			//
+			//		//glm::mat4 tempMat;
+			//		//for (int i = 0; i < drawObj->mesh->getNrOfJoints(); i++) {
+			//		//	tempMat = drawObj->mesh->getTransformationMatrices(i);
+			//		//	_animationBatch.pipeline->setValue(11 + i, tempMat);
+			//		//}
+			//	}
+			//}
 
 			// Sort Front to back
 			for (auto& kv : _geometryBatch.batch.objects) {
@@ -773,23 +801,23 @@ namespace Barcode {
 			}
 		}
 
-		{
-			auto alienEntity = world::newEntity("Alien", world::root());
-			auto a = alienEntity->addComponent<Hydra::Component::EnemyComponent>();
-			a->_enemyID = Hydra::Component::EnemyTypes::Alien;
-			a->_damage = 4;
-			a->_originalRange = 4;
-			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
-			h->maxHP = 80;
-			h->health = 80;
-			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
-			m->movementSpeed = 8.0f;
-			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ 10, 0, 20 };
-			t->scale = glm::vec3{ 2,2,2 };
-			a->_scale = glm::vec3{ 2,2,2 };
-			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
-		}
+		//{
+		//	auto alienEntity = world::newEntity("Alien", world::root());
+		//	auto a = alienEntity->addComponent<Hydra::Component::EnemyComponent>();
+		//	a->_enemyID = Hydra::Component::EnemyTypes::Alien;
+		//	a->_damage = 4;
+		//	a->_originalRange = 4;
+		//	auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+		//	h->maxHP = 80;
+		//	h->health = 80;
+		//	auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+		//	m->movementSpeed = 8.0f;
+		//	auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+		//	t->position = glm::vec3{ 10, 0, 20 };
+		//	t->scale = glm::vec3{ 2,2,2 };
+		//	a->_scale = glm::vec3{ 2,2,2 };
+		//	alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
+		//}
 
 		{
 			auto pointLight1 = world::newEntity("Pointlight1", world::root());
