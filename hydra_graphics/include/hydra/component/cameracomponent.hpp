@@ -37,7 +37,32 @@ namespace Hydra::Component {
 		float cameraPitch = 0.0f;
 		bool mouseControl = true;
 
-		//enum { TOP = 0, BOTTOM, LEFT, RIGHT, NEAR, FAR };
+		enum {
+			TOP = 0, BOTTOM, LEFT, RIGHT, NEARP, FARP,
+			OUTSIDE, INTERSECT, INSIDE
+		};
+
+		
+
+		struct Plane {
+			glm::vec3 p0, p1, p2, n;
+			void set3Points(glm::vec3 pZero, glm::vec3 pOne, glm::vec3 pTwo) { p0 = pZero; p1 = pOne; p2 = pTwo; }
+			float distance(glm::vec3 p) { 
+				glm::vec3 edge0 = p1 - p0;
+				glm::vec3 edge1 = p2 - p0;
+				n = glm::cross(edge0, edge1);
+				n = glm::normalize(n);
+
+				float D = glm::dot(-n, p0);
+				return glm::dot(n, p) + D;
+			}
+		};
+
+		Plane pl[6];
+
+		glm::vec3 ntl, ntr, nbl, nbr, ftl, ftr, fbl, fbr;
+		float nearD, farD, tang;
+		float nw, nh, fw, fh;
 
 		~CameraComponent() final;
 

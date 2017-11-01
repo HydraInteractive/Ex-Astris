@@ -1,26 +1,13 @@
 #version 440 core
-
 layout (location = 0) in vec3 position;
-layout (location = 1) in vec3 normal;
-layout (location = 2) in vec3 color;
-layout (location = 3) in vec2 uv;
-layout (location = 4) in vec3 tangent;
 layout (location = 5) in mat4 m;
 layout (location = 9) in vec4 weight;
 layout (location = 10) in ivec4 jointIdx;
 
-//layout (location = 11) uniform mat4 currentSkeletonTransformation[100]; //Maximum of 100 joints per skeleton
+layout(location = 0) uniform mat4 view;
+layout(location = 1) uniform mat4 proj;
 
-layout(location = 11) uniform sampler2DRect animationTexture;
-
-out VertexData {
-	vec3 position;
-	vec3 normal;
-	vec3 color;
-	vec2 uv;
-	vec3 tangent;
-	mat4 m;
-} outData;
+layout(location = 20) uniform sampler2DRect animationTexture;
 
 mat4 getMat(sampler2DRect tex, int joint)
 {
@@ -44,10 +31,5 @@ vec4 getFinal(vec4 beginningVec)
 }
 
 void main() {
-	outData.position = getFinal(vec4(position, 1.0)).xyz;
-	outData.normal = getFinal(vec4(normal, 1.0)).xyz;
-	outData.color = color;
-	outData.uv = uv;
-	outData.tangent = tangent;
-	outData.m = m;
+	gl_Position = proj * view * m * getFinal(vec4(position, 1.0f));
 }
