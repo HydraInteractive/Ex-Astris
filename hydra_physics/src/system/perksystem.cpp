@@ -44,6 +44,11 @@ void PerkSystem::onPickUp(Perk newPerk, Entity* playerEntity) {
 		player->activeAbillies.addAbility(&AbilityHandler::grenadeAbility);
 	}
 		break;
+	case PERK_MINE: {
+		auto player = playerEntity->getComponent<PlayerComponent>();
+		player->activeAbillies.addAbility(&AbilityHandler::mineAbility);
+	}
+		break;
 	default:
 		break;
 	}
@@ -56,6 +61,8 @@ void PerkSystem::onTick(Perk activePerk) {
 	case PERK_HOMINGBULLETS:
 		break;
 	case PERK_GRENADE:
+		break;
+	case PERK_MINE:
 		break;
 	default:
 		break;

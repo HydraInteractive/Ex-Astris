@@ -15,7 +15,8 @@ enum Perk
 {
 	PERK_MAGNETICBULLEETS,
 	PERK_HOMINGBULLETS,
-	PERK_GRENADE
+	PERK_GRENADE,
+	PERK_MINE
 };
 
 namespace Hydra::Component {
