@@ -100,7 +100,7 @@ public:
 	// IRenderTarget
 	void finalize() final {
 		SDL_GL_SwapWindow(_window);
-		glFlush();
+		// glFlush();
 	}
 
 private:

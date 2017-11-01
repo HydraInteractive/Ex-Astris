@@ -216,13 +216,13 @@ namespace Barcode {
 								if (ImGui::IsItemHovered())
 								{
 									if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/hostSelected.png")->getID()),
-										ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+										ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 
 								}
 								else
 								{
 									if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/hostTransparent.png")->getID()),
-										ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+										ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 								}
 								ImGui::End();
 							}
@@ -233,12 +233,12 @@ namespace Barcode {
 								if (ImGui::IsItemHovered())
 								{
 									if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/joinSelected.png")->getID()),
-										ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+										ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 								}
 								else
 								{
 									if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/joinTransparent.png")->getID()),
-										ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+										ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 								}
 								ImGui::End();
 							}
@@ -273,12 +273,12 @@ namespace Barcode {
 								if (ImGui::IsItemHovered())
 								{
 									if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/continueSelected.png")->getID()),
-										ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+										ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 								}
 								else
 								{
 									if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/continueTransparent.png")->getID()),
-										ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+										ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 								}
 								ImGui::End();
 							}
@@ -368,12 +368,12 @@ namespace Barcode {
 							if (ImGui::IsItemHovered())
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/exsistingSelected.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 							}
 							else
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/exsistingTransparent.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 							}
 							ImGui::End();
 						}
@@ -386,12 +386,12 @@ namespace Barcode {
 							if (ImGui::IsItemHovered())
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/defaultSelected.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 							}
 							else
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/defaultTransparent.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 							}
 							ImGui::End();
 						}
@@ -402,12 +402,12 @@ namespace Barcode {
 							if (ImGui::IsItemHovered())
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/customSelected.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 							}
 							else
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/customTransparent.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 							}
 							ImGui::End();
 						}
@@ -496,12 +496,12 @@ namespace Barcode {
 							if (ImGui::IsItemHovered())
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/particlesSelected.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 							}
 							else
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/particlesTransparent.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 							}
 
 
@@ -514,12 +514,12 @@ namespace Barcode {
 							if (ImGui::IsItemHovered())
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/msaaSelected.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 							}
 							else
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/msaaTransparent.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 							}
 							ImGui::End();
 						}
@@ -530,12 +530,12 @@ namespace Barcode {
 							if (ImGui::IsItemHovered())
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/shadowsSelected.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 							}
 							else
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/shadowsTransparent.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 							}
 							ImGui::End();
 						}
@@ -546,12 +546,12 @@ namespace Barcode {
 							if (ImGui::IsItemHovered())
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/ssaoSelected.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 							}
 							else
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/ssaoTransparent.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 							}
 							ImGui::End();
 						}
@@ -562,12 +562,12 @@ namespace Barcode {
 							if (ImGui::IsItemHovered())
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/glowSelected.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 							}
 							else
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/glowTransparent.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 							}
 							ImGui::End();
 						}
@@ -580,12 +580,12 @@ namespace Barcode {
 							if (ImGui::IsItemHovered())
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/defaultSelected.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 							}
 							else
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/defaultTransparent.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 							}
 							ImGui::End();
 						}
@@ -596,12 +596,12 @@ namespace Barcode {
 							if (ImGui::IsItemHovered())
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/customSelected.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 							}
 							else
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/customTransparent.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 							}
 							ImGui::End();
 						}
@@ -614,12 +614,12 @@ namespace Barcode {
 							if (ImGui::IsItemHovered())
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/volumeSelected.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 							}
 							else
 							{
 								if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/volumeTransparent.png")->getID()),
-									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)));
+									ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {}
 							}
 							ImGui::End();
 						}

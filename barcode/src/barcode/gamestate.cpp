@@ -310,29 +310,29 @@ namespace Barcode {
 			for (auto& kv : _animationBatch.batch.objects)
 				kv.second.clear();
 
-			for (auto& drawObj : _engine->getRenderer()->activeDrawObjects()) {
-				if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false)
-					_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+			float radius = 5.f;
+			std::vector<std::shared_ptr<Entity>> entities;
+			world::getEntitiesWithComponents<Hydra::Component::MeshComponent, Hydra::Component::DrawObjectComponent, Hydra::Component::TransformComponent>(entities);
 
-				else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
-					_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-					drawObj->mesh->getAnimationCounter() += 1 * delta;
+			auto viewMatrix = _cc->getViewMatrix();
+			glm::vec3 rightVector = { viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0] };
+			glm::vec3 upVector = { viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1] };
+			glm::vec3 dir = glm::cross(rightVector, upVector);
+			_cameraSystem.setCamInternals(*_cc);
+			_cameraSystem.setCamDef(_cc->position, dir, upVector, rightVector, *_cc);
 
-					//int currentFrame = drawObj->mesh->getCurrentKeyframe();
+			for (auto e : entities) {
+				auto tc = e->getComponent<Hydra::Component::TransformComponent>();
+				auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
+				int result = _cameraSystem.sphereInFrustum(tc->position, radius, *_cc);
+				if (result == _cc->INSIDE || result == _cc->INTERSECT) {
+					if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false)
+						_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
-					//if (currentFrame < drawObj->mesh->getMaxFramesForAnimation()) {
-					//	drawObj->mesh->setCurrentKeyframe(currentFrame + 1);
-					//}
-					//else {
-					//	drawObj->mesh->setCurrentKeyframe(1);
-					//}
-
-					//glm::mat4 tempMat;
-					//for (int i = 0; i < drawObj->mesh->getNrOfJoints(); i++) {
-					//	tempMat = drawObj->mesh->getTransformationMatrices(i);
-					//	_animationBatch.pipeline->setValue(11 + i, tempMat);
-					//}
+					else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true)
+						_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 				}
+
 			}
 
 			// Sort Front to back
@@ -378,7 +378,7 @@ namespace Barcode {
 		static bool enableBlur = true;
 		ImGui::Checkbox("Enable blur", &enableBlur);
 
-		{
+		if (enableSSAO) {
 
 			_ssaoBatch.pipeline->setValue(0, 0);
 			_ssaoBatch.pipeline->setValue(1, 1);
@@ -392,8 +392,8 @@ namespace Barcode {
 			_ssaoNoise->bind(2);
 
 			_engine->getRenderer()->postProcessing(_ssaoBatch.batch);
-			int nrOfTImes = 1;
-			_blurGlowTexture((*_ssaoBatch.output)[0], nrOfTImes, (*_ssaoBatch.output)[0]->getSize(), _fiveGaussianKernel1, enableBlur)
+			int nrOfTimes = 1;
+			_blurGlowTexture((*_ssaoBatch.output)[0], nrOfTimes, (*_ssaoBatch.output)[0]->getSize(), _fiveGaussianKernel1, enableBlur)
 				->resolve(0, (*_ssaoBatch.output)[0]);
 		}
 
@@ -795,9 +795,11 @@ namespace Barcode {
 		{
 			auto alienEntity = world::newEntity("Alien1", world::root());
 			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
-			a->damage = 4;
-			a->originalRange = 4;
 			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+			a->damage = 4;
+			a->behaviour->originalRange = 4;
+			a->radius = 2;
+
 			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 			h->maxHP = 80;
 			h->health = 80;
@@ -806,7 +808,7 @@ namespace Barcode {
 			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ 10, 0, 20 };
 			t->scale = glm::vec3{ 2,2,2 };
-			a->_scale = t->scale;
+			
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
 		}
 
