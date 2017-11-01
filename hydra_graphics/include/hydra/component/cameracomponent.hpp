@@ -22,8 +22,8 @@
 using namespace Hydra::World;
 
 namespace Hydra::Component {
+
 	struct HYDRA_GRAPHICS_API CameraComponent final : public IComponent<CameraComponent, ComponentBits::Camera> {
-		Hydra::Renderer::IRenderTarget* renderTarget = nullptr;
 		glm::vec3 position = glm::vec3{0, 0, 0};
 		glm::quat orientation = glm::quat();
 
@@ -63,8 +63,6 @@ namespace Hydra::Component {
 		glm::vec3 ntl, ntr, nbl, nbr, ftl, ftr, fbl, fbr;
 		float nearD, farD, tang;
 		float nw, nh, fw, fh;
-
-
 
 		~CameraComponent() final;
 

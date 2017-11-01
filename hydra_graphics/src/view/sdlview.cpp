@@ -10,8 +10,10 @@
 #include <hydra/view/sdlview.hpp>
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 
 #include <hydra/renderer/uirenderer.hpp>
+#include <hydra/renderer/renderer.hpp>
 
 #include <glad/glad.h>
 
@@ -21,7 +23,7 @@ class SDLViewImpl final : public IView {
 public:
 	SDLViewImpl() {
 		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER);
-
+		Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 		_size = glm::ivec2(1920, 1080);
 		_wantToClose = false;
 		_fullScreen = false;
@@ -72,6 +74,16 @@ public:
 	void hide() final {	SDL_HideWindow(_window); }
 	void quit() final { _wantToClose = true; }
 
+	void blit(Hydra::Renderer::IFramebuffer* fb, size_t imageIdx = 0) final {
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, fb->getID());
+		glReadBuffer(static_cast<GLenum>(GL_COLOR_ATTACHMENT0+imageIdx));
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+		auto fromS = fb->getSize();
+		auto& toS = _size;
+		glBlitFramebuffer(0, 0, fromS.x, fromS.y, 0, 0, toS.x, toS.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	}
+
 	void* getHandler() final { return _window; }
 
 	bool isClosed() final { return _wantToClose; }
@@ -88,7 +100,7 @@ public:
 	// IRenderTarget
 	void finalize() final {
 		SDL_GL_SwapWindow(_window);
-		glFlush();
+		// glFlush();
 	}
 
 private:

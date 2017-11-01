@@ -10,15 +10,12 @@
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/movementcomponent.hpp>
+#include <hydra/component/soundfxcomponent.hpp>
 
 #include <hydra/engine.hpp>
 
 using namespace Hydra::System;
 using namespace Hydra::Component;
-
-enum Keys {
- H, F, COUNT
-};
 
 using world = Hydra::World::World;
 
@@ -27,7 +24,6 @@ PlayerSystem::~PlayerSystem() {}
 
 void PlayerSystem::tick(float delta) {
 	const Uint8* keysArray = SDL_GetKeyboardState(nullptr);
-	bool prevKBFrameState[Keys::COUNT] = {false};
 
 	//Process PlayerComponent
 	world::getEntitiesWithComponents<PlayerComponent, TransformComponent, CameraComponent>(entities);
@@ -38,6 +34,7 @@ void PlayerSystem::tick(float delta) {
 		auto weapon = player->getWeapon()->getComponent<Hydra::Component::WeaponComponent>();
 		auto life = entities[i]->getComponent<Component::LifeComponent>();
 		auto movement = entities[i]->getComponent<Component::MovementComponent>();
+		auto soundFx = entities[i]->getComponent<SoundFxComponent>();
 
 		player->activeBuffs.onTick(life->maxHP, life->health);
 
@@ -63,10 +60,8 @@ void PlayerSystem::tick(float delta) {
 				movement->acceleration.y += 6.0f;
 				player->onGround = false;
 			}
-			if (keysArray[SDL_SCANCODE_H] && !prevKBFrameState[Keys::H])
-					//player->upgradeHealth();
 
-			if (keysArray[SDL_SCANCODE_F] && !prevKBFrameState[Keys::F]) {
+			if (keysArray[SDL_SCANCODE_F] && !player->prevKBFrameState[Keys::F]) {
 				const glm::vec3 forward = glm::vec3(glm::vec4{0, 0, 1, 0} * rotation);
 				auto abilitiesEntity = std::find_if(entities[i]->children.begin(), entities[i]->children.end(), [](Hydra::World::EntityID id) { return world::getEntity(id)->name == "Abilities"; });
 				std::shared_ptr<Entity> e;
@@ -74,6 +69,9 @@ void PlayerSystem::tick(float delta) {
 					e = world::newEntity("Abilities", entities[i]);
 				else
 					e = world::getEntity(*abilitiesEntity);
+
+
+				soundFx->soundsToPlay.push_back("assets/sounds/piano.wav");
 				player->activeAbillies.useAbility(e.get(), transform->position, -forward);
 			}
 
@@ -113,10 +111,10 @@ void PlayerSystem::tick(float delta) {
 		wt->position = transform->position + glm::vec3(glm::vec4{player->weaponOffset, 0} * rotation);
 		wt->rotation = glm::normalize(glm::conjugate(camera->orientation) * glm::quat(glm::vec3(glm::radians(180.0f), 0, glm::radians(180.0f))));
 		wt->dirty = true;
-	}
 
-	prevKBFrameState[Keys::H] = !!keysArray[SDL_SCANCODE_H];
-	prevKBFrameState[Keys::F] = !!keysArray[SDL_SCANCODE_F];
+		player->prevKBFrameState[Keys::H] = keysArray[SDL_SCANCODE_H];
+		player->prevKBFrameState[Keys::F] = keysArray[SDL_SCANCODE_F];
+	}
 }
 
 void PlayerSystem::registerUI() {}

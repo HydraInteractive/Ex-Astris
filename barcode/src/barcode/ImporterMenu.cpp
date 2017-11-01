@@ -1,7 +1,7 @@
-#if 0
 #include <barcode/ImporterMenu.hpp>
 #include <hydra/engine.hpp>
 #include <hydra/component/cameracomponent.hpp>
+#include <hydra/component/roomcomponent.hpp>
 
 using world = Hydra::World::World;
 
@@ -40,7 +40,7 @@ void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch& previewBatch,
 	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.3f, ImGui::GetWindowContentRegionMax().y - 60));
 	if(_root != nullptr)
 		_root->render(&selectedNode);
-	if (selectedNode != nullptr) {
+	if (selectedNode != nullptr && selectedNode->getExt() == ".mATTIC") {
 		std::string fileName = selectedNode->reverseEngineerPath();
 		std::cout << fileName.c_str() << std::endl;
 
@@ -54,7 +54,7 @@ void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch& previewBatch,
 		previewBatch.objects.clear();
 		// Because of issues with the engine adding components will always be added to the global world
 		// So we need to disable the meshes to have them be only viewed in the previewWindow
-		if (_newEntityClicked && selectedNode->getExt() == ".ATTIC") {
+		if (_newEntityClicked && selectedNode->getExt() == ".mATTIC") {
 			_previewEntity = world::newEntity(fileName, world::invalidID); // invalidID - Will not show up in the entity list
 			_previewEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh(fileName);
 			auto drawObject = _previewEntity->getComponent<Hydra::Component::DrawObjectComponent>();
@@ -62,7 +62,6 @@ void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch& previewBatch,
 
 			auto tc = _previewEntity->addComponent<Hydra::Component::TransformComponent>();
 			auto cc = _previewEntity->addComponent<Hydra::Component::CameraComponent>();
-			cc->renderTarget = previewBatch.renderTarget;
 			cc->position = glm::vec3{0, 0, 5};
 			tc->setRotation(glm::angleAxis(glm::radians(_rotation), glm::vec3(0,1,0)));
 		}
@@ -120,14 +119,17 @@ std::string ImporterMenu::_getExecutableDir()
 
 	path = std::string(unicodePath);
 	std::replace(path.begin(), path.end(), '\\', '/');
-	int index = path.find_last_of('/');
+	size_t index = path.find_last_of('/');
 	path.erase(path.begin() + index, path.end());
 	return path;
 }
 std::shared_ptr<Entity> ImporterMenu::getRoomEntity() {
-	for (auto& e; world::entities)
-		if (e->name == "Room")
-			return e;
+	std::vector<std::shared_ptr<Entity>> entities;
+	world::getEntitiesWithComponents<Hydra::Component::TransformComponent, Hydra::Component::RoomComponent>(entities);
+	if (entities.size() > 0)
+	{
+		return entities[0];
+	}
 	return nullptr;
 }
 
@@ -178,7 +180,7 @@ std::string ImporterMenu::Node::name()
 }
 std::string ImporterMenu::Node::getExt()
 {
-	int i = _name.find_last_of('.');
+	size_t i = _name.find_last_of('.');
 	std::string fileExt = _name.substr(i, _name.size() - i);
 	return fileExt;
 }
@@ -209,12 +211,12 @@ int ImporterMenu::Node::numberOfFiles()
 {	
 	if (!isAllowedFile)
 	{
-		int allFiles = _files.size();
+		size_t allFiles = _files.size();
 		for (size_t i = 0; i < _subfolders.size(); i++)
 		{
 			allFiles += _subfolders[i]->numberOfFiles();
 		}
-		return allFiles;
+		return (unsigned int)allFiles;
 	}
 	return -1;
 }
@@ -238,31 +240,32 @@ void ImporterMenu::Node::clean()
 void ImporterMenu::Node::render(Node** selectedNode)
 {
 	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
-	//TODO: Folder icon opening
-	if (ImGui::TreeNodeEx(this, node_flags, ICON_FA_FOLDER " %s", _name.c_str()))
-	{	
+	auto label = ICON_FA_FOLDER " %s";
+	if (ImGui::TreeNodeEx(this, node_flags, label, _name.c_str()))
+	{
+		label = ICON_FA_FOLDER_OPEN " %s";
 		if (ImGui::IsItemClicked())
 		{
 			(*selectedNode) = this;
 		}
 		for (size_t i = 0; i < this->_subfolders.size(); i++)
 		{
-			_subfolders[i]->render(world, selectedNode);
+			_subfolders[i]->render(selectedNode);
 		}
 		for (size_t i = 0; i < this->_files.size(); i++)
 		{
 			std::string ext = this->_files[i]->getExt();
-			if (ext == ".attic" || ext == ".ATTIC")
+			if (ext == ".mattic" || ext == ".mATTIC")
 			{
 				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, ICON_FA_CUBE " %s", _files[i]->_name.c_str());
 				if (ImGui::IsItemClicked())
 				{
 					(*selectedNode) = _files[i];
-					if (ImGui::IsMouseDoubleClicked(0) && getRoomEntity(world) != nullptr)
+					if (ImGui::IsMouseDoubleClicked(0) && getRoomEntity() != nullptr)
 					{
-						Hydra::World::Entity* newEntity = getRoomEntity(world)->createEntity(_files[i]->name()).get();
-						newEntity->addComponent<Hydra::Component::MeshComponent>(_files[i]->reverseEngineerPath());
-						newEntity->addComponent<Hydra::Component::TransformComponent>(glm::vec3(0, 0, 0));
+						std::shared_ptr<Hydra::World::Entity> newEntity = world::newEntity(_files[i]->name(), getRoomEntity().get());
+						newEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh(_files[i]->reverseEngineerPath());
+						newEntity->addComponent<Hydra::Component::TransformComponent>();
 					}
 				}
 			}
@@ -274,11 +277,13 @@ void ImporterMenu::Node::render(Node** selectedNode)
 					(*selectedNode) = _files[i];
 					if (ImGui::IsMouseDoubleClicked(0))
 					{
-						if (getRoomEntity(world) != nullptr)
+						if (getRoomEntity() != nullptr)
 						{
-							getRoomEntity(world)->markDead();
+							getRoomEntity().get()->dead = true;
 						}
-						world->getWorldRoot()->spawn(BlueprintLoader::load(_files[i]->reverseEngineerPath())->spawn(world));
+						auto room = world::newEntity("Room", world::root());
+						auto bp = BlueprintLoader::load(_files[i]->reverseEngineerPath());
+						bp->spawn(room);
 					}
 				}
 			}
@@ -319,9 +324,9 @@ void ImporterMenu::Node::_getContentsOfDir(const std::string &directory, std::ve
 		}
 		else
 		{	
-			int i = fileName.find_last_of('.');
+			size_t i = fileName.find_last_of('.');
 			std::string fileExt = fileName.substr(i, fileName.size() - i);
-			if (fileExt == ".ATTIC")
+			if (fileExt == ".mATTIC")
 			{
 				files.push_back(fullFilePath);
 			}
@@ -369,4 +374,3 @@ void ImporterMenu::Node::_getContentsOfDir(const std::string &directory, std::ve
 	closedir(dir);
 #endif
 }
-#endif

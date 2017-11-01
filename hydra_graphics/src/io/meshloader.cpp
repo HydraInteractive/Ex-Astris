@@ -29,6 +29,9 @@ public:
 	std::shared_ptr<IMesh> getMesh(const std::string& file) final {
 		if (file.empty())
 			return _errorMesh;
+		if (file == "QUAD")
+			return getQuad();
+
 		std::shared_ptr<IMesh> mesh = _storage[file];
 		if (!mesh) {
 			try {
@@ -60,7 +63,7 @@ private:
 
 	std::shared_ptr<IMesh> _loadErrorMesh() {
 		//return GLMesh::create("assets/meshs/error.fbx");
-		return std::shared_ptr<IMesh>(); // XXX: 
+		return std::shared_ptr<IMesh>(); // XXX:
 	}
 };
 

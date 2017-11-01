@@ -30,6 +30,7 @@ public:
 		_file = file;
 		_currentFrame = 1;
 		_currentAnimationIndex = 0;
+		_animationCounter = 0;
 		_loadATTICModel(file.c_str(), modelMatrixBuffer);
 	}
 
@@ -104,6 +105,7 @@ public:
 
 	GLuint getID() const final { return _vao; }
 	size_t getIndicesCount() const final { return _indicesCount; }
+	int& getAnimationCounter() { return _animationCounter; }
 
 private:
 	std::string _file = "(null)";
@@ -120,6 +122,7 @@ private:
 	int _maxFramesForAnimation;
 	int _currentFrame;
 	int _currentAnimationIndex;
+	int _animationCounter;
 
 	void _makeBuffers() {
 		glGenVertexArrays(1, &_vao);
@@ -253,15 +256,17 @@ private:
 			float specular = 0;
 
 			std::string fileName = "";
+			std::string glowName = "";
 			in.read(reinterpret_cast<char*>(&fileNameLength), sizeof(int));
 			char *tempFileName;
 			tempFileName = new char[fileNameLength];
 			in.read(tempFileName, fileNameLength);
 			fileName.append(tempFileName, fileNameLength);
+			glowName.append(fileName, 0, fileName.find("Texture"));
 			_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/" + fileName);
-			_material.normal = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/normals/futuristicNormal.png");
+			_material.normal = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/normals/pillowNormal.png");
 			_material.specular = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/speculars/brickSpecular.png");
-			_material.glow = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/glow/EscapePodDoorGlow_Fin.png");
+			_material.glow = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/glow/" + glowName + "Glow.png");
 
 			delete[] tempFileName;
 

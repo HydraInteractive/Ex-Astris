@@ -13,7 +13,7 @@
 
 #include <SDL2/SDL.h>
 
-// Below are values to specific when the light should fall off. (Attenuation).
+// Below are values to specify when the light should fall off. (Attenuation).
 //Range constant linear quadratic
 //3250, 1.0, 0.0014, 0.000007
 //600, 1.0, 0.007, 0.0002
@@ -36,8 +36,8 @@ namespace Hydra::Component {
 		glm::vec3 position = glm::vec3{0, 0, 0};
 		glm::vec3 color = glm::vec3{1, 1, 1};
 		float constant = 1;
-		float linear = 0.045;
-		float quadratic = 0.0075;
+		float linear = 0.045f;
+		float quadratic = 0.0075f;
 
 		~PointLightComponent() final;
 

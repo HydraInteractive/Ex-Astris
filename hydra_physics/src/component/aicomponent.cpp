@@ -1,7 +1,7 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /**
-* EnemyComponent/AI.
+* AIComponent/AI.
 *
 * License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
 * Authors:
@@ -14,164 +14,79 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-//void EnemyComponent::init(EnemyTypes enemyID, glm::vec3 pos, int hp, int dmg, float range, glm::vec3 scale) {
-//	_enemyID = enemyID;
-//	_position = pos;
-//	_startPosition = pos;
-//	_health = hp;
-//	_damage = dmg;
-//	_range = range;
-//	_originalRange = range;
-//	_scale = scale;
-//
-//	_attackTimer = SDL_GetTicks();
-//	_spawnTimer = SDL_GetTicks();
-//	_stunTimer = SDL_GetTicks();
-//
-//	_mapOffset = glm::vec3(-30.0f, 0, -30.0f);
-//
-//	for (int i = 0; i < 3; i++)
-//	{
-//		_map[10][10 + i] = 1;
-//	}
-//}
-
-EnemyComponent::~EnemyComponent() {
-	delete _pathFinding;
+AIComponent::~AIComponent() {
+	
 }
 
-void EnemyComponent::serialize(nlohmann::json& json) const {
+void AIComponent::serialize(nlohmann::json& json) const {
 	json = {
-		{ "scale",{ _scale.x, _scale.y, _scale.z } },
-		{ "mapOffset",{ _mapOffset.x, _mapOffset.y, _mapOffset.z } },
-		{ "enemyID", (int)_enemyID },
-		{ "pathState", (int)_pathState },
-		{ "bossPhase", (int)_bossPhase },
-		{ "damage", _damage },
-		{ "range", _range },
-		{ "Original range", _originalRange }
-
+		{ "behaviourType", (unsigned int)behaviour->type},
+		{ "radius",{ radius } },
+		{ "pathState", behaviour->state },
+		{ "damage", damage },
+		{ "range", behaviour->range },
+		{ "mapOffset",{ behaviour->mapOffset.x, behaviour->mapOffset.z } },
+		{ "original range", behaviour->originalRange }
 	};
+
 	for (size_t i = 0; i < 64; i++)
 	{
 		for (size_t j = 0; j < 64; j++)
 		{
-			json["map"][i][j] = _map[i][j];
+			json["map"][i][j] = behaviour->map[i][j];
 		}
 	}
 }
 
-void EnemyComponent::deserialize(nlohmann::json& json) {
-	auto& scale = json["scale"];
-	_scale = glm::vec3{ scale[0].get<float>(), scale[1].get<float>(), scale[2].get<float>() };
+void AIComponent::deserialize(nlohmann::json& json) {
+		Behaviour::Type behaviourType = (Behaviour::Type)json["behaviourType"].get<unsigned int>();
+	switch (behaviourType)
+	{
+	case Behaviour::Type::ALIEN:
+		behaviour = std::make_shared<AlienBehaviour>(Hydra::World::World::getEntity(entityID));
+		break;
+	case Behaviour::Type::ROBOT:
+		behaviour = std::make_shared<RobotBehaviour>(Hydra::World::World::getEntity(entityID));
+		break;
+	case Behaviour::Type::ALIENBOSS:
+		behaviour = std::make_shared<AlienBossBehaviour>(Hydra::World::World::getEntity(entityID));
+		break;
+	default:
+		std::cout << "Invalid AI Behaviour Type" << std::endl;
+		break;
+	}
+	radius = json["radius"].get<float>();
 
 	auto& mapOffset = json["mapOffset"];
-	_mapOffset = glm::vec3{ mapOffset[0].get<float>(), mapOffset[1].get<float>(), mapOffset[2].get<float>() };
+	behaviour->mapOffset = glm::vec3{ mapOffset[0].get<float>(), 0.0f, mapOffset[1].get<float>() };
 
-	_range = json["range"].get<float>();
-	_originalRange = json["Original range"].get<float>();
 
-	_enemyID = (EnemyTypes)json["enemyID"].get<int>();
-	_pathState = (PathState)json["pathState"].get<int>();
-	_bossPhase = (BossPhase)json["bossPhase"].get<int>();
-	_damage = json["damage"].get<int>();
+	behaviour->state = json["pathState"].get<int>();
+	damage = json["damage"].get<int>();
+
+
+	behaviour->range = json["range"].get<float>();
+	behaviour->originalRange = json["original range"].get<float>();
 
 	for (size_t i = 0; i < 64; i++)
 	{
 		for (size_t j = 0; j < 64; j++)
 		{
-			_map[i][j] = json["map"][i][j].get<int>();
+			behaviour->map[i][j] = json["map"][i][j].get<int>();
 		}
 	}
 }
 
 // Register UI buttons in the debug UI
 // Note: This function won't always be called
-void EnemyComponent::registerUI() {
-	ImGui::InputInt("pathState", &_debugState);
-	ImGui::DragFloat3("targetPos", glm::value_ptr(_targetPos), 0.01f);
-	ImGui::Checkbox("isAtGoal", &_isAtGoal);
-	ImGui::Checkbox("playerCanBeSeen", &_playerSeen);
-	ImGui::InputFloat("range", &_range);
+void AIComponent::registerUI() {
+	ImGui::InputInt("pathState", &debugState);
+	ImGui::Checkbox("isAtGoal", &behaviour->isAtGoal);
+	ImGui::Checkbox("playerCanBeSeen", &behaviour->playerSeen);
+	ImGui::InputFloat("range", &behaviour->range);
 }
 
-bool Hydra::Component::EnemyComponent::_checkLOS(int levelmap[WORLD_SIZE][WORLD_SIZE], glm::vec3 A, glm::vec3 B)
-{
-	// New code, not optimal
-	double x = B.x - A.x;
-	double z = B.z - A.z;
-	double len = std::sqrt((x*x) + (z*z));
-
-	if (!len) // Player tile is same as target tile
-		return true;
-
-	double unitx = x / len;
-	double unitz = z / len;
-
-	x = A.x;
-	z = A.z;
-	for (double i = 1; i < len; i += 1)
-	{
-		if (levelmap[(int)x][(int)z] == 1)
-		{
-			return false;
-		}
-
-		x += unitx;
-		z += unitz;
-	}
-
-	return true;
-
-	// Old code
-	/*bool steep = (fabs(B.z - A.z) > fabs(B.x - A.x));
-	if (steep)
-	{
-		std::swap(A.x, A.z);
-		std::swap(B.x, B.z);
-	}
-
-	if (A.x > B.x)
-	{
-		std::swap(A.x, B.x);
-		std::swap(A.z, B.z);
-	}
-
-	float dx = B.x - A.x;
-	float dz = fabs(B.z - A.z);
-
-	float error = dx / 2.0f;
-	int zStep = (A.z < B.z) ? 1 : -1;
-	int z = (int)A.z;
-
-	int maxX = (int)B.x;
-
-	int x;
-	for (x = (int)A.x; x < maxX; x++)
-	{
-		if (steep)
-		{
-			_map[x][z] = 3;
-			if (levelmap[x][z] == 1) return false;
-		}
-		else
-		{
-			_map[x][z] = 3;
-			if (levelmap[z][x] == 1) return false;
-		}
-
-		error -= dz;
-		if (error < 0)
-		{
-			z += zStep;
-			error += dx;
-		}
-	}
-
-	return true;*/
-}
-
-std::shared_ptr<Hydra::World::Entity> EnemyComponent::getPlayerComponent()
+std::shared_ptr<Hydra::World::Entity> AIComponent::getPlayerEntity()
 {
 	return Hydra::World::World::getEntity(PlayerComponent::componentHandler->getActiveComponents()[0]->entityID);
 }

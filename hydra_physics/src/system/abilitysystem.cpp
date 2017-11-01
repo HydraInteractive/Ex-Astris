@@ -22,7 +22,7 @@ void AbilitySystem::tick(float delta) {
 		auto g = entities[i]->getComponent<Hydra::Component::GrenadeComponent>();
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 
-		g->direction.y += 0.8 * delta;
+		g->direction.y -= 0.8 * delta;
 		g->velocity = std::max(0.0f, g->velocity - 2.0f * delta);
 
 		if (g->fallingVelocity < 0)
@@ -33,7 +33,7 @@ void AbilitySystem::tick(float delta) {
 		t->position += g->direction * temp * delta;
 		t->dirty = true;
 
-		if (t->position.y > 0.0f) {
+		if (t->position.y < 0.0f) {
 			t->position.y = 0.0f;
 			g->fallingVelocity -= 10.0f;
 			g->velocity -= 5.0f;
@@ -51,7 +51,7 @@ void AbilitySystem::tick(float delta) {
 		auto m = entities[i]->getComponent<Hydra::Component::MineComponent>();
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 
-		m->direction.y += 0.8 * delta;
+		m->direction.y -= 0.8 * delta;
 		m->velocity = std::max(0.0f, m->velocity - 2.0f * delta);
 
 		if (m->fallingVelocity < 0)
@@ -62,7 +62,7 @@ void AbilitySystem::tick(float delta) {
 		t->position += m->direction * temp * delta;
 		t->dirty = true;
 
-		if (t->position.y > 0.0f) {
+		if (t->position.y < 0.0f) {
 			t->position.y = 0.0f;
 			m->velocity = 0.0f;
 			m->fallingVelocity = 0.0f;
