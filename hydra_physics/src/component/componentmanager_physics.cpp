@@ -10,6 +10,7 @@
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/spawnercomponent.hpp>
+#include <hydra/component/perkcomponent.hpp>
 
 using namespace Hydra::World;
 
@@ -35,5 +36,7 @@ namespace Hydra::Component::ComponentManager {
 		creators["MovementComponent"] = &createOrGetComponentHelper<MovementComponent>;
 		SpawnerComponent::componentHandler = new ComponentHandler<SpawnerComponent>();
 		creators["SpawnerComponent"] = &createOrGetComponentHelper<SpawnerComponent>;
+		PerkComponent::componentHandler = new ComponentHandler<PerkComponent>();
+		creators["PerkComponent"] = &createOrGetComponentHelper<PerkComponent>;
 	}
 }
