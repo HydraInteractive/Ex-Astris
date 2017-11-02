@@ -8,6 +8,7 @@
 #pragma once
 
 #include <hydra/world/world.hpp>
+#include <btBulletDynamicsCommon.h>
 
 namespace Hydra::System {
 	class HYDRA_PHYSICS_API BulletPhysicsSystem final : public Hydra::World::ISystem {
@@ -37,6 +38,7 @@ namespace Hydra::System {
 		void registerUI() final;
 
 	private:
+		void _spawnParticleEmitterAt(btVector3 pos);
 		struct Data;
 		Data* _data;
 	};

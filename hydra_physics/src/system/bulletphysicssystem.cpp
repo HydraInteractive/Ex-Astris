@@ -12,6 +12,9 @@
 #include <memory>
 
 #include <hydra/component/rigidbodycomponent.hpp>
+#include <hydra/component/particlecomponent.hpp>
+#include <hydra/component/bulletcomponent.hpp>
+#include <hydra/component/lifecomponent.hpp>
 #include <btBulletDynamicsCommon.h>
 
 using namespace Hydra::System;
@@ -51,19 +54,43 @@ void BulletPhysicsSystem::tick(float delta) {
 	// Gets all collisions happening between all rigidbody entities.
 	int numManifolds = _data->dynamicsWorld->getDispatcher()->getNumManifolds();
 	for (int i = 0; i < numManifolds; i++) {
-		btPersistentManifold* contactManfiold = _data->dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
-		const btCollisionObject* obA = contactManfiold->getBody0();
-		const btCollisionObject* obB = contactManfiold->getBody1();
+		btPersistentManifold* contactManifold = _data->dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+		const btCollisionObject* obA = contactManifold->getBody0();
+		const btCollisionObject* obB = contactManifold->getBody1();
 		Entity* eA = Hydra::World::World::getEntity(obA->getUserIndex()).get();
 		Entity* eB = Hydra::World::World::getEntity(obB->getUserIndex()).get();
+		if (!eA || !eB)
+			continue;
 
+		auto entityBC = eA->getComponent<Hydra::Component::BulletComponent>();
+		if (!entityBC)
+			if (!(entityBC = eB->getComponent<Hydra::Component::BulletComponent>()))
+				continue;
+
+		//btManifoldPoint& pt = contactManfiold->getContactPoint(0);
 		// Gets the contact points
-		int numContacts = contactManfiold->getNumContacts();
+		int numContacts = contactManifold->getNumContacts();
 		for (int j = 0; j < numContacts; j++) {
-			btManifoldPoint& pt = contactManfiold->getContactPoint(j);
-			
+			btManifoldPoint& pt = contactManifold->getContactPoint(j);
+			btVector3 collPosA = pt.getPositionWorldOnA();
+			_spawnParticleEmitterAt(collPosA);
 		}
 	}
+}
+
+void BulletPhysicsSystem::_spawnParticleEmitterAt(btVector3 pos) {
+	auto pE = Hydra::World::World::newEntity("Collision Particle Spawner", Hydra::World::World::rootID);
+
+	pE->addComponent<Hydra::Component::MeshComponent>()->loadMesh("QUAD");
+	
+	auto pETC = pE->addComponent<Hydra::Component::TransformComponent>();
+	pETC->position = glm::vec3(pos.getX(), pos.getY(), pos.getZ());
+	auto pEPC = pE->addComponent<Hydra::Component::ParticleComponent>();
+	pEPC->delay = 1.0f / 1.0f;
+	pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::Knas;
+	auto pELC = pE->addComponent<Hydra::Component::LifeComponent>();
+	pELC->maxHP = 3;
+	pELC->health = 3;
 }
 
 void BulletPhysicsSystem::registerUI() {}

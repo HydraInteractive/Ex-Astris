@@ -297,10 +297,11 @@ void AlienBehaviour::run(float dt)
 		if(!refreshRequiredComponents())
 			return;
 	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
-	if (!thisEnemy.life->statusCheck())
-	{
-		thisEnemy.entity->dead = true;
-	}
+	// Not sure if needed with the new lifesystem.
+	//if (!thisEnemy.life->statusCheck())
+	//{
+	//	thisEnemy.entity->dead = true;
+	//}
 	thisEnemy.ai->debugState = state;
 
 	idleTimer += dt;
@@ -376,10 +377,11 @@ void RobotBehaviour::run(float dt)
 	if (!hasRequiredComponents || !refreshRequiredComponents())
 		return;
 	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
-	if (!thisEnemy.life->statusCheck())
-	{
-		thisEnemy.entity->dead = true;
-	}
+	// Same as above.
+	//if (!thisEnemy.life->statusCheck())
+	//{
+	//	thisEnemy.entity->dead = true;
+	//}
 
 	thisEnemy.ai->debugState = state;
 
@@ -463,10 +465,11 @@ void AlienBossBehaviour::run(float dt)
 	if (!hasRequiredComponents || !refreshRequiredComponents())
 		return;
 	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
-	if (!thisEnemy.life->statusCheck())
-	{
-		thisEnemy.entity->dead = true;
-	}
+	// Same as above.
+	//if (!thisEnemy.life->statusCheck())
+	//{
+	//	thisEnemy.entity->dead = true;
+	//}
 
 	thisEnemy.ai->debugState = state;
 
