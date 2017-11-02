@@ -42,7 +42,7 @@ namespace Barcode {
 		Engine() {
 			IEngine::getInstance() = this;
 
-			_view = View::SDLView::create();
+			_view = View::SDLView::create("Ex Astris");
 			_renderer = Renderer::GLRenderer::create(*_view);
 			_uiRenderer = Renderer::UIRenderer::create(*_view);
 

@@ -36,6 +36,7 @@ public:
 		_glContext = SDL_GL_CreateContext(_window = static_cast<SDL_Window*>(view.getHandler()));
 		_loadGLAD();
 
+
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 
@@ -51,6 +52,7 @@ public:
 		SDL_GL_SetSwapInterval(0);
 
 		_fullscreenQuad = Hydra::Renderer::GLMesh::createFullscreenQuad();
+		_animationTransTexture = Hydra::Renderer::GLTexture::createDataTexture(100 * 16 * sizeof(float), _maxInstancedAnimatedModels, Hydra::Renderer::TextureType::f16RGBA);
 
 		glGenBuffers(1, &_modelMatrixBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
@@ -68,7 +70,7 @@ public:
 	}
 
 
-	void renderAnimation(Batch& batch) final {
+	void renderAnimation(AnimationBatch& batch) final {
 		SDL_GL_MakeCurrent(_window, _glContext);
 		glBindFramebuffer(GL_FRAMEBUFFER, batch.renderTarget->getID());
 		const auto& size = batch.renderTarget->getSize();
@@ -82,36 +84,87 @@ public:
 
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
 
-
 		batch.pipeline->setValue(7, 0);
 		batch.pipeline->setValue(8, 1);
 		batch.pipeline->setValue(9, 2);
 		batch.pipeline->setValue(10, 3);
+		batch.pipeline->setValue(11, 4);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
 			mesh->getMaterial().diffuse->bind(0);
 			mesh->getMaterial().normal->bind(1);
 			mesh->getMaterial().specular->bind(2);
 			mesh->getMaterial().glow->bind(3);
+
 			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
 			glBindVertexArray(mesh->getID());
-			size_t size = kv.second.size();
-			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
-
-			int currentFrame = mesh->getCurrentKeyframe();
-			if (mesh->getAnimationCounter() > 24 && currentFrame < mesh->getMaxFramesForAnimation()) {
-				mesh->getAnimationCounter() = 0;
-				mesh->setCurrentKeyframe(currentFrame + 1);
-			}
-			else if (currentFrame > mesh->getMaxFramesForAnimation())
-				mesh->setCurrentKeyframe(1);
-
+			
+			constexpr unsigned int h = 1; // Width is always going to be 1
+			auto& currentFrames = batch.currentFrames[mesh];
+			auto& currAnimIndices = batch.currAnimIndices[mesh];
+			const size_t maxPerLoop = _maxInstancedAnimatedModels;
+			size_t size = batch.currentFrames[mesh].size();
 			for (size_t i = 0; i < size; i += maxPerLoop) {
-				glm::mat4 tempMat;
-				for (int i = 0; i < mesh->getNrOfJoints(); i++) {
-					tempMat = mesh->getTransformationMatrices(i);
-					batch.pipeline->setValue(11 + i, tempMat);
+				for (size_t instanceIdx = i; instanceIdx < i + maxPerLoop && instanceIdx < size; instanceIdx++) {
+					unsigned int w = mesh->getNrOfJoints(currAnimIndices[instanceIdx]) * 16 * 4;
+					std::vector<glm::mat4> jointTransformMX;
+					int frame = currentFrames[instanceIdx];
+					int animIdx = currAnimIndices[instanceIdx];
+					for (int currJoint = 0; currJoint < mesh->getNrOfJoints(currAnimIndices[instanceIdx]); currJoint++) {
+						jointTransformMX.push_back(mesh->getTransformationMatrices(animIdx, currJoint, frame));
+					}
+					_animationTransTexture->setData(glm::ivec2(0, instanceIdx), glm::ivec2(w, h), jointTransformMX.data());
 				}
+
+				_animationTransTexture->bind(4);
+
+				size_t amount = std::min(size - i, maxPerLoop);
+				glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
+				glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &kv.second[i]);
+				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
+			}
+		}
+	}
+
+	void renderShadows(AnimationBatch& batch) final {
+		SDL_GL_MakeCurrent(_window, _glContext);
+		glBindFramebuffer(GL_FRAMEBUFFER, batch.renderTarget->getID());
+		const auto& size = batch.renderTarget->getSize();
+		glViewport(0, 0, size.x, size.y);
+
+		glClearColor(batch.clearColor.r, batch.clearColor.g, batch.clearColor.b, batch.clearColor.a);
+		GLenum clearFlags = 0;
+		clearFlags |= (batch.clearFlags & ClearFlags::depth) == ClearFlags::depth ? GL_DEPTH_BUFFER_BIT : 0;
+		glClear(clearFlags);
+
+		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
+
+		for (auto& kv : batch.objects) {
+			auto& mesh = kv.first;
+			
+			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
+			glBindVertexArray(mesh->getID());
+			
+			batch.pipeline->setValue(20, 0);
+
+			constexpr unsigned int h = 1; // Width is always going to be 1
+			auto& currentFrames = batch.currentFrames[mesh];
+			auto& currAnimIndices = batch.currAnimIndices[mesh];
+			const size_t maxPerLoop = _maxInstancedAnimatedModels;
+			size_t size = batch.currentFrames[mesh].size();
+			for (size_t i = 0; i < size; i += maxPerLoop) {
+				for (size_t instanceIdx = i; instanceIdx < i + maxPerLoop && instanceIdx < size; instanceIdx++) {
+					unsigned int w = mesh->getNrOfJoints(currAnimIndices[instanceIdx]) * 16 * 4;
+					std::vector<glm::mat4> jointTransformMX;
+					int frame = currentFrames[instanceIdx];
+					int animIdx = currAnimIndices[instanceIdx];
+					for (int currJoint = 0; currJoint < mesh->getNrOfJoints(currAnimIndices[instanceIdx]); currJoint++) {
+						jointTransformMX.push_back(mesh->getTransformationMatrices(animIdx, currJoint, frame));
+					}
+					_animationTransTexture->setData(glm::ivec2(0, instanceIdx), glm::ivec2(w, h), jointTransformMX.data());
+				}
+
+				_animationTransTexture->bind(0);
 
 				size_t amount = std::min(size - i, maxPerLoop);
 				glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
@@ -137,50 +190,18 @@ public:
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
 
-			batch.pipeline->setValue(2, mesh->hasAnimation());
-
-			if (mesh->hasAnimation()) {
-				glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
-				glBindVertexArray(mesh->getID());
-				size_t size = kv.second.size();
-				const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
-				for (size_t i = 0; i < size; i += maxPerLoop) {
-
-					int currentFrame = mesh->getCurrentKeyframe();
-					if (currentFrame < mesh->getMaxFramesForAnimation()) {
-						mesh->setCurrentKeyframe(currentFrame + 1);
-					}
-					else {
-						mesh->setCurrentKeyframe(1);
-					}
-
-					glm::mat4 tempMat;
-					for (int i = 0; i < mesh->getNrOfJoints(); i++) {
-						tempMat = mesh->getTransformationMatrices(i);
-						batch.pipeline->setValue(11 + i, tempMat);
-					}
-
-					size_t amount = std::min(size - i, maxPerLoop);
-					glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
-					glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &kv.second[i]);
-					glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
-				}
-			}
-			else {
-				size_t size = kv.second.size();
-				const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
-				for (size_t i = 0; i < size; i += maxPerLoop) {
-					size_t amount = std::min(size - i, maxPerLoop);
-					glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
-					glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
-					glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &kv.second[i]);
-					glBindVertexArray(mesh->getID());
-					glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
-				}
+			glBindVertexArray(mesh->getID());
+			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
+			size_t size = kv.second.size();
+			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
+			for (size_t i = 0; i < size; i += maxPerLoop) {
+				size_t amount = std::min(size - i, maxPerLoop);
+				glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
+				glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &kv.second[i]);
+				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
 			}
 		}
 	}
-
 
 	void render(ParticleBatch& batch) final { // For particles only.
 		SDL_GL_MakeCurrent(_window, _glContext);
@@ -329,11 +350,13 @@ private:
 	std::vector<std::unique_ptr<DrawObject>> _activeDrawObjects;
 	std::vector<std::unique_ptr<DrawObject>> _inactiveDrawObjects;
 	std::unique_ptr<IMesh> _fullscreenQuad;
+	std::shared_ptr<Hydra::Renderer::ITexture> _animationTransTexture;
 
 	const size_t _modelMatrixSize = sizeof(glm::mat4) * 128; // max 128 mesh instances per draw call
 	GLuint _modelMatrixBuffer;
 	GLuint _particleBuffer;
 	const size_t _particleBufferSize = sizeof(glm::vec2) * 3 * 128; // Particle buffer holds three vec2, and max 128 particle instances per draw call.
+	const int _maxInstancedAnimatedModels = 20;
  
 	static void _loadGLAD() {
 		static bool initialized = false;
