@@ -371,7 +371,7 @@ namespace Barcode {
 						else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
 							_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
-							auto& mc = e->getComponent < Hydra::Component::MeshComponent>();
+							auto mc = e->getComponent < Hydra::Component::MeshComponent>();
 							int currentFrame = mc->currentFrame;
 							float animationCounter = mc->animationCounter;
 
