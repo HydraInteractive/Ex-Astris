@@ -48,10 +48,22 @@ void BulletPhysicsSystem::disable(Hydra::Component::RigidBodyComponent* componen
 
 void BulletPhysicsSystem::tick(float delta) {
 	_data->dynamicsWorld->stepSimulation(delta);
-	//int numManifolds = _data->dynamicsWorld->getDispatcher()->getNumManifolds();
-	//for (int i = 0; i < numManifolds; i++) {
-	//	btPersistentManifold* contactManfiold = 
-	//}
+	// Gets all collisions happening between all rigidbody entities.
+	int numManifolds = _data->dynamicsWorld->getDispatcher()->getNumManifolds();
+	for (int i = 0; i < numManifolds; i++) {
+		btPersistentManifold* contactManfiold = _data->dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+		const btCollisionObject* obA = contactManfiold->getBody0();
+		const btCollisionObject* obB = contactManfiold->getBody1();
+		Entity* eA = Hydra::World::World::getEntity(obA->getUserIndex()).get();
+		Entity* eB = Hydra::World::World::getEntity(obB->getUserIndex()).get();
+
+		// Gets the contact points
+		int numContacts = contactManfiold->getNumContacts();
+		for (int j = 0; j < numContacts; j++) {
+			btManifoldPoint& pt = contactManfiold->getContactPoint(j);
+			
+		}
+	}
 }
 
 void BulletPhysicsSystem::registerUI() {}

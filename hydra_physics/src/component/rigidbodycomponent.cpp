@@ -174,7 +174,7 @@ static SerializeShape getShapeSerializer(CollisionShape collisionShape) {
 
 struct RigidBodyComponent::Data {
 	Data(EntityID entityID, CollisionShape collisionShape, SerializeShape serializeShape, std::unique_ptr<btCollisionShape> shape, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction) :
-		collisionShape(collisionShape), serializeShape(serializeShape), motionState(entityID), shape(std::move(shape)), mass(mass), linearDamping(linearDamping), angularDamping(angularDamping), friction(friction), rollingFriction(rollingFriction) {}
+		collisionShape(collisionShape), serializeShape(serializeShape), motionState(entityID), shape(std::move(shape)), mass(mass), linearDamping(linearDamping), angularDamping(angularDamping), friction(friction), rollingFriction(rollingFriction), eID(entityID) {}
 
 
 	btRigidBody* getRigidBody() {
@@ -186,13 +186,13 @@ struct RigidBodyComponent::Data {
 			info.m_rollingFriction = rollingFriction;
 			shape->calculateLocalInertia(mass, info.m_localInertia);
 			rigidBody = std::make_unique<btRigidBody>(info);
+			rigidBody->setUserIndex(eID);
 		}
 		return rigidBody.get();
 	}
 
 	CollisionShape collisionShape;
 	SerializeShape serializeShape;
-
 	MotionStateImpl motionState;
 	std::unique_ptr<btCollisionShape> shape; // TODO: Share this among other RB
 
@@ -201,6 +201,7 @@ struct RigidBodyComponent::Data {
 	float angularDamping;
 	float friction;
 	float rollingFriction;
+	EntityID eID;
 
 private:
 	std::unique_ptr<btRigidBody> rigidBody;
