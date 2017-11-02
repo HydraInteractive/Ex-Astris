@@ -8,8 +8,6 @@
 
 using namespace Hydra::System;
 
-#define ANG2RAD 3.14159265358979323846/180.0
-
 CameraSystem::CameraSystem() {}
 CameraSystem::~CameraSystem() {}
 
@@ -80,68 +78,3 @@ void CameraSystem::tick(float delta) {
 }
 
 void CameraSystem::registerUI() {}
-
-void CameraSystem::setCamInternals(Hydra::Component::CameraComponent& cc) {
-	cc.tang = (float)tan(ANG2RAD * cc.fov * 0.5);
-	cc.nh = cc.zNear * cc.tang;
-	cc.nw = cc.nh * cc.aspect;
-	cc.fh = cc.zFar * cc.tang;
-	cc.fw = cc.fh * cc.aspect;
-}
-
-void CameraSystem::setCamDef(glm::vec3& cPos, glm::vec3& cDir, glm::vec3& up, glm::vec3& right, Hydra::Component::CameraComponent& cc) {
-	glm::vec3 dir, nc, fc, X, Y, Z;
-	
-	Z = cPos - cDir;
-	Z = glm::normalize(Z);
-
-	X = up * Z;
-	X = glm::normalize(X);
-
-	Y = Z * X;
-
-	nc = cPos - cDir * cc.zNear;
-	fc = cPos - cDir * cc.zFar;
-
-	//near plane
-	cc.ntl = nc + up * cc.nh - right * cc.nw;
-	cc.ntr = nc + up * cc.nh + right * cc.nw;
-	cc.nbl = nc - up * cc.nh - right * cc.nw;
-	cc.nbr = nc - up * cc.nh + right * cc.nw;
-
-	//far plane
-	cc.ftl = fc + up * cc.fh - right * cc.fw;
-	cc.ftr = fc + up * cc.fh + right * cc.fw;
-	cc.fbl = fc - up * cc.fh - right * cc.fw;
-	cc.fbr = fc - up * cc.fh + right * cc.fw;
-
-	cc.pl[cc.TOP].set3Points(cc.ntr, cc.ntl, cc.ftl);
-	cc.pl[cc.BOTTOM].set3Points(cc.nbl, cc.nbr, cc.fbr);
-	cc.pl[cc.LEFT].set3Points(cc.ntl, cc.nbl, cc.fbl);
-	cc.pl[cc.RIGHT].set3Points(cc.nbr, cc.ntr, cc.fbr);
-	cc.pl[cc.NEARP].set3Points(cc.ntl, cc.ntr, cc.nbr);
-	cc.pl[cc.FARP].set3Points(cc.ftr, cc.ftl, cc.fbl);
-
-}
-
-/*int CameraSystem::pointInFrustum(glm::vec3& p, Hydra::Component::CameraComponent& cc) {
-	int result = 1;
-	for (int i = 0; i < 6; i++) {
-		if (cc.pl[i].distance(p) < 0)
-			return 0;
-	}
-	return result;
-}*/
-
-int CameraSystem::sphereInFrustum(glm::vec3& p, float radius, Hydra::Component::CameraComponent& cc) {
-	float distance = 0;
-	int result = cc.INSIDE;
-	for (int i = 0; i < 6; i++) {
-		distance = cc.pl[i].distance(p);
-		if (distance < -radius)
-			return cc.OUTSIDE;
-		else if (distance < radius)
-			result = cc.INTERSECT;
-	}
-	return result;
-}

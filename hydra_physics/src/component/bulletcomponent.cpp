@@ -20,18 +20,24 @@ BulletComponent::~BulletComponent() { }
 
 void BulletComponent::serialize(nlohmann::json& json) const {
 	json = {
+		{ "position", { position.x, position.y, position.z } },
 		{ "direction", { direction.x, direction.y, direction.z } },
 		{ "velocity", velocity }
 	};
 }
 
 void BulletComponent::deserialize(nlohmann::json& json) {
+	auto& pos = json["position"];
+	position = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
+
 	auto& dir = json["direction"];
 	direction = glm::vec3{ dir[0].get<float>(), dir[1].get<float>(), dir[2].get<float>() };
+
 	velocity = json["velocity"].get<float>();
 }
 
 void BulletComponent::registerUI() {
+	ImGui::DragFloat3("Position", glm::value_ptr(position));
 	ImGui::DragFloat3("Direction", glm::value_ptr(direction));
 	ImGui::DragFloat("Velocity", &velocity);
 }

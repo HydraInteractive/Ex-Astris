@@ -11,7 +11,6 @@ class HYDRA_PHYSICS_API AbilityHandler {
 public:
 	AbilityHandler();
 	~AbilityHandler() {};
-	void addAbility(void(AbilityHandler::*test)(Hydra::World::Entity*, glm::vec3, glm::vec3));
 	void useAbility(Hydra::World::Entity* abilitiesEntity, glm::vec3 position, glm::vec3 direction);
 	void grenadeAbility(Hydra::World::Entity* abilitiesEntity, glm::vec3 position, glm::vec3 direction);
 	void mineAbility(Hydra::World::Entity* abilitiesEntity, glm::vec3 position, glm::vec3 direction);

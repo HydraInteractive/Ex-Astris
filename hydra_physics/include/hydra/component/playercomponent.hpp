@@ -35,12 +35,15 @@ namespace Hydra::Component {
 
 		// TODO: Move?!
 		AbilityHandler activeAbillies;
+		BuffHandler activeBuffs;
 
 		~PlayerComponent() final;
 
 		std::shared_ptr<Hydra::World::Entity> getWeapon();
 
 		inline const std::string type() const final { return "PlayerComponent"; }
+
+		std::vector<Buffs> getActiveBuffs() { return activeBuffs.getActiveBuffs(); }
 
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;

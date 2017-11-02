@@ -20,10 +20,9 @@ namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API WeaponComponent final : public IComponent<WeaponComponent, ComponentBits::Weapon> {
 		float fireRateTimer = 0;
 		float fireRateRPM = 600;
-		float bulletSize = 0.5f;
+		float bulletSize = 0.01f;
 		float bulletSpread = 0.0f;
 		int bulletsPerShot = 14;
-		float debug = 0.0f;
 
 		~WeaponComponent() final;
 
