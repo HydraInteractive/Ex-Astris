@@ -286,6 +286,7 @@ namespace Barcode {
 		_rendererSystem.tick(delta);
 		_spawnerSystem.tick(delta);
 		_soundFxSystem.tick(delta);
+		_perkSystem.tick(delta);
 
 		const glm::vec3 cameraPos = _cc->position;
 
@@ -616,7 +617,7 @@ namespace Barcode {
 			std::vector<Buffs> perksList;
 			for (auto& p : Hydra::Component::PlayerComponent::componentHandler->getActiveComponents()) {
 				auto player = static_cast<Hydra::Component::PlayerComponent*>(p.get());
-				perksList = player->activeBuffs.getActiveBuffs();
+				//perksList = player->activeBuffs.getActiveBuffs();
 			}
 			for (auto& camera : Hydra::Component::CameraComponent::componentHandler->getActiveComponents())
 				degrees = glm::degrees(static_cast<Hydra::Component::CameraComponent*>(camera.get())->cameraYaw);
@@ -866,6 +867,7 @@ namespace Barcode {
 			auto h = playerEntity->addComponent<Hydra::Component::LifeComponent>();
 			auto m = playerEntity->addComponent<Hydra::Component::MovementComponent>();
 			auto s = playerEntity->addComponent<Hydra::Component::SoundFxComponent>();
+			auto perks = playerEntity->addComponent<Hydra::Component::PerkComponent>();
 			h->health = 100;
 			h->maxHP = 100;
 			m->movementSpeed = 20.0f;

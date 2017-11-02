@@ -11,6 +11,7 @@
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/soundfxcomponent.hpp>
+#include <hydra/component/perkcomponent.hpp>
 
 #include <hydra/engine.hpp>
 
@@ -35,8 +36,9 @@ void PlayerSystem::tick(float delta) {
 		auto life = entities[i]->getComponent<Component::LifeComponent>();
 		auto movement = entities[i]->getComponent<Component::MovementComponent>();
 		auto soundFx = entities[i]->getComponent<SoundFxComponent>();
+		auto perks = entities[i]->getComponent<PerkComponent>();
 
-		player->activeBuffs.onTick(life->maxHP, life->health);
+		//player->activeBuffs.onTick(life->maxHP, life->health);
 
 		if (!life->statusCheck())
 			player->isDead = true;
@@ -80,8 +82,7 @@ void PlayerSystem::tick(float delta) {
 
 				//TODO: Make pretty?
 				glm::quat bulletOrientation = glm::angleAxis(-camera->cameraYaw, glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->cameraPitch, glm::vec3(1, 0, 0)));
-				float bulletVelocity = 1.0f;
-				player->activeBuffs.onAttack(bulletVelocity);
+				float bulletVelocity = 20.0f;
 
 				weapon->shoot(transform->position, forward, bulletOrientation, bulletVelocity);
 			}
