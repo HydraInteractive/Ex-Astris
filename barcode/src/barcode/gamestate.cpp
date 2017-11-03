@@ -850,7 +850,7 @@ namespace Barcode {
 			auto floor = world::newEntity("Floor", world::root());
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(0, -1, 0);
-			floor->addComponent<Hydra::Component::RigidBodyComponent>()->createStaticPlane(glm::vec3(0, 1, 0), 1, 0, 0, 0, 0.75f, 0.2f);
+			floor->addComponent<Hydra::Component::RigidBodyComponent>()->createStaticPlane(glm::vec3(0, 1, 0), 1, 0, 0, 0, 0.75f, 0.75f);
 
 		}
 		{

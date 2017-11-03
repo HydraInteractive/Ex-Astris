@@ -15,6 +15,7 @@ public:
 	void useAbility(Hydra::World::Entity* abilitiesEntity, glm::vec3 position, glm::vec3 direction);
 	void grenadeAbility(Hydra::World::Entity* abilitiesEntity, glm::vec3 position, glm::vec3 direction);
 	void mineAbility(Hydra::World::Entity* abilitiesEntity, glm::vec3 position, glm::vec3 direction);
+	void forcePushAbility(Hydra::World::Entity* abilitiesEntity, glm::vec3 position, glm::vec3 direction);
 private:
 	size_t _activeAbility;
 	std::vector<void(AbilityHandler::*)(Hydra::World::Entity*, glm::vec3, glm::vec3)> _abilityList;
