@@ -41,8 +41,7 @@ void SpawnerSystem::tick(float delta)
 					auto a = alienSpawn->addComponent <Hydra::Component::AIComponent> ();
 					a->behaviour = std::make_shared<AlienBehaviour>(alienSpawn);
 					a->damage = 4;
-					a->radius = 2;
-					a->behaviour->originalRange = 4;
+					a->originalRange = 4;
 					auto h = alienSpawn->addComponent<Hydra::Component::LifeComponent>();
 					h->maxHP = 80;
 					h->health = 80;
@@ -51,7 +50,7 @@ void SpawnerSystem::tick(float delta)
 					auto t = alienSpawn->addComponent<Hydra::Component::TransformComponent>();
 					t->position = transform->position;
 					t->scale = glm::vec3{ 2,2,2 };
-					
+					a->_scale = glm::vec3{ 2,2,2 };
 					alienSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
 					spawner->spawnGroup.push_back(alienSpawn);
 					spawner->spawnTimer = 0;
@@ -68,8 +67,7 @@ void SpawnerSystem::tick(float delta)
 					auto a = robotSpawn->addComponent<Hydra::Component::AIComponent>();
 					a->behaviour = std::make_shared<AlienBehaviour>(robotSpawn);
 					a->damage = 8;
-					a->radius = 1;
-					a->behaviour->originalRange = 25;
+					a->originalRange = 25;
 					auto h = robotSpawn->addComponent<Hydra::Component::LifeComponent>();
 					h->maxHP = 60;
 					h->health = 60;
@@ -78,6 +76,7 @@ void SpawnerSystem::tick(float delta)
 					auto t = robotSpawn->addComponent<Hydra::Component::TransformComponent>();
 					t->position = transform->position;
 					t->scale = glm::vec3{ 1,1,1 };
+					a->_scale = glm::vec3{ 1,1,1 };
 					{
 						auto weaponEntity = world::newEntity("Weapon", robotSpawn);
 						weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
