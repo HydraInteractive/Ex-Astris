@@ -7,9 +7,9 @@
 #include <hydra/world/world.hpp>
 #include <Server/ServerWorld.hpp>
 
-HYDRA_API void startServer(int port);
+HYDRA_NETWORK_API void startServer(int port);
 
-HYDRA_API class NetworkManager {
+HYDRA_NETWORK_API class NetworkManager {
 private:
 	TCPHost* _conn;
 	bool _running;
@@ -18,14 +18,14 @@ private:
 	//std::map<int, Hydra::World::IEntity*> _netEntities;
 	//bool _connected;
 	
-	HYDRA_API int _generateEntityID();
+	HYDRA_NETWORK_API int _generateEntityID();
 public:
-	HYDRA_API NetworkManager();
-	HYDRA_API ~NetworkManager();
-	HYDRA_API void update();
-	HYDRA_API bool running() { return this->_running; }
-	HYDRA_API int getPort() { return this->_port; }
+	HYDRA_NETWORK_API NetworkManager();
+	HYDRA_NETWORK_API ~NetworkManager();
+	HYDRA_NETWORK_API void update();
+	HYDRA_NETWORK_API bool running() { return this->_running; }
+	HYDRA_NETWORK_API int getPort() { return this->_port; }
 
-	HYDRA_API bool host(IPaddress ip);
-	HYDRA_API void quit();
+	HYDRA_NETWORK_API bool host(IPaddress ip);
+	HYDRA_NETWORK_API void quit();
 };

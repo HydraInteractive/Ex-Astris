@@ -1,130 +1,121 @@
 #include <hydra/component/particlecomponent.hpp>
 #include <hydra/engine.hpp>
 #include <imgui/imgui.h>
+#include <hydra/component/cameracomponent.hpp>
+#include <algorithm>
 
 #define frand() (float(rand()) / float(RAND_MAX))
-#define ROW 8 // is always going to be a uniformly scaled texture.
+
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-ParticleComponent::ParticleComponent(IEntity* entity) : IComponent(entity), _pps(1), _accumulator(0.f), _tempRotation(glm::quat{}), _behaviour(EmitterBehaviour::PerSecond), _drawObject(entity->getDrawObject()) {
-	_drawObject->refCounter++;
-	_drawObject->mesh = nullptr;
-}
-
-ParticleComponent::ParticleComponent(IEntity* entity, EmitterBehaviour behaviour, int nrOfParticles) : IComponent(entity), _pps(nrOfParticles), _accumulator(0.f), _tempRotation(glm::quat{}), _behaviour(behaviour), _drawObject(entity->getDrawObject()) {
-	_drawObject->refCounter++;
-	_drawObject->mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getQuad().get();
-	_tempRotation = glm::mat4(1);
-	_tempRotation *= glm::angleAxis(glm::radians(90.f), glm::vec3(0,0,1));
-}
-
-ParticleComponent::~ParticleComponent() {
-	_drawObject->refCounter--;
-	_drawObject->mesh = nullptr;
-	_particles.clear();
-}
-
-void ParticleComponent::tick(TickAction action, float delta){
-	if (action == TickAction::physics && _particles.size() > 0)
-		_particlePhysics(delta);
-	if (action == TickAction::renderTransparent) {
-		_accumulator += delta;
-		_generateParticles();
-	}
-}
-
-void ParticleComponent::_generateParticles() {
-	switch (_behaviour) {
-	case EmitterBehaviour::PerSecond: {
-		if (_accumulator > 1.0f / _pps) {
-			_emmitParticle();
-			_accumulator -= 1.0f / _pps;
-		}
-	}
-		break;
-	case EmitterBehaviour::Explosion:
-		break;
-	}
-}
-
-void ParticleComponent::_emmitParticle() {
-	std::shared_ptr<Particle> p = std::make_shared<Particle>();
-	float dirX = (1 * 2.f - 1.f);
-	float dirY = (frand() * 3) * 2.f - 1.f;
-	float dirZ = (frand() * 5) * 2.f - 1.f;
-	p->spawn(glm::vec3(0), glm::vec3(dirX, dirY, dirZ), frand() * 3.0f);
-	_particles.push_back(p);
-}
-
-void ParticleComponent::_particlePhysics(float delta) {
-	bool anyDead = false;
-	for (size_t i = 0; i < _particles.size(); i++) {
-		auto p = _particles[i];
-		if (p->life <= p->elapsedTime) {
-			p->setDead();
-			anyDead = true;
-		}
-		if (p->dead)
-			continue;
-		p->vel += p->grav * delta;
-		p->pos += p->vel * delta;
-		_updateTextureCoordInfo(p, delta);
-		p->elapsedTime += delta;
-		p->fixMX(_tempRotation);
-	}
-	if(anyDead)
-		_clearDeadParticles();
-}
-
-void ParticleComponent::_updateTextureCoordInfo(std::shared_ptr<Particle>& p, float delta) {
-	float lifeFactor = p->elapsedTime / p->life;
-	int stageCount = ROW*ROW;
-	float atlasProg = lifeFactor * stageCount;
-	int index1 = (int)floor(atlasProg);
-	int index2 = index1 < stageCount - 1 ? index1 + 1 : index1;
-	p->texCoordInfo = glm::vec2(ROW, fmod(atlasProg, 1));
-	_setTextureOffset(p->texOffset1, index1);
-	_setTextureOffset(p->texOffset2, index2);
-}
-
-void ParticleComponent::_setTextureOffset(glm::vec2& offset, int index) {
-	int column = index % ROW;
-	int row = index / ROW;
-	offset.x = column / (float)ROW;
-	offset.y = row / (float)ROW;
-}
-
-void ParticleComponent::_clearDeadParticles() {
-	_particles.erase(std::remove_if(
-			_particles.begin(), _particles.end(),
-			[](const std::shared_ptr<Particle>& p) {
-				return p->dead;
-		}), 
-	_particles.end());
-}
+ParticleComponent::~ParticleComponent() {}
 
 void ParticleComponent::serialize(nlohmann::json & json) const{
 	json = {
-		{ "pps", _pps},
-		{ "accumulator", _accumulator},
-		{ "behaviour", (int)_behaviour}
+		{ "delay", delay},
+		{ "accumulator", accumulator},
+		{ "behaviour", static_cast<int>(behaviour)},
+		{ "texture", static_cast<int>(texture)}
 	};
 }
 
 void ParticleComponent::deserialize(nlohmann::json & json){
-	auto& pps = json["pps"];
-	 _pps = pps.get<int>();
+	delay = json["delay"].get<float>();
+	accumulator = json["accumulator"].get<int>();
 
-	auto& accumulator = json["accumulator"];
-	_accumulator = accumulator.get<int>();
-
-	auto& behaviour = json["behaviour"];
-	_behaviour = (EmitterBehaviour)behaviour.get<int>();
-	
-	_drawObject->mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getQuad().get();
+	behaviour = static_cast<EmitterBehaviour>(json["behaviour"].get<int>());
+	texture = static_cast<ParticleTexture>(json["texture"].get<int>());
 }
 
-void ParticleComponent::registerUI(){
-	ImGui::DragInt("ParticlesPerSecond", &_pps, 1.0);
+void ParticleComponent::registerUI() {
+	float pps = (int)(1.0f / delay);
+	if (ImGui::DragFloat("Particles/Second", &pps)) {
+		pps = std::max(0.0f, pps);
+		delay = 1.0f / pps;
+	}
+	ImGui::InputFloat("Delay between particles", &delay, 0, 0, -1, ImGuiInputTextFlags_ReadOnly);
+	ImGui::DragFloat("Accumulator", &accumulator, 1.0);
+
+	ImGui::Combo("Emitter Behaviour", reinterpret_cast<int*>(&behaviour), EmitterBehaviourStr, static_cast<int>(EmitterBehaviour::MAX_COUNT));
+	ImGui::Combo("Particle Texture", reinterpret_cast<int*>(&texture), ParticleTextureStr, static_cast<int>(ParticleTexture::MAX_COUNT));
+
+	if (!ImGui::CollapsingHeader("Particles"))
+		return;
+	int i = -1;
+	for (auto& p : particles) {
+		i++;
+		ImGui::PushID((void*)&p);
+		ImGui::Text("Particle #%d", i);
+		ImGui::SameLine();
+
+		if (ImGui::Button("Edit"))
+			ImGui::OpenPopup((std::string("particle") + std::to_string(i)).c_str());
+
+		if (ImGui::BeginPopup((std::string("particle") + std::to_string(i)).c_str())) {
+			ImGui::Text("Editing Particle #%d", i);
+
+			p.transform.registerUI();
+
+			ImGui::Text("Velocity");
+			ImGui::DragFloat3("##velocity", glm::value_ptr(p.velocity));
+			ImGui::Text("Acceleration");
+			ImGui::DragFloat3("##acceleration", glm::value_ptr(p.acceleration));
+			ImGui::Text("Life");
+			ImGui::DragFloat("##life", &p.life);
+			ImGui::Text("Start Life");
+			ImGui::DragFloat("##startlife", &p.startLife);
+
+			if (ImGui::Button("Close"))
+				ImGui::CloseCurrentPopup();
+
+			ImGui::EndPopup();
+		}
+		ImGui::NextColumn();
+		ImGui::PopID();
+	}
+}
+
+void ParticleComponent::spawnParticles() {
+	using world = Hydra::World::World;
+	auto t = world::getEntity(entityID)->getComponent<Hydra::Component::TransformComponent>();
+
+	auto findFree = [this]() -> Particle* {
+		static size_t orgI = 0;
+		size_t i = orgI;
+		do {
+			if (particles[i].life <= 0) {
+				orgI = (i+1) % MaxParticleAmount;
+				return &particles[i];
+			}
+			i = (i + 1) % MaxParticleAmount;
+		} while (i != orgI);
+		return nullptr;
+	};
+	switch (behaviour) {
+	case EmitterBehaviour::PerSecond:
+		while (accumulator >= delay) {
+			Particle* p = findFree();
+			if (!p)
+				break;
+
+			accumulator -= delay;
+			const float velX = frand() * 2 - 2;
+			const float velY = frand() * 6 - 1;
+			const float velZ = frand() * 2 - 2;
+
+			const float accX = frand() * 2 - 2;
+			const float accY = frand() * 8.5f;
+			const float accZ = frand() * 2 - 2;
+
+			const float life = frand() + 1.f;
+
+			const glm::vec3 vel = glm::normalize(glm::vec3(velX, velY, velZ));
+			const glm::vec3 acc = glm::vec3(accX, accY, accZ);
+			p->respawn(*t, vel, acc, life);
+		}
+		break;
+	default:
+		break;
+	}
 }

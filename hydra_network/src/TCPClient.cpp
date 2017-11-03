@@ -52,7 +52,7 @@ void TCPClient::close() {
 	 this->receivePacket();
 }
 
- HYDRA_API void TCPClient::sendPacket(char * data, int length) {
+ HYDRA_NETWORK_API void TCPClient::sendPacket(char * data, int length) {
 	if (this->_socket) {
 		 SDLNet_TCP_Send(this->_socket, data, length);
 	}

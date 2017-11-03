@@ -4,7 +4,7 @@
 #include <SDL2/SDL.h>
 #include <hydra/ext/api.hpp>
 
-class HYDRA_API Input {
+class HYDRA_GRAPHICS_API Input {
 private:
 	const uint8_t* _kbState = NULL;
 	int _keyCount;

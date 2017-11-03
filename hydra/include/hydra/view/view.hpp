@@ -13,10 +13,10 @@
 #include <glm/glm.hpp>
 #include <hydra/renderer/renderer.hpp>
 
-namespace Hydra::Renderer { class HYDRA_API IUIRenderer; }
+namespace Hydra::Renderer { class HYDRA_BASE_API IUIRenderer; }
 
 namespace Hydra::View {
-	class HYDRA_API IView : public Hydra::Renderer::IRenderTarget {
+	class HYDRA_BASE_API IView : public Hydra::Renderer::IRenderTarget {
 	public:
 		virtual ~IView() = 0;
 
@@ -27,9 +27,12 @@ namespace Hydra::View {
 		virtual void hide() = 0;
 		virtual void quit() = 0;
 
+		virtual void blit(Hydra::Renderer::IFramebuffer* fb, size_t imageIdx = 0) = 0;
+
+		inline void setData(const glm::ivec2&, const glm::ivec2&, const void*) { }
+
 		virtual void* getHandler() = 0;
 		virtual void finalize() = 0;
-		inline void bind(size_t) final {}
 		inline size_t getSamples() final { return 1; }
 
 		/// Did it get a close event, and hid itself

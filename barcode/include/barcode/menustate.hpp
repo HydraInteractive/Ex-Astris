@@ -13,6 +13,7 @@
 #include <hydra/renderer/uirenderer.hpp>
 #include <hydra/io/meshloader.hpp>
 #include <hydra/io/textureloader.hpp>
+#include <hydra/system/bulletphysicssystem.hpp>
 
 namespace Barcode {
 	class MenuState final : public Hydra::IState {
@@ -25,9 +26,9 @@ namespace Barcode {
 
 		void runFrame(float delta) final;
 
-		inline Hydra::World::IWorld* getWorld() final { return _world.get(); };
 		inline Hydra::IO::ITextureLoader* getTextureLoader() final { return _textureLoader.get(); }
 		inline Hydra::IO::IMeshLoader* getMeshLoader() final { return _meshLoader.get(); }
+		inline Hydra::World::ISystem* getPhysicsSystem() final { return &_physicsSystem; }
 
 	private:
 		struct RenderBatch final {
@@ -41,12 +42,17 @@ namespace Barcode {
 		};
 
 		Hydra::IEngine* _engine;
-		std::unique_ptr<Hydra::World::IWorld> _world;
 		std::unique_ptr<Hydra::IO::ITextureLoader> _textureLoader;
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
+		Hydra::System::BulletPhysicsSystem _physicsSystem;
 
 		RenderBatch _viewBatch;
 
+		void _initSystem();
 		void _initWorld();
+
+		int menu = 0;
+		int subMenu = 0;
 	};
+	//bool ImageAnimButton(ImTextureID user_texture_id, ImTextureID user_texture_id2, const ImVec2 & size, const ImVec2 & uv0, const ImVec2 & uv1, const ImVec2 & uv2, const ImVec2 & uv3, int frame_padding, const ImVec4 & bg_col, const ImVec4 & tint_col);
 }

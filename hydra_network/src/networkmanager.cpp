@@ -36,7 +36,7 @@ void NetworkManager::update() {
 				//SEND CURRENT PLAYERS(ENTITIES) TO NEWLY CONNECTED PLAYER
 				if (p.getID() != this->_serverw.getPlayers()[l].getID()) {
 					nlohmann::json j;
-					this->_serverw.getPlayers()[l].getEntity()->serialize(j);
+					Hydra::World::World::getEntity(this->_serverw.getPlayers()[l].getEntity())->serialize(j);
 					std::string str = j.dump();
 					PacketSpawnEntityServer* pse = (PacketSpawnEntityServer*)malloc(sizeof(PacketSpawnEntity) + str.size() + 1);
 					pse->header.type = PacketType::SpawnEntityServer;
@@ -52,7 +52,7 @@ void NetworkManager::update() {
 
 			//SEND NEW ENTITY TO CURRENTLY EXISITNG PLAYERS
 			nlohmann::json j;
-			p.getEntity()->serialize(j);
+			Hydra::World::World::getEntity(p.getEntity())->serialize(j);
 			std::string str = j.dump();
 			PacketSpawnEntityServer* pse = (PacketSpawnEntityServer*)malloc(sizeof(PacketSpawnEntity) + str.size() + 1);
 			pse->header.type = PacketType::SpawnEntityServer;
@@ -119,7 +119,7 @@ void NetworkManager::update() {
 
 }
 
-HYDRA_API bool NetworkManager::host(IPaddress ip) {
+HYDRA_NETWORK_API bool NetworkManager::host(IPaddress ip) {
 	if (!this->_running) {
 		this->_conn = new TCPHost();
 
@@ -136,11 +136,11 @@ HYDRA_API bool NetworkManager::host(IPaddress ip) {
 	return false;
 }
 
-HYDRA_API void NetworkManager::quit() { // TODO
+HYDRA_NETWORK_API void NetworkManager::quit() { // TODO
 	return void();
 }
 
-HYDRA_API void startServer(int port) {
+HYDRA_NETWORK_API void startServer(int port) {
 	NetworkManager nm;
 	IPaddress ip;
 	ip.host = INADDR_ANY;

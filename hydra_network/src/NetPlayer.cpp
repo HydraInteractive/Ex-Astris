@@ -8,18 +8,18 @@ NetPlayer::NetPlayer() {
 NetPlayer::~NetPlayer() {
 }
 
-HYDRA_API void NetPlayer::addPlayer(std::shared_ptr<Hydra::World::IEntity> ent) {
+HYDRA_NETWORK_API void NetPlayer::addPlayer(EntityID ent) {
 	this->_player = ent;
 	this->_isDead = false;
 }
 
-HYDRA_API TransformInfo NetPlayer::getPlayerInfo() {
+HYDRA_NETWORK_API TransformInfo NetPlayer::getPlayerInfo() {
 	if (!this->_isDead) {
-		Hydra::Component::TransformComponent* tc = this->_player->getComponent<Hydra::Component::TransformComponent>();
+		Hydra::Component::TransformComponent* tc = Hydra::World::World::getEntity(this->_player)->getComponent<Hydra::Component::TransformComponent>().get();
 		TransformInfo pi;
-		pi.position = tc->getPosition();
-		pi.rot = tc->getRotation();
-		pi.scale = tc->getScale();
+		pi.position = tc->position;
+		pi.rot = tc->rotation;
+		pi.scale = tc->scale;
 		return pi;
 	}
 	return TransformInfo();

@@ -53,10 +53,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)/hydra/include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/hydra/include;$(SolutionDir)/hydra/lib-include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_BASE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <DisableSpecificWarnings>4250;4251</DisableSpecificWarnings>
@@ -74,10 +74,10 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)/hydra/include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/hydra/include;$(SolutionDir)/hydra/lib-include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_BASE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4250;4251</DisableSpecificWarnings>
     </ClCompile>
@@ -90,9 +90,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\component\componentmanager.cpp" />
+    <ClCompile Include="src\component\roomcomponent.cpp" />
+    <ClCompile Include="src\component\transformcomponent.cpp" />
+    <ClCompile Include="src\engine.cpp" />
+    <ClCompile Include="src\ext\ram.cpp" />
+    <ClCompile Include="src\ext\stacktrace.cpp" />
+    <ClCompile Include="src\lib\imgui\imgui.cpp" />
+    <ClCompile Include="src\lib\imgui\imgui_demo.cpp" />
+    <ClCompile Include="src\lib\imgui\imgui_draw.cpp" />
+    <ClCompile Include="src\lib\imgui\imgui_tabs.cpp" />
+    <ClCompile Include="src\lib\imgui\imgui_user.cpp" />
+    <ClCompile Include="src\system\deadsystem.cpp" />
+    <ClCompile Include="src\world\blueprintloader.cpp" />
+    <ClCompile Include="src\world\world.cpp" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="include\hydra\component\componentmanager.hpp" />
+    <ClInclude Include="include\hydra\component\roomcomponent.hpp" />
+    <ClInclude Include="include\hydra\component\transformcomponent.hpp" />
     <ClInclude Include="include\hydra\engine.hpp" />
     <ClInclude Include="include\hydra\ext\api.hpp" />
+    <ClInclude Include="include\hydra\ext\macros.hpp" />
+    <ClInclude Include="include\hydra\ext\openmp.hpp" />
     <ClInclude Include="include\hydra\ext\ram.hpp" />
     <ClInclude Include="include\hydra\ext\stacktrace.hpp" />
     <ClInclude Include="include\hydra\io\meshloader.hpp" />
@@ -100,18 +120,20 @@
     <ClInclude Include="include\hydra\renderer\renderer.hpp" />
     <ClInclude Include="include\hydra\renderer\shader.hpp" />
     <ClInclude Include="include\hydra\renderer\uirenderer.hpp" />
+    <ClInclude Include="include\hydra\system\deadsystem.hpp" />
     <ClInclude Include="include\hydra\view\view.hpp" />
     <ClInclude Include="include\hydra\world\blueprintloader.hpp" />
     <ClInclude Include="include\hydra\world\world.hpp" />
-    <ClInclude Include="include\json.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\components\componentmanager.cpp" />
-    <ClCompile Include="src\engine.cpp" />
-    <ClCompile Include="src\ext\ram.cpp" />
-    <ClCompile Include="src\ext\stacktrace.cpp" />
-    <ClCompile Include="src\world\blueprintloader.cpp" />
-    <ClCompile Include="src\world\world.cpp" />
+    <ClInclude Include="lib-include\imgui\icons.hpp" />
+    <ClInclude Include="lib-include\imgui\imconfig.h" />
+    <ClInclude Include="lib-include\imgui\imgui.h" />
+    <ClInclude Include="lib-include\imgui\imgui_internal.h" />
+    <ClInclude Include="lib-include\imgui\imgui_tabs.h" />
+    <ClInclude Include="lib-include\imgui\imgui_user.h" />
+    <ClInclude Include="lib-include\imgui\stb_rect_pack.h" />
+    <ClInclude Include="lib-include\imgui\stb_textedit.h" />
+    <ClInclude Include="lib-include\imgui\stb_truetype.h" />
+    <ClInclude Include="lib-include\json.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

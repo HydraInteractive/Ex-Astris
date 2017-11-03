@@ -33,7 +33,7 @@ void TCPHost::close() {
 
 }
 
-HYDRA_API TCPsocket TCPHost::checkForClient() {
+HYDRA_NETWORK_API TCPsocket TCPHost::checkForClient() {
 	//TCPsocket new_tcpsock;
 	//new_tcpsock = SDLNet_TCP_Accept(this->_socket);
 	//if (!new_tcpsock)
@@ -61,12 +61,12 @@ void TCPHost::update() {
 	return;
 }
 
-HYDRA_API void TCPHost::sendToClient(char * data, int length, TCPsocket sock) {
+HYDRA_NETWORK_API void TCPHost::sendToClient(char * data, int length, TCPsocket sock) {
 	int nr = SDLNet_TCP_Send(sock, data, length);
 	nr = nr;
 }
 
-HYDRA_API void TCPHost::sendToAllClients(char * data, int length) {
+HYDRA_NETWORK_API void TCPHost::sendToAllClients(char * data, int length) {
 	for (int64_t i = 0; i < this->_clientNr; i++) {
 		if (this->_clients[i] != nullptr) {
 			SDLNet_TCP_Send(this->_clients[i], data, length);
@@ -74,7 +74,7 @@ HYDRA_API void TCPHost::sendToAllClients(char * data, int length) {
 	}
 }
 
-HYDRA_API void TCPHost::sendToAllExceptOne(char * data, int length, TCPsocket foreverAlone) {
+HYDRA_NETWORK_API void TCPHost::sendToAllExceptOne(char * data, int length, TCPsocket foreverAlone) {
 	for (int64_t i = 0; i < this->_clientNr; i++) {
 		if (this->_clients[i] != nullptr && this->_clients[i] != foreverAlone) {
 			int nr = SDLNet_TCP_Send(this->_clients[i], data, length);
@@ -83,14 +83,14 @@ HYDRA_API void TCPHost::sendToAllExceptOne(char * data, int length, TCPsocket fo
 	}
 }
 
-void TCPHost::sendEntites(std::vector<std::shared_ptr<Hydra::World::IEntity>> list) {
+void TCPHost::sendEntites(std::vector<EntityID> list) {
 }
 
-HYDRA_API SDLNet_SocketSet TCPHost::getSocketSet() {
+HYDRA_NETWORK_API SDLNet_SocketSet TCPHost::getSocketSet() {
 	return this->_clientSocketset;
 }
 
-HYDRA_API std::vector<NetPacket*> TCPHost::receivePacket() {
+HYDRA_NETWORK_API std::vector<NetPacket*> TCPHost::receivePacket() {
 
 
 	/*int nrOfPackets = */SDLNet_CheckSockets(this->_clientSocketset, 0);

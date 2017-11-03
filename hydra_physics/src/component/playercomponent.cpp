@@ -16,113 +16,39 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-PlayerComponent::PlayerComponent(IEntity* entity) : IComponent(entity) {
-	_velocityX = 0;
-	_velocityY = 0;
-	_velocityZ = 0;
+PlayerComponent::~PlayerComponent() {}
+
+std::shared_ptr<Hydra::World::Entity> PlayerComponent::getWeapon() {
+	auto& children = Hydra::World::World::getEntity(entityID)->children;
+
+	for (auto child : children)
+		if (auto c =Hydra::World::World::getEntity(child); c->name == "Weapon")
+			return c;
+
+	return std::shared_ptr<Hydra::World::Entity>();
 }
-
-PlayerComponent::~PlayerComponent() { }
-
-
-void PlayerComponent::tick(TickAction action, float delta) {
-	// If you only have one TickAction in 'wantTick' you don't need to check the tickaction here.
-
-	// Extract players position
-	auto player = entity->getComponent<Component::TransformComponent>();
-	// Extract cameras position
-	auto camera = entity->getComponent<Component::CameraComponent>();
-	
-	{
-		Uint8* keysArray;
-		keysArray = const_cast <Uint8*> (SDL_GetKeyboardState(NULL));
-
-		if (keysArray[SDL_SCANCODE_W]) {
-			_velocityZ = -_movementSpeed;
-		}
-
-		if (keysArray[SDL_SCANCODE_S]) {
-			_velocityZ = _movementSpeed;
-		}
-
-		if (keysArray[SDL_SCANCODE_A]) {
-			_velocityX = -_movementSpeed;
-		}
-
-		if (keysArray[SDL_SCANCODE_D]) {
-			_velocityX = _movementSpeed;
-		}
-
-		if (keysArray[SDL_SCANCODE_A] == 0 && keysArray[SDL_SCANCODE_D] == 0) {
-			_velocityX = 0.0f;
-		}
-
-		if (keysArray[SDL_SCANCODE_W] == 0 && keysArray[SDL_SCANCODE_S] == 0) {
-			_velocityZ = 0.0f;
-		}
-
-		if (keysArray[SDL_SCANCODE_SPACE] && _onGround){
-			_accelerationY -= 0.3f;
-			_onGround = false;
-		}
-	}
-
-	_accelerationY += 0.01f;
-
-	glm::mat4 viewMat = camera->getViewMatrix();
-	glm::vec3 forward(viewMat[0][2], viewMat[1][2], viewMat[2][2]);
-	glm::vec3 strafe(viewMat[0][0], viewMat[1][0], viewMat[2][0]);
-
-	glm::vec3 movementVector = (_velocityZ * forward + _velocityX * strafe);
-	movementVector.y = _accelerationY;
-	_debug = _accelerationY;
-
-	_position += movementVector;
-
-	
-	if (_position.y > 0) {
-		_position.y = 0;
-		_accelerationY = 0;
-		_onGround = true;
-	}
-
-	if (_firstPerson){
-		camera->setPosition(_position);
-	}
-	else{
-		camera->setPosition(_position + glm::vec3(0, -3, 0) + (forward * glm::vec3(4, 0, 4)));
-	}
-	player->setPosition(_position);
-	player->setRotation(glm::angleAxis(-camera->getYaw(), glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->getPitch(), glm::vec3(1, 0, 0))));
-	player->setRotation(glm::angleAxis(-camera->getYaw(), glm::vec3(0, 1, 0)));
-	//player->setRotation(glm::angleAxis(-camera->getPitch(), glm::vec3(1, 0, 0)));
-	player->setPosition(_position + glm::vec3(0, 0.75, 0) + glm::vec3(-1, 0, -1) * forward + glm::vec3(1, 0, 1)*strafe);
-	_debugPos = forward*glm::vec3(-2, 0, -2);
-}
-
 void PlayerComponent::serialize(nlohmann::json& json) const {
 	json = {
-		{ "position",{ _position.x, _position.y, _position.z } },
-		{ "velocityX", _velocityX },
-		{ "velocityY", _velocityY },
-		{ "velocityZ", _velocityZ },
+		{ "weaponOffset", { weaponOffset.x, weaponOffset.y, weaponOffset.z } },
+		{ "onGround", onGround },
+		{ "firstPerson", firstPerson },
+		{ "isDead", isDead }
 	};
 }
 
 void PlayerComponent::deserialize(nlohmann::json& json) {
-	auto& pos = json["position"];
-	_position = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
-
-	_velocityX = json["velocityX"].get<float>();
-	_velocityY = json["velocityY"].get<float>();
-	_velocityZ = json["velocityZ"].get<float>();
+	auto& wep = json["weaponOffset"];
+	weaponOffset = glm::vec3{ wep[0].get<float>(), wep[1].get<float>(), wep[2].get<float>() };
+	onGround = json["onGround"].get<bool>();
+	firstPerson = json["firstPerson"].get<bool>();
+	isDead = json["isDead"].get<bool>();
 }
 
 // Register UI buttons in the debug UI
 // Note: This function won't always be called
 void PlayerComponent::registerUI() {
-	ImGui::DragFloat3("Position", glm::value_ptr(_position),0.01f);
-	ImGui::InputFloat("DEBUG", &_debug);
-	ImGui::DragFloat3("DEBUG POS", glm::value_ptr(_debugPos), 0.01f);
-	ImGui::Checkbox("First Person", &_firstPerson);
+	ImGui::DragFloat3("Weapon Offset", glm::value_ptr(weaponOffset),0.01f);
+	ImGui::Checkbox("On Ground", &onGround);
+	ImGui::Checkbox("First Person", &firstPerson);
+	ImGui::Checkbox("Is Dead", &isDead);
 }

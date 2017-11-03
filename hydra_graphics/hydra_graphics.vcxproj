@@ -11,56 +11,57 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\glad\glad.h" />
-    <ClInclude Include="include\hydra\component\animationComponent.hpp" />
+    <ClInclude Include="lib-include\glad\glad.h" />
     <ClInclude Include="include\hydra\component\cameracomponent.hpp" />
     <ClInclude Include="include\hydra\component\componentmanager_graphics.hpp" />
+    <ClInclude Include="include\hydra\component\drawobjectcomponent.hpp" />
+    <ClInclude Include="include\hydra\component\freecameracomponent.hpp" />
+    <ClInclude Include="include\hydra\component\lightcomponent.hpp" />
     <ClInclude Include="include\hydra\component\meshcomponent.hpp" />
     <ClInclude Include="include\hydra\component\particlecomponent.hpp" />
-    <ClInclude Include="include\hydra\component\transformcomponent.hpp" />
+    <ClInclude Include="include\hydra\component\pointlightcomponent.hpp" />
     <ClInclude Include="include\hydra\ext\vram.hpp" />
     <ClInclude Include="include\hydra\io\glmeshloader.hpp" />
     <ClInclude Include="include\hydra\io\gltextureloader.hpp" />
     <ClInclude Include="include\hydra\io\input.hpp" />
     <ClInclude Include="include\hydra\renderer\glrenderer.hpp" />
     <ClInclude Include="include\hydra\renderer\glshader.hpp" />
+    <ClInclude Include="include\hydra\system\camerasystem.hpp" />
+    <ClInclude Include="include\hydra\system\lightsystem.hpp" />
+    <ClInclude Include="include\hydra\system\particlesystem.hpp" />
+    <ClInclude Include="include\hydra\system\renderersystem.hpp" />
     <ClInclude Include="include\hydra\view\sdlview.hpp" />
-    <ClInclude Include="include\imgui\icons.hpp" />
-    <ClInclude Include="include\imgui\imconfig.h" />
-    <ClInclude Include="include\imgui\imgui.h" />
-    <ClInclude Include="include\imgui\imgui_impl_sdl_gl3.h" />
-    <ClInclude Include="include\imgui\imgui_internal.h" />
-    <ClInclude Include="include\imgui\imgui_tabs.h" />
-    <ClInclude Include="include\imgui\imgui_user.h" />
-    <ClInclude Include="include\imgui\stb_rect_pack.h" />
-    <ClInclude Include="include\imgui\stb_textedit.h" />
-    <ClInclude Include="include\imgui\stb_truetype.h" />
-    <ClInclude Include="include\KHR\khrplatform.h" />
+    <ClInclude Include="lib-include\imgui\imgui_impl_sdl_gl3.h" />
+    <ClInclude Include="lib-include\imgui\stb_rect_pack.h" />
+    <ClInclude Include="lib-include\imgui\stb_textedit.h" />
+    <ClInclude Include="lib-include\imgui\stb_truetype.h" />
+    <ClInclude Include="lib-include\KHR\khrplatform.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\component\animationComponent.cpp" />
     <ClCompile Include="src\component\cameracomponent.cpp" />
     <ClCompile Include="src\component\componentmanager_graphics.cpp" />
+    <ClCompile Include="src\component\drawobjectcomponent.cpp" />
+    <ClCompile Include="src\component\freecameracomponent.cpp" />
+    <ClCompile Include="src\component\lightcomponent.cpp" />
     <ClCompile Include="src\component\meshcomponent.cpp" />
     <ClCompile Include="src\component\particlecomponent.cpp" />
-    <ClCompile Include="src\component\transformcomponent.cpp" />
+    <ClCompile Include="src\component\pointlightcomponent.cpp" />
     <ClCompile Include="src\ext\vram.cpp" />
     <ClCompile Include="src\io\input.cpp" />
     <ClCompile Include="src\io\meshloader.cpp" />
     <ClCompile Include="src\io\textureloader.cpp" />
     <ClCompile Include="src\lib\glad\glad.c" />
-    <ClCompile Include="src\lib\imgui\imgui.cpp" />
-    <ClCompile Include="src\lib\imgui\imgui_demo.cpp" />
-    <ClCompile Include="src\lib\imgui\imgui_draw.cpp" />
     <ClCompile Include="src\lib\imgui\imgui_impl_sdl_gl3.cpp" />
-    <ClCompile Include="src\lib\imgui\imgui_tabs.cpp" />
-    <ClCompile Include="src\lib\imgui\imgui_user.cpp" />
     <ClCompile Include="src\renderer\glframebuffer.cpp" />
     <ClCompile Include="src\renderer\glmesh.cpp" />
     <ClCompile Include="src\renderer\glrenderer.cpp" />
     <ClCompile Include="src\renderer\glshader.cpp" />
     <ClCompile Include="src\renderer\gltexture.cpp" />
     <ClCompile Include="src\renderer\uirenderer.cpp" />
+    <ClCompile Include="src\system\camerasystem.cpp" />
+    <ClCompile Include="src\system\lightsystem.cpp" />
+    <ClCompile Include="src\system\particlesystem.cpp" />
+    <ClCompile Include="src\system\renderersystem.cpp" />
     <ClCompile Include="src\view\sdlview.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -106,17 +107,17 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra/include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_graphics/lib-include;$(SolutionDir)/hydra/include;$(SolutionDir)/hydra/lib-include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_EXPORTS;HYDRA_GRAPHICS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_GRAPHICS_EXPORTS</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <DisableSpecificWarnings>4250;4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)/lib;$(SolutionDir)/x64/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hydra.lib;SDL2main.lib;opengl32.lib;SDL2.lib;SDL2_image.lib;SDL2_net.lib;SDL2_ttf.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>hydra.lib;SDL2main.lib;opengl32.lib;SDL2.lib;SDL2_image.lib;SDL2_net.lib;SDL2_ttf.lib;SDL2_mixer.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>NotSet</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -127,10 +128,10 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra/include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_graphics/lib-include;$(SolutionDir)/hydra/include;$(SolutionDir)/hydra/lib-include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_GRAPHICS_EXPORTS</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4250;4251</DisableSpecificWarnings>
     </ClCompile>

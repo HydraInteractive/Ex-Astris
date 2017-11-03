@@ -2,7 +2,6 @@
 #include <Server/TCPHost.hpp>
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
-#include <hydra/component/playercomponent.hpp>
 #include <hydra/component/meshcomponent.hpp>
 #include "json.hpp"
 
@@ -10,17 +9,15 @@ using namespace Hydra;
 using namespace Hydra::World;
 
 ServerWorld::ServerWorld() {
-	this->_world = nullptr;
 }
 
 ServerWorld::~ServerWorld() {
 }
 
 void ServerWorld::initialize() {
-	this->_world = Hydra::World::World::create(true);
 }
 
-HYDRA_API void ServerWorld::sendPlayers(TCPHost * _conn, int64_t target) {
+HYDRA_NETWORK_API void ServerWorld::sendPlayers(TCPHost * _conn, int64_t target) {
 	TCPsocket tmp = nullptr;
 	for (size_t i = 0; i < this->_players.size(); i++) {
 		if (this->_players[i].getID() == target) {
@@ -32,14 +29,14 @@ HYDRA_API void ServerWorld::sendPlayers(TCPHost * _conn, int64_t target) {
 
 	PacketSpawnEntityServer pes;
 	pes.header.type = PacketType::SpawnEntityServer;
-	std::vector<std::shared_ptr<Hydra::World::IEntity>> ents = this->_world->getWorldRoot()->getChildren();
+	std::vector<EntityID>* ents = &Hydra::World::World::root()->children;
 	Hydra::Component::TransformComponent* tc;
 	for (size_t i = 0; i < this->_players.size(); i++) {
 		if (this->_players[i].getID() != target) {
 			//pes.id = this->_players[i].getID();
-			//for (size_t j = 0; j < ents.size(); j++) {
-			//	if (ents[i]->getID() == this->_players[i].getID()) {
-			//		tc = ents[i]->getComponent<Hydra::Component::TransformComponent>();
+			//for (size_t j = 0; j < ents->size(); j++) {	
+			//	if (int64_t(ents->at(i)) == this->_players[i].getID()) {
+			//		tc = Hydra::World::World::getEntity(ents->at(i))->getComponent<Hydra::Component::TransformComponent>().get();
 			//		pes.ti.position = tc->getPosition();
 			//		pes.ti.rot = tc->getRotation();
 			//		pes.ti.scale = tc->getScale();
@@ -53,29 +50,33 @@ HYDRA_API void ServerWorld::sendPlayers(TCPHost * _conn, int64_t target) {
 }
 
 int ServerWorld::getNewEntityID() {
-	return this->_world->getFreeID();
+	return 0;
 }
 
 void ServerWorld::addEntity() {
-	this->_world->createEntity("Bäst i test");
+	Hydra::World::World::newEntity("Bäst i test", Hydra::World::World::root());
 }
 
 ServerPlayer& ServerWorld::addPlayer(const glm::vec3 & pos, const glm::quat & rot, TCPsocket pSocket) {
-	std::shared_ptr<Hydra::World::IEntity> ent = this->_world->createEntity("Best i test");
-	ent->addComponent<Component::TransformComponent>(pos, glm::vec3{ 1, 1, 1 }, rot);
+	Entity* ent = Hydra::World::World::newEntity("Best i test", Hydra::World::World::root()).get();
+	auto tc = ent->addComponent<Component::TransformComponent>();
+	tc->setPosition(pos);
+	tc->setScale(glm::vec3{ 1, 1, 1 });
+	tc->setRotation(rot);
 	ent->addComponent<Component::CameraComponent>();
-	ent->addComponent<Component::MeshComponent>("assets/objects/alphaGunModel.ATTIC");
+	auto mc = ent->addComponent<Component::MeshComponent>();
+	mc->meshFile = "assets/objects/alphaGunModel.ATTIC";
 	ServerPlayer p;
-	p.initialize(ent->getID(), pSocket, ent);
+	p.initialize(int64_t(ent), pSocket, int64_t(ent));
 	this->_players.push_back(p);
 	return _players.back();
 }
 
-HYDRA_API void ServerWorld::updateEntityTransform(TransformInfo pi, int64_t id) {
-	const std::vector<std::shared_ptr<Hydra::World::IEntity>> children = this->_world->getWorldRoot()->getChildren();
+HYDRA_NETWORK_API void ServerWorld::updateEntityTransform(TransformInfo pi, int64_t id) {
+	const std::vector<EntityID> children = Hydra::World::World::root()->children;
 	for (size_t i = 0; i < children.size(); i++) {
-		if (children[i]->getID() == id) {
-			Hydra::Component::TransformComponent* tc = children[i]->getComponent<Hydra::Component::TransformComponent>();
+		if (int64_t(children[i]) == id) {
+			Hydra::Component::TransformComponent* tc = Hydra::World::World::getEntity(children[i])->getComponent<Hydra::Component::TransformComponent>().get();
 			tc->setPosition(pi.position);
 			tc->setRotation(pi.rot);
 			tc->setScale(pi.scale);
@@ -86,11 +87,11 @@ HYDRA_API void ServerWorld::updateEntityTransform(TransformInfo pi, int64_t id) 
 
 // ADD CHECK TO NOT SEND ALL ENTITIES ALWAYS
 void ServerWorld::sendCurrentWorld(TCPHost* conn) {
-	std::shared_ptr<Hydra::World::IEntity> root = this->_world->getWorldRoot();
-	const std::vector<std::shared_ptr<Hydra::World::IEntity>> children = root->getChildren();
+	std::shared_ptr<Hydra::World::Entity> root = Hydra::World::World::root();
+	const std::vector<EntityID> children = root->children;
 	Hydra::Component::TransformComponent* tc;
 
-	std::vector<std::shared_ptr<Hydra::World::IEntity>> entities;
+	std::vector<EntityID> entities;
 	//FILL WITH ALL ENTITES THAT SHOULD BE SENT OVER NETWORK
 	for (size_t i = 0; i < children.size(); i++) {
 		entities.push_back(children[i]);
@@ -102,17 +103,18 @@ void ServerWorld::sendCurrentWorld(TCPHost* conn) {
 
 	NetEntityInfo* tmp = ((NetEntityInfo*)((char*)packet + sizeof(PacketServerUpdate)));
 	for (size_t i = 0; i < entities.size(); i++) {
-		tc = children[i]->getComponent<Hydra::Component::TransformComponent>();
-		tmp[i].id = children[i]->getID();
-		tmp[i].ti.position = tc->getPosition();
-		tmp[i].ti.rot = tc->getRotation();
-		tmp[i].ti.scale = tc->getScale();
+		std::shared_ptr<Entity> enty = Hydra::World::World::getEntity(children[i]);
+		tc = enty->getComponent<Hydra::Component::TransformComponent>().get();
+		tmp[i].id = int64_t(children[i]);
+		tmp[i].ti.position = tc->position;
+		tmp[i].ti.rot = tc->rotation;
+		tmp[i].ti.scale = tc->scale;
 	}
 
 	conn->sendToAllClients((char*)packet, (packet->getPacketSize()));
 }
 
-HYDRA_API void ServerWorld::sendEntity(TCPHost * _conn, Hydra::World::IEntity * ent, int64_t exception) {
+HYDRA_NETWORK_API void ServerWorld::sendEntity(TCPHost * _conn, Hydra::World::Entity * ent, int64_t exception) {
 	nlohmann::json json;
 	ent->serialize(json);
 	std::string str = json.dump();
@@ -136,12 +138,12 @@ HYDRA_API void ServerWorld::sendEntity(TCPHost * _conn, Hydra::World::IEntity * 
 	delete[] (char*)se;
 }
 
-HYDRA_API std::vector<ServerPlayer> ServerWorld::getPlayers() {
+HYDRA_NETWORK_API std::vector<ServerPlayer> ServerWorld::getPlayers() {
 	return this->_players;
 }
 
 
-HYDRA_API void ServerWorld::fill(std::shared_ptr<Hydra::World::IEntity> ent, PacketSpawnEntityServer*& pse) {
+HYDRA_NETWORK_API void ServerWorld::fill(std::shared_ptr<Hydra::World::Entity> ent, PacketSpawnEntityServer*& pse) {
 	nlohmann::json j;
 	ent->serialize(j);
 	std::string str = j.dump();

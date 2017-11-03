@@ -10,6 +10,28 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\hydra\component\componentmanager_network.hpp" />
+    <ClInclude Include="include\NetClient.h" />
+    <ClInclude Include="include\NetPlayer.hpp" />
+    <ClInclude Include="include\Packets.h" />
+    <ClInclude Include="include\Server\networkmanager.hpp" />
+    <ClInclude Include="include\Server\ServerPlayer.hpp" />
+    <ClInclude Include="include\Server\ServerWorld.hpp" />
+    <ClInclude Include="include\Server\TCPHost.hpp" />
+    <ClInclude Include="include\TCPClient.hpp" />
+    <ClInclude Include="include\TCPConnection.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\component\componentmanager_network.cpp" />
+    <ClCompile Include="src\NetClient.cpp" />
+    <ClCompile Include="src\NetPlayer.cpp" />
+    <ClCompile Include="src\networkmanager.cpp" />
+    <ClCompile Include="src\ServerPlayer.cpp" />
+    <ClCompile Include="src\ServerWorld.cpp" />
+    <ClCompile Include="src\TCPClient.cpp" />
+    <ClCompile Include="src\TCPHost.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{A7E285FF-CA1B-45A7-BBF6-FBA0F859542E}</ProjectGuid>
@@ -53,10 +75,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_physics/include;$(SolutionDir)/hydra_network/include;$(SolutionDir)/hydra/include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_graphics/lib-include;$(SolutionDir)/hydra_network/include;$(SolutionDir)/hydra/include;$(SolutionDir)/hydra/lib-include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_NETWORK_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <DisableSpecificWarnings>4250;4251</DisableSpecificWarnings>
@@ -74,10 +96,10 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_physics/include;$(SolutionDir)/hydra_network/include;$(SolutionDir)/hydra/include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_graphics/lib-include;$(SolutionDir)/hydra_network/include;$(SolutionDir)/hydra/include;$(SolutionDir)/hydra/lib-include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_NETWORK_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4250;4251</DisableSpecificWarnings>
     </ClCompile>
@@ -89,28 +111,6 @@
       <SubSystem>NotSet</SubSystem>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="include\hydra\component\componentmanager_network.hpp" />
-    <ClInclude Include="include\NetClient.h" />
-    <ClInclude Include="include\NetPlayer.hpp" />
-    <ClInclude Include="include\Server\networkmanager.hpp" />
-    <ClInclude Include="include\Packets.h" />
-    <ClInclude Include="include\Server\ServerPlayer.hpp" />
-    <ClInclude Include="include\Server\ServerWorld.hpp" />
-    <ClInclude Include="include\TCPClient.hpp" />
-    <ClInclude Include="include\TCPConnection.hpp" />
-    <ClInclude Include="include\Server\TCPHost.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\NetClient.cpp" />
-    <ClCompile Include="src\NetPlayer.cpp" />
-    <ClCompile Include="src\ServerPlayer.cpp" />
-    <ClCompile Include="src\ServerWorld.cpp" />
-    <ClCompile Include="src\component\componentmanager_network.cpp" />
-    <ClCompile Include="src\TCPClient.cpp" />
-    <ClCompile Include="src\networkmanager.cpp" />
-    <ClCompile Include="src\TCPHost.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

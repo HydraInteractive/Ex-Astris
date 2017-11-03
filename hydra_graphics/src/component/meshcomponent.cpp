@@ -18,44 +18,26 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-MeshComponent::MeshComponent(IEntity* entity) : IComponent(entity), _meshFile(""), _drawObject(entity->getDrawObject()) {
-	if (_drawObject) {
-		_drawObject->refCounter++;
-		_drawObject->mesh = nullptr;
-	}
-}
+MeshComponent::~MeshComponent() {}
 
-MeshComponent::MeshComponent(IEntity* entity, const std::string& meshFile) : IComponent(entity), _meshFile(meshFile), _drawObject(entity->getDrawObject()) {
-	if (_drawObject) {
-		_mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(meshFile);
-		_drawObject->refCounter++;
-		_drawObject->mesh = _mesh.get();
-	}
-}
+void MeshComponent::loadMesh(const std::string meshFile) {
+	this->meshFile = meshFile;
+	drawObject = Hydra::World::World::getEntity(entityID)->addComponent<DrawObjectComponent>();
+	mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(meshFile);
+	drawObject->drawObject->mesh = mesh.get();
 
-MeshComponent::~MeshComponent() {
-	if (_drawObject) {
-		_drawObject->mesh = nullptr;
-		_drawObject->refCounter--;
-	}
-}
-
-void MeshComponent::tick(TickAction action, float delta) {
-	// _drawObject->mesh = _mesh.get();
+	if (meshFile == "QUAD")
+		drawObject->drawObject->disable = true;
 }
 
 void MeshComponent::serialize(nlohmann::json& json) const {
-	json["meshFile"] = _meshFile;
+	json["meshFile"] = meshFile;
 }
 
 void MeshComponent::deserialize(nlohmann::json& json) {
-	if (_drawObject) {
-		_mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(json["meshFile"].get<std::string>());
-		_drawObject->mesh = _mesh.get();
-	}
+	loadMesh(json["meshFile"].get<std::string>());
 }
 
 void MeshComponent::registerUI() {
-	ImGui::Checkbox("Disable", &_drawObject->disable);
-	ImGui::InputText("Mesh file", (char*)_meshFile.c_str(), _meshFile.length(), ImGuiInputTextFlags_ReadOnly);
+	ImGui::InputText("Mesh file", (char*)meshFile.c_str(), meshFile.length(), ImGuiInputTextFlags_ReadOnly);
 }
