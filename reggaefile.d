@@ -12,7 +12,7 @@ enum string[] SubProjects = ["hydra", "hydra_graphics", "hydra_network", "hydra_
 enum string SubProjectsInclude = SubProjects.map!((string x) => "-I" ~ x ~ "/include -isystem" ~ x ~ "/lib-include").joiner(" ").array.to!string;
 enum string SubProjectsLink = SubProjects.map!((string x) => "-l" ~ x).joiner(" ").array.to!string;
 
-enum warnings = "-Wall -Wextra -Werror -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wrestrict -Wnull-dereference -Wformat=2 -Wno-error=unused-parameter -Wno-error=format-nonliteral -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=reorder";
+enum warnings = "-Wall -Wextra -Werror -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wrestrict -Wnull-dereference -Wformat=2 -Wno-error=unused-parameter -Wno-error=format-nonliteral -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=reorder -Wno-error=empty-body";
 
 enum string CFlagsLib = optimization ~ " -std=c++1z " ~ warnings ~ " -fdiagnostics-color=always -fPIC " ~ SubProjectsInclude;
 enum string CFlagsExecBase = optimization ~ " -std=c++1z " ~ warnings ~ " -fdiagnostics-color=always -fPIC ";
@@ -31,7 +31,8 @@ enum LFlagsHydraPhysicsLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rp
 enum LFlagsHydraSoundLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -fdiagnostics-color=always -lhydra -lhydra_graphics -lSDL2_mixer";
 enum LFlagsExec = optimization ~ " -rdynamic -Wl,--no-undefined -Wl,-rpath,. -Wl,-rpath,objs/barcodegame.objs -Lobjs/barcodegame.objs -fdiagnostics-color=always -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath -lSDL2_mixer " ~ SubProjectsLink;
 
-enum CC = "distcc g++";
+enum CC = "g++";
+//enum CC = "distcc g++";
 
 enum CompileCommand : string {
 	CompileExec = CC ~ " -c " ~ CFlagsExec ~ " $in -o $out",
