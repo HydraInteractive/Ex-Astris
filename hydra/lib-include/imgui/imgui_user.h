@@ -1,6 +1,7 @@
 #pragma once
 
 #include "imgui_tabs.h"
+#include "imguizmo.h"
 
 #include <cstdint>
 

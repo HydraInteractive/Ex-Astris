@@ -890,6 +890,26 @@ namespace Barcode {
 		}
 
 		{
+			auto parent = world::newEntity("Parent", world::root());
+			auto tp = parent->addComponent<Hydra::Component::TransformComponent>();
+			tp->position = glm::vec3{0, 0, 10};
+			parent->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BigMonitor.mATTIC");
+
+			{
+				auto child = world::newEntity("child", parent);
+				auto t = child->addComponent<Hydra::Component::TransformComponent>();
+				t->position = glm::vec3{1, 0, 0};
+				child->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SourceCode_Monitor.mATTIC");
+			}
+			{
+				auto child = world::newEntity("child", parent);
+				auto t = child->addComponent<Hydra::Component::TransformComponent>();
+				t->position = glm::vec3{-1, 0, 0};
+				child->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SourceCode_Monitor.mATTIC");
+			}
+		}
+
+		{
 			auto particleEmitter = world::newEntity("ParticleEmitter", world::root());
 			particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("QUAD");
 			auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
