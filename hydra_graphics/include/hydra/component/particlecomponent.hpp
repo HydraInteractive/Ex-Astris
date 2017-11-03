@@ -42,7 +42,7 @@ namespace Hydra::Component {
 		static constexpr size_t TextureOuterGrid = 6; // 6x6
 		static constexpr size_t TextureInnerGrid = 4; // 4x4
 		static constexpr float ParticleSize = 1.0f / (TextureInnerGrid * TextureOuterGrid);
-		static constexpr size_t MaxParticleAmount = 256;
+		static constexpr size_t MaxParticleAmount = 64;
 
 		float delay = 1; // 0.1 = 10 Particle/Second
 		float accumulator = 0;
