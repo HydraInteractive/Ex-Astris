@@ -20,7 +20,7 @@ PathFinding::~PathFinding(){
 
 }
 
-void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, int (&map)[WORLD_SIZE][WORLD_SIZE])
+void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, int (&map)[MAP_SIZE][MAP_SIZE])
 {
 	if (!intializedStartGoal) 
 	{
@@ -28,8 +28,15 @@ void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 		_visitedList.clear();
 		_pathToEnd.clear();
 		
-		_startNode = std::make_shared<Node>(currentPos.x / CELL_SIZE, currentPos.z / CELL_SIZE, nullptr);
-		_endNode = std::make_shared<Node>(targetPos.x / CELL_SIZE, targetPos.z / CELL_SIZE, nullptr);
+		MapVec mapCurrentPos = worldToMapCoords(currentPos);
+		MapVec mapTargetPos = worldToMapCoords(targetPos);
+		//If either position is out of bounds, abort
+		if (isOutOfBounds(mapCurrentPos.baseVec) || isOutOfBounds(mapTargetPos.baseVec))
+		{
+			return;
+		}
+		_startNode = std::make_shared<Node>(mapCurrentPos.x(), mapCurrentPos.z(), nullptr);
+		_endNode = std::make_shared<Node>(mapTargetPos.x(), mapTargetPos.z(), nullptr);
 
 		_startNode->H = _startNode->hDistanceTo(_endNode);
 		_openList.push_back(_startNode);
@@ -37,65 +44,71 @@ void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 		foundGoal = false;
 		intializedStartGoal = true;
 	}
-	if (!foundGoal)
+	while (!_openList.empty() && !foundGoal)
 	{
-		//TODO: Infinite loop concerns
-		while (!_openList.empty() && !foundGoal)
+		std::shared_ptr<Node> currentNode = _openList.back();
+		_visitedList.push_back(_openList.back());
+		_openList.pop_back();
+
+		//End reached
+		if (currentNode->pos == _endNode->pos)
 		{
-			std::shared_ptr<Node> currentNode = _openList.back();
-			_visitedList.push_back(_openList.back());
-			_openList.pop_back();
+			_endNode->lastNode = currentNode->lastNode;
 
-			//End reached
-			if (currentNode->id == _endNode->id)
+			std::shared_ptr<Node> getPath = _endNode;
+
+			while (getPath != nullptr)
 			{
-				_endNode->lastNode = currentNode->lastNode;
-
-				std::shared_ptr<Node> getPath = _endNode;
-
-				while (getPath != nullptr)
-				{
-					_pathToEnd.push_back(MapVec(getPath->pos.x() * CELL_SIZE, getPath->pos.z() * CELL_SIZE));
-					getPath = getPath->lastNode;
-				}
-				foundGoal = true;
+				_pathToEnd.push_back(mapToWorldCoords(getPath->pos));
+				getPath = getPath->lastNode;
 			}
-			//Navigate map
-			else
-			{
-				//East
-				_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z(), currentNode, map);
+			foundGoal = true;
+		}
+		//Navigate map
+		else
+		{
+			//East
+			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z(), currentNode, map);
 
-				//West
-				_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z(), currentNode, map);
+			//West
+			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z(), currentNode, map);
 
-				//North
-				_discoverNode(currentNode->pos.x(), currentNode->pos.z() + 1, currentNode, map);
+			//North
+			_discoverNode(currentNode->pos.x(), currentNode->pos.z() + 1, currentNode, map);
 
-				//South
-				_discoverNode(currentNode->pos.x(), currentNode->pos.z() - 1, currentNode, map);
+			//South
+			_discoverNode(currentNode->pos.x(), currentNode->pos.z() - 1, currentNode, map);
 
-				//North West
-				_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() + 1, currentNode, map);
+			//North West
+			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() + 1, currentNode, map);
 
-				//North East
-				_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() + 1, currentNode, map);
+			//North East
+			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() + 1, currentNode, map);
 
-				//South West
-				_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() - 1, currentNode, map);
+			//South West
+			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() - 1, currentNode, map);
 
-				//South East
-				_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() - 1, currentNode, map);
-			}
+			//South East
+			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() - 1, currentNode, map);
 		}
 	}
 }
+PathFinding::MapVec PathFinding::worldToMapCoords(const glm::vec3& worldPos) const
+{
+	return MapVec((worldPos.x / MAP_SCALE) + (MAP_SIZE / 2) , (worldPos.z / MAP_SCALE) + (MAP_SIZE / 2) );
+}
 
+glm::vec3 PathFinding::mapToWorldCoords(const MapVec& mapPos) const
+{
+	return glm::vec3((mapPos.baseVec.x - (MAP_SIZE / 2)) * MAP_SCALE, 0.0f, (mapPos.baseVec.y - (MAP_SIZE / 2)) * MAP_SCALE);
+}
 glm::vec3 PathFinding::nextPathPos(const glm::vec3& pos, const float& radius)
 {
 	glm::vec3 nextPos = _pathToEnd.back();
-	nextPos.x += (CELL_SIZE / 2);
-	nextPos.z += (CELL_SIZE / 2);
+
+	//Centers the position in a node
+	nextPos.x += (MAP_SCALE / 2);
+	nextPos.z += (MAP_SCALE / 2);
 	
 	float distance = glm::distance(pos, nextPos);
 	if (!_pathToEnd.empty())
@@ -108,36 +121,49 @@ glm::vec3 PathFinding::nextPathPos(const glm::vec3& pos, const float& radius)
 	return nextPos;
 }
 
-void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode, int(&map)[WORLD_SIZE][WORLD_SIZE])
+bool PathFinding::isOutOfBounds(const glm::vec2& vec) const
 {
+	if (vec.x > MAP_SIZE || vec.y > MAP_SIZE || vec.x < 0 || vec.y < 0)
+	{
+		return true;
+	}
+	return false;
+}
+
+void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode, int(&map)[MAP_SIZE][MAP_SIZE])
+{
+	MapVec currentPos = MapVec(x, z);
+	if (isOutOfBounds(currentPos.baseVec))
+	{
+		return;
+	}
 	//If this node is inaccessable, ignore it
 	if (map[x][z] == 1 || map[x][z] == 2)
 	{
 		return;
 	}
 
-	int id = z * WORLD_SIZE + x;
-
-	//If the node has already been visited, don't add it again
+	//If the node has already been visited, don't worry about it
 	for (size_t i = 0; i < _visitedList.size(); i++)
 	{
-		if (id == _visitedList[i]->id)
+		if (currentPos == _visitedList[i]->pos)
 		{
 			return;
 		}
 	}
 	std::shared_ptr<Node> thisNode;
 
-	//If this node exists in the open list don't add it again
+	//If this node exists in the open list, don't add it again
 	bool found = false;
 	for (size_t i = 0; i < _openList.size() && !found;i++)
 	{
-		if (id == _openList[i]->id)
+		if (currentPos == _openList[i]->pos)
 		{
 			found = true;
 			thisNode = _openList[i];
 		}
 	}
+	//This node hasn't been found before, add it to the open list
 	if (!found)
 	{
 		thisNode = std::make_shared<Node>(x, z, lastNode);

@@ -796,8 +796,9 @@ namespace Barcode {
 			auto alienEntity = world::newEntity("Alien1", world::root());
 			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 			a->damage = 4;
-			a->originalRange = 4;
+			a->radius = 2;
 			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+			a->behaviour->originalRange = 4;
 			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 			h->maxHP = 80;
 			h->health = 80;
@@ -806,7 +807,6 @@ namespace Barcode {
 			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ 10, 0, 20 };
 			t->scale = glm::vec3{ 2,2,2 };
-			a->_scale = t->scale;
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
 		}
 
