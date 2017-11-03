@@ -106,6 +106,13 @@ xcopy /sy "$(SolutionDir)assets" "$(SolutionDir)\x64\$(Configuration)\assets"
       <AdditionalDependencies>hydra.lib;hydra_graphics.lib;hydra_network.lib;hydra_physics.lib;hydra_sound.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /sy "$(SolutionDir)bin" "$(SolutionDir)\x64\$(Configuration)"
+mkdir  "$(SolutionDir)\x64\$(Configuration)\assets"
+
+xcopy /sy "$(SolutionDir)assets" "$(SolutionDir)\x64\$(Configuration)\assets"
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

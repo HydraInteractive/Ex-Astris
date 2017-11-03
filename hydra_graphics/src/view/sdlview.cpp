@@ -33,6 +33,7 @@ public:
 	}
 
 	~SDLViewImpl() final {
+		Mix_CloseAudio();
 		SDL_DestroyWindow(_window);
 		SDL_Quit();
 	}

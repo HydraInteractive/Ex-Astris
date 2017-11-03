@@ -35,9 +35,12 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 	if (bulletSpread == 0.0f) {
 		auto bullet = world::newEntity("Bullet", _bullets);
 		bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SmallCargo.mATTIC");
+
 		auto b = bullet->addComponent<Hydra::Component::BulletComponent>();
 		b->direction = -direction;
 		b->velocity = velocity;
+		b->bulletType = bulletType;
+
 		auto t = bullet->addComponent<Hydra::Component::TransformComponent>();
 		t->position = position;
 		t->scale = glm::vec3(bulletSize);
@@ -46,7 +49,8 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 		auto bulletPhysWorld = static_cast<Hydra::System::BulletPhysicsSystem*>(IEngine::getInstance()->getState()->getPhysicsSystem());
 
 		auto rbc = bullet->addComponent<Hydra::Component::RigidBodyComponent>();
-		rbc->createBox(glm::vec3(0.5f), 1.0f);
+		rbc->createBox(glm::vec3(0.5f), 0.25f);
+
 		auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
 		bulletPhysWorld->enable(rbc.get());
 		rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 3000);
@@ -71,6 +75,7 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 			auto b = bullet->addComponent<Hydra::Component::BulletComponent>();
 			b->direction = bulletDirection;
 			b->velocity = velocity;
+			b->bulletType = bulletType;
 
 			auto t = bullet->addComponent<Hydra::Component::TransformComponent>();
 			t->position = position;
