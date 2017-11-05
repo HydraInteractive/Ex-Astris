@@ -2,17 +2,13 @@
 #include <hydra/component/roomcomponent.hpp>
 
 using world = Hydra::World::World; 
-ExporterMenu::ExporterMenu()
+ExporterMenu::ExporterMenu() : FileManager()
 {
-	this->executableDir = _getExecutableDir();
-	this->_root = nullptr;
-	this->_selectedPath = "";
-	refresh();
+	refresh("/assets");
 }
 ExporterMenu::~ExporterMenu()
 {
-	if (_root != nullptr)
-		delete _root;
+	
 }
 void ExporterMenu::render(bool &closeBool)
 {
@@ -24,7 +20,7 @@ void ExporterMenu::render(bool &closeBool)
 		{
 			if (ImGui::MenuItem("Refresh", NULL))
 			{
-				refresh();
+				refresh("/assets");
 			}
 			ImGui::EndMenu();
 		}
@@ -120,15 +116,7 @@ void ExporterMenu::render(bool &closeBool)
 	ImGui::EndChild();
 	ImGui::End();
 }
-void ExporterMenu::refresh()
-{
-	if (_root != nullptr)
-	{
-		delete _root;
-	}
-	_root = new Node(executableDir + "/assets");
-	//_root->clean();
-}
+
 std::shared_ptr<Entity> ExporterMenu::getRoomEntity()
 {
 	std::vector<std::shared_ptr<Entity>> entities;
@@ -138,29 +126,6 @@ std::shared_ptr<Entity> ExporterMenu::getRoomEntity()
 		return entities[0];
 	}
 	return nullptr;
-}
-std::string ExporterMenu::_getExecutableDir()
-{
-	std::string path;
-#ifdef _WIN32 ///Windows
-	char unicodePath[MAX_PATH];
-	int bytes = GetModuleFileName(NULL, unicodePath, 500);
-#else ///Linux
-	char unicodePath[1000];
-	char tempStr[32];
-	sprintf(tempStr, "/proc/%d/exe", getpid());
-	int bytes = std::min((int)readlink(tempStr, unicodePath, 500), 500 - 1);
-	if (bytes >= 0)
-		unicodePath[bytes] = '\0';
-#endif
-	if (bytes == 0)
-		return "/";
-	else
-		path = std::string(unicodePath);
-	std::replace(path.begin(), path.end(), '\\', '/');
-	int index = path.find_last_of('/');
-	path.erase(path.begin() + index, path.end());
-	return path;
 }
 
 ExporterMenu::Node::Node()
@@ -243,37 +208,6 @@ std::string ExporterMenu::Node::reverseEngineerPath()
 		return upperPath + "/" + this->_name;
 	}
 	return this->_name;
-}
-//Returns all files in this folder and subfolders
-int ExporterMenu::Node::numberOfFiles()
-{
-	if (!isAllowedFile)
-	{
-		int allFiles = _files.size();
-		for (size_t i = 0; i < _subfolders.size(); i++)
-		{
-			allFiles += _subfolders[i]->numberOfFiles();
-		}
-		return allFiles;
-	}
-	return -1;
-}
-//Removes all folders that do not have any files
-void ExporterMenu::Node::clean()
-{
-	for (size_t i = 0; i < _subfolders.size(); i++)
-	{
-		if (_subfolders[i]->numberOfFiles() == 0)
-		{
-			delete _subfolders[i];
-			_subfolders.erase(_subfolders.begin() + i);
-			i--;
-		}
-		else
-		{
-			_subfolders[i]->clean();
-		}
-	}
 }
 void ExporterMenu::Node::render(Node** selectedNode, bool& prepExporting)
 {

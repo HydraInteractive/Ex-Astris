@@ -5,13 +5,12 @@
 
 using world = Hydra::World::World;
 
-ImporterMenu::ImporterMenu()
+ImporterMenu::ImporterMenu() : FileManager()
 {
 	this->executableDir = _getExecutableDir();
 	this->_root = nullptr;
 	this->_newEntityClicked = true;
-	this->_rotation = 0.f;
-	refresh();
+	refresh("/assets");
 }
 ImporterMenu::~ImporterMenu()
 {
@@ -28,7 +27,7 @@ void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch& previewBatch,
 		{
 			if (ImGui::MenuItem("Refresh", NULL))
 			{
-				refresh();
+				refresh("/assets");
 			}
 			ImGui::EndMenu();
 		}
@@ -90,47 +89,6 @@ void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch& previewBatch,
 
 
 	_rotation += delta * 1;
-}
-void ImporterMenu::refresh()
-{
-	if (_root != nullptr)
-	{
-		delete _root;
-	}
-	_root = new Node(executableDir + "/assets");
-	_root->clean();
-}
-std::string ImporterMenu::_getExecutableDir()
-{
-	std::string path;
-#ifdef _WIN32
-	char unicodePath[MAX_PATH];
-	int bytes = GetModuleFileName(NULL, unicodePath, MAX_PATH);
-#else
-	char unicodePath[1000];
-	char tempStr[32];
-	sprintf(tempStr, "/proc/%d/exe", getpid());
-	int bytes = std::min((int)readlink(tempStr, unicodePath, 500), 500 - 1);
-	if (bytes >= 0)
-		unicodePath[bytes] = '\0';
-#endif
-	if (bytes == 0)
-		return "/";
-
-	path = std::string(unicodePath);
-	std::replace(path.begin(), path.end(), '\\', '/');
-	size_t index = path.find_last_of('/');
-	path.erase(path.begin() + index, path.end());
-	return path;
-}
-std::shared_ptr<Entity> ImporterMenu::getRoomEntity() {
-	std::vector<std::shared_ptr<Entity>> entities;
-	world::getEntitiesWithComponents<Hydra::Component::TransformComponent, Hydra::Component::RoomComponent>(entities);
-	if (entities.size() > 0)
-	{
-		return entities[0];
-	}
-	return nullptr;
 }
 
 ImporterMenu::Node::Node()
