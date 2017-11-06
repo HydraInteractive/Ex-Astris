@@ -574,14 +574,14 @@ namespace Barcode {
 				auto pc = ee->getComponent<Hydra::Component::ParticleComponent>();
 				auto drawObj = ee->getComponent<Hydra::Component::DrawObjectComponent>();
 				auto t = ee->getComponent<Hydra::Component::TransformComponent>();
-				auto& particles = pc->particles;
-				for (auto& particle : particles) {
-					if (particle.life <= 0)
+				auto particles = pc->particles;
+				for (int i = 0; i < Hydra::Component::ParticleComponent::MaxParticleAmount; i++) {
+					if (particles[i].life <= 0)
 						continue;
-					_particleBatch.batch.objects[drawObj->drawObject->mesh].push_back(/*t->getMatrix() */ particle.getMatrix());
-					_particleBatch.batch.textureInfo.push_back(particle.texOffset1);
-					_particleBatch.batch.textureInfo.push_back(particle.texOffset2);
-					_particleBatch.batch.textureInfo.push_back(particle.texCoordInfo);
+					_particleBatch.batch.objects[drawObj->drawObject->mesh].push_back(particles[i].getMatrix());
+					_particleBatch.batch.textureInfo.push_back(particles[i].texOffset1);
+					_particleBatch.batch.textureInfo.push_back(particles[i].texOffset2);
+					_particleBatch.batch.textureInfo.push_back(particles[i].texCoordInfo);
 				}
 			}
 			{
@@ -595,13 +595,14 @@ namespace Barcode {
 				_particleBatch.pipeline->setValue(4, 0);
 				_particleAtlases->bind(0);
 
-				for (auto& kv : _particleBatch.batch.objects) {
-					std::vector<glm::mat4>& list = kv.second;
-
-					std::sort(list.begin(), list.end(), [cameraPos](const glm::mat4& a, const glm::mat4& b) {
-						return glm::distance(glm::vec3(a[3]), cameraPos) < glm::distance(glm::vec3(b[3]), cameraPos);
-					});
-				}
+				// Can't sort with objects need to sort per particle.
+				//for (auto& kv : _particleBatch.batch.objects) {
+				//	std::vector<glm::mat4>& list = kv.second;
+				//
+				//	std::sort(list.begin(), list.end(), [cameraPos](const glm::mat4& a, const glm::mat4& b) {
+				//		return glm::distance(glm::vec3(a[3]), cameraPos) < glm::distance(glm::vec3(b[3]), cameraPos);
+				//	});
+				//}
 
 				_engine->getRenderer()->render(_particleBatch.batch);
 			}
