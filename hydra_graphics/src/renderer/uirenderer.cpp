@@ -341,7 +341,7 @@ public:
 			}
 		}
 
-		Hydra::Component::TransformComponent::showGuizmo();
+		_engine->getRenderer()->showGuizmo();
 
 		if (_logWindow)
 			_log->render(&_logWindow);

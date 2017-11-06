@@ -16,8 +16,17 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
+
 #include <hydra/engine.hpp>
 #include <hydra/ext/stacktrace.hpp>
+#include <imgui/imgui.h>
+#include <hydra/component/cameracomponent.hpp>
+#include <hydra/component/transformcomponent.hpp>
 
 using namespace Hydra::Renderer;
 
@@ -314,6 +323,112 @@ public:
 		drawObjPtr = drawObj.get();
 		_activeDrawObjects.push_back(std::move(drawObj));
 		return drawObjPtr;
+	}
+
+	void showGuizmo() final {
+		auto& this_ = Hydra::Component::TransformComponent::_currentlyEditing;
+		if (!this_)
+			return;
+
+		auto p = this_->_getParentComponent();
+		glm::mat4 parent = p ? glm::inverseTranspose(p->getMatrix()) : glm::mat4(1);
+		//this_->_recalculateMatrix();
+		glm::mat4 matrix = this_->getMatrix();//_matrix;//glm::translate(this_->position) * glm::mat4_cast(glm::normalize(this_->rotation)) * glm::scale(this_->scale);
+
+		static ImGuizmo::OPERATION currentOperation(ImGuizmo::ROTATE);
+		static ImGuizmo::MODE currentMode(ImGuizmo::WORLD);
+
+		ImGui::Begin("Guizmo tools");
+		ImGui::Text("Currently editing: %s", Hydra::World::World::getEntity(this_->entityID)->name.c_str());
+
+		if (ImGui::IsKeyPressed(SDLK_z))
+			currentOperation = ImGuizmo::TRANSLATE;
+		if (ImGui::IsKeyPressed(SDLK_x))
+			currentOperation = ImGuizmo::ROTATE;
+		/*if (ImGui::IsKeyPressed(SDLK_c))
+			currentOperation = ImGuizmo::SCALE;*/
+
+		ImGui::Text("<Z> Translate, <X> Rotate"); // , <C> Scale
+
+		if (ImGui::RadioButton("Translate", currentOperation == ImGuizmo::TRANSLATE))
+			currentOperation = ImGuizmo::TRANSLATE;
+		ImGui::SameLine();
+		if (ImGui::RadioButton("Rotate", currentOperation == ImGuizmo::ROTATE))
+			currentOperation = ImGuizmo::ROTATE;
+		/*ImGui::SameLine();
+			if (ImGui::RadioButton("Scale", currentOperation == ImGuizmo::SCALE))
+			currentOperation = ImGuizmo::SCALE;*/
+
+		if (currentOperation != ImGuizmo::SCALE) {
+			if (ImGui::RadioButton("Local", currentMode == ImGuizmo::LOCAL))
+				currentMode = ImGuizmo::LOCAL;
+			ImGui::SameLine();
+			if (ImGui::RadioButton("World", currentMode == ImGuizmo::WORLD))
+				currentMode = ImGuizmo::WORLD;
+		}
+
+		static bool useSnap(false);
+		if (ImGui::IsKeyPressed(83))
+			useSnap = !useSnap;
+		ImGui::Checkbox("", &useSnap);
+		ImGui::SameLine();
+
+		glm::vec3* snap = nullptr;
+		switch (currentOperation) {
+		case ImGuizmo::TRANSLATE: {
+			static glm::vec3 snapTranslation = glm::vec3(0.1);
+			snap = &snapTranslation;
+			ImGui::InputFloat3("Snap", glm::value_ptr(snapTranslation));
+			break;
+		}
+		case ImGuizmo::ROTATE: {
+			static glm::vec3 snapRotation = glm::vec3(0.1);
+			snap = &snapRotation;
+			ImGui::InputFloat("Angle Snap", glm::value_ptr(snapRotation));
+			break;
+		}
+		case ImGuizmo::SCALE: {
+			/*static glm::vec3 snapScale = glm::vec3(0.1);
+				snap = &snapScale;
+				ImGui::InputFloat("Scale Snap", glm::value_ptr(snapScale));*/
+			break;
+		}
+		}
+		ImGui::End();
+
+		//TODO: Make argument
+		auto* cc = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get());
+
+		glm::mat4 deltaMatrix;
+		ImGuiIO& io = ImGui::GetIO();
+		ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+		ImGuizmo::Manipulate(glm::value_ptr(cc->getViewMatrix()), glm::value_ptr(cc->getProjectionMatrix()), currentOperation, currentMode, glm::value_ptr(matrix), glm::value_ptr(deltaMatrix), useSnap ? glm::value_ptr(*snap) : nullptr);
+		this_->dirty = true;
+		matrix *= parent;
+
+		static bool didUse = false;
+		if (ImGuizmo::IsUsing())/*
+															didUse = true;
+															else if (didUse)*/ {
+			didUse = false;
+			switch(currentOperation) {
+			case ImGuizmo::TRANSLATE:
+				this_->position += glm::vec3(deltaMatrix[3]);
+				break;
+			case ImGuizmo::ROTATE:
+				this_->rotation = glm::toQuat(deltaMatrix) * this_->rotation;
+				break;
+			case ImGuizmo::SCALE:
+				/*//this_->scale += glm::vec3(matrix[0][0], matrix[1][1], matrix[2][2]); //glm::scale(matrix);
+					glm::vec3 translation;
+					glm::vec3 rotation;
+					glm::vec3 scale;
+					ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(matrix), glm::value_ptr(translation), glm::value_ptr(rotation), glm::value_ptr(scale));
+					this_->scale = scale;
+					// this_->scale *= glm::vec3(matrix[0][0], matrix[1][1], matrix[2][2]);*/
+				break;
+			}
+		}
 	}
 
 	const std::vector<std::unique_ptr<DrawObject>>& activeDrawObjects() final { return _activeDrawObjects; }

@@ -68,8 +68,6 @@ namespace Hydra::Component {
 			setRotation(glm::quat_cast(m));
 		}
 
-		static void showGuizmo();
-
 		static TransformComponent* _currentlyEditing;
 		glm::mat4 _matrix = glm::mat4(1);
 
