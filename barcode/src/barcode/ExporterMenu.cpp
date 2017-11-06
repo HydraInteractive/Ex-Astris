@@ -10,7 +10,7 @@ ExporterMenu::~ExporterMenu()
 {
 	
 }
-void ExporterMenu::render(bool &closeBool)
+void ExporterMenu::render(bool &closeBool, Hydra::Renderer::Batch* previewBatch, float delta)
 {
 	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiSetCond_Once);
 	ImGui::Begin("Export", &closeBool, ImGuiWindowFlags_MenuBar);
@@ -116,99 +116,6 @@ void ExporterMenu::render(bool &closeBool)
 	ImGui::EndChild();
 	ImGui::End();
 }
-
-std::shared_ptr<Entity> ExporterMenu::getRoomEntity()
-{
-	std::vector<std::shared_ptr<Entity>> entities;
-	world::getEntitiesWithComponents<Hydra::Component::TransformComponent, Hydra::Component::RoomComponent>(entities);
-	if (entities.size() > 0)
-	{
-		return entities[0];
-	}
-	return nullptr;
-}
-
-ExporterMenu::Node::Node()
-{
-	this->_name = "";
-	this->_subfolders = std::vector<Node*>(0);
-	this->_files = std::vector<Node*>(0);
-	this->_parent = nullptr;
-}
-ExporterMenu::Node::Node(std::string path, Node* parent, bool isFile)
-{
-	this->_name = pathToName(path);
-	this->_subfolders = std::vector<Node*>();
-	this->_files = std::vector<Node*>();
-	this->_parent = parent;
-	this->isAllowedFile = isFile;
-
-	std::vector<std::string> inFiles;
-	std::vector<std::string> inFolders;
-	_getContentsOfDir(path, inFiles, inFolders);
-	for (size_t i = 0; i < inFolders.size(); i++)
-	{
-		this->_subfolders.push_back(new Node(inFolders[i], this));
-	}
-	for (size_t i = 0; i < inFiles.size(); i++)
-	{
-		this->_files.push_back(new Node(inFiles[i], this, true));
-	}
-}
-ExporterMenu::Node::~Node()
-{
-	for (size_t i = 0; i < _subfolders.size(); i++)
-	{
-		delete _subfolders[i];
-	}
-	_subfolders.clear();
-	for (size_t i = 0; i < _files.size(); i++)
-	{
-		delete _files[i];
-	}
-	_files.clear();
-}
-std::string ExporterMenu::Node::name()
-{
-	return _name;
-}
-//Returns the file extention from a filename
-std::string ExporterMenu::Node::getExt()
-{
-	size_t i = _name.find_last_of('.');
-	if (i == std::string::npos)
-	{
-		return "";
-	}
-	else
-	{
-		std::string fileExt = _name.substr(i, _name.size() - i);
-		return fileExt;
-	}
-}
-//Gets the node's name from it's path
-std::string ExporterMenu::Node::pathToName(std::string path)
-{
-	size_t i = path.find_last_of('/');
-	if (i == std::string::npos)
-	{
-		return path;
-	}
-	else
-	{
-		return path.substr(i + 1);
-	}
-}
-std::string ExporterMenu::Node::reverseEngineerPath()
-{
-	std::string upperPath = "";
-	if (this->_parent != nullptr)
-	{
-		upperPath = _parent->reverseEngineerPath();
-		return upperPath + "/" + this->_name;
-	}
-	return this->_name;
-}
 void ExporterMenu::Node::render(Node** selectedNode, bool& prepExporting)
 {
 	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
@@ -228,7 +135,7 @@ void ExporterMenu::Node::render(Node** selectedNode, bool& prepExporting)
 		for (size_t i = 0; i < this->_files.size(); i++)
 		{
 			std::string ext = this->_files[i]->getExt();
-			if (ext == ".attic" || ext == ".ATTIC")
+			if (ext == ".attic" || ext == ".mATTIC")
 			{
 				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBE " %s", _files[i]->_name.c_str());
 			}
@@ -252,82 +159,4 @@ void ExporterMenu::Node::render(Node** selectedNode, bool& prepExporting)
 		}
 		ImGui::TreePop();
 	}
-}
-void ExporterMenu::Node::_getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders) const
-{
-#ifdef _WIN32 ///Windows
-	HANDLE dir;
-	WIN32_FIND_DATA fileData;
-
-	if ((dir = FindFirstFile((directory + "/*").c_str(), &fileData)) == INVALID_HANDLE_VALUE)
-	{
-		//No files found or is not directory
-		files.empty();
-		folders.empty();
-		return;
-	}
-	do
-	{
-		const std::string fileName = fileData.cFileName;
-		const std::string fullFilePath = directory + "/" + fileName;
-		const bool is_directory = (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
-
-		if (fileName[0] == '.')
-		{
-			//files.push_back(fullFileName);
-		}
-		else if (is_directory)
-		{
-			folders.push_back(fullFilePath);
-		}
-		else
-		{
-			int i = fileName.find_last_of('.');
-			std::string fileExt = fileName.substr(i, fileName.size() - i);
-			if (fileExt == ".ATTIC")
-			{
-				files.push_back(fullFilePath);
-			}
-			else if (fileExt == ".json")
-			{
-				files.push_back(fullFilePath);
-			}
-			else if (fileExt == ".room")
-			{
-				files.push_back(fullFilePath);
-			}
-		}
-	} while (FindNextFile(dir, &fileData));
-
-	FindClose(dir);
-#else ///Linux
-	DIR *dir;
-	class dirent *ent;
-	class stat st;
-
-	dir = opendir(directory.c_str());
-	while ((ent = readdir(dir)) != NULL)
-	{
-		const std::string fileName = ent->d_name;
-		const std::string fullFileName = directory + "/" + fileName;
-
-		if (fileName[0] == '.')
-		{
-
-		}
-		else if (stat(fullFileName.c_str(), &st) != -1)
-		{
-			const bool isDir = (st.st_mode & S_IFDIR) != 0;
-			if (isDir)
-			{
-				folders.push_back(fullFileName);
-			}
-			else
-			{
-				files.push_back(fullFileName);
-			}
-		}
-	}
-	closedir(dir);
-#endif
 }

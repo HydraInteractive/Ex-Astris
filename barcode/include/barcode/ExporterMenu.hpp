@@ -1,12 +1,11 @@
 #pragma once
 #include <barcode/filemanager.hpp>
-class ExporterMenu : FileManager{
+class ExporterMenu : public FileManager {
 public:
 	ExporterMenu();
 	~ExporterMenu();
 
-	void render(bool &closeBool);
-	static std::shared_ptr<Entity> getRoomEntity();
+	void render(bool &closeBool, Hydra::Renderer::Batch* previewBatch = nullptr, float delta = 0.0f);
 private:
 	std::string _selectedPath;
 	char _selectedFileName[128] = "";

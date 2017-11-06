@@ -1,6 +1,7 @@
 #include <barcode/filemanager.hpp>
-#include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
+#include <hydra/component/roomcomponent.hpp>
+#include <memory>
 FileManager::FileManager()
 {
 	this->executableDir = _getExecutableDir();
@@ -21,6 +22,16 @@ void FileManager::refresh(std::string relativePath)
 	}
 	_root = new Node(executableDir + relativePath);
 	//_root->clean();
+}
+std::shared_ptr<Hydra::World::Entity> FileManager::getRoomEntity()
+{
+	std::vector<std::shared_ptr<Hydra::World::Entity>> entities;
+	world::getEntitiesWithComponents<Hydra::Component::TransformComponent, Hydra::Component::RoomComponent>(entities);
+	if (entities.size() > 0)
+	{
+		return entities[0];
+	}
+	return nullptr;
 }
 std::string FileManager::_getExecutableDir()
 {
@@ -45,6 +56,64 @@ std::string FileManager::_getExecutableDir()
 	path.erase(path.begin() + index, path.end());
 	return path;
 }
+FileManager::Node::Node()
+{
+	this->_name = "";
+	this->_subfolders = std::vector<Node*>(0);
+	this->_files = std::vector<Node*>(0);
+	this->_parent = nullptr;
+}
+FileManager::Node::Node(std::string path, Node* parent, bool isFile)
+{
+	this->_name = pathToName(path);
+	this->_subfolders = std::vector<Node*>();
+	this->_files = std::vector<Node*>();
+	this->_parent = parent;
+	this->isAllowedFile = isFile;
+
+	std::vector<std::string> inFiles;
+	std::vector<std::string> inFolders;
+	_getContentsOfDir(path, inFiles, inFolders);
+	for (size_t i = 0; i < inFolders.size(); i++)
+	{
+		this->_subfolders.push_back(new Node(inFolders[i], this));
+	}
+	for (size_t i = 0; i < inFiles.size(); i++)
+	{
+		this->_files.push_back(new Node(inFiles[i], this, true));
+	}
+}
+FileManager::Node::~Node()
+{
+	for (size_t i = 0; i < _subfolders.size(); i++)
+	{
+		delete _subfolders[i];
+	}
+	_subfolders.clear();
+	for (size_t i = 0; i < _files.size(); i++)
+	{
+		delete _files[i];
+	}
+	_files.clear();
+}
+std::string FileManager::Node::name()
+{
+	return _name;
+}
+//Returns the file extention from a filename
+std::string FileManager::Node::getExt()
+{
+	size_t i = _name.find_last_of('.');
+	if (i == std::string::npos)
+	{
+		return "";
+	}
+	else
+	{
+		std::string fileExt = _name.substr(i, _name.size() - i);
+		return fileExt;
+	}
+}
 //Gets the node's name from it's path
 std::string FileManager::Node::pathToName(std::string path)
 {
@@ -68,17 +137,17 @@ std::string FileManager::Node::reverseEngineerPath()
 	}
 	return this->_name;
 }
-//Returns all files in this folder and subfolders
+
 int FileManager::Node::numberOfFiles()
 {
 	if (!isAllowedFile)
 	{
-		int allFiles = _files.size();
+		size_t allFiles = _files.size();
 		for (size_t i = 0; i < _subfolders.size(); i++)
 		{
 			allFiles += _subfolders[i]->numberOfFiles();
 		}
-		return allFiles;
+		return (unsigned int)allFiles;
 	}
 	return -1;
 }
@@ -99,6 +168,7 @@ void FileManager::Node::clean()
 		}
 	}
 }
+//TODO: Add file ext whitelist
 void FileManager::Node::_getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders) const
 {
 #ifdef _WIN32 ///Windows
@@ -128,9 +198,9 @@ void FileManager::Node::_getContentsOfDir(const std::string &directory, std::vec
 		}
 		else
 		{
-			int i = fileName.find_last_of('.');
+			size_t i = fileName.find_last_of('.');
 			std::string fileExt = fileName.substr(i, fileName.size() - i);
-			if (fileExt == ".ATTIC")
+			if (fileExt == ".mATTIC")
 			{
 				files.push_back(fullFilePath);
 			}

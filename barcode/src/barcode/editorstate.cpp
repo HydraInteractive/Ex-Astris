@@ -269,19 +269,19 @@ namespace Barcode {
 			{
 				_showImporter = !_showImporter;
 				if (_showImporter)
-					_importerMenu->refresh();
+					_importerMenu->refresh("/assets");
 			}
 			if (ImGui::MenuItem("Export..."))
 			{
 				_showExporter = !_showExporter;
 				if (_showExporter)
-					_exporterMenu->refresh();
+					_exporterMenu->refresh("/assets");
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem("Clear room"))
 			{
-				if(ImporterMenu::getRoomEntity() != nullptr)
-					ImporterMenu::getRoomEntity()->dead = true;
+				if(FileManager::getRoomEntity() != nullptr)
+					FileManager::getRoomEntity()->dead = true;
 
 				auto room = world::newEntity("Room", world::root());
 				auto t = room->addComponent<Hydra::Component::TransformComponent>();
@@ -546,7 +546,7 @@ namespace Barcode {
 			}
 		}
 		if (_showImporter)
-			_importerMenu->render(_showImporter, _previewBatch.batch, delta);
+			_importerMenu->render(_showImporter, &_previewBatch.batch, delta);
 		if (_showExporter)
 			_exporterMenu->render(_showExporter);
 		_glowBatch.output->resolve(0, _finalImage->image);
