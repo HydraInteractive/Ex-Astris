@@ -46,7 +46,7 @@
 #include <imgui/imgui.h>
 #include <barcode/ImporterMenu.hpp>
 #include <barcode/ExporterMenu.hpp>
-#include <barcode/filemanager.hpp>
+#include <barcode/filetree.hpp>
 
 #include <hydra/io/input.hpp>
 

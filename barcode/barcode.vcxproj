@@ -13,7 +13,7 @@
   <ItemGroup>
     <ClInclude Include="include\barcode\editorstate.hpp" />
     <ClInclude Include="include\barcode\exportermenu.hpp" />
-    <ClInclude Include="include\barcode\filemanager.hpp" />
+    <ClInclude Include="include\barcode\filetree.hpp" />
     <ClInclude Include="include\barcode\gamestate.hpp" />
     <ClInclude Include="include\barcode\importermenu.hpp" />
     <ClInclude Include="include\barcode\menustate.hpp" />
@@ -22,7 +22,7 @@
   <ItemGroup>
     <ClCompile Include="src\barcode\editorstate.cpp" />
     <ClCompile Include="src\barcode\exportermenu.cpp" />
-    <ClCompile Include="src\barcode\filemanager.cpp" />
+    <ClCompile Include="src\barcode\filetree.cpp" />
     <ClCompile Include="src\barcode\gamestate.cpp" />
     <ClCompile Include="src\barcode\importermenu.cpp" />
     <ClCompile Include="src\barcode\menustate.cpp" />
