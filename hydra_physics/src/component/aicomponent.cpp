@@ -21,12 +21,12 @@ AIComponent::~AIComponent() {
 void AIComponent::serialize(nlohmann::json& json) const {
 	json = {
 		{ "behaviourType", (unsigned int)behaviour->type},
-		{ "radius",{ radius } },
+		{ "radius", radius },
 		{ "pathState", behaviour->state },
 		{ "damage", damage },
-		{ "range", behaviour->range },
-		{ "mapOffset",{ behaviour->mapOffset.x, behaviour->mapOffset.z } },
-		{ "original range", behaviour->originalRange }
+		{ "range",  behaviour->range },
+		{ "mapOffset",{ behaviour->mapOffset.x, behaviour->mapOffset.y, behaviour->mapOffset.z } },
+		{ "originalRange",  behaviour->originalRange }
 	};
 
 	for (size_t i = 0; i < 64; i++)
@@ -39,7 +39,7 @@ void AIComponent::serialize(nlohmann::json& json) const {
 }
 
 void AIComponent::deserialize(nlohmann::json& json) {
-		Behaviour::Type behaviourType = (Behaviour::Type)json["behaviourType"].get<unsigned int>();
+	Behaviour::Type behaviourType = (Behaviour::Type)json["behaviourType"].get<unsigned int>();
 	switch (behaviourType)
 	{
 	case Behaviour::Type::ALIEN:
@@ -55,18 +55,13 @@ void AIComponent::deserialize(nlohmann::json& json) {
 		std::cout << "Invalid AI Behaviour Type" << std::endl;
 		break;
 	}
-	radius = json["radius"].get<float>();
-
-	auto& mapOffset = json["mapOffset"];
-	behaviour->mapOffset = glm::vec3{ mapOffset[0].get<float>(), 0.0f, mapOffset[1].get<float>() };
-
 
 	behaviour->state = json["pathState"].get<int>();
 	damage = json["damage"].get<int>();
 
 
 	behaviour->range = json["range"].get<float>();
-	behaviour->originalRange = json["original range"].get<float>();
+	behaviour->originalRange = json["originalRange"].get<float>();
 
 	for (size_t i = 0; i < 64; i++)
 	{

@@ -52,7 +52,6 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 		rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 3000);
 		rigidBody->setActivationState(DISABLE_DEACTIVATION);
 		rigidBody->setGravity(btVector3(0, 0, 0));
-
 	} else {
 		for (int i = 0; i < bulletsPerShot; i++) {
 			auto bullet = world::newEntity("Bullet", _bullets);
@@ -86,6 +85,7 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 			rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 3000);
 			rigidBody->setActivationState(DISABLE_DEACTIVATION);
 			rigidBody->setGravity(btVector3(0,0,0));
+
 		}
 	}
 	fireRateTimer = fireRateRPM / 60000.0f;
@@ -113,5 +113,4 @@ void WeaponComponent::registerUI() {
 	ImGui::DragFloat("Bullet Size", &bulletSize, 0.001f);
 	ImGui::DragFloat("Bullet Spread", &bulletSpread, 0.001f);
 	ImGui::InputInt("Bullets Per Shot", &bulletsPerShot);
-	ImGui::DragFloat("DEBUG", &debug);
 }

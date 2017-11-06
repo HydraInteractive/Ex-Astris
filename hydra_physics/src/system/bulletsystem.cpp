@@ -9,6 +9,7 @@
 
 #include <btBulletDynamicsCommon.h>
 
+
 using namespace Hydra::System;
 
 BulletSystem::BulletSystem() {}
@@ -16,6 +17,7 @@ BulletSystem::~BulletSystem() {}
 
 void BulletSystem::tick(float delta) {
 	using world = Hydra::World::World;
+
 	//Process WeaponComponent
 	world::getEntitiesWithComponents<Hydra::Component::WeaponComponent>(entities);
 	#pragma omp parallel for
@@ -34,8 +36,7 @@ void BulletSystem::tick(float delta) {
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 
 		// TESTING HOMNIG/MAGNETIC NOT REALLY GOOD RIGHT NOW
-		/*if (b->bulletType == BULLETTYPE_HOMING)
-		{
+		/*if (b->bulletType == BULLETTYPE_HOMING) {
 			float distance = 10000;
 			int_openmp_t closestEnemy = -1;
 			std::vector<std::shared_ptr<Hydra::World::Entity>> enemies;
@@ -48,8 +49,7 @@ void BulletSystem::tick(float delta) {
 					closestEnemy = i;
 				}
 			}
-			if (closestEnemy != -1)
-			{
+			if (closestEnemy != -1) {
 				auto rbc = entities[i]->getComponent<Hydra::Component::RigidBodyComponent>();
 				auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
 				auto enemyT = enemies[closestEnemy]->getComponent<Hydra::Component::TransformComponent>();

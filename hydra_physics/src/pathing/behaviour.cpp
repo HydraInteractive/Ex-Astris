@@ -15,6 +15,7 @@ Behaviour::Behaviour(std::shared_ptr<Hydra::World::Entity> enemy)
 {
 	thisEnemy.entity = enemy;
 	refreshRequiredComponents();
+
 	pathFinding = std::make_shared<PathFinding>();
 
 }
@@ -52,7 +53,7 @@ bool Behaviour::refreshRequiredComponents()
 		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity()) &&
 		(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>()) &&
 		(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>())
-	);
+	 );
 	return hasRequiredComponents;
 }
 
@@ -72,15 +73,15 @@ bool Behaviour::checkLOS(int levelmap[MAP_SIZE][MAP_SIZE], glm::vec3 enemyPos, g
 	x = enemyPos.x;
 	z = enemyPos.z;
 	for (double i = 1; i < len; i += 1)
-	{
-		if (levelmap[(int)x][(int)z] == 1)
 		{
-			return false;
-		}
+			if (levelmap[(int)x][(int)z] == 1)
+				{
+					return false;
+				}
 
-		x += unitx;
-		z += unitz;
-	}
+			x += unitx;
+			z += unitz;
+		}
 
 	return true;
 }
@@ -95,7 +96,6 @@ unsigned int Behaviour::idleState(float dt)
 		{
 			idleTimer = 0;
 			return SEARCHING;
-			
 		}
 	}
 	return state;
@@ -123,7 +123,6 @@ unsigned int Behaviour::searchingState(float dt)
 	pathFinding->intializedStartGoal = false;
 	pathFinding->findPath(thisEnemy.transform->position, targetPlayer.transform->position, map);
 	isAtGoal = false;
-
 
 	if (pathFinding->foundGoal)
 	{
@@ -161,21 +160,21 @@ unsigned int Behaviour::foundState(float dt)
 			}
 			else if (glm::length(thisEnemy.transform->position - targetPos) <= 3.0f)
 			{
-				return SEARCHING;
 				idleTimer = 0;
+				return SEARCHING;
 			}
 			else if (glm::length(targetPlayer.transform->position.x - targetPos.x) > 25.0f || glm::length(targetPlayer.transform->position.z - targetPos.z) > 25.0f)
 			{
-				return SEARCHING;
 				idleTimer = 0;
+				return SEARCHING;
 			}
 		}
 	}
 
-	if (newPathTimer >= 4.0f)
+	if (newPathTimer >= 4)
 	{
+		idleTimer = 0;
 		return SEARCHING;
-		idleTimer = 0.0f;
 	}
 
 	if (targetPlayer.transform->position.x <= mapOffset.x || targetPlayer.transform->position.x >= MAP_SIZE || targetPlayer.transform->position.z <= mapOffset.z || targetPlayer.transform->position.z >= MAP_SIZE)
@@ -191,17 +190,17 @@ unsigned int Behaviour::attackingState(float dt)
 	thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->animationIndex = 2;
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) >= range)
 	{
-		idleTimer = 0.0f;
+		idleTimer = 0;
 		return SEARCHING;
 	}
 	else
 	{
 		std::mt19937 rng(rd());
 		std::uniform_int_distribution<> randDmg(thisEnemy.ai->damage - 1, thisEnemy.ai->damage + 2);
-		if (attackTimer > 1.5f)
+		if (attackTimer > 1.5)
 		{
 			//player->applyDamage(randDmg(rng));
-			attackTimer = 0.0f;
+			attackTimer = 0;
 		}
 
 		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
@@ -296,6 +295,7 @@ void AlienBehaviour::run(float dt)
 	if (!hasRequiredComponents)
 		if(!refreshRequiredComponents())
 			return;
+
 	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
 	// Not sure if needed with the new lifesystem.
 	//if (!thisEnemy.life->statusCheck())
@@ -343,7 +343,7 @@ unsigned int AlienBehaviour::attackingState(float dt)
 	{
 		std::mt19937 rng(rd());
 		std::uniform_int_distribution<> randDmg(thisEnemy.ai->damage - 1, thisEnemy.ai->damage + 2);
-		if (attackTimer > 1.5f)
+		if (attackTimer > 1.5)
 		{
 			targetPlayer.life->applyDamage(randDmg(rng));
 			attackTimer = 0;
@@ -423,7 +423,7 @@ bool RobotBehaviour::refreshRequiredComponents()
 		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity()) &&
 		(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>()) &&
 		(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>())
-		);
+	);
 	return hasRequiredComponents;
 }
 
@@ -464,6 +464,7 @@ void AlienBossBehaviour::run(float dt)
 {
 	if (!hasRequiredComponents || !refreshRequiredComponents())
 		return;
+
 	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
 	// Same as above.
 	//if (!thisEnemy.life->statusCheck())
@@ -508,7 +509,7 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 {
 	using world = Hydra::World::World;
 
-	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > range && !stunned)
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) >range &&stunned == false)
 	{
 		idleTimer = 0;
 		return SEARCHING;
@@ -556,8 +557,7 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 					if (spawnTimer >= 2)
 					{
 						auto alienSpawn = world::newEntity("AlienSpawn", world::root());
-
-						auto a = alienSpawn->addComponent <Hydra::Component::AIComponent>();
+						auto a = alienSpawn->addComponent<Hydra::Component::AIComponent>();
 						a->behaviour = std::make_shared<AlienBehaviour>(alienSpawn);
 						a->damage = 4;
 						a->behaviour->originalRange = 4;
@@ -566,14 +566,12 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 						auto h = alienSpawn->addComponent<Hydra::Component::LifeComponent>();
 						h->maxHP = 80;
 						h->health = 80;
-
 						auto m = alienSpawn->addComponent<Hydra::Component::MovementComponent>();
 						m->movementSpeed = 8.0f;
-
 						auto t = alienSpawn->addComponent<Hydra::Component::TransformComponent>();
 						t->position = thisEnemy.transform->position + glm::vec3(3, thisEnemy.transform->position.y, 3);
 						t->scale = glm::vec3{ 2,2,2 };
-						
+
 						alienSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
 						spawnAmount++;
 						spawnTimer = 0;
@@ -601,7 +599,7 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 			}break;
 		}
 
-		if (!stunned)
+		if (stunned == false)
 		{
 			angle = atan2(playerDir.x, playerDir.z);
 			rotation = glm::angleAxis(angle, glm::vec3(0, 1, 0));

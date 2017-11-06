@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <memory>
+
 #ifdef _WIN32
 #include <Windows.h>
 #else
@@ -10,33 +12,31 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #endif
+#include <hydra/engine.hpp>
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_sdl_gl3.h>
 #include <imgui/icons.hpp>
-#include <algorithm>
 #include <hydra/world/world.hpp>
+
 #include <hydra/world/blueprintloader.hpp>
-#include <hydra/component/meshcomponent.hpp>
-#include <hydra/component/transformcomponent.hpp>
 #include <hydra/renderer/uirenderer.hpp>
 #include <hydra/renderer/glrenderer.hpp>
-
-class ImporterMenu {
+using world = Hydra::World::World;
+class FileTree
+{
 public:
 	std::string executableDir;
-	ImporterMenu();
-	~ImporterMenu();
-
-	void render(bool &closeBool, Hydra::Renderer::Batch& previewBatch, float delta);
-	void refresh();
-	static std::shared_ptr<Entity> getRoomEntity();
-private:
-	class Node {
+	FileTree();
+	~FileTree();
+	void refresh(std::string relativePath);
+	static std::shared_ptr<Hydra::World::Entity> getRoomEntity();
+	virtual void render(bool &closeBool, Hydra::Renderer::Batch* previewBatch = nullptr, float delta = 0.0f) = 0;
+	virtual class Node {
 	public:
 		bool isAllowedFile = false;
 
 		Node();
-		Node(std::string path, Node* parent = nullptr, bool isFile = false);
+		Node(std::string path, const std::vector<std::string>& extWhitelist, Node* parent = nullptr, bool isFile = false);
 		~Node();
 
 		std::string name();
@@ -45,18 +45,18 @@ private:
 		std::string reverseEngineerPath();
 		int numberOfFiles();
 		void clean();
-		void render(Node** selectedNode);
+		virtual void render(Node** selectedNode, bool& prepExporting);
+		virtual void render(Node** selectedNode);
 	private:
 		std::string _name;
 		std::vector<Node*> _subfolders;
 		std::vector<Node*> _files;
 		Node* _parent;
-		void _getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders) const;
-	};
 
+		void _getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders, const std::vector<std::string> &extWhitelist) const;
+	};
+protected:
 	Node* _root;
-	std::shared_ptr<Hydra::World::Entity> _previewEntity;
-	bool _newEntityClicked;
-	float _rotation;
 	std::string _getExecutableDir();
+	std::vector<std::string> extWhitelist;
 };

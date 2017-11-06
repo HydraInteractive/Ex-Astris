@@ -23,39 +23,35 @@ void PerkSystem::tick(float delta) {
 			perks->newPerks.pop_back();
 		}
 
-		for (size_t i = 0; i < perks->activePerks.size(); i++)
-		{
+		for (size_t i = 0; i < perks->activePerks.size(); i++) {
 			onTick(perks->activePerks[i]);
 		}
 	}
 }
 void PerkSystem::onPickUp(Perk newPerk, Entity* playerEntity) {
 	switch (newPerk){
-	case PERK_MAGNETICBULLEETS:	{
-		
-	}
+	case PERK_MAGNETICBULLEETS: {
 		break;
+	}
 	case PERK_HOMINGBULLETS: {
-
-	}
 		break;
+	}
 	case PERK_GRENADE: {
 		auto player = playerEntity->getComponent<PlayerComponent>();
 		player->activeAbillies.addAbility(&AbilityHandler::grenadeAbility);
-	}
 		break;
+	}
 	case PERK_MINE: {
 		auto player = playerEntity->getComponent<PlayerComponent>();
 		player->activeAbillies.addAbility(&AbilityHandler::mineAbility);
-	}
 		break;
+	}
 	default:
 		break;
 	}
 }
 void PerkSystem::onTick(Perk activePerk) {
-	switch (activePerk)
-	{
+	switch (activePerk) {
 	case PERK_MAGNETICBULLEETS:
 		break;
 	case PERK_HOMINGBULLETS:

@@ -11,8 +11,7 @@
 
 using namespace Hydra::World;
 
-enum Perk
-{
+enum Perk {
 	PERK_MAGNETICBULLEETS,
 	PERK_HOMINGBULLETS,
 	PERK_GRENADE,
@@ -22,13 +21,13 @@ enum Perk
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API PerkComponent final : public IComponent<PerkComponent, ComponentBits::Perk>{
 
-	std::vector<Perk> newPerks;
-	std::vector<Perk> activePerks;
+		std::vector<Perk> newPerks;
+		std::vector<Perk> activePerks;
 
-	~PerkComponent() final;
-	inline const std::string type() const final { return "PerkComponent"; }
-	void serialize(nlohmann::json& json) const final;
-	void deserialize(nlohmann::json& json) final;
-	void registerUI() final;
+		~PerkComponent() final;
+		inline const std::string type() const final { return "PerkComponent"; }
+		void serialize(nlohmann::json& json) const final;
+		void deserialize(nlohmann::json& json) final;
+		void registerUI() final;
 	};
 };

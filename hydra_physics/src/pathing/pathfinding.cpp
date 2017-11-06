@@ -94,8 +94,6 @@ void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 glm::vec3 PathFinding::nextPathPos(const glm::vec3& pos, const float& radius)
 {
 	glm::vec3 nextPos = _pathToEnd.back();
-
-	//Centers the position in a node
 	nextPos.x += (NODE_SCALE / 2);
 	nextPos.z += (NODE_SCALE / 2);
 	

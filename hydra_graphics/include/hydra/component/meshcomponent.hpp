@@ -25,9 +25,10 @@ namespace Hydra::Component {
 		std::string meshFile;
 		std::shared_ptr<DrawObjectComponent> drawObject;
 		std::shared_ptr<Hydra::Renderer::IMesh> mesh;
-		int currentFrame;
-		int animationIndex;
-		float animationCounter;
+		int currentFrame = 1;
+		int animationIndex = 0;
+		float animationCounter = 0;
+
 		~MeshComponent() final;
 
 		void loadMesh(const std::string meshFile);

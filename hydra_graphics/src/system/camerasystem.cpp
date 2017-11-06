@@ -79,8 +79,6 @@ void CameraSystem::tick(float delta) {
 	}
 }
 
-void CameraSystem::registerUI() {}
-
 void CameraSystem::setCamInternals(Hydra::Component::CameraComponent& cc) {
 	cc.tang = (float)tan(ANG2RAD * cc.fov * 0.5);
 	cc.nh = cc.zNear * cc.tang;
@@ -91,7 +89,7 @@ void CameraSystem::setCamInternals(Hydra::Component::CameraComponent& cc) {
 
 void CameraSystem::setCamDef(glm::vec3& cPos, glm::vec3& cDir, glm::vec3& up, glm::vec3& right, Hydra::Component::CameraComponent& cc) {
 	glm::vec3 dir, nc, fc, X, Y, Z;
-	
+
 	Z = cPos - cDir;
 	Z = glm::normalize(Z);
 
@@ -127,8 +125,8 @@ void CameraSystem::setCamDef(glm::vec3& cPos, glm::vec3& cDir, glm::vec3& up, gl
 /*int CameraSystem::pointInFrustum(glm::vec3& p, Hydra::Component::CameraComponent& cc) {
 	int result = 1;
 	for (int i = 0; i < 6; i++) {
-		if (cc.pl[i].distance(p) < 0)
-			return 0;
+	if (cc.pl[i].distance(p) < 0)
+		return 0;
 	}
 	return result;
 }*/
@@ -145,3 +143,6 @@ int CameraSystem::sphereInFrustum(glm::vec3& p, float radius, Hydra::Component::
 	}
 	return result;
 }
+
+
+void CameraSystem::registerUI() {}

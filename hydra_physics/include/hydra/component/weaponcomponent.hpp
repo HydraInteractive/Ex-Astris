@@ -23,7 +23,6 @@ namespace Hydra::Component {
 		float bulletSize = 0.5f;
 		float bulletSpread = 0.0f;
 		int bulletsPerShot = 14;
-		float debug = 0.0f;
 
 		~WeaponComponent() final;
 

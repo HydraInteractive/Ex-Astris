@@ -21,7 +21,7 @@ void AbilitySystem::tick(float delta) {
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto g = entities[i]->getComponent<Hydra::Component::GrenadeComponent>();
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
-		
+
 		//OLD CODE BEFORE BULLLETPHYSICS
 		/*
 		g->direction.y -= 0.8 * delta;
@@ -74,7 +74,7 @@ void AbilitySystem::tick(float delta) {
 
 		m->timer -= delta;
 		if (m->timer <= 0)
-			entities[i]->dead = true;*/
+		entities[i]->dead = true;*/
 	}
 }
 

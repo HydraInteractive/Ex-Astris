@@ -25,9 +25,6 @@ void MeshComponent::loadMesh(const std::string meshFile) {
 	drawObject = Hydra::World::World::getEntity(entityID)->addComponent<DrawObjectComponent>();
 	mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(meshFile);
 	drawObject->drawObject->mesh = mesh.get();
-	currentFrame = 1;
-	animationCounter = 0;
-	animationIndex = 0;
 
 	if (meshFile == "QUAD")
 		drawObject->drawObject->disable = true;

@@ -33,8 +33,8 @@ public:
 		void set(const glm::vec2 &vec) { baseVec = vec; }
 		void set(const glm::vec3 &vec) { baseVec = glm::vec2(vec.x,vec.z); }
 
-
 		bool operator==(MapVec& other) { return this->baseVec == other.baseVec; }
+
 		operator glm::vec3() { return glm::vec3(baseVec.x, 0, baseVec.y); }
 		operator glm::vec2() { return baseVec; }
 	};
