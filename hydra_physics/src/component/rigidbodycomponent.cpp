@@ -173,8 +173,8 @@ static SerializeShape getShapeSerializer(CollisionShape collisionShape) {
 }
 
 struct RigidBodyComponent::Data {
-	Data(EntityID entityID, CollisionShape collisionShape, SerializeShape serializeShape, std::unique_ptr<btCollisionShape> shape, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction) :
-		collisionShape(collisionShape), serializeShape(serializeShape), motionState(entityID), shape(std::move(shape)), mass(mass), linearDamping(linearDamping), angularDamping(angularDamping), friction(friction), rollingFriction(rollingFriction), eID(entityID) {}
+	Data(EntityID entityID, CollisionShape collisionShape, SerializeShape serializeShape, std::unique_ptr<btCollisionShape> shape, Hydra::System::BulletPhysicsSystem::CollisionTypes collType, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction) :
+		collisionShape(collisionShape), serializeShape(serializeShape), motionState(entityID), shape(std::move(shape)), collisionType(collType), mass(mass), linearDamping(linearDamping), angularDamping(angularDamping), friction(friction), rollingFriction(rollingFriction), eID(entityID){}
 
 
 	btRigidBody* getRigidBody() {
@@ -187,6 +187,7 @@ struct RigidBodyComponent::Data {
 			shape->calculateLocalInertia(mass, info.m_localInertia);
 			rigidBody = std::make_unique<btRigidBody>(info);
 			rigidBody->setUserIndex(eID);
+			rigidBody->setUserIndex2(collisionType);
 		}
 		return rigidBody.get();
 	}
@@ -202,6 +203,7 @@ struct RigidBodyComponent::Data {
 	float angularDamping;
 	float friction;
 	float rollingFriction;
+	Hydra::System::BulletPhysicsSystem::CollisionTypes collisionType;
 	EntityID eID;
 
 private:
@@ -214,8 +216,8 @@ RigidBodyComponent::~RigidBodyComponent() {
 	delete _data;
 }
 
-#define DEFAULT_PARAMS float mass, float linearDamping, float angularDamping, float friction, float rollingFriction
-#define MAKE_DATA(SHAPE_TYPE, SHAPE_PTR) _data = new Data(entityID, CollisionShape::SHAPE_TYPE, getShapeSerializer(CollisionShape::SHAPE_TYPE), std::unique_ptr<btCollisionShape>(SHAPE_PTR), mass, linearDamping,angularDamping, friction, rollingFriction)
+#define DEFAULT_PARAMS Hydra::System::BulletPhysicsSystem::CollisionTypes collType, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction
+#define MAKE_DATA(SHAPE_TYPE, SHAPE_PTR) _data = new Data(entityID, CollisionShape::SHAPE_TYPE, getShapeSerializer(CollisionShape::SHAPE_TYPE), std::unique_ptr<btCollisionShape>(SHAPE_PTR), collType, mass, linearDamping,angularDamping, friction, rollingFriction)
 
 void RigidBodyComponent::createBox(const glm::vec3& halfExtents, DEFAULT_PARAMS) {
 	MAKE_DATA(Box, new btBoxShape(cast(halfExtents)));
@@ -256,6 +258,7 @@ void* RigidBodyComponent::getRigidBody() { return static_cast<void*>(_data->getR
 void RigidBodyComponent::serialize(nlohmann::json& json) const {
 	json = {
 		{"collisionShape", static_cast<size_t>(_data->collisionShape)},
+		{"collisionType", static_cast<int>(_data->collisionType)},
 		{"mass", _data->mass},
 		{"linearDamping", _data->linearDamping},
 		{"angularDamping", _data->angularDamping},
@@ -276,8 +279,9 @@ void RigidBodyComponent::deserialize(nlohmann::json& json) {
 	auto angularDamping = json["angularDamping"].get<float>();
 	auto friction = json["friction"].get<float>();
 	auto rollingFriction = json["rollingFriction"].get<float>();
+	auto collisionType = static_cast<Hydra::System::BulletPhysicsSystem::CollisionTypes>(json["collisionType"].get<int>());
 
-	_data = new Data(entityID, collisionShape, serializeShape, std::move(shape), mass, linearDamping, angularDamping, friction, rollingFriction);
+	_data = new Data(entityID, collisionShape, serializeShape, std::move(shape), collisionType, mass, linearDamping, angularDamping, friction, rollingFriction);
 }
 
 void RigidBodyComponent::registerUI() {

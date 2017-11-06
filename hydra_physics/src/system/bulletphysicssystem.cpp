@@ -42,7 +42,31 @@ BulletPhysicsSystem::~BulletPhysicsSystem() { delete _data; }
 void BulletPhysicsSystem::enable(Hydra::Component::RigidBodyComponent* component) {
 	component->_handler = this;
 	// Make so addRigidbody takes in collision filter group and what that group collides with.
-	_data->dynamicsWorld->addRigidBody(static_cast<btRigidBody*>(component->getRigidBody()));
+	btRigidBody* rigidBody = static_cast<btRigidBody*>(component->getRigidBody());
+	switch (rigidBody->getUserIndex2())
+	{
+	case CollisionTypes::COLL_PLAYER:
+		_data->dynamicsWorld->addRigidBody(rigidBody, COLL_PLAYER, CollisionCondition::playerCollidesWith);
+		break;
+	case CollisionTypes::COLL_ENEMY:
+		_data->dynamicsWorld->addRigidBody(rigidBody, COLL_ENEMY, CollisionCondition::enemyCollidesWith);
+		break;
+	case CollisionTypes::COLL_WALL:
+		_data->dynamicsWorld->addRigidBody(rigidBody, COLL_WALL, CollisionCondition::wallCollidesWith);
+		break;
+	case CollisionTypes::COLL_PLAYER_PROJECTILE:
+		_data->dynamicsWorld->addRigidBody(rigidBody, COLL_PLAYER_PROJECTILE, CollisionCondition::playerProjCollidesWith);
+		break;
+	case CollisionTypes::COLL_ENEMY_PROJECTILE:
+		_data->dynamicsWorld->addRigidBody(rigidBody, COLL_ENEMY_PROJECTILE, CollisionCondition::enemyProjCollidesWith);
+		break;
+	case CollisionTypes::COLL_MISC_OBJECT:
+		_data->dynamicsWorld->addRigidBody(rigidBody, COLL_MISC_OBJECT, CollisionCondition::miscObjectCollidesWith);
+		break;
+	default:
+		_data->dynamicsWorld->addRigidBody(rigidBody, COLL_NOTHING, COLL_NOTHING);
+		break;
+	}
 }
 
 void BulletPhysicsSystem::disable(Hydra::Component::RigidBodyComponent* component) {
@@ -76,8 +100,9 @@ void BulletPhysicsSystem::tick(float delta) {
 		int numContacts = contactManifold->getNumContacts();
 		for (int j = 0; j < numContacts; j++) {
 			btManifoldPoint& pt = contactManifold->getContactPoint(j);
-			btVector3 collPosA = pt.getPositionWorldOnA();
-			_spawnParticleEmitterAt(collPosA);
+			btVector3 collPosB = pt.getPositionWorldOnB();
+			btVector3 normalOnB = pt.m_normalWorldOnB;
+			_spawnParticleEmitterAt(collPosB, normalOnB);
 			
 			// Set the bullet entity to dead.
 			World::World::World::getEntity(entityBC->entityID)->dead = true;
@@ -87,7 +112,7 @@ void BulletPhysicsSystem::tick(float delta) {
 	}
 }
 
-void BulletPhysicsSystem::_spawnParticleEmitterAt(btVector3 pos) {
+void BulletPhysicsSystem::_spawnParticleEmitterAt(btVector3 pos, btVector3 normal) {
 	auto pE = Hydra::World::World::newEntity("Collision Particle Spawner", Hydra::World::World::rootID);
 
 	pE->addComponent<Hydra::Component::MeshComponent>()->loadMesh("QUAD");
@@ -97,11 +122,14 @@ void BulletPhysicsSystem::_spawnParticleEmitterAt(btVector3 pos) {
 
 	auto pEPC = pE->addComponent<Hydra::Component::ParticleComponent>();
 	pEPC->delay = 1.0f / 1.0f;
-	pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::Knas;
+	pEPC->accumulator = 5.0f;
+	pEPC->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::Explosion;
+	pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::BogdanDeluxe;
+	pEPC->optionalNormal = glm::vec3(normal.getX(), normal.getY(), normal.getZ());
 
 	auto pELC = pE->addComponent<Hydra::Component::LifeComponent>();
-	pELC->maxHP = 3;
-	pELC->health = 3;
+	pELC->maxHP = 0.9f;
+	pELC->health = 0.9f;
 }
 
 void BulletPhysicsSystem::registerUI() {}

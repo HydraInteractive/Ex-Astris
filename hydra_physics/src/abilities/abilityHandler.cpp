@@ -41,7 +41,7 @@ void AbilityHandler::grenadeAbility(Hydra::World::Entity* abilitiesEntity, glm::
 	auto bulletPhysWorld = static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem());
 
 	auto rbc = grenade->addComponent<Hydra::Component::RigidBodyComponent>();
-	rbc->createBox(glm::vec3(0.5,0.5,0.5), 0.5f);
+	rbc->createBox(glm::vec3(0.5,0.5,0.5), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE, 0.5f);
 	auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
 	bulletPhysWorld->enable(rbc.get());
 	rigidBody->applyCentralForce(btVector3(direction.x, direction.y, direction.z) * 2000);
