@@ -59,4 +59,5 @@ protected:
 	Node* _root;
 	std::string _getExecutableDir();
 	std::vector<std::string> extWhitelist;
+	void openInExplorer(LPCTSTR filename);
 };

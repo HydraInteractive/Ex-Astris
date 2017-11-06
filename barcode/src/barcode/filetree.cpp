@@ -98,6 +98,14 @@ std::string FileTree::Node::name()
 {
 	return _name;
 }
+void FileTree::openInExplorer(LPCTSTR filename)
+{
+	ITEMIDLIST *pidl = ILCreateFromPath(filename);
+	if (pidl) {
+		SHOpenFolderAndSelectItems(pidl, 0, 0, 0);
+		ILFree(pidl);
+	}
+}
 //Returns the file extention from a filename
 std::string FileTree::Node::getExt()
 {
