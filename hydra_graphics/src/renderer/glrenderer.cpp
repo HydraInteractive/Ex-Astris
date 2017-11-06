@@ -373,23 +373,26 @@ public:
 		ImGui::Checkbox("", &useSnap);
 		ImGui::SameLine();
 
-		glm::vec3* snap;
+		glm::vec3* snap = nullptr;
 		switch (currentOperation) {
-		case ImGuizmo::TRANSLATE:
+		case ImGuizmo::TRANSLATE: {
 			static glm::vec3 snapTranslation = glm::vec3(0.1);
 			snap = &snapTranslation;
 			ImGui::InputFloat3("Snap", glm::value_ptr(snapTranslation));
 			break;
-		case ImGuizmo::ROTATE:
+		}
+		case ImGuizmo::ROTATE: {
 			static glm::vec3 snapRotation = glm::vec3(0.1);
 			snap = &snapRotation;
 			ImGui::InputFloat("Angle Snap", glm::value_ptr(snapRotation));
 			break;
-		case ImGuizmo::SCALE:
+		}
+		case ImGuizmo::SCALE: {
 			/*static glm::vec3 snapScale = glm::vec3(0.1);
 				snap = &snapScale;
 				ImGui::InputFloat("Scale Snap", glm::value_ptr(snapScale));*/
 			break;
+		}
 		}
 		ImGui::End();
 
