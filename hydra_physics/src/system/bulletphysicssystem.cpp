@@ -124,7 +124,7 @@ void BulletPhysicsSystem::_spawnParticleEmitterAt(btVector3 pos, btVector3 norma
 	pEPC->delay = 1.0f / 1.0f;
 	pEPC->accumulator = 5.0f;
 	pEPC->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::Explosion;
-	pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::BogdanDeluxe;
+	pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::Blood;
 	pEPC->optionalNormal = glm::vec3(normal.getX(), normal.getY(), normal.getZ());
 
 	auto pELC = pE->addComponent<Hydra::Component::LifeComponent>();

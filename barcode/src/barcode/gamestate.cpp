@@ -287,6 +287,7 @@ namespace Barcode {
 		_spawnerSystem.tick(delta);
 		_soundFxSystem.tick(delta);
 		_perkSystem.tick(delta);
+		_lifeSystem.tick(delta);
 
 		const glm::vec3 cameraPos = _cc->position;
 
@@ -884,25 +885,25 @@ namespace Barcode {
 			}
 		}
 
-		{
-			auto alienEntity = world::newEntity("Alien1", world::root());
-			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
-			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
-			a->damage = 4;
-			a->behaviour->originalRange = 4;
-			a->radius = 2;
-
-			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
-			h->maxHP = 80;
-			h->health = 80;
-			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
-			m->movementSpeed = 8.0f;
-			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ 10, 0, 20 };
-			t->scale = glm::vec3{ 2,2,2 };
-
-			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
-		}
+		//{
+		//	auto alienEntity = world::newEntity("Alien1", world::root());
+		//	auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+		//	a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+		//	a->damage = 4;
+		//	a->behaviour->originalRange = 4;
+		//	a->radius = 2;
+		//
+		//	auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+		//	h->maxHP = 80;
+		//	h->health = 80;
+		//	auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+		//	m->movementSpeed = 8.0f;
+		//	auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+		//	t->position = glm::vec3{ 10, 0, 20 };
+		//	t->scale = glm::vec3{ 2,2,2 };
+		//
+		//	alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
+		//}
 
 		{
 			auto pointLight1 = world::newEntity("Pointlight1", world::root());
