@@ -7,7 +7,6 @@
 * Authors:
 *  - Dan Printzell
 */
-
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
 #include <btBulletDynamicsCommon.h>
@@ -30,7 +29,7 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 		return;
 
 	if (bulletSpread == 0.0f) {
-		auto bullet = world::newEntity("Bullet", world::root());
+		auto bullet = world::newEntity("Bullet", world::rootID);
 		bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SmallCargo.mATTIC");
 
 		auto b = bullet->addComponent<Hydra::Component::BulletComponent>();
@@ -55,7 +54,7 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 		rigidBody->setGravity(btVector3(0, 0, 0));
 	} else {
 		for (int i = 0; i < bulletsPerShot; i++) {
-			auto bullet = world::newEntity("Bullet", world::root());
+			auto bullet = world::newEntity("Bullet", world::rootID);
 			bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SmallCargo.mATTIC");
 
 			float phi = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
