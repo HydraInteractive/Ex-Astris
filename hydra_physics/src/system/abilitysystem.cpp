@@ -23,18 +23,11 @@ void AbilitySystem::tick(float delta) {
 		auto g = entities[i]->getComponent<Hydra::Component::GrenadeComponent>();
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 		auto s = entities[i]->getComponent<Hydra::Component::SoundFxComponent>();
-		switch (g->perkType)
-		{
-		case PERK_GRENADE: {
-			g->detonateTimer -= delta;
+		g->detonateTimer -= delta;
 
-			if (g->detonateTimer <= 0 && !g->isExploding) {
-				s->soundsToPlay.push_back("assets/sounds/piano.wav");
-				g->isExploding = true;
-			}
-		} break;
-		default:
-			break;
+		if (g->detonateTimer <= 0 && !g->isExploding) {
+			s->soundsToPlay.push_back("assets/sounds/piano.wav");
+			g->isExploding = true;
 		}
 	}
 

@@ -16,19 +16,19 @@
 
 using namespace Hydra::World;
 
-enum BulletType
-{
+enum BulletType {
 	BULLETTYPE_NORMAL,
 	BULLETTYPE_MAGNETIC,
 	BULLETTYPE_HOMING
 };
 
+
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API BulletComponent final : public IComponent<BulletComponent, ComponentBits::Bullet> {
-		BulletType bulletType = BULLETTYPE_HOMING;
-		glm::vec3 direction;
-		float velocity;
-		float deleteTimer = 10;
+		 BulletType bulletType = BULLETTYPE_HOMING;
+		 glm::vec3 direction;
+		 float velocity;
+		 float deleteTimer = 10;
 
 		~BulletComponent() final;
 

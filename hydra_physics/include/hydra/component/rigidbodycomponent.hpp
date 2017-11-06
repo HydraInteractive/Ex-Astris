@@ -21,7 +21,7 @@ namespace Hydra::Component {
 		friend class Hydra::System::BulletPhysicsSystem;
 		~RigidBodyComponent() final;
 
-#define DEFAULT_PARAMS float mass = 0, float linearDamping = 0, float angularDamping = 0, float friction = 0, float rollingFriction = 0
+#define DEFAULT_PARAMS Hydra::System::BulletPhysicsSystem::CollisionTypes collType = Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_NOTHING, float mass = 0, float linearDamping = 0, float angularDamping = 0, float friction = 0, float rollingFriction = 0
 		void createBox(const glm::vec3& halfExtents, DEFAULT_PARAMS);
 		void createStaticPlane(const glm::vec3& planeNormal, float planeConstant, DEFAULT_PARAMS);
 		void createSphere(float radius, DEFAULT_PARAMS);
@@ -43,6 +43,7 @@ namespace Hydra::Component {
 		void registerUI() final;
 
 	private:
+		Hydra::System::BulletPhysicsSystem::CollisionTypes doa;
 		struct Data;
 		Data* _data;
 		Hydra::System::BulletPhysicsSystem* _handler;

@@ -40,10 +40,6 @@ void PlayerSystem::tick(float delta) {
 
 		//player->activeBuffs.onTick(life->maxHP, life->health);
 
-		if (!life->statusCheck())
-			player->isDead = true;
-
-
 		glm::mat4 rotation = glm::mat4_cast(camera->orientation);
 		movement->direction = -glm::vec3(glm::vec4{ 0, 0, 1, 0 } *rotation);
 

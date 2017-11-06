@@ -14,7 +14,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{B7CE4AD1-7A40-44C6-B3B2-87072101411A}</ProjectGuid>
     <RootNamespace>hydra_physics</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -110,6 +110,7 @@
     <ClCompile Include="src\pathing\pathfinding.cpp" />
     <ClCompile Include="src\system\abilitysystem.cpp" />
     <ClCompile Include="src\system\aisystem.cpp" />
+    <ClCompile Include="src\system\lifesystem.cpp" />
     <ClCompile Include="src\system\perksystem.cpp" />
     <ClCompile Include="src\system\bulletphysicssystem.cpp" />
     <ClCompile Include="src\system\bulletsystem.cpp" />
@@ -136,9 +137,10 @@
     <ClInclude Include="include\hydra\pathing\SearchCell.hpp" />
     <ClInclude Include="include\hydra\system\abilitysystem.hpp" />
     <ClInclude Include="include\hydra\system\aisystem.hpp" />
+    <ClInclude Include="include\hydra\system\perksystem.hpp" />
     <ClInclude Include="include\hydra\system\bulletphysicssystem.hpp" />
     <ClInclude Include="include\hydra\system\bulletsystem.hpp" />
-    <ClInclude Include="include\hydra\system\perksystem.hpp" />
+    <ClInclude Include="include\hydra\system\lifesystem.hpp" />
     <ClInclude Include="include\hydra\system\playersystem.hpp" />
     <ClInclude Include="include\hydra\system\spawnersystem.hpp" />
   </ItemGroup>

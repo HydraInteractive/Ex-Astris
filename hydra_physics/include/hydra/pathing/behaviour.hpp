@@ -65,7 +65,6 @@ protected:
 	ComponentSet thisEnemy;
 	ComponentSet targetPlayer;
 
-
 	std::shared_ptr<PathFinding> pathFinding = std::make_shared<PathFinding>();
 
 	virtual bool refreshRequiredComponents();
@@ -76,19 +75,18 @@ protected:
 	virtual void executeTransforms();
 };
 
-class HYDRA_PHYSICS_API AlienBehaviour : public Behaviour
+class HYDRA_PHYSICS_API AlienBehaviour final : public Behaviour
 {
 public:
 	AlienBehaviour(std::shared_ptr<Hydra::World::Entity> enemy);
 	AlienBehaviour();
 	~AlienBehaviour();
 	void run(float dt);
-	unsigned int attackingState(float dt);
-private:
 
+	unsigned int attackingState(float dt) final;
 };
 
-class HYDRA_PHYSICS_API RobotBehaviour : public Behaviour
+class HYDRA_PHYSICS_API RobotBehaviour final : public Behaviour
 {
 public:
 	RobotBehaviour(std::shared_ptr<Hydra::World::Entity> enemy);
@@ -96,12 +94,12 @@ public:
 	~RobotBehaviour();
 	void run(float dt);
 
-	unsigned int attackingState(float dt);
+	unsigned int attackingState(float dt) final;
 private:
-	bool refreshRequiredComponents();
+	bool refreshRequiredComponents() final;
 };
 
-class HYDRA_PHYSICS_API AlienBossBehaviour : public Behaviour
+class HYDRA_PHYSICS_API AlienBossBehaviour final : public Behaviour
 {
 public:
 	AlienBossBehaviour(std::shared_ptr<Hydra::World::Entity> enemy);
@@ -113,7 +111,6 @@ public:
 	int spawnAmount = 0;
 
 	void run(float dt);
-	unsigned int attackingState(float dt);
+	unsigned int attackingState(float dt) final;
 private:
-
 };

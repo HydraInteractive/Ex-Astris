@@ -26,6 +26,8 @@ namespace Hydra::Component {
 
 		bool ignoreParent = false;
 		bool dirty = true; // Set this to true whenever some is changed
+		size_t updateCounter = 0;
+		size_t parentUpdateCounter = 0;
 
 		~TransformComponent() final;
 
@@ -36,9 +38,7 @@ namespace Hydra::Component {
 		void registerUI() final;
 
 		inline glm::mat4 getMatrix() {
-			auto p = _getParentComponent();
-			if (dirty || (p && p->dirty))
-				_recalculateMatrix();
+			_recalculateMatrix();
 			return _matrix;
 		}
 
@@ -68,8 +68,8 @@ namespace Hydra::Component {
 			setRotation(glm::quat_cast(m));
 		}
 
-	private:
-		glm::mat4 _matrix;
+		static TransformComponent* _currentlyEditing;
+		glm::mat4 _matrix = glm::mat4(1);
 
 		void _recalculateMatrix();
 		std::shared_ptr<Hydra::Component::TransformComponent> _getParentComponent();

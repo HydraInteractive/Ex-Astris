@@ -49,6 +49,7 @@ namespace Hydra::Component {
 		EmitterBehaviour behaviour = EmitterBehaviour::PerSecond;
 		ParticleTexture texture = ParticleTexture::Fire;
 		Particle particles[MaxParticleAmount];
+		glm::vec3 optionalNormal;
 
 		~ParticleComponent() final;
 

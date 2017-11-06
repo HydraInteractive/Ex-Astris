@@ -28,6 +28,7 @@ void BulletComponent::serialize(nlohmann::json& json) const {
 void BulletComponent::deserialize(nlohmann::json& json) {
 	auto& dir = json["direction"];
 	direction = glm::vec3{ dir[0].get<float>(), dir[1].get<float>(), dir[2].get<float>() };
+
 	velocity = json["velocity"].get<float>();
 }
 

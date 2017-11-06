@@ -46,6 +46,7 @@
 #include <imgui/imgui.h>
 #include <barcode/ImporterMenu.hpp>
 #include <barcode/ExporterMenu.hpp>
+#include <barcode/filetree.hpp>
 
 #include <hydra/io/input.hpp>
 
@@ -68,8 +69,8 @@ namespace Barcode {
 		inline Hydra::World::ISystem* getPhysicsSystem() final { return &_physicsSystem; }
 
 	private:
-		ImporterMenu* _importerMenu;
-		ExporterMenu* _exporterMenu;
+		FileTree* _importerMenu;
+		FileTree* _exporterMenu;
 
 		bool _showImporter = false;
 		bool _showExporter = false;

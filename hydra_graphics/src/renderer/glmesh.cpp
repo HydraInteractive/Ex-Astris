@@ -108,6 +108,7 @@ public:
 	size_t getIndicesCount() const final { return _indicesCount; }
 	float& getAnimationCounter() { return _animationCounter; }
 
+
 private:
 	std::string _file = "(null)";
 	Material _material;
@@ -464,6 +465,7 @@ private:
 			skeleton[indexNmr].push_back(info);
 		}
 	}
+
 };
 
 std::unique_ptr<IMesh> GLMesh::create(const std::string& file, IRenderer* renderer) {
