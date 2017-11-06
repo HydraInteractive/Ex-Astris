@@ -321,6 +321,7 @@ public:
 		}
 
 		drawObjPtr = drawObj.get();
+		*drawObjPtr = DrawObject();
 		_activeDrawObjects.push_back(std::move(drawObj));
 		return drawObjPtr;
 	}

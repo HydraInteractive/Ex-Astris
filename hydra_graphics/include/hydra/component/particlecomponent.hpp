@@ -45,9 +45,9 @@ namespace Hydra::Component {
 		static constexpr size_t MaxParticleAmount = 256;
 
 		float delay = 1; // 0.1 = 10 Particle/Second
-		float accumulator = 0;
+		float accumulator = 256;
 		EmitterBehaviour behaviour = EmitterBehaviour::PerSecond;
-		ParticleTexture texture = ParticleTexture::Blood;
+		ParticleTexture texture = ParticleTexture::Fire;
 		Particle particles[MaxParticleAmount];
 		glm::vec3 optionalNormal;
 

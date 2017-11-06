@@ -18,6 +18,7 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API WeaponComponent final : public IComponent<WeaponComponent, ComponentBits::Weapon> {
+		BulletType bulletType = BULLETTYPE_NORMAL;
 		float fireRateTimer = 0;
 		float fireRateRPM = 600;
 		float bulletSize = 0.5f;
@@ -33,7 +34,5 @@ namespace Hydra::Component {
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
-	private:
-		std::shared_ptr<Hydra::World::Entity> _bullets; //TODO: Remove?
 	};
 };

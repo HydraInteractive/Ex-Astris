@@ -568,13 +568,13 @@ namespace Barcode {
 				kv.second.clear();
 				_particleBatch.batch.textureInfo.clear();
 			}
-
-			for (auto& pc : Hydra::Component::ParticleComponent::componentHandler->getActiveComponents()) {
-				auto p = static_cast<Hydra::Component::ParticleComponent*>(pc.get());
-				auto e = world::getEntity(p->entityID);
-				auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>();
-				auto t = e->getComponent<Hydra::Component::TransformComponent>();
-				auto& particles = p->particles;
+			std::vector<std::shared_ptr<Entity>> emitters;
+			world::getEntitiesWithComponents<Hydra::Component::ParticleComponent>(emitters);
+			for (auto& ee : emitters) { // Emitter Entities
+				auto pc = ee->getComponent<Hydra::Component::ParticleComponent>();
+				auto drawObj = ee->getComponent<Hydra::Component::DrawObjectComponent>();
+				auto t = ee->getComponent<Hydra::Component::TransformComponent>();
+				auto& particles = pc->particles;
 				for (auto& particle : particles) {
 					if (particle.life <= 0)
 						continue;
@@ -885,26 +885,6 @@ namespace Barcode {
 			}
 		}
 
-		//{
-		//	auto alienEntity = world::newEntity("Alien1", world::root());
-		//	auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
-		//	a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
-		//	a->damage = 4;
-		//	a->behaviour->originalRange = 4;
-		//	a->radius = 2;
-		//
-		//	auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
-		//	h->maxHP = 80;
-		//	h->health = 80;
-		//	auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
-		//	m->movementSpeed = 8.0f;
-		//	auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
-		//	t->position = glm::vec3{ 10, 0, 20 };
-		//	t->scale = glm::vec3{ 2,2,2 };
-		//
-		//	alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
-		//}
-
 		{
 			auto pointLight1 = world::newEntity("Pointlight1", world::root());
 			pointLight1->addComponent<Hydra::Component::TransformComponent>();
@@ -965,10 +945,10 @@ namespace Barcode {
 			t->scale = glm::vec3(40, 40, 40);
 			t->rotation = glm::quat(0, 0, 0, 1);
 		} {
-			auto floor = world::newEntity("Floor", world::root());
+			/*auto floor = world::newEntity("Floor", world::root());
 			floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3(14, -8, 9);
+			t->position = glm::vec3(14, -8, 9);*/
 		}
 
 		{
