@@ -12,6 +12,9 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
 
 #include <imgui/imgui.h>
 
@@ -20,7 +23,12 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-TransformComponent::~TransformComponent() {}
+TransformComponent* TransformComponent::_currentlyEditing = nullptr;
+
+TransformComponent::~TransformComponent() {
+	if (_currentlyEditing == this)
+		_currentlyEditing = nullptr;
+}
 
 void TransformComponent::serialize(nlohmann::json& json) const {
 	json = {
@@ -49,11 +57,19 @@ void TransformComponent::registerUI() {
 	dirty |= ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.01f);
 	dirty |= ImGui::DragFloat4("Rotation", glm::value_ptr(rotation), 0.01f);
 	dirty |= ImGui::Checkbox("Ignore parent", &ignoreParent);
+
+	if (ImGui::Button("Enable Guizmo"))
+		_currentlyEditing = this;
 }
 
 void TransformComponent::_recalculateMatrix() {
 	auto p = _getParentComponent();
+	if (!dirty && !(p && (p->dirty || p->updateCounter != parentUpdateCounter)))
+		return;
+	updateCounter++;
 	glm::mat4 parent = p ? p->getMatrix() : glm::mat4(1);
+	if (p)
+		parentUpdateCounter = p->updateCounter;
 	dirty = false;
 
 	_matrix = parent * (glm::translate(position) * glm::mat4_cast(glm::normalize(rotation)) * glm::scale(scale));

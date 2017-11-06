@@ -21,14 +21,14 @@ using namespace Hydra::View;
 
 class SDLViewImpl final : public IView {
 public:
-	SDLViewImpl() {
+	SDLViewImpl(const std::string& title) {
 		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER);
 		Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 		_size = glm::ivec2(1920, 1080);
 		_wantToClose = false;
 		_fullScreen = false;
 
-		_window = SDL_CreateWindow("SDL2 window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _size.x, _size.y, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+		_window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _size.x, _size.y, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 	}
 
 	~SDLViewImpl() final {
@@ -100,7 +100,7 @@ public:
 	// IRenderTarget
 	void finalize() final {
 		SDL_GL_SwapWindow(_window);
-		glFlush();
+		// glFlush();
 	}
 
 private:
@@ -113,6 +113,6 @@ private:
 };
 
 
-std::unique_ptr<IView> SDLView::create() {
-	return std::unique_ptr<IView>(new ::SDLViewImpl());
+std::unique_ptr<IView> SDLView::create(const std::string& title) {
+	return std::unique_ptr<IView>(new ::SDLViewImpl(title));
 }

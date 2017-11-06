@@ -41,6 +41,38 @@ namespace Barcode {
 			Hydra::Renderer::Batch batch;
 		};
 
+		enum class Menu : uint8_t {
+			none = 0,
+			play,
+			create,
+			options
+		};
+
+		union SubMenu {
+			uint8_t data;
+			enum class Play : uint8_t {
+				none = 0,
+				coop,
+				solo
+			} play;
+			enum class Create : uint8_t {
+				none = 0,
+				createRoom,
+				view
+			} create;
+			enum class Options : uint8_t {
+				none = 0,
+				visual,
+				gameplay,
+				sound
+			} options;
+
+			SubMenu(uint8_t d) : data(d) {}
+			SubMenu(Play p) : play(p) {}
+			SubMenu(Create c) : create(c) {}
+			SubMenu(Options o) : options(o) {}
+		};
+
 		Hydra::IEngine* _engine;
 		std::unique_ptr<Hydra::IO::ITextureLoader> _textureLoader;
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
@@ -48,11 +80,24 @@ namespace Barcode {
 
 		RenderBatch _viewBatch;
 
+		Menu _menu = Menu::none;
+		SubMenu _submenu = SubMenu{0};
+
 		void _initSystem();
 		void _initWorld();
 
-		int menu = 0;
-		int subMenu = 0;
+		void _playMenu();
+		void _createMenu();
+		void _optionsMenu();
+
+		// TODO: FIX!
+		int oneTenthX;
+		int oneThirdX;
+		int oneEightY;
+		int oneThirdY;
+		int oneHalfY;
+		int twoFiftsY;
+		int twoThirdY;
 	};
 	//bool ImageAnimButton(ImTextureID user_texture_id, ImTextureID user_texture_id2, const ImVec2 & size, const ImVec2 & uv0, const ImVec2 & uv1, const ImVec2 & uv2, const ImVec2 & uv3, int frame_padding, const ImVec4 & bg_col, const ImVec4 & tint_col);
 }

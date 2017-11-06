@@ -128,12 +128,12 @@ namespace Hydra::Renderer {
 
 		virtual Material& getMaterial() = 0;
 		virtual bool hasAnimation() = 0;
-		virtual glm::mat4 getTransformationMatrices(int joint) = 0;
-		virtual int getNrOfJoints() = 0;
+		virtual glm::mat4 getTransformationMatrices(int currAnimIdx, int joint, int currentFrame) = 0;
+		virtual int getNrOfJoints(int currAnimIdx) = 0;
 		virtual int getCurrentKeyframe() = 0;
-		virtual int getMaxFramesForAnimation() = 0;
+		virtual int getMaxFramesForAnimation(int currAnimIdx) = 0;
 		virtual int getCurrentAnimationIndex() = 0;
-		virtual int& getAnimationCounter() = 0;
+		virtual float& getAnimationCounter() = 0;
 		virtual void setCurrentKeyframe(int frame) = 0;
 		virtual void setAnimationIndex(int index) = 0;
 		virtual uint32_t getID() const = 0;
@@ -173,6 +173,16 @@ namespace Hydra::Renderer {
 		std::map<IMesh*, std::vector<glm::mat4 /* Model matrix */>> objects;
 	};
 
+	struct HYDRA_BASE_API AnimationBatch {
+		glm::vec4 clearColor;
+		ClearFlags clearFlags;
+		IRenderTarget* renderTarget;
+		IPipeline* pipeline;
+		std::map<IMesh*, std::vector<glm::mat4 /* Model matrix */>> objects;
+		std::map<IMesh*, std::vector<int>> currentFrames;
+		std::map<IMesh*, std::vector<int>> currAnimIndices;
+	};
+
 	struct HYDRA_BASE_API ParticleBatch {
 		glm::vec4 clearColor;
 		ClearFlags clearFlags;
@@ -187,13 +197,16 @@ namespace Hydra::Renderer {
 		virtual ~IRenderer() = 0;
 
 		virtual void render(Batch& batch) = 0;
-		virtual void renderAnimation(Batch& batch) = 0;
+		virtual void renderAnimation(AnimationBatch& batch) = 0;
 		virtual void render(ParticleBatch& batch) = 0;
 		virtual void renderShadows(Batch& batch) = 0;
+		virtual void renderShadows(AnimationBatch& batch) = 0;
 		// Note: this will ignore batch.objects
 		virtual void postProcessing(Batch& batch) = 0;
 
 		virtual DrawObject* aquireDrawObject() = 0;
+
+		virtual void showGuizmo() = 0;
 
 		virtual const std::vector<std::unique_ptr<DrawObject>>& activeDrawObjects() = 0;
 
