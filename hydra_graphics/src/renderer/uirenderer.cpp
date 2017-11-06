@@ -21,6 +21,8 @@
 #include <hydra/ext/ram.hpp>
 #include <hydra/ext/vram.hpp>
 
+#include <hydra/component/transformcomponent.hpp>
+
 #include <iomanip>
 #include <sstream>
 
@@ -213,6 +215,7 @@ public:
 
 	void newFrame() final {
 		ImGui_ImplSdlGL3_NewFrame(_window);
+		ImGuizmo::BeginFrame();
 	}
 
 	void reset() final {
@@ -338,6 +341,8 @@ public:
 			}
 		}
 
+		Hydra::Component::TransformComponent::showGuizmo();
+
 		if (_logWindow)
 			_log->render(&_logWindow);
 
@@ -367,7 +372,7 @@ public:
 
 	bool usingKeyboard() final { return ImGui::GetIO().WantCaptureKeyboard; }
 
-	bool isDraging() final { return ImGui::IsMouseDragging(); }
+	bool isDraging() final { return ImGui::IsMouseDragging() || ImGuizmo::IsUsing(); }
 
 	void renderEntity(Entity* entity) {
 		if (!entity)
