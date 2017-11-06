@@ -31,6 +31,7 @@ public:
 		_currentFrame = 1;
 		_currentAnimationIndex = 0;
 		_animationCounter = 0;
+		_animDataUploaded = false;
 		_loadATTICModel(file.c_str(), modelMatrixBuffer);
 	}
 
@@ -95,17 +96,18 @@ public:
 	Material& getMaterial() final { return _material; }
 
 	bool hasAnimation() final { return _meshHasAnimation; }
-	glm::mat4 getTransformationMatrices(int joint) final { return _finishedMatrices[_currentAnimationIndex][joint]->finishedTransformMat[_currentFrame - 1]; }
-	int getNrOfJoints() final { return _finishedMatrices[_currentAnimationIndex][0]->nrOfClusters; }
+	glm::mat4 getTransformationMatrices(int currAnimIdx, int joint, int currentFrame) final { return _finishedMatrices[currAnimIdx][joint]->finishedTransformMat[currentFrame - 1]; }
+	int getNrOfJoints(int currAnimIdx) final { return _finishedMatrices[currAnimIdx][0]->nrOfClusters; }
 	int getCurrentKeyframe() final { return _currentFrame; }
-	int getMaxFramesForAnimation() final { return _finishedMatrices[_currentAnimationIndex][0]->nrOfKeys; }
+	int getMaxFramesForAnimation(int currAnimIdx) final { return _finishedMatrices[currAnimIdx][0]->nrOfKeys; }
 	int getCurrentAnimationIndex() final { return _currentAnimationIndex; }
 	void setCurrentKeyframe(int frame) { _currentFrame = frame; }
 	void setAnimationIndex(int index) { _currentAnimationIndex = index; }
 
 	GLuint getID() const final { return _vao; }
 	size_t getIndicesCount() const final { return _indicesCount; }
-	int& getAnimationCounter() { return _animationCounter; }
+	float& getAnimationCounter() { return _animationCounter; }
+
 
 private:
 	std::string _file = "(null)";
@@ -122,7 +124,8 @@ private:
 	int _maxFramesForAnimation;
 	int _currentFrame;
 	int _currentAnimationIndex;
-	int _animationCounter;
+	float _animationCounter;
+	bool _animDataUploaded;
 
 	void _makeBuffers() {
 		glGenVertexArrays(1, &_vao);
