@@ -36,7 +36,7 @@ public:
 		bool isAllowedFile = false;
 
 		Node();
-		Node(std::string path, Node* parent = nullptr, bool isFile = false);
+		Node(std::string path, const std::vector<std::string>& extWhitelist, Node* parent = nullptr, bool isFile = false);
 		~Node();
 
 		std::string name();
@@ -53,9 +53,10 @@ public:
 		std::vector<Node*> _files;
 		Node* _parent;
 
-		void _getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders) const;
+		void _getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders, const std::vector<std::string> &extWhitelist) const;
 	};
 protected:
 	Node* _root;
 	std::string _getExecutableDir();
+	std::vector<std::string> extWhitelist;
 };

@@ -4,6 +4,7 @@
 using world = Hydra::World::World; 
 ExporterMenu::ExporterMenu() : FileTree()
 {
+	this->extWhitelist = { ".room", ".ROOM" };
 	refresh("/assets");
 }
 ExporterMenu::~ExporterMenu()

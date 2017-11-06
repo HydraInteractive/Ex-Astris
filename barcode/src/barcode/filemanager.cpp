@@ -6,7 +6,6 @@ FileTree::FileTree()
 {
 	this->executableDir = _getExecutableDir();
 	this->_root = nullptr;
-	refresh("/assets");
 }
 
 FileTree::~FileTree()
@@ -20,8 +19,7 @@ void FileTree::refresh(std::string relativePath)
 	{
 		delete _root;
 	}
-	_root = new Node(executableDir + relativePath);
-	//_root->clean();
+	_root = new Node(executableDir + relativePath, extWhitelist);
 }
 std::shared_ptr<Hydra::World::Entity> FileTree::getRoomEntity()
 {
@@ -63,7 +61,7 @@ FileTree::Node::Node()
 	this->_files = std::vector<Node*>(0);
 	this->_parent = nullptr;
 }
-FileTree::Node::Node(std::string path, Node* parent, bool isFile)
+FileTree::Node::Node(std::string path, const std::vector<std::string>& extWhitelist, Node* parent, bool isFile)
 {
 	this->_name = pathToName(path);
 	this->_subfolders = std::vector<Node*>();
@@ -73,14 +71,14 @@ FileTree::Node::Node(std::string path, Node* parent, bool isFile)
 
 	std::vector<std::string> inFiles;
 	std::vector<std::string> inFolders;
-	_getContentsOfDir(path, inFiles, inFolders);
+	_getContentsOfDir(path, inFiles, inFolders, extWhitelist);
 	for (size_t i = 0; i < inFolders.size(); i++)
 	{
-		this->_subfolders.push_back(new Node(inFolders[i], this));
+		this->_subfolders.push_back(new Node(inFolders[i], extWhitelist, this));
 	}
 	for (size_t i = 0; i < inFiles.size(); i++)
 	{
-		this->_files.push_back(new Node(inFiles[i], this, true));
+		this->_files.push_back(new Node(inFiles[i], extWhitelist, this, true));
 	}
 }
 FileTree::Node::~Node()
@@ -169,7 +167,7 @@ void FileTree::Node::clean()
 	}
 }
 //TODO: Add file ext whitelist
-void FileTree::Node::_getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders) const
+void FileTree::Node::_getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders, const std::vector<std::string> &extWhitelist) const
 {
 #ifdef _WIN32 ///Windows
 	HANDLE dir;
@@ -178,8 +176,8 @@ void FileTree::Node::_getContentsOfDir(const std::string &directory, std::vector
 	if ((dir = FindFirstFile((directory + "/*").c_str(), &fileData)) == INVALID_HANDLE_VALUE)
 	{
 		//No files found or is not directory
-		files.empty();
-		folders.empty();
+		files.clear();
+		folders.clear();
 		return;
 	}
 	do
@@ -200,17 +198,12 @@ void FileTree::Node::_getContentsOfDir(const std::string &directory, std::vector
 		{
 			size_t i = fileName.find_last_of('.');
 			std::string fileExt = fileName.substr(i, fileName.size() - i);
-			if (fileExt == ".mATTIC")
+			for (size_t i = 0; i < extWhitelist.size(); i++)
 			{
-				files.push_back(fullFilePath);
-			}
-			else if (fileExt == ".json")
-			{
-				files.push_back(fullFilePath);
-			}
-			else if (fileExt == ".room")
-			{
-				files.push_back(fullFilePath);
+				if (fileExt == extWhitelist[i])
+				{
+					files.push_back(fullFilePath);
+				}
 			}
 		}
 	} while (FindNextFile(dir, &fileData));

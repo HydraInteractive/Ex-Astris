@@ -10,7 +10,9 @@ ImporterMenu::ImporterMenu() : FileTree()
 	this->executableDir = _getExecutableDir();
 	this->_root = nullptr;
 	this->_newEntityClicked = true;
+	this->extWhitelist = {".mATTIC", ".mattic", ".room", ".ROOM"};
 	refresh("/assets");
+	_root->clean();
 }
 ImporterMenu::~ImporterMenu()
 {
