@@ -45,7 +45,8 @@ namespace Hydra::Component {
 		Movement = BIT(16),
 		Room = BIT(17),
 		Spawner = BIT(18),
-		SoundFx = BIT(19)
+		SoundFx = BIT(19),
+		Perk = BIT(20)
 	};
 #undef BIT
 
@@ -82,6 +83,7 @@ namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API RoomComponent;
 	struct HYDRA_PHYSICS_API SpawnerComponent;
 	struct HYDRA_SOUND_API SoundFxComponent;
+	struct HYDRA_PHYSICS_API PerkComponent;
 
 	using ComponentTypes = Hydra::Ext::TypeTuple<
 		Hydra::World::IComponent<TransformComponent, ComponentBits::Transform>,
@@ -103,7 +105,8 @@ namespace Hydra::Component {
 		Hydra::World::IComponent<MovementComponent, ComponentBits::Movement>,
 		Hydra::World::IComponent<RoomComponent, ComponentBits::Room>,
 		Hydra::World::IComponent<SpawnerComponent, ComponentBits::Spawner>,
-		Hydra::World::IComponent<SoundFxComponent, ComponentBits::SoundFx>
+		Hydra::World::IComponent<SoundFxComponent, ComponentBits::SoundFx>,
+		Hydra::World::IComponent<PerkComponent, ComponentBits::Perk>
 	>;
 };
 
@@ -280,6 +283,8 @@ namespace Hydra::World {
 	IComponentHandler* IComponent<Hydra::Component::SpawnerComponent, Hydra::Component::ComponentBits::Spawner>::componentHandler;
 	template <>
 	IComponentHandler* IComponent<Hydra::Component::SoundFxComponent, Hydra::Component::ComponentBits::SoundFx>::componentHandler;
+	template <>
+	IComponentHandler* IComponent<Hydra::Component::PerkComponent, Hydra::Component::ComponentBits::Perk>::componentHandler;
 #endif
 
 	template HYDRA_BASE_API struct IComponent<Hydra::Component::TransformComponent, Hydra::Component::ComponentBits::Transform>;
@@ -302,6 +307,7 @@ namespace Hydra::World {
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::RoomComponent, Hydra::Component::ComponentBits::Room>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::SpawnerComponent, Hydra::Component::ComponentBits::Spawner>;
 	template HYDRA_SOUND_API struct IComponent<Hydra::Component::SoundFxComponent, Hydra::Component::ComponentBits::SoundFx>;
+	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::PerkComponent, Hydra::Component::ComponentBits::Perk>;
 
 	struct HYDRA_BASE_API World final {
 		inline static std::shared_ptr<Entity>& root() {

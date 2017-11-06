@@ -26,6 +26,7 @@
 #include <hydra/component/pointlightcomponent.hpp>
 #include <hydra/component/spawnercomponent.hpp>
 #include <hydra/component/soundfxcomponent.hpp>
+#include <hydra/component/perkcomponent.hpp>
 
 #include <hydra/system/camerasystem.hpp>
 #include <hydra/system/lightsystem.hpp>
@@ -38,6 +39,7 @@
 #include <hydra/system/renderersystem.hpp>
 #include <hydra/system/spawnersystem.hpp>
 #include <hydra/system/soundfxsystem.hpp>
+#include <hydra/system/perksystem.hpp>
 
 #include <hydra/io/input.hpp>
 
@@ -67,6 +69,16 @@ namespace Barcode {
 			Hydra::Renderer::Batch batch;
 		};
 
+		struct AnimationRenderBatch final {
+			std::unique_ptr<Hydra::Renderer::IShader> vertexShader;
+			std::unique_ptr<Hydra::Renderer::IShader> geometryShader;
+			std::unique_ptr<Hydra::Renderer::IShader> fragmentShader;
+			std::unique_ptr<Hydra::Renderer::IPipeline> pipeline;
+
+			std::shared_ptr<Hydra::Renderer::IFramebuffer> output;
+			Hydra::Renderer::AnimationBatch batch;
+		};
+
 		struct ParticleRenderBatch final {
 			std::unique_ptr<Hydra::Renderer::IShader> vertexShader;
 			std::unique_ptr<Hydra::Renderer::IShader> geometryShader;
@@ -92,14 +104,16 @@ namespace Barcode {
 		Hydra::System::RendererSystem _rendererSystem;
 		Hydra::System::SpawnerSystem _spawnerSystem;
 		Hydra::System::SoundFxSystem _soundFxSystem;
+		Hydra::System::PerkSystem _perkSystem;
 
 		RenderBatch _geometryBatch; // First part of deferred rendering
-		RenderBatch _animationBatch; // AnimationBatch
+		AnimationRenderBatch _animationBatch; // AnimationBatch
 		RenderBatch _lightingBatch; // Second part of deferred rendering
 		RenderBatch _glowBatch; // Glow batch.
 		RenderBatch _viewBatch;
 		RenderBatch _postTestBatch;
 		RenderBatch _shadowBatch;
+		AnimationRenderBatch _shadowAnimationBatch;
 		RenderBatch _ssaoBatch;
 		RenderBatch _hudBatch;
 
