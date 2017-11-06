@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 #include <SDL2/SDL.h>
 #include <hydra/world/world.hpp>
+#include <hydra/component/perkcomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/meshcomponent.hpp>
 
@@ -17,9 +18,9 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API GrenadeComponent final : public IComponent<GrenadeComponent, ComponentBits::Grenade> {
-		glm::vec3 direction = glm::vec3{0, 0, 0};
-		float velocity = 50;
-		float fallingVelocity = 20;
+		Perk perkType = PERK_GRENADE;
+		bool isExploding = false;
+		float detonateTimer = 4;
 
 		~GrenadeComponent() final;
 

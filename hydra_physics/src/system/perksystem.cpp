@@ -30,11 +30,14 @@ void PerkSystem::tick(float delta) {
 }
 void PerkSystem::onPickUp(Perk newPerk, Entity* playerEntity) {
 	switch (newPerk){
-	case PERK_MAGNETICBULLEETS: {
-		break;
+	case PERK_MAGNETICBULLETS:	{
+		auto weapon = playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>();
+		weapon->bulletType = BULLETTYPE_MAGNETIC;
 	}
-	case PERK_HOMINGBULLETS: {
 		break;
+	case PERK_HOMINGBULLETS: {
+		auto weapon = playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>();
+		weapon->bulletType = BULLETTYPE_HOMING;
 	}
 	case PERK_GRENADE: {
 		auto player = playerEntity->getComponent<PlayerComponent>();
@@ -51,15 +54,8 @@ void PerkSystem::onPickUp(Perk newPerk, Entity* playerEntity) {
 	}
 }
 void PerkSystem::onTick(Perk activePerk) {
-	switch (activePerk) {
-	case PERK_MAGNETICBULLEETS:
-		break;
-	case PERK_HOMINGBULLETS:
-		break;
-	case PERK_GRENADE:
-		break;
-	case PERK_MINE:
-		break;
+	switch (activePerk)
+	{
 	default:
 		break;
 	}

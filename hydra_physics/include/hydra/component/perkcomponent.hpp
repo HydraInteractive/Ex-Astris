@@ -11,11 +11,13 @@
 
 using namespace Hydra::World;
 
-enum Perk {
-	PERK_MAGNETICBULLEETS,
+enum Perk
+{
+	PERK_MAGNETICBULLETS,
 	PERK_HOMINGBULLETS,
 	PERK_GRENADE,
-	PERK_MINE
+	PERK_MINE,
+	PERK_FORCEPUSH
 };
 
 namespace Hydra::Component {
