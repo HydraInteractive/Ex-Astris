@@ -37,7 +37,7 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 		bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SmallCargo.mATTIC");
 
 		auto b = bullet->addComponent<Hydra::Component::BulletComponent>();
-		b->direction = -direction;
+		b->direction = direction;
 		b->velocity = velocity;
 		b->bulletType = bulletType;
 
@@ -66,7 +66,7 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 			float distance = ((float)rand() / (float)(RAND_MAX)) * bulletSpread;
 			float theta = ((float)rand() / (float)(RAND_MAX)) * 3.14f;
 
-			glm::vec3 bulletDirection = -direction;
+			glm::vec3 bulletDirection = direction;
 			bulletDirection.x += distance * sin(theta) * cos(phi);
 			bulletDirection.y += distance * sin(theta) * sin(phi);
 			bulletDirection.z += distance * cos(theta);
@@ -93,7 +93,7 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 			rigidBody->setGravity(btVector3(0,0,0));
 		}
 	}
-	fireRateTimer = fireRateRPM / 60000.0f;
+	fireRateTimer = 1.0f/(fireRateRPM / 60.0f);
 
 }
 

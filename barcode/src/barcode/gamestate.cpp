@@ -849,9 +849,9 @@ namespace Barcode {
 		{
 			auto floor = world::newEntity("Floor", world::root());
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3(0, -1, 0);
+			t->position = glm::vec3(0, -8, 0);
 			floor->addComponent<Hydra::Component::RigidBodyComponent>()->createStaticPlane(glm::vec3(0, 1, 0), 1, 0, 0, 0, 0.75f, 0.75f);
-
+			floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 		}
 		{
 			auto physicsBox = world::newEntity("Physics box", world::root());
@@ -979,10 +979,10 @@ namespace Barcode {
 			t->scale = glm::vec3(40, 40, 40);
 			t->rotation = glm::quat(0, 0, 0, 1);
 		} {
-			auto floor = world::newEntity("Floor", world::root());
+			/*auto floor = world::newEntity("Floor", world::root());
 			floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3(14, -1, 9);
+			t->position = glm::vec3(14, -8, 9);*/
 		}
 
 		{

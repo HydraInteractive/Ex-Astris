@@ -18,6 +18,7 @@ Hydra::Component::MovementComponent::~MovementComponent()
 void Hydra::Component::MovementComponent::serialize(nlohmann::json & json) const
 {
 	json = {
+		{ "direction",{ direction.x, direction.y, direction.z } },
 		{ "velocity",{ velocity.x, velocity.y, velocity.z } },
 		{ "acceleration",{ acceleration.x, acceleration.y, acceleration.z } },
 		{ "movementSpeed", movementSpeed },
@@ -26,6 +27,8 @@ void Hydra::Component::MovementComponent::serialize(nlohmann::json & json) const
 
 void Hydra::Component::MovementComponent::deserialize(nlohmann::json & json)
 {
+	auto& dir = json["direction"];
+	direction = glm::vec3{ dir[0].get<float>(), dir[1].get<float>(), dir[2].get<float>() };
 	auto& velo = json["velocity"];
 	velocity = glm::vec3{ velo[0].get<float>(), velo[1].get<float>(), velo[2].get<float>() };
 	auto& acce = json["acceleration"];
@@ -35,6 +38,7 @@ void Hydra::Component::MovementComponent::deserialize(nlohmann::json & json)
 
 void Hydra::Component::MovementComponent::registerUI()
 {
+	ImGui::DragFloat3("Direciton", glm::value_ptr(direction));
 	ImGui::DragFloat3("Velocity", glm::value_ptr(velocity), 0.01f);
 	ImGui::DragFloat3("Acceleration", glm::value_ptr(acceleration), 0.01f);
 	ImGui::InputFloat("Movement Speed", &movementSpeed);

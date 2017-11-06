@@ -45,6 +45,7 @@ void PlayerSystem::tick(float delta) {
 
 
 		glm::mat4 rotation = glm::mat4_cast(camera->orientation);
+		movement->direction = -glm::vec3(glm::vec4{ 0, 0, 1, 0 } *rotation);
 
 		{
 			movement->velocity = glm::vec3{0};
@@ -64,7 +65,6 @@ void PlayerSystem::tick(float delta) {
 			}
 
 			if (keysArray[SDL_SCANCODE_F] && !player->prevKBFrameState[Keys::F]) {
-				const glm::vec3 forward = glm::vec3(glm::vec4{0, 0, 1, 0} * rotation);
 				auto abilitiesEntity = std::find_if(entities[i]->children.begin(), entities[i]->children.end(), [](Hydra::World::EntityID id) { return world::getEntity(id)->name == "Abilities"; });
 				std::shared_ptr<Entity> e;
 				if (abilitiesEntity == entities[i]->children.end())
@@ -74,17 +74,15 @@ void PlayerSystem::tick(float delta) {
 
 
 				soundFx->soundsToPlay.push_back("assets/sounds/piano.wav");
-				player->activeAbillies.useAbility(e.get(), transform->position, -forward);
+				player->activeAbillies.useAbility(e.get(), transform->position, movement->direction);
 			}
 
 			if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && !ImGui::GetIO().WantCaptureMouse) {
-				const glm::vec3 forward = glm::vec3(glm::vec4{0, 0, 1, 0} * rotation);
-
 				//TODO: Make pretty?
 				glm::quat bulletOrientation = glm::angleAxis(-camera->cameraYaw, glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->cameraPitch, glm::vec3(1, 0, 0)));
 				float bulletVelocity = 20.0f;
 
-				weapon->shoot(transform->position, forward, bulletOrientation, bulletVelocity);
+				weapon->shoot(transform->position, movement->direction, bulletOrientation, bulletVelocity);
 			}
 		}
 
