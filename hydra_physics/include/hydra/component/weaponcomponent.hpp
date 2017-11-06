@@ -35,7 +35,5 @@ namespace Hydra::Component {
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
-	private:
-		std::shared_ptr<Hydra::World::Entity> _bullets; //TODO: Remove?
 	};
 };

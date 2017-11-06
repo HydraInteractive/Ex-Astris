@@ -26,14 +26,11 @@ WeaponComponent::~WeaponComponent() { }
 
 //TODO: (Re)move? to system?
 void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity) {
-	if (!_bullets)
-		_bullets = world::newEntity("Bullets", entityID);
-
 	if (fireRateTimer > 0)
 		return;
 
 	if (bulletSpread == 0.0f) {
-		auto bullet = world::newEntity("Bullet", _bullets);
+		auto bullet = world::newEntity("Bullet", world::root());
 		bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SmallCargo.mATTIC");
 
 		auto b = bullet->addComponent<Hydra::Component::BulletComponent>();
@@ -59,7 +56,7 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 
 	} else {
 		for (int i = 0; i < bulletsPerShot; i++) {
-			auto bullet = world::newEntity("Bullet", _bullets);
+			auto bullet = world::newEntity("Bullet", world::root());
 			bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SmallCargo.mATTIC");
 
 			float phi = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
