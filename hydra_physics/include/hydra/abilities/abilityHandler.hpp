@@ -11,13 +11,13 @@ class HYDRA_PHYSICS_API AbilityHandler {
 public:
 	AbilityHandler();
 	~AbilityHandler() {};
-	void addAbility(void(AbilityHandler::*test)(Hydra::World::Entity*, glm::vec3, glm::vec3));
-	void useAbility(Hydra::World::Entity* abilitiesEntity, glm::vec3 position, glm::vec3 direction);
-	void grenadeAbility(Hydra::World::Entity* abilitiesEntity, glm::vec3 position, glm::vec3 direction);
-	void mineAbility(Hydra::World::Entity* abilitiesEntity, glm::vec3 position, glm::vec3 direction);
-	void forcePushAbility(Hydra::World::Entity* abilitiesEntity, glm::vec3 position, glm::vec3 direction);
+	void addAbility(void(AbilityHandler::*newAbility)(Hydra::World::Entity*));
+	void useAbility(Hydra::World::Entity* playerEntity);
+	void grenadeAbility(Hydra::World::Entity* playerEntity);
+	void mineAbility(Hydra::World::Entity* playerEntity);
+	void forcePushAbility(Hydra::World::Entity* playerEntity);
 private:
 	size_t _activeAbility;
-	std::vector<void(AbilityHandler::*)(Hydra::World::Entity*, glm::vec3, glm::vec3)> _abilityList;
+	std::vector<void(AbilityHandler::*)(Hydra::World::Entity*)> _abilityList;
 	std::vector<int> _cooldownList;
 };

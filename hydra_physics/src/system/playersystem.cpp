@@ -65,16 +65,7 @@ void PlayerSystem::tick(float delta) {
 			}
 
 			if (keysArray[SDL_SCANCODE_F] && !player->prevKBFrameState[Keys::F]) {
-				auto abilitiesEntity = std::find_if(entities[i]->children.begin(), entities[i]->children.end(), [](Hydra::World::EntityID id) { return world::getEntity(id)->name == "Abilities"; });
-				std::shared_ptr<Entity> e;
-				if (abilitiesEntity == entities[i]->children.end())
-					e = world::newEntity("Abilities", entities[i]);
-				else
-					e = world::getEntity(*abilitiesEntity);
-
-
-				soundFx->soundsToPlay.push_back("assets/sounds/piano.wav");
-				player->activeAbillies.useAbility(e.get(), transform->position, movement->direction);
+				player->activeAbillies.useAbility(entities[i].get());
 			}
 
 			if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && !ImGui::GetIO().WantCaptureMouse) {
