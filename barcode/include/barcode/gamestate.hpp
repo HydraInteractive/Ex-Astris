@@ -102,10 +102,14 @@ namespace Barcode {
 		RenderBatch _shadowBatch;
 		RenderBatch _ssaoBatch;
 		RenderBatch _hudBatch;
-
+		
 		ParticleRenderBatch _particleBatch;
 
+
 		std::shared_ptr<Hydra::Renderer::ITexture> _animationData;
+
+		// Hudtextures
+		std::shared_ptr<Hydra::Renderer::ITexture> _hudTexture1;
 
 		// ParticleTexture
 		std::shared_ptr<Hydra::Renderer::ITexture> _particleAtlases;

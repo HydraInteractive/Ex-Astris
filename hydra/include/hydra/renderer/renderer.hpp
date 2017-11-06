@@ -189,6 +189,7 @@ namespace Hydra::Renderer {
 		virtual void render(Batch& batch) = 0;
 		virtual void renderAnimation(Batch& batch) = 0;
 		virtual void render(ParticleBatch& batch) = 0;
+		virtual void renderHud(Batch& batch) = 0;
 		virtual void renderShadows(Batch& batch) = 0;
 		// Note: this will ignore batch.objects
 		virtual void postProcessing(Batch& batch) = 0;

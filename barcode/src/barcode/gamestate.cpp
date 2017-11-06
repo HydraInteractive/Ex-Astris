@@ -140,6 +140,24 @@ namespace Barcode {
 			batch.batch.pipeline = batch.pipeline.get();
 		}
 
+		{ // HUD
+			auto& batch = _hudBatch;
+			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/hud.vert");
+			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/hud.frag");
+
+			batch.pipeline = Hydra::Renderer::GLPipeline::create();
+			batch.pipeline->attachStage(*batch.vertexShader);
+			batch.pipeline->attachStage(*batch.fragmentShader);
+			batch.pipeline->finalize();
+
+			_hudTexture1 = Hydra::Renderer::GLTexture::createFromFile("assets/hud/Green.png");
+
+			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
+			batch.batch.clearFlags = ClearFlags::color;
+			batch.batch.renderTarget = _engine->getView();
+			batch.batch.pipeline = batch.pipeline.get();
+		}
+
 		{ // PARTICLES
 			auto& batch = _particleBatch;
 			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/particles.vert");
@@ -515,6 +533,30 @@ namespace Barcode {
 			}
 		}
 
+		{ // Hud test
+
+			for (auto& kv : _hudBatch.batch.objects) {
+				kv.second.clear();
+			}
+
+			for (auto& drawObj : _engine->getRenderer()->activeDrawObjects()) {
+				for (int i = 0; i < 30; i++)
+				{
+					for (int j = 0; j < 30; j++)
+					{
+						char buf[128];
+						snprintf(buf, sizeof(buf), "%d%d", i, j);
+
+						_hudBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+					}
+				}
+			}
+
+			_hudBatch.pipeline->setValue(0, 0);
+			_hudTexture1->bind(0);
+			_engine->getRenderer()->renderHud(_hudBatch.batch);
+		}
+
 		{ // Hud windows
 		  //static float f = 0.0f;
 		  //static bool b = false;
@@ -678,6 +720,8 @@ namespace Barcode {
 
 				ImGui::End();
 			}
+
+
 
 			ImGui::PopStyleColor();
 			ImGui::PopStyleVar();
