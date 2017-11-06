@@ -41,6 +41,7 @@ BulletPhysicsSystem::~BulletPhysicsSystem() { delete _data; }
 
 void BulletPhysicsSystem::enable(Hydra::Component::RigidBodyComponent* component) {
 	component->_handler = this;
+	// Make so addRigidbody takes in collision filter group and what that group collides with.
 	_data->dynamicsWorld->addRigidBody(static_cast<btRigidBody*>(component->getRigidBody()));
 }
 
@@ -69,11 +70,19 @@ void BulletPhysicsSystem::tick(float delta) {
 
 		//btManifoldPoint& pt = contactManfiold->getContactPoint(0);
 		// Gets the contact points
+		//btManifoldPoint& pt = contactManifold->getContactPoint(0);
+		//btVector3 collPosA = pt.getPositionWorldOnA();
+		//_spawnParticleEmitterAt(collPosA);
 		int numContacts = contactManifold->getNumContacts();
 		for (int j = 0; j < numContacts; j++) {
 			btManifoldPoint& pt = contactManifold->getContactPoint(j);
 			btVector3 collPosA = pt.getPositionWorldOnA();
 			_spawnParticleEmitterAt(collPosA);
+			
+			// Set the bullet entity to dead.
+			World::World::World::getEntity(entityBC->entityID)->dead = true;
+			// Breaks because just wanna check the first collision.
+			break;
 		}
 	}
 }
@@ -85,9 +94,11 @@ void BulletPhysicsSystem::_spawnParticleEmitterAt(btVector3 pos) {
 	
 	auto pETC = pE->addComponent<Hydra::Component::TransformComponent>();
 	pETC->position = glm::vec3(pos.getX(), pos.getY(), pos.getZ());
+
 	auto pEPC = pE->addComponent<Hydra::Component::ParticleComponent>();
 	pEPC->delay = 1.0f / 1.0f;
 	pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::Knas;
+
 	auto pELC = pE->addComponent<Hydra::Component::LifeComponent>();
 	pELC->maxHP = 3;
 	pELC->health = 3;

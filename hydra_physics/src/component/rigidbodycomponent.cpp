@@ -196,6 +196,7 @@ struct RigidBodyComponent::Data {
 	MotionStateImpl motionState;
 	std::unique_ptr<btCollisionShape> shape; // TODO: Share this among other RB
 
+	// Add collision mask.
 	float mass;
 	float linearDamping;
 	float angularDamping;

@@ -9,6 +9,7 @@
 
 #include <hydra/world/world.hpp>
 #include <btBulletDynamicsCommon.h>
+#define BIT(x) (1 << (x))
 
 namespace Hydra::System {
 	class HYDRA_PHYSICS_API BulletPhysicsSystem final : public Hydra::World::ISystem {
