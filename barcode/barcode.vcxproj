@@ -12,19 +12,19 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\barcode\editorstate.hpp" />
-    <ClInclude Include="include\barcode\ExporterMenu.hpp" />
+    <ClInclude Include="include\barcode\exportermenu.hpp" />
     <ClInclude Include="include\barcode\filemanager.hpp" />
     <ClInclude Include="include\barcode\gamestate.hpp" />
-    <ClInclude Include="include\barcode\ImporterMenu.hpp" />
+    <ClInclude Include="include\barcode\importermenu.hpp" />
     <ClInclude Include="include\barcode\menustate.hpp" />
     <ClInclude Include="include\barcode\tileGeneration.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\barcode\editorstate.cpp" />
-    <ClCompile Include="src\barcode\ExporterMenu.cpp" />
+    <ClCompile Include="src\barcode\exportermenu.cpp" />
     <ClCompile Include="src\barcode\filemanager.cpp" />
     <ClCompile Include="src\barcode\gamestate.cpp" />
-    <ClCompile Include="src\barcode\ImporterMenu.cpp" />
+    <ClCompile Include="src\barcode\importermenu.cpp" />
     <ClCompile Include="src\barcode\menustate.cpp" />
     <ClCompile Include="src\barcode\tileGeneration.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -33,7 +33,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{8FC1725E-C34D-4954-A12E-8DAF009357BF}</ProjectGuid>
     <RootNamespace>barcode</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">

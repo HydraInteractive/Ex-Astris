@@ -22,12 +22,12 @@
 #include <hydra/renderer/uirenderer.hpp>
 #include <hydra/renderer/glrenderer.hpp>
 using world = Hydra::World::World;
-class FileManager
+class FileTree
 {
 public:
 	std::string executableDir;
-	FileManager();
-	~FileManager();
+	FileTree();
+	~FileTree();
 	void refresh(std::string relativePath);
 	static std::shared_ptr<Hydra::World::Entity> getRoomEntity();
 	virtual void render(bool &closeBool, Hydra::Renderer::Batch* previewBatch = nullptr, float delta = 0.0f) = 0;

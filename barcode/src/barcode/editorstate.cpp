@@ -280,8 +280,8 @@ namespace Barcode {
 			ImGui::Separator();
 			if (ImGui::MenuItem("Clear room"))
 			{
-				if(FileManager::getRoomEntity() != nullptr)
-					FileManager::getRoomEntity()->dead = true;
+				if(FileTree::getRoomEntity() != nullptr)
+					FileTree::getRoomEntity()->dead = true;
 
 				auto room = world::newEntity("Room", world::root());
 				auto t = room->addComponent<Hydra::Component::TransformComponent>();

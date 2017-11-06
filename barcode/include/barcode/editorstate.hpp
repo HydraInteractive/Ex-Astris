@@ -69,8 +69,8 @@ namespace Barcode {
 		inline Hydra::World::ISystem* getPhysicsSystem() final { return &_physicsSystem; }
 
 	private:
-		FileManager* _importerMenu;
-		FileManager* _exporterMenu;
+		FileTree* _importerMenu;
+		FileTree* _exporterMenu;
 
 		bool _showImporter = false;
 		bool _showExporter = false;

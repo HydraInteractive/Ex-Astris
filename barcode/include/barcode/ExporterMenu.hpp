@@ -1,6 +1,6 @@
 #pragma once
 #include <barcode/filemanager.hpp>
-class ExporterMenu : public FileManager {
+class ExporterMenu : public FileTree {
 public:
 	ExporterMenu();
 	~ExporterMenu();

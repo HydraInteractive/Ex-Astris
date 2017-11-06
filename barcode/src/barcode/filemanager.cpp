@@ -2,19 +2,19 @@
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
 #include <memory>
-FileManager::FileManager()
+FileTree::FileTree()
 {
 	this->executableDir = _getExecutableDir();
 	this->_root = nullptr;
 	refresh("/assets");
 }
 
-FileManager::~FileManager()
+FileTree::~FileTree()
 {
 	if (_root != nullptr)
 		delete _root;
 }
-void FileManager::refresh(std::string relativePath)
+void FileTree::refresh(std::string relativePath)
 {
 	if (_root != nullptr)
 	{
@@ -23,7 +23,7 @@ void FileManager::refresh(std::string relativePath)
 	_root = new Node(executableDir + relativePath);
 	//_root->clean();
 }
-std::shared_ptr<Hydra::World::Entity> FileManager::getRoomEntity()
+std::shared_ptr<Hydra::World::Entity> FileTree::getRoomEntity()
 {
 	std::vector<std::shared_ptr<Hydra::World::Entity>> entities;
 	world::getEntitiesWithComponents<Hydra::Component::TransformComponent, Hydra::Component::RoomComponent>(entities);
@@ -33,7 +33,7 @@ std::shared_ptr<Hydra::World::Entity> FileManager::getRoomEntity()
 	}
 	return nullptr;
 }
-std::string FileManager::_getExecutableDir()
+std::string FileTree::_getExecutableDir()
 {
 	std::string path;
 #ifdef _WIN32 ///Windows
@@ -56,14 +56,14 @@ std::string FileManager::_getExecutableDir()
 	path.erase(path.begin() + index, path.end());
 	return path;
 }
-FileManager::Node::Node()
+FileTree::Node::Node()
 {
 	this->_name = "";
 	this->_subfolders = std::vector<Node*>(0);
 	this->_files = std::vector<Node*>(0);
 	this->_parent = nullptr;
 }
-FileManager::Node::Node(std::string path, Node* parent, bool isFile)
+FileTree::Node::Node(std::string path, Node* parent, bool isFile)
 {
 	this->_name = pathToName(path);
 	this->_subfolders = std::vector<Node*>();
@@ -83,7 +83,7 @@ FileManager::Node::Node(std::string path, Node* parent, bool isFile)
 		this->_files.push_back(new Node(inFiles[i], this, true));
 	}
 }
-FileManager::Node::~Node()
+FileTree::Node::~Node()
 {
 	for (size_t i = 0; i < _subfolders.size(); i++)
 	{
@@ -96,12 +96,12 @@ FileManager::Node::~Node()
 	}
 	_files.clear();
 }
-std::string FileManager::Node::name()
+std::string FileTree::Node::name()
 {
 	return _name;
 }
 //Returns the file extention from a filename
-std::string FileManager::Node::getExt()
+std::string FileTree::Node::getExt()
 {
 	size_t i = _name.find_last_of('.');
 	if (i == std::string::npos)
@@ -115,7 +115,7 @@ std::string FileManager::Node::getExt()
 	}
 }
 //Gets the node's name from it's path
-std::string FileManager::Node::pathToName(std::string path)
+std::string FileTree::Node::pathToName(std::string path)
 {
 	size_t i = path.find_last_of('/');
 	if (i == std::string::npos)
@@ -127,7 +127,7 @@ std::string FileManager::Node::pathToName(std::string path)
 		return path.substr(i + 1);
 	}
 }
-std::string FileManager::Node::reverseEngineerPath()
+std::string FileTree::Node::reverseEngineerPath()
 {
 	std::string upperPath = "";
 	if (this->_parent != nullptr)
@@ -138,7 +138,7 @@ std::string FileManager::Node::reverseEngineerPath()
 	return this->_name;
 }
 
-int FileManager::Node::numberOfFiles()
+int FileTree::Node::numberOfFiles()
 {
 	if (!isAllowedFile)
 	{
@@ -152,7 +152,7 @@ int FileManager::Node::numberOfFiles()
 	return -1;
 }
 //Removes all folders that do not have any files
-void FileManager::Node::clean()
+void FileTree::Node::clean()
 {
 	for (size_t i = 0; i < _subfolders.size(); i++)
 	{
@@ -169,7 +169,7 @@ void FileManager::Node::clean()
 	}
 }
 //TODO: Add file ext whitelist
-void FileManager::Node::_getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders) const
+void FileTree::Node::_getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders) const
 {
 #ifdef _WIN32 ///Windows
 	HANDLE dir;

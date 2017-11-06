@@ -1,11 +1,11 @@
-#include <barcode/ImporterMenu.hpp>
+#include <barcode/importermenu.hpp>
 #include <hydra/engine.hpp>
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
 #include <hydra/component/drawobjectcomponent.hpp>
 #include <hydra/component/meshcomponent.hpp>
 
-ImporterMenu::ImporterMenu() : FileManager()
+ImporterMenu::ImporterMenu() : FileTree()
 {
 	this->executableDir = _getExecutableDir();
 	this->_root = nullptr;
