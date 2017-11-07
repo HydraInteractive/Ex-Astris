@@ -108,6 +108,7 @@ void FileTree::_menuBar()
 			{
 				refresh("/assets");
 			}
+			ImGui::EndMenu();
 		}
 		ImGui::EndMenuBar();
 	}
