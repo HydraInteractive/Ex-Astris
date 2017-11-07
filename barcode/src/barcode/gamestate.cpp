@@ -853,13 +853,16 @@ namespace Barcode {
 			auto floor = world::newEntity("Floor", world::root());
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(0, -7, 0);
-			floor->addComponent<Hydra::Component::RigidBodyComponent>()->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL);
+			auto rgbc = floor->addComponent<Hydra::Component::RigidBodyComponent>();
+			rgbc->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL
+			,0, 0, 0,1.0, 1.0f);
 		}
 		{
 			auto physicsBox = world::newEntity("Physics box", world::root());
 			auto t = physicsBox->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(2, 25, 2);
-			physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(glm::vec3(0.5f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_MISC_OBJECT, 10);
+			physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(glm::vec3(0.5f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_MISC_OBJECT, 10
+			,0,0,1.0f,1.0f);
 			physicsBox->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Computer1.ATTIC");
 		}
 
@@ -938,9 +941,21 @@ namespace Barcode {
 			t->scale = glm::vec3{ 2,2,2 };
 
 			auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f);
-
+			rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+					0, 0, 1.0f, 1.0f);
+			rgbc->setActivationState(DISABLE_DEACTIVATION);
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
+		} {
+			auto alienSpawner = world::newEntity("AlienSpawner", world::root());
+			auto a = alienSpawner->addComponent<Hydra::Component::SpawnerComponent>();
+			a->spawnerID = Hydra::Component::SpawnerType::AlienSpawner;
+			auto h = alienSpawner->addComponent<Hydra::Component::LifeComponent>();
+			h->maxHP = 150;
+			h->health = 150;
+			auto t = alienSpawner->addComponent<Hydra::Component::TransformComponent>();
+			t->position = glm::vec3{ 20, 0, 15 };
+			t->scale = glm::vec3{ 2,2,2 };
+			alienSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge.ATTIC");
 		}
 		{
 			auto test = world::newEntity("test", world::root());
