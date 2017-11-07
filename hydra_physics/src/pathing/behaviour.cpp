@@ -153,7 +153,6 @@ unsigned int Behaviour::foundState(float dt)
 
 			thisEnemy.movement->velocity.x = (thisEnemy.movement->movementSpeed * direction.x);
 			thisEnemy.movement->velocity.z = (thisEnemy.movement->movementSpeed * direction.z);
-
 			if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) <= range)
 			{
 				isAtGoal = true;

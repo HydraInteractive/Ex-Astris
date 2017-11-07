@@ -12,6 +12,7 @@
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/soundfxcomponent.hpp>
 #include <hydra/component/perkcomponent.hpp>
+#include <hydra/component/rigidbodycomponent.hpp>
 
 #include <hydra/engine.hpp>
 
@@ -37,6 +38,7 @@ void PlayerSystem::tick(float delta) {
 		auto movement = entities[i]->getComponent<Component::MovementComponent>();
 		auto soundFx = entities[i]->getComponent<SoundFxComponent>();
 		auto perks = entities[i]->getComponent<PerkComponent>();
+		auto rbc = static_cast<btRigidBody*>(entities[i]->getComponent<RigidBodyComponent>()->getRigidBody());
 
 		//player->activeBuffs.onTick(life->maxHP, life->health);
 
@@ -47,11 +49,13 @@ void PlayerSystem::tick(float delta) {
 			movement->velocity = glm::vec3{0};
 			if (keysArray[SDL_SCANCODE_W])
 				movement->velocity.z -= movement->movementSpeed;
+
 			if (keysArray[SDL_SCANCODE_S])
 				movement->velocity.z += movement->movementSpeed;
 
 			if (keysArray[SDL_SCANCODE_A])
 				movement->velocity.x -= movement->movementSpeed;
+
 			if (keysArray[SDL_SCANCODE_D])
 				movement->velocity.x += movement->movementSpeed;
 
@@ -77,13 +81,14 @@ void PlayerSystem::tick(float delta) {
 		glm::vec4 movementVector = glm::vec4(movement->velocity, 0) * rotation;
 		movementVector.y = movement->acceleration.y;
 
-		transform->position += glm::vec3(movementVector) * delta;
+		rbc->applyCentralForce(btVector3(movementVector.x, movementVector.y, movementVector.z) * 100);
+		//transform->position += glm::vec3(movementVector) * delta;
 
-		if (transform->position.y < 0) {
-			transform->position.y = 0;
-			movement->acceleration.y = 0;
-			player->onGround = true;
-		}
+		//if (transform->position.y < 0) {
+		//	transform->position.y = 0;
+		//	movement->acceleration.y = 0;
+		//	player->onGround = true;
+		//}
 
 		if (player->firstPerson)
 			camera->position = transform->position;

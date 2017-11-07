@@ -874,17 +874,21 @@ namespace Barcode {
 			auto m = playerEntity->addComponent<Hydra::Component::MovementComponent>();
 			auto s = playerEntity->addComponent<Hydra::Component::SoundFxComponent>();
 			auto perks = playerEntity->addComponent<Hydra::Component::PerkComponent>();
-			h->health = h->maxHP = 5.0f;
+			h->health = h->maxHP = 20.0f;
 			m->movementSpeed = 20.0f;
 			//c->position = glm::vec3{ 5, 0, -3 };
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ 0, 0, 20 };
+			auto rgbc = playerEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+			rgbc->createBox(0.5f * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
+				0,0,0.4,0);
+			rgbc->setActivationState(DISABLE_DEACTIVATION);
+			t->position = glm::vec3{ 0, -7, 20 };
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
 				weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
 				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/alphaGunModel.ATTIC");
 				auto t2 = weaponEntity->addComponent<Hydra::Component::TransformComponent>();
-				t2->position = glm::vec3(2, -1.5, -2);
+				t2->position = glm::vec3(2, -7, -2);
 				t2->rotation = glm::quat(0, 0, 1, 0);
 				t2->ignoreParent = true;
 			}
@@ -945,7 +949,7 @@ namespace Barcode {
 					0, 0, 1.0f, 1.0f);
 			rgbc->setActivationState(DISABLE_DEACTIVATION);
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
-		} {
+		} /*{
 			auto alienSpawner = world::newEntity("AlienSpawner", world::root());
 			auto a = alienSpawner->addComponent<Hydra::Component::SpawnerComponent>();
 			a->spawnerID = Hydra::Component::SpawnerType::AlienSpawner;
@@ -956,7 +960,7 @@ namespace Barcode {
 			t->position = glm::vec3{ 20, 0, 15 };
 			t->scale = glm::vec3{ 2,2,2 };
 			alienSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge.ATTIC");
-		}
+		}*/
 		{
 			auto test = world::newEntity("test", world::root());
 			test->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
