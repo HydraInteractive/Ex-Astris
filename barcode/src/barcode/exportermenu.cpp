@@ -4,7 +4,7 @@
 using world = Hydra::World::World; 
 ExporterMenu::ExporterMenu() : FileTree()
 {
-	this->extWhitelist = { ".room", ".ROOM" };
+	this->_extWhitelist = { ".room", ".ROOM" };
 	refresh("/assets");
 }
 ExporterMenu::~ExporterMenu()
@@ -15,18 +15,8 @@ void ExporterMenu::render(bool &closeBool, Hydra::Renderer::Batch* previewBatch,
 {
 	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiSetCond_Once);
 	ImGui::Begin("Export", &closeBool, ImGuiWindowFlags_MenuBar);
-	if (ImGui::BeginMenuBar())
-	{
-		if (ImGui::BeginMenu("Menu"))
-		{
-			if (ImGui::MenuItem("Refresh", NULL))
-			{
-				refresh("/assets");
-			}
-			ImGui::EndMenu();
-		}
-		ImGui::EndMenuBar();
-	}
+	_menuBar();
+
 	Node* selectedNode = nullptr;
 
 	//File tree

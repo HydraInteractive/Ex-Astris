@@ -19,7 +19,7 @@ void FileTree::refresh(std::string relativePath)
 	{
 		delete _root;
 	}
-	_root = new Node(executableDir + relativePath, extWhitelist);
+	_root = new Node(executableDir + relativePath, _extWhitelist);
 }
 std::shared_ptr<Hydra::World::Entity> FileTree::getRoomEntity()
 {
@@ -31,24 +31,24 @@ std::shared_ptr<Hydra::World::Entity> FileTree::getRoomEntity()
 	}
 	return nullptr;
 }
+
 std::string FileTree::_getExecutableDir()
 {
+	char tcharPath[260];
 	std::string path;
 #ifdef _WIN32 ///Windows
-	char unicodePath[MAX_PATH];
-	int bytes = GetModuleFileName(NULL, unicodePath, 500);
+	int bytes = GetModuleFileName(NULL, tcharPath, 260);
 #else ///Linux
-	char unicodePath[1000];
 	char tempStr[32];
 	sprintf(tempStr, "/proc/%d/exe", getpid());
-	int bytes = std::min((int)readlink(tempStr, unicodePath, 500), 500 - 1);
+	int bytes = std::min((int)readlink(tempStr, tcharPath, 260), 260 - 1);
 	if (bytes >= 0)
-		unicodePath[bytes] = '\0';
+		tcharPath[bytes] = '\0';
 #endif
 	if (bytes == 0)
 		return "/";
 	else
-		path = std::string(unicodePath);
+		path = std::string(tcharPath);
 	std::replace(path.begin(), path.end(), '\\', '/');
 	int index = path.find_last_of('/');
 	path.erase(path.begin() + index, path.end());
@@ -98,13 +98,34 @@ std::string FileTree::Node::name()
 {
 	return _name;
 }
-void FileTree::openInExplorer(LPCTSTR filename)
+void FileTree::_menuBar()
 {
-	ITEMIDLIST *pidl = ILCreateFromPath(filename);
-	if (pidl) {
+	if (ImGui::BeginMenuBar())
+	{
+		if (ImGui::BeginMenu("Menu"))
+		{
+			if (ImGui::MenuItem("Refresh", NULL))
+			{
+				refresh("/assets");
+			}
+		}
+		ImGui::EndMenuBar();
+	}
+}
+void FileTree::openInExplorer(std::string path)
+{
+#ifdef _WIN32
+	char openfile[260] = { '\0' };
+	std::string absolutePath = _getExecutableDir() + "/" + path;
+	std::replace(absolutePath.begin(), absolutePath.end(), '/', '\\');
+	strncpy(openfile, absolutePath.c_str(), absolutePath.length());
+	ITEMIDLIST *pidl = ILCreateFromPath((LPCTSTR)openfile);
+	if (pidl)
+	{
 		SHOpenFolderAndSelectItems(pidl, 0, 0, 0);
 		ILFree(pidl);
 	}
+#endif
 }
 //Returns the file extention from a filename
 std::string FileTree::Node::getExt()
@@ -174,7 +195,7 @@ void FileTree::Node::clean()
 		}
 	}
 }
-//TODO: Add file ext whitelist
+
 void FileTree::Node::_getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders, const std::vector<std::string> &extWhitelist) const
 {
 #ifdef _WIN32 ///Windows
