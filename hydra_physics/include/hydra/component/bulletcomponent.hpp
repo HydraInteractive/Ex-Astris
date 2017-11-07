@@ -29,6 +29,7 @@ namespace Hydra::Component {
 		 glm::vec3 direction;
 		 float velocity;
 		 float deleteTimer = 10;
+		 float damage = 1.0f;
 
 		~BulletComponent() final;
 

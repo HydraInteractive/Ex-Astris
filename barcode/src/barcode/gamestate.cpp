@@ -675,11 +675,13 @@ namespace Barcode {
 			//Enemys on compas
 			int i = 0;
 			glm::mat4 viewMat = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get())->getViewMatrix();
-			for (auto& enemy : Hydra::Component::AIComponent::componentHandler->getActiveComponents()) {
+			std::vector<std::shared_ptr<Entity>> aiEntities;
+			world::getEntitiesWithComponents<Hydra::Component::AIComponent>(aiEntities);
+			for (auto& enemy : aiEntities) {
 				char buf[128];
 				snprintf(buf, sizeof(buf), "AI is a scrub here is it's scrubID: %d", i);
 				auto playerP = _cc->position;
-				auto enemyP = world::getEntity(enemy->entityID)->getComponent<Hydra::Component::TransformComponent>()->position;
+				auto enemyP = enemy->getComponent<Hydra::Component::TransformComponent>()->position;
 				auto enemyDir = normalize(enemyP - playerP);
 
 				glm::vec3 forward(-viewMat[0][2], -viewMat[1][2], -viewMat[2][2]);
@@ -869,8 +871,7 @@ namespace Barcode {
 			auto m = playerEntity->addComponent<Hydra::Component::MovementComponent>();
 			auto s = playerEntity->addComponent<Hydra::Component::SoundFxComponent>();
 			auto perks = playerEntity->addComponent<Hydra::Component::PerkComponent>();
-			h->health = 100;
-			h->maxHP = 100;
+			h->health = h->maxHP = 5.0f;
 			m->movementSpeed = 20.0f;
 			//c->position = glm::vec3{ 5, 0, -3 };
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
@@ -917,7 +918,30 @@ namespace Barcode {
 			p4LC->position = glm::vec3(45, 0, 45);
 			p4LC->color = glm::vec3(1, 0, 0);
 		}
+		{
+			auto alienEntity = world::newEntity("Alien1", world::root());
+			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+			a->damage = 4;
+			a->behaviour->originalRange = 4;
+			a->radius = 2;
 
+			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+			h->maxHP = 80;
+			h->health = 80;
+
+			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+			m->movementSpeed = 8.0f;
+
+			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+			t->position = glm::vec3{ 10, 0, 20 };
+			t->scale = glm::vec3{ 2,2,2 };
+
+			auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+			rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f);
+
+			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
+		}
 		{
 			auto test = world::newEntity("test", world::root());
 			test->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");

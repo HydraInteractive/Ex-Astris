@@ -21,7 +21,8 @@ BulletComponent::~BulletComponent() { }
 void BulletComponent::serialize(nlohmann::json& json) const {
 	json = {
 		{ "direction", { direction.x, direction.y, direction.z } },
-		{ "velocity", velocity }
+		{ "velocity", velocity },
+		{ "damage", damage }
 	};
 }
 
@@ -30,6 +31,7 @@ void BulletComponent::deserialize(nlohmann::json& json) {
 	direction = glm::vec3{ dir[0].get<float>(), dir[1].get<float>(), dir[2].get<float>() };
 
 	velocity = json["velocity"].get<float>();
+	damage = json.value<float>("damage", 1.0f);
 }
 
 void BulletComponent::registerUI() {

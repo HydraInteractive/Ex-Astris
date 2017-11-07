@@ -46,10 +46,10 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 
 		auto rbc = bullet->addComponent<Hydra::Component::RigidBodyComponent>();
 
-		rbc->createBox(glm::vec3(0.5f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE, 1.0f);
+		rbc->createBox(glm::vec3(0.5f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE, 0.0095);
 		auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
 		bulletPhysWorld->enable(rbc.get());
-		rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 3000);
+		rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 300);
 		rigidBody->setActivationState(DISABLE_DEACTIVATION);
 		rigidBody->setGravity(btVector3(0, 0, 0));
 	} else {
@@ -80,10 +80,10 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 			auto bulletPhysWorld = static_cast<Hydra::System::BulletPhysicsSystem*>(IEngine::getInstance()->getState()->getPhysicsSystem());
 
 			auto rbc = bullet->addComponent<Hydra::Component::RigidBodyComponent>();
-			rbc->createBox(glm::vec3(0.5f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE, 1.0f);
+			rbc->createBox(glm::vec3(0.5f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE, 0.0095);
 			auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
 			bulletPhysWorld->enable(rbc.get());
-			rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 3000);
+			rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 300);
 			rigidBody->setActivationState(DISABLE_DEACTIVATION);
 			rigidBody->setGravity(btVector3(0,0,0));
 
