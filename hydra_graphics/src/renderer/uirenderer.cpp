@@ -381,8 +381,8 @@ public:
 		if (ImGui::TreeNode(entity, ICON_FA_USER_O " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", entity->name.c_str(), entity->id, entity->componentCount(), entity->children.size()))
 		{
 			bool deleteThis = false;
-			std::string pls = std::to_string(entity->id);
-			if (ImGui::BeginPopupContextItem(pls.c_str()))
+			std::string entityID = std::to_string(entity->id);
+			if (ImGui::BeginPopupContextItem(entityID.c_str()))
 			{
 				ImGui::MenuItem("Delete", "", &deleteThis);
 				if (deleteThis)

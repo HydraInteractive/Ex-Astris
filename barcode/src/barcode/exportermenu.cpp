@@ -4,7 +4,7 @@
 using world = Hydra::World::World; 
 ExporterMenu::ExporterMenu() : FileTree()
 {
-	this->extWhitelist = { ".room", ".ROOM" };
+	this->_extWhitelist = { ".room", ".ROOM" };
 	refresh("/assets");
 }
 ExporterMenu::~ExporterMenu()
@@ -15,18 +15,8 @@ void ExporterMenu::render(bool &closeBool, Hydra::Renderer::Batch* previewBatch,
 {
 	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiSetCond_Once);
 	ImGui::Begin("Export", &closeBool, ImGuiWindowFlags_MenuBar);
-	if (ImGui::BeginMenuBar())
-	{
-		if (ImGui::BeginMenu("Menu"))
-		{
-			if (ImGui::MenuItem("Refresh", NULL))
-			{
-				refresh("/assets");
-			}
-			ImGui::EndMenu();
-		}
-		ImGui::EndMenuBar();
-	}
+	_menuBar();
+
 	Node* selectedNode = nullptr;
 
 	//File tree
@@ -43,6 +33,11 @@ void ExporterMenu::render(bool &closeBool, Hydra::Renderer::Batch* previewBatch,
 	//Refresh changes from file tree
 	if (selectedNode != nullptr)
 	{
+		if (selectedNode->openInFileExplorer)
+		{
+			openInExplorer(selectedNode->reverseEngineerPath());
+			selectedNode->openInFileExplorer = false;
+		}
 		_selectedPath = selectedNode->reverseEngineerPath();
 		if (selectedNode->isAllowedFile)
 		{
@@ -125,6 +120,12 @@ void ExporterMenu::Node::render(Node** selectedNode, bool& prepExporting)
 	if (ImGui::TreeNodeEx(this, node_flags, label, _name.c_str()))
 	{
 		label = ICON_FA_FOLDER_OPEN " %s";
+		if (ImGui::BeginPopupContextItem(_name.c_str()))
+		{
+			ImGui::MenuItem("Show in File Explorer", "", &openInFileExplorer);
+			(*selectedNode) = this;
+			ImGui::EndPopup();
+		}
 		if (ImGui::IsItemClicked())
 		{
 			(*selectedNode) = this;
@@ -139,6 +140,12 @@ void ExporterMenu::Node::render(Node** selectedNode, bool& prepExporting)
 			if (ext == ".attic" || ext == ".mATTIC")
 			{
 				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBE " %s", _files[i]->_name.c_str());
+				if (ImGui::BeginPopupContextItem(_files[i]->_name.c_str()))
+				{
+					ImGui::MenuItem("Show in File Explorer", "", &_files[i]->openInFileExplorer);
+					(*selectedNode) = _files[i];
+					ImGui::EndPopup();
+				}
 			}
 			else if (ext == ".room" || ext == ".ROOM")
 			{
@@ -147,10 +154,22 @@ void ExporterMenu::Node::render(Node** selectedNode, bool& prepExporting)
 				{
 					prepExporting = true;
 				}
+				if (ImGui::BeginPopupContextItem(_files[i]->_name.c_str()))
+				{
+					ImGui::MenuItem("Show in File Explorer", "", &_files[i]->openInFileExplorer);
+					(*selectedNode) = _files[i];
+					ImGui::EndPopup();
+				}
 			}
 			else
 			{
 				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_QUESTION_CIRCLE_O " %s", _files[i]->_name.c_str());
+				if (ImGui::BeginPopupContextItem(_files[i]->_name.c_str()))
+				{
+					ImGui::MenuItem("Show in File Explorer", "", &_files[i]->openInFileExplorer);
+					(*selectedNode) = _files[i];
+					ImGui::EndPopup();
+				}
 			}
 			if (ImGui::IsItemClicked())
 			{

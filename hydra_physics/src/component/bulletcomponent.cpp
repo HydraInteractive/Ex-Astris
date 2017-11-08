@@ -19,18 +19,20 @@ using namespace Hydra::Component;
 BulletComponent::~BulletComponent() { }
 
 void BulletComponent::serialize(nlohmann::json& json) const {
-	json = {
-		{ "direction", { direction.x, direction.y, direction.z } },
-		{ "velocity", velocity },
-		{ "damage", damage }
-	};
+	json["directionX"] = direction[0];
+	json["directionY"] = direction[1];
+	json["directionZ"] = direction[2];
+
+	json["velocity"] = velocity;
+	json["damage"] = damage;
 }
 
 void BulletComponent::deserialize(nlohmann::json& json) {
-	auto& dir = json["direction"];
-	direction = glm::vec3{ dir[0].get<float>(), dir[1].get<float>(), dir[2].get<float>() };
+	direction[0] = json.value<float>("directionX", 0);
+	direction[1] = json.value<float>("directionY", 0);
+	direction[2] = json.value<float>("directionZ", 0);
 
-	velocity = json["velocity"].get<float>();
+	velocity = json.value<float>("velocity", 0);
 	damage = json.value<float>("damage", 1.0f);
 }
 

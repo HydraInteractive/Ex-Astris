@@ -28,20 +28,23 @@ std::shared_ptr<Hydra::World::Entity> PlayerComponent::getWeapon() {
 	return std::shared_ptr<Hydra::World::Entity>();
 }
 void PlayerComponent::serialize(nlohmann::json& json) const {
-	json = {
-		{ "weaponOffset", { weaponOffset.x, weaponOffset.y, weaponOffset.z } },
-		{ "onGround", onGround },
-		{ "firstPerson", firstPerson },
-		{ "isDead", isDead }
-	};
+	json["weaponOffsetX"] = weaponOffset[0];
+	json["weaponOffsetY"] = weaponOffset[1];
+	json["weaponOffsetZ"] = weaponOffset[2];
+	
+	json["onGround"] = onGround;
+	json["firstPerson"] = firstPerson;
+	json["isDead"] = isDead;
 }
 
 void PlayerComponent::deserialize(nlohmann::json& json) {
-	auto& wep = json["weaponOffset"];
-	weaponOffset = glm::vec3{ wep[0].get<float>(), wep[1].get<float>(), wep[2].get<float>() };
-	onGround = json["onGround"].get<bool>();
-	firstPerson = json["firstPerson"].get<bool>();
-	isDead = json["isDead"].get<bool>();
+	weaponOffset[0] = json.value<float>("weaponOffsetX", 0);
+	weaponOffset[1] = json.value<float>("weaponOffsetY", 0);
+	weaponOffset[2] = json.value<float>("weaponOffsetZ", 0);
+
+	onGround = json.value<bool>("onGround", 0);
+	firstPerson = json.value<bool>("firstPerson", 0);
+	isDead = json.value<bool>("isDead", 0);
 }
 
 // Register UI buttons in the debug UI
