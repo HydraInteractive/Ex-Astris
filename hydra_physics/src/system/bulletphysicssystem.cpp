@@ -87,25 +87,29 @@ void BulletPhysicsSystem::tick(float delta) {
 		if (!eA || !eB)
 			continue;
 
-		auto entityBC = eA->getComponent<Hydra::Component::BulletComponent>();
-		if (!entityBC)
-			if (!(entityBC = eB->getComponent<Hydra::Component::BulletComponent>()))
-				continue;
+		Hydra::Component::BulletComponent* bc;
+		Hydra::Component::LifeComponent* lc;
+		if (bc = eA->getComponent<Hydra::Component::BulletComponent>().get())
+			lc = eB->getComponent<Hydra::Component::LifeComponent>().get();
+		else if (bc = eB->getComponent<Hydra::Component::BulletComponent>().get())
+			lc = eA->getComponent<Hydra::Component::LifeComponent>().get();
+		else
+			continue;
 
-		//btManifoldPoint& pt = contactManfiold->getContactPoint(0);
 		// Gets the contact points
-		//btManifoldPoint& pt = contactManifold->getContactPoint(0);
-		//btVector3 collPosA = pt.getPositionWorldOnA();
-		//_spawnParticleEmitterAt(collPosA);
 		int numContacts = contactManifold->getNumContacts();
 		for (int j = 0; j < numContacts; j++) {
 			btManifoldPoint& pt = contactManifold->getContactPoint(j);
 			btVector3 collPosB = pt.getPositionWorldOnB();
 			btVector3 normalOnB = pt.m_normalWorldOnB;
 			_spawnParticleEmitterAt(collPosB, normalOnB);
-			
+
+			if (lc)
+				lc->applyDamage(bc->damage);
+
 			// Set the bullet entity to dead.
-			World::World::World::getEntity(entityBC->entityID)->dead = true;
+			World::World::World::getEntity(bc->entityID)->dead = true;
+
 			// Breaks because just wanna check the first collision.
 			break;
 		}
@@ -124,7 +128,7 @@ void BulletPhysicsSystem::_spawnParticleEmitterAt(btVector3 pos, btVector3 norma
 	pEPC->delay = 1.0f / 1.0f;
 	pEPC->accumulator = 5.0f;
 	pEPC->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::Explosion;
-	pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::BogdanDeluxe;
+	pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::Blood;
 	pEPC->optionalNormal = glm::vec3(normal.getX(), normal.getY(), normal.getZ());
 
 	auto pELC = pE->addComponent<Hydra::Component::LifeComponent>();

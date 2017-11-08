@@ -24,6 +24,7 @@ void BulletComponent::serialize(nlohmann::json& json) const {
 	json["directionZ"] = direction[2];
 
 	json["velocity"] = velocity;
+	json["damage"] = damage;
 }
 
 void BulletComponent::deserialize(nlohmann::json& json) {
@@ -31,7 +32,8 @@ void BulletComponent::deserialize(nlohmann::json& json) {
 	direction[1] = json.value<float>("directionY", 0);
 	direction[2] = json.value<float>("directionZ", 0);
 
-	velocity = json.value<float>("velocity", 0);;
+	velocity = json.value<float>("velocity", 0);
+	damage = json.value<float>("damage", 1.0f);
 }
 
 void BulletComponent::registerUI() {

@@ -38,8 +38,8 @@ namespace Hydra::System {
 		};
 
 		enum CollisionCondition : std::underlying_type<CollisionTypes>::type {
-			playerCollidesWith = COLL_WALL | COLL_ENEMY | COLL_MISC_OBJECT,
-			enemyCollidesWith = COLL_WALL | COLL_PLAYER | COLL_MISC_OBJECT,
+			playerCollidesWith = COLL_WALL | COLL_ENEMY | COLL_MISC_OBJECT | COLL_ENEMY_PROJECTILE,
+			enemyCollidesWith = COLL_WALL | COLL_PLAYER | COLL_MISC_OBJECT | COLL_PLAYER_PROJECTILE,
 			wallCollidesWith = COLL_MISC_OBJECT | COLL_PLAYER | COLL_ENEMY | COLL_ENEMY_PROJECTILE | COLL_PLAYER_PROJECTILE,
 			enemyProjCollidesWith = COLL_PLAYER | COLL_WALL | COLL_MISC_OBJECT,
 			playerProjCollidesWith = COLL_ENEMY | COLL_WALL | COLL_MISC_OBJECT,

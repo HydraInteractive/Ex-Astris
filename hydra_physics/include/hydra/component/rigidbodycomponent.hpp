@@ -34,6 +34,7 @@ namespace Hydra::Component {
 		void createCylinderZ(const glm::vec3& halfExtents, DEFAULT_PARAMS);
 #undef DEFAULT_PARAMS
 
+		void setActivationState(const int newState);
 		void* getRigidBody();
 
 		inline const std::string type() const final { return "RigidBodyComponent"; }
