@@ -8,17 +8,8 @@ BuffHandler::~BuffHandler(){
 
 }
 
-void BuffHandler::getActiveBuffs() {
-	for (size_t i = 0; i < _activeBuffs.size(); i++){
-		switch (_activeBuffs[i]){
-		case BUFF_HEALING:
-			break;
-		case BUFF_DAMAGEUPGRADE:
-			break;
-		default:
-			break;
-		}
-	}
+std::vector<Buffs> BuffHandler::getActiveBuffs() {
+	return _activeBuffs;
 }
 void BuffHandler::getActiveDebuffs() {
 	for (size_t i = 0; i < _activeDebuffs.size(); i++) {

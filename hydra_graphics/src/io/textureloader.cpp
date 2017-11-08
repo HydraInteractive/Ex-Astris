@@ -20,7 +20,7 @@ using namespace Hydra;
 using namespace IO;
 using namespace Renderer;
 
-class HYDRA_API TextureLoaderImpl final : public ITextureLoader {
+class HYDRA_GRAPHICS_API TextureLoaderImpl final : public ITextureLoader {
 public:
 	TextureLoaderImpl() : _errorTexture(_loadErrorTexture()) {
 		if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)){
@@ -43,6 +43,10 @@ public:
 			}
 			catch (const std::exception& e) {
 				IEngine::getInstance()->log(LogLevel::error, "FAILED TO LOAD TEXTURE: %s", e.what());
+				return _errorTexture;
+			}
+			catch (const char* e) {
+				IEngine::getInstance()->log(LogLevel::error, "FAILED TO LOAD TEXTURE: %s", e);
 				return _errorTexture;
 			}
 		}

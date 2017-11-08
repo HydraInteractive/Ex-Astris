@@ -42,7 +42,7 @@ namespace Hydra::Ext {
  * memory use) measured in bytes, or zero if the value cannot be
  * determined on this OS.
  */
-HYDRA_API size_t getPeakRSS() {
+HYDRA_BASE_API size_t getPeakRSS() {
 #if defined(_WIN32)
     /* Windows -------------------------------------------------- */
     PROCESS_MEMORY_COUNTERS info;
@@ -87,7 +87,7 @@ HYDRA_API size_t getPeakRSS() {
  * Returns the current resident set size (physical memory use) measured
  * in bytes, or zero if the value cannot be determined on this OS.
  */
-HYDRA_API size_t getCurrentRSS()
+HYDRA_BASE_API size_t getCurrentRSS()
 {
 #if defined(_WIN32)
     /* Windows -------------------------------------------------- */

@@ -96,6 +96,6 @@ struct ClientUpdatePacket : Packet {
 
 ServerPlayerPacket* createServerPlayerPacket(std::string name, TransformInfo ti);
 
-ClientUpdatePacket* createClientUpdatePacket(std::shared_ptr<Hydra::World::IEntity> player);
+ClientUpdatePacket* createClientUpdatePacket(Entity* player);
 
-void resolveClientUpdatePacket(Hydra::World::IWorld* world, ClientUpdatePacket* cup, int64_t entityID);
+void resolveClientUpdatePacket(ClientUpdatePacket* cup, EntityID entityID);

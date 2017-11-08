@@ -5,7 +5,8 @@ in VertexData {
 	vec3 normal;
 	vec3 color;
 	vec2 uv;
-	mat3 tbn;
+	vec3 tangent;
+	mat4 m;
 } inData;
 
 layout (location = 0) out vec3 finalColor;

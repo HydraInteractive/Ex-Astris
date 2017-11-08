@@ -1,8 +1,5 @@
 #include <hydra/component/componentmanager_physics.hpp>
 
-using namespace Hydra::Component::ComponentManager;
-
-
 #include <hydra/component/playercomponent.hpp>
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
@@ -10,15 +7,36 @@ using namespace Hydra::Component::ComponentManager;
 #include <hydra/abilities/grenadecomponent.hpp>
 #include <hydra/abilities/minecomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
+#include <hydra/component/lifecomponent.hpp>
+#include <hydra/component/movementcomponent.hpp>
+#include <hydra/component/spawnercomponent.hpp>
+#include <hydra/component/perkcomponent.hpp>
+
+using namespace Hydra::World;
 
 namespace Hydra::Component::ComponentManager {
 	void registerComponents_physics(std::map<std::string, createOrGetComponent_f>& creators) {
+		PlayerComponent::componentHandler = new ComponentHandler<PlayerComponent>();
 		creators["PlayerComponent"] = &createOrGetComponentHelper<PlayerComponent>;
-		creators["EnemyComponent"] = &createOrGetComponentHelper<EnemyComponent>;
+		AIComponent::componentHandler = new ComponentHandler<AIComponent>();
+		creators["AIComponent"] = &createOrGetComponentHelper<AIComponent>;
+		RigidBodyComponent::componentHandler = new ComponentHandler<RigidBodyComponent>();
 		creators["RigidBodyComponent"] = &createOrGetComponentHelper<RigidBodyComponent>;
+		WeaponComponent::componentHandler = new ComponentHandler<WeaponComponent>();
 		creators["WeaponComponent"] = &createOrGetComponentHelper<WeaponComponent>;
+		BulletComponent::componentHandler = new ComponentHandler<BulletComponent>();
 		creators["BulletComponent"] = &createOrGetComponentHelper<BulletComponent>;
+		GrenadeComponent::componentHandler = new ComponentHandler<GrenadeComponent>();
 		creators["GrenadeComponent"] = &createOrGetComponentHelper<GrenadeComponent>;
+		MineComponent::componentHandler = new ComponentHandler<MineComponent>();
 		creators["MineComponent"] = &createOrGetComponentHelper<MineComponent>;
+		LifeComponent::componentHandler = new ComponentHandler<LifeComponent>();
+		creators["LifeComponent"] = &createOrGetComponentHelper<LifeComponent>;
+		MovementComponent::componentHandler = new ComponentHandler<MovementComponent>();
+		creators["MovementComponent"] = &createOrGetComponentHelper<MovementComponent>;
+		SpawnerComponent::componentHandler = new ComponentHandler<SpawnerComponent>();
+		creators["SpawnerComponent"] = &createOrGetComponentHelper<SpawnerComponent>;
+		PerkComponent::componentHandler = new ComponentHandler<PerkComponent>();
+		creators["PerkComponent"] = &createOrGetComponentHelper<PerkComponent>;
 	}
 }

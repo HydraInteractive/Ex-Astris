@@ -16,51 +16,25 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-BulletComponent::BulletComponent(IEntity* entity) : IComponent(entity) {
-
-}
-BulletComponent::BulletComponent(IEntity* entity, glm::vec3 position, glm::vec3 direction, float velocity) : IComponent(entity) {
-	_position = position;
-	_direction = direction;
-	_velocity = velocity;
-	_deleteTimer = SDL_GetTicks();
-}
-
 BulletComponent::~BulletComponent() { }
 
-void BulletComponent::tick(TickAction action, float delta) {
-	// If you only have one TickAction in 'wantTick' you don't need to check the tickaction here.
-	_position += _velocity * _direction * delta;
-	
-	auto transform = entity->getComponent<Component::TransformComponent>();
-	transform->setPosition(_position);
-	//if (SDL_GetTicks() > _deleteTimer + 4*1000){
-	//	entity->markDead();
-	//}
-}
-
 void BulletComponent::serialize(nlohmann::json& json) const {
-	json = {
-		{ "position",{ _position.x, _position.y, _position.z } },
-		{ "direction",{ _direction.x, _direction.y, _direction.z } },
-		{ "velocity", _velocity }
-	};
+	json["directionX"] = direction[0];
+	json["directionY"] = direction[1];
+	json["directionZ"] = direction[2];
+
+	json["velocity"] = velocity;
 }
 
 void BulletComponent::deserialize(nlohmann::json& json) {
-	auto& pos = json["position"];
-	_position = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
+	direction[0] = json.value<float>("directionX", 0);
+	direction[1] = json.value<float>("directionY", 0);
+	direction[2] = json.value<float>("directionZ", 0);
 
-	auto& dir = json["direction"];
-	_direction = glm::vec3{ dir[0].get<float>(), dir[1].get<float>(), dir[2].get<float>() };
-
-	_velocity = json["velocity"].get<float>();
+	velocity = json.value<float>("velocity", 0);;
 }
 
-// Register UI buttons in the debug UI
-// Note: This function won't always be called
 void BulletComponent::registerUI() {
-	ImGui::DragFloat3("Position", glm::value_ptr(_position));
-	ImGui::DragFloat3("Direction", glm::value_ptr(_direction));
-	ImGui::DragFloat("Velocity", &_velocity);
+	ImGui::DragFloat3("Direction", glm::value_ptr(direction));
+	ImGui::DragFloat("Velocity", &velocity);
 }

@@ -9,11 +9,11 @@ private:
 	char* _msg;
 	bool _connected;
 public:
-	HYDRA_API TCPClient();
-	HYDRA_API ~TCPClient();
-	HYDRA_API bool initialize(char* ip, int port);	
-	HYDRA_API int send(void* data, int length);
-	HYDRA_API std::vector<Packet*> receiveData();
-	HYDRA_API bool isConnected();
-	HYDRA_API void close();
+	HYDRA_NETWORK_API TCPClient();
+	HYDRA_NETWORK_API ~TCPClient();
+	HYDRA_NETWORK_API bool initialize(char* ip, int port);
+	HYDRA_NETWORK_API int send(void* data, int length);
+	HYDRA_NETWORK_API std::vector<Packet*> receiveData();
+	HYDRA_NETWORK_API bool isConnected();
+	HYDRA_NETWORK_API void close();
 };

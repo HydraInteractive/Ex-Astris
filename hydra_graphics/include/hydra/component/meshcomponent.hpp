@@ -14,31 +14,29 @@
 #include <hydra/world/world.hpp>
 #include <hydra/renderer/renderer.hpp>
 
+#include <hydra/component/drawobjectcomponent.hpp>
+
 using namespace Hydra::World;
 
 // TODO: Implement LOD
 
 namespace Hydra::Component {
-	enum PrimitiveType : int {Quad = 0};
-	class HYDRA_API MeshComponent final : public IComponent {
-	public:
-		MeshComponent(IEntity* entity);
-		MeshComponent(IEntity* entity, const std::string& meshFile);
+	struct HYDRA_GRAPHICS_API MeshComponent final : public IComponent<MeshComponent, ComponentBits::Mesh> {
+		std::string meshFile;
+		std::shared_ptr<DrawObjectComponent> drawObject;
+		std::shared_ptr<Hydra::Renderer::IMesh> mesh;
+		int currentFrame = 1;
+		int animationIndex = 0;
+		float animationCounter = 0;
+
 		~MeshComponent() final;
 
-		void tick(TickAction action, float delta) final;
-		inline TickAction wantTick() const final { return TickAction::render; }
+		void loadMesh(const std::string meshFile);
 
 		inline const std::string type() const final { return "MeshComponent"; }
 
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
-		void disable() { _drawObject->disable = true; }
-
-	private:
-		std::string _meshFile;
-		Hydra::Renderer::DrawObject* _drawObject;
-		std::shared_ptr<Hydra::Renderer::IMesh> _mesh;
 	};
 };

@@ -3,7 +3,7 @@
 #include <SDL2/SDL.h>
 
 #include <memory>
- 
+
 #include <hydra/view/sdlview.hpp>
 #include <hydra/renderer/glrenderer.hpp>
 
@@ -36,24 +36,33 @@ static inline void reportMemoryLeaks() {}
 
 namespace Barcode {
 	using namespace Hydra;
+
 	class Engine final : public IEngine {
 	public:
 		Engine() {
 			IEngine::getInstance() = this;
 
-			_view = View::SDLView::create();
+			_view = View::SDLView::create("Ex Astris");
 			_renderer = Renderer::GLRenderer::create(*_view);
 			_uiRenderer = Renderer::UIRenderer::create(*_view);
 
 			_setupComponents();
 		}
 
-		~Engine() final { setState_(nullptr); }
+		~Engine() final {
+			setState_(nullptr);
+
+			// Mirror Hydra::World::World::reset, but without create a new world root
+			Hydra::World::World::_isResetting = true;
+			Hydra::World::World::_entities.clear();
+			Hydra::World::World::_map.clear();
+		}
 
 		void run() final {
 			auto lastTime = std::chrono::high_resolution_clock::now();
 			_state = std::move(_newState);
 			_uiRenderer->reset();
+			Hydra::World::World::reset();
 			_state->load();
 			_quit = false;
 
@@ -61,10 +70,14 @@ namespace Barcode {
 				auto nowTime = std::chrono::high_resolution_clock::now();
 				float delta = std::chrono::duration<float, std::chrono::milliseconds::period>(nowTime - lastTime).count() / 1000.f;
 				lastTime = nowTime;
-				{ // Remove old dead objects
-					_state->getWorld()->tick(TickAction::checkDead, delta);
-					_renderer->cleanup();
+
+				{ // Fetch new events
+					_view->update(_uiRenderer.get());
+					_uiRenderer->newFrame();
 				}
+
+				_deadSystem.tick(delta);
+				_renderer->cleanup();
 
 				_state->runFrame(delta);
 				_uiRenderer->render(delta);
@@ -73,9 +86,12 @@ namespace Barcode {
 				if (_newState) {
 					_state = std::move(_newState);
 					_uiRenderer->reset();
+					Hydra::World::World::reset();
 					_state->load();
 				}
 			}
+
+			Hydra::World::World::reset();
 		}
 
 		void quit() final { _quit = true; }
@@ -101,11 +117,19 @@ namespace Barcode {
 		View::IView* getView() final { return _view.get(); }
 		Renderer::IRenderer* getRenderer() final { return _renderer.get(); }
 		Renderer::IUIRenderer* getUIRenderer() final { return _uiRenderer.get(); }
+		Hydra::System::DeadSystem* getDeadSystem() final { return &_deadSystem; }
 
 		void log(LogLevel level, const char* fmt, ...) {
 			va_list va;
 			va_start(va, fmt);
+#ifdef __linux__
+			static const char* color[] = {"\x1b[39;1m", "\x1b[33;1m", "\x1b[31;1m", "\x1b[37;41;1m"};
+			fputs(color[static_cast<int>(level)], stderr);
+#endif
 			vfprintf(stderr, fmt, va);
+#ifdef __linux__
+			fputs("\x1b[0m", stderr);
+#endif
 			fputc('\n', stderr);
 			va_end(va);
 
@@ -122,6 +146,8 @@ namespace Barcode {
 
 		std::unique_ptr<IState> _state;
 		std::unique_ptr<IState> _newState;
+
+		Hydra::System::DeadSystem _deadSystem;
 
 		void _setupComponents() {
 			using namespace Component::ComponentManager;
@@ -142,7 +168,7 @@ int main(int argc, char** argv) {
 		reportMemoryLeaks();
 		srand(time(NULL));
 		Barcode::Engine engine;
-		engine.setState<Barcode::GameState>();
+		engine.setState<Barcode::MenuState>();
 		engine.run();
 		return 0;
 	} catch (const char * msg) {

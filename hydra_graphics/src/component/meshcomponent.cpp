@@ -18,37 +18,30 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-MeshComponent::MeshComponent(IEntity* entity) : IComponent(entity), _meshFile(""), _drawObject(entity->getDrawObject()) {
-	_drawObject->refCounter++;
-	_drawObject->mesh = nullptr;
-}
+MeshComponent::~MeshComponent() {}
 
-MeshComponent::MeshComponent(IEntity* entity, const std::string& meshFile) : IComponent(entity), _meshFile(meshFile), _drawObject(entity->getDrawObject()) {
-	_mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(meshFile);
-	_drawObject->refCounter++;
-	_drawObject->mesh = _mesh.get();
-}
+void MeshComponent::loadMesh(const std::string meshFile) {
+	this->meshFile = meshFile;
+	drawObject = Hydra::World::World::getEntity(entityID)->addComponent<DrawObjectComponent>();
+	mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(meshFile);
+	drawObject->drawObject->mesh = mesh.get();
 
-MeshComponent::~MeshComponent() {
-	_drawObject->mesh = nullptr;
-	_drawObject->refCounter--;
-}
-
-void MeshComponent::tick(TickAction action, float delta) {
-	// _drawObject->mesh = _mesh.get();
+	if (meshFile == "QUAD")
+		drawObject->drawObject->disable = true;
 }
 
 void MeshComponent::serialize(nlohmann::json& json) const {
-	json["meshFile"] = _meshFile;
+	json["meshFile"] = meshFile;
+	json["currentFrame"] = currentFrame;
+	json["animationCounter"] = animationCounter;
 }
 
 void MeshComponent::deserialize(nlohmann::json& json) {
-	_meshFile = json["meshFile"].get<std::string>();
-	_mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(_meshFile);
-	_drawObject->mesh = _mesh.get();
+	loadMesh(json["meshFile"].get<std::string>());
+	currentFrame = json.value<int>("currentFrame", 0);
+	animationCounter = json.value<float>("animationCounter", 0);
 }
 
 void MeshComponent::registerUI() {
-	ImGui::Checkbox("Disable", &_drawObject->disable);
-	ImGui::InputText("Mesh file", (char*)_meshFile.c_str(), _meshFile.length(), ImGuiInputTextFlags_ReadOnly);
+	ImGui::InputText("Mesh file", (char*)meshFile.c_str(), meshFile.length(), ImGuiInputTextFlags_ReadOnly);
 }

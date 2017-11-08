@@ -13,6 +13,6 @@
 
 namespace Hydra::View {
 	namespace SDLView {
-		HYDRA_API std::unique_ptr<IView> create();
+		HYDRA_GRAPHICS_API std::unique_ptr<IView> create(const std::string& title);
 	};
 }
