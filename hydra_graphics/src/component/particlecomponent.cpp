@@ -12,17 +12,17 @@ using namespace Hydra::Component;
 ParticleComponent::~ParticleComponent() {}
 
 void ParticleComponent::serialize(nlohmann::json & json) const{
-	json = {
-		{ "delay", delay},
-		{ "accumulator", accumulator},
-		{ "behaviour", static_cast<int>(behaviour)},
-		{ "texture", static_cast<int>(texture)}
-	};
+	json["delay"] = delay;
+	json["accumulator"] = accumulator;
+	json["behaviour"] = static_cast<int>(behaviour);
+	json["texture"] = static_cast<int>(texture);
 }
 
 void ParticleComponent::deserialize(nlohmann::json & json){
-	delay = json["delay"].get<float>();
-	accumulator = json["accumulator"].get<int>();
+
+
+	delay = json.value<float>("delay", 0);
+	accumulator = json.value<int>("accumulator", 0);
 
 	behaviour = static_cast<EmitterBehaviour>(json["behaviour"].get<int>());
 	texture = static_cast<ParticleTexture>(json["texture"].get<int>());
@@ -111,6 +111,27 @@ void ParticleComponent::spawnParticles() {
 			const float life = frand() + 1.f;
 
 			const glm::vec3 vel = glm::normalize(glm::vec3(velX, velY, velZ));
+			const glm::vec3 acc = glm::vec3(accX, accY, accZ);
+			p->respawn(*t, vel, acc, life);
+		}
+		break;
+	case EmitterBehaviour::Explosion:
+		while (accumulator >= delay) {
+			Particle* p = findFree();
+			if (!p)
+				break;
+
+			accumulator -= delay;
+			const float velX = (frand() * 6.0f - 3.0f) + optionalNormal.x;
+			const float velY = (frand() * 6.0f - 2.0f) + optionalNormal.y;
+			const float velZ = (frand() * 6.0f - 3.0f) + optionalNormal.z;
+
+			const float accX = velX * 2.0f;
+			const float accY = velY * 2.0f;
+			const float accZ = velZ * 2.0f;
+
+			const float life = 4.0f;
+			const glm::vec3 vel = normalize(glm::vec3(velX, velY, velZ));
 			const glm::vec3 acc = glm::vec3(accX, accY, accZ);
 			p->respawn(*t, vel, acc, life);
 		}

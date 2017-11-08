@@ -8,6 +8,8 @@
 #pragma once
 
 #include <hydra/world/world.hpp>
+#include <btBulletDynamicsCommon.h>
+#define BIT(x) (1 << (x))
 
 namespace Hydra::System {
 	class HYDRA_PHYSICS_API BulletPhysicsSystem final : public Hydra::World::ISystem {
@@ -24,6 +26,26 @@ namespace Hydra::System {
 			CylinderY, // btCylinderShape
 			CylinderZ
 		};
+
+		enum CollisionTypes : const int{
+			COLL_NOTHING = 0,
+			COLL_WALL = BIT(1),
+			COLL_PLAYER = BIT(2),
+			COLL_ENEMY = BIT(3),
+			COLL_PLAYER_PROJECTILE = BIT(4),
+			COLL_ENEMY_PROJECTILE = BIT(5),
+			COLL_MISC_OBJECT = BIT(6)
+		};
+
+		enum CollisionCondition : std::underlying_type<CollisionTypes>::type {
+			playerCollidesWith = COLL_WALL | COLL_ENEMY | COLL_MISC_OBJECT | COLL_ENEMY_PROJECTILE,
+			enemyCollidesWith = COLL_WALL | COLL_PLAYER | COLL_MISC_OBJECT | COLL_PLAYER_PROJECTILE,
+			wallCollidesWith = COLL_MISC_OBJECT | COLL_PLAYER | COLL_ENEMY | COLL_ENEMY_PROJECTILE | COLL_PLAYER_PROJECTILE,
+			enemyProjCollidesWith = COLL_PLAYER | COLL_WALL | COLL_MISC_OBJECT,
+			playerProjCollidesWith = COLL_ENEMY | COLL_WALL | COLL_MISC_OBJECT,
+			miscObjectCollidesWith = COLL_WALL | COLL_ENEMY | COLL_PLAYER | COLL_ENEMY_PROJECTILE | COLL_PLAYER_PROJECTILE
+		};
+
 		BulletPhysicsSystem();
 		~BulletPhysicsSystem() final;
 
@@ -37,6 +59,7 @@ namespace Hydra::System {
 		void registerUI() final;
 
 	private:
+		void _spawnParticleEmitterAt(btVector3 pos, btVector3 normal);
 		struct Data;
 		Data* _data;
 	};

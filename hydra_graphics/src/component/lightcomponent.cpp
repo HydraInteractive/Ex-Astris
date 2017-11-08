@@ -7,29 +7,43 @@ using namespace Hydra::Component;
 LightComponent::~LightComponent() {}
 
 void LightComponent::serialize(nlohmann::json& json) const {
-	json = {
-		{ "position",{ position.x, position.y, position.z } },
-		{ "direction", { direction.x, direction.y, direction.z } },
-		{ "color", { color.x, color.y, color.z }},
-		{ "fov", fov },
-		{ "zNear", zNear },
-		{ "zFar", zFar }
-	};
+	json["positionX"] = position[0];
+	json["positionY"] = position[1];
+	json["positionZ"] = position[2];
+
+	json["orientationX"] = direction[0];
+	json["orientationY"] = direction[1];
+	json["orientationZ"] = direction[2];
+
+	json["colorX"] = color[0];
+	json["colorY"] = color[1];
+	json["colorZ"] = color[2];
+
+	json["fov"] = fov;
+
+	json["zNear"] = zNear;
+
+	json["zFar"] = zFar;
 }
 
 void LightComponent::deserialize(nlohmann::json& json) {
-	auto& pos = json["position"];
-	position = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
+	position[0] = json.value<float>("positionX", 0);
+	position[1] = json.value<float>("positionY", 0);
+	position[2] = json.value<float>("positionZ", 0);
 
-	auto& dir = json["direction"];
-	direction = glm::vec3{ dir[0].get<float>(), dir[1].get<float>(), dir[2].get<float>() };
+	direction[0] = json.value<float>("orientationX", 0);
+	direction[1] = json.value<float>("orientationXY", 0);
+	direction[2] = json.value<float>("orientationZ", 0);
 
-	auto& c = json["color"];
-	color = glm::vec3{ c[0].get<float>(), c[1].get<float>(), c[2].get<float>() };
+	color[0] = json.value<float>("colorX", 0);
+	color[1] = json.value<float>("colorY", 0);
+	color[2] = json.value<float>("colorZ", 0);
 
-	fov = json["fov"].get<float>();
-	zNear = json["zNear"].get<float>();
-	zFar = json["zFar"].get<float>();
+	fov = json.value<float>("fov", 0);
+
+	zNear = json.value<float>("zNear", 0);
+
+	zFar = json.value<float>("zFar", 0);
 }
 
 void LightComponent::registerUI() {

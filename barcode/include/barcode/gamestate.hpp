@@ -32,6 +32,7 @@
 #include <hydra/system/lightsystem.hpp>
 #include <hydra/system/particlesystem.hpp>
 #include <hydra/system/abilitysystem.hpp>
+#include <hydra/system/lifesystem.hpp>
 #include <hydra/system/aisystem.hpp>
 #include <hydra/system/bulletphysicssystem.hpp>
 #include <hydra/system/bulletsystem.hpp>
@@ -97,6 +98,7 @@ namespace Barcode {
 		Hydra::System::LightSystem _lightSystem;
 		Hydra::System::ParticleSystem _particleSystem;
 		Hydra::System::AbilitySystem _abilitySystem;
+		Hydra::System::LifeSystem _lifeSystem;
 		Hydra::System::AISystem _aiSystem;
 		Hydra::System::BulletPhysicsSystem _physicsSystem;
 		Hydra::System::BulletSystem _bulletSystem;

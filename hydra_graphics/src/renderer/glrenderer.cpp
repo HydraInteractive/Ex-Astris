@@ -228,7 +228,7 @@ public:
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
 
 		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDepthMask(GL_FALSE);
 		auto& particles = batch.textureInfo;
 		size_t sizeParticles = particles.size() / 3;
@@ -321,6 +321,7 @@ public:
 		}
 
 		drawObjPtr = drawObj.get();
+		*drawObjPtr = DrawObject();
 		_activeDrawObjects.push_back(std::move(drawObj));
 		return drawObjPtr;
 	}

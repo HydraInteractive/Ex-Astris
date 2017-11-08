@@ -18,17 +18,18 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API MovementComponent final : public IComponent<MovementComponent, ComponentBits::Movement>{
-	glm::vec3 velocity = glm::vec3{ 0, 0, 0 };
-	glm::vec3 acceleration = glm::vec3{ 0, 0, 0 };
-	float movementSpeed = 20.0f;
+		glm::vec3 direction = glm::vec3{0, 0, 0};
+		glm::vec3 velocity = glm::vec3{0, 0, 0};
+		glm::vec3 acceleration = glm::vec3{0, 0, 0};
+		float movementSpeed = 20.0f;
 
-	~MovementComponent() final;
+		~MovementComponent() final;
 
-	inline const std::string type() const final { return "MovementComponent"; }
+		inline const std::string type() const final { return "MovementComponent"; }
 
-	void serialize(nlohmann::json& json) const final;
-	void deserialize(nlohmann::json& json) final;
-	void registerUI() final;
+		void serialize(nlohmann::json& json) const final;
+		void deserialize(nlohmann::json& json) final;
+		void registerUI() final;
 	};
 };
 

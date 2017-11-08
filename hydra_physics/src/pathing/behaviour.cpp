@@ -10,6 +10,7 @@
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
+#include <glm/gtx/transform.hpp>
 
 Behaviour::Behaviour(std::shared_ptr<Hydra::World::Entity> enemy)
 {
@@ -49,7 +50,8 @@ bool Behaviour::refreshRequiredComponents()
 		(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>()) &&
 		(thisEnemy.drawObject = thisEnemy.entity->getComponent<Hydra::Component::DrawObjectComponent>()) &&
 		(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>()) &&
-		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>()) &&
+		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>()) && 
+		(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>()) &&
 		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity()) &&
 		(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>()) &&
 		(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>())
@@ -149,9 +151,8 @@ unsigned int Behaviour::foundState(float dt)
 
 			glm::vec3 direction = glm::normalize(targetDistance);
 
-			thisEnemy.movement->velocity.x = (thisEnemy.movement->movementSpeed * direction.x) * dt;
-			thisEnemy.movement->velocity.z = (thisEnemy.movement->movementSpeed * direction.z) * dt;
-
+			thisEnemy.movement->velocity.x = (thisEnemy.movement->movementSpeed * direction.x);
+			thisEnemy.movement->velocity.z = (thisEnemy.movement->movementSpeed * direction.z);
 			if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) <= range)
 			{
 				isAtGoal = true;
@@ -213,65 +214,16 @@ unsigned int Behaviour::attackingState(float dt)
 
 void Behaviour::executeTransforms()
 {
-	/*thisEnemy.ai->_playerSeen = thisEnemy.ai->_checkLOS(thisEnemy.ai->_map, thisEnemy.transform->position, targetPlayer.transform->position);*/
+	range = originalRange;
 
-	/*if (thisEnemy.ai->_playerSeen == false)
-	{
-		if (thisEnemy.ai->_range > 0.5f)
-		{
-			thisEnemy.ai->_range -= 0.5f;
-		}
-	}
-	else
-	{*/
-		range = originalRange;
-	//}
-
-	thisEnemy.transform->position += glm::vec3(thisEnemy.movement->velocity.x, thisEnemy.movement->velocity.y, thisEnemy.movement->velocity.z);
-	thisEnemy.transform->setPosition(thisEnemy.transform->position);
+	auto rigidBody = static_cast<btRigidBody*>(thisEnemy.rigidBody->getRigidBody());
+	glm::vec3 movementForce = thisEnemy.movement->velocity;
+	//if (movementForce.x = 0 && movementForce.y == 0 && movementForce.z == 0)
+	//	rigidBody->clearForces();
+	//else
+	rigidBody->setLinearVelocity(btVector3(movementForce.x, movementForce.y, movementForce.z));
+	
 	thisEnemy.transform->setRotation(rotation);
-
-	/*if (thisEnemy.transform->position.x != _oldMapPosX && thisEnemy.transform->position.z != _oldMapPosZ)
-	{
-		_map[_oldMapPosX][_oldMapPosZ] = 0;
-		if (thisEnemy.transform->position.x <= 0 || thisEnemy.transform->position.z <= 0)
-		{
-			_oldMapPosX = thisEnemy.transform->position.x - mapOffset.x;
-			_oldMapPosZ = thisEnemy.transform->position.z - mapOffset.z;
-		}
-		else
-		{
-			_oldMapPosX = thisEnemy.transform->position.x;
-			_oldMapPosZ = thisEnemy.transform->position.z;
-		}
-		_map[_oldMapPosX][_oldMapPosZ] = 2;
-	}
-	else if (thisEnemy.transform->position.x != _oldMapPosX && thisEnemy.transform->position.z == _oldMapPosZ)
-	{
-		_map[_oldMapPosX][_oldMapPosZ] = 0;
-		if (thisEnemy.transform->position.x <= 0 || thisEnemy.transform->position.z <= 0)
-		{
-			_oldMapPosX = thisEnemy.transform->position.x + mapOffset.x;
-		}
-		else
-		{
-			_oldMapPosX = thisEnemy.transform->position.x;
-		}
-		_map[_oldMapPosX][_oldMapPosZ] = 2;
-	}
-	else if (thisEnemy.transform->position.z != _oldMapPosZ && thisEnemy.transform->position.x == _oldMapPosX)
-	{
-		_map[_oldMapPosX][_oldMapPosZ] = 0;
-		if (thisEnemy.transform->position.x <= 0 || thisEnemy.transform->position.z <= 0)
-		{
-			_oldMapPosZ = thisEnemy.transform->position.z + mapOffset.z;
-		}
-		else
-		{
-			_oldMapPosZ = thisEnemy.transform->position.z;
-		}
-		_map[_oldMapPosX][_oldMapPosZ] = 2;
-	}*/
 }
 
 AlienBehaviour::AlienBehaviour(std::shared_ptr<Hydra::World::Entity> enemy) : Behaviour(enemy)
@@ -297,11 +249,6 @@ void AlienBehaviour::run(float dt)
 			return;
 
 	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
-	if (!thisEnemy.life->statusCheck())
-	{
-		thisEnemy.entity->dead = true;
-	}
-
 	thisEnemy.ai->debugState = state;
 
 	idleTimer += dt;
@@ -377,10 +324,11 @@ void RobotBehaviour::run(float dt)
 	if (!hasRequiredComponents || !refreshRequiredComponents())
 		return;
 	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
-	if (!thisEnemy.life->statusCheck())
-	{
-		thisEnemy.entity->dead = true;
-	}
+	// Same as above.
+	//if (!thisEnemy.life->statusCheck())
+	//{
+	//	thisEnemy.entity->dead = true;
+	//}
 
 	thisEnemy.ai->debugState = state;
 
@@ -465,10 +413,11 @@ void AlienBossBehaviour::run(float dt)
 		return;
 
 	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
-	if (!thisEnemy.life->statusCheck())
-	{
-		thisEnemy.entity->dead = true;
-	}
+	// Same as above.
+	//if (!thisEnemy.life->statusCheck())
+	//{
+	//	thisEnemy.entity->dead = true;
+	//}
 
 	thisEnemy.ai->debugState = state;
 
@@ -555,7 +504,7 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 					if (spawnTimer >= 2)
 					{
 						auto alienSpawn = world::newEntity("AlienSpawn", world::root());
-						auto a = alienSpawn->addComponent <Hydra::Component::AIComponent>();
+						auto a = alienSpawn->addComponent<Hydra::Component::AIComponent>();
 						a->behaviour = std::make_shared<AlienBehaviour>(alienSpawn);
 						a->damage = 4;
 						a->behaviour->originalRange = 4;

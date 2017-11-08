@@ -118,7 +118,7 @@ void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode, in
 
 	MapVec currentPos = MapVec(x, z);
 
-	//If the node has already been visited, don't worry about it
+	//If the node has already been visited, don't worry about itas
 	for (size_t i = 0; i < _visitedList.size(); i++)
 	{
 		if (currentPos == _visitedList[i]->pos)

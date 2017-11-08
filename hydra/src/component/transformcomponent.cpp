@@ -32,22 +32,22 @@ TransformComponent::~TransformComponent() {
 
 void TransformComponent::serialize(nlohmann::json& json) const {
 	json = {
-		{"position", {position.x, position.y, position.z}},
-		{"scale", {scale.x, scale.y, scale.z}},
-		{"rotation", {rotation.x, rotation.y, rotation.z, rotation.w}},
-		{"ignoreParent", ignoreParent}
+		{ "position",{ position.x, position.y, position.z } },
+		{ "scale",{ scale.x, scale.y, scale.z } },
+		{ "rotation",{ rotation.x, rotation.y, rotation.z, rotation.w } },
+		{ "ignoreParent", ignoreParent }
 	};
 }
 
 void TransformComponent::deserialize(nlohmann::json& json) {
 	auto& pos = json["position"];
-	position = glm::vec3{pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>()};
+	position = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
 
 	auto& s = json["scale"];
-	scale = glm::vec3{s[0].get<float>(), s[1].get<float>(), s[2].get<float>()};
+	scale = glm::vec3{ s[0].get<float>(), s[1].get<float>(), s[2].get<float>() };
 
 	auto& rot = json["rotation"];
-	rotation = glm::quat{rot[3].get<float>(), rot[0].get<float>(), rot[1].get<float>(), rot[2].get<float>()};
+	rotation = glm::quat{ rot[3].get<float>(), rot[0].get<float>(), rot[1].get<float>(), rot[2].get<float>() };
 
 	ignoreParent = json["ignoreParent"].get<bool>();
 }

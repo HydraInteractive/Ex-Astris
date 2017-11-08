@@ -22,7 +22,7 @@ void Hydra::Component::LifeComponent::applyDamage(int damage)
 {
 	if (health > 0)
 	{
-		health = -damage;
+		health -= damage;
 	}
 }
 
@@ -40,20 +40,18 @@ bool Hydra::Component::LifeComponent::statusCheck()
 
 void Hydra::Component::LifeComponent::serialize(nlohmann::json & json) const
 {
-	json = {
-		{ "maxHP", maxHP },
-		{ "health", health },
-	};
+	json["maxHP"] = maxHP;
+	json["health"] = health;
 }
 
 void Hydra::Component::LifeComponent::deserialize(nlohmann::json & json)
 {
-	maxHP = json["maxHP"].get<int>();
-	health = json["health"].get<int>();
+	maxHP = json.value<int>("maxHP", 0);
+	health = json.value<int>("health", 0);
 }
 
 void Hydra::Component::LifeComponent::registerUI()
 {
-	ImGui::InputInt("maxHP", &maxHP);
-	ImGui::InputInt("health", &health);
+	ImGui::InputFloat("maxHP", &maxHP);
+	ImGui::InputFloat("health", &health);
 }

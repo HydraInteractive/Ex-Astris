@@ -14,7 +14,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{B7CE4AD1-7A40-44C6-B3B2-87072101411A}</ProjectGuid>
     <RootNamespace>hydra_physics</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -76,7 +76,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_graphics/lib-include;$(SolutionDir)/hydra_physics/include;$(SolutionDir)/hydra/include;$(SolutionDir)/hydra/lib-include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_sound/include;$(SolutionDir)/hydra_graphics/lib-include;$(SolutionDir)/hydra_physics/include;$(SolutionDir)/hydra/include;$(SolutionDir)/hydra/lib-include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_PHYSICS_EXPORTS;BT_THREADSAFE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -92,8 +92,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\abilities\abilityHandler.cpp" />
-    <ClCompile Include="src\abilities\buffHandler.cpp" />
+    <ClCompile Include="src\abilities\abilities.cpp" />
     <ClCompile Include="src\abilities\grenadecomponent.cpp" />
     <ClCompile Include="src\abilities\minecomponent.cpp" />
     <ClCompile Include="src\component\aicomponent.cpp" />
@@ -110,6 +109,7 @@
     <ClCompile Include="src\pathing\pathfinding.cpp" />
     <ClCompile Include="src\system\abilitysystem.cpp" />
     <ClCompile Include="src\system\aisystem.cpp" />
+    <ClCompile Include="src\system\lifesystem.cpp" />
     <ClCompile Include="src\system\perksystem.cpp" />
     <ClCompile Include="src\system\bulletphysicssystem.cpp" />
     <ClCompile Include="src\system\bulletsystem.cpp" />
@@ -117,8 +117,7 @@
     <ClCompile Include="src\system\spawnersystem.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\hydra\abilities\abilityHandler.hpp" />
-    <ClInclude Include="include\hydra\abilities\buffHandler.hpp" />
+    <ClInclude Include="include\hydra\abilities\abilities.hpp" />
     <ClInclude Include="include\hydra\abilities\grenadecomponent.hpp" />
     <ClInclude Include="include\hydra\abilities\minecomponent.hpp" />
     <ClInclude Include="include\hydra\component\aicomponent.hpp" />
@@ -139,6 +138,7 @@
     <ClInclude Include="include\hydra\system\perksystem.hpp" />
     <ClInclude Include="include\hydra\system\bulletphysicssystem.hpp" />
     <ClInclude Include="include\hydra\system\bulletsystem.hpp" />
+    <ClInclude Include="include\hydra\system\lifesystem.hpp" />
     <ClInclude Include="include\hydra\system\playersystem.hpp" />
     <ClInclude Include="include\hydra\system\spawnersystem.hpp" />
   </ItemGroup>

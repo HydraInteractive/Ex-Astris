@@ -8,6 +8,8 @@
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
+#include <hydra/component/rigidbodycomponent.hpp>
+#include <hydra/engine.hpp>
 
 using namespace Hydra::System;
 
@@ -54,6 +56,13 @@ void SpawnerSystem::tick(float delta)
 					auto t = alienSpawn->addComponent<Hydra::Component::TransformComponent>();
 					t->position = transform->position;
 					t->scale = glm::vec3{ 2,2,2 };
+
+					auto bulletPhysWorld = static_cast<Hydra::System::BulletPhysicsSystem*>(IEngine::getInstance()->getState()->getPhysicsSystem());
+
+					auto rgbc = alienSpawn->addComponent<Hydra::Component::RigidBodyComponent>();
+					rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f);
+					static_cast<btRigidBody*>(rgbc->getRigidBody())->setActivationState(DISABLE_DEACTIVATION);
+					bulletPhysWorld->enable(rgbc.get());
 
 					alienSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
 					spawner->spawnGroup.push_back(alienSpawn);

@@ -21,6 +21,9 @@ SoundFxSystem::~SoundFxSystem() {}
 void SoundFxSystem::tick(float delta) {
 	std::shared_ptr<Hydra::World::Entity> player;
 	world::getEntitiesWithComponents<PlayerComponent>(entities);
+	if (entities.empty())
+		return;
+
 	player = entities[0];
 	auto playerCamera = player->getComponent<CameraComponent>();
 	glm::mat4 rotation = glm::mat4_cast(playerCamera->orientation);

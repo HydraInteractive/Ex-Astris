@@ -17,8 +17,8 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API LifeComponent final : public IComponent<LifeComponent, ComponentBits::Life>{
-	int maxHP = 100;
-	int health = 100;
+	float maxHP = 100;
+	float health = 100;
 
 	~LifeComponent() final;
 
