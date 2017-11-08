@@ -131,9 +131,6 @@ namespace Barcode {
 			_blurrExtraFBO2
 				->addTexture(0, Hydra::Renderer::TextureType::u8RGB)
 				.finalize();
-
-			_fiveGaussianKernel1 = { 0.227027f, 0.1945946f, 0.1216216f, 0.054054f, 0.016216f };
-			_fiveGaussianKernel2 = { 0.102637f, 0.238998f, 0.31673f, 0.238998f, 0.102637f };
 		}
 
 		{ // PARTICLES
@@ -197,7 +194,7 @@ namespace Barcode {
 			batch.pipeline->attachStage(*batch.fragmentShader);
 			batch.pipeline->finalize();
 
-			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize / 4, 0);
+			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize / 2, 0);
 			batch.output->addTexture(0, Hydra::Renderer::TextureType::f16R).finalize();
 
 
@@ -481,7 +478,7 @@ namespace Barcode {
 
 			_engine->getRenderer()->postProcessing(_ssaoBatch.batch);
 			int nrOfTimes = 1;
-			_blurGlowTexture((*_ssaoBatch.output)[0], nrOfTimes, (*_ssaoBatch.output)[0]->getSize(), _fiveGaussianKernel1, enableBlur);
+			_blurGlowTexture((*_ssaoBatch.output)[0], nrOfTimes, (*_ssaoBatch.output)[0]->getSize(), enableBlur);
 		}
 
 		{ // Lighting pass
@@ -531,14 +528,13 @@ namespace Barcode {
 
 				glm::vec2 size = windowSize;
 
-				_blurGlowTexture((*_lightingBatch.output)[1], nrOfTimes, size * 0.25f, _fiveGaussianKernel2, enableBlur);
+				_blurGlowTexture((*_lightingBatch.output)[1], nrOfTimes, size * 0.5f, enableBlur);
 
 				_glowBatch.batch.pipeline = _glowPipeline.get();
 
 				_glowBatch.batch.pipeline->setValue(1, 1);
 				_glowBatch.batch.pipeline->setValue(2, 2);
-				_glowBatch.batch.pipeline->setValue(3, 5);
-
+				(*_blurrExtraFBO1)[0]->generateMipMaps();
 				(*_lightingBatch.output)[0]->bind(1);
 				(*_blurrExtraFBO1)[0]->bind(2);
 
@@ -1044,18 +1040,14 @@ namespace Barcode {
 		}
 	}
 
-	std::shared_ptr<Hydra::Renderer::IFramebuffer> GameState::_blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int nrOfTimes, glm::vec2 size, const std::vector<float>& kernel, bool blurEnabled) {
+	std::shared_ptr<Hydra::Renderer::IFramebuffer> GameState::_blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int nrOfTimes, glm::vec2 size, bool blurEnabled) {
 		// TO-DO: Make it agile so it can blur any texture
 		_glowBatch.pipeline->setValue(1, 1); // This bind will never change
 		bool horizontal = true;
 		bool firstPass = true;
 		_blurrExtraFBO1->resize(size);
 		_blurrExtraFBO2->resize(size);
-		_glowBatch.pipeline->setValue(3, 5);
 
-		//for (int i = 0; i < 5; i++) {
-		//	_glowBatch.pipeline->setValue(4 + i, kernel[i]);
-		//}
 		for (int i = 0; i < nrOfTimes * 2; i++) {
 			if (firstPass) {
 				_glowBatch.batch.renderTarget = _blurrExtraFBO2.get();

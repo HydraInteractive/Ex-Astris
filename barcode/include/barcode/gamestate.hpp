@@ -129,8 +129,6 @@ namespace Barcode {
 		// Extra framebuffers, pipeline and shaders for glow/bloom/blur
 		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurrExtraFBO1;
 		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurrExtraFBO2;
-		std::vector<float> _fiveGaussianKernel1;
-		std::vector<float> _fiveGaussianKernel2;
 
 		std::shared_ptr<Hydra::Renderer::IPipeline> _glowPipeline;
 		std::unique_ptr<Hydra::Renderer::IShader> _glowVertexShader;
@@ -153,7 +151,7 @@ namespace Barcode {
 		void _initSystem();
 		void _initWorld();
 
-		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int nrOfTimes, glm::vec2 size, const std::vector<float>& kernel, bool blurEnabled);
+		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int nrOfTimes, glm::vec2 size, bool blurEnabled);
 	};
 
 	//class DemoWindow : public TBWindow

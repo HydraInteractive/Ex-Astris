@@ -5,10 +5,8 @@ in vec2 texCoords;
 layout(location = 0) out vec3 blurOutput;
 layout(location = 1) uniform sampler2D prevImage;
 layout(location = 2) uniform bool horizontal;
-layout(location = 3) uniform int kernelSize;
 uniform float offset[3] = float[]( 0.0, 1.3846153846, 3.2307692308 );
 uniform float weight[3] = float[]( 0.2270270270, 0.3162162162, 0.0702702703 );
-//layout(location = 4) uniform float weight[5];
 
 void main() {
 	ivec2 imageSize = textureSize(prevImage, 0);

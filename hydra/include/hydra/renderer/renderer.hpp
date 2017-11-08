@@ -60,6 +60,7 @@ namespace Hydra::Renderer {
 		virtual uint32_t getID() const = 0;
 		virtual void setRepeat() = 0;
 		virtual void setClamp() = 0;
+		virtual void generateMipMaps() = 0;
 
 		virtual void setData(const glm::ivec2& offset, const glm::ivec2& size, const void* data) = 0;
 	};
@@ -70,6 +71,7 @@ namespace Hydra::Renderer {
 		virtual ~IRenderTarget() = 0;
 		inline void setRepeat() final{}
 		inline void setClamp() final{}
+		inline void generateMipMaps() final{}
 	};
 	inline IRenderTarget::~IRenderTarget() {}
 
