@@ -32,7 +32,8 @@ void PerkSystem::tick(float delta) {
 			&& !perks->activeAbilities.empty()
 			&& perks->activeAbilities[perks->activeAbility]->cooldown == 0) {
 			perks->activeAbilities[perks->activeAbility]->useAbility(entities[i]);
-			perks->activeAbility++;
+			if (++perks->activeAbility >= perks->activeAbilities.size())
+				perks->activeAbility = 0;
 		}
 
 		//Active abilities tick

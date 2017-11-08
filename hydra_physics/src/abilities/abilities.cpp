@@ -101,8 +101,8 @@ void BulletSprayAbillity::tick(float delta, const std::shared_ptr<Hydra::World::
 		rbc->createBox(glm::vec3(0.5f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE, 0.0095f);
 		auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
 		bulletPhysWorld->enable(rbc.get());
-		rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 300);
 		rigidBody->setActivationState(DISABLE_DEACTIVATION);
+		rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 300);
 		rigidBody->setGravity(btVector3(0, 0, 0));
 	}
 }
