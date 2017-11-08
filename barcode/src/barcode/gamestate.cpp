@@ -854,7 +854,7 @@ namespace Barcode {
 			floor->addComponent<Hydra::Component::RigidBodyComponent>()->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL);
 		}
 		{
-			TileGeneration worldTiles("assets/room/starterRoom.room");
+			TileGeneration worldTiles("assets/room/threewayRoom.room");
 		}
 		{
 			auto physicsBox = world::newEntity("Physics box", world::root());

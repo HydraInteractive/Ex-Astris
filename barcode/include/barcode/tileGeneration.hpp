@@ -46,12 +46,14 @@ public:
 	TileGeneration(std::string middleRoomPath);
 	~TileGeneration();
 
-	void _createMapRecursivly(glm::ivec2 pos);
-	void setUpMiddleRoom(std::string middleRoomPath);
+	int maxRooms = 70;
 
 private:
 	std::vector<std::string> _roomFileNames;
+	int _roomCounter = 0;
 
+	void _setUpMiddleRoom(std::string middleRoomPath);
+	void _createMapRecursivly(glm::ivec2 pos);
 	void _setupGrid();
 	void _obtainRoomFiles();
 	glm::vec3 _gridToWorld(int x, int y);

@@ -40,11 +40,11 @@ void Hydra::Component::RoomComponent::registerUI()
 	ImGui::Checkbox("West", &door[WEST]);
 
 	ImGui::Text("Open Walls:");
-	ImGui::Checkbox("North", &door[NORTH]);
+	ImGui::Checkbox("North", &open[NORTH]);
 	ImGui::SameLine();
-	ImGui::Checkbox("East", &door[EAST]);
+	ImGui::Checkbox("East", &open[EAST]);
 	ImGui::SameLine();
-	ImGui::Checkbox("South", &door[SOUTH]);
+	ImGui::Checkbox("South", &open[SOUTH]);
 	ImGui::SameLine();
-	ImGui::Checkbox("West", &door[WEST]);
+	ImGui::Checkbox("West", &open[WEST]);
 }

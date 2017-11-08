@@ -23,7 +23,7 @@ void AISystem::tick(float delta) {
 #pragma omp parallel for
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto enemy = entities[i]->getComponent<Component::AIComponent>();
-		enemy->behaviour->run(delta);
+		//enemy->behaviour->run(delta);
 	}
 }
 
