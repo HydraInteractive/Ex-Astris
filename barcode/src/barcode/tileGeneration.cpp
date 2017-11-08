@@ -1,272 +1,284 @@
 #include <barcode/tileGeneration.hpp>
 using world = Hydra::World::World;
 
-tileGeneration::tileGeneration(int xSize, int ySize, std::string middleRoomPath ) {
-	_xSize = xSize;
-	_ySize = ySize;
+TileGeneration::TileGeneration(std::string middleRoomPath) {
 	_obtainRoomFiles();
 	_setupGrid();
 	setUpMiddleRoom(middleRoomPath);
 	//_createMapRecursivly(tiles[middleTile].get());
 }
 
-tileGeneration::~tileGeneration() {}
+TileGeneration::~TileGeneration() {}
 
-void tileGeneration::_createMapRecursivly(tileInfo *tile) {
+void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 
-	bool downDoorChecked = false;
-	bool leftDoorChecked = false;
-	bool upDoorChecked = false;
-	bool rightDoorChecked = false;
+	//Go through all doors in the room of the tile, create a random room
+	//That fits with the door, go through that room and so on, until the next
+	//you get to a "end room". Then go back and continue for next door
 
-	for (int i = 0; i < tile->room.nrOfDoors; i++) {
+	//Check if yTilePos or xTilePos == 0. If this is true, limit the rooms it can create
+	//or we will go otuside the tile grid
+	bool placed = false;
+	enum { NORTH, EAST, SOUTH, WEST };
+	if (grid[pos.x][pos.y]->door[NORTH])
+	{
+		//Load all rooms and see if any of them fits
+		for (int i = 0; i < _roomFileNames.size() && placed == false; i++) {
 
-		//Go through all doors in the room of the tile, create a random room
-		//That fits with the door, go through that room and so on, until the next
-		//you get to a "end room". Then go back and continue for next door
+			//std::string roomString = "Tile ";
+			//roomString += std::to_string(tiles[k].get()->tileID);
 
-		//Check if yTilePos or xTilePos == 0. If this is true, limit the rooms it can create
-		//or we will go otuside the tile grid
-		bool fits = false;
+			//Take a random room and read it. Don't spawn it until it fits
+			//NOTE:: Make a random list and go through it to prevent loading same room multible times
+			std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", world::root());
 
-		if (tile->room.downDoor == 1 && tile->yTilePos >= 0 && downDoorChecked == false) {
-			//Find the tile under the current tile
-			downDoorChecked = true;
-			for (int k = 0; k < tiles.size() && fits == false; k++) {
+			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
+			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
 
-				if (!tiles[k]->taken) {
-					if (tile->tileID - _ySize == tiles[k]->tileID) {
-						//Load all rooms and see if any of them fits
-						for (int directoryFile = 0; directoryFile < _roomFileNames.size() && fits == false; directoryFile++) {
-
-							std::string roomString = "Tile ";
-							roomString += std::to_string(tiles[k].get()->tileID);
-
-							//Take a random room and read it. Don't spawn it until it fits
-							//NOTE:: Make a random list and go through it to prevent loading same room multible times
-							std::string roomFile = _roomFileNames[std::rand() % _roomFileNames.size()];
-							std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", world::root());
-
-							BlueprintLoader::load(roomFile)->spawn(loadedRoom);
-							auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
-
-							//_setDoors();
-
-							if (roomC->door[roomC->NORTH]) {
-								//If the tile is at the end of the grid or at the corner of the
-								//dont spawn a room downards outside the grid
-								if (tiles[k]->yTilePos == 0 && tiles[k]->xTilePos == _xSize - 1) {
-									//Only spawn a room wih and updoor and a leftdoor.
-									//Or an 1 door room (end room)
-									fits = true;
-								}
-								else if (tiles[k]->yTilePos == 0 && tiles[k]->xTilePos == 0) {
-									//Only spawn a room wih and updoor and a rightdoor.
-									//Or an 1 door room (end room)
-									fits = true;
-								}
-								else if (tiles[k]->yTilePos == 0) {
-									//Only spawn a room wih and updoor, a leftdoor and/or a rightdoor.
-									//Or an 1 door room (end room)
-									fits = true;
-								}
-								else {
-									//Room can spawn with any doors, as long at it has a door that
-									//fits the last tile (Up)
-									fits = true;
-								}
-							}
-							else
-								loadedRoom->dead = true;
-
-
-							//Load in a room to either see if it fits, or that the
-							//file name knows if it fits
-							//Have a if-stament to see so that the room doesn't
-							//have a door to a closed wall/map end
-							//if true, fits = true;
-							//else, load in new room and try again
-							//Apply the mesh/entity to the room with
-							//right coordinates
-							//tiles[k]->room = *room;
-							//delete room;
-
-						}
-						//If for some reason no room at all fits, spawn a door/rubble/something
-						if (fits == false) {
-
-						}
-						//call function again from new tile
-						tile->taken = true;
-						_createMapRecursivly(tiles[k].get());
-					}
-				}
+			if (_checkAdjacents(glm::ivec2(pos.x, pos.y + 1), roomC))
+			{
+				placed = true;
+				_createMapRecursivly(glm::ivec2(pos.x, pos.y + 1));
 			}
-		}
-		if (tile->room.leftDoor == 1 && tile->xTilePos >= 0 && leftDoorChecked == false) {
-			leftDoorChecked = true;
-			for (int k = 0; k < tiles.size(); k++) {
-				if (!tiles[k]->taken) {
-					if (tile->tileID - 1 == tiles[k]->tileID) {
-						for (int directoryFile = 0; directoryFile < _roomFileNames.size() && fits == false; directoryFile++) {
-
-							std::string roomString = "Tile";
-							roomString += std::to_string(tiles[k].get()->tileID);
-
-							//Take a random room and read it. Don't spawn it until it fits
-							std::string roomFile = _roomFileNames[std::rand() % _roomFileNames.size()];
-							std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", world::root());
-
-							BlueprintLoader::load(roomFile)->spawn(loadedRoom);
-							auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
-
-							if (roomC->door[roomC->EAST]) {
-								//If the tile is at the end of the grid or at the corner
-								//dont spawn a room downards outside the grid
-								if (tiles[k]->xTilePos == 0 && tiles[k]->yTilePos == _ySize - 1) {
-									//Only spawn a room wih and downDoor and a rightDoor.
-									//Or an 1 door room (end room)
-								}
-								else if (tiles[k]->xTilePos == 0 && tiles[k]->yTilePos == 0) {
-									//Only spawn a room wih and upDoor and a rightDoor.
-									//Or an 1 door room (end room)
-								}
-								else if (tiles[k]->xTilePos == 0) {
-									//Only spawn a room wih and rightDoor, a upDoor and/or a downDoor.
-									//Or an 1 door room (end room)
-								}
-								else {
-									//Room can spawn with any doors, as long at it has a door that
-									//fits the last tile (Up)
-									fits = true;
-								}
-							}
-						}
-						//If for some reason no room at all fits, spawn a door/rubble/something
-						if (fits == false) {
-
-						}
-						//call function again from new tile
-						tile->taken = true;
-						_createMapRecursivly(tiles[k].get());
-					}
-				}
-			}
-		}
-		if (tile->room.upDoor == 1 && tile->yTilePos <= _ySize && upDoorChecked == false) {
-			upDoorChecked = true;
-			for (int k = 0; k < tiles.size(); k++) {
-				if (!tiles[k]->taken) {
-					if (tile->tileID + _xSize == tiles[k]->tileID) {
-						for (int directoryFile = 0; directoryFile < _roomFileNames.size() && fits == false; directoryFile++) {
-
-							std::string roomString = "Tile";
-							roomString += std::to_string(tiles[k].get()->tileID);
-
-							std::string roomFile = _roomFileNames[std::rand() % _roomFileNames.size()];
-							std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", world::root());
-
-							BlueprintLoader::load(roomFile)->spawn(loadedRoom);
-							auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
-
-							if (roomC->SOUTH) {
-								//If the tile is at the end of the grid or at the corner
-								//dont spawn a room downards outside the grid
-								if (tiles[k]->yTilePos == _ySize - 1 && tiles[k]->xTilePos == _xSize - 1) {
-									//Only spawn a room wih and downDoor and a leftDoor.
-									//Or an 1 door room (end room)
-								}
-								else if (tiles[k]->yTilePos == _ySize - 1 && tiles[k]->xTilePos == 0) {
-									//Only spawn a room wih and downDoor and a rightDoor.
-									//Or an 1 door room (end room)
-								}
-								else if (tiles[k]->yTilePos == _ySize - 1) {
-									//Only spawn a room wih and downDoor, a rightDoor and/or a leftDoor.
-									//Or an 1 door room (end room)
-								}
-								else {
-									//Room can spawn with any doors, as long at it has a door that
-									//fits the last tile (Up)
-									fits = true;
-								}
-							}
-						}
-						//If for some reason no room at all fits, spawn a door/rubble/something
-						if (fits == false) {
-
-						}
-						//call function again from new tile
-						tile->taken = true;
-						_createMapRecursivly(tiles[k].get());
-					}
-				}
-			}
-		}
-		if (tile->room.rightDoor == 1 && tile->xTilePos <= _xSize && rightDoorChecked == false) {
-			rightDoorChecked = true;
-			for (int k = 0; k < tiles.size(); k++) {
-				if (!tiles[k]->taken) {
-					if (tile->tileID + 1 == tiles[k]->tileID) {
-						for (int directoryFile = 0; directoryFile < _roomFileNames.size() && fits == false; directoryFile++) {
-
-							std::string roomString = "Tile";
-							roomString += std::to_string(tiles[k].get()->tileID);
-
-							//Take a random room and read it. Don't spawn it until it fits
-							std::string roomFile = _roomFileNames[std::rand() % _roomFileNames.size()];
-							std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", world::root());
-
-							BlueprintLoader::load(roomFile)->spawn(loadedRoom);
-							auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
-
-							if (roomC->WEST) {
-								//If the tile is at the end of the grid or at the corner
-								//dont spawn a room downards outside the grid
-								if (tiles[k]->xTilePos == _xSize - 1 && tiles[k]->yTilePos == _ySize - 1) {
-									//Only spawn a room wih and downDoor and a leftDoor.
-									//Or an 1 door room (end room)
-								}
-								else if (tiles[k]->xTilePos == _xSize - 1 && tiles[k]->xTilePos == 0) {
-									//Only spawn a room wih and leftDoor and a upDoor.
-									//Or an 1 door room (end room)
-								}
-								else if (tiles[k]->xTilePos == _xSize - 1) {
-									//Only spawn a room wih and leftDoor, a upDoor and/or a downDoor.
-									//Or an 1 door room (end room)
-								}
-								else {
-									//Room can spawn with any doors, as long at it has a door that
-									//fits the last tile (Up)
-									fits = true;
-								}
-							}
-						}
-						//If for some reason no room at all fits, spawn a door/rubble/something
-						if (fits == false) {
-
-						}
-						//call function again from new tile
-						tile->taken = true;
-						_createMapRecursivly(tiles[k].get());
-					}
-				}
-			}
+			//if (roomC->door[roomC->NORTH]) {
+			//	//If the tile is at the end of the grid or at the corner of the
+			//	//dont spawn a room downards outside the grid
+			//	if (tiles[k]->yTilePos == 0 && tiles[k]->xTilePos == _xSize - 1) {
+			//		//Only spawn a room wih and updoor and a leftdoor.
+			//		//Or an 1 door room (end room)
+			//		fits = true;
+			//	}
+			//	else if (tiles[k]->yTilePos == 0 && tiles[k]->xTilePos == 0) {
+			//		//Only spawn a room wih and updoor and a rightdoor.
+			//		//Or an 1 door room (end room)
+			//		fits = true;
+			//	}
+			//	else if (tiles[k]->yTilePos == 0) {
+			//		//Only spawn a room wih and updoor, a leftdoor and/or a rightdoor.
+			//		//Or an 1 door room (end room)
+			//		fits = true;
+			//	}
+			//	else {
+			//		//Room can spawn with any doors, as long at it has a door that
+			//		//fits the last tile (Up)
+			//		fits = true;
+			//	}
+			//}
+			//else
+			//	loadedRoom->dead = true;
+			//Load in a room to either see if it fits, or that the
+			//file name knows if it fits
+			//Have a if-stament to see so that the room doesn't
+			//have a door to a closed wall/map end
+			//if true, fits = true;
+			//else, load in new room and try again
+			//Apply the mesh/entity to the room with
+			//right coordinates
+			//tiles[k]->room = *room;
+			//delete room;
 		}
 	}
+	//If for some reason no room at all fits, spawn a door/rubble/something
+	if (placed == false) {
+		//Place stuff to cover door
+	}
+
+	if (grid[pos.x][pos.y]->door[EAST])
+	{
+		//Load all rooms and see if any of them fits
+		for (int i = 0; i < _roomFileNames.size() && placed == false; i++) {
+
+			//std::string roomString = "Tile ";
+			//roomString += std::to_string(tiles[k].get()->tileID);
+
+			//Take a random room and read it. Don't spawn it until it fits
+			//NOTE:: Make a random list and go through it to prevent loading same room multible times
+			std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", world::root());
+
+			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
+			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
+
+			if (_checkAdjacents(glm::ivec2(pos.x + 1, pos.y), roomC))
+			{
+				placed = true;
+				_createMapRecursivly(glm::ivec2(pos.x + 1, pos.y));
+			}
+			//if (roomC->door[roomC->NORTH]) {
+			//	//If the tile is at the end of the grid or at the corner of the
+			//	//dont spawn a room downards outside the grid
+			//	if (tiles[k]->yTilePos == 0 && tiles[k]->xTilePos == _xSize - 1) {
+			//		//Only spawn a room wih and updoor and a leftdoor.
+			//		//Or an 1 door room (end room)
+			//		fits = true;
+			//	}
+			//	else if (tiles[k]->yTilePos == 0 && tiles[k]->xTilePos == 0) {
+			//		//Only spawn a room wih and updoor and a rightdoor.
+			//		//Or an 1 door room (end room)
+			//		fits = true;
+			//	}
+			//	else if (tiles[k]->yTilePos == 0) {
+			//		//Only spawn a room wih and updoor, a leftdoor and/or a rightdoor.
+			//		//Or an 1 door room (end room)
+			//		fits = true;
+			//	}
+			//	else {
+			//		//Room can spawn with any doors, as long at it has a door that
+			//		//fits the last tile (Up)
+			//		fits = true;
+			//	}
+			//}
+			//else
+			//	loadedRoom->dead = true;
+			//Load in a room to either see if it fits, or that the
+			//file name knows if it fits
+			//Have a if-stament to see so that the room doesn't
+			//have a door to a closed wall/map end
+			//if true, fits = true;
+			//else, load in new room and try again
+			//Apply the mesh/entity to the room with
+			//right coordinates
+			//tiles[k]->room = *room;
+			//delete room;
+		}
+	}
+	//If for some reason no room at all fits, spawn a door/rubble/something
+	if (placed == false) {
+		//Place stuff to cover door
+	}
+
+	if (grid[pos.x][pos.y]->door[SOUTH])
+	{
+		//Load all rooms and see if any of them fits
+		for (int i = 0; i < _roomFileNames.size() && placed == false; i++) {
+
+			//std::string roomString = "Tile ";
+			//roomString += std::to_string(tiles[k].get()->tileID);
+
+			//Take a random room and read it. Don't spawn it until it fits
+			//NOTE:: Make a random list and go through it to prevent loading same room multible times
+			std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", world::root());
+
+			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
+			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
+
+			if (_checkAdjacents(glm::ivec2(pos.x, pos.y - 1), roomC))
+			{
+				placed = true;
+				_createMapRecursivly(glm::ivec2(pos.x, pos.y - 1));
+			}
+			//if (roomC->door[roomC->NORTH]) {
+			//	//If the tile is at the end of the grid or at the corner of the
+			//	//dont spawn a room downards outside the grid
+			//	if (tiles[k]->yTilePos == 0 && tiles[k]->xTilePos == _xSize - 1) {
+			//		//Only spawn a room wih and updoor and a leftdoor.
+			//		//Or an 1 door room (end room)
+			//		fits = true;
+			//	}
+			//	else if (tiles[k]->yTilePos == 0 && tiles[k]->xTilePos == 0) {
+			//		//Only spawn a room wih and updoor and a rightdoor.
+			//		//Or an 1 door room (end room)
+			//		fits = true;
+			//	}
+			//	else if (tiles[k]->yTilePos == 0) {
+			//		//Only spawn a room wih and updoor, a leftdoor and/or a rightdoor.
+			//		//Or an 1 door room (end room)
+			//		fits = true;
+			//	}
+			//	else {
+			//		//Room can spawn with any doors, as long at it has a door that
+			//		//fits the last tile (Up)
+			//		fits = true;
+			//	}
+			//}
+			//else
+			//	loadedRoom->dead = true;
+			//Load in a room to either see if it fits, or that the
+			//file name knows if it fits
+			//Have a if-stament to see so that the room doesn't
+			//have a door to a closed wall/map end
+			//if true, fits = true;
+			//else, load in new room and try again
+			//Apply the mesh/entity to the room with
+			//right coordinates
+			//tiles[k]->room = *room;
+			//delete room;
+		}
+	}
+	//If for some reason no room at all fits, spawn a door/rubble/something
+	if (placed == false) {
+		//Place stuff to cover door
+	}
+
+	if (grid[pos.x][pos.y]->door[WEST])
+	{
+		//Load all rooms and see if any of them fits
+		for (int i = 0; i < _roomFileNames.size() && placed == false; i++) {
+
+			//std::string roomString = "Tile ";
+			//roomString += std::to_string(tiles[k].get()->tileID);
+
+			//Take a random room and read it. Don't spawn it until it fits
+			//NOTE:: Make a random list and go through it to prevent loading same room multible times
+			std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", world::root());
+
+			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
+			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
+
+			if (_checkAdjacents(glm::ivec2(pos.x - 1, pos.y), roomC))
+			{
+				placed = true;
+				_createMapRecursivly(glm::ivec2(pos.x - 1, pos.y));
+			}
+			//if (roomC->door[roomC->NORTH]) {
+			//	//If the tile is at the end of the grid or at the corner of the
+			//	//dont spawn a room downards outside the grid
+			//	if (tiles[k]->yTilePos == 0 && tiles[k]->xTilePos == _xSize - 1) {
+			//		//Only spawn a room wih and updoor and a leftdoor.
+			//		//Or an 1 door room (end room)
+			//		fits = true;
+			//	}
+			//	else if (tiles[k]->yTilePos == 0 && tiles[k]->xTilePos == 0) {
+			//		//Only spawn a room wih and updoor and a rightdoor.
+			//		//Or an 1 door room (end room)
+			//		fits = true;
+			//	}
+			//	else if (tiles[k]->yTilePos == 0) {
+			//		//Only spawn a room wih and updoor, a leftdoor and/or a rightdoor.
+			//		//Or an 1 door room (end room)
+			//		fits = true;
+			//	}
+			//	else {
+			//		//Room can spawn with any doors, as long at it has a door that
+			//		//fits the last tile (Up)
+			//		fits = true;
+			//	}
+			//}
+			//else
+			//	loadedRoom->dead = true;
+			//Load in a room to either see if it fits, or that the
+			//file name knows if it fits
+			//Have a if-stament to see so that the room doesn't
+			//have a door to a closed wall/map end
+			//if true, fits = true;
+			//else, load in new room and try again
+			//Apply the mesh/entity to the room with
+			//right coordinates
+			//tiles[k]->room = *room;
+			//delete room;
+		}
+	}
+	//If for some reason no room at all fits, spawn a door/rubble/something
+	if (placed == false) {
+		//Place stuff to cover door
+	}
 }
+
 
 void _spawnRoomEntity(Hydra::World::Entity* ) {
 
 }
 
-void tileGeneration::setUpMiddleRoom(std::string middleRoomPath) {
-
-	tiles[middleTile]->room.downDoor = true;
-	tiles[middleTile]->room.upDoor = true;
-	tiles[middleTile]->room.leftDoor = true;
-	tiles[middleTile]->room.rightDoor = true;
-	tiles[middleTile]->room.nrOfDoors = 4;
-
+void TileGeneration::setUpMiddleRoom(std::string middleRoomPath) {
 
 	auto room = world::newEntity("Middle Room", world::root());
 	auto t = room->addComponent<Hydra::Component::TransformComponent>();
@@ -282,7 +294,7 @@ void tileGeneration::setUpMiddleRoom(std::string middleRoomPath) {
 	//newEntity.get()->markDead();
 }
 
-void tileGeneration::_obtainRoomFiles() {
+void TileGeneration::_obtainRoomFiles() {
 
 	//Get the files in order
 	std::string path = "assets/rooms/";
@@ -300,30 +312,53 @@ void tileGeneration::_obtainRoomFiles() {
 
 }
 
-void tileGeneration::_setDoors(glm::ivec2 pos, std::shared_ptr<Hydra::Component::RoomComponent> r) {
-	if (pos.x <= 0 || pos.y <= 0 || pos.x >= _xSize || pos.y >= _ySize)
+bool TileGeneration::_checkAdjacents(glm::ivec2 pos, std::shared_ptr<Hydra::Component::RoomComponent>& r) {
+	if (r->door[r->NORTH])
 	{
-
+		if (pos.y >= GRID_SIZE)
+			return false;
+		if (grid[pos.x][pos.y + 1] == nullptr || !grid[pos.x][pos.y + 1]->door[r->SOUTH])
+			return false;
 	}
-	
-
+	if (r->door[r->WEST])
+	{
+		if (pos.x <= 0)
+			return false;
+		if (grid[pos.x - 1][pos.y] == nullptr || !grid[pos.x - 1][pos.y]->door[r->EAST])
+			return false;
+	}
+	if (r->door[r->SOUTH])
+	{
+		if (pos.y <= 0)
+			return false;
+		if (grid[pos.x][pos.y - 1] == nullptr || !grid[pos.x][pos.y - 1]->door[r->NORTH])
+			return false;
+	}
+	if (r->door[r->EAST])
+	{
+		if (pos.x >= GRID_SIZE)
+			return false;
+		if (grid[pos.x + 1][pos.y] == nullptr || !grid[pos.x + 1][pos.y]->door[r->WEST])
+			return false;
+	}
+	return true;
 }
 
-void tileGeneration::_setupGrid() {
+void TileGeneration::_setupGrid() {
 	int idCount = 0;
 	//Get the middle tile
 	//If the tiles are for example 4x4 grid, there is no exact middle
 	//Then we cannot subtract with 1
-	if ((_xSize * _ySize) % 2 == 0) {
-		middleTile = ((_xSize * _ySize)) / 2;
-	}
-	else {
-	//Otherwise there is a middle point. We subtract with 1 to get the
-	//tiles in array order
-		middleTile = ((_xSize * _ySize) - 1) / 2;
-	}
+	//if ((_xSize * _ySize) % 2 == 0) {
+	//	middleTile = ((_xSize * _ySize)) / 2;
+	//}
+	//else {
+	////Otherwise there is a middle point. We subtract with 1 to get the
+	////tiles in array order
+	//	middleTile = ((_xSize * _ySize) - 1) / 2;
+	//}
 
-	for (int y = 0; y < _ySize; y++) {
+	/*for (int y = 0; y < _ySize; y++) {
 
 		for (int x = 0; x < _xSize; x++) {
 
@@ -371,4 +406,5 @@ void tileGeneration::_setupGrid() {
 			idCount++;
 		}
 	}
+	*/
 }

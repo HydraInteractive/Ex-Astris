@@ -34,64 +34,26 @@
 
 #include <fstream>
 #include <json.hpp>
+#define GRID_SIZE 6
+#define ROOM_SIZE 34
 
-class tileGeneration
+class TileGeneration
 {
 public:
+	//std::vector<std::shared_ptr<tileInfo>> tiles;
+	std::shared_ptr<Hydra::Component::RoomComponent> grid[GRID_SIZE][GRID_SIZE];
 
-	struct roomInfo {
+	TileGeneration(std::string middleRoomPath);
+	~TileGeneration();
 
-		int nrOfTiles;
-		int nrOfDoors;
-
-		int roomID;
-
-		bool downDoor = false;
-		bool leftDoor = false;
-		bool upDoor = false;
-		bool rightDoor = false;
-
-		int xPos;
-		int yPos;
-
-		std::vector<int> tileIndices;
-		//Door indices for each room tile
-		//int doorIndices[4];
-
-		//std::vector<newMeshInfo*> realATTICMeshes;
-	};
-
-	struct tileInfo {
-
-		glm::vec3 middlePoint;
-
-		bool taken = false;
-
-		int xTilePos;
-		int yTilePos;
-		int tileID;
-
-		glm::mat4 tileModelMatrix;
-		roomInfo room;
-
-	};
-	std::vector<std::shared_ptr<tileInfo>> tiles;
-
-	//ImporterMenu imorter;
-	int middleTile;
-
-	tileGeneration(int xSize, int ySize, std::string middleRoomPath);
-	~tileGeneration();
-
-	void _createMapRecursivly(tileInfo *tile);
+	void _createMapRecursivly(glm::ivec2 pos);
 	void setUpMiddleRoom(std::string middleRoomPath);
 
 private:
-	int _xSize, _ySize;
 	std::vector<std::string> _roomFileNames;
 
 	void _setupGrid();
 	void _obtainRoomFiles();
-	void _setDoors(glm::ivec2 pos, std::shared_ptr<Hydra::Component::RoomComponent> r);
+	bool _checkAdjacents(glm::ivec2 pos, std::shared_ptr<Hydra::Component::RoomComponent>& r);
 
 };
