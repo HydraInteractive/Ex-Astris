@@ -268,7 +268,7 @@ private:
 			if (fileName != "NULL" && fileNameLength != 0)
 				_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/" + fileName);
 			else
-				_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/error.png");
+				_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/error2.png");
 			delete[] tempFileName;
 
 			_material.specular = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/glow/errorGlow.png");
@@ -347,7 +347,7 @@ private:
 
 				//Read all the skeleton info. In other words, all different animations
 				for (int animationFile = 0; animationFile < nrOfAnimationFiles; animationFile++) {
-
+					 
 					in.read(reinterpret_cast<char*>(&nrOfFileChars), sizeof(int));
 					animationFilePath = "assets/objects/characters/";
 					animationFileName = "";
