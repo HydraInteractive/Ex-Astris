@@ -297,11 +297,11 @@ void AlienBehaviour::run(float dt)
 			return;
 
 	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
-	if (!thisEnemy.life->statusCheck())
-	{
-		thisEnemy.entity->dead = true;
-	}
-
+	// Not sure if needed with the new lifesystem.
+	//if (!thisEnemy.life->statusCheck())
+	//{
+	//	thisEnemy.entity->dead = true;
+	//}
 	thisEnemy.ai->debugState = state;
 
 	idleTimer += dt;
@@ -377,10 +377,11 @@ void RobotBehaviour::run(float dt)
 	if (!hasRequiredComponents || !refreshRequiredComponents())
 		return;
 	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
-	if (!thisEnemy.life->statusCheck())
-	{
-		thisEnemy.entity->dead = true;
-	}
+	// Same as above.
+	//if (!thisEnemy.life->statusCheck())
+	//{
+	//	thisEnemy.entity->dead = true;
+	//}
 
 	thisEnemy.ai->debugState = state;
 
@@ -465,10 +466,11 @@ void AlienBossBehaviour::run(float dt)
 		return;
 
 	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
-	if (!thisEnemy.life->statusCheck())
-	{
-		thisEnemy.entity->dead = true;
-	}
+	// Same as above.
+	//if (!thisEnemy.life->statusCheck())
+	//{
+	//	thisEnemy.entity->dead = true;
+	//}
 
 	thisEnemy.ai->debugState = state;
 
@@ -555,7 +557,7 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 					if (spawnTimer >= 2)
 					{
 						auto alienSpawn = world::newEntity("AlienSpawn", world::root());
-						auto a = alienSpawn->addComponent <Hydra::Component::AIComponent>();
+						auto a = alienSpawn->addComponent<Hydra::Component::AIComponent>();
 						a->behaviour = std::make_shared<AlienBehaviour>(alienSpawn);
 						a->damage = 4;
 						a->behaviour->originalRange = 4;

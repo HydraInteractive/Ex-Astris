@@ -7,6 +7,7 @@
 
 #ifdef _WIN32
 #include <Windows.h>
+#include <shlobj.h>
 #else
 #include <dirent.h>
 #include <sys/stat.h>
@@ -31,10 +32,10 @@ public:
 	void refresh(std::string relativePath);
 	static std::shared_ptr<Hydra::World::Entity> getRoomEntity();
 	virtual void render(bool &closeBool, Hydra::Renderer::Batch* previewBatch = nullptr, float delta = 0.0f) = 0;
-	virtual class Node {
+	class Node {
 	public:
 		bool isAllowedFile = false;
-
+		bool openInFileExplorer = false;
 		Node();
 		Node(std::string path, const std::vector<std::string>& extWhitelist, Node* parent = nullptr, bool isFile = false);
 		~Node();
@@ -58,5 +59,8 @@ public:
 protected:
 	Node* _root;
 	std::string _getExecutableDir();
-	std::vector<std::string> extWhitelist;
+	std::vector<std::string> _extWhitelist;
+	std::string _selectedPath;
+	virtual void _menuBar();
+	void openInExplorer(std::string path = "");
 };

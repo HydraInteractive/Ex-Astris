@@ -76,7 +76,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_graphics/lib-include;$(SolutionDir)/hydra_physics/include;$(SolutionDir)/hydra/include;$(SolutionDir)/hydra/lib-include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_sound/include;$(SolutionDir)/hydra_graphics/lib-include;$(SolutionDir)/hydra_physics/include;$(SolutionDir)/hydra/include;$(SolutionDir)/hydra/lib-include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_PHYSICS_EXPORTS;BT_THREADSAFE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -110,6 +110,7 @@
     <ClCompile Include="src\pathing\pathfinding.cpp" />
     <ClCompile Include="src\system\abilitysystem.cpp" />
     <ClCompile Include="src\system\aisystem.cpp" />
+    <ClCompile Include="src\system\lifesystem.cpp" />
     <ClCompile Include="src\system\perksystem.cpp" />
     <ClCompile Include="src\system\bulletphysicssystem.cpp" />
     <ClCompile Include="src\system\bulletsystem.cpp" />
@@ -139,6 +140,7 @@
     <ClInclude Include="include\hydra\system\perksystem.hpp" />
     <ClInclude Include="include\hydra\system\bulletphysicssystem.hpp" />
     <ClInclude Include="include\hydra\system\bulletsystem.hpp" />
+    <ClInclude Include="include\hydra\system\lifesystem.hpp" />
     <ClInclude Include="include\hydra\system\playersystem.hpp" />
     <ClInclude Include="include\hydra\system\spawnersystem.hpp" />
   </ItemGroup>

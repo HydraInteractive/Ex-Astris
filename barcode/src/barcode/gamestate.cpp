@@ -287,6 +287,7 @@ namespace Barcode {
 		_spawnerSystem.tick(delta);
 		_soundFxSystem.tick(delta);
 		_perkSystem.tick(delta);
+		_lifeSystem.tick(delta);
 
 		const glm::vec3 cameraPos = _cc->position;
 
@@ -848,14 +849,14 @@ namespace Barcode {
 		{
 			auto floor = world::newEntity("Floor", world::root());
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3(0, -1, 0);
-			floor->addComponent<Hydra::Component::RigidBodyComponent>()->createStaticPlane(glm::vec3(0, 1, 0), 1);
+			t->position = glm::vec3(0, -7, 0);
+			floor->addComponent<Hydra::Component::RigidBodyComponent>()->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL);
 		}
 		{
 			auto physicsBox = world::newEntity("Physics box", world::root());
 			auto t = physicsBox->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(2, 25, 2);
-			physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(glm::vec3(0.5f), 10);
+			physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(glm::vec3(0.5f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_MISC_OBJECT, 10);
 			physicsBox->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Computer1.ATTIC");
 		}
 
@@ -883,9 +884,8 @@ namespace Barcode {
 				t2->ignoreParent = true;
 			}
 		}
-
 		{
-			auto alienEntity = world::newEntity("Alien1", world::root());
+			/*auto alienEntity = world::newEntity("Alien1", world::root());
 			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 			a->damage = 4;
@@ -900,22 +900,7 @@ namespace Barcode {
 			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ 10, 0, 20 };
 			t->scale = glm::vec3{ 2,2,2 };
-
-			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
-		}
-
-		{
-			auto alienSpawner = world::newEntity("AlienSpawner", world::root());
-			auto a = alienSpawner->addComponent<Hydra::Component::SpawnerComponent>();
-			a->spawnerID = Hydra::Component::SpawnerType::AlienSpawner;
-			auto h = alienSpawner->addComponent<Hydra::Component::LifeComponent>();
-			h->maxHP = 150;
-			h->health = 150;
-			auto t = alienSpawner->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ 20, 0, 15 };
-			t->scale = glm::vec3{ 2,2,2 };
-			alienSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge.ATTIC");
-		}
+			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");*/		}
 
 		{
 			auto pointLight1 = world::newEntity("Pointlight1", world::root());
@@ -977,10 +962,10 @@ namespace Barcode {
 			t->scale = glm::vec3(40, 40, 40);
 			t->rotation = glm::quat(0, 0, 0, 1);
 		} {
-			auto floor = world::newEntity("Floor", world::root());
+			/*auto floor = world::newEntity("Floor", world::root());
 			floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3(14, -8, 9);
+			t->position = glm::vec3(14, -8, 9);*/
 		}
 
 		{
@@ -1007,7 +992,7 @@ namespace Barcode {
 			auto particleEmitter = world::newEntity("ParticleEmitter", world::root());
 			particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("QUAD");
 			auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
-			p->delay = 1.0f / 256.0f;
+			p->delay = 1.0f / 1.0f;
 			auto t = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ 4, 0, 4 };
 		}

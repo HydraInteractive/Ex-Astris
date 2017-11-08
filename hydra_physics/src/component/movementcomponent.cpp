@@ -43,6 +43,7 @@ void Hydra::Component::MovementComponent::deserialize(nlohmann::json & json)
 
 void Hydra::Component::MovementComponent::registerUI()
 {
+	ImGui::DragFloat3("Direciton", glm::value_ptr(direction));
 	ImGui::DragFloat3("Velocity", glm::value_ptr(velocity), 0.01f);
 	ImGui::DragFloat3("Acceleration", glm::value_ptr(acceleration), 0.01f);
 	ImGui::InputFloat("Movement Speed", &movementSpeed);

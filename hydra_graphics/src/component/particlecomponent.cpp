@@ -115,6 +115,27 @@ void ParticleComponent::spawnParticles() {
 			p->respawn(*t, vel, acc, life);
 		}
 		break;
+	case EmitterBehaviour::Explosion:
+		while (accumulator >= delay) {
+			Particle* p = findFree();
+			if (!p)
+				break;
+
+			accumulator -= delay;
+			const float velX = (frand() * 6.0f - 3.0f) + optionalNormal.x;
+			const float velY = (frand() * 6.0f - 2.0f) + optionalNormal.y;
+			const float velZ = (frand() * 6.0f - 3.0f) + optionalNormal.z;
+
+			const float accX = velX * 2.0f;
+			const float accY = velY * 2.0f;
+			const float accZ = velZ * 2.0f;
+
+			const float life = frand() + 1.f;
+			const glm::vec3 vel = normalize(glm::vec3(velX, velY, velZ));
+			const glm::vec3 acc = glm::vec3(accX, accY, accZ);
+			p->respawn(*t, vel, acc, life);
+		}
+		break;
 	default:
 		break;
 	}
