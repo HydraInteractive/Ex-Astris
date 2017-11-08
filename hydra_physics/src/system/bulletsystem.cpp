@@ -34,6 +34,15 @@ void BulletSystem::tick(float delta) {
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto b = entities[i]->getComponent<Hydra::Component::BulletComponent>();
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
+		auto rbc = entities[i]->getComponent<Hydra::Component::RigidBodyComponent>();
+		auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
+		
+		btVector3 temp = rigidBody->getLinearVelocity();
+		if (temp.x() == 0)
+		{
+			//printf("IS STUCK : ");
+			rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 300);
+		}
 
 		// TESTING HOMNIG/MAGNETIC NOT REALLY GOOD RIGHT NOW
 		/*if (b->bulletType == BULLETTYPE_HOMING) {

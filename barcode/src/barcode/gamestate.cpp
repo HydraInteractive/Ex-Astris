@@ -615,7 +615,7 @@ namespace Barcode {
 			float hpP = 100;
 			float ammoP = 100;
 			float degrees = 0;
-			std::vector<Buffs> perksList;
+			//std::vector<Buffs> perksList;
 			for (auto& p : Hydra::Component::PlayerComponent::componentHandler->getActiveComponents()) {
 				auto player = static_cast<Hydra::Component::PlayerComponent*>(p.get());
 				//perksList = player->activeBuffs.getActiveBuffs();
@@ -746,7 +746,7 @@ namespace Barcode {
 			}
 
 			//Perk Icons
-			size_t amountOfPerks = perksList.size();
+			/*size_t amountOfPerks = perksList.size();
 			for (size_t i = 0; i < amountOfPerks; i++)
 			{
 				char buf[128];
@@ -772,7 +772,7 @@ namespace Barcode {
 				}
 
 				ImGui::End();
-			}
+			}*/
 
 			ImGui::PopStyleColor();
 			ImGui::PopStyleVar();
