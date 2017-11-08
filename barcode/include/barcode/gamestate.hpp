@@ -131,10 +131,6 @@ namespace Barcode {
 		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurrExtraFBO2;
 		std::vector<float> _fiveGaussianKernel1;
 		std::vector<float> _fiveGaussianKernel2;
-		std::shared_ptr<Hydra::Renderer::ITexture> _blurredOriginal;
-		std::shared_ptr<Hydra::Renderer::ITexture> _blurredIMG1;
-		std::shared_ptr<Hydra::Renderer::ITexture> _blurredIMG2;
-		std::shared_ptr<Hydra::Renderer::ITexture> _blurredIMG3;
 
 		std::shared_ptr<Hydra::Renderer::IPipeline> _glowPipeline;
 		std::unique_ptr<Hydra::Renderer::IShader> _glowVertexShader;
