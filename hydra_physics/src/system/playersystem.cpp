@@ -38,8 +38,6 @@ void PlayerSystem::tick(float delta) {
 		auto soundFx = entities[i]->getComponent<SoundFxComponent>();
 		auto perks = entities[i]->getComponent<PerkComponent>();
 
-		//player->activeBuffs.onTick(life->maxHP, life->health);
-
 		glm::mat4 rotation = glm::mat4_cast(camera->orientation);
 		movement->direction = -glm::vec3(glm::vec4{ 0, 0, 1, 0 } *rotation);
 
@@ -58,10 +56,7 @@ void PlayerSystem::tick(float delta) {
 			if (keysArray[SDL_SCANCODE_SPACE] && player->onGround){
 				movement->acceleration.y += 6.0f;
 				player->onGround = false;
-			}
-
-			if (keysArray[SDL_SCANCODE_F] && !player->prevKBFrameState[Keys::F]) {
-				player->activeAbillies.useAbility(entities[i].get());
+				perks->newPerks.push_back(PERK_BULLETSPRAY);
 			}
 
 			if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && !ImGui::GetIO().WantCaptureMouse) {
@@ -97,9 +92,6 @@ void PlayerSystem::tick(float delta) {
 		wt->position = transform->position + glm::vec3(glm::vec4{player->weaponOffset, 0} * rotation);
 		wt->rotation = glm::normalize(glm::conjugate(camera->orientation) * glm::quat(glm::vec3(glm::radians(180.0f), 0, glm::radians(180.0f))));
 		wt->dirty = true;
-
-		player->prevKBFrameState[Keys::H] = keysArray[SDL_SCANCODE_H];
-		player->prevKBFrameState[Keys::F] = keysArray[SDL_SCANCODE_F];
 	}
 }
 
