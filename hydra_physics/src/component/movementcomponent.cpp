@@ -17,6 +17,10 @@ Hydra::Component::MovementComponent::~MovementComponent()
 
 void Hydra::Component::MovementComponent::serialize(nlohmann::json & json) const
 {
+	json["directionX"] = direction[0];
+	json["directionY"] = direction[1];
+	json["directionZ"] = direction[2];
+
 	json["velocityX"] = velocity[0];
 	json["velocityY"] = velocity[1];
 	json["velocityZ"] = velocity[2];
@@ -30,6 +34,10 @@ void Hydra::Component::MovementComponent::serialize(nlohmann::json & json) const
 
 void Hydra::Component::MovementComponent::deserialize(nlohmann::json & json)
 {
+	direction[0] = json.value<float>("directionX", 0);
+	direction[1] = json.value<float>("directionY", 0);
+	direction[2] = json.value<float>("directionZ", 0);
+
 	velocity[0] = json.value<float>("velocityX", 0);
 	velocity[1] = json.value<float>("velocityY", 0);
 	velocity[2] = json.value<float>("velocityZ", 0);
