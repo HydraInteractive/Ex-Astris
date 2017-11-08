@@ -35,11 +35,8 @@ void tileGeneration::_createMapRecursivly(tileInfo *tile) {
 
 				if (!tiles[k]->taken) {
 					if (tile->tileID - _ySize == tiles[k]->tileID) {
-						//For all loaded rooms
-						while (fits == false) {
-
-							//Set up fitting room
-							//roomInfo *room = new roomInfo;
+						//Load all rooms and see if any of them fits
+						for (int directoryFile = 0; directoryFile < _roomFileNames.size() && fits == false; directoryFile++) {
 
 							std::string roomString = "Tile ";
 							roomString += std::to_string(tiles[k].get()->tileID);
@@ -51,8 +48,8 @@ void tileGeneration::_createMapRecursivly(tileInfo *tile) {
 
 							BlueprintLoader::load(roomFile)->spawn(loadedRoom);
 							auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
-							
-							_setDoors()
+
+							//_setDoors();
 
 							if (roomC->door[roomC->NORTH]) {
 								//If the tile is at the end of the grid or at the corner of the
@@ -78,9 +75,9 @@ void tileGeneration::_createMapRecursivly(tileInfo *tile) {
 									fits = true;
 								}
 							}
-							else 
+							else
 								loadedRoom->dead = true;
-							
+
 
 							//Load in a room to either see if it fits, or that the
 							//file name knows if it fits
@@ -92,6 +89,10 @@ void tileGeneration::_createMapRecursivly(tileInfo *tile) {
 							//right coordinates
 							//tiles[k]->room = *room;
 							//delete room;
+
+						}
+						//If for some reason no room at all fits, spawn a door/rubble/something
+						if (fits == false) {
 
 						}
 						//call function again from new tile
@@ -106,7 +107,7 @@ void tileGeneration::_createMapRecursivly(tileInfo *tile) {
 			for (int k = 0; k < tiles.size(); k++) {
 				if (!tiles[k]->taken) {
 					if (tile->tileID - 1 == tiles[k]->tileID) {
-						while (fits == false) {
+						for (int directoryFile = 0; directoryFile < _roomFileNames.size() && fits == false; directoryFile++) {
 
 							std::string roomString = "Tile";
 							roomString += std::to_string(tiles[k].get()->tileID);
@@ -136,15 +137,17 @@ void tileGeneration::_createMapRecursivly(tileInfo *tile) {
 								else {
 									//Room can spawn with any doors, as long at it has a door that
 									//fits the last tile (Up)
-									auto roomTile = world->createEntity(roomString.c_str());
-
 									fits = true;
 								}
 							}
 						}
+						//If for some reason no room at all fits, spawn a door/rubble/something
+						if (fits == false) {
+
+						}
 						//call function again from new tile
 						tile->taken = true;
-						_createMapRecursivly(tiles[k].get(), world);
+						_createMapRecursivly(tiles[k].get());
 					}
 				}
 			}
@@ -154,16 +157,18 @@ void tileGeneration::_createMapRecursivly(tileInfo *tile) {
 			for (int k = 0; k < tiles.size(); k++) {
 				if (!tiles[k]->taken) {
 					if (tile->tileID + _xSize == tiles[k]->tileID) {
-						while (fits == false) {
+						for (int directoryFile = 0; directoryFile < _roomFileNames.size() && fits == false; directoryFile++) {
 
 							std::string roomString = "Tile";
 							roomString += std::to_string(tiles[k].get()->tileID);
 
-							//Take a random room and read it. Don't spawn it until it fits
 							std::string roomFile = _roomFileNames[std::rand() % _roomFileNames.size()];
-							auto loadedRoom = world->getWorldRoot()->spawn(BlueprintLoader::load(roomFile.c_str())->spawn(world));
+							std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", world::root());
 
-							if (loadedRoom.get()->getComponent<Hydra::Component::RoomComponent>()->getDownDoor()) {
+							BlueprintLoader::load(roomFile)->spawn(loadedRoom);
+							auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
+
+							if (roomC->SOUTH) {
 								//If the tile is at the end of the grid or at the corner
 								//dont spawn a room downards outside the grid
 								if (tiles[k]->yTilePos == _ySize - 1 && tiles[k]->xTilePos == _xSize - 1) {
@@ -181,15 +186,17 @@ void tileGeneration::_createMapRecursivly(tileInfo *tile) {
 								else {
 									//Room can spawn with any doors, as long at it has a door that
 									//fits the last tile (Up)
-									auto roomTile = world->createEntity(roomString.c_str());
-
 									fits = true;
 								}
 							}
 						}
+						//If for some reason no room at all fits, spawn a door/rubble/something
+						if (fits == false) {
+
+						}
 						//call function again from new tile
 						tile->taken = true;
-						_createMapRecursivly(tiles[k].get(), world);
+						_createMapRecursivly(tiles[k].get());
 					}
 				}
 			}
@@ -199,16 +206,19 @@ void tileGeneration::_createMapRecursivly(tileInfo *tile) {
 			for (int k = 0; k < tiles.size(); k++) {
 				if (!tiles[k]->taken) {
 					if (tile->tileID + 1 == tiles[k]->tileID) {
-						while (fits == false) {
+						for (int directoryFile = 0; directoryFile < _roomFileNames.size() && fits == false; directoryFile++) {
 
 							std::string roomString = "Tile";
 							roomString += std::to_string(tiles[k].get()->tileID);
 
 							//Take a random room and read it. Don't spawn it until it fits
 							std::string roomFile = _roomFileNames[std::rand() % _roomFileNames.size()];
-							auto loadedRoom = world->getWorldRoot()->spawn(BlueprintLoader::load(roomFile.c_str())->spawn(world));
+							std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", world::root());
 
-							if (loadedRoom.get()->getComponent<Hydra::Component::RoomComponent>()->getLeftDoor()) {
+							BlueprintLoader::load(roomFile)->spawn(loadedRoom);
+							auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
+
+							if (roomC->WEST) {
 								//If the tile is at the end of the grid or at the corner
 								//dont spawn a room downards outside the grid
 								if (tiles[k]->xTilePos == _xSize - 1 && tiles[k]->yTilePos == _ySize - 1) {
@@ -226,15 +236,17 @@ void tileGeneration::_createMapRecursivly(tileInfo *tile) {
 								else {
 									//Room can spawn with any doors, as long at it has a door that
 									//fits the last tile (Up)
-									auto roomTile = world->createEntity(roomString.c_str());
-
 									fits = true;
 								}
 							}
 						}
+						//If for some reason no room at all fits, spawn a door/rubble/something
+						if (fits == false) {
+
+						}
 						//call function again from new tile
 						tile->taken = true;
-						createMapRecursivly(tiles[k].get(), world);
+						_createMapRecursivly(tiles[k].get());
 					}
 				}
 			}
@@ -248,11 +260,11 @@ void _spawnRoomEntity(Hydra::World::Entity* ) {
 
 void tileGeneration::setUpMiddleRoom(std::string middleRoomPath) {
 
-	tiles[middleTile].get()->room.downDoor = true;
-	tiles[middleTile].get()->room.upDoor = true;
-	tiles[middleTile].get()->room.leftDoor = true;
-	tiles[middleTile].get()->room.rightDoor = true;
-	tiles[middleTile].get()->room.nrOfDoors = 4;
+	tiles[middleTile]->room.downDoor = true;
+	tiles[middleTile]->room.upDoor = true;
+	tiles[middleTile]->room.leftDoor = true;
+	tiles[middleTile]->room.rightDoor = true;
+	tiles[middleTile]->room.nrOfDoors = 4;
 
 
 	auto room = world::newEntity("Middle Room", world::root());
@@ -265,16 +277,24 @@ void tileGeneration::setUpMiddleRoom(std::string middleRoomPath) {
 	//middleRoomTile = loadedRoom;
 	//middleRoomTile.get()->addComponent<Hydra::Component::MeshComponent>(loadedRoom.get()->getDrawObject()[0].mesh);
 	//middleRoomTile.get()->addComponent<Hydra::Component::MeshComponent>(loadedRoom.get()->getDrawObject()[0].mesh);
-
 	//middleRoomTile.get()->addComponent<Hydra::Component::TransformComponent>(tiles[middleTile].get()->middlePoint);
 	//newEntity.get()->markDead();
 }
 
 void tileGeneration::_obtainRoomFiles() {
 
+	//Get the files in order
 	std::string path = "assets/rooms/";
 	for (auto & p : std::experimental::filesystem::directory_iterator(path)) {
 		_roomFileNames.push_back(p.path().string());
+	}
+
+	//Randomize the list 3 times for extra randomness
+	for (int k = 0; k < 3; k++) {
+		for (int i = 0; i < _roomFileNames.size(); i++) {
+			int randomPos = rand() % _roomFileNames.size();
+			std::swap(_roomFileNames[i], _roomFileNames[randomPos]);
+		}
 	}
 
 }
