@@ -221,7 +221,7 @@ void Behaviour::executeTransforms()
 	//if (movementForce.x = 0 && movementForce.y == 0 && movementForce.z == 0)
 	//	rigidBody->clearForces();
 	//else
-	rigidBody->applyCentralForce(btVector3(movementForce.x, movementForce.y, movementForce.z) * thisEnemy.movement->movementSpeed * 100);
+	rigidBody->setLinearVelocity(btVector3(movementForce.x, movementForce.y, movementForce.z));
 	
 	thisEnemy.transform->setRotation(rotation);
 }

@@ -77,11 +77,12 @@ void PlayerSystem::tick(float delta) {
 			}
 		}
 
-		movement->acceleration.y -= 10.0f * delta;
+		//movement->acceleration.y -= 10.0f * delta;
 		glm::vec4 movementVector = glm::vec4(movement->velocity, 0) * rotation;
-		movementVector.y = movement->acceleration.y;
-
-		rbc->applyCentralForce(btVector3(movementVector.x, movementVector.y, movementVector.z) * 100);
+		//movementVector.y = movement->acceleration.y;
+		rbc->setLinearVelocity(btVector3(movementVector.x, 0, movementVector.z));
+		rbc->setInterpolationLinearVelocity(btVector3(movementVector.x, 0, movementVector.z) * movement->movementSpeed);
+		//rbc->applyCentralForce(btVector3(movementVector.x, movementVector.y, movementVector.z) * 100);
 		//transform->position += glm::vec3(movementVector) * delta;
 
 		//if (transform->position.y < 0) {

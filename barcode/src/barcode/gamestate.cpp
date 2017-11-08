@@ -855,7 +855,7 @@ namespace Barcode {
 			t->position = glm::vec3(0, -7, 0);
 			auto rgbc = floor->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL
-			,0, 0, 0,1.0, 1.0f);
+			, 0, 0, 0, 0.6f, 0);
 		}
 		{
 			auto physicsBox = world::newEntity("Physics box", world::root());
@@ -880,7 +880,7 @@ namespace Barcode {
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
 			auto rgbc = playerEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createBox(0.5f * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
-				0,0,0.4,0);
+				0,0,0.5f,0);
 			rgbc->setActivationState(DISABLE_DEACTIVATION);
 			t->position = glm::vec3{ 0, -7, 20 };
 			{
