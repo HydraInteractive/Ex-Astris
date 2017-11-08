@@ -17,25 +17,37 @@ using namespace Hydra::Component;
 CameraComponent::~CameraComponent() {}
 
 void CameraComponent::serialize(nlohmann::json& json) const {
-	json = {
-		{"position", {position.x, position.y, position.z}},
-		{"orientation", {orientation.x, orientation.y, orientation.z, orientation.w}},
-		{"fov", fov},
-		{"zNear", zNear},
-		{"zFar", zFar}
-	};
+	json["positionX"] = position[0];
+	json["positionY"] = position[1];
+	json["positionZ"] = position[2];
+
+	json["orientationX"] = orientation[0];
+	json["orientationY"] = orientation[1];
+	json["orientationZ"] = orientation[2];
+	json["orientationW"] = orientation[3];
+
+	json["fov"] = fov;
+
+	json["zNear"] = zNear;
+
+	json["zFar"] = zFar;
 }
 
 void CameraComponent::deserialize(nlohmann::json& json) {
-	auto& pos = json["position"];
-	position = glm::vec3{pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>()};
+	position[0] = json.value<float>("positionX", 0);
+	position[1] = json.value<float>("positionY", 0);
+	position[2] = json.value<float>("positionZ", 0);
 
-	auto& ori = json["orientation"];
-	orientation = glm::quat{ori[3].get<float>(), ori[0].get<float>(), ori[1].get<float>(), ori[2].get<float>()};
+	orientation[0] = json.value<float>("orientationX", 0);
+	orientation[1] = json.value<float>("orientationY", 0);
+	orientation[2] = json.value<float>("orientationZ", 0);
+	orientation[3] = json.value<float>("orientationW", 0);
 
-	fov = json["fov"].get<float>();
-	zNear = json["zNear"].get<float>();
-	zFar = json["zFar"].get<float>();
+	fov = json.value<float>("fov", 0);
+
+	zNear = json.value<float>("zNear", 0);
+
+	zFar = json.value<float>("zFar", 0);
 }
 
 void CameraComponent::registerUI() {

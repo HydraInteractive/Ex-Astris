@@ -20,7 +20,7 @@ namespace Hydra::Component {
 		glm::vec3 position = glm::vec3{0, 0, 0};
 		glm::vec3 direction = glm::vec3{0, 0, 0};
 		glm::vec3 color = glm::vec3{1, 1, 1};
-		glm::vec3 up = glm::vec3{ 0,1,0 };
+		glm::vec3 up = glm::vec3{0, 1, 0};
 
 		float fov = 80.0f;
 		float zNear = 1.0f;

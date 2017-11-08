@@ -40,7 +40,7 @@ void ParticleSystem::tick(float delta) {
 			particle.velocity += particle.acceleration * delta;
 
 			{
-				const float lifeFactor = particle.life / particle.startLife;
+				const float lifeFactor = 1 - (particle.life / particle.startLife);
 				const int innerID = innerCount * lifeFactor;
 				const int nextInnerID = (innerID + 1) % ParticleComponent::TextureInnerGrid;
 

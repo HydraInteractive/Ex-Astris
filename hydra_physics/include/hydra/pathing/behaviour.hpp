@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <hydra/component/componentmanager.hpp>
+#include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/ext/api.hpp>
 #include <memory>
 #include <random>
@@ -61,6 +62,7 @@ protected:
 		std::shared_ptr<Hydra::Component::LifeComponent> life;
 		std::shared_ptr<Hydra::Component::MovementComponent> movement;
 		std::shared_ptr<Hydra::Component::AIComponent> ai;
+		std::shared_ptr<Hydra::Component::RigidBodyComponent> rigidBody;
 	};
 	ComponentSet thisEnemy;
 	ComponentSet targetPlayer;
