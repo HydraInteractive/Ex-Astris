@@ -38,10 +38,9 @@ void BulletSystem::tick(float delta) {
 		auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
 		
 		btVector3 temp = rigidBody->getLinearVelocity();
-		//std::stringstream sstream;
 		if (temp.x() == 0)
 		{
-			printf("IS STUCK : ");
+			//printf("IS STUCK : ");
 			rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 300);
 		}
 
