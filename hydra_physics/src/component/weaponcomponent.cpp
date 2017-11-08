@@ -93,19 +93,17 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 }
 
 void WeaponComponent::serialize(nlohmann::json& json) const {
-	json = {
-		{ "fireRateRPM", fireRateRPM },
-		{ "bulletSize", bulletSize},
-		{ "bulletSpread", bulletSpread},
-		{ "bulletsPerShot", bulletsPerShot}
-	};
+	json["fireRateRPM"] = fireRateRPM;
+	json["ignoreParent"] = bulletSize;
+	json["ignoreParent"] = bulletSpread;
+	json["ignoreParent"] = bulletsPerShot;
 }
 
 void WeaponComponent::deserialize(nlohmann::json& json) {
-	fireRateRPM = json["fireRateRPM"].get<int>();
-	bulletSize = json["bulletSize"].get<float>();
-	bulletSpread = json["bulletSpread"].get<float>();
-	bulletsPerShot = json["bulletsPerShot"].get<int>();
+	fireRateRPM = json.value<int>("fireRateRPM", 0);
+	bulletSize = json.value<float>("bulletSize", 0);
+	bulletSpread = json.value<float>("bulletSpread", 0);
+	bulletsPerShot = json.value<int>("bulletsPerShot", 0);
 }
 
 void WeaponComponent::registerUI() {

@@ -19,15 +19,15 @@ AIComponent::~AIComponent() {
 }
 
 void AIComponent::serialize(nlohmann::json& json) const {
-	json = {
-		{ "behaviourType", (unsigned int)behaviour->type},
-		{ "radius", radius },
-		{ "pathState", behaviour->state },
-		{ "damage", damage },
-		{ "range",  behaviour->range },
-		{ "mapOffset",{ behaviour->mapOffset.x, behaviour->mapOffset.y, behaviour->mapOffset.z } },
-		{ "originalRange",  behaviour->originalRange }
-	};
+	json["behaviourType"] = (unsigned int)behaviour->type;
+	json["radius"] = radius;
+	json["pathState"] = behaviour->state;
+	json["damage"] = damage;
+	json["range"] = behaviour->range;
+	json["mapOffsetX"] = behaviour->mapOffset.x;
+	json["mapOffsetY"] = behaviour->mapOffset.y;
+	json["mapOffsetZ"] = behaviour->mapOffset.z;
+	json["originalRange"] = behaviour->originalRange;
 
 	for (size_t i = 0; i < 64; i++)
 	{
@@ -56,12 +56,11 @@ void AIComponent::deserialize(nlohmann::json& json) {
 		break;
 	}
 
-	behaviour->state = json["pathState"].get<int>();
-	damage = json["damage"].get<int>();
+	behaviour->state = json.value<int>("pathState", 0);
+	damage = json.value<int>("damage", 0);
 
-
-	behaviour->range = json["range"].get<float>();
-	behaviour->originalRange = json["originalRange"].get<float>();
+	behaviour->range = json.value<float>("range", 0);
+	behaviour->originalRange = json.value<float>("originalRange", 0);
 
 	for (size_t i = 0; i < 64; i++)
 	{

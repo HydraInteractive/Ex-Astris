@@ -17,20 +17,28 @@ Hydra::Component::MovementComponent::~MovementComponent()
 
 void Hydra::Component::MovementComponent::serialize(nlohmann::json & json) const
 {
-	json = {
-		{ "velocity",{ velocity.x, velocity.y, velocity.z } },
-		{ "acceleration",{ acceleration.x, acceleration.y, acceleration.z } },
-		{ "movementSpeed", movementSpeed },
-	};
+	json["velocityX"] = velocity[0];
+	json["velocityY"] = velocity[1];
+	json["velocityZ"] = velocity[2];
+
+	json["accelerationX"] = acceleration[0];
+	json["accelerationY"] = acceleration[1];
+	json["accelerationZ"] = acceleration[2];
+
+	json["movmentSpeed"] = movementSpeed;
 }
 
 void Hydra::Component::MovementComponent::deserialize(nlohmann::json & json)
 {
-	auto& velo = json["velocity"];
-	velocity = glm::vec3{ velo[0].get<float>(), velo[1].get<float>(), velo[2].get<float>() };
-	auto& acce = json["acceleration"];
-	acceleration = glm::vec3{ acce[0].get<float>(), acce[1].get<float>(), acce[2].get<float>() };
-	movementSpeed = json["movementSpeed"].get<float>();
+	velocity[0] = json.value<float>("velocityX", 0);
+	velocity[1] = json.value<float>("velocityY", 0);
+	velocity[2] = json.value<float>("velocityZ", 0);
+
+	acceleration[0] = json.value<float>("accelerationX", 0);
+	acceleration[1] = json.value<float>("accelerationY", 0);
+	acceleration[2] = json.value<float>("accelerationZ", 0);
+
+	movementSpeed = json.value<float>("movementSpeed", 0);
 }
 
 void Hydra::Component::MovementComponent::registerUI()
