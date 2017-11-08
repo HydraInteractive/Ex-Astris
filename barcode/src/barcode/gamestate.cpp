@@ -946,7 +946,7 @@ namespace Barcode {
 
 			auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
-					0, 0, 1.0f, 1.0f);
+					0, 0, 0.6f, 1.0f);
 			rgbc->setActivationState(DISABLE_DEACTIVATION);
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
 		} /*{
