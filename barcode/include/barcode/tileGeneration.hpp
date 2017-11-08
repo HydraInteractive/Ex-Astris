@@ -7,7 +7,6 @@
 #include <hydra/io/meshloader.hpp>
 #include <hydra/io/textureloader.hpp>
 #include <hydra/world/blueprintloader.hpp>
-//#include <hydra/physics/bulletmanager.hpp>
 #include <hydra/renderer/glrenderer.hpp>
 #include <hydra/renderer/glshader.hpp>
 #include <hydra/io/gltextureloader.hpp>

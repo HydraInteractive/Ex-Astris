@@ -7,6 +7,7 @@ tileGeneration::tileGeneration(int xSize, int ySize, std::string middleRoomPath 
 	_obtainRoomFiles();
 	_setupGrid();
 	setUpMiddleRoom(middleRoomPath);
+	//_createMapRecursivly(tiles[middleTile].get());
 }
 
 tileGeneration::~tileGeneration() {}
