@@ -254,6 +254,10 @@ void RigidBodyComponent::createCylinderZ(const glm::vec3& halfExtents, DEFAULT_P
 #undef MAKE_DATA
 #undef DEFAULT_PARAMS
 
+void RigidBodyComponent::setActivationState(const int newState) {
+	_data->getRigidBody()->setActivationState(newState);
+}
+
 void* RigidBodyComponent::getRigidBody() { return static_cast<void*>(_data->getRigidBody()); }
 void RigidBodyComponent::serialize(nlohmann::json& json) const {
 	json = {
