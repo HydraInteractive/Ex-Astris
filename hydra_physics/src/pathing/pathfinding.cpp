@@ -69,25 +69,18 @@ void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 		{
 			//East
 			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z(), currentNode, map);
-
 			//West
 			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z(), currentNode, map);
-
 			//North
 			_discoverNode(currentNode->pos.x(), currentNode->pos.z() + 1, currentNode, map);
-
 			//South
 			_discoverNode(currentNode->pos.x(), currentNode->pos.z() - 1, currentNode, map);
-
 			//North West
 			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() + 1, currentNode, map);
-
 			//North East
 			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() + 1, currentNode, map);
-
 			//South West
 			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() - 1, currentNode, map);
-
 			//South East
 			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() - 1, currentNode, map);
 		}
