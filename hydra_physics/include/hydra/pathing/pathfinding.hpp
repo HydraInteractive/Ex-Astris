@@ -12,8 +12,8 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <memory>
-#define MAP_SIZE 64 //The size in both X and Z of the map(/room?)
-#define NODE_SCALE 1.0f //The size in both X and Z of a Node
+#define MAP_SIZE 128 //The size in both X and Z of the map(/room?)
+#define MAP_SCALE 0.5f //How many world coordinates the map coordinates represent
 #include <math.h>
 #include <algorithm>
 
@@ -23,19 +23,19 @@ public:
 	//A 2D vector with x and z axies instead of x and y
 	struct MapVec
 	{
-		glm::vec2 baseVec;
+		glm::ivec2 baseVec;
 
-		MapVec(float x, float z) { baseVec = glm::vec2(x, z); }
+		MapVec(int x, int z) { baseVec = glm::vec2(x, z); }
 		MapVec() { baseVec = glm::vec2(0.0f, 0.0f); }
 
-		float& x() { return baseVec.x; }
-		float& z() { return baseVec.y; }
+		int& x() { return baseVec.x; }
+		int& z() { return baseVec.y; }
 		void set(const glm::vec2 &vec) { baseVec = vec; }
-		void set(const glm::vec3 &vec) { baseVec = glm::vec2(vec.x,vec.z); }
+		void set(const glm::vec3 &vec) { baseVec = glm::vec2(vec.x, vec.z); }
+
 
 		bool operator==(MapVec& other) { return this->baseVec == other.baseVec; }
-
-		operator glm::vec3() { return glm::vec3(baseVec.x, 0, baseVec.y); }
+		//operator glm::vec3() { return glm::ivec3(baseVec.x, 0, baseVec.y); }
 		operator glm::vec2() { return baseVec; }
 	};
 	struct Node
@@ -57,26 +57,26 @@ public:
 
 		//Manhattan Distance - do not use, gives invalid values
 		//Distance to adjacent nodes is 1, diagonal is 2
-		float hDistanceTo(std::shared_ptr<Node> nodeEnd)
+		int hDistanceTo(std::shared_ptr<Node> nodeEnd)
 		{
-			float x = fabs((float)(this->pos.x() - nodeEnd->pos.x()));
-			float z = fabs((float)(this->pos.z() - nodeEnd->pos.z()));
+			int x = abs(this->pos.x() - nodeEnd->pos.x());
+			int z = abs(this->pos.z() - nodeEnd->pos.z());
 			return x + z;
 		}
 
-		//Chebychev Distance - inaccurate but pretty safe
+		//Chebychev Distance - inaccurate but safe
 		//Distance to adjacent nodes is 1
-		//float hDistanceTo(std::shared_ptr<Node> nodeEnd)
+		//int hDistanceTo(std::shared_ptr<Node> nodeEnd)
 		//{
-		//	float x = fabs((float)(this->pos.x() - nodeEnd->pos.x()));
-		//	float z = fabs((float)(this->pos.z() - nodeEnd->pos.z()));
-		//	return std::fmax(x, z);
+		//	int x = abs(this->pos.x() - nodeEnd->pos.x());
+		//	int z = abs(this->pos.z() - nodeEnd->pos.z());
+		//	return std::max(x, z);
 		//}
 
 		//Actual Distance - probably the best maybe, float inaccuracies may break it
 		//float hDistanceTo(std::shared_ptr<Node> nodeEnd)
 		//{
-		//	return std::sqrtf(std::powf(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::powf(this->pos.z() - nodeEnd->pos.z(), 2.0f) * 0.99);
+		//	return std::sqrt(std::pow(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::pow(this->pos.z() - nodeEnd->pos.z(), 2.0f) * 0.99);
 		//}
 
 		//Must always be used to calculate G distance
@@ -94,7 +94,8 @@ public:
 
 	void findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, int(&map)[MAP_SIZE][MAP_SIZE]);
 	glm::vec3 nextPathPos(const glm::vec3& pos, const float& radius);
-
+	MapVec worldToMapCoords(const glm::vec3& worldPos) const;
+	glm::vec3 mapToWorldCoords(const MapVec& mapPos) const;
 	bool intializedStartGoal;
 	bool foundGoal;
 
@@ -112,12 +113,13 @@ public:
 			return (_Left->getF() > _Right->getF());
 		}
 	} comparisonFunctor;
-	std::vector<std::shared_ptr<Node>> _visitedList;
-	std::vector<MapVec> _pathToEnd;
+	std::vector<glm::vec3> _pathToEnd;
 private:
+	std::vector<std::shared_ptr<Node>> _visitedList;
 	std::vector<std::shared_ptr<Node>> _openList;
 	std::shared_ptr<Node> _startNode;
 	std::shared_ptr<Node> _endNode;
 
+	bool isOutOfBounds(const glm::vec2& vec)const;
 	void _discoverNode(int x, int z, std::shared_ptr<Node> lastNode, int(&map)[MAP_SIZE][MAP_SIZE]);
 };
