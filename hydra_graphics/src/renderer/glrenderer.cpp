@@ -229,7 +229,7 @@ public:
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glDepthMask(GL_FALSE);
+		//glDepthMask(GL_FALSE);
 		auto& particles = batch.textureInfo;
 		size_t sizeParticles = particles.size() / 3;
 		for (auto& kv : batch.objects) {
@@ -249,7 +249,7 @@ public:
 			}
 		}
 		glDisable(GL_BLEND);
-		glDepthMask(GL_TRUE);
+		//glDepthMask(GL_TRUE);
 	}
 
 	void render(Batch& batch) final {

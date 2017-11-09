@@ -63,8 +63,7 @@ void SpawnerSystem::tick(float delta)
 					rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f);
 					static_cast<btRigidBody*>(rgbc->getRigidBody())->setActivationState(DISABLE_DEACTIVATION);
 					bulletPhysWorld->enable(rgbc.get());
-
-					alienSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
+					alienSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
 					spawner->spawnGroup.push_back(alienSpawn);
 					spawner->spawnTimer = 0;
 				}
@@ -99,7 +98,7 @@ void SpawnerSystem::tick(float delta)
 						weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
 					}
 
-					robotSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/alphaGunModel.ATTIC");
+					robotSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Gun.mATTIC");
 					spawner->spawnGroup.push_back(robotSpawn);
 					spawner->spawnTimer = 0;
 				}
