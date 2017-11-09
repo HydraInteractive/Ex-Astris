@@ -4,6 +4,7 @@
 #include <hydra/renderer/glshader.hpp>
 #include <hydra/io/gltextureloader.hpp>
 #include <hydra/io/glmeshloader.hpp>
+#include <barcode/tileGeneration.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
 #include <imgui/imgui.h>
@@ -836,12 +837,15 @@ namespace Barcode {
 				, 0, 0, 0, 0.6f, 0);
 		}
 		{
+			TileGeneration worldTiles("assets/room/threewayRoom.room");
+		}
+		{
 			auto physicsBox = world::newEntity("Physics box", world::root());
 			auto t = physicsBox->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(2, 25, 2);
 			physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(glm::vec3(0.5f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_MISC_OBJECT, 10
-				, 0, 0, 1.0f, 1.0f);
-			physicsBox->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Computer1.ATTIC");
+			,0,0,1.0f,1.0f);
+			physicsBox->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BigMonitor.mATTIC");
 		}
 
 		{
@@ -864,12 +868,31 @@ namespace Barcode {
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
 				weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
-				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/alphaGunModel.ATTIC");
+				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Gun.mATTIC");
 				auto t2 = weaponEntity->addComponent<Hydra::Component::TransformComponent>();
 				t2->position = glm::vec3(2, -7, -2);
 				t2->rotation = glm::quat(0, 0, 1, 0);
 				t2->ignoreParent = true;
 			}
+		}
+		{
+			auto alienEntity = world::newEntity("Alien1", world::root());
+			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+			a->damage = 4;
+			a->behaviour->originalRange = 1;
+			a->radius = 1;
+
+			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+			h->maxHP = 80;
+			h->health = 80;
+			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+			m->movementSpeed = 8.0f;
+			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+			t->position = glm::vec3{ 10, 0, 20 };
+			t->scale = glm::vec3{ 2,2,2 };
+			t->rotation = glm::vec3{ 0, 90, 0 };
+			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
 		}
 
 		{
@@ -882,7 +905,7 @@ namespace Barcode {
 			auto pointLight2 = world::newEntity("Pointlight2", world::root());
 			auto t = pointLight2->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(45, 0, 0);
-			pointLight2->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
+			pointLight2->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
 			auto p2LC = pointLight2->addComponent<Hydra::Component::PointLightComponent>();
 			p2LC->position = glm::vec3(45, 0, 0);
 			p2LC->color = glm::vec3(1, 0, 0);
@@ -890,7 +913,7 @@ namespace Barcode {
 			auto pointLight3 = world::newEntity("Pointlight3", world::root());
 			auto t = pointLight3->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(45, 0, 0);
-			pointLight3->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
+			pointLight3->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
 			auto p3LC = pointLight3->addComponent<Hydra::Component::PointLightComponent>();
 			p3LC->position = glm::vec3(0, 0, 45);
 			p3LC->color = glm::vec3(1, 0, 0);
@@ -900,7 +923,7 @@ namespace Barcode {
 			auto pointLight4 = world::newEntity("Pointlight4", world::root());
 			auto t = pointLight4->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(45, 0, 0);
-			pointLight4->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
+			pointLight4->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
 			auto p4LC = pointLight4->addComponent<Hydra::Component::PointLightComponent>();
 			p4LC->position = glm::vec3(45, 0, 45);
 			p4LC->color = glm::vec3(1, 0, 0);
