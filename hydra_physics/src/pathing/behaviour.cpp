@@ -358,6 +358,32 @@ void RobotBehaviour::run(float dt)
 	executeTransforms();
 }
 
+unsigned int RobotBehaviour::idleState(float dt)
+{
+	if (thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->animationIndex != 0) {
+		thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->currentFrame = 0;
+	}
+	thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->animationIndex = 0;
+	int currentFrame = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->currentFrame;
+	if (currentFrame > 50) {
+		thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->currentFrame = 50;
+	}
+
+	if (targetPlayer.transform->position.x > mapOffset.x && targetPlayer.transform->position.x < MAP_SIZE && targetPlayer.transform->position.z > mapOffset.z && targetPlayer.transform->position.z < MAP_SIZE)
+	{
+		if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 50)
+		{
+			idleTimer = 0;
+			if (currentFrame <= 2)
+				thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->currentFrame -= 2;
+			else
+				return SEARCHING;
+			}
+		}
+	}
+	return state;
+}
+
 bool RobotBehaviour::refreshRequiredComponents()
 {
 	hasRequiredComponents = (

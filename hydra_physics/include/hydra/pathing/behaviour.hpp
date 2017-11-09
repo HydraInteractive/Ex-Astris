@@ -95,7 +95,7 @@ public:
 	RobotBehaviour();
 	~RobotBehaviour();
 	void run(float dt);
-
+	unsigned int idleState(float dt) final;
 	unsigned int attackingState(float dt) final;
 private:
 	bool refreshRequiredComponents() final;
