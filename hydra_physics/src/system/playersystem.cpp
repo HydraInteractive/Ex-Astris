@@ -45,17 +45,23 @@ void PlayerSystem::tick(float delta) {
 
 		{
 			movement->velocity = glm::vec3{0};
+
+			glm::vec3 forward = glm::normalize(glm::vec3(movement->direction.x, 0, movement->direction.z));
+			
+			glm::vec3 rightDir = glm::vec3(glm::vec4{ 1, 0, 0, 0 } *rotation);
+			glm::vec3 right = glm::normalize(glm::vec3(rightDir.x, 0, rightDir.z));
+
 			if (keysArray[SDL_SCANCODE_W])
-				movement->velocity.z -= movement->movementSpeed;
+				movement->velocity += movement->movementSpeed * forward;
 
 			if (keysArray[SDL_SCANCODE_S])
-				movement->velocity.z += movement->movementSpeed;
+				movement->velocity -= movement->movementSpeed * forward;
 
 			if (keysArray[SDL_SCANCODE_A])
-				movement->velocity.x -= movement->movementSpeed;
+				movement->velocity -= movement->movementSpeed * right;
 
 			if (keysArray[SDL_SCANCODE_D])
-				movement->velocity.x += movement->movementSpeed;
+				movement->velocity += movement->movementSpeed * right;
 
 			if (keysArray[SDL_SCANCODE_SPACE] && player->onGround){
 				movement->acceleration.y += 6.0f;
@@ -72,10 +78,26 @@ void PlayerSystem::tick(float delta) {
 		}
 
 		//movement->acceleration.y -= 10.0f * delta;
-		glm::vec4 movementVector = glm::vec4(movement->velocity, 0) * rotation;
+		//glm::vec4 movementVector = glm::vec4(movement->velocity, 0) *rotation;
+
+		rbc->applyCentralForce(btVector3(movement->velocity.x, movement->velocity.y, movement->velocity.z) * 300000.f * delta);
+		btVector3 vel = rbc->getLinearVelocity();
+		btScalar speed = rbc->getLinearVelocity().length();
+
+		if (speed > 15)
+		{
+			vel *= 15 / speed;
+			rbc->setLinearVelocity(vel);
+		}
+		if (movement->velocity == glm::vec3())
+		{
+			btVector3 flatVec = btVector3(vel.x(), 0, vel.z());
+			rbc->applyCentralImpulse(-flatVec*1000*delta);
+		}
+	
 		//movementVector.y = movement->acceleration.y;
-		rbc->setLinearVelocity(btVector3(movementVector.x, 0, movementVector.z));
-		rbc->setInterpolationLinearVelocity(btVector3(movementVector.x, 0, movementVector.z) * movement->movementSpeed);
+		//rbc->setLinearVelocity(btVector3(movementVector.x, 0, movementVector.z));
+		//rbc->setInterpolationLinearVelocity(btVector3(movementVector.x, 0, movementVector.z) * movement->movementSpeed);
 		//rbc->applyCentralForce(btVector3(movementVector.x, movementVector.y, movementVector.z) * 100);
 		//transform->position += glm::vec3(movementVector) * delta;
 

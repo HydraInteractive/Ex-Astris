@@ -880,8 +880,10 @@ namespace Barcode {
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
 			auto rgbc = playerEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createBox(0.5f * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
-				0,0,0.5f,0);
+				0,0,0.75f,0);
 			rgbc->setActivationState(DISABLE_DEACTIVATION);
+			auto rbc = static_cast<btRigidBody*>(rgbc->getRigidBody());
+			rbc->setAngularFactor(btVector3(0.0f,0.0f,0.0f));
 			t->position = glm::vec3{ 0, -7, 20 };
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
