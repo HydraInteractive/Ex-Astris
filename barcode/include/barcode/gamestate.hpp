@@ -151,7 +151,7 @@ namespace Barcode {
 		void _initSystem();
 		void _initWorld();
 
-		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int nrOfTimes, glm::vec2 size, bool blurEnabled);
+		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int nrOfTimes, glm::vec2 size);
 	};
 
 	//class DemoWindow : public TBWindow
