@@ -305,7 +305,7 @@ namespace Barcode {
 		_particleSystem.tick(delta);
 		_rendererSystem.tick(delta);
 
-		const glm::vec3 cameraPos = _cc->position;
+		const glm::vec3 cameraPos = _cc->getTransformComponent()->position;
 
 		{ // Render objects (Deferred rendering)
 		  // Render to geometryFBO
@@ -446,7 +446,7 @@ namespace Barcode {
 			_lightingBatch.pipeline->setValue(5, 5);
 			_lightingBatch.pipeline->setValue(6, 6);
 
-			_lightingBatch.pipeline->setValue(7, _cc->position);
+			_lightingBatch.pipeline->setValue(7, _cc->getTransformComponent()->position);
 			_lightingBatch.pipeline->setValue(8, enableSSAO);
 			auto& lights = Hydra::Component::PointLightComponent::componentHandler->getActiveComponents();
 

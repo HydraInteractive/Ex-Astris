@@ -280,6 +280,7 @@ namespace Barcode {
 		_perkSystem.tick(delta);
 		_lifeSystem.tick(delta);
 
+		//TODO: These should go straight to the transform component, not via the camera component
 		const glm::vec3 cameraPos = _cc->getTransformComponent()->position;
 
 		{ // Render objects (Deferred rendering)
