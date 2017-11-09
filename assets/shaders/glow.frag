@@ -16,9 +16,6 @@ void main() {
 
 	hdrColor += bloomColor1;
 
-	vec3 result = vec3(1.0) - exp(-hdrColor * 1.0);
-	result = pow(result, vec3(1.0 / gamma));
-
-	finalOutput = result;
 	gl_FragDepth = texture(depth, texCoords).r;
+	finalOutput = hdrColor;
 }
