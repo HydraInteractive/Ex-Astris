@@ -524,7 +524,7 @@ namespace Barcode {
 		{ // Glow
 			if (enableBlur) {
 				int nrOfTimes;
-				nrOfTimes = 1;
+				nrOfTimes = 4;
 
 				glm::vec2 size = windowSize;
 
