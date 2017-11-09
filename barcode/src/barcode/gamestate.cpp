@@ -5,6 +5,8 @@
 #include <hydra/io/gltextureloader.hpp>
 #include <hydra/io/glmeshloader.hpp>
 
+#include <glm/gtx/matrix_decompose.hpp>
+
 #include <hydra/world/blueprintloader.hpp>
 #include <imgui/imgui.h>
 #include <hydra/component/aicomponent.hpp>
@@ -252,6 +254,21 @@ namespace Barcode {
 			batch.batch.pipeline = batch.pipeline.get(); // TODO: Change to "null" pipeline
 		}
 
+		{
+			auto& batch = _hitboxBatch;
+			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/hitboxdebug.vert");
+			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/hitboxdebug.frag");
+
+			batch.pipeline = Hydra::Renderer::GLPipeline::create();
+			batch.pipeline->attachStage(*batch.vertexShader);
+			batch.pipeline->attachStage(*batch.fragmentShader);
+			batch.pipeline->finalize();
+
+			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
+			batch.batch.clearFlags = ClearFlags::none;
+			batch.batch.renderTarget = _lightingBatch.output.get();
+			batch.batch.pipeline = batch.pipeline.get();
+		}
 
 		size_t boneCount = 32;
 		size_t animationBatch = 16;
@@ -462,6 +479,8 @@ namespace Barcode {
 		ImGui::Checkbox("Enable SSAO", &enableSSAO);
 		static bool enableBlur = true;
 		ImGui::Checkbox("Enable blur", &enableBlur);
+		static bool enableHitboxDebug = true;
+		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
 
 		if (enableSSAO) {
 
@@ -520,6 +539,29 @@ namespace Barcode {
 			_engine->getRenderer()->postProcessing(_lightingBatch.batch);
 		}
 
+		if (enableHitboxDebug) {
+			for (auto& kv : _hitboxBatch.batch.objects) {
+				kv.second.clear();
+			}
+
+			std::vector<std::shared_ptr<Entity>> entities;
+			world::getEntitiesWithComponents<Hydra::Component::RigidBodyComponent, Hydra::Component::DrawObjectComponent>(entities);
+			for (auto e : entities) {
+				// GOTTA MAKE IT VERSATILE SO IT CAN TAKE CAPSULE AS WELL.
+				auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
+				auto rgbc = e->getComponent<Hydra::Component::RigidBodyComponent>();
+				glm::vec3 newScale;
+				glm::quat rotation;
+				glm::vec3 translation;
+				glm::vec3 skew;
+				glm::vec4 perspective;
+				glm::decompose(drawObj->modelMatrix, newScale, rotation, translation, skew, perspective);
+				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(glm::translate(translation) * glm::mat4_cast(rotation) * glm::scale(rgbc->getHalfExtentScale() * glm::vec3(2)));
+			}
+			_hitboxBatch.pipeline->setValue(0, _cc->getViewMatrix());
+			_hitboxBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
+			_engine->getRenderer()->renderHitboxes(_hitboxBatch.batch);
+		}
 
 		{ // Glow
 			if (enableBlur) {
@@ -836,6 +878,7 @@ namespace Barcode {
 	}
 
 	void GameState::_initWorld() {
+		_hitboxCube = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh("assets/objects/HitBox.mATTIC");
 		{
 			auto floor = world::newEntity("Floor", world::root());
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
@@ -843,12 +886,13 @@ namespace Barcode {
 			auto rgbc = floor->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL
 			, 0, 0, 0, 0.6f, 0);
+			floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 		}
 		{
 			auto physicsBox = world::newEntity("Physics box", world::root());
 			auto t = physicsBox->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(2, 25, 2);
-			physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(glm::vec3(0.5f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_MISC_OBJECT, 10
+			physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(t->scale * 10.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_MISC_OBJECT, 10
 			,0,0,1.0f,1.0f);
 			physicsBox->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Computer1.ATTIC");
 		}
@@ -861,12 +905,12 @@ namespace Barcode {
 			auto m = playerEntity->addComponent<Hydra::Component::MovementComponent>();
 			auto s = playerEntity->addComponent<Hydra::Component::SoundFxComponent>();
 			auto perks = playerEntity->addComponent<Hydra::Component::PerkComponent>();
-			h->health = h->maxHP = 20.0f;
+			h->health = h->maxHP = 2000.0f;
 			m->movementSpeed = 20.0f;
 			//c->position = glm::vec3{ 5, 0, -3 };
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
 			auto rgbc = playerEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(0.5f * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
+			rgbc->createBox(t->scale * 0.5f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
 				0,0,0.5f,0);
 			rgbc->setActivationState(DISABLE_DEACTIVATION);
 			t->position = glm::vec3{ 0, -7, 20 };
@@ -934,10 +978,10 @@ namespace Barcode {
 		//
 		//	auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 		//	rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
-		//			0, 0, 0.6f, 1.0f);
+		//		0, 0, 0.6f, 1.0f);
 		//	rgbc->setActivationState(DISABLE_DEACTIVATION);
 		//	alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
-		//} 
+		//}
 		/*{
 			auto alienSpawner = world::newEntity("AlienSpawner", world::root());
 			auto a = alienSpawner->addComponent<Hydra::Component::SpawnerComponent>();

@@ -24,6 +24,7 @@ namespace Hydra::Renderer {
 		HYDRA_GRAPHICS_API std::unique_ptr<IMesh> create(const std::string& file, IRenderer* renderer);
 		HYDRA_GRAPHICS_API std::unique_ptr<IMesh> createQuad(IRenderer* renderer);
 		HYDRA_GRAPHICS_API std::unique_ptr<IMesh> createFullscreenQuad();
+		HYDRA_GRAPHICS_API std::unique_ptr<IMesh> createCube();
 	};
 
 	namespace GLTexture {

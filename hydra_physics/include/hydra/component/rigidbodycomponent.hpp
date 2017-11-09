@@ -36,6 +36,7 @@ namespace Hydra::Component {
 
 		void setActivationState(const int newState);
 		void* getRigidBody();
+		glm::vec3 getHalfExtentScale() { return _halfExtents; }
 
 		inline const std::string type() const final { return "RigidBodyComponent"; }
 
@@ -47,6 +48,7 @@ namespace Hydra::Component {
 		Hydra::System::BulletPhysicsSystem::CollisionTypes doa;
 		struct Data;
 		Data* _data;
+		glm::vec3 _halfExtents;
 		Hydra::System::BulletPhysicsSystem* _handler;
 	};
 };
