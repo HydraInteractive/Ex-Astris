@@ -7,25 +7,35 @@ using namespace Hydra::Component;
 PointLightComponent::~PointLightComponent() {}
 
 void PointLightComponent::serialize(nlohmann::json& json) const {
-	json = {
-		{ "position", { position.x, position.y, position.z } },
-		{ "color", { color.x, color.y, color.z } },
-		{ "constant", constant },
-		{ "linear", linear },
-		{ "quadratic", quadratic }
-	};
+	json["positionX"] = position[0];
+	json["positionY"] = position[1];
+	json["positionZ"] = position[2];
+
+	json["colorX"] = color[0];
+	json["colorY"] = color[1];
+	json["colorZ"] = color[2];
+
+	json["constant"] = constant;
+
+	json["linear"] = linear;
+
+	json["quadratic"] = quadratic;
 }
 
 void PointLightComponent::deserialize(nlohmann::json& json) {
-	auto& pos = json["position"];
-	position = glm::vec3{ pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
+	position[0] = json.value<float>("positionX", 0);
+	position[1] = json.value<float>("positionY", 0);
+	position[2] = json.value<float>("positionZ", 0);
 
-	auto& c = json["color"];
-	color = glm::vec3{ c[0].get<float>(), c[1].get<float>(), c[2].get<float>() };
+	color[0] = json.value<float>("colorX", 0);
+	color[1] = json.value<float>("colorY", 0);
+	color[2] = json.value<float>("colorZ", 0);
 
-	constant = json["constant"].get<float>();
-	linear = json["linear"].get<float>();
-	quadratic = json["quadratic"].get<float>();
+	constant = json.value<float>("constant", 0);
+
+	linear = json.value<float>("linear", 0);
+
+	quadratic = json.value<float>("quadratic", 0);
 }
 
 void PointLightComponent::registerUI() {

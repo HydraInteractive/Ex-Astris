@@ -12,18 +12,13 @@
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
 #include <hydra/world/world.hpp>
+#include <hydra/abilities/abilities.hpp>
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
-#include <hydra/abilities/abilityHandler.hpp>
-#include <hydra/abilities/buffHandler.hpp>
 
 using namespace Hydra::World;
-
-enum Keys {
-	H, F, COUNT
-};
 
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API PlayerComponent final : public IComponent<PlayerComponent, ComponentBits::Player> {
@@ -31,10 +26,6 @@ namespace Hydra::Component {
 		bool onGround = false;
 		bool firstPerson = true;
 		bool isDead = false;
-		bool prevKBFrameState[Keys::COUNT] = { false };
-
-		// TODO: Move?!
-		AbilityHandler activeAbillies;
 
 		~PlayerComponent() final;
 
