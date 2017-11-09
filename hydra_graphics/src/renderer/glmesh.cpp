@@ -264,11 +264,13 @@ private:
 			char *tempFileName;
 			tempFileName = new char[fileNameLength];
 			in.read(tempFileName, fileNameLength);
+
 			fileName.append(tempFileName, fileNameLength);
 			if (fileName != "NULL" && fileNameLength != 0)
 				_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/" + fileName);
 			else
 				_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/error2.png");
+
 			delete[] tempFileName;
 
 			_material.specular = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/glow/errorGlow.png");
