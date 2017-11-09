@@ -13,15 +13,7 @@
 #include <hydra/renderer/uirenderer.hpp>
 #include <hydra/io/meshloader.hpp>
 #include <hydra/io/textureloader.hpp>
-#include <hydra/renderer/glrenderer.hpp>
-#include <hydra/renderer/glshader.hpp>
-#include <hydra/io/gltextureloader.hpp>
-#include <hydra/io/glmeshloader.hpp>
-#include <hydra/physics/bulletmanager.hpp>
-
-#include <barcode/editorstate.hpp>
-#include <barcode/gamestate.hpp>
-#include <imgui/imgui.h>
+#include <hydra/system/bulletphysicssystem.hpp>
 
 namespace Barcode {
 	class MenuState final : public Hydra::IState {
@@ -34,10 +26,9 @@ namespace Barcode {
 
 		void runFrame(float delta) final;
 
-		inline Hydra::World::IWorld* getWorld() final { return _world.get(); };
 		inline Hydra::IO::ITextureLoader* getTextureLoader() final { return _textureLoader.get(); }
 		inline Hydra::IO::IMeshLoader* getMeshLoader() final { return _meshLoader.get(); }
-		inline Hydra::Physics::IPhysicsManager* getPhysicsManager() final { return _physicsManager.get(); }
+		inline Hydra::World::ISystem* getPhysicsSystem() final { return &_physicsSystem; }
 
 	private:
 		struct RenderBatch final {
@@ -50,14 +41,63 @@ namespace Barcode {
 			Hydra::Renderer::Batch batch;
 		};
 
+		enum class Menu : uint8_t {
+			none = 0,
+			play,
+			create,
+			options
+		};
+
+		union SubMenu {
+			uint8_t data;
+			enum class Play : uint8_t {
+				none = 0,
+				coop,
+				solo
+			} play;
+			enum class Create : uint8_t {
+				none = 0,
+				createRoom,
+				view
+			} create;
+			enum class Options : uint8_t {
+				none = 0,
+				visual,
+				gameplay,
+				sound
+			} options;
+
+			SubMenu(uint8_t d) : data(d) {}
+			SubMenu(Play p) : play(p) {}
+			SubMenu(Create c) : create(c) {}
+			SubMenu(Options o) : options(o) {}
+		};
+
 		Hydra::IEngine* _engine;
-		std::unique_ptr<Hydra::World::IWorld> _world;
 		std::unique_ptr<Hydra::IO::ITextureLoader> _textureLoader;
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
-		std::unique_ptr<Hydra::Physics::IPhysicsManager> _physicsManager;
+		Hydra::System::BulletPhysicsSystem _physicsSystem;
 
 		RenderBatch _viewBatch;
 
+		Menu _menu = Menu::none;
+		SubMenu _submenu = SubMenu{0};
+
+		void _initSystem();
 		void _initWorld();
+
+		void _playMenu();
+		void _createMenu();
+		void _optionsMenu();
+
+		// TODO: FIX!
+		int oneTenthX;
+		int oneThirdX;
+		int oneEightY;
+		int oneThirdY;
+		int oneHalfY;
+		int twoFiftsY;
+		int twoThirdY;
 	};
+	//bool ImageAnimButton(ImTextureID user_texture_id, ImTextureID user_texture_id2, const ImVec2 & size, const ImVec2 & uv0, const ImVec2 & uv1, const ImVec2 & uv2, const ImVec2 & uv3, int frame_padding, const ImVec4 & bg_col, const ImVec4 & tint_col);
 }

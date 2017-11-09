@@ -10,6 +10,8 @@ in GeometryData {
 	vec4 light;
 } inData;
 
+layout (early_fragment_tests) in;
+
 layout (location = 0) out vec3 position;
 layout (location = 1) out vec4 diffuse;
 layout (location = 2) out vec3 normal;

@@ -24,17 +24,17 @@ void GameServer::_setEntityID(int serverID, int64_t entityID) {
 	}
 }
 
-void GameServer::_sendNewEntity(Hydra::World::IEntity* ent) {
+void GameServer::_sendNewEntity(EntityID ent) {
 	//std::shared_ptr<Hydra::World::IEntity> ent = world->createEntity("CLIENT CREATED (ERROR)");
 	nlohmann::json json;
 	std::vector<uint8_t> data;
-	ent->serialize(json, true);
+	World::getEntity(ent)->serialize(json);
 	data = json.to_msgpack(json);
 
 
 	ServerSpawnEntityPacket* ssep = new ServerSpawnEntityPacket();
 	ssep->h.type = PacketType::ServerSpawnEntity;
-	ssep->id = ent->getID();
+	ssep->id = ent;
 	ssep->size = data.size();
 	ssep->h.len = ssep->getSize();
 
@@ -44,21 +44,22 @@ void GameServer::_sendNewEntity(Hydra::World::IEntity* ent) {
 	delete ssep;
 }
 
-void GameServer::_deleteEntity(Hydra::World::IEntity * ent) {
+void GameServer::_deleteEntity(EntityID ent) {
 	
-	ServerDeletePacket* sdp = createServerDeletePacket(ent->getID());
+	ServerDeletePacket* sdp = createServerDeletePacket(ent);
 	
 	this->_server->sendDataToAll((char*)sdp, sdp->h.len);
 
 	delete sdp;
+
 	//optimize
 	for (size_t i = 0; i < this->_networkEntities.size(); i++) {
-		if (ent->getID() == this->_networkEntities[i]->getID()) {
+		if (ent == this->_networkEntities[i]) {
 			this->_networkEntities.erase(this->_networkEntities.begin() + i);
 			break;
 		}
 	}
-	ent->markDead();
+	Hydra::World::World::getEntity(ent).get()->dead = true;
 }
 
 void GameServer::_handleDisconnects() {
@@ -70,8 +71,8 @@ void GameServer::_handleDisconnects() {
 				this->_server->sendDataToAll((char*)sdp, sdp->h.len);
 				printf("Player disconnected, entity id : %d\n", this->_players[k]->entityid);
 				for (size_t j = 0; j < this->_networkEntities.size(); j++) {
-					if (this->_networkEntities[j]->getID() == this->_players[k]->entityid) {
-						this->_networkEntities[j]->markDead();
+					if (this->_networkEntities[j] == this->_players[k]->entityid) {
+						World::getEntity(this->_networkEntities[j])->dead = true;
 						break;
 					}
 				}
@@ -83,28 +84,28 @@ void GameServer::_handleDisconnects() {
 }
 
 //NO PARENT IMPLEMENTATION YET (ALWAYS CREATES IN ROOT)
-Hydra::World::IEntity * GameServer::_createEntity(std::string name, int parentID, bool serverSynced) {
-	std::shared_ptr<Hydra::World::IEntity> ent = this->_world->createEntity(name);
+Entity* GameServer::_createEntity(std::string name, int parentID, bool serverSynced) {
+	Entity* ent = World::newEntity(name, parentID).get();
 
-	printf("Created entity \"%s\" with entity id : %d\n", ent->getName().c_str(), ent->getID());
+	printf("Created entity \"%s\" with entity id : %d\n", ent->name.c_str(), ent->id);
 	if(serverSynced) {
 		ent->addComponent<Hydra::Component::TransformComponent>();
-		this->_networkEntities.push_back(ent);
+		this->_networkEntities.push_back(ent->id);
 
-		createAndSendServerEntityPacket(ent.get(), this->_server);
-		return ent.get();
+		createAndSendServerEntityPacket(ent, this->_server);
+		return ent;
 	}
 	else
-		return ent.get();
+		return ent;
 }
 
 
-void GameServer::_convertEntityToTransform(ServerUpdatePacket::EntUpdate& dest, std::shared_ptr<Hydra::World::IEntity> ent) {
-	Hydra::Component::TransformComponent* tc = ent->getComponent<Hydra::Component::TransformComponent>();
-	dest.entityid = ent->getID();
-	dest.ti.pos = tc->getPosition();
-	dest.ti.scale = tc->getScale();
-	dest.ti.rot = tc->getRotation();
+void GameServer::_convertEntityToTransform(ServerUpdatePacket::EntUpdate& dest, EntityID ent) {
+	Hydra::Component::TransformComponent* tc = World::getEntity(ent)->getComponent<Hydra::Component::TransformComponent>().get();
+	dest.entityid = ent;
+	dest.ti.pos = tc->position;
+	dest.ti.scale = tc->scale;
+	dest.ti.rot = tc->rotation;
 }
 
 void GameServer::_sendWorld() {
@@ -134,8 +135,8 @@ bool GameServer::_addPlayer(int id) {
 	
 		//ADD COLLISION AND FUCK
 		ServerInitializePacket pi;
-		p->entityptr = this->_world->createEntity("Player");
-		pi.entityid = p->entityptr->getID();
+		Entity* enttmp = World::newEntity("Player", World::root()).get();
+		pi.entityid = enttmp->id;
 		this->_setEntityID(id, pi.entityid);
 		pi.h.len = sizeof(ServerInitializePacket);
 		pi.h.type = PacketType::ServerInitialize;
@@ -144,14 +145,19 @@ bool GameServer::_addPlayer(int id) {
 		pi.ti.rot = glm::quat();
 		int tmp = this->_server->sendDataToClient((char*)&pi, pi.h.len, id);
 		
-		p->entityptr->addComponent<Hydra::Component::TransformComponent>(pi.ti.pos, pi.ti.scale, pi.ti.rot);
-		this->_networkEntities.push_back(p->entityptr);
+		Hydra::Component::TransformComponent* tc = enttmp->addComponent<Hydra::Component::TransformComponent>(/*pi.ti.pos, pi.ti.scale, pi.ti.rot*/).get();
+		
+		tc->setPosition(pi.ti.pos);
+		tc->setScale(pi.ti.scale);
+		tc->setRotation(pi.ti.rot);
+
+		this->_networkEntities.push_back(p->entityid);
 		printf("Player connected with entity id: %d\n", pi.entityid);
 		ServerPlayerPacket* sppacket;
 		for (size_t i = 0; i < this->_players.size(); i++) {
 			if (this->_players[i]->entityid != p->entityid) {
 				sppacket = createServerPlayerPacket("Knas", pi.ti);
-				sppacket->entID = this->_players[i]->entityptr->getID();
+				sppacket->entID = this->_players[i]->entityid;
 				this->_server->sendDataToClient((char*)sppacket, sppacket->getSize(), p->serverid);
 				delete sppacket;
 			}
@@ -159,7 +165,7 @@ bool GameServer::_addPlayer(int id) {
 
 		
 		ServerPlayerPacket* spp = createServerPlayerPacket("Fjant", pi.ti);
-		spp->entID = p->entityptr->getID();
+		spp->entID = p->entityid;
 		this->_server->sendDataToAllExcept((char*)spp, spp->getSize(), p->serverid);
 		delete[] (char*)spp;
 		
@@ -172,10 +178,10 @@ void GameServer::_resolvePackets(std::vector<Packet*> packets) {
 	for (size_t i = 0; i < packets.size(); i++) {
 		switch (packets[i]->h.type) {
 		case PacketType::ClientUpdate:
-			resolveClientUpdatePacket(this->_world.get(), (ClientUpdatePacket*)packets[i], this->_getEntityID(packets[i]->h.client));
+			resolveClientUpdatePacket((ClientUpdatePacket*)packets[i], this->_getEntityID(packets[i]->h.client));
 			break;
 		case PacketType::ClientSpawnEntity:
-			resolveClientSpawnEntityPacket(this->_world.get(), (ClientSpawnEntityPacket*)packets[i], this->_getEntityID(packets[i]->h.client), this->_server);
+			resolveClientSpawnEntityPacket((ClientSpawnEntityPacket*)packets[i], this->_getEntityID(packets[i]->h.client), this->_server);
 			break;
 		}
 	}
@@ -197,7 +203,6 @@ void GameServer::quit() {
 	for (size_t i = 0; i < this->_players.size(); i++) {
 		delete this->_players[i];
 	}
-	delete this->_world.get();
 	delete this->_server;
 }
 
@@ -207,9 +212,8 @@ bool GameServer::initialize(int port) {
 		this->lastTime = std::chrono::high_resolution_clock::now();
 		packetDelay = 0;
 		if (this->_server->initialize(port)) {
-			this->_world = Hydra::World::World::create();
 			printf("I am a scurb\n");
-			printf("Server started.\n");
+			printf("Server started on port %d.\n", port);
 
 			return true;
 		}
@@ -236,7 +240,7 @@ void GameServer::run() {
 	//Update World
 	{
 		//for (size_t k = 0; k < 10000000; k++); //WORKING KAPPA
-		this->_world->tick(TickAction::physics, delta);
+		//this->_world->tick(TickAction::physics, delta);
 	}
 
 	//Send updated world to clients

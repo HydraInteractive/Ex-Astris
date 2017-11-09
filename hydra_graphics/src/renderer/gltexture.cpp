@@ -145,6 +145,11 @@ public:
 		SDL_FreeSurface(surface);
 	}
 
+	// This one is for createDataTexture
+	GLTextureImpl(uint32_t width, uint32_t height, TextureType format) : _textureType(GL_TEXTURE_RECTANGLE), _own(true), _format(format), _samples(0), _size(glm::ivec2{width, height}) {
+		_setData(nullptr);
+	}
+
 	~GLTextureImpl() final {
 		if (_own)
 			glDeleteTextures(1, &_texture);
@@ -156,8 +161,8 @@ public:
 		_size = size;
 
 		glBindTexture(_textureType, _texture);
-		if (_textureType == GL_TEXTURE_2D)
-			glTexImage2D(GL_TEXTURE_2D, 0, toGLInternal(_format), size.x, size.y, 0, toGLBase(_format), toGLDataType(_format), nullptr);
+		if (_textureType == GL_TEXTURE_2D || _textureType == GL_TEXTURE_RECTANGLE)
+			glTexImage2D(_textureType, 0, toGLInternal(_format), size.x, size.y, 0, toGLBase(_format), toGLDataType(_format), nullptr);
 		else if (_textureType == GL_TEXTURE_2D_MULTISAMPLE)
 			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, (GLsizei)_samples, toGLBase(_format), (GLsizei)_size.x, (GLsizei)_size.y, GL_FALSE);
 	}
@@ -165,7 +170,7 @@ public:
 	void bind(size_t position) final {
 		glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + position));
 		if (!_samples)
-			glBindTexture(GL_TEXTURE_2D, _texture);
+			glBindTexture(_textureType, _texture);
 		else
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, _texture);
 	}
@@ -173,18 +178,21 @@ public:
 	size_t getSamples() final { return _samples; }
 	glm::ivec2 getSize() final { return _size; }
 	uint32_t getID() const final { return _texture; }
-	void setRepeat() final
-	{
+	void setRepeat() final {
 		glTexParameteri(_textureType, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(_textureType, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
 
-	void setClamp() final
-	{
+	void setClamp() final {
 		glTexParameteri(_textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(_textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	}
 
+	void setData(const glm::ivec2& offset, const glm::ivec2& size, const void* data) final {
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(_textureType, _texture);
+		glTexSubImage2D(_textureType, 0, offset.x, offset.y, size.x, size.y, toGLBase(_format), toGLDataType(_format), data);
+	}
 
 private:
 	GLenum _textureType;
@@ -193,13 +201,14 @@ private:
 	TextureType _format;
 	size_t _samples;
 	glm::ivec2 _size;
+	void* _mapAddress;
 
 	void _setData(const void* pixels) {
 		glGenTextures(1, &_texture);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(_textureType, _texture);
 
-		if (_textureType == GL_TEXTURE_2D)
+		if (_textureType == GL_TEXTURE_2D || _textureType == GL_TEXTURE_RECTANGLE)
 			glTexImage2D(_textureType, 0, toGLInternal(_format), _size.x, _size.y, 0, toGLBase(_format), toGLDataType(_format), pixels);
 		else if (_textureType == GL_TEXTURE_2D_MULTISAMPLE)
 			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, (GLsizei)_samples, toGLBase(_format), (GLsizei)_size.x, (GLsizei)_size.y, GL_FALSE);
@@ -209,7 +218,7 @@ private:
 			glTexParameteri(_textureType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(_textureType, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(_textureType, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		} else if (_textureType == GL_TEXTURE_2D) {
+		} else if (_textureType == GL_TEXTURE_2D || _textureType == GL_TEXTURE_RECTANGLE) {
 			glTexParameteri(_textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(_textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(_textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -236,4 +245,9 @@ std::shared_ptr<ITexture> GLTexture::createFromData(uint32_t width, uint32_t hei
 
 std::shared_ptr<ITexture> GLTexture::createFromDataExt(const char* ext, void* data, uint32_t size) {
 	return std::shared_ptr<ITexture>(new ::GLTextureImpl(ext, data, size));
+}
+
+
+std::shared_ptr<ITexture> GLTexture::createDataTexture(uint32_t width, uint32_t height, TextureType format) {
+	return std::shared_ptr<ITexture>(new ::GLTextureImpl(width, height, format));
 }

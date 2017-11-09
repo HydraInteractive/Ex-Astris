@@ -27,15 +27,17 @@ public:
 	}
 
 	GLMeshImpl(const std::string& file, GLuint modelMatrixBuffer) {
-
+		_file = file;
 		_currentFrame = 1;
 		_currentAnimationIndex = 0;
+		_animationCounter = 0;
+		_animDataUploaded = false;
 		_loadATTICModel(file.c_str(), modelMatrixBuffer);
 	}
 
-	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices, bool animation, GLuint modelMatrixBuffer, GLuint particleExtraBuffer) {
+	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices, bool animation, GLuint modelMatrixBuffer, GLuint RendererExtraBuffer) {
 		_makeBuffers();
-		_uploadData(vertices, indices, animation, modelMatrixBuffer, particleExtraBuffer);
+		_uploadData(vertices, indices, animation, modelMatrixBuffer, RendererExtraBuffer);
 	}
 
 
@@ -94,18 +96,21 @@ public:
 	Material& getMaterial() final { return _material; }
 
 	bool hasAnimation() final { return _meshHasAnimation; }
-	glm::mat4 getTransformationMatrices(int joint) final { return _finishedMatrices[_currentAnimationIndex][joint]->finishedTransformMat[_currentFrame - 1]; }
-	int getNrOfJoints() final { return _finishedMatrices[_currentAnimationIndex][0]->nrOfClusters; }
+	glm::mat4 getTransformationMatrices(int currAnimIdx, int joint, int currentFrame) final { return _finishedMatrices[currAnimIdx][joint]->finishedTransformMat[currentFrame - 1]; }
+	int getNrOfJoints(int currAnimIdx) final { return _finishedMatrices[currAnimIdx][0]->nrOfClusters; }
 	int getCurrentKeyframe() final { return _currentFrame; }
-	int getMaxFramesForAnimation() final { return _finishedMatrices[_currentAnimationIndex][0]->nrOfKeys; }
+	int getMaxFramesForAnimation(int currAnimIdx) final { return _finishedMatrices[currAnimIdx][0]->nrOfKeys; }
 	int getCurrentAnimationIndex() final { return _currentAnimationIndex; }
 	void setCurrentKeyframe(int frame) { _currentFrame = frame; }
 	void setAnimationIndex(int index) { _currentAnimationIndex = index; }
 
 	GLuint getID() const final { return _vao; }
 	size_t getIndicesCount() const final { return _indicesCount; }
+	float& getAnimationCounter() { return _animationCounter; }
+
 
 private:
+	std::string _file = "(null)";
 	Material _material;
 	GLuint _vao; // Vertex Array
 	GLuint _vbo; // Vertices
@@ -119,6 +124,8 @@ private:
 	int _maxFramesForAnimation;
 	int _currentFrame;
 	int _currentAnimationIndex;
+	float _animationCounter;
+	bool _animDataUploaded;
 
 	void _makeBuffers() {
 		glGenVertexArrays(1, &_vao);
@@ -130,7 +137,7 @@ private:
 		_ibo = buffers[1];
 	}
 
-	void _uploadData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, bool animation, GLuint modelMatrixBuffer, GLuint particleExtraBuffer) {
+	void _uploadData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, bool animation, GLuint modelMatrixBuffer, GLuint RendererExtraBuffer) {
 		_indicesCount = indices.size();
 		glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
@@ -166,8 +173,8 @@ private:
 				glVertexAttribDivisor(VertexLocation::modelMatrix + i, 1);
 			}
 		}
-		if (particleExtraBuffer) {
-			glBindBuffer(GL_ARRAY_BUFFER, particleExtraBuffer);
+		if (RendererExtraBuffer) {
+			glBindBuffer(GL_ARRAY_BUFFER, RendererExtraBuffer);
 			for (int i = 0; i < 3; i++) {
 				glEnableVertexAttribArray(VertexLocation::textureOffset1 + i);
 				glVertexAttribPointer(VertexLocation::textureOffset1 + i, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2) * 3, (GLvoid*)(sizeof(glm::vec2) * i));
@@ -252,15 +259,17 @@ private:
 			float specular = 0;
 
 			std::string fileName = "";
+			std::string glowName = "";
 			in.read(reinterpret_cast<char*>(&fileNameLength), sizeof(int));
 			char *tempFileName;
 			tempFileName = new char[fileNameLength];
 			in.read(tempFileName, fileNameLength);
 			fileName.append(tempFileName, fileNameLength);
+			glowName.append(fileName, 0, fileName.find("Texture"));
 			_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/" + fileName);
-			_material.normal = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/normals/futuristicNormal.png");
+			_material.normal = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/normals/pillowNormal.png");
 			_material.specular = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/speculars/brickSpecular.png");
-			_material.glow = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/glow/EscapePodDoorGlow_Fin.png");
+			_material.glow = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/glow/" + glowName + "Glow.png");
 
 			delete[] tempFileName;
 
@@ -386,7 +395,7 @@ private:
 			in.read(tempName, nrOfChars);
 			name.append(tempName, nrOfChars);
 
-			delete tempName;
+			delete[] tempName;
 
 			skelInfo *info = new skelInfo;
 			info->nrOfKeys = nrOfKeyframes;

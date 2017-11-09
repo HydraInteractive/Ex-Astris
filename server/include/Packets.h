@@ -42,18 +42,18 @@ struct Packet {
 };
 
 struct ServerDeletePacket : Packet {
-	int64_t id;
+	EntityID id;
 };
 
 
 struct ClientSpawnEntityPacket : Packet {
-	size_t size;
+	EntityID size;
 	char* data[0];
 	inline size_t getSize() { return sizeof(ClientSpawnEntityPacket) + sizeof(char) * size; }
 };
 
 struct ServerSpawnEntityPacket : Packet {
-	int64_t id;
+	EntityID id;
 	size_t size;
 	char* data[0];
 	inline size_t getSize() { return sizeof(ServerSpawnEntityPacket) + sizeof(char) * size; }
@@ -61,13 +61,13 @@ struct ServerSpawnEntityPacket : Packet {
 
 
 struct ServerInitializePacket : Packet {
-	int64_t entityid;
+	EntityID entityid;
 	TransformInfo ti;
 };
 
 struct ServerUpdatePacket : Packet {
 	struct EntUpdate {
-		int64_t entityid;
+		EntityID entityid;
 		TransformInfo ti;
 	};
 	size_t nrOfEntUpdates;
@@ -76,7 +76,7 @@ struct ServerUpdatePacket : Packet {
 
 struct ServerPlayerPacket : Packet {
 	TransformInfo ti;
-	int64_t entID;
+	EntityID entID;
 	int nameLength;
 	char name[0];
 
@@ -92,11 +92,11 @@ struct ClientUpdatePacket : Packet {
 
 
 
-ServerDeletePacket* createServerDeletePacket(int64_t entID);
+ServerDeletePacket* createServerDeletePacket(EntityID entID);
 ServerPlayerPacket* createServerPlayerPacket(std::string name, TransformInfo ti);
-ClientUpdatePacket* createClientUpdatePacket(std::shared_ptr<Hydra::World::IEntity> player);
-void createAndSendServerEntityPacket(Hydra::World::IEntity* ent, Server* s);
+ClientUpdatePacket* createClientUpdatePacket(Entity* player);
+void createAndSendServerEntityPacket(Entity* ent, Server* s);
 
-void resolveClientUpdatePacket(Hydra::World::IWorld* world, ClientUpdatePacket* cup, int64_t entityID);
+void resolveClientUpdatePacket(ClientUpdatePacket* cup, EntityID entityID);
 
-std::shared_ptr<Hydra::World::IEntity> resolveClientSpawnEntityPacket(Hydra::World::IWorld* world, ClientSpawnEntityPacket* csep, int64_t entityID, Server* s);
+Entity* resolveClientSpawnEntityPacket(ClientSpawnEntityPacket* csep, EntityID entityID, Server* s);

@@ -12,18 +12,16 @@
 #include <memory>
 
 #include <hydra/world/world.hpp>
-#include <hydra/physics/physicsmanager.hpp>
+#include <hydra/system/bulletphysicssystem.hpp>
 
 #include <hydra/component/transformcomponent.hpp>
 
 namespace Hydra::Component {
-	class HYDRA_API RigidBodyComponent final : public Hydra::World::IComponent {
-	public:
-		struct Data;
-		RigidBodyComponent(IEntity* entity);
+	struct HYDRA_PHYSICS_API RigidBodyComponent final : public Hydra::World::IComponent<RigidBodyComponent, ComponentBits::RigidBody> {
+		friend class Hydra::System::BulletPhysicsSystem;
 		~RigidBodyComponent() final;
 
-#define DEFAULT_PARAMS float mass = 0, float linearDamping = 0, float angularDamping = 0, float friction = 0, float rollingFriction = 0
+#define DEFAULT_PARAMS Hydra::System::BulletPhysicsSystem::CollisionTypes collType = Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_NOTHING, float mass = 0, float linearDamping = 0, float angularDamping = 0, float friction = 0, float rollingFriction = 0
 		void createBox(const glm::vec3& halfExtents, DEFAULT_PARAMS);
 		void createStaticPlane(const glm::vec3& planeNormal, float planeConstant, DEFAULT_PARAMS);
 		void createSphere(float radius, DEFAULT_PARAMS);
@@ -38,9 +36,6 @@ namespace Hydra::Component {
 
 		void* getRigidBody();
 
-		void tick(Hydra::World::TickAction action, float delta) final;
-		inline Hydra::World::TickAction wantTick() const final { return Hydra::World::TickAction::none; }
-
 		inline const std::string type() const final { return "RigidBodyComponent"; }
 
 		void serialize(nlohmann::json& json) const final;
@@ -48,6 +43,9 @@ namespace Hydra::Component {
 		void registerUI() final;
 
 	private:
-		std::unique_ptr<Data> _data;
+		Hydra::System::BulletPhysicsSystem::CollisionTypes doa;
+		struct Data;
+		Data* _data;
+		Hydra::System::BulletPhysicsSystem* _handler;
 	};
 };

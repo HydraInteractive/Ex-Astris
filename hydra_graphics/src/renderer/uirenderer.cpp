@@ -21,6 +21,8 @@
 #include <hydra/ext/ram.hpp>
 #include <hydra/ext/vram.hpp>
 
+#include <hydra/component/transformcomponent.hpp>
+
 #include <iomanip>
 #include <sstream>
 
@@ -124,6 +126,20 @@ private:
 	bool _scrollToBottom;
 };
 
+class UIRendererImpl;
+template <typename... Args>
+struct RenderComponents;
+
+template <>
+struct RenderComponents<Hydra::Ext::TypeTuple<>> {
+	constexpr static void apply(UIRendererImpl*, Entity*) {}
+};
+
+template <typename T, typename... Args>
+struct RenderComponents<Hydra::Ext::TypeTuple<T, Args...>> {
+	constexpr static void apply(UIRendererImpl* this_, Entity* entity);
+};
+
 class UIRendererImpl final : public IUIRenderer {
 public:
 	UIRendererImpl(Hydra::View::IView& view) : _engine(Hydra::IEngine::getInstance()), _view(&view) {
@@ -199,10 +215,17 @@ public:
 
 	void newFrame() final {
 		ImGui_ImplSdlGL3_NewFrame(_window);
+		ImGuizmo::BeginFrame();
 	}
 
 	void reset() final {
 		_renderWindows.clear();
+		_systems.clear();
+	}
+
+	void registerSystems(const std::vector<Hydra::World::ISystem*>& systems) final {
+		// TODO: Merge instead of replace?
+		_systems = systems;
 	}
 
 	UIRenderWindow* addRenderWindow() final {
@@ -213,11 +236,12 @@ public:
 	}
 
 	void render(float delta) final {
-		constexpr float MiB = 1024.0f*1024.0f;
+		constexpr float MiB = 1024.0f * 1024.0f;
 		if (ImGui::BeginMainMenuBar()) {
 			if (ImGui::BeginMenu("File")) {
 				ImGui::MenuItem("Log", nullptr, &_logWindow);
 				ImGui::MenuItem("Entity List", nullptr, &_entityWindow);
+				ImGui::MenuItem("Performance Window", nullptr, &_performanceWindow);
 				ImGui::Separator();
 				ImGui::MenuItem("ImGui Test Window", nullptr, &_testWindow);
 				ImGui::Separator();
@@ -281,6 +305,11 @@ public:
 			static float fpsValues[valueLen] = {0};
 			static float ramValues[valueLen] = {0};
 			static float vramValues[valueLen] = {0};
+
+			static char fpsName[64] = {0};
+			static char ramName[64] = {0};
+			static char vramName[64] = {0};
+
 			static float counter = 0;
 
 			counter += delta;
@@ -289,23 +318,30 @@ public:
 				counter -= 0.1f;
 				memmove(&fpsValues[0], &fpsValues[1], (valueLen - 1) * sizeof(float));
 				fpsValues[valueLen - 1] = ImGui::GetIO().Framerate;
+				snprintf(fpsName, sizeof(fpsName), "FPS: %.2f / %.3f ms/frame", fpsValues[valueLen - 1], 1000.0f / fpsValues[valueLen - 1]);
 
 				memmove(&ramValues[0], &ramValues[1], (valueLen - 1) * sizeof(float));
 				ramValues[valueLen - 1] = (Hydra::Ext::getCurrentRSS() - Hydra::Ext::getCurrentVRAM()) / MiB;
+				snprintf(ramName, sizeof(ramName), "RAM: %.2f MiB", ramValues[valueLen - 1]);
 
 				memmove(&vramValues[0], &vramValues[1], (valueLen - 1) * sizeof(float));
 				vramValues[valueLen - 1] = Hydra::Ext::getCurrentVRAM() / MiB;
+				snprintf(vramName, sizeof(vramName), "VRAM: %.2f MiB", vramValues[valueLen - 1]);
 			}
 
 			if (_performanceWindow) {
-				ImGui::Begin("Performance monitor", &_performanceWindow);
-				ImGui::Text("Counter: %f", counter);
-				ImGui::PlotHistogram("#FPS", fpsValues, valueLen, 0, "FPS2", FLT_MAX, FLT_MAX, ImVec2(0, 200));
-				ImGui::PlotHistogram("#RAM", ramValues, valueLen, 0, "RAM2", FLT_MAX, FLT_MAX, ImVec2(0, 200));
-				ImGui::PlotHistogram("#VRAM", vramValues, valueLen, 0, "VRAM2", FLT_MAX, FLT_MAX, ImVec2(0, 200));
+				ImGui::SetNextWindowPos(ImVec2(_view->getSize().x - (300 + 16), 24), ImGuiSetCond_Always);
+				ImGui::SetNextWindowSize(ImVec2(300 + 16, 300 + 24), ImGuiSetCond_Always);
+				ImGui::Begin("Performance monitor", &_performanceWindow, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
+				//ImGui::Text("Counter: %f", counter);
+				ImGui::PlotHistogram("##FPS", fpsValues, valueLen, 0, fpsName, FLT_MAX, FLT_MAX, ImVec2(300, 100));
+				ImGui::PlotHistogram("##RAM", ramValues, valueLen, 0, ramName, FLT_MAX, FLT_MAX, ImVec2(300, 100));
+				ImGui::PlotHistogram("##VRAM", vramValues, valueLen, 0, vramName, FLT_MAX, FLT_MAX, ImVec2(300, 100));
 				ImGui::End();
 			}
 		}
+
+		_engine->getRenderer()->showGuizmo();
 
 		if (_logWindow)
 			_log->render(&_logWindow);
@@ -336,7 +372,57 @@ public:
 
 	bool usingKeyboard() final { return ImGui::GetIO().WantCaptureKeyboard; }
 
-	bool isDraging() final { return ImGui::IsMouseDragging(); }
+	bool isDraging() final { return ImGui::IsMouseDragging() || ImGuizmo::IsUsing(); }
+
+	void renderEntity(Entity* entity) {
+		if (!entity)
+			return;
+		using world = Hydra::World::World;
+		if (ImGui::TreeNode(entity, ICON_FA_USER_O " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", entity->name.c_str(), entity->id, entity->componentCount(), entity->children.size()))
+		{
+			bool deleteThis = false;
+			std::string pls = std::to_string(entity->id);
+			if (ImGui::BeginPopupContextItem(pls.c_str()))
+			{
+				ImGui::MenuItem("Delete", "", &deleteThis);
+				if (deleteThis)
+				{
+					world::removeEntity(entity->id);
+				}
+				ImGui::EndPopup();
+			}
+			RenderComponents<Hydra::Component::ComponentTypes>::apply(this, entity);
+
+			for (auto& child : entity->children)
+				renderEntity(world::getEntity(child).get());
+			ImGui::TreePop();
+		}
+		else
+		{
+			bool deleteThis = false;
+			std::string pls = std::to_string(entity->id);
+			if (ImGui::BeginPopupContextItem(pls.c_str()))
+			{
+				ImGui::MenuItem("Delete", "", &deleteThis);
+				if (deleteThis)
+				{
+					world::removeEntity(entity->id);
+				}
+				ImGui::EndPopup();
+			}
+		}
+
+	}
+
+	void renderComponent(IComponentBase* component) {
+		if (!component)
+			return;
+		if (!ImGui::TreeNode(component, ICON_FA_MICROCHIP " %s", component->type().c_str()))
+			return;
+
+		component->registerUI();
+		ImGui::TreePop();
+	}
 
 private:
 	Hydra::IEngine* _engine;
@@ -344,6 +430,7 @@ private:
 	SDL_Window* _window;
 	std::unique_ptr<IUILog> _log;
 
+	std::vector<Hydra::World::ISystem*> _systems;
 	std::vector<std::unique_ptr<UIRenderWindow>> _renderWindows;
 
 	bool _logWindow = false;
@@ -361,40 +448,37 @@ private:
 		ImGui::SetNextWindowSize(ImVec2(480, 640), ImGuiSetCond_Once);
 		ImGui::Begin("Entity List", &_entityWindow);
 
-		auto world = _engine->getState()->getWorld()->getWorldRoot().get();
+		using world = Hydra::World::World;
+		auto worldRoot = world::root().get();
 
 		// This doesn't use _renderEntity, because I want a globe instad of a user
-		if (ImGui::TreeNode(world, ICON_FA_GLOBE " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", world->getName().c_str(), world->getID(), world->getComponents().size(), world->getChildren().size())) {
-			for (auto& component : world->getComponents())
-				_renderComponent(component.second.get());
+		if (ImGui::TreeNode(worldRoot, ICON_FA_GLOBE " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", worldRoot->name.c_str(), worldRoot->id, worldRoot->componentCount(), worldRoot->children.size())) {
+			RenderComponents<Hydra::Component::ComponentTypes>::apply(this, worldRoot);
 
-			for (auto& child : world->getChildren())
-				_renderEntity(child.get());
+			for (auto& child : worldRoot->children)
+				renderEntity(world::getEntity(child).get());
 			ImGui::TreePop();
 		}
 
 		ImGui::End();
 	}
-
-	void _renderEntity(IEntity* entity) {
-		if (!ImGui::TreeNode(entity, ICON_FA_USER_O " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", entity->getName().c_str(), entity->getID(), entity->getComponents().size(), entity->getChildren().size()))
-			return;
-
-		for (auto& component : entity->getComponents())
-			_renderComponent(component.second.get());
-		for (auto& child : entity->getChildren())
-			_renderEntity(child.get());
-		ImGui::TreePop();
-	}
-
-	void _renderComponent(IComponent* component) {
-		if (!ImGui::TreeNode(component, ICON_FA_MICROCHIP " %s", component->type().c_str()))
-			return;
-
-		component->registerUI();
-		ImGui::TreePop();
-	}
 };
+
+/*template <typename T, typename... Args>
+struct RenderComponents<Hydra::Ext::TypeTuple<T, Args...>>:: {
+	constexpr static void apply(UIRendererImpl* this_, Entity* entity) {
+		this_->_renderComponentWrapper<T>(entity);
+		RenderComponents<Hydra::Ext::TypeTuple<Args...>>::apply(this_, entity);
+	}
+	};*/
+
+
+template <typename T, typename... Args>
+constexpr void RenderComponents<Hydra::Ext::TypeTuple<T, Args...>>::apply(UIRendererImpl* this_, Entity* entity) {
+	if (auto t = entity->getComponent<T>())
+		this_->renderComponent(t.get());
+	RenderComponents<Hydra::Ext::TypeTuple<Args...>>::apply(this_, entity);
+}
 
 std::unique_ptr<IUIRenderer> UIRenderer::create(Hydra::View::IView& view) {
 	return std::unique_ptr<IUIRenderer>(new ::UIRendererImpl(view));

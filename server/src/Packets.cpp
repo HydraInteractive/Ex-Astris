@@ -2,7 +2,7 @@
 #include <hydra/component/transformcomponent.hpp>
 #include <Server.h>
 
-ServerDeletePacket * createServerDeletePacket(int64_t entID) {
+ServerDeletePacket * createServerDeletePacket(EntityID entID) {
 	ServerDeletePacket* sdp = new ServerDeletePacket();
 	sdp->h.type = PacketType::ServerDeleteEntity;
 	sdp->h.len = sizeof(ServerDeletePacket);
@@ -22,27 +22,27 @@ ServerPlayerPacket* createServerPlayerPacket(std::string name, TransformInfo ti)
 	return spp;
 }
 
-ClientUpdatePacket* createClientUpdatePacket(std::shared_ptr<Hydra::World::IEntity> player) {
+ClientUpdatePacket* createClientUpdatePacket(Entity* player) {
 	ClientUpdatePacket* cup;
 	cup = new ClientUpdatePacket();
 	cup->h.type = PacketType::ClientUpdate;
 	cup->h.len = sizeof(ClientUpdatePacket);
-	Hydra::Component::TransformComponent* tc = player->getComponent<Hydra::Component::TransformComponent>();
-	cup->ti.pos = tc->getPosition();
-	cup->ti.rot = tc->getRotation();
-	cup->ti.scale = tc->getScale();
+	Hydra::Component::TransformComponent* tc = player->getComponent<Hydra::Component::TransformComponent>().get();
+	cup->ti.pos = tc->position;
+	cup->ti.rot = tc->rotation;
+	cup->ti.scale = tc->scale;
 	return cup;
 }
 
-void resolveClientUpdatePacket(Hydra::World::IWorld* world, ClientUpdatePacket* cup, int64_t entityID) {
-	std::vector<std::shared_ptr<Hydra::World::IEntity>> children = world->getWorldRoot()->getChildren();
+void resolveClientUpdatePacket(ClientUpdatePacket* cup, EntityID entityID) {
+	std::vector<EntityID> children = World::root()->children;
 	if (cup->h.client == 1) {
 		int j = 0;
 		j++;
 	}
 	for (size_t i = 0; i < children.size(); i++) {
-		if (children[i]->getID() == entityID) {
-			Hydra::Component::TransformComponent* tc = children[i]->getComponent<Hydra::Component::TransformComponent>();
+		if (children[i] == entityID) {
+			Hydra::Component::TransformComponent* tc = World::getEntity(children[i])->getComponent<Hydra::Component::TransformComponent>().get();
 			if (tc != nullptr) {
 				tc->setPosition(cup->ti.pos);
 				tc->setScale(cup->ti.scale);
@@ -53,7 +53,7 @@ void resolveClientUpdatePacket(Hydra::World::IWorld* world, ClientUpdatePacket* 
 	}
 }
 
-void createAndSendServerEntityPacket(Hydra::World::IEntity* ent, Server* s) {
+void createAndSendServerEntityPacket(Entity* ent, Server* s) {
 
 	std::vector<uint8_t> data;
 	nlohmann::json json;
@@ -62,7 +62,7 @@ void createAndSendServerEntityPacket(Hydra::World::IEntity* ent, Server* s) {
 
 	ServerSpawnEntityPacket* ssep = new ServerSpawnEntityPacket();
 	ssep->h.type = PacketType::ServerSpawnEntity;
-	ssep->id = ent->getID();
+	ssep->id = ent->id;
 	ssep->size = data.size();
 	ssep->h.len = ssep->getSize();
 
@@ -81,8 +81,8 @@ void createAndSendServerEntityPacket(Hydra::World::IEntity* ent, Server* s) {
 	delete ssep;
 }
 
-std::shared_ptr<Hydra::World::IEntity> resolveClientSpawnEntityPacket(Hydra::World::IWorld* world, ClientSpawnEntityPacket* csep, int64_t , Server* s) {
-	std::shared_ptr<Hydra::World::IEntity> ent = world->createEntity("CLIENT CREATED (ERROR)");
+Entity* resolveClientSpawnEntityPacket(ClientSpawnEntityPacket* csep, EntityID id, Server* s) {
+	Entity* ent = World::newEntity("CLIENT CREATED (ERROR)", World::root()).get();
 	nlohmann::json json;
 	std::vector<uint8_t> data;
 	
@@ -95,11 +95,11 @@ std::shared_ptr<Hydra::World::IEntity> resolveClientSpawnEntityPacket(Hydra::Wor
 	ent->deserialize(json);
 	//ent->setID(world->getFreeID());
 
-	printf("Client Created Entity: \"%s\" with id: %d\n", ent->getName().c_str(), ent->getID());
+	printf("Client Created Entity: \"%s\" with id: %d\n", ent->name.c_str(), ent->id);
 	
 	ServerSpawnEntityPacket* ssep = new ServerSpawnEntityPacket();
 	ssep->h.type = PacketType::ServerSpawnEntity;
-	ssep->id = ent->getID();
+	ssep->id = ent->id;
 	ssep->size = data.size();
 	ssep->h.len = ssep->getSize();
 

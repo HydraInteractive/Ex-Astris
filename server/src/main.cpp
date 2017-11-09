@@ -39,6 +39,7 @@ int main(int argc, char** argv) {
 	GameServer server;
 
 	if (server.initialize(4545)) {
+		World::reset();
 		while (true) {
 			server.run();
 		}

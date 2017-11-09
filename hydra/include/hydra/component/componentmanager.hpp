@@ -8,16 +8,13 @@
 namespace Hydra::Component {
 	using namespace Hydra::World;
 	namespace ComponentManager {
-		typedef IComponent* (*createOrGetComponent_f)(IEntity* entity);
+		typedef std::shared_ptr<IComponentBase> (*createOrGetComponent_f)(Entity* entity);
 
-		template <typename T, typename std::enable_if<std::is_base_of<IComponent, T>::value>::type* = nullptr>
-		static IComponent* createOrGetComponentHelper(IEntity* entity) {
-			T* c = entity->getComponent<T>();
-			if (!c)
-				c = entity->addComponent<T>();
-			return c;
+		template <typename T, typename std::enable_if<std::is_base_of<IComponentBase, T>::value>::type* = nullptr>
+		static std::shared_ptr<IComponentBase> createOrGetComponentHelper(Entity* entity) {
+			return entity->addComponent<T>();
 		}
 
-		HYDRA_API std::map<std::string /* Component name */, createOrGetComponent_f>& createOrGetComponentMap();
+		HYDRA_BASE_API std::map<std::string /* Component name */, createOrGetComponent_f>& createOrGetComponentMap();
 	};
 };
