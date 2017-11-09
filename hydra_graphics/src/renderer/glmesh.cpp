@@ -269,7 +269,7 @@ private:
 			_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/" + fileName);
 			_material.normal = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/normals/pillowNormal.png");
 			_material.specular = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/speculars/brickSpecular.png");
-			_material.glow = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/glow/" + glowName + "Glow.png");
+			_material.glow = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/glow/" + glowName);
 
 			delete[] tempFileName;
 

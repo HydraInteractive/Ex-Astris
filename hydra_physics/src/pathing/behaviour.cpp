@@ -14,6 +14,7 @@
 
 Behaviour::Behaviour(std::shared_ptr<Hydra::World::Entity> enemy)
 {
+
 	thisEnemy.entity = enemy;
 	refreshRequiredComponents();
 	pathFinding = std::make_shared<PathFinding>();
@@ -321,8 +322,10 @@ RobotBehaviour::~RobotBehaviour()
 
 void RobotBehaviour::run(float dt)
 {
-	if (!hasRequiredComponents || !refreshRequiredComponents())
-		return;
+	//If all components haven't been found, try to find them and abort if one or more do not exist
+	if (!hasRequiredComponents)
+		if (!refreshRequiredComponents())
+			return;
 	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
 	// Same as above.
 	//if (!thisEnemy.life->statusCheck())
@@ -409,8 +412,10 @@ AlienBossBehaviour::~AlienBossBehaviour()
 
 void AlienBossBehaviour::run(float dt)
 {
-	if (!hasRequiredComponents || !refreshRequiredComponents())
-		return;
+	//If all components haven't been found, try to find them and abort if one or more do not exist
+	if (!hasRequiredComponents)
+		if (!refreshRequiredComponents())
+			return;
 	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
 	if (!thisEnemy.life->statusCheck())
 	{

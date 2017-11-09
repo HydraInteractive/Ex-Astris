@@ -12,8 +12,9 @@
 
 PathFinding::PathFinding() {
 	_openList = std::vector<std::shared_ptr<Node>>();
+	_visitedList = std::vector<std::shared_ptr<Node>>();
 	intializedStartGoal = false;
-	foundGoal = false;
+	foundGoal = true;
 }
 
 PathFinding::~PathFinding() {
