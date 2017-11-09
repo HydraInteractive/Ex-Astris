@@ -534,7 +534,6 @@ namespace Barcode {
 
 				_glowBatch.batch.pipeline->setValue(1, 1);
 				_glowBatch.batch.pipeline->setValue(2, 2);
-				(*_blurrExtraFBO1)[0]->generateMipMaps();
 				(*_lightingBatch.output)[0]->bind(1);
 				(*_blurrExtraFBO1)[0]->bind(2);
 
@@ -603,7 +602,7 @@ namespace Barcode {
 			float hpP = 100;
 			float ammoP = 100;
 			float degrees = 0;
-			std::vector<Buffs> perksList;
+			//std::vector<Buffs> perksList;
 			for (auto& p : Hydra::Component::PlayerComponent::componentHandler->getActiveComponents()) {
 				auto player = static_cast<Hydra::Component::PlayerComponent*>(p.get());
 				//perksList = player->activeBuffs.getActiveBuffs();
@@ -734,7 +733,7 @@ namespace Barcode {
 			}
 
 			//Perk Icons
-			size_t amountOfPerks = perksList.size();
+			/*size_t amountOfPerks = perksList.size();
 			for (size_t i = 0; i < amountOfPerks; i++)
 			{
 				char buf[128];
@@ -760,7 +759,7 @@ namespace Barcode {
 				}
 
 				ImGui::End();
-			}
+			}*/
 
 			ImGui::PopStyleColor();
 			ImGui::PopStyleVar();
@@ -913,6 +912,7 @@ namespace Barcode {
 			p4LC->position = glm::vec3(45, 0, 45);
 			p4LC->color = glm::vec3(1, 0, 0);
 		}
+
 		//{
 		//	auto alienEntity = world::newEntity("Alien1", world::root());
 		//	auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();

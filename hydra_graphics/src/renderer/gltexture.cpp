@@ -194,8 +194,6 @@ public:
 		glTexSubImage2D(_textureType, 0, offset.x, offset.y, size.x, size.y, toGLBase(_format), toGLDataType(_format), data);
 	}
 
-	void generateMipMaps() { glGenerateMipmap(_texture); }
-
 private:
 	GLenum _textureType;
 	bool _own;
