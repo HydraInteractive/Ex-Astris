@@ -47,12 +47,12 @@ void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch* previewBatch,
 			_previewEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh(fileName);
 			auto drawObject = _previewEntity->getComponent<Hydra::Component::DrawObjectComponent>();
 			drawObject->drawObject->disable = true; // Disable mesh to only see the model in preview window
-
+			auto t = _previewEntity->addComponent<Hydra::Component::TransformComponent>();
+			t->position = glm::vec3{ 0, 0, 5 };
 			auto cc = _previewEntity->addComponent<Hydra::Component::CameraComponent>();
-			cc->position = glm::vec3{ 0, 0, 5 };
 			previewBatch->pipeline->setValue(0, cc->getViewMatrix());
 			previewBatch->pipeline->setValue(1, cc->getProjectionMatrix());
-			previewBatch->pipeline->setValue(2, cc->position);
+			previewBatch->pipeline->setValue(2, t->position);
 			previewBatch->objects[drawObject->drawObject->mesh].push_back(drawObject->drawObject->modelMatrix);
 		}
 	}

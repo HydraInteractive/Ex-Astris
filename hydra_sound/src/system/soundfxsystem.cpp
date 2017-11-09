@@ -26,7 +26,8 @@ void SoundFxSystem::tick(float delta) {
 
 	player = entities[0];
 	auto playerCamera = player->getComponent<CameraComponent>();
-	glm::mat4 rotation = glm::mat4_cast(playerCamera->orientation);
+	auto playerT = player->getComponent<TransformComponent>();
+	glm::mat4 rotation = glm::mat4_cast(playerT->rotation);
 	
 	const glm::vec3 forward = glm::vec3(glm::vec4{ 0, 0, 1, 0 } * rotation);
 	const glm::vec3 playerPos = player->getComponent<TransformComponent>()->position;

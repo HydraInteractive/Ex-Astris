@@ -280,7 +280,7 @@ namespace Barcode {
 		_perkSystem.tick(delta);
 		_lifeSystem.tick(delta);
 
-		const glm::vec3 cameraPos = _cc->position;
+		const glm::vec3 cameraPos = _cc->getTransformComponent()->position;
 
 		{ // Render objects (Deferred rendering)
 		  //_world->tick(TickAction::render, delta);
@@ -347,7 +347,7 @@ namespace Barcode {
 				glm::vec3 upVector = { viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1] };
 				glm::vec3 dir = glm::cross(rightVector, upVector);
 				_cameraSystem.setCamInternals(*_cc);
-				_cameraSystem.setCamDef(_cc->position, dir, upVector, rightVector, *_cc);
+				_cameraSystem.setCamDef(_cc->getTransformComponent()->position, dir, upVector, rightVector, *_cc);
 
 				for (auto e : entities) {
 					auto tc = e->getComponent<Hydra::Component::TransformComponent>();
@@ -486,7 +486,7 @@ namespace Barcode {
 			_lightingBatch.pipeline->setValue(5, 5);
 			_lightingBatch.pipeline->setValue(6, 6);
 
-			_lightingBatch.pipeline->setValue(7, _cc->position);
+			_lightingBatch.pipeline->setValue(7, _cc->getTransformComponent()->position);
 			_lightingBatch.pipeline->setValue(8, enableSSAO);
 			auto& lights = Hydra::Component::PointLightComponent::componentHandler->getActiveComponents();
 
@@ -662,7 +662,7 @@ namespace Barcode {
 			for (auto& enemy : aiEntities) {
 				char buf[128];
 				snprintf(buf, sizeof(buf), "AI is a scrub here is it's scrubID: %d", i);
-				auto playerP = _cc->position;
+				auto playerP = _cc->getTransformComponent()->position;
 				auto enemyP = enemy->getComponent<Hydra::Component::TransformComponent>()->position;
 				auto enemyDir = normalize(enemyP - playerP);
 

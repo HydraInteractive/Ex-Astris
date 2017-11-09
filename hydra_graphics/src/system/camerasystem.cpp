@@ -55,8 +55,8 @@ void CameraSystem::tick(float delta) {
 		glm::quat qYaw = glm::angleAxis(cc->cameraYaw, glm::vec3(0, 1, 0));
 		glm::quat qRoll = glm::angleAxis(glm::radians(0.f), glm::vec3(0, 0, 1));
 
-		cc->orientation = qPitch * qYaw * qRoll;
-		cc->orientation = glm::normalize(cc->orientation);
+		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
+		t->rotation = glm::normalize(qPitch * qYaw * qRoll);
 	}
 
 	//Process FreeCameraComponent
