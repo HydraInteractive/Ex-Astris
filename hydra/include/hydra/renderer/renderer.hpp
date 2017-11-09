@@ -203,6 +203,7 @@ namespace Hydra::Renderer {
 		virtual void renderShadows(AnimationBatch& batch) = 0;
 		// Note: this will ignore batch.objects
 		virtual void postProcessing(Batch& batch) = 0;
+		virtual void renderHitboxes(Batch& batch) = 0;
 
 		virtual DrawObject* aquireDrawObject() = 0;
 
