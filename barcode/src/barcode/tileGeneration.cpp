@@ -200,31 +200,36 @@ glm::vec3 TileGeneration::_gridToWorld(int x, int y) {
 bool TileGeneration::_checkAdjacents(int x, int y, std::shared_ptr<Hydra::Component::RoomComponent>& r) {
 	if (r->door[r->NORTH])
 	{
-		if (y >= GRID_SIZE)
+		if (y >= GRID_SIZE - 1)
 			return false;
-		if (grid[x][y + 1] != nullptr && !grid[x][y + 1]->door[r->SOUTH])
-			return false;
+		if (grid[x][y + 1] != nullptr)
+			if (!grid[x][y + 1]->door[r->SOUTH])
+				return false;
+		
 	}
 	if (r->door[r->WEST])
 	{
 		if (x <= 0)
 			return false;
-		if (grid[x - 1][y] != nullptr && !grid[x - 1][y]->door[r->EAST])
-			return false;
+		if (grid[x - 1][y] != nullptr)
+			if(!grid[x - 1][y]->door[r->EAST])
+				return false;
 	}
 	if (r->door[r->SOUTH])
 	{
 		if (y <= 0)
 			return false;
-		if (grid[x][y - 1] != nullptr && !grid[x][y - 1]->door[r->NORTH])
-			return false;
+		if (grid[x][y - 1] != nullptr)
+			if(!grid[x][y - 1]->door[r->NORTH])
+				return false;
 	}
 	if (r->door[r->EAST])
 	{
-		if (x >= GRID_SIZE)
+		if (x >= GRID_SIZE - 1)
 			return false;
-		if (grid[x + 1][y] != nullptr && !grid[x + 1][y]->door[r->WEST])
-			return false;
+		if (grid[x + 1][y] != nullptr)
+			if(!grid[x + 1][y]->door[r->WEST])
+				return false;
 	}
 	return true;
 }
