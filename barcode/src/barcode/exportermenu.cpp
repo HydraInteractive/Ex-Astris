@@ -137,7 +137,7 @@ void ExporterMenu::Node::render(Node** selectedNode, bool& prepExporting)
 		for (size_t i = 0; i < this->_files.size(); i++)
 		{
 			std::string ext = this->_files[i]->getExt();
-			if (ext == ".attic" || ext == ".mATTIC")
+			if (ext == ".mattic" || ext == ".mATTIC")
 			{
 				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBE " %s", _files[i]->_name.c_str());
 				if (ImGui::BeginPopupContextItem(_files[i]->_name.c_str()))
