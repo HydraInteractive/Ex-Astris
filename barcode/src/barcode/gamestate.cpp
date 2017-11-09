@@ -528,7 +528,7 @@ namespace Barcode {
 
 				glm::vec2 size = windowSize;
 
-				_blurGlowTexture((*_lightingBatch.output)[1], nrOfTimes, size * 0.5f, enableBlur);
+				_blurGlowTexture((*_lightingBatch.output)[1], nrOfTimes, size * 0.25f, enableBlur);
 
 				_glowBatch.batch.pipeline = _glowPipeline.get();
 
