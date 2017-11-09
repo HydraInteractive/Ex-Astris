@@ -90,6 +90,8 @@ namespace Barcode {
 		void _createMenu();
 		void _optionsMenu();
 
+		bool ipPopup = false;
+
 		// TODO: FIX!
 		int oneTenthX;
 		int oneThirdX;

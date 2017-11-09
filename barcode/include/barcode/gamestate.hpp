@@ -47,6 +47,9 @@
 namespace Barcode {
 	class GameState final : public Hydra::IState {
 	public:
+		static char addr[256];
+		static int port;
+
 		GameState();
 		~GameState() final;
 

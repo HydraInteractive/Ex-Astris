@@ -187,9 +187,40 @@ namespace Barcode {
 				ImGui::Begin("Main menu 2", nullptr, windowFlags);
 				{
 					auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/joinSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/joinTransparent.png")->getID());
-					ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
+					if (ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
+						ipPopup = true;
 				}
 				ImGui::End();
+			}
+			{
+				if (ipPopup == true)
+				{
+					ImGui::OpenPopup("IP and Port?");
+					if (ImGui::BeginPopupModal("IP and Port?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+					{
+						std::string textline = "This action will overwrite the file at ... Continue?";
+						ImGui::Text("%s", textline.c_str());
+						ImGui::Separator();
+
+						ImGui::InputText("Address", GameState::addr, sizeof(GameState::addr));
+						ImGui::SameLine();
+						ImGui::InputInt("Port", &GameState::port);
+
+						if (ImGui::Button("OK", ImVec2(120, 0)))
+						{
+							//send to join function
+							_engine->setState<GameState>();
+							ImGui::CloseCurrentPopup();
+						}
+						ImGui::SameLine();
+						if (ImGui::Button("Cancel", ImVec2(120, 0)))
+						{
+							ipPopup = false;
+							ImGui::CloseCurrentPopup();
+						}
+						ImGui::EndPopup();
+					}
+				}
 			}
 			break;
 		case SubMenu::Play::solo:

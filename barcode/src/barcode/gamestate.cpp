@@ -20,6 +20,9 @@ NetClient* net = nullptr;
 using world = Hydra::World::World;
 
 namespace Barcode {
+	char GameState::addr[256] = "192.168.1.24";
+	int GameState::port = 4545;
+
 	GameState::GameState() : _engine(Hydra::IEngine::getInstance()) {}
 
 	void GameState::load() {
@@ -885,7 +888,7 @@ namespace Barcode {
 
 		{
 		net = new NetClient();
-		if (net->initialize("192.168.1.24", 4545)) {
+		if (net->initialize(addr, port)) {
 			//show feedback?
 		}
 		else {
