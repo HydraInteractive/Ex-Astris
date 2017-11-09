@@ -153,7 +153,7 @@ namespace Barcode {
 			_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/ParticleAtlases.png");
 
 			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
-			batch.batch.clearFlags = ClearFlags::depth;
+			batch.batch.clearFlags = ClearFlags::none;
 			batch.batch.renderTarget = _engine->getView();
 			batch.batch.pipeline = batch.pipeline.get();
 		}
@@ -505,6 +505,7 @@ namespace Barcode {
 			_lightingBatch.pipeline->setValue(9, (int)(lights.size()));
 			_lightingBatch.pipeline->setValue(10, _light->direction);
 			_lightingBatch.pipeline->setValue(11, _light->color);
+			
 
 			// good code lmao XD
 			int i = 12;
@@ -519,6 +520,7 @@ namespace Barcode {
 
 			(*_geometryBatch.output)[0]->bind(0);
 			(*_geometryBatch.output)[1]->bind(1);
+
 			(*_geometryBatch.output)[2]->bind(2);
 			(*_geometryBatch.output)[3]->bind(3);
 			_shadowBatch.output->getDepth()->bind(4);
@@ -546,17 +548,19 @@ namespace Barcode {
 				_glowBatch.batch.pipeline->setValue(1, 1);
 				_glowBatch.batch.pipeline->setValue(2, 2);
 				_glowBatch.batch.pipeline->setValue(3, enableBlur);
+				_glowBatch.batch.pipeline->setValue(4, 4);
 
 				_blurredOriginal->bind(1);
 				_blurredIMG1->bind(2);
+
+				_geometryBatch.output->getDepth()->bind(4);
 
 				_glowBatch.batch.renderTarget = _engine->getView();
 				_engine->getRenderer()->postProcessing(_glowBatch.batch);
 				_glowBatch.batch.renderTarget = _glowBatch.output.get();
 				_glowBatch.batch.pipeline = _glowBatch.pipeline.get();
-			}
-			else
-				_engine->getView()->blit(_lightingBatch.output.get(), 0);
+			} else
+				_engine->getView()->blit(_lightingBatch.output.get());
 		}
 
 		{ // Render transparent objects	(Forward rendering)
@@ -1019,7 +1023,7 @@ namespace Barcode {
 			auto particleEmitter = world::newEntity("ParticleEmitter", world::root());
 			particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("QUAD");
 			auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
-			p->delay = 1.0f / 1.0f;
+			p->delay = 1.0f / 100.0f;
 			auto t = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ 4, 0, 4 };
 		}
