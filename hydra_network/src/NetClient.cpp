@@ -102,7 +102,7 @@ void NetClient::_resolveServerSpawnEntityPacket(ServerSpawnEntityPacket* entPack
 void NetClient::_resolveServerDeletePacket(ServerDeletePacket* delPacket) {
 	std::vector<EntityID> children = World::root()->children;
 	for (size_t i = 0; i < children.size(); i++) {
-		if (children[i] == delPacket->id) {
+		if (children[i] == this->_IDs[delPacket->id]) {
 			World::getEntity(children[i])->dead = true;
 			break;
 		}
@@ -114,10 +114,14 @@ void NetClient::_updateWorld(Packet * updatePacket) {
 	ServerUpdatePacket* sup = (ServerUpdatePacket*)updatePacket;
 	Hydra::Component::TransformComponent* tc;
 	for (size_t k = 0; k < sup->nrOfEntUpdates; k++) {
-		if (sup->data[k].entityid == this->_myID)
+		if (this->_IDs[sup->data[k].entityid] == this->_myID)
 			continue;
+		else if (this->_IDs[sup->data[k].entityid] == 0) {
+			printf("Error updating entity: %d", this->_IDs[sup->data[k].entityid]);
+			continue;
+		}
 		for (size_t i = 0; i < children.size(); i++) {
-			if (children[i] == ((ServerUpdatePacket::EntUpdate)sup->data[k]).entityid) {
+			if (children[i] == this->_IDs[((ServerUpdatePacket::EntUpdate)sup->data[k]).entityid]) {
 				tc = World::getEntity(children[i])->getComponent<Hydra::Component::TransformComponent>().get();
 				tc->setPosition(((ServerUpdatePacket::EntUpdate)sup->data[k]).ti.pos);
 				tc->setRotation(((ServerUpdatePacket::EntUpdate)sup->data[k]).ti.rot);
@@ -139,7 +143,7 @@ void NetClient::_addPlayer(Packet * playerPacket) {
 	this->_IDs[spp->entID] = ent->id;
 	Hydra::Component::TransformComponent* tc = ent->addComponent<Hydra::Component::TransformComponent>().get();
 	auto mesh = ent->addComponent<Hydra::Component::MeshComponent>();
-	mesh->loadMesh("assets/objects/player.MATTIC");
+	mesh->loadMesh("assets/objects/playerModel.ATTIC");
 	tc->setPosition(spp->ti.pos);
 	tc->setRotation(spp->ti.rot);
 	tc->setScale(spp->ti.scale);
