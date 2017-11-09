@@ -782,7 +782,6 @@ namespace Barcode {
 			//ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
 			//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 			//ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, float(0.0f));
-
 			//int k = 0;
 			//for (auto& entity : _world->getActiveComponents<Hydra::Component::AIComponent>())
 			//{
@@ -831,7 +830,6 @@ namespace Barcode {
 			//	}
 			//	k++;
 			//}
-
 			//ImGui::PopStyleColor();
 			//ImGui::PopStyleVar();
 			//ImGui::PopStyleVar();
@@ -949,7 +947,8 @@ namespace Barcode {
 					0, 0, 0.6f, 1.0f);
 			rgbc->setActivationState(DISABLE_DEACTIVATION);
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
-		} /*{
+		}
+		{
 			auto alienSpawner = world::newEntity("AlienSpawner", world::root());
 			auto a = alienSpawner->addComponent<Hydra::Component::SpawnerComponent>();
 			a->spawnerID = Hydra::Component::SpawnerType::AlienSpawner;
@@ -960,7 +959,7 @@ namespace Barcode {
 			t->position = glm::vec3{ 20, 0, 15 };
 			t->scale = glm::vec3{ 2,2,2 };
 			alienSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge.ATTIC");
-		}*/
+		}
 		{
 			auto test = world::newEntity("test", world::root());
 			test->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.ATTIC");
