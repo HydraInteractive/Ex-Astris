@@ -372,7 +372,7 @@ unsigned int RobotBehaviour::idleState(float dt)
 		thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->currentFrame = 50;
 	}
 
-	if (targetPlayer.transform->position.x > mapOffset.x && targetPlayer.transform->position.x < MAP_SIZE && targetPlayer.transform->position.z > mapOffset.z && targetPlayer.transform->position.z < MAP_SIZE)
+	//if (targetPlayer.transform->position.x > mapOffset.x && targetPlayer.transform->position.x < MAP_SIZE && targetPlayer.transform->position.z > mapOffset.z && targetPlayer.transform->position.z < MAP_SIZE)
 	{
 		if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 50)
 		{
@@ -383,7 +383,6 @@ unsigned int RobotBehaviour::idleState(float dt)
 				return SEARCHING;
 			}
 		}
-	}
 	return state;
 }
 
