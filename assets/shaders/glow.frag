@@ -7,6 +7,7 @@ layout(location = 0) out vec3 finalOutput;
 layout(location = 1) uniform sampler2D originalImage;
 layout(location = 2) uniform sampler2D blurrImage1;
 layout(location = 3) uniform bool glowEnabled;
+layout(location = 4) uniform sampler2D depth;
 
 void main() {
 	float gamma = 1.0f;
@@ -15,8 +16,6 @@ void main() {
 
 	hdrColor += bloomColor1;
 
-	vec3 result = vec3(1.0) - exp(-hdrColor * 1.0);
-	result = pow(result, vec3(1.0 / gamma));
-
-	finalOutput = result;
+	gl_FragDepth = texture(depth, texCoords).r;
+	finalOutput = hdrColor;
 }
