@@ -40,7 +40,6 @@
 class TileGeneration
 {
 public:
-	//std::vector<std::shared_ptr<tileInfo>> tiles;
 	std::shared_ptr<Hydra::Component::RoomComponent> grid[GRID_SIZE][GRID_SIZE];
 
 	TileGeneration(std::string middleRoomPath);
