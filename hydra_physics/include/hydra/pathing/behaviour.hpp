@@ -16,13 +16,13 @@ public:
 	Behaviour();
 	virtual ~Behaviour();
 
-	enum class Type{ALIEN,ROBOT,ALIENBOSS};
+	enum class Type { ALIEN, ROBOT, ALIENBOSS };
 	Type type = Type::ALIEN;
 
-	enum {IDLE, SEARCHING, FOUND_GOAL, ATTACKING};
+	enum { IDLE, SEARCHING, FOUND_GOAL, ATTACKING };
 	unsigned int state = IDLE;
 
-	enum BossPhase {CLAWING, SPITTING, SPAWNING, CHILLING};
+	enum BossPhase { CLAWING, SPITTING, SPAWNING, CHILLING };
 	BossPhase bossPhase = BossPhase::CLAWING;
 
 	float idleTimer = 0;
@@ -43,8 +43,7 @@ public:
 
 	float range = 1;
 	float originalRange = 1;
-	glm::vec3 mapOffset = glm::vec3(-30.0f, 0, -30.0f);
-	glm::vec3 targetPos = glm::vec3{ 0, 0, 0 };
+	glm::vec3 targetPos = glm::vec3(0, 0, 0);
 	glm::quat rotation = glm::quat();
 
 	virtual void run(float dt) = 0;

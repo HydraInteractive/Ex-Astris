@@ -220,6 +220,7 @@ RigidBodyComponent::~RigidBodyComponent() {
 #define MAKE_DATA(SHAPE_TYPE, SHAPE_PTR) _data = new Data(entityID, CollisionShape::SHAPE_TYPE, getShapeSerializer(CollisionShape::SHAPE_TYPE), std::unique_ptr<btCollisionShape>(SHAPE_PTR), collType, mass, linearDamping,angularDamping, friction, rollingFriction)
 
 void RigidBodyComponent::createBox(const glm::vec3& halfExtents, DEFAULT_PARAMS) {
+	_halfExtents = halfExtents;
 	MAKE_DATA(Box, new btBoxShape(cast(halfExtents)));
 }
 

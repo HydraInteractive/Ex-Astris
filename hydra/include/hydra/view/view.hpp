@@ -27,7 +27,7 @@ namespace Hydra::View {
 		virtual void hide() = 0;
 		virtual void quit() = 0;
 
-		virtual void blit(Hydra::Renderer::IFramebuffer* fb, size_t imageIdx = 0) = 0;
+		virtual void blit(Hydra::Renderer::IFramebuffer* fb, size_t imageIdx = 0, bool doDepth = true) = 0;
 
 		inline void setData(const glm::ivec2&, const glm::ivec2&, const void*) { }
 

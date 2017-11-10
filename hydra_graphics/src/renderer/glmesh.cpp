@@ -264,11 +264,13 @@ private:
 			char *tempFileName;
 			tempFileName = new char[fileNameLength];
 			in.read(tempFileName, fileNameLength);
+
 			fileName.append(tempFileName, fileNameLength);
 			if (fileName != "NULL" && fileNameLength != 0)
 				_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/" + fileName);
 			else
 				_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/error2.png");
+
 			delete[] tempFileName;
 
 			_material.specular = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/glow/errorGlow.png");
@@ -517,5 +519,48 @@ std::unique_ptr<IMesh> GLMesh::createFullscreenQuad() {
 		Vertex{{-1, -1, 0}, {0, 0, -1}, {1, 1, 1}, {0, 0}, {0, 0, 0}}
 	};
 	std::vector<GLuint> indices{0, 2, 1, 2, 0, 3};
+	return std::unique_ptr<IMesh>(new ::GLMeshImpl(vertices, indices));
+}
+
+std::unique_ptr<IMesh> GLMesh::createCube() {
+	std::vector<Vertex> vertices{
+		Vertex{ { -1, -1, 1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 0, 1 },{ 0, 0, 0 } },
+		Vertex{ { 1, -1, 1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 1, 1 },{ 0, 0, 0 } },
+		Vertex{ { 1, 1, 1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 1, 0 },{ 0, 0, 0 } },
+		Vertex{ { -1, 1, 1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 0, 0 },{ 0, 0, 0 } },
+
+		Vertex{ { 1, 1, 1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 0, 1 },{ 0, 0, 0 } },
+		Vertex{ { 1, 1, -1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 1, 1 },{ 0, 0, 0 } },
+		Vertex{ { 1, -1, -1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 1, 0 },{ 0, 0, 0 } },
+		Vertex{ { 1, -1, 1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 0, 0 },{ 0, 0, 0 } },
+
+		Vertex{ { -1, -1, -1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 0, 1 },{ 0, 0, 0 } },
+		Vertex{ { 1, -1, -1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 1, 1 },{ 0, 0, 0 } },
+		Vertex{ { 1, 1, -1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 1, 0 },{ 0, 0, 0 } },
+		Vertex{ { -1, 1, -1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 0, 0 },{ 0, 0, 0 } },
+
+		Vertex{ { -1, -1, -1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 0, 1 },{ 0, 0, 0 } },
+		Vertex{ { -1, -1, 1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 1, 1 },{ 0, 0, 0 } },
+		Vertex{ { -1, 1, 1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 1, 0 },{ 0, 0, 0 } },
+		Vertex{ { -1, 1, -1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 0, 0 },{ 0, 0, 0 } },
+
+		Vertex{ { 1, 1, 1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 0, 1 },{ 0, 0, 0 } },
+		Vertex{ { -1, 1, 1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 1, 1 },{ 0, 0, 0 } },
+		Vertex{ { -1, 1, -1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 1, 0 },{ 0, 0, 0 } },
+		Vertex{ { 1, 1, -1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 0, 0 },{ 0, 0, 0 } },
+
+		Vertex{ { -1, -1, -1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 0, 1 },{ 0, 0, 0 } },
+		Vertex{ { 1, -1, -1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 1, 1 },{ 0, 0, 0 } },
+		Vertex{ { 1, -1, 1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 1, 0 },{ 0, 0, 0 } },
+		Vertex{ { -1, -1, 1 },{ 0, 0, -1 },{ 1, 1, 1 },{ 0, 0 },{ 0, 0, 0 } }
+	};
+
+	std::vector<GLuint> indices{ 0, 1, 2, 0, 2, 3, //front
+		4, 5, 6, 4, 6, 7, // right
+		8, 9, 10, 8, 10, 11, // back
+		12, 13, 14, 12, 14, 15, // left
+		16, 17, 18, 16, 18, 19, // upper
+		20, 21, 22, 20, 22, 23 }; // bottom
+
 	return std::unique_ptr<IMesh>(new ::GLMeshImpl(vertices, indices));
 }
