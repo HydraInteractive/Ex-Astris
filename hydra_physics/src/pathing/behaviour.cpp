@@ -15,7 +15,7 @@
 Behaviour::Behaviour(std::shared_ptr<Hydra::World::Entity> enemy)
 {
 
-	thisEnemy.entity = enemy;
+	thisEnemy.entity = enemy.get();
 	refreshRequiredComponents();
 	pathFinding = std::make_shared<PathFinding>();
 
@@ -32,30 +32,30 @@ Behaviour::~Behaviour()
 
 void Behaviour::setEnemyEntity(std::shared_ptr<Hydra::World::Entity> enemy)
 {
-	thisEnemy.entity = enemy;
+	thisEnemy.entity = enemy.get();
 	refreshRequiredComponents();
 }
 
 void Behaviour::setTargetPlayer(std::shared_ptr<Hydra::World::Entity> player)
 {
-	targetPlayer.entity = player;
-	targetPlayer.life = player->getComponent<Hydra::Component::LifeComponent>();
-	targetPlayer.transform = player->getComponent<Hydra::Component::TransformComponent>();
+	targetPlayer.entity = player.get();
+	targetPlayer.life = player->getComponent<Hydra::Component::LifeComponent>().get();
+	targetPlayer.transform = player->getComponent<Hydra::Component::TransformComponent>().get();
 }
 //Sets all components without setting new entities, use after adding new components to either entity
 bool Behaviour::refreshRequiredComponents()
 {
 	hasRequiredComponents = (
-		(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>()) &&
-		(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>()) &&
-		(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()) &&
-		(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>()) &&
-		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>()) && 
-		(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>()) &&
-		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>()) &&
-		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity()) &&
-		(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>()) &&
-		(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>())
+		(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>().get()) &&
+		(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>().get()) &&
+		(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>().get()) &&
+		(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
+		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
+		(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
+		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
+		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity().get()) &&
+		(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
+		(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
 	 );
 	return hasRequiredComponents;
 }
@@ -364,15 +364,15 @@ void RobotBehaviour::run(float dt)
 bool RobotBehaviour::refreshRequiredComponents()
 {
 	hasRequiredComponents = (
-		(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>()) &&
-		(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>()) &&
-		(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()) &&
-		(thisEnemy.weapon = thisEnemy.entity->getComponent<Hydra::Component::WeaponComponent>()) &&
-		(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>()) &&
-		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>()) &&
-		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity()) &&
-		(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>()) &&
-		(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>())
+		(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>().get()) &&
+		(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>().get()) &&
+		(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>().get()) &&
+		(thisEnemy.weapon = thisEnemy.entity->getComponent<Hydra::Component::WeaponComponent>().get()) &&
+		(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
+		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
+		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity().get()) &&
+		(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
+		(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
 	);
 	return hasRequiredComponents;
 }

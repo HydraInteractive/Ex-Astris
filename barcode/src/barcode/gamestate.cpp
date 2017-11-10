@@ -284,6 +284,9 @@ namespace Barcode {
 	void GameState::runFrame(float delta) {
 		auto windowSize = _engine->getView()->getSize();
 
+		if (ImGui::Button("Remove unused meshes")) 
+			_meshLoader->clear();
+
 		_physicsSystem.tick(delta);
 		_cameraSystem.tick(delta);
 		_aiSystem.tick(delta);
@@ -421,6 +424,7 @@ namespace Barcode {
 					if (mesh->hasAnimation() == false || drawObj->disable || !drawObj->mesh)
 						continue;
 
+
 					auto mc = e->getComponent<Hydra::Component::MeshComponent>();
 					int currentFrame = mc->currentFrame;
 					float animationCounter = mc->animationCounter;
@@ -441,7 +445,6 @@ namespace Barcode {
 					mc->animationCounter += 1 * delta;
 				}
 			}
-
 			_engine->getRenderer()->render(_geometryBatch.batch);
 			_engine->getRenderer()->renderAnimation(_animationBatch.batch);
 		}
@@ -908,55 +911,345 @@ namespace Barcode {
 			}
 		}
 
-		{
-			auto alienEntity = world::newEntity("Alien1", world::root());
-			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
-			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
-			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
-			a->damage = 4;
-			a->behaviour->originalRange = 4;
-			a->radius = 1;
+		for (int i = 0; i < 100; i++) {
+			{
+				auto alienEntity = world::newEntity("Alien" + std::to_string(i), world::root());
+				alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
+				auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+				a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+				a->damage = 4;
+				a->behaviour->originalRange = 4;
+				a->radius = 1;
 
-			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
-			h->maxHP = 80;
-			h->health = 80;
-			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
-			m->movementSpeed = 8.0f;
-			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ 10, 0, 20 };
-			t->scale = glm::vec3{ 2,2,2 };
-			t->rotation = glm::vec3{ 0, 90, 0 };
-			auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
-				0, 0, 0.6f, 1.0f);
-			rgbc->setActivationState(DISABLE_DEACTIVATION);
+				auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+				h->maxHP = 80;
+				h->health = 80;
+				auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+				m->movementSpeed = 8.0f;
+				auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+				t->position = glm::vec3{ i * 5, 0, i * 5};
+				t->scale = glm::vec3{ 2,2,2 };
+				t->rotation = glm::vec3{ 0, 90, 0 };
+				auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+				rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+					0, 0, 0.6f, 1.0f);
+				rgbc->setActivationState(DISABLE_DEACTIVATION);
+			}
+
 		}
 
-		{
-			auto alienEntity = world::newEntity("Alien2", world::root());
-			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
-			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
-			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
-			a->damage = 4;
-			a->behaviour->originalRange = 4;
-			a->radius = 2;
+		//{
+		//	auto alienEntity = world::newEntity("Alien1", world::root());
+		//	alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
+		//	auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+		//	a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+		//	a->damage = 4;
+		//	a->behaviour->originalRange = 4;
+		//	a->radius = 1;
 
-			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
-			h->maxHP = 80;
-			h->health = 80;
+		//	auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+		//	h->maxHP = 80;
+		//	h->health = 80;
+		//	auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+		//	m->movementSpeed = 8.0f;
+		//	auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+		//	t->position = glm::vec3{ 0, 0, 5 };
+		//	t->scale = glm::vec3{ 2,2,2 };
+		//	t->rotation = glm::vec3{ 0, 90, 0 };
+		//	auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+		//	rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		//		0, 0, 0.6f, 1.0f);
+		//	rgbc->setActivationState(DISABLE_DEACTIVATION);
+		//}
 
-			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
-			m->movementSpeed = 4.0f;
+		//{
+		//	auto alienEntity = world::newEntity("Alien1", world::root());
+		//	alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+		//	auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+		//	a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+		//	a->damage = 4;
+		//	a->behaviour->originalRange = 4;
+		//	a->radius = 1;
 
-			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ 30, 0, 20 };
-			t->scale = glm::vec3{ 2,2,2 };
+		//	auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+		//	h->maxHP = 80;
+		//	h->health = 80;
+		//	auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+		//	m->movementSpeed = 8.0f;
+		//	auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+		//	t->position = glm::vec3{ 0, 0, 5 };
+		//	t->scale = glm::vec3{ 2,2,2 };
+		//	t->rotation = glm::vec3{ 0, 90, 0 };
+		//	auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+		//	rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		//		0, 0, 0.6f, 1.0f);
+		//	rgbc->setActivationState(DISABLE_DEACTIVATION);
+		//}
+		//{
+		//	auto alienEntity = world::newEntity("Alien1", world::root());
+		//	alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+		//	auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+		//	a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+		//	a->damage = 4;
+		//	a->behaviour->originalRange = 4;
+		//	a->radius = 1;
 
-			auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
-				0, 0, 0.6f, 1.0f);
-			rgbc->setActivationState(DISABLE_DEACTIVATION);
-		}
+		//	auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+		//	h->maxHP = 80;
+		//	h->health = 80;
+		//	auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+		//	m->movementSpeed = 8.0f;
+		//	auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+		//	t->position = glm::vec3{ 0, 0, 5 };
+		//	t->scale = glm::vec3{ 2,2,2 };
+		//	t->rotation = glm::vec3{ 0, 90, 0 };
+		//	auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+		//	rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		//		0, 0, 0.6f, 1.0f);
+		//	rgbc->setActivationState(DISABLE_DEACTIVATION);
+		//}
+		//{
+		//	auto alienEntity = world::newEntity("Alien1", world::root());
+		//	alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+		//	auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+		//	a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+		//	a->damage = 4;
+		//	a->behaviour->originalRange = 4;
+		//	a->radius = 1;
+
+		//	auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+		//	h->maxHP = 80;
+		//	h->health = 80;
+		//	auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+		//	m->movementSpeed = 8.0f;
+		//	auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+		//	t->position = glm::vec3{ 0, 0, 5 };
+		//	t->scale = glm::vec3{ 2,2,2 };
+		//	t->rotation = glm::vec3{ 0, 90, 0 };
+		//	auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+		//	rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		//		0, 0, 0.6f, 1.0f);
+		//	rgbc->setActivationState(DISABLE_DEACTIVATION);
+		//}
+		//{
+		//	auto alienEntity = world::newEntity("Alien1", world::root());
+		//	alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+		//	auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+		//	a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+		//	a->damage = 4;
+		//	a->behaviour->originalRange = 4;
+		//	a->radius = 1;
+
+		//	auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+		//	h->maxHP = 80;
+		//	h->health = 80;
+		//	auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+		//	m->movementSpeed = 8.0f;
+		//	auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+		//	t->position = glm::vec3{ 0, 0, 5 };
+		//	t->scale = glm::vec3{ 2,2,2 };
+		//	t->rotation = glm::vec3{ 0, 90, 0 };
+		//	auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+		//	rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		//		0, 0, 0.6f, 1.0f);
+		//	rgbc->setActivationState(DISABLE_DEACTIVATION);
+		//}
+		//{
+		//	auto alienEntity = world::newEntity("Alien1", world::root());
+		//	alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+		//	auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+		//	a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+		//	a->damage = 4;
+		//	a->behaviour->originalRange = 4;
+		//	a->radius = 1;
+
+		//	auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+		//	h->maxHP = 80;
+		//	h->health = 80;
+		//	auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+		//	m->movementSpeed = 8.0f;
+		//	auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+		//	t->position = glm::vec3{ 0, 0, 5 };
+		//	t->scale = glm::vec3{ 2,2,2 };
+		//	t->rotation = glm::vec3{ 0, 90, 0 };
+		//	auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+		//	rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		//		0, 0, 0.6f, 1.0f);
+		//	rgbc->setActivationState(DISABLE_DEACTIVATION);
+		//}
+		//{
+		//	auto alienEntity = world::newEntity("Alien1", world::root());
+		//	alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+		//	auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+		//	a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+		//	a->damage = 4;
+		//	a->behaviour->originalRange = 4;
+		//	a->radius = 1;
+
+		//	auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+		//	h->maxHP = 80;
+		//	h->health = 80;
+		//	auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+		//	m->movementSpeed = 8.0f;
+		//	auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+		//	t->position = glm::vec3{ 0, 0, 5 };
+		//	t->scale = glm::vec3{ 2,2,2 };
+		//	t->rotation = glm::vec3{ 0, 90, 0 };
+		//	auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+		//	rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		//		0, 0, 0.6f, 1.0f);
+		//	rgbc->setActivationState(DISABLE_DEACTIVATION);
+		//}
+		//{
+		//	auto alienEntity = world::newEntity("Alien1", world::root());
+		//	alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+		//	auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+		//	a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+		//	a->damage = 4;
+		//	a->behaviour->originalRange = 4;
+		//	a->radius = 1;
+
+		//	auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+		//	h->maxHP = 80;
+		//	h->health = 80;
+		//	auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+		//	m->movementSpeed = 8.0f;
+		//	auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+		//	t->position = glm::vec3{ 0, 0, 5 };
+		//	t->scale = glm::vec3{ 2,2,2 };
+		//	t->rotation = glm::vec3{ 0, 90, 0 };
+		//	auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+		//	rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		//		0, 0, 0.6f, 1.0f);
+		//	rgbc->setActivationState(DISABLE_DEACTIVATION);
+		//}
+
+
+		//{
+		//	auto alienEntity = world::newEntity("Alien3", world::root());
+		//	alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+		//	auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+		//	a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+		//	a->damage = 4;
+		//	a->behaviour->originalRange = 4;
+		//	a->radius = 2;
+
+		//	auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+		//	h->maxHP = 80;
+		//	h->health = 80;
+
+		//	auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+		//	m->movementSpeed = 4.0f;
+
+		//	auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+		//	t->position = glm::vec3{ 25, 0, 20 };
+		//	t->scale = glm::vec3{ 2,2,2 };
+
+		//	auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+		//	rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		//		0, 0, 0.6f, 1.0f);
+		//	rgbc->setActivationState(DISABLE_DEACTIVATION);
+		//}
+		//{
+		//	auto alienEntity = world::newEntity("Alien4", world::root());
+		//	alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+		//	auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+		//	a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+		//	a->damage = 4;
+		//	a->behaviour->originalRange = 4;
+		//	a->radius = 2;
+
+		//	auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+		//	h->maxHP = 80;
+		//	h->health = 80;
+
+		//	auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+		//	m->movementSpeed = 4.0f;
+
+		//	auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+		//	t->position = glm::vec3{ 5, 0, 20 };
+		//	t->scale = glm::vec3{ 2,2,2 };
+
+		//	auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+		//	rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		//		0, 0, 0.6f, 1.0f);
+		//	rgbc->setActivationState(DISABLE_DEACTIVATION);
+		//}
+		//{
+		//	auto alienEntity = world::newEntity("Alien4", world::root());
+		//	alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+		//	auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+		//	a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+		//	a->damage = 4;
+		//	a->behaviour->originalRange = 4;
+		//	a->radius = 2;
+
+		//	auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+		//	h->maxHP = 80;
+		//	h->health = 80;
+
+		//	auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+		//	m->movementSpeed = 4.0f;
+
+		//	auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+		//	t->position = glm::vec3{ 5, 0, 20 };
+		//	t->scale = glm::vec3{ 2,2,2 };
+
+		//	auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+		//	rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		//		0, 0, 0.6f, 1.0f);
+		//	rgbc->setActivationState(DISABLE_DEACTIVATION);
+		//}
+		//{
+		//	auto alienEntity = world::newEntity("Alien4", world::root());
+		//	alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+		//	auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+		//	a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+		//	a->damage = 4;
+		//	a->behaviour->originalRange = 4;
+		//	a->radius = 2;
+
+		//	auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+		//	h->maxHP = 80;
+		//	h->health = 80;
+
+		//	auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+		//	m->movementSpeed = 4.0f;
+
+		//	auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+		//	t->position = glm::vec3{ 5, 0, 20 };
+		//	t->scale = glm::vec3{ 2,2,2 };
+
+		//	auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+		//	rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		//		0, 0, 0.6f, 1.0f);
+		//	rgbc->setActivationState(DISABLE_DEACTIVATION);
+		//}
+		//{
+		//	auto alienEntity = world::newEntity("Alien4", world::root());
+		//	alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+		//	auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+		//	a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+		//	a->damage = 4;
+		//	a->behaviour->originalRange = 4;
+		//	a->radius = 2;
+
+		//	auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+		//	h->maxHP = 80;
+		//	h->health = 80;
+
+		//	auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+		//	m->movementSpeed = 4.0f;
+
+		//	auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+		//	t->position = glm::vec3{ 5, 0, 20 };
+		//	t->scale = glm::vec3{ 2,2,2 };
+
+		//	auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+		//	rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		//		0, 0, 0.6f, 1.0f);
+		//	rgbc->setActivationState(DISABLE_DEACTIVATION);
+		//}
 
 		{
 			auto pointLight1 = world::newEntity("Pointlight1", world::root());

@@ -124,7 +124,6 @@ public:
 					}
 					_animationTransTexture->setData(glm::ivec2(0, instanceIdx), glm::ivec2(w, h), jointTransformMX.data());
 				}
-
 				_animationTransTexture->bind(4);
 
 				size_t amount = std::min(size - i, maxPerLoop);
