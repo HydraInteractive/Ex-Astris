@@ -512,7 +512,7 @@ namespace Barcode {
 			auto& lights = Hydra::Component::PointLightComponent::componentHandler->getActiveComponents();
 
 			_lightingBatch.pipeline->setValue(9, (int)(lights.size()));
-			_lightingBatch.pipeline->setValue(10, _light->direction);
+			_lightingBatch.pipeline->setValue(10, _light->getDirVec());
 			_lightingBatch.pipeline->setValue(11, _light->color);
 			
 
@@ -1036,8 +1036,6 @@ namespace Barcode {
 		{
 			auto lightEntity = world::newEntity("Light", world::root());
 			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
-			l->position = glm::vec3(-5, 0.75, 4.3);
-			l->direction = glm::vec3(-1, 0, 0);
 			auto t = lightEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(8.0, 0, 3.5);
 		}
