@@ -4,6 +4,7 @@
 #include <hydra/world/world.hpp>
 #include <hydra/component/transformcomponent.hpp>
 
+class Server;
 
 enum PacketType {
 	ServerInitialize,
@@ -12,7 +13,9 @@ enum PacketType {
 	ClientUpdate,
 	ClientSpawnEntity,
 	ServerSpawnEntity,
-	ServerDeleteEntity
+	ServerDeleteEntity,
+	ClientUpdateBullet,
+	ClientShoot
 	//..
 };
 
@@ -30,7 +33,6 @@ struct InterpolationInfo {
 };
 
 
-
 struct Header {
 	PacketType type;
 	int len; // Length of total packet
@@ -42,10 +44,20 @@ struct Packet {
 };
 
 struct ServerDeletePacket : Packet {
-	int64_t id;
+	EntityID id;
 };
 
-//NEW SHIT
+struct 	ClientUpdateBulletPacket : Packet {
+	size_t size;
+	char* data[0];
+	inline size_t getSize() { return sizeof(ClientUpdateBulletPacket) + sizeof(char) * size; }
+};
+
+struct ClientShootPacket : Packet {
+	TransformInfo ti;
+	glm::vec3 direction;
+};
+
 
 struct ClientSpawnEntityPacket : Packet {
 	size_t size;
@@ -54,22 +66,21 @@ struct ClientSpawnEntityPacket : Packet {
 };
 
 struct ServerSpawnEntityPacket : Packet {
-	int64_t id;
+	EntityID id;
 	size_t size;
 	char* data[0];
 	inline size_t getSize() { return sizeof(ServerSpawnEntityPacket) + sizeof(char) * size; }
 };
 
-//NEW SHIT
 
 struct ServerInitializePacket : Packet {
-	int64_t entityid;
+	EntityID entityid;
 	TransformInfo ti;
 };
 
 struct ServerUpdatePacket : Packet {
 	struct EntUpdate {
-		int64_t entityid;
+		EntityID entityid;
 		TransformInfo ti;
 	};
 	size_t nrOfEntUpdates;
@@ -78,7 +89,7 @@ struct ServerUpdatePacket : Packet {
 
 struct ServerPlayerPacket : Packet {
 	TransformInfo ti;
-	int64_t entID;
+	EntityID entID;
 	int nameLength;
 	char name[0];
 

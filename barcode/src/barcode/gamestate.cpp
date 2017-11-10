@@ -14,8 +14,6 @@
 
 #include <NetClient.h>
 
-//MAYBE MOVE THIS
-NetClient* net = nullptr;
 
 using world = Hydra::World::World;
 
@@ -857,8 +855,8 @@ namespace Barcode {
 
 		{ // Sync with network
 
-			if(net)
-				net->run();
+			if(Network::NetClient::running)
+				Network::NetClient::run();
 		  // _world->tick(TickAction::network, delta);
 		}
 	}
@@ -887,14 +885,10 @@ namespace Barcode {
 		}
 
 		{
-		net = new NetClient();
-		if (net->initialize(addr, port)) {
-			//show feedback?
-		}
-		else {
-			delete net;
-			net = nullptr;
-		}
+			
+			if (Network::NetClient::initialize(addr, port)) {
+				//show feedback?
+			}
 			auto playerEntity = world::newEntity("Player", world::root());
 			auto p = playerEntity->addComponent<Hydra::Component::PlayerComponent>();
 			auto c = playerEntity->addComponent<Hydra::Component::CameraComponent>();
