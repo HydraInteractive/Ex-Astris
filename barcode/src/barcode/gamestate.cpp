@@ -916,7 +916,7 @@ namespace Barcode {
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
 				weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
-				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Gun.mATTIC");
+				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/FirstPersonModel.mATTIC");
 				auto t2 = weaponEntity->addComponent<Hydra::Component::TransformComponent>();
 				t2->position = glm::vec3(2, -7, -2);
 				t2->rotation = glm::quat(0, 0, 1, 0);
@@ -924,23 +924,23 @@ namespace Barcode {
 			}
 		}
 		{
-			auto robotEntity = world::newEntity("Robot1", world::root());
-			auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
-			a->behaviour = std::make_shared<RobotBehaviour>(robotEntity);
+			auto robotEntity2 = world::newEntity("Robot2", world::root());
+			auto a = robotEntity2->addComponent<Hydra::Component::AIComponent>();
+			a->behaviour = std::make_shared<RobotBehaviour>(robotEntity2);
 			a->damage = 4;
 			a->behaviour->originalRange = 1;
 			a->radius = 1;
-
-			auto h = robotEntity->addComponent<Hydra::Component::LifeComponent>();
+	
+			auto h = robotEntity2->addComponent<Hydra::Component::LifeComponent>();
 			h->maxHP = 80;
 			h->health = 80;
-			auto m = robotEntity->addComponent<Hydra::Component::MovementComponent>();
+			auto m = robotEntity2->addComponent<Hydra::Component::MovementComponent>();
 			m->movementSpeed = 8.0f;
-			auto t = robotEntity->addComponent<Hydra::Component::TransformComponent>();
+			auto t = robotEntity2->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ 10, 0, 20 };
 			t->scale = glm::vec3{ 2,2,2 };
 			t->rotation = glm::vec3{ 0, 90, 0 };
-			robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
+			robotEntity2->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
 		}
 
 		{
@@ -1000,7 +1000,7 @@ namespace Barcode {
 			rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 				0, 0, 0.6f, 1.0f);
 			rgbc->setActivationState(DISABLE_DEACTIVATION);
-			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
+			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
 		}
 
 		{

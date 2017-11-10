@@ -550,7 +550,7 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 					t->position = thisEnemy.transform->position + glm::vec3(3, thisEnemy.transform->position.y, 3);
 					t->scale = glm::vec3{ 2,2,2 };
 
-					alienSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
+					alienSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
 					spawnAmount++;
 					spawnTimer = 0;
 				}

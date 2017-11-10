@@ -34,6 +34,7 @@ void PlayerSystem::tick(float delta) {
 		auto transform = entities[i]->getComponent<TransformComponent>();
 		auto camera = entities[i]->getComponent<CameraComponent>();
 		auto weapon = player->getWeapon()->getComponent<Hydra::Component::WeaponComponent>();
+		auto weaponMesh = player->getWeapon()->getComponent<Hydra::Component::MeshComponent>();
 		auto life = entities[i]->getComponent<Component::LifeComponent>();
 		auto movement = entities[i]->getComponent<Component::MovementComponent>();
 		auto soundFx = entities[i]->getComponent<SoundFxComponent>();
@@ -61,12 +62,19 @@ void PlayerSystem::tick(float delta) {
 				movement->acceleration.y += 6.0f;
 				player->onGround = false;
 			}
+			if (movement->acceleration.x > 0 || movement->acceleration.y > 0 || movement->acceleration.z > 0)
+				weaponMesh->animationIndex = 1;
+			else
+				weaponMesh->animationIndex = 0;
+			
+				
 
 			if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && !ImGui::GetIO().WantCaptureMouse) {
 				//TODO: Make pretty?
 				glm::quat bulletOrientation = glm::angleAxis(-camera->cameraYaw, glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->cameraPitch, glm::vec3(1, 0, 0)));
 				float bulletVelocity = 20.0f;
-
+				//TODO: Initiate reload animation when needed
+				weaponMesh->animationIndex = 2;
 				weapon->shoot(transform->position, movement->direction, bulletOrientation, bulletVelocity);
 			}
 		}
