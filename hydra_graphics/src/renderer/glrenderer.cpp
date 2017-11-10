@@ -105,8 +105,8 @@ public:
 			mesh->getMaterial().specular->bind(2);
 			mesh->getMaterial().glow->bind(3);
 
-			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
 			glBindVertexArray(mesh->getID());
+			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
 
 			constexpr unsigned int h = 1; // Width is always going to be 1
 			auto& currentFrames = batch.currentFrames[mesh];

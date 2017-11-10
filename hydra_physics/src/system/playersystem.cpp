@@ -40,7 +40,7 @@ void PlayerSystem::tick(float delta) {
 		auto perks = entities[i]->getComponent<PerkComponent>();
 		auto rbc = static_cast<btRigidBody*>(entities[i]->getComponent<RigidBodyComponent>()->getRigidBody());
 
-		glm::mat4 rotation = glm::mat4_cast(camera->orientation);
+		glm::mat4 rotation = glm::mat4_cast(transform->rotation);
 		movement->direction = -glm::vec3(glm::vec4{ 0, 0, 1, 0 } *rotation);
 
 		{
@@ -97,17 +97,16 @@ void PlayerSystem::tick(float delta) {
 		btVector3 vel = rbc->getLinearVelocity();
 		rbc->setLinearVelocity(btVector3(movement->velocity.x,vel.y(),movement->velocity.z));
 
-		if (player->firstPerson)
-			camera->position = transform->position;
-		else
-			camera->position = transform->position + glm::vec3(0, 3, 0) + glm::vec3(glm::vec4{-4, 0, 4, 0} * rotation);
+		//if (player->firstPerson)
+		//	camera->position = transform->position;
+		//else
+		//	camera->position = transform->position + glm::vec3(0, 3, 0) + glm::vec3(glm::vec4{-4, 0, 4, 0} * rotation);
 
-		transform->rotation = camera->orientation;
 		transform->dirty = true;
 
 		auto wt = player->getWeapon()->getComponent<TransformComponent>();
 		wt->position = transform->position + glm::vec3(glm::vec4{player->weaponOffset, 0} * rotation);
-		wt->rotation = glm::normalize(glm::conjugate(camera->orientation) * glm::quat(glm::vec3(glm::radians(180.0f), 0, glm::radians(180.0f))));
+		wt->rotation = glm::normalize(glm::conjugate(transform->rotation) * glm::quat(glm::vec3(glm::radians(180.0f), 0, glm::radians(180.0f))));
 		wt->dirty = true;
 	}
 }

@@ -2,6 +2,7 @@
 #include <hydra/ext/api.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/renderer/renderer.hpp>
+#include <hydra/component/transformcomponent.hpp>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_keyboard.h>
@@ -16,11 +17,8 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 	struct HYDRA_GRAPHICS_API FreeCameraComponent final : public IComponent<FreeCameraComponent, ComponentBits::EditorCamera> {
-		glm::vec3 position = glm::vec3(0, 5, 0);
 		float movementSpeed = 10.0f;
 		float shiftMultiplier = 5.0f;
-
-		glm::quat orientation = glm::quat();
 
 		float fov = 90.0f;
 		float zNear = 0.001f;
@@ -40,8 +38,9 @@ namespace Hydra::Component {
 		void registerUI() final;
 
 		// TODO: Cache these?
-		inline glm::mat4 getViewMatrix() const { return glm::translate(glm::mat4_cast(orientation), -position); }
+		inline glm::mat4 getViewMatrix() { return glm::translate(glm::mat4_cast(getTransformComponent()->rotation), -getTransformComponent()->position); }
 		inline glm::mat4 getProjectionMatrix() const { return glm::perspective(glm::radians(fov), aspect, zNear, zFar); }
+		inline std::shared_ptr<Hydra::Component::TransformComponent> getTransformComponent() { return Hydra::World::World::getEntity(entityID)->getComponent<Hydra::Component::TransformComponent>(); }
 	};
 };
 
