@@ -20,6 +20,7 @@ Hydra::Component::SpawnerComponent::~SpawnerComponent() {}
 
 void Hydra::Component::SpawnerComponent::serialize(nlohmann::json & json) const
 {
+	//json["spawnerID"] = spawnerID;
 	json = {
 		{ "spawnerID", (int)spawnerID },
 	};
@@ -27,6 +28,7 @@ void Hydra::Component::SpawnerComponent::serialize(nlohmann::json & json) const
 
 void Hydra::Component::SpawnerComponent::deserialize(nlohmann::json & json)
 {
+	//spawnerID = json.value<int>("spawnerID", 0);
 	spawnerID = (SpawnerType)json["spawnerID"].get<int>();
 }
 

@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <hydra/component/componentmanager.hpp>
+#include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/ext/api.hpp>
 #include <memory>
 #include <random>
@@ -15,13 +16,13 @@ public:
 	Behaviour();
 	virtual ~Behaviour();
 
-	enum class Type{ALIEN,ROBOT,ALIENBOSS};
+	enum class Type { ALIEN, ROBOT, ALIENBOSS };
 	Type type = Type::ALIEN;
 
-	enum {IDLE, SEARCHING, FOUND_GOAL, ATTACKING};
+	enum { IDLE, SEARCHING, FOUND_GOAL, ATTACKING };
 	unsigned int state = IDLE;
 
-	enum BossPhase {CLAWING, SPITTING, SPAWNING, CHILLING};
+	enum BossPhase { CLAWING, SPITTING, SPAWNING, CHILLING };
 	BossPhase bossPhase = BossPhase::CLAWING;
 
 	float idleTimer = 0;
@@ -42,8 +43,7 @@ public:
 
 	float range = 1;
 	float originalRange = 1;
-	glm::vec3 mapOffset = glm::vec3(-30.0f, 0, -30.0f);
-	glm::vec3 targetPos = glm::vec3{ 0, 0, 0 };
+	glm::vec3 targetPos = glm::vec3(0, 0, 0);
 	glm::quat rotation = glm::quat();
 
 	virtual void run(float dt) = 0;
@@ -61,6 +61,7 @@ protected:
 		std::shared_ptr<Hydra::Component::LifeComponent> life;
 		std::shared_ptr<Hydra::Component::MovementComponent> movement;
 		std::shared_ptr<Hydra::Component::AIComponent> ai;
+		std::shared_ptr<Hydra::Component::RigidBodyComponent> rigidBody;
 	};
 	ComponentSet thisEnemy;
 	ComponentSet targetPlayer;

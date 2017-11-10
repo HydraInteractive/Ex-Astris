@@ -40,8 +40,8 @@ void MeshComponent::serialize(nlohmann::json& json) const {
 void MeshComponent::deserialize(nlohmann::json& json) {
 
 	loadMesh(json["meshFile"].get<std::string>());
-	currentFrame = json["currentFrame"].get<int>();
-	animationCounter = json["animationCounter"].get<float>();
+	currentFrame = json.value<int>("currentFrame", 0);
+	animationCounter = json.value<float>("animationCounter", 0);
 }
 
 void MeshComponent::registerUI() {

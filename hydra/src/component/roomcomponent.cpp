@@ -7,25 +7,28 @@ Hydra::Component::RoomComponent::~RoomComponent()
 
 void Hydra::Component::RoomComponent::serialize(nlohmann::json & json) const
 {
-	json = {
-		{ "doors",{ door[NORTH], door[EAST], door[SOUTH], door[WEST] } },
-		{ "openWalls",{ open[NORTH], open[EAST], open[SOUTH], open[WEST] } }
-	};
+	json["doorsN"] = door[NORTH];
+	json["doorsE"] = door[EAST];
+	json["doorsS"] = door[SOUTH];
+	json["doorsW"] = door[WEST];
+
+	json["openN"] = open[NORTH];
+	json["openE"] = open[EAST];
+	json["openS"] = open[SOUTH];
+	json["openW"] = open[WEST];
 }
 
 void Hydra::Component::RoomComponent::deserialize(nlohmann::json & json)
 {
-	auto& doors = json["doors"];
-	door[NORTH] = doors[NORTH].get<bool>();
-	door[EAST] = doors[EAST].get<bool>();
-	door[SOUTH] = doors[SOUTH].get<bool>();
-	door[WEST] = doors[WEST].get<bool>();
+	door[NORTH] = json.value<bool>("doorsN", false);
+	door[EAST] = json.value<bool>("doorsE", false);
+	door[SOUTH] = json.value<bool>("doorsS", false);
+	door[WEST] = json.value<bool>("doorsW", false);
 
-	auto& openWalls = json["openWalls"];
-	open[NORTH] = openWalls[NORTH].get<bool>();
-	open[EAST] = openWalls[EAST].get<bool>();
-	open[SOUTH] = openWalls[SOUTH].get<bool>();
-	open[WEST] = openWalls[WEST].get<bool>();
+	open[NORTH] = json.value<bool>("openN", false);
+	open[EAST] = json.value<bool>("openE", false);
+	open[SOUTH] = json.value<bool>("openS", false);
+	open[WEST] = json.value<bool>("openW", false);
 }
 
 void Hydra::Component::RoomComponent::registerUI()
@@ -40,11 +43,11 @@ void Hydra::Component::RoomComponent::registerUI()
 	ImGui::Checkbox("West", &door[WEST]);
 
 	ImGui::Text("Open Walls:");
-	ImGui::Checkbox("North", &door[NORTH]);
+	ImGui::Checkbox("North", &open[NORTH]);
 	ImGui::SameLine();
-	ImGui::Checkbox("East", &door[EAST]);
+	ImGui::Checkbox("East", &open[EAST]);
 	ImGui::SameLine();
-	ImGui::Checkbox("South", &door[SOUTH]);
+	ImGui::Checkbox("South", &open[SOUTH]);
 	ImGui::SameLine();
-	ImGui::Checkbox("West", &door[WEST]);
+	ImGui::Checkbox("West", &open[WEST]);
 }

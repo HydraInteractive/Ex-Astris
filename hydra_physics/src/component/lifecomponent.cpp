@@ -40,16 +40,14 @@ bool Hydra::Component::LifeComponent::statusCheck()
 
 void Hydra::Component::LifeComponent::serialize(nlohmann::json & json) const
 {
-	json = {
-		{ "maxHP", maxHP },
-		{ "health", health },
-	};
+	json["maxHP"] = maxHP;
+	json["health"] = health;
 }
 
 void Hydra::Component::LifeComponent::deserialize(nlohmann::json & json)
 {
-	maxHP = json["maxHP"].get<float>();
-	health = json["health"].get<float>();
+	maxHP = json.value<int>("maxHP", 0);
+	health = json.value<int>("health", 0);
 }
 
 void Hydra::Component::LifeComponent::registerUI()

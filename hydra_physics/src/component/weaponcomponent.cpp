@@ -46,11 +46,11 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 
 		auto rbc = bullet->addComponent<Hydra::Component::RigidBodyComponent>();
 
-		rbc->createBox(glm::vec3(0.5f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE, 1.0f);
+		rbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE, 0.0095f);
 		auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
 		bulletPhysWorld->enable(rbc.get());
-		rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 3000);
 		rigidBody->setActivationState(DISABLE_DEACTIVATION);
+		rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 300);
 		rigidBody->setGravity(btVector3(0, 0, 0));
 	} else {
 		for (int i = 0; i < bulletsPerShot; i++) {
@@ -80,11 +80,11 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 			auto bulletPhysWorld = static_cast<Hydra::System::BulletPhysicsSystem*>(IEngine::getInstance()->getState()->getPhysicsSystem());
 
 			auto rbc = bullet->addComponent<Hydra::Component::RigidBodyComponent>();
-			rbc->createBox(glm::vec3(0.5f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE, 1.0f);
+			rbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE, 0.0095f);
 			auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
 			bulletPhysWorld->enable(rbc.get());
-			rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 3000);
 			rigidBody->setActivationState(DISABLE_DEACTIVATION);
+			rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 300);
 			rigidBody->setGravity(btVector3(0,0,0));
 
 		}
@@ -94,19 +94,17 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 }
 
 void WeaponComponent::serialize(nlohmann::json& json) const {
-	json = {
-		{ "fireRateRPM", fireRateRPM },
-		{ "bulletSize", bulletSize},
-		{ "bulletSpread", bulletSpread},
-		{ "bulletsPerShot", bulletsPerShot}
-	};
+	json["fireRateRPM"] = fireRateRPM;
+	json["ignoreParent"] = bulletSize;
+	json["ignoreParent"] = bulletSpread;
+	json["ignoreParent"] = bulletsPerShot;
 }
 
 void WeaponComponent::deserialize(nlohmann::json& json) {
-	fireRateRPM = json["fireRateRPM"].get<int>();
-	bulletSize = json["bulletSize"].get<float>();
-	bulletSpread = json["bulletSpread"].get<float>();
-	bulletsPerShot = json["bulletsPerShot"].get<int>();
+	fireRateRPM = json.value<int>("fireRateRPM", 0);
+	bulletSize = json.value<float>("bulletSize", 0);
+	bulletSpread = json.value<float>("bulletSpread", 0);
+	bulletsPerShot = json.value<int>("bulletsPerShot", 0);
 }
 
 void WeaponComponent::registerUI() {
