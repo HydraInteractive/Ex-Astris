@@ -305,7 +305,7 @@ namespace Barcode {
 		_particleSystem.tick(delta);
 		_rendererSystem.tick(delta);
 
-		const glm::vec3 cameraPos = _cc->position;
+		const glm::vec3 cameraPos = _cc->getTransformComponent()->position;
 
 		{ // Render objects (Deferred rendering)
 		  // Render to geometryFBO
@@ -446,19 +446,19 @@ namespace Barcode {
 			_lightingBatch.pipeline->setValue(5, 5);
 			_lightingBatch.pipeline->setValue(6, 6);
 
-			_lightingBatch.pipeline->setValue(7, _cc->position);
+			_lightingBatch.pipeline->setValue(7, _cc->getTransformComponent()->position);
 			_lightingBatch.pipeline->setValue(8, enableSSAO);
 			auto& lights = Hydra::Component::PointLightComponent::componentHandler->getActiveComponents();
 
 			_lightingBatch.pipeline->setValue(9, (int)(lights.size()));
-			_lightingBatch.pipeline->setValue(10, _light->direction);
+			_lightingBatch.pipeline->setValue(10, _light->getDirVec());
 			_lightingBatch.pipeline->setValue(11, _light->color);
 
 			// good code lmao XD
 			int i = 12;
 			for (auto& p : lights) {
 				auto pc = static_cast<Hydra::Component::PointLightComponent*>(p.get());
-				_lightingBatch.pipeline->setValue(i++, pc->position);
+				_lightingBatch.pipeline->setValue(i++, pc->getTransformComponent()->position);
 				_lightingBatch.pipeline->setValue(i++, pc->color);
 				_lightingBatch.pipeline->setValue(i++, pc->constant);
 				_lightingBatch.pipeline->setValue(i++, pc->linear);
@@ -573,8 +573,6 @@ namespace Barcode {
 		{
 			auto lightEntity = world::newEntity("Light", world::root());
 			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
-			l->position = glm::vec3(-5, 0.75, 4.3);
-			l->direction = glm::vec3(-1, 0, 0);
 			auto t = lightEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(8.0, 0, 3.5);
 		}
