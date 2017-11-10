@@ -290,7 +290,6 @@ namespace Barcode {
 		_bulletSystem.tick(delta);
 		_playerSystem.tick(delta);
 		_abilitySystem.tick(delta);
-		_lightSystem.tick(delta);
 		_particleSystem.tick(delta);
 		_rendererSystem.tick(delta);
 		_spawnerSystem.tick(delta);
@@ -299,7 +298,7 @@ namespace Barcode {
 		_lifeSystem.tick(delta);
 
 		//TODO: These should go straight to the transform component, not via the camera component
-		const glm::vec3 cameraPos = _cc->getTransformComponent()->position;
+		const glm::vec3 cameraPos = _playerTransform->position;
 
 		{ // Render objects (Deferred rendering)
 		  //_world->tick(TickAction::render, delta);
@@ -308,10 +307,10 @@ namespace Barcode {
 
 		  // FIXME: Fix this shit code
 			for (auto& light : Hydra::Component::LightComponent::componentHandler->getActiveComponents())
-				_light = static_cast<Hydra::Component::LightComponent*>(light.get());
+				_dirLight = static_cast<Hydra::Component::LightComponent*>(light.get());
 
-			auto lightViewMX = _light->getViewMatrix();
-			auto lightPMX = _light->getProjectionMatrix();
+			auto lightViewMX = _dirLight->getViewMatrix();
+			auto lightPMX = _dirLight->getProjectionMatrix();
 			glm::mat4 biasMatrix(
 				0.5, 0.0, 0.0, 0.0,
 				0.0, 0.5, 0.0, 0.0,
@@ -367,7 +366,7 @@ namespace Barcode {
 				glm::vec3 upVector = { viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1] };
 				glm::vec3 dir = glm::cross(rightVector, upVector);
 				_cameraSystem.setCamInternals(*_cc);
-				_cameraSystem.setCamDef(_cc->getTransformComponent()->position, dir, upVector, rightVector, *_cc);
+				_cameraSystem.setCamDef(_playerTransform->position, dir, upVector, rightVector, *_cc);
 
 				for (auto e : entities) {
 					auto tc = e->getComponent<Hydra::Component::TransformComponent>();
@@ -447,11 +446,11 @@ namespace Barcode {
 		}
 
 		{
-			_shadowBatch.pipeline->setValue(0, _light->getViewMatrix());
-			_shadowBatch.pipeline->setValue(1, _light->getProjectionMatrix());
+			_shadowBatch.pipeline->setValue(0, _dirLight->getViewMatrix());
+			_shadowBatch.pipeline->setValue(1, _dirLight->getProjectionMatrix());
 
-			_shadowAnimationBatch.pipeline->setValue(0, _light->getViewMatrix());
-			_shadowAnimationBatch.pipeline->setValue(1, _light->getProjectionMatrix());
+			_shadowAnimationBatch.pipeline->setValue(0, _dirLight->getViewMatrix());
+			_shadowAnimationBatch.pipeline->setValue(1, _dirLight->getProjectionMatrix());
 
 			_engine->getRenderer()->renderShadows(_shadowBatch.batch);
 			_engine->getRenderer()->renderShadows(_shadowAnimationBatch.batch);
@@ -489,13 +488,13 @@ namespace Barcode {
 			_lightingBatch.pipeline->setValue(5, 5);
 			_lightingBatch.pipeline->setValue(6, 6);
 
-			_lightingBatch.pipeline->setValue(7, _cc->getTransformComponent()->position);
+			_lightingBatch.pipeline->setValue(7, _playerTransform->position);
 			_lightingBatch.pipeline->setValue(8, enableSSAO);
 			auto& lights = Hydra::Component::PointLightComponent::componentHandler->getActiveComponents();
 
 			_lightingBatch.pipeline->setValue(9, (int)(lights.size()));
-			_lightingBatch.pipeline->setValue(10, _light->getDirVec());
-			_lightingBatch.pipeline->setValue(11, _light->color);
+			_lightingBatch.pipeline->setValue(10, _dirLight->getDirVec());
+			_lightingBatch.pipeline->setValue(11, _dirLight->color);
 
 
 			// good code lmao XD
@@ -692,7 +691,7 @@ namespace Barcode {
 			for (auto& enemy : aiEntities) {
 				char buf[128];
 				snprintf(buf, sizeof(buf), "AI is a scrub here is it's scrubID: %d", i);
-				auto playerP = _cc->getTransformComponent()->position;
+				auto playerP = _playerTransform->position;
 				auto enemyP = enemy->getComponent<Hydra::Component::TransformComponent>()->position;
 				auto enemyDir = glm::normalize(enemyP - playerP);
 
@@ -853,7 +852,7 @@ namespace Barcode {
 	}
 
 	void GameState::_initSystem() {
-		const std::vector<Hydra::World::ISystem*> systems = { _engine->getDeadSystem(), &_cameraSystem, &_lightSystem, &_particleSystem, &_abilitySystem, &_aiSystem, &_physicsSystem, &_bulletSystem, &_playerSystem, &_rendererSystem, &_spawnerSystem };
+		const std::vector<Hydra::World::ISystem*> systems = { _engine->getDeadSystem(), &_cameraSystem, &_particleSystem, &_abilitySystem, &_aiSystem, &_physicsSystem, &_bulletSystem, &_playerSystem, &_rendererSystem, &_spawnerSystem };
 		_engine->getUIRenderer()->registerSystems(systems);
 	}
 
@@ -892,6 +891,7 @@ namespace Barcode {
 			m->movementSpeed = 20.0f;
 			//c->position = glm::vec3{ 5, 0, -3 };
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
+			_playerTransform = t.get();
 			auto rgbc = playerEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createBox(0.5f * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
 				0, 0, 0.5f, 0);
