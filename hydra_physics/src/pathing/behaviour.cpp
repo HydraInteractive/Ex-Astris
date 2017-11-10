@@ -48,7 +48,7 @@ bool Behaviour::refreshRequiredComponents()
 	hasRequiredComponents = (
 		(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>()) &&
 		(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>()) &&
-		(thisEnemy.drawObject = thisEnemy.entity->getComponent<Hydra::Component::DrawObjectComponent>()) &&
+		(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()) &&
 		(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>()) &&
 		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>()) && 
 		(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>()) &&
@@ -90,7 +90,7 @@ bool Behaviour::checkLOS(int levelmap[MAP_SIZE][MAP_SIZE], glm::vec3 enemyPos, g
 
 unsigned int Behaviour::idleState(float dt)
 {
-	thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->animationIndex = 0;
+	thisEnemy.meshComp->animationIndex = 0;
 	//Play the idle animation
 	//if (targetPlayer.transform->position.x > mapOffset.x && targetPlayer.transform->position.x < MAP_SIZE && targetPlayer.transform->position.z > mapOffset.z && targetPlayer.transform->position.z < MAP_SIZE)
 	//{
@@ -107,7 +107,7 @@ unsigned int Behaviour::idleState(float dt)
 unsigned int Behaviour::searchingState(float dt)
 {
 	//While the enemy is searching, play the walking animation
-	thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->animationIndex = 1;
+	thisEnemy.meshComp->animationIndex = 1;
 	if (idleTimer >= 5)
 	{
 		return IDLE;
@@ -190,7 +190,7 @@ unsigned int Behaviour::foundState(float dt)
 unsigned int Behaviour::attackingState(float dt)
 {
 	//When the enemy attack, start the attack animation
-	thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->animationIndex = 2;
+	thisEnemy.meshComp->animationIndex = 2;
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) >= range)
 	{
 		idleTimer = 0.0f;
@@ -281,7 +281,7 @@ void AlienBehaviour::run(float dt)
 unsigned int AlienBehaviour::attackingState(float dt)
 {
 	//When the enemy attack, start the attack animation
-	thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->animationIndex = 2;
+	thisEnemy.meshComp->animationIndex = 2;
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) >= range)
 	{
 		idleTimer = 0;
@@ -366,7 +366,7 @@ bool RobotBehaviour::refreshRequiredComponents()
 	hasRequiredComponents = (
 		(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>()) &&
 		(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>()) &&
-		(thisEnemy.drawObject = thisEnemy.entity->getComponent<Hydra::Component::DrawObjectComponent>()) &&
+		(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()) &&
 		(thisEnemy.weapon = thisEnemy.entity->getComponent<Hydra::Component::WeaponComponent>()) &&
 		(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>()) &&
 		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>()) &&
