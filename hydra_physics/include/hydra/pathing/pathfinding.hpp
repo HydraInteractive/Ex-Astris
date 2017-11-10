@@ -12,10 +12,9 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <memory>
-#define MAP_SIZE 128 //The size in both X and Z of the map(/room?)
-#define MAP_SCALE 0.5f //How many world coordinates the map coordinates represent
 #include <math.h>
 #include <algorithm>
+#include <hydra/component/roomcomponent.hpp>
 
 class HYDRA_PHYSICS_API PathFinding
 {
@@ -92,7 +91,7 @@ public:
 	PathFinding();
 	virtual ~PathFinding();
 
-	void findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, int(&map)[MAP_SIZE][MAP_SIZE]);
+	void findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, int(&map)[ROOM_MAP_SIZE][ROOM_MAP_SIZE]);
 	glm::vec3 nextPathPos(const glm::vec3& pos, const float& radius);
 	MapVec worldToMapCoords(const glm::vec3& worldPos) const;
 	glm::vec3 mapToWorldCoords(const MapVec& mapPos) const;
@@ -121,5 +120,5 @@ private:
 	std::shared_ptr<Node> _endNode;
 
 	bool isOutOfBounds(const glm::vec2& vec)const;
-	void _discoverNode(int x, int z, std::shared_ptr<Node> lastNode, int(&map)[MAP_SIZE][MAP_SIZE]);
+	void _discoverNode(int x, int z, std::shared_ptr<Node> lastNode, int(&map)[ROOM_MAP_SIZE][ROOM_MAP_SIZE]);
 };

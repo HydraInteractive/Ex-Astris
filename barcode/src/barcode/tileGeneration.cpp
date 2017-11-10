@@ -6,9 +6,20 @@ TileGeneration::TileGeneration(std::string middleRoomPath) {
 	_setupGrid();
 	_setUpMiddleRoom(middleRoomPath);
 	_createMapRecursivly(glm::ivec2(GRID_SIZE / 2, GRID_SIZE / 2));
+	pathfindingMap = new bool*[FULL_MAP_SIZE];
+	for (int i = 0; i < FULL_MAP_SIZE; i++)
+	{
+		pathfindingMap[i] = new bool[FULL_MAP_SIZE];
+	}
 }
 
-TileGeneration::~TileGeneration() {}
+TileGeneration::~TileGeneration() {
+	for (int i = 0; i < FULL_MAP_SIZE; i++)
+	{
+		delete[] pathfindingMap[i];
+	}
+	delete[] pathfindingMap;
+}
 
 void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 

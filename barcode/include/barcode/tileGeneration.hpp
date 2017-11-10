@@ -34,14 +34,12 @@
 
 #include <fstream>
 #include <json.hpp>
-#define GRID_SIZE 7
-#define ROOM_SIZE 34
 
 class TileGeneration
 {
 public:
 	std::shared_ptr<Hydra::Component::RoomComponent> grid[GRID_SIZE][GRID_SIZE];
-
+	bool** pathfindingMap;
 	TileGeneration(std::string middleRoomPath);
 	~TileGeneration();
 

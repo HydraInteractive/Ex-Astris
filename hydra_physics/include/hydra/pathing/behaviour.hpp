@@ -32,7 +32,6 @@ public:
 	float phaseTimer = 0;
 
 	std::random_device rd;
-	int map[MAP_SIZE][MAP_SIZE];
 	bool playerSeen = false;
 	bool isAtGoal = false;
 	int oldMapPosX = 0;
@@ -50,7 +49,7 @@ public:
 	void setEnemyEntity(std::shared_ptr<Hydra::World::Entity> enemy);
 	void setTargetPlayer(std::shared_ptr<Hydra::World::Entity> player);
 
-	bool checkLOS(int levelmap[MAP_SIZE][MAP_SIZE], glm::vec3 A, glm::vec3 B);
+	bool checkLOS(int levelmap[ROOM_MAP_SIZE][ROOM_MAP_SIZE], glm::vec3 A, glm::vec3 B);
 protected:
 	struct ComponentSet
 	{

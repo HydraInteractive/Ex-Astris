@@ -60,7 +60,7 @@ bool Behaviour::refreshRequiredComponents()
 	return hasRequiredComponents;
 }
 
-bool Behaviour::checkLOS(int levelmap[MAP_SIZE][MAP_SIZE], glm::vec3 enemyPos, glm::vec3 playerPos)
+bool Behaviour::checkLOS(int levelmap[ROOM_MAP_SIZE][ROOM_MAP_SIZE], glm::vec3 enemyPos, glm::vec3 playerPos)
 {
 	//TODO: ADD COORDINATE VERIFICATION, MAYBE MOVE TO PATHFINDING
 	//New code, not optimal
@@ -124,6 +124,7 @@ unsigned int Behaviour::searchingState(float dt)
 	//	return IDLE;
 	//}
 	pathFinding->intializedStartGoal = false;
+	int map[ROOM_MAP_SIZE][ROOM_MAP_SIZE];
 	pathFinding->findPath(thisEnemy.transform->position, targetPlayer.transform->position, map);
 	isAtGoal = false;
 

@@ -21,7 +21,7 @@ PathFinding::~PathFinding() {
 
 }
 
-void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, int(&map)[MAP_SIZE][MAP_SIZE])
+void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, int(&map)[ROOM_MAP_SIZE][ROOM_MAP_SIZE])
 {
 	if (!intializedStartGoal) 
 	{
@@ -89,20 +89,20 @@ void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 }
 PathFinding::MapVec PathFinding::worldToMapCoords(const glm::vec3& worldPos) const
 {
-	return MapVec((worldPos.x / MAP_SCALE) + (MAP_SIZE / 2), (worldPos.z / MAP_SCALE) + (MAP_SIZE / 2));
+	return MapVec((worldPos.x / ROOM_SCALE) + (ROOM_MAP_SIZE / 2), (worldPos.z / ROOM_SCALE) + (ROOM_MAP_SIZE / 2));
 }
 
 glm::vec3 PathFinding::mapToWorldCoords(const MapVec& mapPos) const
 {
-	return glm::vec3((mapPos.baseVec.x - (MAP_SIZE / 2)) * MAP_SCALE, 0.0f, (mapPos.baseVec.y - (MAP_SIZE / 2)) * MAP_SCALE);
+	return glm::vec3((mapPos.baseVec.x - (ROOM_MAP_SIZE / 2)) * ROOM_SCALE, 0.0f, (mapPos.baseVec.y - (ROOM_MAP_SIZE / 2)) * ROOM_SCALE);
 }
 glm::vec3 PathFinding::nextPathPos(const glm::vec3& pos, const float& radius)
 {
 	glm::vec3 nextPos = _pathToEnd.back();
 
 	//Centers the position in a node
-	nextPos.x += (MAP_SCALE / 2);
-	nextPos.z += (MAP_SCALE / 2);
+	nextPos.x += (ROOM_SCALE / 2);
+	nextPos.z += (ROOM_SCALE / 2);
 
 	float distance = glm::distance(pos, nextPos);
 	if (!_pathToEnd.empty())
@@ -117,14 +117,14 @@ glm::vec3 PathFinding::nextPathPos(const glm::vec3& pos, const float& radius)
 
 bool PathFinding::isOutOfBounds(const glm::vec2& vec) const
 {
-	if (vec.x > MAP_SIZE || vec.y > MAP_SIZE || vec.x < 0 || vec.y < 0)
+	if (vec.x > ROOM_MAP_SIZE || vec.y > ROOM_MAP_SIZE || vec.x < 0 || vec.y < 0)
 	{
 		return true;
 	}
 	return false;
 }
 
-void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode, int(&map)[MAP_SIZE][MAP_SIZE])
+void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode, int(&map)[ROOM_MAP_SIZE][ROOM_MAP_SIZE])
 {
 	MapVec currentPos = MapVec(x, z);
 	if (isOutOfBounds(currentPos.baseVec))
