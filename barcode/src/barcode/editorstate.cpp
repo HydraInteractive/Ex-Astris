@@ -458,7 +458,7 @@ namespace Barcode {
 			int i = 12;
 			for (auto& p : lights) {
 				auto pc = static_cast<Hydra::Component::PointLightComponent*>(p.get());
-				_lightingBatch.pipeline->setValue(i++, pc->position);
+				_lightingBatch.pipeline->setValue(i++, pc->getTransformComponent()->position);
 				_lightingBatch.pipeline->setValue(i++, pc->color);
 				_lightingBatch.pipeline->setValue(i++, pc->constant);
 				_lightingBatch.pipeline->setValue(i++, pc->linear);

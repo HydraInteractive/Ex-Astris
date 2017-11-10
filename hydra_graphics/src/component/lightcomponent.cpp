@@ -36,5 +36,4 @@ void LightComponent::registerUI() {
 	ImGui::DragFloat("FOV", &fov);
 	ImGui::DragFloat("Z Near", &zNear, 0.001f);
 	ImGui::DragFloat("Z Far", &zFar);
-	
 }

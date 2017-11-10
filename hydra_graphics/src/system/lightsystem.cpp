@@ -21,14 +21,13 @@ void LightSystem::tick(float delta) {
 	//	auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 	//}
 
-	//Process PointLightComponent
-	world::getEntitiesWithComponents<Hydra::Component::PointLightComponent, Hydra::Component::TransformComponent>(entities);
-	#pragma omp parallel for
-	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
-		auto l = entities[i]->getComponent<Hydra::Component::PointLightComponent>();
-		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
-		l->position = t->position;
-	}
+	//Process PointLightComponent - Updates that used to be done here are now in the transform component exclusively
+	//world::getEntitiesWithComponents<Hydra::Component::PointLightComponent, Hydra::Component::TransformComponent>(entities);
+	//#pragma omp parallel for
+	//for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
+	//	auto l = entities[i]->getComponent<Hydra::Component::PointLightComponent>();
+	//	auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
+	//}
 }
 
 void LightSystem::registerUI() {}
