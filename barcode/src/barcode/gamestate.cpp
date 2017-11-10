@@ -493,8 +493,8 @@ namespace Barcode {
 			auto& lights = Hydra::Component::PointLightComponent::componentHandler->getActiveComponents();
 
 			_lightingBatch.pipeline->setValue(9, (int)(lights.size()));
-			_lightingBatch.pipeline->setValue(10, _light->getDirVec());
-			_lightingBatch.pipeline->setValue(11, _light->color);
+			_lightingBatch.pipeline->setValue(10, _dirLight->getDirVec());
+			_lightingBatch.pipeline->setValue(11, _dirLight->color);
 
 
 			// good code lmao XD
