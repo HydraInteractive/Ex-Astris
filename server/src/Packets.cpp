@@ -1,6 +1,7 @@
 #include "Packets.h"
 #include <hydra/component/transformcomponent.hpp>
 #include <Server.h>
+#include <GameServer.h>
 
 ServerDeletePacket * createServerDeletePacket(EntityID entID) {
 	ServerDeletePacket* sdp = new ServerDeletePacket();
@@ -117,4 +118,31 @@ Entity* resolveClientSpawnEntityPacket(ClientSpawnEntityPacket* csep, EntityID i
 	
 	delete ssep;
 	return ent;
+}
+
+void resolveClientUpdateBulletPacket(ClientUpdateBulletPacket * cubp, nlohmann::json & dest) {
+	Entity* ent = World::newEntity("CLIENT CREATED (ERROR)", World::root()).get();
+	std::vector<uint8_t> data;
+
+	//Inefficient
+	for (size_t i = 0; i < cubp->size; i++) {
+		data.push_back(((uint8_t*)cubp->data)[i]);
+	}
+
+	dest = dest.from_msgpack(data);
+	ent->deserialize(dest);
+	printf("Successfully updated bullet.");
+}
+
+void resolveClientShootPacket(ClientShootPacket * csp, Player * p) {
+	std::shared_ptr<Entity> ptr = World::newEntity("BULLET", World::root());
+	ptr->deserialize(p->bullet);
+	auto otherptr = ptr->getComponent<Hydra::Component::BulletComponent>();
+	otherptr->direction = csp->direction;
+	auto transform = ptr->getComponent<Hydra::Component::TransformComponent>();
+	transform->setPosition(csp->ti.pos);
+	transform->setScale(csp->ti.scale);
+	transform->setRotation(csp->ti.rot);
+
+	printf("RÖRAN, RÖRAN OCH BARNEN. Bbbbligiot\n");
 }

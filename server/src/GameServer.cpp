@@ -45,9 +45,9 @@ void GameServer::_sendNewEntity(EntityID ent) {
 }
 
 void GameServer::_deleteEntity(EntityID ent) {
-	
+
 	ServerDeletePacket* sdp = createServerDeletePacket(ent);
-	
+
 	this->_server->sendDataToAll((char*)sdp, sdp->h.len);
 
 	delete sdp;
@@ -84,11 +84,11 @@ void GameServer::_handleDisconnects() {
 }
 
 //NO PARENT IMPLEMENTATION YET (ALWAYS CREATES IN ROOT)
-Entity* GameServer::_createEntity(std::string name, int parentID, bool serverSynced) {
+Entity* GameServer::_createEntity(std::string name, EntityID parentID, bool serverSynced) {
 	Entity* ent = World::newEntity(name, parentID).get();
 
 	printf("Created entity \"%s\" with entity id : %d\n", ent->name.c_str(), ent->id);
-	if(serverSynced) {
+	if (serverSynced) {
 		ent->addComponent<Hydra::Component::TransformComponent>();
 		this->_networkEntities.push_back(ent->id);
 
@@ -97,6 +97,15 @@ Entity* GameServer::_createEntity(std::string name, int parentID, bool serverSyn
 	}
 	else
 		return ent;
+}
+
+Player * GameServer::getPlayer(EntityID id) {
+	for (size_t i = 0; i < this->_players.size(); i++) {
+		if (this->_players[i]->entityid = id) {
+			return this->_players[i];
+		}
+	}
+	return nullptr;
 }
 
 
@@ -146,13 +155,14 @@ bool GameServer::_addPlayer(int id) {
 		int tmp = this->_server->sendDataToClient((char*)&pi, pi.h.len, id);
 		
 		Hydra::Component::TransformComponent* tc = enttmp->addComponent<Hydra::Component::TransformComponent>(/*pi.ti.pos, pi.ti.scale, pi.ti.rot*/).get();
-		
 		tc->setPosition(pi.ti.pos);
 		tc->setScale(pi.ti.scale);
 		tc->setRotation(pi.ti.rot);
-
 		this->_networkEntities.push_back(p->entityid);
 		printf("Player connected with entity id: %d\n", pi.entityid);
+
+
+		//SEND A PACKET TO ALL OTHER CLIENTS
 		ServerPlayerPacket* sppacket;
 		for (size_t i = 0; i < this->_players.size(); i++) {
 			if (this->_players[i]->entityid != p->entityid) {
@@ -183,6 +193,13 @@ void GameServer::_resolvePackets(std::vector<Packet*> packets) {
 		case PacketType::ClientSpawnEntity:
 			resolveClientSpawnEntityPacket((ClientSpawnEntityPacket*)packets[i], this->_getEntityID(packets[i]->h.client), this->_server);
 			break;
+		case PacketType::ClientUpdateBullet:
+			resolveClientUpdateBulletPacket((ClientUpdateBulletPacket*)packets[i], this->getPlayer(this->_getEntityID(packets[i]->h.client))->bullet); // SUPER INEFFICIENT
+			break;
+
+		case PacketType::ClientShoot:
+			resolveClientShootPacket((ClientShootPacket*)packets[i], this->getPlayer(this->_getEntityID(packets[i]->h.client))); //SUPER INEFFICIENT
+			break;
 		}
 	}
 
@@ -194,9 +211,29 @@ void GameServer::_resolvePackets(std::vector<Packet*> packets) {
 
 GameServer::GameServer() {
 	this->_server = nullptr;
+	this->_physicsSystem = nullptr;
+	this->_aiSystem = nullptr;
+	this->_bulletSystem = nullptr;
+	this->_spawnerSystem = nullptr;
+	this->_perkSystem = nullptr;
+	this->_lifeSystem = nullptr;
 }
 
 GameServer::~GameServer() {
+	if (this->_physicsSystem)
+		delete this->_physicsSystem;
+
+	if (this->_aiSystem)
+		delete this->_aiSystem;
+	if (this->_bulletSystem)
+		delete this->_bulletSystem;
+
+	if (this->_spawnerSystem)
+		delete this->_spawnerSystem;
+	if (this->_perkSystem)
+		delete this->_perkSystem;
+	if (this->_lifeSystem)
+		delete this->_lifeSystem;
 }
 
 void GameServer::quit() {
@@ -218,8 +255,18 @@ bool GameServer::initialize(int port) {
 			return true;
 		}
 		delete this->_server;
+		return false;
 	}
-	return false;
+	return true;
+}
+
+void GameServer::start() {
+	this->_physicsSystem = new Hydra::System::BulletPhysicsSystem;
+	this->_aiSystem = new Hydra::System::AISystem;
+	this->_bulletSystem = new Hydra::System::BulletSystem;
+	this->_spawnerSystem = new Hydra::System::SpawnerSystem;
+	this->_perkSystem = new Hydra::System::PerkSystem;
+	this->_lifeSystem = new Hydra::System::LifeSystem;
 }
 
 void GameServer::run() {
@@ -239,8 +286,14 @@ void GameServer::run() {
 
 	//Update World
 	{
-		//for (size_t k = 0; k < 10000000; k++); //WORKING KAPPA
-		//this->_world->tick(TickAction::physics, delta);
+		this->_physicsSystem->tick(delta);
+		_aiSystem->tick(delta);
+		_bulletSystem->tick(delta);
+		//_abilitySystem.tick(delta);
+		_spawnerSystem->tick(delta);
+		_perkSystem->tick(delta);
+		_lifeSystem->tick(delta);
+		this->_updateWorld();
 	}
 
 	//Send updated world to clients
@@ -250,12 +303,6 @@ void GameServer::run() {
 			this->_sendWorld();
 			this->packetDelay = 0;
 		}
-
-		//if (packetDelay >= 0.01) {
-		//	this->_sendWorld();
-		//	this->_createEntity("DinMamma", 0, true);
-		//	packetDelay -= 0.01;
-		//}
 	}
 }
 

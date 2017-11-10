@@ -25,6 +25,8 @@ static inline void reportMemoryLeaks() {
 static inline void reportMemoryLeaks() {}
 #endif
 
+#define Jordgubbe Hydra::Physics
+
 #undef main
 int main(int argc, char** argv) {
 	(void)argc;
@@ -37,9 +39,9 @@ int main(int argc, char** argv) {
 	registerComponents_physics(map);
 	//registerComponents_sound(map);
 	GameServer server;
-
 	if (server.initialize(4545)) {
 		World::reset();
+		server.start();
 		while (true) {
 			server.run();
 		}

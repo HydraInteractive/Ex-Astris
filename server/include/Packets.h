@@ -5,6 +5,7 @@
 #include <hydra/component/transformcomponent.hpp>
 
 class Server;
+struct Player;
 
 enum PacketType {
 	ServerInitialize,
@@ -14,6 +15,8 @@ enum PacketType {
 	ClientSpawnEntity,
 	ServerSpawnEntity,
 	ServerDeleteEntity,
+	ClientUpdateBullet,
+	ClientShoot
 	//..
 };
 
@@ -45,9 +48,20 @@ struct ServerDeletePacket : Packet {
 	EntityID id;
 };
 
+struct 	ClientUpdateBulletPacket : Packet {
+	size_t size;
+	char* data[0];
+	inline size_t getSize() { return sizeof(ClientUpdateBulletPacket) + sizeof(char) * size; }
+};
+
+struct ClientShootPacket : Packet {
+	TransformInfo ti;
+	glm::vec3 direction;
+};
+
 
 struct ClientSpawnEntityPacket : Packet {
-	EntityID size;
+	size_t size;
 	char* data[0];
 	inline size_t getSize() { return sizeof(ClientSpawnEntityPacket) + sizeof(char) * size; }
 };
@@ -98,5 +112,6 @@ ClientUpdatePacket* createClientUpdatePacket(Entity* player);
 void createAndSendServerEntityPacket(Entity* ent, Server* s);
 
 void resolveClientUpdatePacket(ClientUpdatePacket* cup, EntityID entityID);
-
 Entity* resolveClientSpawnEntityPacket(ClientSpawnEntityPacket* csep, EntityID entityID, Server* s);
+void resolveClientUpdateBulletPacket(ClientUpdateBulletPacket* cubp, nlohmann::json &dest);
+void resolveClientShootPacket(ClientShootPacket* csp, Player* p);
