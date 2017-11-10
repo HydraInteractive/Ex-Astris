@@ -332,6 +332,9 @@ namespace Barcode {
 			for (auto& kv : _geometryBatch.batch.objects)
 				kv.second.clear();
 
+			for (auto& kv : _shadowBatch.batch.objects)
+				kv.second.clear();
+
 			for (auto& kv : _animationBatch.batch.objects)
 				kv.second.clear();
 
@@ -341,14 +344,12 @@ namespace Barcode {
 			for (auto& kv : _animationBatch.batch.currAnimIndices)
 				kv.second.clear();
 
-			for (auto& kv : _shadowBatch.batch.objects)
-				kv.second.clear();
-
 			for (auto& kv : _shadowAnimationBatch.batch.objects)
 				kv.second.clear();
 
 			for (auto& kv : _shadowAnimationBatch.batch.currAnimIndices)
 				kv.second.clear();
+
 			for (auto& kv : _shadowAnimationBatch.batch.currentFrames)
 				kv.second.clear();
 
@@ -378,19 +379,18 @@ namespace Barcode {
 						}
 
 						else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
-							_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-
-							auto mc = e->getComponent < Hydra::Component::MeshComponent>();
+							auto mc = e->getComponent<Hydra::Component::MeshComponent>();
 							int currentFrame = mc->currentFrame;
 							float animationCounter = mc->animationCounter;
 
-							if (animationCounter > 1 / 24.0f && currentFrame < drawObj->mesh->getMaxFramesForAnimation(mc->animationIndex)) {
+							if (animationCounter > 1 / 24.0f && currentFrame < mc->mesh->getMaxFramesForAnimation(mc->animationIndex)) {
 								mc->animationCounter -= 1 / 24.0f;
 								mc->currentFrame += 1;
 							}
-							else if (currentFrame >= drawObj->mesh->getMaxFramesForAnimation(mc->animationIndex))
+							else if (currentFrame >= mc->mesh->getMaxFramesForAnimation(mc->animationIndex))
 								mc->currentFrame = 1;
 
+							_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 							_animationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
 							_animationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
 							_shadowAnimationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
@@ -424,11 +424,11 @@ namespace Barcode {
 					int currentFrame = mc->currentFrame;
 					float animationCounter = mc->animationCounter;
 
-					if (animationCounter > 1 / 24.0f && currentFrame < mesh->getMaxFramesForAnimation(mc->animationIndex)) {
+					if (animationCounter > 1 / 24.0f && currentFrame < mc->mesh->getMaxFramesForAnimation(mc->animationIndex)) {
 						mc->animationCounter -= 1 / 24.0f;
 						mc->currentFrame += 1;
 					}
-					else if (currentFrame >= mesh->getMaxFramesForAnimation(mc->animationIndex))
+					else if (currentFrame >= mc->mesh->getMaxFramesForAnimation(mc->animationIndex))
 						mc->currentFrame = 1;
 
 					_animationBatch.batch.objects[mesh].push_back(drawObj->modelMatrix);
@@ -437,26 +437,8 @@ namespace Barcode {
 					_shadowAnimationBatch.batch.objects[mesh].push_back(drawObj->modelMatrix);
 					_shadowAnimationBatch.batch.currentFrames[mesh].push_back(mc->currentFrame);
 					_shadowAnimationBatch.batch.currAnimIndices[mesh].push_back(mc->animationIndex);
-
 					mc->animationCounter += 1 * delta;
 				}
-			}
-
-			// Sort Front to back
-			for (auto& kv : _geometryBatch.batch.objects) {
-				std::vector<glm::mat4>& list = kv.second;
-
-				std::sort(list.begin(), list.end(), [cameraPos](const glm::mat4& a, const glm::mat4& b) {
-					return glm::distance(glm::vec3(a[3]), cameraPos) < glm::distance(glm::vec3(b[3]), cameraPos);
-				});
-			}
-			// Sort Front to back for animation
-			for (auto& kv : _animationBatch.batch.objects) {
-				std::vector<glm::mat4>& list = kv.second;
-
-				std::sort(list.begin(), list.end(), [cameraPos](const glm::mat4& a, const glm::mat4& b) {
-					return glm::distance(glm::vec3(a[3]), cameraPos) < glm::distance(glm::vec3(b[3]), cameraPos);
-				});
 			}
 
 			_engine->getRenderer()->render(_geometryBatch.batch);
@@ -511,9 +493,9 @@ namespace Barcode {
 			auto& lights = Hydra::Component::PointLightComponent::componentHandler->getActiveComponents();
 
 			_lightingBatch.pipeline->setValue(9, (int)(lights.size()));
-			_lightingBatch.pipeline->setValue(10, _dirLight->getDirVec());
-			_lightingBatch.pipeline->setValue(11, _dirLight->color);
-			
+			_lightingBatch.pipeline->setValue(10, _light->getDirVec());
+			_lightingBatch.pipeline->setValue(11, _light->color);
+
 
 			// good code lmao XD
 			int i = 12;
@@ -583,7 +565,8 @@ namespace Barcode {
 				_engine->getRenderer()->postProcessing(_glowBatch.batch);
 				_glowBatch.batch.renderTarget = _glowBatch.output.get();
 				_glowBatch.batch.pipeline = _glowBatch.pipeline.get();
-			} else
+			}
+			else
 				_engine->getView()->blit(_lightingBatch.output.get());
 		}
 
@@ -710,7 +693,7 @@ namespace Barcode {
 				snprintf(buf, sizeof(buf), "AI is a scrub here is it's scrubID: %d", i);
 				auto playerP = _playerTransform->position;
 				auto enemyP = enemy->getComponent<Hydra::Component::TransformComponent>()->position;
-				auto enemyDir =glm:: normalize(enemyP - playerP);
+				auto enemyDir = glm::normalize(enemyP - playerP);
 
 				glm::vec3 forward(-viewMat[0][2], -viewMat[1][2], -viewMat[2][2]);
 				glm::vec3 right = glm::normalize(glm::cross(glm::vec3(0, 1, 0), forward));
@@ -881,7 +864,7 @@ namespace Barcode {
 			t->position = glm::vec3(0, -7, 0);
 			auto rgbc = floor->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL
-			, 0, 0, 0, 0.6f, 0);
+				, 0, 0, 0, 0.6f, 0);
 			floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 		}
 		{
@@ -892,7 +875,7 @@ namespace Barcode {
 			auto t = physicsBox->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(2, 25, 2);
 			physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(t->scale * 10.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_MISC_OBJECT, 10
-			,0,0,1.0f,1.0f);
+				, 0, 0, 1.0f, 1.0f);
 			physicsBox->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BigMonitor.mATTIC");
 		}
 
@@ -924,12 +907,14 @@ namespace Barcode {
 				t2->ignoreParent = true;
 			}
 		}
+
 		{
 			auto alienEntity = world::newEntity("Alien1", world::root());
+			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
 			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 			a->damage = 4;
-			a->behaviour->originalRange = 1;
+			a->behaviour->originalRange = 4;
 			a->radius = 1;
 
 			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
@@ -941,7 +926,36 @@ namespace Barcode {
 			t->position = glm::vec3{ 10, 0, 20 };
 			t->scale = glm::vec3{ 2,2,2 };
 			t->rotation = glm::vec3{ 0, 90, 0 };
-			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
+			auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+			rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+				0, 0, 0.6f, 1.0f);
+			rgbc->setActivationState(DISABLE_DEACTIVATION);
+		}
+
+		{
+			auto alienEntity = world::newEntity("Alien2", world::root());
+			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+			a->damage = 4;
+			a->behaviour->originalRange = 4;
+			a->radius = 2;
+
+			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+			h->maxHP = 80;
+			h->health = 80;
+
+			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+			m->movementSpeed = 4.0f;
+
+			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+			t->position = glm::vec3{ 30, 0, 20 };
+			t->scale = glm::vec3{ 2,2,2 };
+
+			auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+			rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+				0, 0, 0.6f, 1.0f);
+			rgbc->setActivationState(DISABLE_DEACTIVATION);
 		}
 
 		{
@@ -976,81 +990,58 @@ namespace Barcode {
 		}
 
 		{
-			auto alienEntity = world::newEntity("Alien1", world::root());
-			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
-			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
-			a->damage = 4;
-			a->behaviour->originalRange = 4;
-			a->radius = 2;
-
-			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
-			h->maxHP = 80;
-			h->health = 80;
-
-			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
-			m->movementSpeed = 8.0f;
-
-			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ 10, 0, 20 };
-			t->scale = glm::vec3{ 2,2,2 };
-
-			auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
-				0, 0, 0.6f, 1.0f);
-			rgbc->setActivationState(DISABLE_DEACTIVATION);
-			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
-		}
-
-		{
-			auto parent = world::newEntity("Parent", world::root());
-			auto tp = parent->addComponent<Hydra::Component::TransformComponent>();
-			tp->position = glm::vec3{ 0, 0, 10 };
-			parent->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BigMonitor.mATTIC");
 
 			{
-				auto child = world::newEntity("child", parent);
-				auto t = child->addComponent<Hydra::Component::TransformComponent>();
-				t->position = glm::vec3{ 1, 0, 0 };
-				child->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SourceCode_Monitor.mATTIC");
+				auto parent = world::newEntity("Parent", world::root());
+				auto tp = parent->addComponent<Hydra::Component::TransformComponent>();
+				tp->position = glm::vec3{ 0, 0, 10 };
+				parent->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BigMonitor.mATTIC");
+
+				{
+					auto child = world::newEntity("child", parent);
+					auto t = child->addComponent<Hydra::Component::TransformComponent>();
+					t->position = glm::vec3{ 1, 0, 0 };
+					child->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SourceCode_Monitor.mATTIC");
+				}
+				{
+					auto child = world::newEntity("child", parent);
+					auto t = child->addComponent<Hydra::Component::TransformComponent>();
+					t->position = glm::vec3{ -1, 0, 0 };
+					child->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SourceCode_Monitor.mATTIC");
+				}
 			}
+
 			{
-				auto child = world::newEntity("child", parent);
-				auto t = child->addComponent<Hydra::Component::TransformComponent>();
-				t->position = glm::vec3{ -1, 0, 0 };
-				child->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SourceCode_Monitor.mATTIC");
+				auto particleEmitter = world::newEntity("ParticleEmitter", world::root());
+				particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("QUAD");
+				auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
+				p->delay = 1.0f / 1.0f;
+				auto t = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
+				t->position = glm::vec3{ 4, 0, 4 };
 			}
-		}
 
-		{
-			auto particleEmitter = world::newEntity("ParticleEmitter", world::root());
-			particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("QUAD");
-			auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
-			p->delay = 1.0f / 100.0f;
-			auto t = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ 4, 0, 4 };
-		}
+			{
+				auto lightEntity = world::newEntity("Light", world::root());
+				auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
+				auto t = lightEntity->addComponent<Hydra::Component::TransformComponent>();
+				t->position = glm::vec3(8.0, 0, 3.5);
+			}
 
-		{
-			auto lightEntity = world::newEntity("Light", world::root());
-			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
-			auto t = lightEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3(8.0, 0, 3.5);
-		}
+			//TODO: Fix AI Serialization
+			//{
+			//	BlueprintLoader::save("world.blueprint", "World Blueprint", world::root());
+			//	Hydra::World::World::reset();
+			//	auto bp = BlueprintLoader::load("world.blueprint");
+			//	bp->spawn(world::root());
+			//}
 
-		//TODO: Fix AI Serialization
-		//{
-		//	BlueprintLoader::save("world.blueprint", "World Blueprint", world::root());
-		//	Hydra::World::World::reset();
-		//	auto bp = BlueprintLoader::load("world.blueprint");
-		//	bp->spawn(world::root());
-		//}
+			{
+				_cc = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get());
 
-		{
-			_cc = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get());
-
-			for (auto& rb : Hydra::Component::RigidBodyComponent::componentHandler->getActiveComponents()) {
-				_engine->log(Hydra::LogLevel::normal, "Enabling bullet for %s", world::getEntity(rb->entityID)->name.c_str());
-				_physicsSystem.enable(static_cast<Hydra::Component::RigidBodyComponent*>(rb.get()));
+				for (auto& rb : Hydra::Component::RigidBodyComponent::componentHandler->getActiveComponents()) {
+					_engine->log(Hydra::LogLevel::normal, "Enabling bullet for %s", world::getEntity(rb->entityID)->name.c_str());
+					_physicsSystem.enable(static_cast<Hydra::Component::RigidBodyComponent*>(rb.get()));
+				}
 			}
 		}
 	}
