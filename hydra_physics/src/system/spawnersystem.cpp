@@ -11,6 +11,8 @@
 #include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/engine.hpp>
 
+#include <btBulletDynamicsCommon.h>
+
 using namespace Hydra::System;
 
 SpawnerSystem::SpawnerSystem() {}

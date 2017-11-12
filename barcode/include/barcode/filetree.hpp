@@ -38,7 +38,7 @@ public:
 		bool openInFileExplorer = false;
 		Node();
 		Node(std::string path, const std::vector<std::string>& extWhitelist, Node* parent = nullptr, bool isFile = false);
-		~Node();
+		virtual ~Node();
 
 		std::string name();
 		std::string getExt();
