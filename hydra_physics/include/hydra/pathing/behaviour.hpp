@@ -56,7 +56,7 @@ protected:
 	{
 		std::shared_ptr<Hydra::World::Entity> entity;
 		std::shared_ptr<Hydra::Component::TransformComponent> transform;
-		std::shared_ptr<Hydra::Component::DrawObjectComponent> drawObject;
+		std::shared_ptr<Hydra::Component::MeshComponent> meshComp;
 		std::shared_ptr<Hydra::Component::WeaponComponent> weapon;
 		std::shared_ptr<Hydra::Component::LifeComponent> life;
 		std::shared_ptr<Hydra::Component::MovementComponent> movement;

@@ -25,7 +25,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
-		for (int i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
+		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
 
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
@@ -57,7 +57,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
-		for (int i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
+		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
 
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
@@ -88,7 +88,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
-		for (int i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
+		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
 
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
@@ -119,7 +119,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
-		for (int i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
+		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
 
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
@@ -174,13 +174,15 @@ void TileGeneration::_obtainRoomFiles() {
 
 	//Get the files in order
 	std::string path = "assets/room/";
-	for (auto & p : std::experimental::filesystem::directory_iterator(path)) {
-		_roomFileNames.push_back(p.path().string());
-	}
+	//for (auto & p : std::experimental::filesystem::directory_iterator(path)) {
+	//_roomFileNames.push_back(p.path().string());
+	//}
+	_roomFileNames.push_back(path + "starterRoom.room");
+	_roomFileNames.push_back(path + "threewayRoom.room");
 
 	//Randomize the list 3 times for extra randomness
-	for (int k = 0; k < 3; k++) {
-		for (int i = 0; i < _roomFileNames.size(); i++) {
+	for (size_t k = 0; k < 3; k++) {
+		for (size_t i = 0; i < _roomFileNames.size(); i++) {
 			int randomPos = rand() % _roomFileNames.size();
 			std::swap(_roomFileNames[i], _roomFileNames[randomPos]);
 		}
@@ -243,9 +245,9 @@ void TileGeneration::_setupGrid() {
 	//	middleTile = ((_xSize * _ySize) - 1) / 2;
 	//}
 
-	/*for (int y = 0; y < _ySize; y++) {
+	/*for (size_t y = 0; y < _ySize; y++) {
 
-		for (int x = 0; x < _xSize; x++) {
+		for (size_t x = 0; x < _xSize; x++) {
 
 			std::shared_ptr<tileInfo> tile = std::make_shared<tileInfo>();
 

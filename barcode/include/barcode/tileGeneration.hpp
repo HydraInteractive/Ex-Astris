@@ -12,11 +12,10 @@
 #include <hydra/io/gltextureloader.hpp>
 #include <hydra/io/glmeshloader.hpp>
 
-#include <filesystem>
 #include <memory>
 #include <imgui/imgui.h>
-#include <barcode/ImporterMenu.hpp>
-#include <barcode/ExporterMenu.hpp>
+#include <barcode/importermenu.hpp>
+#include <barcode/exportermenu.hpp>
 
 #include <barcode/filetree.hpp>
 #include <hydra/component/meshcomponent.hpp>
@@ -40,7 +39,6 @@
 class TileGeneration
 {
 public:
-	//std::vector<std::shared_ptr<tileInfo>> tiles;
 	std::shared_ptr<Hydra::Component::RoomComponent> grid[GRID_SIZE][GRID_SIZE];
 
 	TileGeneration(std::string middleRoomPath);

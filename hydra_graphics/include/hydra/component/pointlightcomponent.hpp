@@ -33,7 +33,6 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 	struct HYDRA_GRAPHICS_API PointLightComponent final : public IComponent<PointLightComponent, ComponentBits::PointLight> {
-		glm::vec3 position = glm::vec3{0, 0, 0};
 		glm::vec3 color = glm::vec3{1, 1, 1};
 		float constant = 1;
 		float linear = 0.045f;
@@ -46,5 +45,7 @@ namespace Hydra::Component {
 		void serialize(nlohmann::json& json) const;
 		void deserialize(nlohmann::json& json);
 		void registerUI() final;
+
+		inline std::shared_ptr<Hydra::Component::TransformComponent> getTransformComponent() { return Hydra::World::World::getEntity(entityID)->getComponent<Hydra::Component::TransformComponent>(); }
 	};
 }

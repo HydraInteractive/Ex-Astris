@@ -20,7 +20,6 @@
 
 #include <hydra/system/bulletphysicssystem.hpp>
 #include <hydra/system/camerasystem.hpp>
-#include <hydra/system/lightsystem.hpp>
 #include <hydra/system/particlesystem.hpp>
 #include <hydra/system/abilitysystem.hpp>
 #include <hydra/system/aisystem.hpp>
@@ -44,8 +43,8 @@
 #include <hydra/component/freecameracomponent.hpp>
 
 #include <imgui/imgui.h>
-#include <barcode/ImporterMenu.hpp>
-#include <barcode/ExporterMenu.hpp>
+#include <barcode/importermenu.hpp>
+#include <barcode/exportermenu.hpp>
 #include <barcode/filetree.hpp>
 
 #include <hydra/io/input.hpp>
@@ -151,10 +150,10 @@ namespace Barcode {
 		std::shared_ptr<Hydra::Renderer::ITexture> _ssaoNoise;
 
 		Hydra::Component::FreeCameraComponent* _cc = nullptr;
-		Hydra::Component::LightComponent* _light = nullptr;
+		Hydra::Component::TransformComponent* _playerTransform = nullptr;
+		Hydra::Component::LightComponent* _dirLight = nullptr;
 
 		Hydra::System::CameraSystem _cameraSystem;
-		Hydra::System::LightSystem _lightSystem;
 		Hydra::System::ParticleSystem _particleSystem;
 		Hydra::System::AbilitySystem _abilitySystem;
 		Hydra::System::AISystem _aiSystem;

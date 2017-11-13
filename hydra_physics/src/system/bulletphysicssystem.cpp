@@ -17,6 +17,12 @@
 #include <hydra/component/lifecomponent.hpp>
 #include <btBulletDynamicsCommon.h>
 
+inline static btQuaternion cast(const glm::quat& r) { return btQuaternion{r.x, r.y, r.z, r.w}; }
+inline static btVector3 cast(const glm::vec3& v) { return btVector3{v.x, v.y, v.z}; }
+
+inline static glm::quat cast(const btQuaternion& r) { return glm::quat(r.w(), r.x(), r.y(), r.z()); }
+inline static glm::vec3 cast(const btVector3& v) { return glm::vec3(v.x(), v.y(), v.z()); }
+
 using namespace Hydra::System;
 
 struct BulletPhysicsSystem::Data {
@@ -89,9 +95,9 @@ void BulletPhysicsSystem::tick(float delta) {
 
 		Hydra::Component::BulletComponent* bc;
 		Hydra::Component::LifeComponent* lc;
-		if (bc = eA->getComponent<Hydra::Component::BulletComponent>().get())
+		if ((bc = eA->getComponent<Hydra::Component::BulletComponent>().get()))
 			lc = eB->getComponent<Hydra::Component::LifeComponent>().get();
-		else if (bc = eB->getComponent<Hydra::Component::BulletComponent>().get())
+		else if ((bc = eB->getComponent<Hydra::Component::BulletComponent>().get()))
 			lc = eA->getComponent<Hydra::Component::LifeComponent>().get();
 		else
 			continue;
@@ -102,7 +108,7 @@ void BulletPhysicsSystem::tick(float delta) {
 			btManifoldPoint& pt = contactManifold->getContactPoint(j);
 			btVector3 collPosB = pt.getPositionWorldOnB();
 			btVector3 normalOnB = pt.m_normalWorldOnB;
-			_spawnParticleEmitterAt(collPosB, normalOnB);
+			_spawnParticleEmitterAt(cast(collPosB), cast(normalOnB));
 
 			if (lc)
 				lc->applyDamage(bc->damage);
@@ -116,20 +122,20 @@ void BulletPhysicsSystem::tick(float delta) {
 	}
 }
 
-void BulletPhysicsSystem::_spawnParticleEmitterAt(btVector3 pos, btVector3 normal) {
+void BulletPhysicsSystem::_spawnParticleEmitterAt(const glm::vec3& pos, const glm::vec3& normal) {
 	auto pE = Hydra::World::World::newEntity("Collision Particle Spawner", Hydra::World::World::rootID);
 
 	pE->addComponent<Hydra::Component::MeshComponent>()->loadMesh("QUAD");
-	
+
 	auto pETC = pE->addComponent<Hydra::Component::TransformComponent>();
-	pETC->position = glm::vec3(pos.getX(), pos.getY(), pos.getZ());
+	pETC->position = pos;
 
 	auto pEPC = pE->addComponent<Hydra::Component::ParticleComponent>();
 	pEPC->delay = 1.0f / 1.0f;
 	pEPC->accumulator = 5.0f;
 	pEPC->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::Explosion;
 	pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::Blood;
-	pEPC->optionalNormal = glm::vec3(normal.getX(), normal.getY(), normal.getZ());
+	pEPC->optionalNormal = normal;
 
 	auto pELC = pE->addComponent<Hydra::Component::LifeComponent>();
 	pELC->maxHP = 0.9f;

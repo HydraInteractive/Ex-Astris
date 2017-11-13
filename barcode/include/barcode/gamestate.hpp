@@ -29,7 +29,6 @@
 #include <hydra/component/perkcomponent.hpp>
 
 #include <hydra/system/camerasystem.hpp>
-#include <hydra/system/lightsystem.hpp>
 #include <hydra/system/particlesystem.hpp>
 #include <hydra/system/abilitysystem.hpp>
 #include <hydra/system/lifesystem.hpp>
@@ -100,7 +99,6 @@ namespace Barcode {
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
 
 		Hydra::System::CameraSystem _cameraSystem;
-		Hydra::System::LightSystem _lightSystem;
 		Hydra::System::ParticleSystem _particleSystem;
 		Hydra::System::AbilitySystem _abilitySystem;
 		Hydra::System::LifeSystem _lifeSystem;
@@ -149,9 +147,8 @@ namespace Barcode {
 		std::shared_ptr<Hydra::Renderer::IMesh> _hitboxCube;
 
 		Hydra::Component::CameraComponent* _cc = nullptr;
-		Hydra::Component::PlayerComponent* player = nullptr;
-		Hydra::Component::AIComponent* _enemy = nullptr;
-		Hydra::Component::LightComponent* _light = nullptr;
+		Hydra::Component::TransformComponent* _playerTransform = nullptr;
+		Hydra::Component::LightComponent* _dirLight = nullptr;
 
 		Input _input;
 

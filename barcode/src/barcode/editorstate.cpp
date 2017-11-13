@@ -301,20 +301,19 @@ namespace Barcode {
 		_bulletSystem.tick(delta);
 		_playerSystem.tick(delta);
 		_abilitySystem.tick(delta);
-		_lightSystem.tick(delta);
 		_particleSystem.tick(delta);
 		_rendererSystem.tick(delta);
 
-		const glm::vec3 cameraPos = _cc->position;
+		const glm::vec3 cameraPos = _playerTransform->position;
 
 		{ // Render objects (Deferred rendering)
 		  // Render to geometryFBO
 		  // FIXME: Fix this shit code
 			for (auto& light : Hydra::Component::LightComponent::componentHandler->getActiveComponents())
-				_light = static_cast<Hydra::Component::LightComponent*>(light.get());
+				_dirLight = static_cast<Hydra::Component::LightComponent*>(light.get());
 
-			auto lightViewMX = _light->getViewMatrix();
-			auto lightPMX = _light->getProjectionMatrix();
+			auto lightViewMX = _dirLight->getViewMatrix();
+			auto lightPMX = _dirLight->getProjectionMatrix();
 			glm::mat4 biasMatrix(
 				0.5, 0.0, 0.0, 0.0,
 				0.0, 0.5, 0.0, 0.0,
@@ -394,8 +393,8 @@ namespace Barcode {
 					_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 			}
 
-			_shadowBatch.pipeline->setValue(0, _light->getViewMatrix());
-			_shadowBatch.pipeline->setValue(1, _light->getProjectionMatrix());
+			_shadowBatch.pipeline->setValue(0, _dirLight->getViewMatrix());
+			_shadowBatch.pipeline->setValue(1, _dirLight->getProjectionMatrix());
 
 			_engine->getRenderer()->render(_shadowBatch.batch);
 		}
@@ -408,8 +407,8 @@ namespace Barcode {
 				if (!drawObj->disable && drawObj->mesh)
 					_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
-			_shadowBatch.pipeline->setValue(0, _light->getViewMatrix());
-			_shadowBatch.pipeline->setValue(1, _light->getProjectionMatrix());
+			_shadowBatch.pipeline->setValue(0, _dirLight->getViewMatrix());
+			_shadowBatch.pipeline->setValue(1, _dirLight->getProjectionMatrix());
 
 			//_engine->getRenderer()->render(_shadowBatch.batch);
 			_engine->getRenderer()->renderShadows(_shadowBatch.batch);
@@ -446,19 +445,19 @@ namespace Barcode {
 			_lightingBatch.pipeline->setValue(5, 5);
 			_lightingBatch.pipeline->setValue(6, 6);
 
-			_lightingBatch.pipeline->setValue(7, _cc->position);
+			_lightingBatch.pipeline->setValue(7, _playerTransform->position);
 			_lightingBatch.pipeline->setValue(8, enableSSAO);
 			auto& lights = Hydra::Component::PointLightComponent::componentHandler->getActiveComponents();
 
 			_lightingBatch.pipeline->setValue(9, (int)(lights.size()));
-			_lightingBatch.pipeline->setValue(10, _light->direction);
-			_lightingBatch.pipeline->setValue(11, _light->color);
+			_lightingBatch.pipeline->setValue(10, _dirLight->getDirVec());
+			_lightingBatch.pipeline->setValue(11, _dirLight->color);
 
 			// good code lmao XD
 			int i = 12;
 			for (auto& p : lights) {
 				auto pc = static_cast<Hydra::Component::PointLightComponent*>(p.get());
-				_lightingBatch.pipeline->setValue(i++, pc->position);
+				_lightingBatch.pipeline->setValue(i++, pc->getTransformComponent()->position);
 				_lightingBatch.pipeline->setValue(i++, pc->color);
 				_lightingBatch.pipeline->setValue(i++, pc->constant);
 				_lightingBatch.pipeline->setValue(i++, pc->linear);
@@ -555,7 +554,7 @@ namespace Barcode {
 		_glowBatch.batch.renderTarget = _glowBatch.output.get();
 	}
 	void EditorState::_initSystem() {
-		const std::vector<Hydra::World::ISystem*> systems = { _engine->getDeadSystem(), &_cameraSystem, &_lightSystem, &_particleSystem, &_abilitySystem, &_aiSystem, &_physicsSystem, &_bulletSystem, &_playerSystem, &_rendererSystem };
+		const std::vector<Hydra::World::ISystem*> systems = { _engine->getDeadSystem(), &_cameraSystem, &_particleSystem, &_abilitySystem, &_aiSystem, &_physicsSystem, &_bulletSystem, &_playerSystem, &_rendererSystem };
 		_engine->getUIRenderer()->registerSystems(systems);
 	}
 	void EditorState::_initWorld() {
@@ -569,12 +568,11 @@ namespace Barcode {
 			auto playerEntity = world::newEntity("Player", world::root());
 			auto c = playerEntity->addComponent<Hydra::Component::FreeCameraComponent>();
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
+			_playerTransform = t.get();
 		}
 		{
 			auto lightEntity = world::newEntity("Light", world::root());
 			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
-			l->position = glm::vec3(-5, 0.75, 4.3);
-			l->direction = glm::vec3(-1, 0, 0);
 			auto t = lightEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(8.0, 0, 3.5);
 		}
