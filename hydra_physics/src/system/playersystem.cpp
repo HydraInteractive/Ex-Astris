@@ -64,13 +64,8 @@ void PlayerSystem::tick(float delta) {
 				movement->velocity += movement->movementSpeed * right * delta;
 
 			if (keysArray[SDL_SCANCODE_SPACE] && player->onGround){
-				rbc->applyCentralForce(btVector3(0,60000,0));
+				rbc->applyCentralForce(btVector3(0,80000,0));
 				player->onGround = false;
-			}
-
-			if (keysArray[SDL_SCANCODE_C])
-			{
-				player->onGround = true;
 			}
 
 			if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && !ImGui::GetIO().WantCaptureMouse) {
