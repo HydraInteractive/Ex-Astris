@@ -8,7 +8,7 @@
 #pragma once
 
 #include <hydra/world/world.hpp>
-#include <btBulletDynamicsCommon.h>
+#include <glm/glm.hpp>
 #define BIT(x) (1 << (x))
 
 namespace Hydra::System {
@@ -59,7 +59,7 @@ namespace Hydra::System {
 		void registerUI() final;
 
 	private:
-		void _spawnParticleEmitterAt(btVector3 pos, btVector3 normal);
+		void _spawnParticleEmitterAt(const glm::vec3& pos, const glm::vec3& normal);
 		struct Data;
 		Data* _data;
 	};

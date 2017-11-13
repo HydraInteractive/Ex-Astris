@@ -61,7 +61,7 @@ public:
 
 		_fullscreenQuad = Hydra::Renderer::GLMesh::createFullscreenQuad();
 		// TODO: Does it need sizeof(float)?
-		_animationTransTexture = Hydra::Renderer::GLTexture::createDataTexture(100 * 16 * sizeof(float), _maxInstancedAnimatedModels, Hydra::Renderer::TextureType::f16RGBA);
+		_animationTransTexture = Hydra::Renderer::GLTexture::createDataTexture(120 * 16 * sizeof(float), _maxInstancedAnimatedModels, Hydra::Renderer::TextureType::f16RGBA);
 
 		glGenBuffers(1, &_modelMatrixBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);

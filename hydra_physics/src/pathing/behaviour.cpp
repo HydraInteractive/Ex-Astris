@@ -12,6 +12,8 @@
 #include <hydra/component/pointlightcomponent.hpp>
 #include <glm/gtx/transform.hpp>
 
+#include <btBulletDynamicsCommon.h>
+
 Behaviour::Behaviour(std::shared_ptr<Hydra::World::Entity> enemy)
 {
 
