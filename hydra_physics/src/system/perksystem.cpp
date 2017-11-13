@@ -55,11 +55,12 @@ void PerkSystem::onPickUp(Perk newPerk, const std::shared_ptr<Hydra::World::Enti
 	case PERK_MAGNETICBULLETS:	{
 		auto weapon = playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>();
 		weapon->bulletType = BULLETTYPE_MAGNETIC;
-	}
 		break;
+	}
 	case PERK_HOMINGBULLETS: {
 		auto weapon = playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>();
 		weapon->bulletType = BULLETTYPE_HOMING;
+		break;
 	}
 	case PERK_GRENADE: {
 		auto perk = playerEntity->getComponent<PerkComponent>();

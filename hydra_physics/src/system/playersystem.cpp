@@ -14,6 +14,8 @@
 #include <hydra/component/perkcomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
 
+#include <btBulletDynamicsCommon.h>
+
 #include <hydra/engine.hpp>
 
 using namespace Hydra::System;

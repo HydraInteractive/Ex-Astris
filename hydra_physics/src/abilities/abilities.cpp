@@ -1,5 +1,7 @@
 #include <hydra/abilities/abilities.hpp>
 
+#include <btBulletDynamicsCommon.h>
+
 void GrenadeAbility::useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity) {
 	auto playerMovement = playerEntity->getComponent<Hydra::Component::MovementComponent>();
 	auto playerTransform = playerEntity->getComponent<Hydra::Component::TransformComponent>();

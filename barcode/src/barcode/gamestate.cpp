@@ -586,7 +586,7 @@ namespace Barcode {
 				auto drawObj = ee->getComponent<Hydra::Component::DrawObjectComponent>();
 				auto t = ee->getComponent<Hydra::Component::TransformComponent>();
 				auto particles = pc->particles;
-				for (int i = 0; i < Hydra::Component::ParticleComponent::MaxParticleAmount; i++) {
+				for (size_t i = 0; i < Hydra::Component::ParticleComponent::MaxParticleAmount; i++) {
 					if (particles[i].life <= 0)
 						continue;
 					_particleBatch.batch.objects[drawObj->drawObject->mesh].push_back(particles[i].getMatrix());
@@ -727,14 +727,14 @@ namespace Barcode {
 			}
 
 			//Dynamic cooldown dots
-			int amountOfActives = 3;
+			size_t amountOfActives = 3;
 			int coolDownList[64] = { 5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5 };
 			float pForEatchDot = float(1) / float(amountOfActives);
 			float stepSize = float(70) * pForEatchDot;
-			for (int i = 0; i < amountOfActives; i++)
+			for (size_t i = 0; i < amountOfActives; i++)
 			{
 				char buf[128];
-				snprintf(buf, sizeof(buf), "Cooldown%d", i);
+				snprintf(buf, sizeof(buf), "Cooldown%lu", i);
 				float yOffset = float(stepSize * float(i + 1));
 				float xOffset = pow(abs((yOffset - (stepSize / float(2)) - float(35))) * 0.1069, 2);
 				ImGui::SetNextWindowPos(pos + ImVec2(-64 + xOffset, -24 + yOffset - ((stepSize + 10.0) / 2.0)));
@@ -796,9 +796,9 @@ namespace Barcode {
 			//int k = 0;
 			//for (auto& entity : _world->getActiveComponents<Hydra::Component::AIComponent>())
 			//{
-			//	for (int i = 0; i < 30; i++)
+			//	for (size_t i = 0; i < 30; i++)
 			//	{
-			//		for (int j = 0; j < 30; j++)
+			//		for (size_t j = 0; j < 30; j++)
 			//		{
 			//			if (entity != nullptr)
 			//			{
@@ -889,15 +889,16 @@ namespace Barcode {
 			auto perks = playerEntity->addComponent<Hydra::Component::PerkComponent>();
 			h->health = h->maxHP = 2000.0f;
 			m->movementSpeed = 300.0f;
-			//c->position = glm::vec3{ 5, 0, -3 };
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
 			_playerTransform = t.get();
 			auto rgbc = playerEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createBox(glm::vec3(2.0f,2.0f,2.0f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
 				0, 0, 0.5f, 0);
-			rgbc->setActivationState(DISABLE_DEACTIVATION);
-			auto rbc = static_cast<btRigidBody*>(rgbc->getRigidBody());
-			rbc->setAngularFactor(btVector3(0.0f,0.0f,0.0f));
+
+			//auto rbc = static_cast<btRigidBody*>(rgbc->getRigidBody());
+			//rbc->setAngularFactor(btVector3(0.0f,0.0f,0.0f));
+
+			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 			t->position = glm::vec3{ 0, -7, 20 };
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
@@ -911,29 +912,27 @@ namespace Barcode {
 		}
 
 		{
-			auto alienEntity = world::newEntity("Alien2", world::root());
+			auto alienEntity = world::newEntity("Alien1", world::root());
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
 			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 			a->damage = 4;
 			a->behaviour->originalRange = 4;
-			a->radius = 2;
+			a->radius = 1;
 
 			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 			h->maxHP = 80;
 			h->health = 80;
-
 			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
-			m->movementSpeed = 4.0f;
-
+			m->movementSpeed = 8.0f;
 			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ 30, 0, 20 };
+			t->position = glm::vec3{ 10, 0, 20 };
 			t->scale = glm::vec3{ 2,2,2 };
-
+			t->rotation = glm::vec3{ 0, 90, 0 };
 			auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 				0, 0, 0.6f, 1.0f);
-			rgbc->setActivationState(DISABLE_DEACTIVATION);
+			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		}
 
 		{

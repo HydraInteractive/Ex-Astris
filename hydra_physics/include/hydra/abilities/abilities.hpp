@@ -11,8 +11,6 @@
 #include <hydra/component/bulletcomponent.hpp>
 #include <hydra/abilities/grenadecomponent.hpp>
 
-#include <btBulletDynamicsCommon.h>
-
 using world = Hydra::World::World;
 
 struct BaseAbility {

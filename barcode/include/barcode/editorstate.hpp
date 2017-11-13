@@ -43,8 +43,8 @@
 #include <hydra/component/freecameracomponent.hpp>
 
 #include <imgui/imgui.h>
-#include <barcode/ImporterMenu.hpp>
-#include <barcode/ExporterMenu.hpp>
+#include <barcode/importermenu.hpp>
+#include <barcode/exportermenu.hpp>
 #include <barcode/filetree.hpp>
 
 #include <hydra/io/input.hpp>
