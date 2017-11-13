@@ -82,6 +82,42 @@ void createAndSendServerEntityPacket(Entity* ent, Server* s) {
 	delete ssep;
 }
 
+void createAndSendPlayerUpdateBulletPacket(Player * p, Server * s) {
+	std::vector<uint8_t> vec = p->bullet.to_msgpack(p->bullet);
+	ServerUpdateBulletPacket* packet = new ServerUpdateBulletPacket();
+	packet->h.type = PacketType::ServerUpdateBullet;
+	packet->size = vec.size();
+	packet->h.len = packet->getSize();
+
+	char* result = new char[sizeof(ServerUpdateBulletPacket) + vec.size() * sizeof(uint8_t)];
+
+	memcpy(result, packet, sizeof(ServerUpdateBulletPacket));
+	memcpy(result + sizeof(ServerUpdateBulletPacket), vec.data(), vec.size() * sizeof(uint8_t));
+
+	s->sendDataToAllExcept(result, sizeof(ServerUpdateBulletPacket) + vec.size() * sizeof(uint8_t), p->serverid);
+	//_tcp.send(packet, sizeof(ClientSpawnEntityPacket)); // DATA SNED
+	//_tcp.send(vec.data(), vec.size() * sizeof(uint8_t)); // DATA SKJICJIK
+	//entptr->deserialize(json);
+
+	delete[] result;
+	delete packet;
+}
+
+void createAndSendPlayerShootPacket(Player * p, ClientShootPacket * csp, Server * s) {
+	ServerShootPacket* ssp = new ServerShootPacket();
+
+	ssp->h.len = sizeof(ServerShootPacket);
+	ssp->h.type = PacketType::ServerShoot;
+
+	ssp->direction = csp->direction;
+	ssp->ti = csp->ti;
+	ssp->serverPlayerID = p->entityid;
+
+	s->sendDataToAllExcept((char*)ssp, sizeof(ServerShootPacket), p->serverid);
+
+	delete ssp;
+}
+
 Entity* resolveClientSpawnEntityPacket(ClientSpawnEntityPacket* csep, EntityID id, Server* s) {
 	Entity* ent = World::newEntity("CLIENT CREATED (ERROR)", World::root()).get();
 	nlohmann::json json;
@@ -121,7 +157,6 @@ Entity* resolveClientSpawnEntityPacket(ClientSpawnEntityPacket* csep, EntityID i
 }
 
 void resolveClientUpdateBulletPacket(ClientUpdateBulletPacket * cubp, nlohmann::json & dest) {
-	Entity* ent = World::newEntity("CLIENT CREATED (ERROR)", World::root()).get();
 	std::vector<uint8_t> data;
 
 	//Inefficient
@@ -130,11 +165,10 @@ void resolveClientUpdateBulletPacket(ClientUpdateBulletPacket * cubp, nlohmann::
 	}
 
 	dest = dest.from_msgpack(data);
-	ent->deserialize(dest);
-	printf("Successfully updated bullet.");
+	printf("Successfully updated bullet.\n");
 }
 
-void resolveClientShootPacket(ClientShootPacket * csp, Player * p) {
+Entity* resolveClientShootPacket(ClientShootPacket * csp, Player * p, Hydra::System::BulletPhysicsSystem* bps) {
 	std::shared_ptr<Entity> ptr = World::newEntity("BULLET", World::root());
 	ptr->deserialize(p->bullet);
 	auto otherptr = ptr->getComponent<Hydra::Component::BulletComponent>();
@@ -144,5 +178,11 @@ void resolveClientShootPacket(ClientShootPacket * csp, Player * p) {
 	transform->setScale(csp->ti.scale);
 	transform->setRotation(csp->ti.rot);
 
-	printf("RÖRAN, RÖRAN OCH BARNEN. Bbbbligiot\n");
+	auto r = ptr->getComponent<Hydra::Component::RigidBodyComponent>();
+	if (r)
+		bps->enable(r.get());
+
+	return ptr.get();
+
+	//printf("DIOfjil-äsdfjosdofsiodfjiohsiodfjosdoi\n");
 }

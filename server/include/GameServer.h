@@ -57,7 +57,7 @@ private:
 	void _resolvePackets(std::vector<Packet*> packets);
 	int64_t _getEntityID(int serverid);
 	void _setEntityID(int serverID, int64_t entityID);
-	void _sendNewEntity(EntityID ent);
+	void _sendNewEntity(EntityID ent, int serverIDexception);
 	void _deleteEntity(EntityID ent);
 	void _handleDisconnects();
 	Entity* _createEntity(std::string name, EntityID parentID, bool serverSynced);

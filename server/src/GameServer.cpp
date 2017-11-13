@@ -24,7 +24,7 @@ void GameServer::_setEntityID(int serverID, int64_t entityID) {
 	}
 }
 
-void GameServer::_sendNewEntity(EntityID ent) {
+void GameServer::_sendNewEntity(EntityID ent, int serverIDexception = -1) {
 	//std::shared_ptr<Hydra::World::IEntity> ent = world->createEntity("CLIENT CREATED (ERROR)");
 	nlohmann::json json;
 	std::vector<uint8_t> data;
@@ -37,10 +37,14 @@ void GameServer::_sendNewEntity(EntityID ent) {
 	ssep->id = ent;
 	ssep->size = data.size();
 	ssep->h.len = ssep->getSize();
-
-	this->_server->sendDataToAll((char*)ssep, sizeof(ServerSpawnEntityPacket));
-	this->_server->sendDataToAll((char*)data.data(), data.size() * sizeof(uint8_t));
-
+	if (serverIDexception == -1) {
+		this->_server->sendDataToAll((char*)ssep, sizeof(ServerSpawnEntityPacket));
+		this->_server->sendDataToAll((char*)data.data(), data.size() * sizeof(uint8_t));
+	}
+	else {
+		this->_server->sendDataToAllExcept((char*)ssep, sizeof(ServerSpawnEntityPacket), serverIDexception);
+		this->_server->sendDataToAllExcept((char*)data.data(), data.size() * sizeof(uint8_t), serverIDexception);
+	}
 	delete ssep;
 }
 
@@ -101,7 +105,7 @@ Entity* GameServer::_createEntity(std::string name, EntityID parentID, bool serv
 
 Player * GameServer::getPlayer(EntityID id) {
 	for (size_t i = 0; i < this->_players.size(); i++) {
-		if (this->_players[i]->entityid = id) {
+		if (this->_players[i]->entityid == id) {
 			return this->_players[i];
 		}
 	}
@@ -190,15 +194,19 @@ void GameServer::_resolvePackets(std::vector<Packet*> packets) {
 		case PacketType::ClientUpdate:
 			resolveClientUpdatePacket((ClientUpdatePacket*)packets[i], this->_getEntityID(packets[i]->h.client));
 			break;
+
 		case PacketType::ClientSpawnEntity:
 			resolveClientSpawnEntityPacket((ClientSpawnEntityPacket*)packets[i], this->_getEntityID(packets[i]->h.client), this->_server);
 			break;
+
 		case PacketType::ClientUpdateBullet:
 			resolveClientUpdateBulletPacket((ClientUpdateBulletPacket*)packets[i], this->getPlayer(this->_getEntityID(packets[i]->h.client))->bullet); // SUPER INEFFICIENT
+			createAndSendPlayerUpdateBulletPacket(this->getPlayer(this->_getEntityID(packets[i]->h.client)), this->_server);
 			break;
 
 		case PacketType::ClientShoot:
-			resolveClientShootPacket((ClientShootPacket*)packets[i], this->getPlayer(this->_getEntityID(packets[i]->h.client))); //SUPER INEFFICIENT
+			resolveClientShootPacket((ClientShootPacket*)packets[i], this->getPlayer(this->_getEntityID(packets[i]->h.client)), _physicsSystem); //SUPER INEFFICIENT
+			createAndSendPlayerShootPacket(this->getPlayer(this->_getEntityID(packets[i]->h.client)), (ClientShootPacket*)packets[i], this->_server);
 			break;
 		}
 	}
@@ -289,11 +297,11 @@ void GameServer::run() {
 		this->_physicsSystem->tick(delta);
 		_aiSystem->tick(delta);
 		_bulletSystem->tick(delta);
-		//_abilitySystem.tick(delta);
+		////_abilitySystem.tick(delta);
 		_spawnerSystem->tick(delta);
-		_perkSystem->tick(delta);
+		//_perkSystem->tick(delta);
 		_lifeSystem->tick(delta);
-		this->_updateWorld();
+		//this->_updateWorld();
 	}
 
 	//Send updated world to clients

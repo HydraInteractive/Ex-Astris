@@ -23,10 +23,11 @@ MeshComponent::~MeshComponent() {}
 
 void MeshComponent::loadMesh(const std::string meshFile) {
 	this->meshFile = meshFile;
-	drawObject = Hydra::World::World::getEntity(entityID)->addComponent<DrawObjectComponent>();
-	mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(meshFile);
-	drawObject->drawObject->mesh = mesh.get();
-
+	if (Hydra::IEngine::getInstance()) {
+		drawObject = Hydra::World::World::getEntity(entityID)->addComponent<DrawObjectComponent>();
+		mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(meshFile);
+		drawObject->drawObject->mesh = mesh.get();
+	}
 	if (meshFile == "QUAD")
 		drawObject->drawObject->disable = true;
 }

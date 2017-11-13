@@ -3,6 +3,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/component/transformcomponent.hpp>
+#include <hydra/system/bulletphysicssystem.hpp>
 
 class Server;
 struct Player;
@@ -16,7 +17,9 @@ enum PacketType {
 	ServerSpawnEntity,
 	ServerDeleteEntity,
 	ClientUpdateBullet,
-	ClientShoot
+	ClientShoot,
+	ServerUpdateBullet,
+	ServerShoot
 	//..
 };
 
@@ -48,10 +51,23 @@ struct ServerDeletePacket : Packet {
 	EntityID id;
 };
 
-struct 	ClientUpdateBulletPacket : Packet {
+struct ClientUpdateBulletPacket : Packet {
 	size_t size;
 	char* data[0];
 	inline size_t getSize() { return sizeof(ClientUpdateBulletPacket) + sizeof(char) * size; }
+};
+
+struct ServerUpdateBulletPacket : Packet {
+	EntityID serverPlayerID;
+	size_t size;
+	char* data[0];
+	inline size_t getSize() { return sizeof(ServerUpdateBulletPacket) + sizeof(char) * size; }
+};
+
+struct ServerShootPacket : Packet {
+	EntityID serverPlayerID;
+	TransformInfo ti;
+	glm::vec3 direction;
 };
 
 struct ClientShootPacket : Packet {
@@ -110,8 +126,10 @@ ServerDeletePacket* createServerDeletePacket(EntityID entID);
 ServerPlayerPacket* createServerPlayerPacket(std::string name, TransformInfo ti);
 ClientUpdatePacket* createClientUpdatePacket(Entity* player);
 void createAndSendServerEntityPacket(Entity* ent, Server* s);
+void createAndSendPlayerUpdateBulletPacket(Player* p, Server* s);
+void createAndSendPlayerShootPacket(Player* p, ClientShootPacket* csp, Server* s);
 
 void resolveClientUpdatePacket(ClientUpdatePacket* cup, EntityID entityID);
 Entity* resolveClientSpawnEntityPacket(ClientSpawnEntityPacket* csep, EntityID entityID, Server* s);
 void resolveClientUpdateBulletPacket(ClientUpdateBulletPacket* cubp, nlohmann::json &dest);
-void resolveClientShootPacket(ClientShootPacket* csp, Player* p);
+Entity* resolveClientShootPacket(ClientShootPacket* csp, Player* p, Hydra::System::BulletPhysicsSystem* bp);
