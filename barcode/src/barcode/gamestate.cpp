@@ -914,7 +914,7 @@ namespace Barcode {
 		for (int i = 0; i < 100; i++) {
 			{
 				auto alienEntity = world::newEntity("Alien" + std::to_string(i), world::root());
-				alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
+				alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
 				auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 				a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 				a->damage = 4;
