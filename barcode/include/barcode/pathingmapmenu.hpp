@@ -1,15 +1,12 @@
 #pragma once
 #include <barcode/filetree.hpp>
-#include <vector>
-class PathingMapMenu : public FileTree {
+#include <fstream>
+#include <hydra/component/roomcomponent.hpp>
+class PathingMapMenu{
 public:
 	PathingMapMenu();
 	~PathingMapMenu();
 
-	void saveMap();
-	bool loadMap(std::string mapName);
 	void render(bool &closeBool, float delta);
 private:
-	void clear();
-	int outputMapNr;
 };

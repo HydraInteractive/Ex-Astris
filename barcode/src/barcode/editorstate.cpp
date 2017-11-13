@@ -276,6 +276,14 @@ namespace Barcode {
 				if (_showExporter)
 					_exporterMenu->refresh("/assets");
 			}
+			if (ImGui::MenuItem("Pathfinding..."))
+			{
+				_showPathMapCreator = !_showPathMapCreator;
+				if (_showPathMapCreator)
+				{
+					_cc->useOrtho = true;
+				}
+			}
 			ImGui::Separator();
 			if (ImGui::MenuItem("Clear room"))
 			{
@@ -286,7 +294,8 @@ namespace Barcode {
 				auto t = room->addComponent<Hydra::Component::TransformComponent>();
 				auto r = room->addComponent<Hydra::Component::RoomComponent>();
 
-			}
+			}		
+
 			ImGui::EndMenu();
 		}
 	}
@@ -294,16 +303,20 @@ namespace Barcode {
 	//Global variable to maintain a keyframe for now
 	void EditorState::runFrame(float delta) {
 		auto windowSize = _engine->getView()->getSize();
-		_physicsSystem.tick(delta);
 		_cameraSystem.tick(delta);
-		_aiSystem.tick(delta);
-		_bulletSystem.tick(delta);
-		_playerSystem.tick(delta);
-		_abilitySystem.tick(delta);
 		_particleSystem.tick(delta);
 		_rendererSystem.tick(delta);
 
 		const glm::vec3 cameraPos = _playerTransform->position;
+
+		if (_showPathMapCreator)
+		{
+			_cc->getTransformComponent()->position = glm::vec3(0, 40, 0);
+			_playerTransform->rotation = glm::quat();
+			_cc->cameraPitch = 90;
+			_cc->cameraYaw = 0;
+			_cc->movementSpeed = 0;
+		}
 
 		{ // Render objects (Deferred rendering)
 		  // Render to geometryFBO
@@ -547,6 +560,8 @@ namespace Barcode {
 			_importerMenu->render(_showImporter, &_previewBatch.batch, delta);
 		if (_showExporter)
 			_exporterMenu->render(_showExporter);
+		if (_showPathMapCreator)
+			_pathingMenu.render(_showPathMapCreator, delta);
 		_glowBatch.output->resolve(0, _finalImage->image);
 		_glowBatch.batch.renderTarget = _engine->getView();
 		_engine->getRenderer()->clear(_glowBatch.batch);

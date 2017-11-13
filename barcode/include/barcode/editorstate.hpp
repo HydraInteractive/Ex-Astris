@@ -45,6 +45,7 @@
 #include <imgui/imgui.h>
 #include <barcode/ImporterMenu.hpp>
 #include <barcode/ExporterMenu.hpp>
+#include <barcode/pathingmapmenu.hpp>
 #include <barcode/filetree.hpp>
 
 #include <hydra/io/input.hpp>
@@ -70,9 +71,12 @@ namespace Barcode {
 	private:
 		FileTree* _importerMenu;
 		FileTree* _exporterMenu;
+		PathingMapMenu _pathingMenu;
+		
 
 		bool _showImporter = false;
 		bool _showExporter = false;
+		bool _showPathMapCreator = false;
 
 		std::string selectedPath;
 
