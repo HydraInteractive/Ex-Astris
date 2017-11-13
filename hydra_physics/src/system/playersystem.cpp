@@ -66,7 +66,7 @@ void PlayerSystem::tick(float delta) {
 				movement->velocity += movement->movementSpeed * right * delta;
 
 			if (keysArray[SDL_SCANCODE_SPACE] && player->onGround){
-				rbc->applyCentralForce(btVector3(0,80000,0));
+				rbc->applyCentralForce(btVector3(0,20000,0));
 				player->onGround = false;
 			}
 

@@ -126,7 +126,7 @@ void BulletPhysicsSystem::tick(float delta) {
 					printf("COLL_MISC_OBJECT, A\n");
 			}
 
-			if (pc){ //&& normalOnB.y() > 0.7){
+			if (pc && normalOnB.y() > 0.7){
 				pc->onGround = true;
 			}
 
