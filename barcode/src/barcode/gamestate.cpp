@@ -18,6 +18,12 @@
 using world = Hydra::World::World;
 
 namespace Barcode {
+	bool GameState::ssaoOnOff = true;
+	bool GameState::glowOnOff = true;
+	bool GameState::shadowOnOff = true;
+
+	static bool enableShadow = GameState::shadowOnOff;
+
 	GameState::GameState() : _engine(Hydra::IEngine::getInstance()) {}
 
 	void GameState::load() {
@@ -154,36 +160,40 @@ namespace Barcode {
 		}
 
 		{ // Shadow pass
-			auto& batch = _shadowBatch;
-			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/shadow.vert");
-			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/shadow.frag");
+			if (enableShadow)
+			{
+				auto& batch = _shadowBatch;
+				batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/shadow.vert");
+				batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/shadow.frag");
 
-			batch.pipeline = Hydra::Renderer::GLPipeline::create();
-			batch.pipeline->attachStage(*batch.vertexShader);
-			batch.pipeline->attachStage(*batch.fragmentShader);
-			batch.pipeline->finalize();
+				batch.pipeline = Hydra::Renderer::GLPipeline::create();
+				batch.pipeline->attachStage(*batch.vertexShader);
+				batch.pipeline->attachStage(*batch.fragmentShader);
+				batch.pipeline->finalize();
 
-			batch.output = Hydra::Renderer::GLFramebuffer::create(glm::vec2(1024), 0);
-			batch.output->addTexture(0, Hydra::Renderer::TextureType::f16Depth).finalize();
+				batch.output = Hydra::Renderer::GLFramebuffer::create(glm::vec2(1024), 0);
+				batch.output->addTexture(0, Hydra::Renderer::TextureType::f16Depth).finalize();
 
-			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
-			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::depth;
-			batch.batch.renderTarget = batch.output.get();
-			batch.batch.pipeline = batch.pipeline.get();
+				batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
+				batch.batch.clearFlags = Hydra::Renderer::ClearFlags::depth;
+				batch.batch.renderTarget = batch.output.get();
+				batch.batch.pipeline = batch.pipeline.get();
 
-			auto& animBatch = _shadowAnimationBatch;
-			animBatch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/shadowAnimation.vert");
-			animBatch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/shadow.frag");
+				auto& animBatch = _shadowAnimationBatch;
+				animBatch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/shadowAnimation.vert");
+				animBatch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/shadow.frag");
 
-			animBatch.pipeline = Hydra::Renderer::GLPipeline::create();
-			animBatch.pipeline->attachStage(*animBatch.vertexShader);
-			animBatch.pipeline->attachStage(*animBatch.fragmentShader);
-			animBatch.pipeline->finalize();
+				animBatch.pipeline = Hydra::Renderer::GLPipeline::create();
+				animBatch.pipeline->attachStage(*animBatch.vertexShader);
+				animBatch.pipeline->attachStage(*animBatch.fragmentShader);
+				animBatch.pipeline->finalize();
 
-			animBatch.batch.clearColor = glm::vec4(0, 0, 0, 0);
-			animBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::none;
-			animBatch.batch.renderTarget = batch.output.get();
-			animBatch.batch.pipeline = animBatch.pipeline.get();
+				animBatch.batch.clearColor = glm::vec4(0, 0, 0, 0);
+				animBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::none;
+				animBatch.batch.renderTarget = batch.output.get();
+				animBatch.batch.pipeline = animBatch.pipeline.get();
+			}
+
 		}
 
 		{ // SSAO
@@ -374,7 +384,6 @@ namespace Barcode {
 					if (result == _cc->INSIDE || result == _cc->INTERSECT) {
 						if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false) {
 							_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-							_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 						}
 
 						else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
@@ -393,10 +402,22 @@ namespace Barcode {
 
 							_animationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
 							_animationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
+							mc->animationCounter += 1 * delta;
+						}
+					}
+					if (enableShadow)
+					{
+						if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false) 
+						{
+							_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+						}
+						else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true)
+						{
+							auto mc = e->getComponent < Hydra::Component::MeshComponent>();
+							int currentFrame = mc->currentFrame;
 							_shadowAnimationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 							_shadowAnimationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
 							_shadowAnimationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
-							mc->animationCounter += 1 * delta;
 						}
 					}
 				}
@@ -464,20 +485,25 @@ namespace Barcode {
 		}
 
 		{
-			_shadowBatch.pipeline->setValue(0, _light->getViewMatrix());
-			_shadowBatch.pipeline->setValue(1, _light->getProjectionMatrix());
+			if (enableShadow)
+			{
+				_shadowBatch.pipeline->setValue(0, _light->getViewMatrix());
+				_shadowBatch.pipeline->setValue(1, _light->getProjectionMatrix());
 
-			_shadowAnimationBatch.pipeline->setValue(0, _light->getViewMatrix());
-			_shadowAnimationBatch.pipeline->setValue(1, _light->getProjectionMatrix());
+				_shadowAnimationBatch.pipeline->setValue(0, _light->getViewMatrix());
+				_shadowAnimationBatch.pipeline->setValue(1, _light->getProjectionMatrix());
 
-			_engine->getRenderer()->renderShadows(_shadowBatch.batch);
-			_engine->getRenderer()->renderShadows(_shadowAnimationBatch.batch);
+				_engine->getRenderer()->renderShadows(_shadowBatch.batch);
+				_engine->getRenderer()->renderShadows(_shadowAnimationBatch.batch);
+			}
 		}
 
-		static bool enableSSAO = false;
+		static bool enableSSAO = GameState::ssaoOnOff;
 		ImGui::Checkbox("Enable SSAO", &enableSSAO);
-		static bool enableBlur = true;
+		static bool enableBlur = GameState::glowOnOff;
 		ImGui::Checkbox("Enable blur", &enableBlur);
+		//decleared earlyer
+		ImGui::Checkbox("Enable shadow", &enableShadow);
 		static bool enableHitboxDebug = true;
 		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
 
@@ -531,7 +557,11 @@ namespace Barcode {
 
 			(*_geometryBatch.output)[2]->bind(2);
 			(*_geometryBatch.output)[3]->bind(3);
-			_shadowBatch.output->getDepth()->bind(4);
+			if (enableShadow)
+			{
+				_shadowBatch.output->getDepth()->bind(4);
+			}
+			
 			(*_blurrExtraFBO1)[0]->bind(5);
 			(*_geometryBatch.output)[5]->bind(6);
 
