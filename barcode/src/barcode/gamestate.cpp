@@ -22,8 +22,6 @@ namespace Barcode {
 	bool GameState::glowOnOff = true;
 	bool GameState::shadowOnOff = true;
 
-	static bool enableShadow = GameState::shadowOnOff;
-
 	GameState::GameState() : _engine(Hydra::IEngine::getInstance()) {}
 
 	void GameState::load() {
@@ -160,40 +158,36 @@ namespace Barcode {
 		}
 
 		{ // Shadow pass
-			if (enableShadow)
-			{
-				auto& batch = _shadowBatch;
-				batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/shadow.vert");
-				batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/shadow.frag");
+			auto& batch = _shadowBatch;
+			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/shadow.vert");
+			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/shadow.frag");
 
-				batch.pipeline = Hydra::Renderer::GLPipeline::create();
-				batch.pipeline->attachStage(*batch.vertexShader);
-				batch.pipeline->attachStage(*batch.fragmentShader);
-				batch.pipeline->finalize();
+			batch.pipeline = Hydra::Renderer::GLPipeline::create();
+			batch.pipeline->attachStage(*batch.vertexShader);
+			batch.pipeline->attachStage(*batch.fragmentShader);
+			batch.pipeline->finalize();
 
-				batch.output = Hydra::Renderer::GLFramebuffer::create(glm::vec2(1024), 0);
-				batch.output->addTexture(0, Hydra::Renderer::TextureType::f16Depth).finalize();
+			batch.output = Hydra::Renderer::GLFramebuffer::create(glm::vec2(1024), 0);
+			batch.output->addTexture(0, Hydra::Renderer::TextureType::f16Depth).finalize();
 
-				batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
-				batch.batch.clearFlags = Hydra::Renderer::ClearFlags::depth;
-				batch.batch.renderTarget = batch.output.get();
-				batch.batch.pipeline = batch.pipeline.get();
+			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
+			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::depth;
+			batch.batch.renderTarget = batch.output.get();
+			batch.batch.pipeline = batch.pipeline.get();
 
-				auto& animBatch = _shadowAnimationBatch;
-				animBatch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/shadowAnimation.vert");
-				animBatch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/shadow.frag");
+			auto& animBatch = _shadowAnimationBatch;
+			animBatch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/shadowAnimation.vert");
+			animBatch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/shadow.frag");
 
-				animBatch.pipeline = Hydra::Renderer::GLPipeline::create();
-				animBatch.pipeline->attachStage(*animBatch.vertexShader);
-				animBatch.pipeline->attachStage(*animBatch.fragmentShader);
-				animBatch.pipeline->finalize();
+			animBatch.pipeline = Hydra::Renderer::GLPipeline::create();
+			animBatch.pipeline->attachStage(*animBatch.vertexShader);
+			animBatch.pipeline->attachStage(*animBatch.fragmentShader);
+			animBatch.pipeline->finalize();
 
-				animBatch.batch.clearColor = glm::vec4(0, 0, 0, 0);
-				animBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::none;
-				animBatch.batch.renderTarget = batch.output.get();
-				animBatch.batch.pipeline = animBatch.pipeline.get();
-			}
-
+			animBatch.batch.clearColor = glm::vec4(0, 0, 0, 0);
+			animBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::none;
+			animBatch.batch.renderTarget = batch.output.get();
+			animBatch.batch.pipeline = animBatch.pipeline.get();
 		}
 
 		{ // SSAO
@@ -309,6 +303,8 @@ namespace Barcode {
 
 		//TODO: These should go straight to the transform component, not via the camera component
 		const glm::vec3 cameraPos = _playerTransform->position;
+
+		static bool enableShadow = GameState::shadowOnOff;
 
 		{ // Render objects (Deferred rendering)
 		  //_world->tick(TickAction::render, delta);
