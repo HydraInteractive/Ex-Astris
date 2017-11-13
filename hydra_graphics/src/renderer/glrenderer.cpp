@@ -61,7 +61,7 @@ public:
 
 		_fullscreenQuad = Hydra::Renderer::GLMesh::createFullscreenQuad();
 		// TODO: Does it need sizeof(float)?
-		_animationTransTexture = Hydra::Renderer::GLTexture::createDataTexture(100 * 16 * sizeof(float), _maxInstancedAnimatedModels, Hydra::Renderer::TextureType::f16RGBA);
+		_animationTransTexture = Hydra::Renderer::GLTexture::createDataTexture(100 * sizeof(glm::mat4), _maxInstancedAnimatedModels, Hydra::Renderer::TextureType::f16RGBA);
 
 		glGenBuffers(1, &_modelMatrixBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
@@ -121,7 +121,7 @@ public:
 					for (int currJoint = 0; currJoint < mesh->getNrOfJoints(currAnimIndices[instanceIdx]); currJoint++) {
 						jointTransformMX.push_back(mesh->getTransformationMatrices(animIdx, currJoint, frame));
 					}
-					unsigned int w = jointTransformMX.size() * 16 * 4;
+					unsigned int w = jointTransformMX.size() * sizeof(glm::mat4);
 					_animationTransTexture->setData(glm::ivec2(0, instanceIdx), glm::ivec2(w, h), jointTransformMX.data());
 				}
 				_animationTransTexture->bind(4);
@@ -162,14 +162,13 @@ public:
 			size_t size = batch.currentFrames[mesh].size();
 			for (size_t i = 0; i < size; i += maxPerLoop) {
 				for (size_t instanceIdx = i; instanceIdx < i + maxPerLoop && instanceIdx < size; instanceIdx++) {
-					//unsigned int w = mesh->getNrOfJoints(currAnimIndices[instanceIdx]) * 16 * 4;
 					std::vector<glm::mat4> jointTransformMX;
 					int frame = currentFrames[instanceIdx];
 					int animIdx = currAnimIndices[instanceIdx];
 					for (int currJoint = 0; currJoint < mesh->getNrOfJoints(currAnimIndices[instanceIdx]); currJoint++) {
 						jointTransformMX.push_back(mesh->getTransformationMatrices(animIdx, currJoint, frame));
 					}
-					unsigned int w = jointTransformMX.size() * 16 * 4;
+					unsigned int w = jointTransformMX.size() * sizeof(glm::mat4);
 					_animationTransTexture->setData(glm::ivec2(0, instanceIdx), glm::ivec2(w, h), jointTransformMX.data());
 				}
 				_animationTransTexture->bind(0);
