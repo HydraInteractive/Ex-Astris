@@ -107,10 +107,6 @@ namespace Hydra::Renderer {
 
 		virtual std::shared_ptr<ITexture> getDepth() = 0;
 
-		virtual std::shared_ptr<ITexture> resolve(size_t idx, std::shared_ptr<ITexture> result) = 0;
-
-		// Remember this texture is a MULTISAMPLE texture, and thus need to be resolve
-		// before being rendered as a standard texture
 		virtual std::shared_ptr<ITexture>& operator[](size_t idx) = 0;
 	};
 	inline IFramebuffer::~IFramebuffer() {}

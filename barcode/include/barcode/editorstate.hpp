@@ -6,6 +6,9 @@
 *  - Dan Printzell
 */
 #pragma once
+
+#include <barcode/renderingutils.hpp>
+
 #include <hydra/engine.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/renderer/renderer.hpp>
@@ -76,36 +79,6 @@ namespace Barcode {
 
 		std::string selectedPath;
 
-		struct RenderBatch final {
-			std::unique_ptr<Hydra::Renderer::IShader> vertexShader;
-			std::unique_ptr<Hydra::Renderer::IShader> geometryShader;
-			std::unique_ptr<Hydra::Renderer::IShader> fragmentShader;
-			std::unique_ptr<Hydra::Renderer::IPipeline> pipeline;
-
-			std::shared_ptr<Hydra::Renderer::IFramebuffer> output;
-			Hydra::Renderer::Batch batch;
-		};
-
-		struct AnimationRenderBatch final {
-			std::unique_ptr<Hydra::Renderer::IShader> vertexShader;
-			std::unique_ptr<Hydra::Renderer::IShader> geometryShader;
-			std::unique_ptr<Hydra::Renderer::IShader> fragmentShader;
-			std::unique_ptr<Hydra::Renderer::IPipeline> pipeline;
-
-			std::shared_ptr<Hydra::Renderer::IFramebuffer> output;
-			Hydra::Renderer::AnimationBatch batch;
-		};
-
-		struct ParticleRenderBatch final {
-			std::unique_ptr<Hydra::Renderer::IShader> vertexShader;
-			std::unique_ptr<Hydra::Renderer::IShader> geometryShader;
-			std::unique_ptr<Hydra::Renderer::IShader> fragmentShader;
-			std::unique_ptr<Hydra::Renderer::IPipeline> pipeline;
-
-			std::shared_ptr<Hydra::Renderer::IFramebuffer> output;
-			Hydra::Renderer::ParticleBatch batch;
-		};
-
 		Hydra::IEngine* _engine;
 		std::unique_ptr<Hydra::IO::ITextureLoader> _textureLoader;
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
@@ -164,7 +137,5 @@ namespace Barcode {
 
 		void _initSystem();
 		void _initWorld();
-
-		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int nrOfTimes, glm::vec2 size, const std::vector<float>& kernel);
 	};
 }

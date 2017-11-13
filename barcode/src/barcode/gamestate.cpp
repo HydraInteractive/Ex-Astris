@@ -25,6 +25,8 @@ namespace Barcode {
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
 
 		auto windowSize = _engine->getView()->getSize();
+		_blurUtil = BlurUtil(windowSize, Hydra::Renderer::TextureType::u8RGB);
+
 		{
 			auto& batch = _geometryBatch;
 			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/geometry.vert");
@@ -121,18 +123,6 @@ namespace Barcode {
 			batch.batch.clearFlags = ClearFlags::color | ClearFlags::depth;
 			batch.batch.renderTarget = batch.output.get();
 			batch.batch.pipeline = batch.pipeline.get();
-		}
-
-		{
-			// Extra buffer for ping-ponging the texture for two-pass gaussian blur.
-			_blurrExtraFBO1 = Hydra::Renderer::GLFramebuffer::create(windowSize, 0);
-			_blurrExtraFBO1
-				->addTexture(0, Hydra::Renderer::TextureType::u8RGB)
-				.finalize();
-			_blurrExtraFBO2 = Hydra::Renderer::GLFramebuffer::create(windowSize, 0);
-			_blurrExtraFBO2
-				->addTexture(0, Hydra::Renderer::TextureType::u8RGB)
-				.finalize();
 		}
 
 		{ // PARTICLES
@@ -476,7 +466,7 @@ namespace Barcode {
 
 			_engine->getRenderer()->postProcessing(_ssaoBatch.batch);
 			int nrOfTimes = 1;
-			_blurGlowTexture((*_ssaoBatch.output)[0], nrOfTimes, (*_ssaoBatch.output)[0]->getSize());
+			_blurUtil->blur((*_ssaoBatch.output)[0], nrOfTimes, (*_ssaoBatch.output)[0]->getSize());
 		}
 
 		{ // Lighting pass
@@ -549,7 +539,7 @@ namespace Barcode {
 
 				glm::vec2 size = windowSize;
 
-				_blurGlowTexture((*_lightingBatch.output)[1], nrOfTimes, size * 0.25f);
+				_blurUtil.blur((*_lightingBatch.output)[1], nrOfTimes, size * 0.25f);
 
 				_glowBatch.batch.pipeline = _glowPipeline.get();
 
@@ -1046,35 +1036,4 @@ namespace Barcode {
 		}
 	}
 
-	std::shared_ptr<Hydra::Renderer::IFramebuffer> GameState::_blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int nrOfTimes, glm::vec2 size) {
-		// TO-DO: Make it agile so it can blur any texture
-		_glowBatch.pipeline->setValue(1, 1); // This bind will never change
-		bool horizontal = true;
-		bool firstPass = true;
-		_blurrExtraFBO1->resize(size);
-		_blurrExtraFBO2->resize(size);
-
-		for (int i = 0; i < nrOfTimes * 2; i++) {
-			if (firstPass) {
-				_glowBatch.batch.renderTarget = _blurrExtraFBO2.get();
-				texture->bind(1);
-				firstPass = false;
-			}
-			else if (horizontal) {
-				_glowBatch.batch.renderTarget = _blurrExtraFBO2.get();
-				(*_blurrExtraFBO1)[0]->bind(1);
-			}
-			else {
-				_glowBatch.batch.renderTarget = _blurrExtraFBO1.get();
-				(*_blurrExtraFBO2)[0]->bind(1);
-			}
-			_glowBatch.pipeline->setValue(2, horizontal);
-			_engine->getRenderer()->postProcessing(_glowBatch.batch);
-			horizontal = !horizontal;
-		}
-
-		// Change back to normal rendertarget.
-		_glowBatch.batch.renderTarget = _glowBatch.output.get();
-		return _blurrExtraFBO1;
-	}
 }

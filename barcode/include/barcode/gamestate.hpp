@@ -7,6 +7,8 @@
  */
 #pragma once
 
+#include <barcode/renderingutils.hpp>
+
 #include <hydra/engine.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/renderer/renderer.hpp>
@@ -59,36 +61,6 @@ namespace Barcode {
 		inline Hydra::World::ISystem* getPhysicsSystem() final { return &_physicsSystem; }
 
 	private:
-		struct RenderBatch final {
-			std::unique_ptr<Hydra::Renderer::IShader> vertexShader;
-			std::unique_ptr<Hydra::Renderer::IShader> geometryShader;
-			std::unique_ptr<Hydra::Renderer::IShader> fragmentShader;
-			std::unique_ptr<Hydra::Renderer::IPipeline> pipeline;
-
-			std::shared_ptr<Hydra::Renderer::IFramebuffer> output;
-			Hydra::Renderer::Batch batch;
-		};
-
-		struct AnimationRenderBatch final {
-			std::unique_ptr<Hydra::Renderer::IShader> vertexShader;
-			std::unique_ptr<Hydra::Renderer::IShader> geometryShader;
-			std::unique_ptr<Hydra::Renderer::IShader> fragmentShader;
-			std::unique_ptr<Hydra::Renderer::IPipeline> pipeline;
-
-			std::shared_ptr<Hydra::Renderer::IFramebuffer> output;
-			Hydra::Renderer::AnimationBatch batch;
-		};
-
-		struct ParticleRenderBatch final {
-			std::unique_ptr<Hydra::Renderer::IShader> vertexShader;
-			std::unique_ptr<Hydra::Renderer::IShader> geometryShader;
-			std::unique_ptr<Hydra::Renderer::IShader> fragmentShader;
-			std::unique_ptr<Hydra::Renderer::IPipeline> pipeline;
-
-			std::shared_ptr<Hydra::Renderer::IFramebuffer> output;
-			Hydra::Renderer::ParticleBatch batch;
-		};
-
 		Hydra::IEngine* _engine;
 		std::unique_ptr<Hydra::IO::ITextureLoader> _textureLoader;
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
@@ -120,14 +92,13 @@ namespace Barcode {
 
 		ParticleRenderBatch _particleBatch;
 
+		std::unique_ptr<BlurUtil> _blurUtil;
+
 		std::shared_ptr<Hydra::Renderer::ITexture> _animationData;
 
 		// ParticleTexture
 		std::shared_ptr<Hydra::Renderer::ITexture> _particleAtlases;
 
-		// Extra framebuffers, pipeline and shaders for glow/bloom/blur
-		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurrExtraFBO1;
-		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurrExtraFBO2;
 
 		std::shared_ptr<Hydra::Renderer::IPipeline> _glowPipeline;
 		std::unique_ptr<Hydra::Renderer::IShader> _glowVertexShader;
@@ -149,17 +120,5 @@ namespace Barcode {
 
 		void _initSystem();
 		void _initWorld();
-
-		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int nrOfTimes, glm::vec2 size);
 	};
-
-	//class DemoWindow : public TBWindow
-	//{
-	//public:
-	//	DemoWindow(TBWidget *root);
-	//	bool LoadResourceFile(const char *filename);
-	//	void LoadResourceData(const char *data);
-	//	void LoadResource(TBNode &node);
-	//	virtual bool OnEvent(const TBWidgetEvent &ev);
-	//};
 }
