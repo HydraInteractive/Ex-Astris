@@ -5,16 +5,16 @@ TileGeneration::TileGeneration(std::string middleRoomPath) {
 	_obtainRoomFiles();
 	_setupGrid();
 	_setUpMiddleRoom(middleRoomPath);
-	_createMapRecursivly(glm::ivec2(GRID_SIZE / 2, GRID_SIZE / 2));
-	pathfindingMap = new bool*[FULL_MAP_SIZE];
-	for (int i = 0; i < FULL_MAP_SIZE; i++)
+	_createMapRecursivly(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2));
+	pathfindingMap = new bool*[WORLD_MAP_SIZE];
+	for (int i = 0; i < WORLD_MAP_SIZE; i++)
 	{
-		pathfindingMap[i] = new bool[FULL_MAP_SIZE];
+		pathfindingMap[i] = new bool[WORLD_MAP_SIZE];
 	}
 }
 
 TileGeneration::~TileGeneration() {
-	for (int i = 0; i < FULL_MAP_SIZE; i++)
+	for (int i = 0; i < WORLD_MAP_SIZE; i++)
 	{
 		delete[] pathfindingMap[i];
 	}
@@ -29,10 +29,10 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 	//you get to a "end room". Then go back and continue for next door
 
 	//Check if yTilePos or xTilePos == 0. If this is true, limit the rooms it can create
-	//or we will go otuside the tile grid
+	//or we will go otuside the tile roomGrid
 	
 	enum { NORTH, EAST, SOUTH, WEST };
-	if (grid[pos.x][pos.y]->door[NORTH] && grid[pos.x][pos.y + 1] == nullptr)
+	if (roomGrid[pos.x][pos.y]->door[NORTH] && roomGrid[pos.x][pos.y + 1] == nullptr)
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
@@ -50,7 +50,8 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 				placed = true;
 				auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 				t->position = _gridToWorld(pos.x, pos.y + 1);
-				grid[pos.x][pos.y + 1] = roomC;
+				roomGrid[pos.x][pos.y + 1] = roomC;
+				_insertPathFindingMap(glm::ivec2(pos.x, pos.y + 1));
 				_createMapRecursivly(glm::ivec2(pos.x, pos.y + 1));
 			}
 			else {
@@ -64,7 +65,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 	}
 
 
-	if (grid[pos.x][pos.y]->door[EAST] && grid[pos.x + 1][pos.y] == nullptr)
+	if (roomGrid[pos.x][pos.y]->door[EAST] && roomGrid[pos.x + 1][pos.y] == nullptr)
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
@@ -82,7 +83,8 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 				placed = true;
 				auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 				t->position = _gridToWorld(pos.x + 1, pos.y);
-				grid[pos.x + 1][pos.y] = roomC;
+				roomGrid[pos.x + 1][pos.y] = roomC;
+				_insertPathFindingMap(glm::ivec2(pos.x + 1, pos.y));
 				_createMapRecursivly(glm::ivec2(pos.x + 1, pos.y));
 			}
 			else {
@@ -95,7 +97,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 		}
 	}
 
-	if (grid[pos.x][pos.y]->door[SOUTH] && grid[pos.x][pos.y - 1] == nullptr)
+	if (roomGrid[pos.x][pos.y]->door[SOUTH] && roomGrid[pos.x][pos.y - 1] == nullptr)
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
@@ -113,7 +115,8 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 				placed = true;
 				auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 				t->position = _gridToWorld(pos.x, pos.y - 1);
-				grid[pos.x][pos.y - 1] = roomC;
+				roomGrid[pos.x][pos.y - 1] = roomC;
+				_insertPathFindingMap(glm::ivec2(pos.x, pos.y - 1));
 				_createMapRecursivly(glm::ivec2(pos.x, pos.y - 1));
 			}
 			else {
@@ -126,7 +129,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 		}
 	}
 
-	if (grid[pos.x][pos.y]->door[WEST] && grid[pos.x - 1][pos.y] == nullptr)
+	if (roomGrid[pos.x][pos.y]->door[WEST] && roomGrid[pos.x - 1][pos.y] == nullptr)
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
@@ -144,7 +147,8 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 				placed = true;
 				auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 				t->position = _gridToWorld(pos.x - 1, pos.y);
-				grid[pos.x - 1][pos.y] = roomC;
+				roomGrid[pos.x - 1][pos.y] = roomC;
+				_insertPathFindingMap(glm::ivec2(pos.x - 1, pos.y));
 				_createMapRecursivly(glm::ivec2(pos.x - 1, pos.y));
 			}
 			else {
@@ -158,9 +162,18 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 	}
 }
 
-
-void _spawnRoomEntity(Hydra::World::Entity* ) {
-
+void TileGeneration::_insertPathFindingMap(glm::ivec2 room)
+{
+	auto roomC = roomGrid[room.x][room.y];
+	int x = room.x * ROOM_MAP_SIZE;
+	for (int localX = 0; localX < ROOM_MAP_SIZE; x++, localX++)
+	{
+		int y = room.y * ROOM_MAP_SIZE;
+		for (int localY = 0; localY < ROOM_MAP_SIZE; y++, localY++)
+		{
+			pathfindingMap[x][y] = roomC->localMap[localX][localY];
+		}
+	}
 }
 
 void TileGeneration::_setUpMiddleRoom(std::string middleRoomPath) {
@@ -169,16 +182,8 @@ void TileGeneration::_setUpMiddleRoom(std::string middleRoomPath) {
 	auto t = room->addComponent<Hydra::Component::TransformComponent>();
 	t->position = glm::vec3(0, -5, 0);
 	auto roomC = room->addComponent<Hydra::Component::RoomComponent>();
-	grid[GRID_SIZE / 2][GRID_SIZE / 2] = roomC;
+	roomGrid[ROOM_GRID_SIZE / 2][ROOM_GRID_SIZE / 2] = roomC;
 	BlueprintLoader::load(middleRoomPath)->spawn(room);
-
-	//auto loadedRoom = world->getWorldRoot()->spawn(BlueprintLoader::load(middleRoomPath.c_str())->spawn(world));
-	//auto middleRoomTile = world->createEntity("MiddleRoom");
-	//middleRoomTile = loadedRoom;
-	//middleRoomTile.get()->addComponent<Hydra::Component::MeshComponent>(loadedRoom.get()->getDrawObject()[0].mesh);
-	//middleRoomTile.get()->addComponent<Hydra::Component::MeshComponent>(loadedRoom.get()->getDrawObject()[0].mesh);
-	//middleRoomTile.get()->addComponent<Hydra::Component::TransformComponent>(tiles[middleTile].get()->middlePoint);
-	//newEntity.get()->markDead();
 }
 
 void TileGeneration::_obtainRoomFiles() {
@@ -201,8 +206,8 @@ void TileGeneration::_obtainRoomFiles() {
 
 glm::vec3 TileGeneration::_gridToWorld(int x, int y) {
 
-	float xPos = (ROOM_SIZE * x) - ((GRID_SIZE * ROOM_SIZE) / 2) + 17;
-	float yPos = (ROOM_SIZE * y) - ((GRID_SIZE * ROOM_SIZE) / 2) + 17;
+	float xPos = (ROOM_SIZE * x) - ((ROOM_GRID_SIZE * ROOM_SIZE) / 2) + 17;
+	float yPos = (ROOM_SIZE * y) - ((ROOM_GRID_SIZE * ROOM_SIZE) / 2) + 17;
 
 	return glm::vec3(xPos, -5, yPos);
 	
@@ -211,30 +216,30 @@ glm::vec3 TileGeneration::_gridToWorld(int x, int y) {
 bool TileGeneration::_checkAdjacents(int x, int y, std::shared_ptr<Hydra::Component::RoomComponent>& r) {
 	if (r->door[r->NORTH])
 	{
-		if (y >= GRID_SIZE)
+		if (y >= ROOM_GRID_SIZE)
 			return false;
-		if (grid[x][y + 1] != nullptr && !grid[x][y + 1]->door[r->SOUTH])
+		if (roomGrid[x][y + 1] != nullptr && !roomGrid[x][y + 1]->door[r->SOUTH])
 			return false;
 	}
 	if (r->door[r->WEST])
 	{
 		if (x <= 0)
 			return false;
-		if (grid[x - 1][y] != nullptr && !grid[x - 1][y]->door[r->EAST])
+		if (roomGrid[x - 1][y] != nullptr && !roomGrid[x - 1][y]->door[r->EAST])
 			return false;
 	}
 	if (r->door[r->SOUTH])
 	{
 		if (y <= 0)
 			return false;
-		if (grid[x][y - 1] != nullptr && !grid[x][y - 1]->door[r->NORTH])
+		if (roomGrid[x][y - 1] != nullptr && !roomGrid[x][y - 1]->door[r->NORTH])
 			return false;
 	}
 	if (r->door[r->EAST])
 	{
-		if (x >= GRID_SIZE)
+		if (x >= ROOM_GRID_SIZE)
 			return false;
-		if (grid[x + 1][y] != nullptr && !grid[x + 1][y]->door[r->WEST])
+		if (roomGrid[x + 1][y] != nullptr && !roomGrid[x + 1][y]->door[r->WEST])
 			return false;
 	}
 	return true;
@@ -243,7 +248,7 @@ bool TileGeneration::_checkAdjacents(int x, int y, std::shared_ptr<Hydra::Compon
 void TileGeneration::_setupGrid() {
 	int idCount = 0;
 	//Get the middle tile
-	//If the tiles are for example 4x4 grid, there is no exact middle
+	//If the tiles are for example 4x4 roomGrid, there is no exact middle
 	//Then we cannot subtract with 1
 	//if ((_xSize * _ySize) % 2 == 0) {
 	//	middleTile = ((_xSize * _ySize)) / 2;

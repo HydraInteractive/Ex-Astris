@@ -87,6 +87,7 @@ void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 		}
 	}
 }
+
 PathFinding::MapVec PathFinding::worldToMapCoords(const glm::vec3& worldPos) const
 {
 	return MapVec((worldPos.x / ROOM_SCALE) + (ROOM_MAP_SIZE / 2), (worldPos.z / ROOM_SCALE) + (ROOM_MAP_SIZE / 2));
@@ -96,6 +97,7 @@ glm::vec3 PathFinding::mapToWorldCoords(const MapVec& mapPos) const
 {
 	return glm::vec3((mapPos.baseVec.x - (ROOM_MAP_SIZE / 2)) * ROOM_SCALE, 0.0f, (mapPos.baseVec.y - (ROOM_MAP_SIZE / 2)) * ROOM_SCALE);
 }
+
 glm::vec3 PathFinding::nextPathPos(const glm::vec3& pos, const float& radius)
 {
 	glm::vec3 nextPos = _pathToEnd.back();
