@@ -23,6 +23,7 @@ namespace Hydra::Component {
 		float fireRateRPM = 600;
 		float bulletSize = 0.5f;
 		float bulletSpread = 0.0f;
+		float recoil = 0.5f;
 		int bulletsPerShot = 14;
 
 		~WeaponComponent() final;

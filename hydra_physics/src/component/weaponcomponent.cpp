@@ -9,6 +9,7 @@
 */
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
+#include <hydra/component/cameracomponent.hpp>
 #include <btBulletDynamicsCommon.h>
 #include <hydra/engine.hpp>
 
@@ -27,6 +28,23 @@ WeaponComponent::~WeaponComponent() { }
 void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity) {
 	if (fireRateTimer > 0)
 		return;
+	auto camera = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get());
+	float* yaw = &camera->cameraYaw;
+	float* pitch = &camera->cameraPitch;
+
+
+	float rn = rand() % 1000;
+	rn /= 10000;
+
+	rn *= recoil;
+	*pitch -= rn;
+	rn = rand() % 1000;
+	rn /= 10000;
+	rn *= recoil;
+	if(rand() % 2 == 1) 
+		*yaw += rn;
+	else
+		*yaw -= rn;
 
 	if (bulletSpread == 0.0f) {
 		auto bullet = world::newEntity("Bullet", world::rootID);
