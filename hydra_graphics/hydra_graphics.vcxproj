@@ -11,6 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\hydra\component\textcomponent.hpp" />
+    <ClInclude Include="include\hydra\io\gltextfactory.hpp" />
     <ClInclude Include="include\hydra\system\animationsystem.hpp" />
     <ClInclude Include="lib-include\glad\glad.h" />
     <ClInclude Include="include\hydra\component\cameracomponent.hpp" />
@@ -46,9 +48,11 @@
     <ClCompile Include="src\component\meshcomponent.cpp" />
     <ClCompile Include="src\component\particlecomponent.cpp" />
     <ClCompile Include="src\component\pointlightcomponent.cpp" />
+    <ClCompile Include="src\component\textcomponent.cpp" />
     <ClCompile Include="src\ext\vram.cpp" />
     <ClCompile Include="src\io\input.cpp" />
     <ClCompile Include="src\io\meshloader.cpp" />
+    <ClCompile Include="src\io\textfactory.cpp" />
     <ClCompile Include="src\io\textureloader.cpp" />
     <ClCompile Include="src\lib\glad\glad.c" />
     <ClCompile Include="src\lib\imgui\imgui_impl_sdl_gl3.cpp" />

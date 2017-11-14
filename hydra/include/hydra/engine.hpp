@@ -15,6 +15,7 @@
 #include <hydra/world/world.hpp>
 #include <hydra/io/textureloader.hpp>
 #include <hydra/io/meshloader.hpp>
+#include <hydra/io/textfactory.hpp>
 #include <hydra/system/deadsystem.hpp>
 
 #ifndef PRINTFARGS
@@ -51,6 +52,7 @@ namespace Hydra {
 
 		virtual IO::ITextureLoader* getTextureLoader() = 0;
 		virtual IO::IMeshLoader* getMeshLoader() = 0;
+		virtual IO::ITextFactory* getTextFactory() = 0;
 		virtual World::ISystem* getPhysicsSystem() = 0;
 	};
 	inline IState::~IState() {}

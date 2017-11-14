@@ -4,6 +4,7 @@
 #include <hydra/renderer/glshader.hpp>
 #include <hydra/io/gltextureloader.hpp>
 #include <hydra/io/glmeshloader.hpp>
+#include <hydra/io/gltextfactory.hpp>
 #include <barcode/tileGeneration.hpp>
 
 #include <glm/gtx/matrix_decompose.hpp>
@@ -14,6 +15,7 @@
 #include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
+#include <hydra/component/textcomponent.hpp>
 
 using world = Hydra::World::World;
 
@@ -23,6 +25,7 @@ namespace Barcode {
 	void GameState::load() {
 		_textureLoader = Hydra::IO::GLTextureLoader::create();
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
+		_textFactory = Hydra::IO::GLTextFactory::create();
 
 		auto windowSize = _engine->getView()->getSize();
 		{
@@ -800,7 +803,7 @@ namespace Barcode {
 				t2->ignoreParent = true;
 			}
 		}
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 1; i++) {
 			{
 				auto alienEntity = world::newEntity("Alien" + std::to_string(i), world::root());
 				alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
@@ -825,6 +828,8 @@ namespace Barcode {
 				rgbc->createBox(glm::vec3(0.5f, 0.5f, 0.5f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 					0, 0, 0.6f, 1.0f);
 				rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+
+				auto textC = alienEntity->addComponent<Hydra::Component::TextComponent>();
 			}
 		}
 		{
