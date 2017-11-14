@@ -882,7 +882,7 @@ namespace Barcode {
 			auto rgbc = floor->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL
 			, 0, 0, 0, 0.6f, 0);
-			floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
+			//floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 		}
 		{
 			TileGeneration worldTiles("assets/room/centralRoomPipes.room");
@@ -968,14 +968,14 @@ namespace Barcode {
 		{
 			auto pointLight1 = world::newEntity("Pointlight1", world::root());
 			pointLight1->addComponent<Hydra::Component::TransformComponent>();
-			pointLight1->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/EscapePodDoor.mATTIC");
+			//pointLight1->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/EscapePodDoor.mATTIC");
 			auto p1LC = pointLight1->addComponent<Hydra::Component::PointLightComponent>();
 			p1LC->color = glm::vec3(0, 1, 0);
 		} {
 			auto pointLight2 = world::newEntity("Pointlight2", world::root());
 			auto t = pointLight2->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(45, 0, 0);
-			pointLight2->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
+			//pointLight2->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
 			auto p2LC = pointLight2->addComponent<Hydra::Component::PointLightComponent>();
 			p2LC->position = glm::vec3(45, 0, 0);
 			p2LC->color = glm::vec3(1, 0, 0);
@@ -983,7 +983,7 @@ namespace Barcode {
 			auto pointLight3 = world::newEntity("Pointlight3", world::root());
 			auto t = pointLight3->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(45, 0, 0);
-			pointLight3->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
+			//pointLight3->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
 			auto p3LC = pointLight3->addComponent<Hydra::Component::PointLightComponent>();
 			p3LC->position = glm::vec3(0, 0, 45);
 			p3LC->color = glm::vec3(1, 0, 0);
@@ -993,7 +993,7 @@ namespace Barcode {
 			auto pointLight4 = world::newEntity("Pointlight4", world::root());
 			auto t = pointLight4->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(45, 0, 0);
-			pointLight4->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
+			//pointLight4->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
 			auto p4LC = pointLight4->addComponent<Hydra::Component::PointLightComponent>();
 			p4LC->position = glm::vec3(45, 0, 45);
 			p4LC->color = glm::vec3(1, 0, 0);
@@ -1029,19 +1029,19 @@ namespace Barcode {
 			auto parent = world::newEntity("Parent", world::root());
 			auto tp = parent->addComponent<Hydra::Component::TransformComponent>();
 			tp->position = glm::vec3{ 0, 0, 10 };
-			parent->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BigMonitor.mATTIC");
+			//parent->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BigMonitor.mATTIC");
 
 			{
 				auto child = world::newEntity("child", parent);
 				auto t = child->addComponent<Hydra::Component::TransformComponent>();
 				t->position = glm::vec3{ 1, 0, 0 };
-				child->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SourceCode_Monitor.mATTIC");
+				//child->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SourceCode_Monitor.mATTIC");
 			}
 			{
 				auto child = world::newEntity("child", parent);
 				auto t = child->addComponent<Hydra::Component::TransformComponent>();
 				t->position = glm::vec3{ -1, 0, 0 };
-				child->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SourceCode_Monitor.mATTIC");
+				//child->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SourceCode_Monitor.mATTIC");
 			}
 		}
 

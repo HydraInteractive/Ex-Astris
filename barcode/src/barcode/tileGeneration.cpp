@@ -41,7 +41,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 				placed = true;
 				auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 				t->position = _gridToWorld(pos.x, pos.y + 1);
-				t->scale = glm::vec3(1, 1.5, 1);
+				t->scale = glm::vec3(1, 1, 1);
 				grid[pos.x][pos.y + 1] = roomC;
 				_createMapRecursivly(glm::ivec2(pos.x, pos.y + 1));
 			}
@@ -75,7 +75,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 				placed = true;
 				auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 				t->position = _gridToWorld(pos.x + 1, pos.y);
-				t->scale = glm::vec3(1, 1.5, 1);
+				t->scale = glm::vec3(1, 1, 1);
 				grid[pos.x + 1][pos.y] = roomC;
 				_createMapRecursivly(glm::ivec2(pos.x + 1, pos.y));
 			}
@@ -109,7 +109,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 				placed = true;
 				auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 				t->position = _gridToWorld(pos.x, pos.y - 1);
-				t->scale = glm::vec3(1, 1.5, 1);
+				t->scale = glm::vec3(1, 1, 1);
 				grid[pos.x][pos.y - 1] = roomC;
 				_createMapRecursivly(glm::ivec2(pos.x, pos.y - 1));
 			}
@@ -143,7 +143,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 				placed = true;
 				auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 				t->position = _gridToWorld(pos.x - 1, pos.y);
-				t->scale = glm::vec3(1, 1.5, 1);
+				t->scale = glm::vec3(1, 1, 1);
 				grid[pos.x - 1][pos.y] = roomC;
 				_createMapRecursivly(glm::ivec2(pos.x - 1, pos.y));
 			}
@@ -166,12 +166,12 @@ void _spawnRoomEntity(Hydra::World::Entity* ) {
 void TileGeneration::_setUpMiddleRoom(std::string middleRoomPath) {
 
 	auto room = world::newEntity("Middle Room", world::root());
-	auto t = room->addComponent<Hydra::Component::TransformComponent>();
-	t->position = glm::vec3(0, -5, 0);
-	t->scale = glm::vec3(1.5, 1.5, 1.5);
 	auto roomC = room->addComponent<Hydra::Component::RoomComponent>();
 	grid[GRID_SIZE / 2][GRID_SIZE / 2] = roomC;
 	BlueprintLoader::load(middleRoomPath)->spawn(room);
+	auto t = room->addComponent<Hydra::Component::TransformComponent>();
+	t->position = glm::vec3(0, -5, 0);
+	t->scale = glm::vec3(1, 1, 1);
 
 	//auto loadedRoom = world->getWorldRoot()->spawn(BlueprintLoader::load(middleRoomPath.c_str())->spawn(world));
 	//auto middleRoomTile = world->createEntity("MiddleRoom");
@@ -202,8 +202,8 @@ void TileGeneration::_obtainRoomFiles() {
 
 glm::vec3 TileGeneration::_gridToWorld(int x, int y) {
 
-	float xPos = (ROOM_SIZE * x) - ((GRID_SIZE * ROOM_SIZE) / 2) + 17;
-	float yPos = (ROOM_SIZE * y) - ((GRID_SIZE * ROOM_SIZE) / 2) + 17;
+	float xPos = (ROOM_SIZE * x) - ((GRID_SIZE * ROOM_SIZE) / 2) + 34;
+	float yPos = (ROOM_SIZE * y) - ((GRID_SIZE * ROOM_SIZE) / 2) + 34;
 
 	return glm::vec3(xPos, -5, yPos);
 	
