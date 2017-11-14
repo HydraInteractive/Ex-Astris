@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\hydra\component\pickupcomponent.hpp" />
+    <ClInclude Include="include\hydra\system\animationsystem.hpp" />
     <ClInclude Include="lib-include\glad\glad.h" />
     <ClInclude Include="include\hydra\component\cameracomponent.hpp" />
     <ClInclude Include="include\hydra\component\componentmanager_graphics.hpp" />
@@ -58,6 +58,7 @@
     <ClCompile Include="src\renderer\glshader.cpp" />
     <ClCompile Include="src\renderer\gltexture.cpp" />
     <ClCompile Include="src\renderer\uirenderer.cpp" />
+    <ClCompile Include="src\system\animationsystem.cpp" />
     <ClCompile Include="src\system\camerasystem.cpp" />
     <ClCompile Include="src\system\particlesystem.cpp" />
     <ClCompile Include="src\system\renderersystem.cpp" />

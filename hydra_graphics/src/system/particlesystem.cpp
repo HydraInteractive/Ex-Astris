@@ -50,6 +50,8 @@ void ParticleSystem::tick(float delta) {
 			}
 		}
 	}
+
+	entities.clear();
 }
 
 

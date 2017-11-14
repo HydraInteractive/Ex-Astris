@@ -18,6 +18,14 @@ using namespace Hydra;
 using namespace Hydra::IO;
 using namespace Hydra::Renderer;
 
+template< typename ContainerT, class _FwdIt, class _Pr >
+void erase_if(ContainerT& items, _FwdIt it, _FwdIt _Last, _Pr _Pred) {
+	for (; it != _Last; ) {
+		if (_Pred(*it)) it = items.erase(it);
+		else ++it;
+	}
+};
+
 class MeshLoaderImpl final : public IMeshLoader {
 public:
 	MeshLoaderImpl(IRenderer* renderer) : _renderer(renderer), _errorMesh(_loadErrorMesh()) {}
@@ -55,6 +63,12 @@ public:
 	}
 
 	std::shared_ptr<IMesh> getErrorMesh() final { return _errorMesh; }
+
+	void clear() {
+		erase_if(_storage, _storage.begin(), _storage.end(), [](const std::pair<std::string, std::shared_ptr<IMesh>>& x) {
+			return x.second.use_count() == 2;
+		});
+	}
 
 private:
 	IRenderer* _renderer;

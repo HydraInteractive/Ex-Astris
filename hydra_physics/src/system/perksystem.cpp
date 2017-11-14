@@ -54,6 +54,8 @@ void PerkSystem::tick(float delta) {
 
 		perks->usedAbilityLastFrame = keysArray[SDL_SCANCODE_F];
 	}
+
+	entities.clear();
 }
 void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const std::shared_ptr<Hydra::World::Entity>& playerEntity) {
 	switch (newPerk){

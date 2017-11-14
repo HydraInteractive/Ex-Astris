@@ -38,6 +38,8 @@ void AbilitySystem::tick(float delta) {
 		auto m = entities[i]->getComponent<Hydra::Component::MineComponent>();
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 	}
+
+	entities.clear();
 }
 
 void AbilitySystem::registerUI() {}

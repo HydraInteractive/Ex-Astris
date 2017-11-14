@@ -21,6 +21,8 @@ void RendererSystem::tick(float delta) {
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 		d->drawObject->modelMatrix = t->getMatrix();
 	}
+
+	entities.clear();
 }
 
 void RendererSystem::registerUI() {}
