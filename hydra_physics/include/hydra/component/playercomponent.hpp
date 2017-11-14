@@ -26,6 +26,7 @@ namespace Hydra::Component {
 		bool onGround = true;
 		bool firstPerson = true;
 		bool isDead = false;
+		bool canMove = true;
 
 		~PlayerComponent() final;
 

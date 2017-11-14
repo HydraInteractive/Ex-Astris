@@ -111,14 +111,36 @@ void BulletSprayAbillity::tick(float delta, const std::shared_ptr<Hydra::World::
 }
 
 void DashAbility::useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity) {
-	auto transform = playerEntity->getComponent<Hydra::Component::TransformComponent>();
-	auto playerRigid = playerEntity->getComponent<Hydra::Component::RigidBodyComponent>();
-	auto playerRigidBody = static_cast<btRigidBody*>(playerRigid->getRigidBody());
+	auto playerComponent = playerEntity->getComponent<Hydra::Component::PlayerComponent>();
+	playerComponent->canMove = false;
+	activeTimer = 0.5f;
+	afterLastTick = true;
+	//auto transform = playerEntity->getComponent<Hydra::Component::TransformComponent>();
+	//auto playerRigid = playerEntity->getComponent<Hydra::Component::RigidBodyComponent>();
+	//auto playerRigidBody = static_cast<btRigidBody*>(playerRigid->getRigidBody());
 
-	std::vector<std::shared_ptr<Hydra::World::Entity>> entities;
-	world::getEntitiesWithComponents<Hydra::Component::TransformComponent, Hydra::Component::RigidBodyComponent>(entities);
+	//std::vector<std::shared_ptr<Hydra::World::Entity>> entities;
+	//world::getEntitiesWithComponents<Hydra::Component::TransformComponent, Hydra::Component::RigidBodyComponent>(entities);
+	//glm::mat4 rotation = glm::mat4_cast(transform->rotation);
+	//glm::vec3 direction = -glm::vec3(glm::vec4{ 0, 0, 1, 0 } * rotation);
+	//glm::vec3 forcePush = direction /*- playerEntity->getComponent<Hydra::Component::TransformComponent>()->position*/ * 100000.0f;
+	//playerRigidBody->applyCentralForce(btVector3(forcePush.x, forcePush.y, forcePush.z));
+}
+
+void DashAbility::tick(float delta, const std::shared_ptr<Hydra::World::Entity>& playerEntity)
+{
+	auto transform = playerEntity->getComponent<Hydra::Component::TransformComponent>();
+	auto rbc = playerEntity->getComponent<Hydra::Component::RigidBodyComponent>();
+	auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
+
 	glm::mat4 rotation = glm::mat4_cast(transform->rotation);
 	glm::vec3 direction = -glm::vec3(glm::vec4{ 0, 0, 1, 0 } * rotation);
-	glm::vec3 forcePush = direction /*- playerEntity->getComponent<Hydra::Component::TransformComponent>()->position*/ * 100000.0f;
-	playerRigidBody->applyCentralForce(btVector3(forcePush.x, forcePush.y, forcePush.z));
+
+	rigidBody->setLinearFactor(btVector3(direction.x, direction.y, direction.z) * 1000 * delta);
+}
+
+void DashAbility::doneTick(float delta, const std::shared_ptr<Hydra::World::Entity>& playerEntity)
+{
+	auto playerComponent = playerEntity->getComponent<Hydra::Component::PlayerComponent>();
+	playerComponent->canMove = true;
 }

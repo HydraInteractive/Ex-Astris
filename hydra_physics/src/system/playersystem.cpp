@@ -94,8 +94,10 @@ void PlayerSystem::tick(float delta) {
 			movement->velocity *= 10 / speed;
 		}
 
-		btVector3 vel = rbc->getLinearVelocity();
-		rbc->setLinearVelocity(btVector3(movement->velocity.x,vel.y(),movement->velocity.z));
+		if (player->canMove){
+			btVector3 vel = rbc->getLinearVelocity();
+			rbc->setLinearVelocity(btVector3(movement->velocity.x, vel.y(), movement->velocity.z));
+		}
 
 		//if (player->firstPerson)
 		//	camera->position = transform->position;
