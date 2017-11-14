@@ -120,6 +120,8 @@ void BulletPhysicsSystem::tick(float delta) {
 			break;
 		}
 	}
+
+	entities.clear();
 }
 
 void BulletPhysicsSystem::_spawnParticleEmitterAt(const glm::vec3& pos, const glm::vec3& normal) {
