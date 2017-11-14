@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\hydra\component\pickupcomponent.hpp" />
     <ClInclude Include="lib-include\glad\glad.h" />
     <ClInclude Include="include\hydra\component\cameracomponent.hpp" />
     <ClInclude Include="include\hydra\component\componentmanager_graphics.hpp" />

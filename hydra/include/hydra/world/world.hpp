@@ -46,7 +46,8 @@ namespace Hydra::Component {
 		Room = BIT(17),
 		Spawner = BIT(18),
 		SoundFx = BIT(19),
-		Perk = BIT(20)
+		Perk = BIT(20),
+		PickUp = BIT(21)
 	};
 #undef BIT
 
@@ -84,6 +85,7 @@ namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API SpawnerComponent;
 	struct HYDRA_SOUND_API SoundFxComponent;
 	struct HYDRA_PHYSICS_API PerkComponent;
+	struct HYDRA_PHYSICS_API PickUpComponent;
 
 	using ComponentTypes = Hydra::Ext::TypeTuple<
 		Hydra::World::IComponent<TransformComponent, ComponentBits::Transform>,
@@ -106,7 +108,8 @@ namespace Hydra::Component {
 		Hydra::World::IComponent<RoomComponent, ComponentBits::Room>,
 		Hydra::World::IComponent<SpawnerComponent, ComponentBits::Spawner>,
 		Hydra::World::IComponent<SoundFxComponent, ComponentBits::SoundFx>,
-		Hydra::World::IComponent<PerkComponent, ComponentBits::Perk>
+		Hydra::World::IComponent<PerkComponent, ComponentBits::Perk>,
+		Hydra::World::IComponent<PickUpComponent, ComponentBits::PickUp>
 	>;
 };
 
@@ -285,6 +288,8 @@ namespace Hydra::World {
 	IComponentHandler* IComponent<Hydra::Component::SoundFxComponent, Hydra::Component::ComponentBits::SoundFx>::componentHandler;
 	template <>
 	IComponentHandler* IComponent<Hydra::Component::PerkComponent, Hydra::Component::ComponentBits::Perk>::componentHandler;
+	template <>
+	IComponentHandler* IComponent<Hydra::Component::PickUpComponent, Hydra::Component::ComponentBits::PickUp>::componentHandler;
 #endif
 
 	template HYDRA_BASE_API struct IComponent<Hydra::Component::TransformComponent, Hydra::Component::ComponentBits::Transform>;
@@ -308,6 +313,7 @@ namespace Hydra::World {
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::SpawnerComponent, Hydra::Component::ComponentBits::Spawner>;
 	template HYDRA_SOUND_API struct IComponent<Hydra::Component::SoundFxComponent, Hydra::Component::ComponentBits::SoundFx>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::PerkComponent, Hydra::Component::ComponentBits::Perk>;
+	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::PickUpComponent, Hydra::Component::ComponentBits::PickUp>;
 
 	struct HYDRA_BASE_API World final {
 		inline static std::shared_ptr<Entity>& root() {

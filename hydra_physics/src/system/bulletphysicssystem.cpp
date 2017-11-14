@@ -15,6 +15,7 @@
 #include <hydra/component/particlecomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
+#include <hydra/component/playercomponent.hpp>
 #include <btBulletDynamicsCommon.h>
 
 inline static btQuaternion cast(const glm::quat& r) { return btQuaternion{r.x, r.y, r.z, r.w}; }
@@ -93,14 +94,19 @@ void BulletPhysicsSystem::tick(float delta) {
 		if (!eA || !eB)
 			continue;
 
-		Hydra::Component::BulletComponent* bc;
-		Hydra::Component::LifeComponent* lc;
-		if ((bc = eA->getComponent<Hydra::Component::BulletComponent>().get()))
+		Hydra::Component::BulletComponent* bc = nullptr;
+		Hydra::Component::LifeComponent* lc = nullptr;
+		Hydra::Component::PlayerComponent* pc = nullptr;
+
+		if (bc = eA->getComponent<Hydra::Component::BulletComponent>().get())
 			lc = eB->getComponent<Hydra::Component::LifeComponent>().get();
 		else if ((bc = eB->getComponent<Hydra::Component::BulletComponent>().get()))
 			lc = eA->getComponent<Hydra::Component::LifeComponent>().get();
-		else
-			continue;
+
+		pc = eA->getComponent<Hydra::Component::PlayerComponent>().get();
+		if (!pc)
+			eB->getComponent<Hydra::Component::PlayerComponent>().get();
+		
 
 		// Gets the contact points
 		int numContacts = contactManifold->getNumContacts();
@@ -108,13 +114,30 @@ void BulletPhysicsSystem::tick(float delta) {
 			btManifoldPoint& pt = contactManifold->getContactPoint(j);
 			btVector3 collPosB = pt.getPositionWorldOnB();
 			btVector3 normalOnB = pt.m_normalWorldOnB;
-			_spawnParticleEmitterAt(cast(collPosB), cast(normalOnB));
+
+			if (pc) {
+				if (obB->getUserIndex2() == COLL_WALL)
+					printf("COLL_WALL, B\n");
+				else if (obB->getUserIndex2() == COLL_MISC_OBJECT)
+					printf("COLL_MISC_OBJECT, B\n");
+				else if (obA->getUserIndex2() == COLL_WALL)
+					printf("COLL_WALL, A\n");
+				else if (obA->getUserIndex2() == COLL_MISC_OBJECT)
+					printf("COLL_MISC_OBJECT, A\n");
+			}
+
+			if (pc && normalOnB.y() > 0.7){
+				pc->onGround = true;
+			}
 
 			if (lc)
 				lc->applyDamage(bc->damage);
 
 			// Set the bullet entity to dead.
-			World::World::World::getEntity(bc->entityID)->dead = true;
+			if (bc) {
+				World::World::World::getEntity(bc->entityID)->dead = true;
+				_spawnParticleEmitterAt(cast(collPosB), cast(normalOnB));
+			}
 
 			// Breaks because just wanna check the first collision.
 			break;

@@ -101,6 +101,7 @@
     <ClCompile Include="src\component\componentmanager_physics.cpp" />
     <ClCompile Include="src\component\lifecomponent.cpp" />
     <ClCompile Include="src\component\movementcomponent.cpp" />
+    <ClCompile Include="src\component\pickupcomponent.cpp" />
     <ClCompile Include="src\component\playercomponent.cpp" />
     <ClCompile Include="src\component\rigidbodycomponent.cpp" />
     <ClCompile Include="src\component\spawnercomponent.cpp" />
