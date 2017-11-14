@@ -82,6 +82,11 @@ void PerkSystem::onPickUp(Perk newPerk, const std::shared_ptr<Hydra::World::Enti
 		perk->activeAbilities.push_back(new BulletSprayAbillity());
 		break;
 	}
+	case PERK_DASH: {
+		auto perk = playerEntity->getComponent<PerkComponent>();
+		perk->activeAbilities.push_back(new DashAbility());
+		break;
+	}
 	default:
 		break;
 	}

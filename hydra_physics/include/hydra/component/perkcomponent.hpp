@@ -19,7 +19,8 @@ enum Perk
 	PERK_GRENADE,
 	PERK_MINE,
 	PERK_FORCEPUSH,
-	PERK_BULLETSPRAY
+	PERK_BULLETSPRAY,
+	PERK_DASH
 };
 
 namespace Hydra::Component {

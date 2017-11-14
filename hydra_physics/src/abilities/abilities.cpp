@@ -108,3 +108,16 @@ void BulletSprayAbillity::tick(float delta, const std::shared_ptr<Hydra::World::
 		rigidBody->setGravity(btVector3(0, 0, 0));
 	}
 }
+
+void DashAbility::useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity) {
+	auto transform = playerEntity->getComponent<Hydra::Component::TransformComponent>();
+	auto playerRigid = playerEntity->getComponent<Hydra::Component::RigidBodyComponent>();
+	auto playerRigidBody = static_cast<btRigidBody*>(playerRigid->getRigidBody());
+
+	std::vector<std::shared_ptr<Hydra::World::Entity>> entities;
+	world::getEntitiesWithComponents<Hydra::Component::TransformComponent, Hydra::Component::RigidBodyComponent>(entities);
+	glm::mat4 rotation = glm::mat4_cast(transform->rotation);
+	glm::vec3 direction = -glm::vec3(glm::vec4{ 0, 0, 1, 0 } * rotation);
+	glm::vec3 forcePush = direction /*- playerEntity->getComponent<Hydra::Component::TransformComponent>()->position*/ * 100000.0f;
+	playerRigidBody->applyCentralForce(btVector3(forcePush.x, forcePush.y, forcePush.z));
+}

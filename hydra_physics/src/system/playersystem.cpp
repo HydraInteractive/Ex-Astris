@@ -63,6 +63,9 @@ void PlayerSystem::tick(float delta) {
 				movement->acceleration.y += 6.0f;
 				player->onGround = false;
 			}
+			if (keysArray[SDL_SCANCODE_C]){
+				perks->newPerks.push_back(PERK_DASH);
+			}
 
 			if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && !ImGui::GetIO().WantCaptureMouse) {
 				//TODO: Make pretty?

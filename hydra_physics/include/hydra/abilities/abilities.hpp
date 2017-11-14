@@ -9,6 +9,7 @@
 #include <hydra/component/soundfxcomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
+#include <hydra/component/cameracomponent.hpp>
 #include <hydra/abilities/grenadecomponent.hpp>
 
 using world = Hydra::World::World;
@@ -41,4 +42,9 @@ struct BulletSprayAbillity: public BaseAbility {
 	BulletSprayAbillity() { tickFreq = 0.1f; }
 	void useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity);
 	void tick(float delta, const std::shared_ptr<Hydra::World::Entity>& playerEntity);
+};
+
+struct DashAbility : public BaseAbility {
+	DashAbility() {}
+	void useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity);
 };
