@@ -113,7 +113,7 @@ void BulletSprayAbillity::tick(float delta, const std::shared_ptr<Hydra::World::
 void DashAbility::useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity) {
 	auto playerComponent = playerEntity->getComponent<Hydra::Component::PlayerComponent>();
 	playerComponent->canMove = false;
-	activeTimer = 0.5f;
+	activeTimer = 1.0f;
 	afterLastTick = true;
 	//auto transform = playerEntity->getComponent<Hydra::Component::TransformComponent>();
 	//auto playerRigid = playerEntity->getComponent<Hydra::Component::RigidBodyComponent>();
@@ -136,7 +136,8 @@ void DashAbility::tick(float delta, const std::shared_ptr<Hydra::World::Entity>&
 	glm::mat4 rotation = glm::mat4_cast(transform->rotation);
 	glm::vec3 direction = -glm::vec3(glm::vec4{ 0, 0, 1, 0 } * rotation);
 
-	rigidBody->setLinearFactor(btVector3(direction.x, direction.y, direction.z) * 1000 * delta);
+	rigidBody->setLinearFactor(btVector3(direction.x, 0, direction.z) * 3000 * delta);
+
 }
 
 void DashAbility::doneTick(float delta, const std::shared_ptr<Hydra::World::Entity>& playerEntity)

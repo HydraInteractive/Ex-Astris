@@ -88,13 +88,13 @@ void PlayerSystem::tick(float delta) {
 			movement->velocity *= delta;
 		}
 
-		float speed = glm::length(movement->velocity);
-		if (speed > 10)
-		{
-			movement->velocity *= 10 / speed;
-		}
-
 		if (player->canMove){
+			float speed = glm::length(movement->velocity);
+			if (speed > 10)
+			{
+				movement->velocity *= 10 / speed;
+			}
+
 			btVector3 vel = rbc->getLinearVelocity();
 			rbc->setLinearVelocity(btVector3(movement->velocity.x, vel.y(), movement->velocity.z));
 		}

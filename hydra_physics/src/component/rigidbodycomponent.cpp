@@ -260,6 +260,10 @@ void RigidBodyComponent::setActivationState(ActivationState newState) {
 	_data->getRigidBody()->setActivationState(lookup[static_cast<int>(newState)]);
 }
 
+void RigidBodyComponent::setAngularForce(glm::vec3 angForce){
+	_data->getRigidBody()->setAngularFactor(btVector3(angForce.z, angForce.x, angForce.z));
+}
+
 void* RigidBodyComponent::getRigidBody() { return static_cast<void*>(_data->getRigidBody()); }
 void RigidBodyComponent::serialize(nlohmann::json& json) const {
 	json = {
