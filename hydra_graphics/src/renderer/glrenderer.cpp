@@ -118,14 +118,14 @@ public:
 					int frame = currentFrames[instanceIdx];
 					int animIdx = currAnimIndices[instanceIdx];
 					nrOfJoints = mesh->getNrOfJoints(currAnimIndices[instanceIdx]);
-					for (int currJoint = 0; currJoint < nrOfJoints; currJoint++) {
+					for (size_t currJoint = 0; currJoint < nrOfJoints; currJoint++) {
 						jointTransformMX[instanceIdx * 100 + currJoint] = mesh->getTransformationMatrices(animIdx, currJoint, frame);
 					}
 				}
 
 				size_t amount = std::min(size - i, maxPerLoop);
 
-				_animationTransTexture->setData(glm::ivec2(0, 0), glm::ivec2(100 * sizeof(glm::mat4), amount), jointTransformMX);
+				_animationTransTexture->setData(glm::ivec2(0, 0), glm::ivec2(100 * 4, amount), jointTransformMX);
 				_animationTransTexture->bind(4);
 
 				glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
@@ -167,14 +167,14 @@ public:
 					int frame = currentFrames[instanceIdx];
 					int animIdx = currAnimIndices[instanceIdx];
 					nrOfJoints = mesh->getNrOfJoints(currAnimIndices[instanceIdx]);
-					for (int currJoint = 0; currJoint < nrOfJoints; currJoint++) {
+					for (size_t currJoint = 0; currJoint < nrOfJoints; currJoint++) {
 						jointTransformMX[instanceIdx * 100 + currJoint] = mesh->getTransformationMatrices(animIdx, currJoint, frame);
 					}	
 				}
 
 				size_t amount = std::min(size - i, maxPerLoop);
 
-				_animationTransTexture->setData(glm::ivec2(0, 0), glm::ivec2(100 * sizeof(glm::mat4), amount), jointTransformMX);
+				_animationTransTexture->setData(glm::ivec2(0, 0), glm::ivec2(100 * 4, amount), jointTransformMX);
 				_animationTransTexture->bind(0);
 
 				glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);

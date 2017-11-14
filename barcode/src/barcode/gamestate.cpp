@@ -758,98 +758,9 @@ namespace Barcode {
 				ImGui::End();
 			}
 
-			//Perk Icons
-			/*size_t amountOfPerks = perksList.size();
-			for (size_t i = 0; i < amountOfPerks; i++)
-			{
-				char buf[128];
-				snprintf(buf, sizeof(buf), "Perk%lu", i);
-				float xOffset = float((-10 * amountOfPerks) + (20 * i));
-				ImGui::SetNextWindowPos(pos + ImVec2(xOffset, +480));
-				ImGui::SetNextWindowSize(ImVec2(20, 20));
-				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-				switch (perksList[i])
-				{
-				case BUFF_BULLETVELOCITY:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/BulletVelocity.png")->getID()), ImVec2(20, 20));
-					break;
-				case BUFF_DAMAGEUPGRADE:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/DamageUpgrade.png")->getID()), ImVec2(20, 20));
-					break;
-				case BUFF_HEALING:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Healing.png")->getID()), ImVec2(20, 20));
-					break;
-				case BUFF_HEALTHUPGRADE:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
-					break;
-				}
-
-				ImGui::End();
-			}*/
-
 			ImGui::PopStyleColor();
 			ImGui::PopStyleVar();
 			ImGui::PopStyleVar();
-
-			//////Debug for pathfinding
-			//ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
-			//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-			//ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, float(0.0f));
-			//int k = 0;
-			//for (auto& entity : _world->getActiveComponents<Hydra::Component::AIComponent>())
-			//{
-			//	for (size_t i = 0; i < 30; i++)
-			//	{
-			//		for (size_t j = 0; j < 30; j++)
-			//		{
-			//			if (entity != nullptr)
-			//			{
-			//				char buf[128];
-			//				snprintf(buf, sizeof(buf), "%d%d", i, j);
-			//				if (entity->getComponent<Hydra::Component::AIComponent>()->getWall(i, j) == 1)
-			//				{
-			//					ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
-			//					ImGui::SetNextWindowSize(ImVec2(20, 20));
-			//					ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-			//					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(20, 20));
-			//					ImGui::End();
-			//				}
-			//				if (entity->getComponent<Hydra::Component::AIComponent>()->getWall(i, j) == 2)
-			//				{
-			//					ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
-			//					ImGui::SetNextWindowSize(ImVec2(20, 20));
-			//					ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-			//					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Blue.png")->getID()), ImVec2(20, 20));
-			//					ImGui::End();
-			//				}
-			//				else if (entity->getComponent<Hydra::Component::AIComponent>()->getWall(i, j) == 3)
-			//				{
-			//					ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
-			//					ImGui::SetNextWindowSize(ImVec2(20, 20));
-			//					ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-			//					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Yellow.png")->getID()), ImVec2(20, 20));
-			//					ImGui::End();
-			//				}
-			//				//else if (entity->getComponent<Hydra::Component::AIComponent>()->getWall(i, j) == 0)
-			//				//{
-			//				//	ImGui::SetNextWindowPos(ImVec2(10 * i, 10 * j));
-			//				//	ImGui::SetNextWindowSize(ImVec2(20, 20));
-			//				//	ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-			//				//	ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Green.png")->getID()), ImVec2(20, 20));
-			//				//	ImGui::End();
-			//				//}
-			//			}
-			//		}
-			//	}
-			//	k++;
-			//}
-			//ImGui::PopStyleColor();
-			//ImGui::PopStyleVar();
-			//ImGui::PopStyleVar();
-		}
-
-		{ // Sync with network
-		  // _world->tick(TickAction::network, delta);
 		}
 	}
 
@@ -913,6 +824,8 @@ namespace Barcode {
 			{
 				auto alienEntity = world::newEntity("Alien" + std::to_string(i), world::root());
 				alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+				//alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
+				//alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
 				auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 				a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 				a->damage = 4;
