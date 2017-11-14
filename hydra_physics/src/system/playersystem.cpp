@@ -46,7 +46,6 @@ void PlayerSystem::tick(float delta) {
 		movement->direction = -glm::vec3(glm::vec4{ 0, 0, 1, 0 } *rotation);
 
 		{
-			//movement->velocity = glm::vec3{0};
 
 			glm::vec3 forward = glm::normalize(glm::vec3(movement->direction.x, 0, movement->direction.z));
 			
@@ -71,7 +70,7 @@ void PlayerSystem::tick(float delta) {
 				perks->newPerks.push_back(PerkComponent::PERK_BULLETSPRAY);
 			}
 			if (keysArray[SDL_SCANCODE_C]){
-				perks->newPerks.push_back(PERK_DASH);
+				perks->newPerks.push_back(Hydra::Component::PerkComponent::PERK_DASH);
 			}
 
 			if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && !ImGui::GetIO().WantCaptureMouse) {

@@ -82,7 +82,7 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 		perk->activeAbilities.push_back(new BulletSprayAbillity());
 		break;
 	}
-	case PERK_DASH: {
+	case Hydra::Component::PerkComponent::PERK_DASH: {
 		auto perk = playerEntity->getComponent<PerkComponent>();
 		perk->activeAbilities.push_back(new DashAbility());
 		break;

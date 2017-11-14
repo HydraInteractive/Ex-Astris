@@ -119,7 +119,7 @@ void BulletPhysicsSystem::tick(float delta) {
 			pec = eA->getComponent<Hydra::Component::PerkComponent>().get();
 
 		if (puc) {
-			_addPickUp(puc, pec);
+			//_addPickUp(puc, pec);
 		}
 
 		// Gets the contact points
