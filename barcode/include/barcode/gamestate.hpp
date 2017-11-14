@@ -27,6 +27,7 @@
 #include <hydra/component/spawnercomponent.hpp>
 #include <hydra/component/soundfxcomponent.hpp>
 #include <hydra/component/perkcomponent.hpp>
+#include <hydra/component/pickupcomponent.hpp>
 
 #include <hydra/system/camerasystem.hpp>
 #include <hydra/system/particlesystem.hpp>
