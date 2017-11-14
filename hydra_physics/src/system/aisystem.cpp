@@ -25,6 +25,8 @@ void AISystem::tick(float delta) {
 		auto enemy = entities[i]->getComponent<Component::AIComponent>();
 		enemy->behaviour->run(delta);
 	}
+
+	entities.clear();
 }
 
 void AISystem::registerUI() {}
