@@ -8,11 +8,7 @@ namespace Barcode {
 	void EditorState::load() {
 		_textureLoader = Hydra::IO::GLTextureLoader::create();
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
-
-		_finalImage = _engine->getUIRenderer()->addRenderWindow();
-		_finalImage->enabled = true;
-		_finalImage->title = "Final Image";
-		_finalImage->image = Hydra::Renderer::GLTexture::createFromData(_finalImage->size.x, _finalImage->size.y, TextureType::u8RGB, nullptr);
+		/*
 		auto windowSize = _engine->getView()->getSize();
 		{
 			auto& batch = _geometryBatch;
@@ -257,12 +253,12 @@ namespace Barcode {
 
 		_initWorld();
 		this->_importerMenu = new ImporterMenu();
-		this->_exporterMenu = new ExporterMenu();
+		this->_exporterMenu = new ExporterMenu();*/
 	}
 
 	EditorState::~EditorState() { }
 
-	void EditorState::onMainMenu() {
+	void EditorState::onMainMenu() {/*
 		if (ImGui::BeginMenu("Editor"))
 		{
 			if (ImGui::MenuItem("Import..."))
@@ -289,10 +285,9 @@ namespace Barcode {
 
 			}
 			ImGui::EndMenu();
-		}
+			}*/
 	}
 
-	//Global variable to maintain a keyframe for now
 	void EditorState::runFrame(float delta) {
 		auto windowSize = _engine->getView()->getSize();
 		_physicsSystem.tick(delta);
@@ -304,7 +299,7 @@ namespace Barcode {
 		_particleSystem.tick(delta);
 		_rendererSystem.tick(delta);
 
-		const glm::vec3 cameraPos = _playerTransform->position;
+		/*const glm::vec3 cameraPos = _playerTransform->position;
 
 		{ // Render objects (Deferred rendering)
 		  // Render to geometryFBO
@@ -519,7 +514,7 @@ namespace Barcode {
 				for (auto& particle : particles) {
 					if (particle.life <= 0)
 						continue;
-					_particleBatch.batch.objects[drawObj->drawObject->mesh].push_back(/*t->getMatrix() */ particle.getMatrix());
+					_particleBatch.batch.objects[drawObj->drawObject->mesh].push_back(/ *t->getMatrix() * / particle.getMatrix());
 					_particleBatch.batch.textureInfo.push_back(particle.texOffset1);
 					_particleBatch.batch.textureInfo.push_back(particle.texOffset2);
 					_particleBatch.batch.textureInfo.push_back(particle.texCoordInfo);
@@ -550,14 +545,14 @@ namespace Barcode {
 		if (_showImporter)
 			_importerMenu->render(_showImporter, &_previewBatch.batch, delta);
 		if (_showExporter)
-			_exporterMenu->render(_showExporter);
+			_exporterMenu->render(_showExporter);*/
 	}
 	void EditorState::_initSystem() {
 		const std::vector<Hydra::World::ISystem*> systems = { _engine->getDeadSystem(), &_cameraSystem, &_particleSystem, &_abilitySystem, &_aiSystem, &_physicsSystem, &_bulletSystem, &_playerSystem, &_rendererSystem };
 		_engine->getUIRenderer()->registerSystems(systems);
 	}
 	void EditorState::_initWorld() {
-		
+		/*
 		{
 			auto room = world::newEntity("Room", world::root());
 			auto t = room->addComponent<Hydra::Component::TransformComponent>();
@@ -588,38 +583,6 @@ namespace Barcode {
 				_engine->log(Hydra::LogLevel::normal, "Enabling bullet for %s", world::getEntity(rb->entityID)->name.c_str());
 				_physicsSystem.enable(static_cast<Hydra::Component::RigidBodyComponent*>(rb.get()));
 			}
-		}
-	}
-
-	std::shared_ptr<Hydra::Renderer::IFramebuffer> EditorState::_blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int nrOfTimes, glm::vec2 size) {
-		// TO-DO: Make it agile so it can blur any texture
-		_glowBatch.pipeline->setValue(1, 1); // This bind will never change
-		bool horizontal = true;
-		bool firstPass = true;
-		_blurrExtraFBO1->resize(size);
-		_blurrExtraFBO2->resize(size);
-
-		for (int i = 0; i < nrOfTimes * 2; i++) {
-			if (firstPass) {
-				_glowBatch.batch.renderTarget = _blurrExtraFBO2.get();
-				texture->bind(1);
-				firstPass = false;
-			}
-			else if (horizontal) {
-				_glowBatch.batch.renderTarget = _blurrExtraFBO2.get();
-				(*_blurrExtraFBO1)[0]->bind(1);
-			}
-			else {
-				_glowBatch.batch.renderTarget = _blurrExtraFBO1.get();
-				(*_blurrExtraFBO2)[0]->bind(1);
-			}
-			_glowBatch.pipeline->setValue(2, horizontal);
-			_engine->getRenderer()->postProcessing(_glowBatch.batch);
-			horizontal = !horizontal;
-		}
-
-		// Change back to normal rendertarget.
-		_glowBatch.batch.renderTarget = _glowBatch.output.get();
-		return _blurrExtraFBO1;
+			}*/
 	}
 }

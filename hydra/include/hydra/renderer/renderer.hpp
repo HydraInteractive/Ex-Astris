@@ -169,22 +169,12 @@ namespace Hydra::Renderer {
 		std::map<IMesh*, std::vector<glm::mat4 /* Model matrix */>> objects;
 	};
 
-	struct HYDRA_BASE_API AnimationBatch {
-		glm::vec4 clearColor;
-		ClearFlags clearFlags;
-		IRenderTarget* renderTarget;
-		IPipeline* pipeline;
-		std::map<IMesh*, std::vector<glm::mat4 /* Model matrix */>> objects;
+	struct HYDRA_BASE_API AnimationBatch : public Batch {
 		std::map<IMesh*, std::vector<int>> currentFrames;
 		std::map<IMesh*, std::vector<int>> currAnimIndices;
 	};
 
-	struct HYDRA_BASE_API ParticleBatch {
-		glm::vec4 clearColor;
-		ClearFlags clearFlags;
-		IRenderTarget* renderTarget;
-		IPipeline* pipeline;
-		std::map<IMesh*, std::vector<glm::mat4 /* Model matrix */>> objects;
+	struct HYDRA_BASE_API ParticleBatch : public Batch {
 		std::vector<glm::vec2> textureInfo;
 	};
 

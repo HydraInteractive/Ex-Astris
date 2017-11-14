@@ -78,31 +78,24 @@ namespace Barcode {
 		Hydra::System::SoundFxSystem _soundFxSystem;
 		Hydra::System::PerkSystem _perkSystem;
 
-		RenderBatch _geometryBatch; // First part of deferred rendering
-		AnimationRenderBatch _animationBatch; // AnimationBatch
-		RenderBatch _lightingBatch; // Second part of deferred rendering
-		RenderBatch _glowBatch; // Glow batch.
-		RenderBatch _viewBatch;
-		RenderBatch _postTestBatch;
-		RenderBatch _shadowBatch;
-		AnimationRenderBatch _shadowAnimationBatch;
-		RenderBatch _ssaoBatch;
-		RenderBatch _hudBatch;
-		RenderBatch _hitboxBatch;
+		RenderBatch<Hydra::Renderer::Batch> _geometryBatch; // First part of deferred rendering
+		RenderBatch<Hydra::Renderer::AnimationBatch> _animationBatch; // AnimationBatch
+		RenderBatch<Hydra::Renderer::Batch> _lightingBatch; // Second part of deferred rendering
+		RenderBatch<Hydra::Renderer::Batch> _glowBatch; // Glow batch.
+		RenderBatch<Hydra::Renderer::Batch> _viewBatch;
+		RenderBatch<Hydra::Renderer::Batch> _shadowBatch;
+		RenderBatch<Hydra::Renderer::AnimationBatch> _shadowAnimationBatch;
+		RenderBatch<Hydra::Renderer::Batch> _ssaoBatch;
+		RenderBatch<Hydra::Renderer::Batch> _hudBatch;
+		RenderBatch<Hydra::Renderer::Batch> _hitboxBatch;
 
-		ParticleRenderBatch _particleBatch;
+		RenderBatch<Hydra::Renderer::ParticleBatch> _particleBatch;
 
 		std::unique_ptr<BlurUtil> _blurUtil;
 
 		std::shared_ptr<Hydra::Renderer::ITexture> _animationData;
 
-		// ParticleTexture
 		std::shared_ptr<Hydra::Renderer::ITexture> _particleAtlases;
-
-
-		std::shared_ptr<Hydra::Renderer::IPipeline> _glowPipeline;
-		std::unique_ptr<Hydra::Renderer::IShader> _glowVertexShader;
-		std::unique_ptr<Hydra::Renderer::IShader> _glowFragmentShader;
 
 		std::shared_ptr<Hydra::Renderer::IPipeline> _shadowPipeline;
 		std::unique_ptr<Hydra::Renderer::IShader> _shadowVertexShader;

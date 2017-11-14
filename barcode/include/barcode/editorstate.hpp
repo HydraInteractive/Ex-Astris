@@ -83,33 +83,29 @@ namespace Barcode {
 		std::unique_ptr<Hydra::IO::ITextureLoader> _textureLoader;
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
 
-		//Image drawn in the render window
-		Hydra::Renderer::UIRenderWindow* _finalImage;
+		Hydra::System::CameraSystem _cameraSystem;
+		Hydra::System::ParticleSystem _particleSystem;
+		Hydra::System::AbilitySystem _abilitySystem;
+		Hydra::System::AISystem _aiSystem;
+		Hydra::System::BulletPhysicsSystem _physicsSystem;
+		Hydra::System::BulletSystem _bulletSystem;
+		Hydra::System::PlayerSystem _playerSystem;
+		Hydra::System::RendererSystem _rendererSystem;
 
-		//Render batches
-		RenderBatch _geometryBatch; // First part of deferred rendering
-		AnimationRenderBatch _animationBatch; // AnimationBatch
-		RenderBatch _lightingBatch; // Second part of deferred rendering
-		RenderBatch _glowBatch; // Glow batch.
-		RenderBatch _viewBatch;
-		RenderBatch _postTestBatch;
-		RenderBatch _shadowBatch;
-		RenderBatch _ssaoBatch;
-		RenderBatch _previewBatch;
-		ParticleRenderBatch _particleBatch;
+		RenderBatch<Hydra::Renderer::Batch> _geometryBatch; // First part of deferred rendering
+		RenderBatch<Hydra::Renderer::AnimationBatch> _animationBatch; // AnimationBatch
+		RenderBatch<Hydra::Renderer::Batch> _lightingBatch; // Second part of deferred rendering
+		RenderBatch<Hydra::Renderer::Batch> _glowBatch; // Glow batch.
+		RenderBatch<Hydra::Renderer::Batch> _viewBatch;
+		RenderBatch<Hydra::Renderer::Batch> _shadowBatch;
+		RenderBatch<Hydra::Renderer::AnimationBatch> _shadowAnimationBatch;
+		RenderBatch<Hydra::Renderer::Batch> _ssaoBatch;
+		RenderBatch<Hydra::Renderer::Batch> _hitboxBatch;
 
-		//// ParticleTexture
+		std::unique_ptr<BlurUtil> _blurUtil;
+		std::shared_ptr<Hydra::Renderer::ITexture> _animationData;
+
 		std::shared_ptr<Hydra::Renderer::ITexture> _particleAtlases;
-
-		// Extra framebuffers, pipeline and shaders for glow/bloom/blur
-		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurrExtraFBO1;
-		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurrExtraFBO2;
-		std::vector<float> _fiveGaussianKernel1;
-		std::vector<float> _fiveGaussianKernel2;
-		std::shared_ptr<Hydra::Renderer::ITexture> _blurredOriginal;
-		std::shared_ptr<Hydra::Renderer::ITexture> _blurredIMG1;
-		std::shared_ptr<Hydra::Renderer::ITexture> _blurredIMG2;
-		std::shared_ptr<Hydra::Renderer::ITexture> _blurredIMG3;
 
 		std::shared_ptr<Hydra::Renderer::IPipeline> _glowPipeline;
 		std::unique_ptr<Hydra::Renderer::IShader> _glowVertexShader;
@@ -121,20 +117,10 @@ namespace Barcode {
 		std::shared_ptr<Hydra::Renderer::ITexture> _shadowMap;
 
 		std::shared_ptr<Hydra::Renderer::ITexture> _ssaoNoise;
-
+		std::shared_ptr<Hydra::Renderer::IMesh> _hitboxCube;
 		Hydra::Component::FreeCameraComponent* _cc = nullptr;
 		Hydra::Component::TransformComponent* _playerTransform = nullptr;
 		Hydra::Component::LightComponent* _dirLight = nullptr;
-
-		Hydra::System::CameraSystem _cameraSystem;
-		Hydra::System::ParticleSystem _particleSystem;
-		Hydra::System::AbilitySystem _abilitySystem;
-		Hydra::System::AISystem _aiSystem;
-		Hydra::System::BulletPhysicsSystem _physicsSystem;
-		Hydra::System::BulletSystem _bulletSystem;
-		Hydra::System::PlayerSystem _playerSystem;
-		Hydra::System::RendererSystem _rendererSystem;
-
 		void _initSystem();
 		void _initWorld();
 	};

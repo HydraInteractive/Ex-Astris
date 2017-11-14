@@ -25,22 +25,11 @@ namespace Barcode {
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
 
 		auto windowSize = _engine->getView()->getSize();
-		_blurUtil = BlurUtil(windowSize, Hydra::Renderer::TextureType::u8RGB);
+		_blurUtil = std::make_unique<BlurUtil>(_engine->getRenderer(), windowSize, Hydra::Renderer::TextureType::u8RGB);
 
 		{
-			auto& batch = _geometryBatch;
-			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/geometry.vert");
-			batch.geometryShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::geometry, "assets/shaders/geometry.geom");
-			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/geometry.frag");
-
-			batch.pipeline = Hydra::Renderer::GLPipeline::create();
-			batch.pipeline->attachStage(*batch.vertexShader);
-			batch.pipeline->attachStage(*batch.geometryShader);
-			batch.pipeline->attachStage(*batch.fragmentShader);
-			batch.pipeline->finalize();
-
-			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize, 0);
-			batch.output
+			_geometryBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/geometry.vert", "assets/shaders/geometry.geom", "assets/shaders/geometry.frag", windowSize);
+			_geometryBatch.output
 				->addTexture(0, Hydra::Renderer::TextureType::f16RGB) // Position
 				.addTexture(1, Hydra::Renderer::TextureType::u8RGBA) // Diffuse
 				.addTexture(2, Hydra::Renderer::TextureType::f16RGB) // Normal
@@ -49,150 +38,44 @@ namespace Barcode {
 				.addTexture(5, Hydra::Renderer::TextureType::u8R) // Glow.
 				.addTexture(6, Hydra::Renderer::TextureType::f16Depth) // real depth
 				.finalize();
-
-			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
-			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::color | Hydra::Renderer::ClearFlags::depth;
-			batch.batch.renderTarget = batch.output.get();
-			batch.batch.pipeline = batch.pipeline.get();
 		}
 
 		{
-			auto& batch = _animationBatch;
-			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/animationGeometry.vert");
-			batch.geometryShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::geometry, "assets/shaders/animationGeometry.geom");
-			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/animationGeometry.frag");
-
-			batch.pipeline = Hydra::Renderer::GLPipeline::create();
-			batch.pipeline->attachStage(*batch.vertexShader);
-			batch.pipeline->attachStage(*batch.geometryShader);
-			batch.pipeline->attachStage(*batch.fragmentShader);
-			batch.pipeline->finalize();
-
-			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
-			batch.batch.clearFlags = ClearFlags::none;
-			batch.batch.renderTarget = _geometryBatch.output.get();
-			batch.batch.pipeline = batch.pipeline.get();
+			_animationBatch = RenderBatch<Hydra::Renderer::AnimationBatch>("assets/shaders/animationGeometry.vert", "assets/shaders/animationGeometry.geom", "assets/shaders/animationGeometry.frag", _geometryBatch);
+			_animationBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::none;
 		}
 
 		{ // Lighting pass batch
-			auto& batch = _lightingBatch;
-			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/lighting.vert");
-			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/lighting.frag");
+			_lightingBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/lighting.vert", "", "assets/shaders/lighting.frag", windowSize);
 
-			batch.pipeline = Hydra::Renderer::GLPipeline::create();
-			batch.pipeline->attachStage(*batch.vertexShader);
-			batch.pipeline->attachStage(*batch.fragmentShader);
-			batch.pipeline->finalize();
-
-			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize, 0);
-			batch.output
+			_lightingBatch.output
 				->addTexture(0, Hydra::Renderer::TextureType::u8RGB)
 				.addTexture(1, Hydra::Renderer::TextureType::u8RGB)
 				.finalize();
-
-			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
-			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::color | Hydra::Renderer::ClearFlags::depth;
-			batch.batch.renderTarget = batch.output.get();
-			batch.batch.pipeline = batch.pipeline.get(); // TODO: Change to "null" pipeline
 		}
 
 		{
-			auto& batch = _glowBatch;
-			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/blur.vert");
-			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/blur.frag");
-
-			_glowVertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/glow.vert");
-			_glowFragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/glow.frag");
-
-			batch.pipeline = Hydra::Renderer::GLPipeline::create();
-			batch.pipeline->attachStage(*batch.vertexShader);
-			batch.pipeline->attachStage(*batch.fragmentShader);
-			batch.pipeline->finalize();
-
-			_glowPipeline = Hydra::Renderer::GLPipeline::create();
-			_glowPipeline->attachStage(*_glowVertexShader);
-			_glowPipeline->attachStage(*_glowFragmentShader);
-			_glowPipeline->finalize();
-
-			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize, 0);
-			batch.output
-				->addTexture(0, Hydra::Renderer::TextureType::u8RGB)
-				.finalize();
-
-			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
-			batch.batch.clearFlags = ClearFlags::color | ClearFlags::depth;
-			batch.batch.renderTarget = batch.output.get();
-			batch.batch.pipeline = batch.pipeline.get();
+			_glowBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/glow.vert", "", "assets/shaders/glow.frag", _engine->getView());
 		}
 
 		{ // PARTICLES
-			auto& batch = _particleBatch;
-			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/particles.vert");
-			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/particles.frag");
-
-			batch.pipeline = Hydra::Renderer::GLPipeline::create();
-			batch.pipeline->attachStage(*batch.vertexShader);
-			batch.pipeline->attachStage(*batch.fragmentShader);
-			batch.pipeline->finalize();
-
+			_particleBatch = RenderBatch<Hydra::Renderer::ParticleBatch>("assets/shaders/particles.vert", "", "assets/shaders/particles.frag", _engine->getView());
 			_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/ParticleAtlases.png");
-
-			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
-			batch.batch.clearFlags = ClearFlags::none;
-			batch.batch.renderTarget = _engine->getView();
-			batch.batch.pipeline = batch.pipeline.get();
+			_particleBatch.batch.clearFlags = ClearFlags::none;
 		}
 
 		{ // Shadow pass
-			auto& batch = _shadowBatch;
-			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/shadow.vert");
-			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/shadow.frag");
+			_shadowBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/shadow.vert", "", "assets/shaders/shadow.frag", glm::vec2(1024));
+			_shadowBatch.output->addTexture(0, Hydra::Renderer::TextureType::f16Depth).finalize();
+			_shadowBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::depth;
 
-			batch.pipeline = Hydra::Renderer::GLPipeline::create();
-			batch.pipeline->attachStage(*batch.vertexShader);
-			batch.pipeline->attachStage(*batch.fragmentShader);
-			batch.pipeline->finalize();
-
-			batch.output = Hydra::Renderer::GLFramebuffer::create(glm::vec2(1024), 0);
-			batch.output->addTexture(0, Hydra::Renderer::TextureType::f16Depth).finalize();
-
-			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
-			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::depth;
-			batch.batch.renderTarget = batch.output.get();
-			batch.batch.pipeline = batch.pipeline.get();
-
-			auto& animBatch = _shadowAnimationBatch;
-			animBatch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/shadowAnimation.vert");
-			animBatch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/shadow.frag");
-
-			animBatch.pipeline = Hydra::Renderer::GLPipeline::create();
-			animBatch.pipeline->attachStage(*animBatch.vertexShader);
-			animBatch.pipeline->attachStage(*animBatch.fragmentShader);
-			animBatch.pipeline->finalize();
-
-			animBatch.batch.clearColor = glm::vec4(0, 0, 0, 0);
-			animBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::none;
-			animBatch.batch.renderTarget = batch.output.get();
-			animBatch.batch.pipeline = animBatch.pipeline.get();
+			_shadowAnimationBatch = RenderBatch<Hydra::Renderer::AnimationBatch>("assets/shaders/shadowAnimation.vert", "", "assets/shaders/shadow.frag", _shadowBatch);
+			_shadowAnimationBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::none;
 		}
 
 		{ // SSAO
-			auto& batch = _ssaoBatch;
-			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/ssao.vert");
-			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/ssao.frag");
-
-			batch.pipeline = Hydra::Renderer::GLPipeline::create();
-			batch.pipeline->attachStage(*batch.vertexShader);
-			batch.pipeline->attachStage(*batch.fragmentShader);
-			batch.pipeline->finalize();
-
-			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize / 2, 0);
-			batch.output->addTexture(0, Hydra::Renderer::TextureType::f16R).finalize();
-
-			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
-			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::color | Hydra::Renderer::ClearFlags::depth;
-			batch.batch.renderTarget = batch.output.get();
-			batch.batch.pipeline = batch.pipeline.get();
+			_ssaoBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/ssao.vert", "", "assets/shaders/ssao.frag", windowSize / 2);
+			_ssaoBatch.output->addTexture(0, Hydra::Renderer::TextureType::f16R).finalize();
 
 			std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
 			std::default_random_engine generator;
@@ -228,35 +111,12 @@ namespace Barcode {
 		}
 
 		{
-			auto& batch = _viewBatch;
-			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/view.vert");
-			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/view.frag");
-
-			batch.pipeline = Hydra::Renderer::GLPipeline::create();
-			batch.pipeline->attachStage(*batch.vertexShader);
-			batch.pipeline->attachStage(*batch.fragmentShader);
-			batch.pipeline->finalize();
-
-			batch.batch.clearColor = glm::vec4(0, 0.0, 0.0, 1);
-			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::color | Hydra::Renderer::ClearFlags::depth;
-			batch.batch.renderTarget = _engine->getView();
-			batch.batch.pipeline = batch.pipeline.get(); // TODO: Change to "null" pipeline
+			_viewBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/view.vert", "", "assets/shaders/view.frag", _engine->getView());
 		}
 
 		{
-			auto& batch = _hitboxBatch;
-			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/hitboxdebug.vert");
-			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/hitboxdebug.frag");
-
-			batch.pipeline = Hydra::Renderer::GLPipeline::create();
-			batch.pipeline->attachStage(*batch.vertexShader);
-			batch.pipeline->attachStage(*batch.fragmentShader);
-			batch.pipeline->finalize();
-
-			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
-			batch.batch.clearFlags = ClearFlags::none;
-			batch.batch.renderTarget = _lightingBatch.output.get();
-			batch.batch.pipeline = batch.pipeline.get();
+			_hitboxBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/hitboxdebug.vert", "", "assets/shaders/hitboxdebug.frag", _lightingBatch);
+			_hitboxBatch.batch.clearFlags = ClearFlags::none;
 		}
 
 		size_t boneCount = 32;
@@ -504,7 +364,7 @@ namespace Barcode {
 			(*_geometryBatch.output)[2]->bind(2);
 			(*_geometryBatch.output)[3]->bind(3);
 			_shadowBatch.output->getDepth()->bind(4);
-			(*_blurrExtraFBO1)[0]->bind(5);
+			_blurUtil->getOutput()->bind(5);
 			(*_geometryBatch.output)[5]->bind(6);
 
 			_engine->getRenderer()->postProcessing(_lightingBatch.batch);
@@ -539,22 +399,17 @@ namespace Barcode {
 
 				glm::vec2 size = windowSize;
 
-				_blurUtil.blur((*_lightingBatch.output)[1], nrOfTimes, size * 0.25f);
-
-				_glowBatch.batch.pipeline = _glowPipeline.get();
+				_blurUtil->blur((*_lightingBatch.output)[1], nrOfTimes, size * 0.25f);
 
 				_glowBatch.batch.pipeline->setValue(1, 1);
 				_glowBatch.batch.pipeline->setValue(2, 2);
 
 				(*_lightingBatch.output)[0]->bind(1);
-				(*_blurrExtraFBO1)[0]->bind(2);
+				_blurUtil->getOutput()->bind(2);
 				_glowBatch.batch.pipeline->setValue(4, 4);
 				_geometryBatch.output->getDepth()->bind(4);
 
-				_glowBatch.batch.renderTarget = _engine->getView();
 				_engine->getRenderer()->postProcessing(_glowBatch.batch);
-				_glowBatch.batch.renderTarget = _glowBatch.output.get();
-				_glowBatch.batch.pipeline = _glowBatch.pipeline.get();
 			}
 			else
 				_engine->getView()->blit(_lightingBatch.output.get());
