@@ -109,6 +109,8 @@ void SpawnerSystem::tick(float delta)
 		}
 
 	}
+
+	entities.clear();
 }
 
 void SpawnerSystem::registerUI() {}
