@@ -18,15 +18,12 @@ using world = Hydra::World::World;
 ComponentMenu::ComponentMenu()
 {
 	_entities = std::vector<std::weak_ptr<Hydra::World::Entity>>();
-	refresh();
 }
 
 ComponentMenu::~ComponentMenu()
 {
 
 }
-
-
 
 void ComponentMenu::render(bool &openBool)
 {
@@ -72,7 +69,7 @@ void ComponentMenu::render(bool &openBool)
 void ComponentMenu::refresh()
 {
 	_entities.clear();
-	auto& entityIDs = world::root()->children;
+	auto& entityIDs = getRoomEntity()->children;
 	for (int i = 0; i < entityIDs.size(); i++)
 	{
 		_entities.push_back(world::getEntity(entityIDs[i]));

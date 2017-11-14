@@ -8,7 +8,7 @@ public:
 	~ComponentMenu();
 	void render(bool &openBool);
 	void refresh();
-	std::shared_ptr<Hydra::World::Entity> ComponentMenu::getRoomEntity();
+	std::shared_ptr<Hydra::World::Entity> getRoomEntity();
 	void configureComponent(bool &openBool, std::string componentType);
 private:
 	std::vector<std::weak_ptr<Hydra::World::Entity>> _entities;
