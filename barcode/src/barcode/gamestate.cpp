@@ -484,6 +484,7 @@ namespace Barcode {
 		ImGui::Checkbox("Enable shadow", &enableShadow);
 		static bool enableHitboxDebug = true;
 		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
+		//test row
 
 		if (enableSSAO) {
 			_ssaoBatch.pipeline->setValue(0, 0);
