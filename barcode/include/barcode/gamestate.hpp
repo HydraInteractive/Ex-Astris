@@ -115,6 +115,7 @@ namespace Barcode {
 		RenderBatch _shadowBatch;
 		AnimationRenderBatch _shadowAnimationBatch;
 		RenderBatch _ssaoBatch;
+		RenderBatch _ssaoBlurBatch;
 		RenderBatch _hudBatch;
 		RenderBatch _hitboxBatch;
 

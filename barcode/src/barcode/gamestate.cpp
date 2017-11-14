@@ -206,7 +206,7 @@ namespace Barcode {
 
 			std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
 			std::default_random_engine generator;
-			size_t kernelSize = 8;
+			size_t kernelSize = 16;
 			std::vector<glm::vec3> ssaoKernel;
 			for (size_t i = 0; i < kernelSize; i++) {
 				glm::vec3 sample(
@@ -235,6 +235,25 @@ namespace Barcode {
 
 			for (size_t i = 0; i < kernelSize; i++)
 				_ssaoBatch.pipeline->setValue(4 + i, ssaoKernel[i]);
+		}
+
+		{	//SSAO blur
+			auto& batch = _ssaoBlurBatch;
+			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/ssaoblur.vert");
+			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/ssaoblur.frag");
+
+			batch.pipeline = Hydra::Renderer::GLPipeline::create();
+			batch.pipeline->attachStage(*batch.vertexShader);
+			batch.pipeline->attachStage(*batch.fragmentShader);
+			batch.pipeline->finalize();
+
+			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize / 2, 0);
+			batch.output->addTexture(0, Hydra::Renderer::TextureType::f16R).finalize();
+
+			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
+			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::color | Hydra::Renderer::ClearFlags::depth;
+			batch.batch.renderTarget = batch.output.get();
+			batch.batch.pipeline = batch.pipeline.get();
 		}
 
 		{
@@ -476,7 +495,7 @@ namespace Barcode {
 
 			_engine->getRenderer()->postProcessing(_ssaoBatch.batch);
 			int nrOfTimes = 1;
-			_blurGlowTexture((*_ssaoBatch.output)[0], nrOfTimes, (*_ssaoBatch.output)[0]->getSize());
+			//_blurGlowTexture((*_ssaoBatch.output)[0], nrOfTimes, (*_ssaoBatch.output)[0]->getSize());
 		}
 
 		{ // Lighting pass
@@ -514,7 +533,8 @@ namespace Barcode {
 			(*_geometryBatch.output)[2]->bind(2);
 			(*_geometryBatch.output)[3]->bind(3);
 			_shadowBatch.output->getDepth()->bind(4);
-			(*_blurrExtraFBO1)[0]->bind(5);
+			//(*_blurrExtraFBO1)[0]->bind(5);
+			(*_ssaoBatch.output)[0]->bind(5);
 			(*_geometryBatch.output)[5]->bind(6);
 
 			_engine->getRenderer()->postProcessing(_lightingBatch.batch);
