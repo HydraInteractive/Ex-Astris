@@ -281,6 +281,8 @@ namespace Barcode {
 			if (ImGui::MenuItem("Add component..."))
 			{
 				_showComponentMenu = !_showComponentMenu;
+				if (_showComponentMenu)
+					_componentMenu.refresh();
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem("Clear room"))
@@ -571,18 +573,42 @@ namespace Barcode {
 			auto t = room->addComponent<Hydra::Component::TransformComponent>();
 			auto r = room->addComponent<Hydra::Component::RoomComponent>();
 		}
+
+		{
+			auto compass = world::newEntity("Compass", world::root());
+			auto t = compass->addComponent<Hydra::Component::TransformComponent>();
+			
+			auto n = world::newEntity("North", compass);
+			auto tn = n->addComponent<Hydra::Component::TransformComponent>();
+			tn->position = glm::vec3(0,0,17);
+
+			auto e = world::newEntity("East", compass);
+			auto te = e->addComponent<Hydra::Component::TransformComponent>();
+			te->position = glm::vec3(17, 0, 0);
+
+			auto s = world::newEntity("South", compass);
+			auto ts = s->addComponent<Hydra::Component::TransformComponent>();
+			ts->position = glm::vec3(0, 0, -17);
+
+			auto w = world::newEntity("West", compass);
+			auto tw = w->addComponent<Hydra::Component::TransformComponent>();
+			tw->position = glm::vec3(-17, 0, 0);
+		}
+
 		{
 			auto playerEntity = world::newEntity("Player", world::root());
 			auto c = playerEntity->addComponent<Hydra::Component::FreeCameraComponent>();
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
 			_playerTransform = t.get();
 		}
+
 		{
 			auto lightEntity = world::newEntity("Light", world::root());
 			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
 			auto t = lightEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(8.0, 0, 3.5);
 		}
+
 		{
 			BlueprintLoader::save("world.blueprint", "World Blueprint", world::root());
 			Hydra::World::World::reset();
