@@ -69,6 +69,7 @@ void forcePushAbility::useAbility(const std::shared_ptr<Hydra::World::Entity>& p
 
 void BulletSprayAbillity::useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity) {
 	activeTimer = 1.5f;
+	afterLastTick = true;
 }
 
 void BulletSprayAbillity::tick(float delta, const std::shared_ptr<Hydra::World::Entity>& playerEntity)
