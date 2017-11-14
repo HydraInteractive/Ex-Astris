@@ -85,7 +85,6 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 			rigidBody->setActivationState(DISABLE_DEACTIVATION);
 			rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 300);
 			rigidBody->setGravity(btVector3(0,0,0));
-
 		}
 	}
 	fireRateTimer = 1.0f/(fireRateRPM / 60.0f);

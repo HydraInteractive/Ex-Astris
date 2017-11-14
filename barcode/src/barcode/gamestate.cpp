@@ -893,16 +893,38 @@ namespace Barcode {
 				, 0, 0, 0, 0.6f, 0);
 			floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 		}
+		
 		{
 			//TileGeneration worldTiles("assets/room/threewayRoom.room");
 		}
+
 		{
 			auto physicsBox = world::newEntity("Physics box", world::root());
 			auto t = physicsBox->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3(2, 25, 2);
+			t->position = glm::vec3(2, 10, -40);
 			physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(t->scale * 10.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_MISC_OBJECT, 10
 				, 0, 0, 1.0f, 1.0f);
 			physicsBox->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BigMonitor.mATTIC");
+		}
+
+		for (size_t i = 0; i < 10; i++){
+			auto pickUpEntity = world::newEntity("PickUp", world::root());
+			auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
+			t->position = glm::vec3(0.0f, 0.0f, -4.0f);
+			pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/GreenCargoBox.mATTIC");
+			pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
+			auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+			rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
+		}
+
+		{
+			/*auto pickUpEntity = world::newEntity("PickUp", world::root());
+			auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
+			t->position = glm::vec3(0.0f, 0.0f, -4.0f);
+			pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/GreenCargoBox.mATTIC");
+			pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
+			auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+			rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);*/
 		}
 
 		{
@@ -918,7 +940,7 @@ namespace Barcode {
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
 			_playerTransform = t.get();
 			auto rgbc = playerEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(2.0f,2.0f,2.0f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
+			rgbc->createBox(glm::vec3(1.0f,2.0f,1.0f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
 				0, 0, 0.5f, 0);
 
 			//auto rbc = static_cast<btRigidBody*>(rgbc->getRigidBody());

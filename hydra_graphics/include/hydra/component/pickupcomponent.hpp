@@ -14,22 +14,22 @@
 
 using namespace Hydra::World;
 
-enum PickUpType {
-	HealthPickUp,
-	RandomPerkPickUp
-};
-
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API PickUpComponent final : public IComponent<PickUpComponent, ComponentBits::PickUp>{
+		enum PickUpType {
+			PICKUP_RANDOMPERK,
+			PICKUP_HEALTH,
+			PICKUP_AMMO
+		};
 
-	PickUpType pickUpType;
+		PickUpType pickUpType = PICKUP_RANDOMPERK;
 
-	~PickUpComponent() final;
+		~PickUpComponent() final;
 
-	inline const std::string type() const final { return "PickUpComponent"; }
+		inline const std::string type() const final { return "PickUpComponent"; }
 
-	void serialize(nlohmann::json& json) const final;
-	void deserialize(nlohmann::json& json) final;
-	void registerUI() final;
+		void serialize(nlohmann::json& json) const final;
+		void deserialize(nlohmann::json& json) final;
+		void registerUI() final;
 	};
 };

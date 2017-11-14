@@ -68,6 +68,7 @@ void PlayerSystem::tick(float delta) {
 			if (keysArray[SDL_SCANCODE_SPACE] && player->onGround){
 				rbc->applyCentralForce(btVector3(0,20000,0));
 				player->onGround = false;
+				perks->newPerks.push_back(PerkComponent::PERK_BULLETSPRAY);
 			}
 			if (keysArray[SDL_SCANCODE_C]){
 				perks->newPerks.push_back(PERK_DASH);

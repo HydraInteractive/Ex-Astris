@@ -16,6 +16,8 @@
 #include <hydra/component/bulletcomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/playercomponent.hpp>
+#include <hydra/component/pickupcomponent.hpp>
+#include <hydra/component/perkcomponent.hpp>
 #include <btBulletDynamicsCommon.h>
 
 inline static btQuaternion cast(const glm::quat& r) { return btQuaternion{r.x, r.y, r.z, r.w}; }
@@ -70,6 +72,9 @@ void BulletPhysicsSystem::enable(Hydra::Component::RigidBodyComponent* component
 	case CollisionTypes::COLL_MISC_OBJECT:
 		_data->dynamicsWorld->addRigidBody(rigidBody, COLL_MISC_OBJECT, CollisionCondition::miscObjectCollidesWith);
 		break;
+	case CollisionTypes::COLL_PICKUP_OBJECT:
+		_data->dynamicsWorld->addRigidBody(rigidBody, COLL_PICKUP_OBJECT, CollisionCondition::pickupObjectCollidesWith);
+		break;
 	default:
 		_data->dynamicsWorld->addRigidBody(rigidBody, COLL_NOTHING, COLL_NOTHING);
 		break;
@@ -97,7 +102,8 @@ void BulletPhysicsSystem::tick(float delta) {
 		Hydra::Component::BulletComponent* bc = nullptr;
 		Hydra::Component::LifeComponent* lc = nullptr;
 		Hydra::Component::PlayerComponent* pc = nullptr;
-
+		Hydra::Component::PickUpComponent* puc = nullptr;
+		Hydra::Component::PerkComponent* pec = nullptr;
 		if (bc = eA->getComponent<Hydra::Component::BulletComponent>().get())
 			lc = eB->getComponent<Hydra::Component::LifeComponent>().get();
 		else if ((bc = eB->getComponent<Hydra::Component::BulletComponent>().get()))
@@ -105,8 +111,16 @@ void BulletPhysicsSystem::tick(float delta) {
 
 		pc = eA->getComponent<Hydra::Component::PlayerComponent>().get();
 		if (!pc)
-			eB->getComponent<Hydra::Component::PlayerComponent>().get();
+			pc = eB->getComponent<Hydra::Component::PlayerComponent>().get();
 		
+		if (puc = eA->getComponent<Hydra::Component::PickUpComponent>().get())
+			pec = eB->getComponent<Hydra::Component::PerkComponent>().get();
+		else if (puc = eB->getComponent<Hydra::Component::PickUpComponent>().get())
+			pec = eA->getComponent<Hydra::Component::PerkComponent>().get();
+
+		if (puc) {
+			_addPickUp(puc, pec);
+		}
 
 		// Gets the contact points
 		int numContacts = contactManifold->getNumContacts();
@@ -114,17 +128,6 @@ void BulletPhysicsSystem::tick(float delta) {
 			btManifoldPoint& pt = contactManifold->getContactPoint(j);
 			btVector3 collPosB = pt.getPositionWorldOnB();
 			btVector3 normalOnB = pt.m_normalWorldOnB;
-
-			if (pc) {
-				if (obB->getUserIndex2() == COLL_WALL)
-					printf("COLL_WALL, B\n");
-				else if (obB->getUserIndex2() == COLL_MISC_OBJECT)
-					printf("COLL_MISC_OBJECT, B\n");
-				else if (obA->getUserIndex2() == COLL_WALL)
-					printf("COLL_WALL, A\n");
-				else if (obA->getUserIndex2() == COLL_MISC_OBJECT)
-					printf("COLL_MISC_OBJECT, A\n");
-			}
 
 			if (pc && normalOnB.y() > 0.7){
 				pc->onGround = true;
@@ -163,6 +166,44 @@ void BulletPhysicsSystem::_spawnParticleEmitterAt(const glm::vec3& pos, const gl
 	auto pELC = pE->addComponent<Hydra::Component::LifeComponent>();
 	pELC->maxHP = 0.9f;
 	pELC->health = 0.9f;
+}
+
+void Hydra::System::BulletPhysicsSystem::_addPickUp(Hydra::Component::PickUpComponent * puc, Hydra::Component::PerkComponent * pec)
+{
+	switch (puc->pickUpType)
+	{
+	case Hydra::Component::PickUpComponent::PICKUP_RANDOMPERK: {
+		std::vector<int> perksNotFound;
+		for (size_t i = 0; i < pec->AMOUNTOFPERKS-1; i++){
+			bool perkFound = false;
+			for (size_t j = 0; j < pec->activePerks.size(); j++){
+				if (i == pec->activePerks[j]){
+					perkFound = true;
+					j = pec->activePerks.size();
+				}
+				if (!perkFound)
+				{
+					//
+				}
+			}
+		}
+		int newPerk = rand() % (Hydra::Component::PerkComponent::AMOUNTOFPERKS -1);
+		std::stringstream temp; temp << newPerk << std::endl;
+		printf(temp.str().c_str());
+		std::vector<Hydra::Component::PerkComponent::Perk>::iterator it = std::find(pec->activePerks.begin(), pec->activePerks.end(), newPerk);
+		if (it == pec->activePerks.end()){
+			pec->newPerks.push_back(Hydra::Component::PerkComponent::Perk(newPerk));
+		}
+		World::World::World::getEntity(puc->entityID)->dead = true;
+	}
+		break;
+	case Hydra::Component::PickUpComponent::PICKUP_HEALTH:
+		break;
+	case Hydra::Component::PickUpComponent::PICKUP_AMMO:
+		break;
+	default:
+		break;
+	}
 }
 
 void BulletPhysicsSystem::registerUI() {}
