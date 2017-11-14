@@ -323,6 +323,7 @@ RobotBehaviour::~RobotBehaviour()
 void RobotBehaviour::run(float dt)
 {
 	//If all components haven't been found, try to find them and abort if one or more do not exist
+	thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->animationIndex = 0;
 	if (!hasRequiredComponents)
 		if (!refreshRequiredComponents())
 			return;
@@ -377,7 +378,7 @@ unsigned int RobotBehaviour::idleState(float dt)
 		if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 50)
 		{
 			idleTimer = 0;
-			if (currentFrame <= 2)
+			if (currentFrame >= 2)
 				thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->currentFrame -= 2;
 			else
 				return SEARCHING;

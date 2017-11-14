@@ -34,7 +34,7 @@
 
 #include <fstream>
 #include <json.hpp>
-#define GRID_SIZE 7
+#define GRID_SIZE 3
 #define ROOM_SIZE 34
 
 class TileGeneration
@@ -46,7 +46,7 @@ public:
 	TileGeneration(std::string middleRoomPath);
 	~TileGeneration();
 
-	int maxRooms = 10;
+	int maxRooms = 6;
 
 private:
 	std::vector<std::string> _roomFileNames;

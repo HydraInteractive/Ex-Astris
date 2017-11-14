@@ -21,7 +21,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 	//or we will go otuside the tile grid
 	
 	enum { NORTH, EAST, SOUTH, WEST };
-	if (grid[pos.x][pos.y]->door[NORTH] && grid[pos.x][pos.y + 1] == nullptr)
+	if (grid[pos.x][pos.y]->door[SOUTH] && grid[pos.x][pos.y + 1] == nullptr)
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
@@ -31,7 +31,9 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
 			auto loadedRoom = world::newEntity("Room", world::root());
 			
-			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
+			int randomRoomInt = rand() % _roomFileNames.size();
+
+			BlueprintLoader::load(_roomFileNames[randomRoomInt])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
 
 			if (_checkAdjacents(pos.x, pos.y + 1, roomC))
@@ -39,6 +41,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 				placed = true;
 				auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 				t->position = _gridToWorld(pos.x, pos.y + 1);
+				t->scale = glm::vec3(1.5, 1.5, 1.5);
 				grid[pos.x][pos.y + 1] = roomC;
 				_createMapRecursivly(glm::ivec2(pos.x, pos.y + 1));
 			}
@@ -52,8 +55,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 		}
 	}
 
-
-	if (grid[pos.x][pos.y]->door[EAST] && grid[pos.x + 1][pos.y] == nullptr)
+	if (grid[pos.x][pos.y]->door[WEST] && grid[pos.x + 1][pos.y] == nullptr)
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
@@ -63,7 +65,9 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
 			std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", world::root());
 
-			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
+			int randomRoomInt = rand() % _roomFileNames.size();
+
+			BlueprintLoader::load(_roomFileNames[randomRoomInt])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
 
 			if (_checkAdjacents(pos.x + 1, pos.y, roomC))
@@ -71,6 +75,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 				placed = true;
 				auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 				t->position = _gridToWorld(pos.x + 1, pos.y);
+				t->scale = glm::vec3(1.5, 1.5, 1.5);
 				grid[pos.x + 1][pos.y] = roomC;
 				_createMapRecursivly(glm::ivec2(pos.x + 1, pos.y));
 			}
@@ -84,7 +89,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 		}
 	}
 
-	if (grid[pos.x][pos.y]->door[SOUTH] && grid[pos.x][pos.y - 1] == nullptr)
+	if (grid[pos.x][pos.y]->door[NORTH] && grid[pos.x][pos.y - 1] == nullptr)
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
@@ -94,7 +99,9 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
 			std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", world::root());
 
-			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
+			int randomRoomInt = rand() % _roomFileNames.size();
+
+			BlueprintLoader::load(_roomFileNames[randomRoomInt])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
 
 			if (_checkAdjacents(pos.x, pos.y - 1, roomC))
@@ -102,6 +109,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 				placed = true;
 				auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 				t->position = _gridToWorld(pos.x, pos.y - 1);
+				t->scale = glm::vec3(1.5, 1.5, 1.5);
 				grid[pos.x][pos.y - 1] = roomC;
 				_createMapRecursivly(glm::ivec2(pos.x, pos.y - 1));
 			}
@@ -115,7 +123,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 		}
 	}
 
-	if (grid[pos.x][pos.y]->door[WEST] && grid[pos.x - 1][pos.y] == nullptr)
+	if (grid[pos.x][pos.y]->door[EAST] && grid[pos.x - 1][pos.y] == nullptr)
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
@@ -125,7 +133,9 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
 			std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", world::root());
 
-			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
+			int randomRoomInt = rand() % _roomFileNames.size();
+
+			BlueprintLoader::load(_roomFileNames[randomRoomInt])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
 
 			if (_checkAdjacents(pos.x - 1, pos.y, roomC))
@@ -133,6 +143,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 				placed = true;
 				auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 				t->position = _gridToWorld(pos.x - 1, pos.y);
+				t->scale = glm::vec3(1.5, 1.5, 1.5);
 				grid[pos.x - 1][pos.y] = roomC;
 				_createMapRecursivly(glm::ivec2(pos.x - 1, pos.y));
 			}
@@ -157,6 +168,7 @@ void TileGeneration::_setUpMiddleRoom(std::string middleRoomPath) {
 	auto room = world::newEntity("Middle Room", world::root());
 	auto t = room->addComponent<Hydra::Component::TransformComponent>();
 	t->position = glm::vec3(0, -5, 0);
+	t->scale = glm::vec3(1.5, 1.5, 1.5);
 	auto roomC = room->addComponent<Hydra::Component::RoomComponent>();
 	grid[GRID_SIZE / 2][GRID_SIZE / 2] = roomC;
 	BlueprintLoader::load(middleRoomPath)->spawn(room);
@@ -193,42 +205,42 @@ glm::vec3 TileGeneration::_gridToWorld(int x, int y) {
 	float xPos = (ROOM_SIZE * x) - ((GRID_SIZE * ROOM_SIZE) / 2) + 17;
 	float yPos = (ROOM_SIZE * y) - ((GRID_SIZE * ROOM_SIZE) / 2) + 17;
 
-	return glm::vec3(xPos, -5, yPos);
+	return glm::vec3(xPos * 1.2, -5, yPos * 1.2);
 	
 }
 
 bool TileGeneration::_checkAdjacents(int x, int y, std::shared_ptr<Hydra::Component::RoomComponent>& r) {
-	if (r->door[r->NORTH])
+	if (r->door[r->SOUTH])
 	{
 		if (y >= GRID_SIZE - 1)
 			return false;
 		if (grid[x][y + 1] != nullptr)
-			if (!grid[x][y + 1]->door[r->SOUTH])
+			if (!grid[x][y + 1]->door[r->NORTH])
 				return false;
 		
 	}
-	if (r->door[r->WEST])
+	if (r->door[r->EAST])
 	{
 		if (x <= 0)
 			return false;
 		if (grid[x - 1][y] != nullptr)
-			if(!grid[x - 1][y]->door[r->EAST])
+			if(!grid[x - 1][y]->door[r->WEST])
 				return false;
 	}
-	if (r->door[r->SOUTH])
+	if (r->door[r->NORTH])
 	{
 		if (y <= 0)
 			return false;
 		if (grid[x][y - 1] != nullptr)
-			if(!grid[x][y - 1]->door[r->NORTH])
+			if(!grid[x][y - 1]->door[r->SOUTH])
 				return false;
 	}
-	if (r->door[r->EAST])
+	if (r->door[r->WEST])
 	{
 		if (x >= GRID_SIZE - 1)
 			return false;
 		if (grid[x + 1][y] != nullptr)
-			if(!grid[x + 1][y]->door[r->WEST])
+			if(!grid[x + 1][y]->door[r->EAST])
 				return false;
 	}
 	return true;
