@@ -175,7 +175,7 @@ void Hydra::System::BulletPhysicsSystem::_addPickUp(Hydra::Component::PickUpComp
 	case Hydra::Component::PickUpComponent::PICKUP_RANDOMPERK: {
 		std::vector<int> perksNotFound;
 		
-		for (size_t i = 0; i < pec->AMOUNTOFPERKS-1; i++){
+		for (size_t i = 0; i < pec->AMOUNTOFPERKS; i++){
 			bool perkFound = false;
 			for (size_t j = 0; j < pec->activePerks.size(); j++){
 				if (Hydra::Component::PerkComponent::Perk(i) == pec->activePerks[j]){

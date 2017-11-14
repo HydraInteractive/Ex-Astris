@@ -296,6 +296,7 @@ namespace Barcode {
 		_soundFxSystem.tick(delta);
 		_perkSystem.tick(delta);
 		_lifeSystem.tick(delta);
+		_pickUpSystem.tick(delta);
 
 		//TODO: These should go straight to the transform component, not via the camera component
 		const glm::vec3 cameraPos = _playerTransform->position;
@@ -881,7 +882,7 @@ namespace Barcode {
 			physicsBox->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BigMonitor.mATTIC");
 		}
 
-		for (size_t i = 0; i < 10; i++){
+		for (size_t i = 0; i < 1; i++){
 			auto pickUpEntity = world::newEntity("PickUp", world::root());
 			auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(0.0f, 0.0f, -4.0f);
