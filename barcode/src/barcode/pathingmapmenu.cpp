@@ -10,8 +10,9 @@ PathingMapMenu::~PathingMapMenu()
 
 void PathingMapMenu::render(bool & closeBool, float delta)
 {
-	ImGui::SetNextWindowSize(ImVec2(960, 960), ImGuiSetCond_Once);
-	ImGui::Begin("Pathing", &closeBool);
+	ImGui::SetNextWindowSize(ImVec2(1024, 1024), ImGuiSetCond_Once);
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImColor(0.0f, 0.0f, 0.0f, 0.0f));
+	ImGui::Begin("Pathing", &closeBool, ImGuiWindowFlags_NoResize);
 	ImGui::Columns(ROOM_MAP_SIZE);
 
 	auto room = FileTree::getRoomEntity();
@@ -57,6 +58,6 @@ void PathingMapMenu::render(bool & closeBool, float delta)
 		ImGui::NextColumn();
 	}
 	
-
 	ImGui::End();
+	ImGui::PopStyleColor();
 }
