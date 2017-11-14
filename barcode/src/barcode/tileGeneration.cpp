@@ -41,7 +41,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 				placed = true;
 				auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 				t->position = _gridToWorld(pos.x, pos.y + 1);
-				t->scale = glm::vec3(1.5, 1.5, 1.5);
+				t->scale = glm::vec3(1, 1.5, 1);
 				grid[pos.x][pos.y + 1] = roomC;
 				_createMapRecursivly(glm::ivec2(pos.x, pos.y + 1));
 			}
@@ -75,7 +75,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 				placed = true;
 				auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 				t->position = _gridToWorld(pos.x + 1, pos.y);
-				t->scale = glm::vec3(1.5, 1.5, 1.5);
+				t->scale = glm::vec3(1, 1.5, 1);
 				grid[pos.x + 1][pos.y] = roomC;
 				_createMapRecursivly(glm::ivec2(pos.x + 1, pos.y));
 			}
@@ -109,7 +109,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 				placed = true;
 				auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 				t->position = _gridToWorld(pos.x, pos.y - 1);
-				t->scale = glm::vec3(1.5, 1.5, 1.5);
+				t->scale = glm::vec3(1, 1.5, 1);
 				grid[pos.x][pos.y - 1] = roomC;
 				_createMapRecursivly(glm::ivec2(pos.x, pos.y - 1));
 			}
@@ -143,7 +143,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 				placed = true;
 				auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 				t->position = _gridToWorld(pos.x - 1, pos.y);
-				t->scale = glm::vec3(1.5, 1.5, 1.5);
+				t->scale = glm::vec3(1, 1.5, 1);
 				grid[pos.x - 1][pos.y] = roomC;
 				_createMapRecursivly(glm::ivec2(pos.x - 1, pos.y));
 			}
@@ -205,7 +205,7 @@ glm::vec3 TileGeneration::_gridToWorld(int x, int y) {
 	float xPos = (ROOM_SIZE * x) - ((GRID_SIZE * ROOM_SIZE) / 2) + 17;
 	float yPos = (ROOM_SIZE * y) - ((GRID_SIZE * ROOM_SIZE) / 2) + 17;
 
-	return glm::vec3(xPos * 1.5, -5, yPos * 1.5);
+	return glm::vec3(xPos, -5, yPos);
 	
 }
 

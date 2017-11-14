@@ -885,7 +885,7 @@ namespace Barcode {
 			floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 		}
 		{
-			TileGeneration worldTiles("assets/room/threewayRoom.room");
+			TileGeneration worldTiles("assets/room/centralRoomPipes.room");
 		}
 		{
 			auto physicsBox = world::newEntity("Physics box", world::root());
