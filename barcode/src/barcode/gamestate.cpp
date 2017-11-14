@@ -295,11 +295,11 @@ namespace Barcode {
 		_abilitySystem.tick(delta);
 		_particleSystem.tick(delta);
 		_rendererSystem.tick(delta);
+		_animationSystem.tick(delta);
 		_spawnerSystem.tick(delta);
 		_soundFxSystem.tick(delta);
 		_perkSystem.tick(delta);
 		_lifeSystem.tick(delta);
-		_animationSystem.tick(delta);
 
 		//TODO: These should go straight to the transform component, not via the camera component
 		const glm::vec3 cameraPos = _playerTransform->position;
