@@ -68,7 +68,6 @@ void PlayerSystem::tick(float delta) {
 			if (keysArray[SDL_SCANCODE_SPACE] && player->onGround){
 				rbc->applyCentralForce(btVector3(0,20000,0));
 				player->onGround = false;
-				perks->newPerks.push_back(PerkComponent::PERK_BULLETSPRAY);
 			}
 
 			if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && !ImGui::GetIO().WantCaptureMouse) {

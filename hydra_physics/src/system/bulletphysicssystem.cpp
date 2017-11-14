@@ -174,26 +174,32 @@ void Hydra::System::BulletPhysicsSystem::_addPickUp(Hydra::Component::PickUpComp
 	{
 	case Hydra::Component::PickUpComponent::PICKUP_RANDOMPERK: {
 		std::vector<int> perksNotFound;
+		
 		for (size_t i = 0; i < pec->AMOUNTOFPERKS-1; i++){
 			bool perkFound = false;
 			for (size_t j = 0; j < pec->activePerks.size(); j++){
-				if (i == pec->activePerks[j]){
+				if (Hydra::Component::PerkComponent::Perk(i) == pec->activePerks[j]){
 					perkFound = true;
 					j = pec->activePerks.size();
 				}
-				if (!perkFound)
-				{
-					//
+			}
+			for (size_t j = 0; j < pec->newPerks.size(); j++){
+				if (Hydra::Component::PerkComponent::Perk(i) == pec->newPerks[j]) {
+					perkFound = true;
+					j = pec->newPerks.size();
 				}
 			}
+			if (!perkFound)
+			{
+				perksNotFound.push_back(i);
+			}
 		}
-		int newPerk = rand() % (Hydra::Component::PerkComponent::AMOUNTOFPERKS -1);
-		std::stringstream temp; temp << newPerk << std::endl;
-		printf(temp.str().c_str());
-		std::vector<Hydra::Component::PerkComponent::Perk>::iterator it = std::find(pec->activePerks.begin(), pec->activePerks.end(), newPerk);
-		if (it == pec->activePerks.end()){
-			pec->newPerks.push_back(Hydra::Component::PerkComponent::Perk(newPerk));
+
+		if (!perksNotFound.empty()){
+			int newPerk = rand() % (perksNotFound.size());
+			pec->newPerks.push_back(Hydra::Component::PerkComponent::Perk(perksNotFound[newPerk]));
 		}
+		
 		World::World::World::getEntity(puc->entityID)->dead = true;
 	}
 		break;

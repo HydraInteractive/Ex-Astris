@@ -33,22 +33,22 @@ void PerkSystem::tick(float delta) {
 			&& perks->activeAbilities[perks->activeAbility]->cooldown == 0) {
 			perks->activeAbilities[perks->activeAbility]->useAbility(entities[i]);
 			
-			/*if (++perks->activeAbility >= perks->activeAbilities.size())
-				perks->activeAbility = 0;*/
+			if (++perks->activeAbility >= perks->activeAbilities.size())
+				perks->activeAbility = 0;
 		}
 
 		//Active abilities tick
-		for (size_t i = 0; i < perks->activeAbilities.size(); i++) {
-			perks->activeAbilities[i]->activeTimer -= delta;
-			perks->activeAbilities[i]->timeSinceLastTick += delta;
+		for (size_t j = 0; j < perks->activeAbilities.size(); j++) {
+			perks->activeAbilities[j]->activeTimer -= delta;
+			perks->activeAbilities[j]->timeSinceLastTick += delta;
 
-			if (perks->activeAbilities[i]->activeTimer >= 0 && perks->activeAbilities[i]->tickFreq <= perks->activeAbilities[i]->timeSinceLastTick) {
-				perks->activeAbilities[i]->tick(delta, entities[i]);
-				perks->activeAbilities[i]->timeSinceLastTick = 0;
+			if (perks->activeAbilities[j]->activeTimer >= 0 && perks->activeAbilities[j]->tickFreq <= perks->activeAbilities[j]->timeSinceLastTick) {
+				perks->activeAbilities[j]->tick(delta, entities[i]);
+				perks->activeAbilities[j]->timeSinceLastTick = 0;
 			}
-			if (perks->activeAbilities[i]->activeTimer < 0 && perks->activeAbilities[i]->afterLastTick){
-				perks->activeAbilities[i]->doneTick(delta,entities[i]);
-				perks->activeAbilities[i]->afterLastTick = false;
+			if (perks->activeAbilities[j]->activeTimer < 0 && perks->activeAbilities[j]->afterLastTick){
+				perks->activeAbilities[j]->doneTick(delta,entities[i]);
+				perks->activeAbilities[j]->afterLastTick = false;
 			}
 		}
 

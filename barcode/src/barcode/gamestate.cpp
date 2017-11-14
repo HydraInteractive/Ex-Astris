@@ -881,7 +881,7 @@ namespace Barcode {
 			physicsBox->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BigMonitor.mATTIC");
 		}
 
-		/*for (size_t i = 0; i < 10; i++){
+		for (size_t i = 0; i < 10; i++){
 			auto pickUpEntity = world::newEntity("PickUp", world::root());
 			auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(0.0f, 0.0f, -4.0f);
@@ -889,7 +889,7 @@ namespace Barcode {
 			pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
 			auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
-		}*/
+		}
 
 		{
 			/*auto pickUpEntity = world::newEntity("PickUp", world::root());
@@ -917,9 +917,6 @@ namespace Barcode {
 			rgbc->createBox(glm::vec3(1.0f,2.0f,1.0f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
 				0, 0, 0.5f, 0);
 			rgbc->setAngularForce(glm::vec3(0, 0, 0));
-
-			//auto rbc = static_cast<btRigidBody*>(rgbc->getRigidBody());
-			//rbc->setAngularFactor(btVector3(0.0f,0.0f,0.0f));
 
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 			t->position = glm::vec3{ 0, -7, 20 };
