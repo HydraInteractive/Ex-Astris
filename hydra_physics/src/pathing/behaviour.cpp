@@ -124,8 +124,7 @@ unsigned int Behaviour::searchingState(float dt)
 	//	return IDLE;
 	//}
 	pathFinding->intializedStartGoal = false;
-	int map[ROOM_MAP_SIZE][ROOM_MAP_SIZE];
-	pathFinding->findPath(thisEnemy.transform->position, targetPlayer.transform->position, map);
+	pathFinding->findPath(thisEnemy.transform->position, targetPlayer.transform->position, TileGeneration::pathfindingMap);
 	isAtGoal = false;
 
 

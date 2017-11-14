@@ -8,6 +8,7 @@
 #include <hydra/ext/api.hpp>
 #include <memory>
 #include <random>
+#include <barcode/tileGeneration.hpp>
 
 class HYDRA_PHYSICS_API Behaviour
 {

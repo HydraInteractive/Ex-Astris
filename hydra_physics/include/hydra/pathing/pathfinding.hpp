@@ -91,7 +91,7 @@ public:
 	PathFinding();
 	virtual ~PathFinding();
 
-	void findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, int(&map)[ROOM_MAP_SIZE][ROOM_MAP_SIZE]);
+	void findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, bool** map);
 	glm::vec3 nextPathPos(const glm::vec3& pos, const float& radius);
 	MapVec worldToMapCoords(const glm::vec3& worldPos) const;
 	glm::vec3 mapToWorldCoords(const MapVec& mapPos) const;
@@ -120,5 +120,5 @@ private:
 	std::shared_ptr<Node> _endNode;
 
 	bool isOutOfBounds(const glm::vec2& vec)const;
-	void _discoverNode(int x, int z, std::shared_ptr<Node> lastNode, int(&map)[ROOM_MAP_SIZE][ROOM_MAP_SIZE]);
+	void _discoverNode(int x, int z, std::shared_ptr<Node> lastNode, bool** map);
 };

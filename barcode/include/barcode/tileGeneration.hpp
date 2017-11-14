@@ -40,7 +40,7 @@ class TileGeneration
 public:
 	int maxRooms = 1;
 	std::shared_ptr<Hydra::Component::RoomComponent> roomGrid[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
-	bool** pathfindingMap;	
+	static bool** pathfindingMap;
 	TileGeneration(std::string middleRoomPath);
 	~TileGeneration();
 private:

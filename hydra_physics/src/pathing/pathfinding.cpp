@@ -21,7 +21,7 @@ PathFinding::~PathFinding() {
 
 }
 
-void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, int(&map)[ROOM_MAP_SIZE][ROOM_MAP_SIZE])
+void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, bool** map)
 {
 	if (!intializedStartGoal) 
 	{
@@ -126,7 +126,7 @@ bool PathFinding::isOutOfBounds(const glm::vec2& vec) const
 	return false;
 }
 
-void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode, int(&map)[ROOM_MAP_SIZE][ROOM_MAP_SIZE])
+void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode, bool** map)
 {
 	MapVec currentPos = MapVec(x, z);
 	if (isOutOfBounds(currentPos.baseVec))
@@ -134,7 +134,7 @@ void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode, in
 		return;
 	}
 	//If this node is inaccessable, ignore it
-	if (map[x][z] == 1 || map[x][z] == 2)
+	if (map[x][z] == 1)
 	{
 		return;
 	}
