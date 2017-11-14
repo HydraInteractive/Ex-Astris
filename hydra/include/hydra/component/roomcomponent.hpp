@@ -15,7 +15,7 @@
 
 #define ROOM_GRID_SIZE 7 //Size of the 2D array holding all rooms
 #define ROOM_SIZE 34 //How long a side of a room is
-#define ROOM_MAP_SIZE 128 //Size of both dimensions of the 2D array 
+#define ROOM_MAP_SIZE 16 //Size of both dimensions of the 2D array 
 #define ROOM_SCALE (ROOM_SIZE / ROOM_MAP_SIZE) //How map coordinates relate to world coordinates
 #define WORLD_MAP_SIZE (ROOM_GRID_SIZE * ROOM_MAP_SIZE) //Size of the 2D array holding the pathing map for the whole level
 

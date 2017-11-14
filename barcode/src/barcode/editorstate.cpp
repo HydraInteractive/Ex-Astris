@@ -311,7 +311,7 @@ namespace Barcode {
 
 		if (_showPathMapCreator)
 		{
-			_cc->getTransformComponent()->position = glm::vec3(0, 50, 0);
+			_cc->getTransformComponent()->position = glm::vec3(0, 40, 0);
 			_playerTransform->rotation = glm::quat();
 			_cc->cameraPitch = 90;
 			_cc->cameraYaw = 0;
@@ -566,8 +566,9 @@ namespace Barcode {
 		if (_showPathMapCreator)
 		{
 			_pathingMenu.render(_showPathMapCreator, delta);
+			_importerMenu->render(_showImporter, &_previewBatch.batch, delta);
 		}
-
+			
 		_glowBatch.output->resolve(0, _finalImage->image);
 		_glowBatch.batch.renderTarget = _engine->getView();
 		_engine->getRenderer()->clear(_glowBatch.batch);
