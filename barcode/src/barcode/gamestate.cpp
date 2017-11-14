@@ -295,6 +295,7 @@ namespace Barcode {
 		_abilitySystem.tick(delta);
 		_particleSystem.tick(delta);
 		_rendererSystem.tick(delta);
+		_animationSystem.tick(delta);
 		_spawnerSystem.tick(delta);
 		_soundFxSystem.tick(delta);
 		_perkSystem.tick(delta);
@@ -383,23 +384,12 @@ namespace Barcode {
 
 						else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
 							auto mc = e->getComponent<Hydra::Component::MeshComponent>();
-							int currentFrame = mc->currentFrame;
-							float animationCounter = mc->animationCounter;
-
-							if (animationCounter > 1 / 24.0f && currentFrame < mc->mesh->getMaxFramesForAnimation(mc->animationIndex)) {
-								mc->animationCounter -= 1 / 24.0f;
-								mc->currentFrame += 1;
-							}
-							else if (currentFrame >= mc->mesh->getMaxFramesForAnimation(mc->animationIndex))
-								mc->currentFrame = 1;
-
 							_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 							_animationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
 							_animationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
 							_shadowAnimationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 							_shadowAnimationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
 							_shadowAnimationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
-							mc->animationCounter += 1 * delta;
 						}
 					}
 				}
@@ -422,17 +412,8 @@ namespace Barcode {
 					auto mesh = drawObj->mesh;
 					if (mesh->hasAnimation() == false || drawObj->disable || !drawObj->mesh)
 						continue;
-
+					
 					auto mc = e->getComponent<Hydra::Component::MeshComponent>();
-					int currentFrame = mc->currentFrame;
-					float animationCounter = mc->animationCounter;
-
-					if (animationCounter > 1 / 24.0f && currentFrame < mc->mesh->getMaxFramesForAnimation(mc->animationIndex)) {
-						mc->animationCounter -= 1 / 24.0f;
-						mc->currentFrame += 1;
-					}
-					else if (currentFrame >= mc->mesh->getMaxFramesForAnimation(mc->animationIndex))
-						mc->currentFrame = 1;
 
 					_animationBatch.batch.objects[mesh].push_back(drawObj->modelMatrix);
 					_animationBatch.batch.currentFrames[mesh].push_back(mc->currentFrame);
@@ -440,7 +421,6 @@ namespace Barcode {
 					_shadowAnimationBatch.batch.objects[mesh].push_back(drawObj->modelMatrix);
 					_shadowAnimationBatch.batch.currentFrames[mesh].push_back(mc->currentFrame);
 					_shadowAnimationBatch.batch.currAnimIndices[mesh].push_back(mc->animationIndex);
-					mc->animationCounter += 1 * delta;
 				}
 			}
 			_engine->getRenderer()->render(_geometryBatch.batch);
