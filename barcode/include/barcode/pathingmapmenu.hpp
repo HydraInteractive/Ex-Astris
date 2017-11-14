@@ -9,4 +9,5 @@ public:
 
 	void render(bool &closeBool, float delta);
 private:
+	int arr[ROOM_MAP_SIZE][ROOM_MAP_SIZE] = { 0 };
 };

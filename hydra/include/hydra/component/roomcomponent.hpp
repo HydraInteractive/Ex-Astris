@@ -27,7 +27,7 @@ namespace Hydra::Component {
 		enum { NORTH, EAST, SOUTH, WEST };
 		bool openWalls[4];
 		bool door[4];
-		int localMap[ROOM_MAP_SIZE][ROOM_MAP_SIZE];
+		int localMap[ROOM_MAP_SIZE][ROOM_MAP_SIZE] = { 0 };
 		bool change = 0;
 		~RoomComponent() final;
 

@@ -311,11 +311,12 @@ namespace Barcode {
 
 		if (_showPathMapCreator)
 		{
-			_cc->getTransformComponent()->position = glm::vec3(0, 40, 0);
+			_cc->getTransformComponent()->position = glm::vec3(0, 50, 0);
 			_playerTransform->rotation = glm::quat();
 			_cc->cameraPitch = 90;
 			_cc->cameraYaw = 0;
 			_cc->movementSpeed = 0;
+			_cc->sensitivity = 0;
 		}
 
 		{ // Render objects (Deferred rendering)
@@ -556,12 +557,17 @@ namespace Barcode {
 				_engine->getRenderer()->render(_particleBatch.batch);
 			}
 		}
+		
+
 		if (_showImporter)
 			_importerMenu->render(_showImporter, &_previewBatch.batch, delta);
 		if (_showExporter)
 			_exporterMenu->render(_showExporter);
 		if (_showPathMapCreator)
+		{
 			_pathingMenu.render(_showPathMapCreator, delta);
+		}
+
 		_glowBatch.output->resolve(0, _finalImage->image);
 		_glowBatch.batch.renderTarget = _engine->getView();
 		_engine->getRenderer()->clear(_glowBatch.batch);

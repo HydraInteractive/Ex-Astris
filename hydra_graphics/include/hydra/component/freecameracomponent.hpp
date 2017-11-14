@@ -18,17 +18,17 @@ using namespace Hydra::World;
 namespace Hydra::Component {
 	struct HYDRA_GRAPHICS_API FreeCameraComponent final : public IComponent<FreeCameraComponent, ComponentBits::EditorCamera> {
 		bool useOrtho = false;
-		float orthoLeft = -17.0f;
-		float orthoRight = 17.0f;
-		float orthoBottom = -17.0f;
-		float orthoTop = 17.0f;
+		float orthoLeft = -18.0f;
+		float orthoRight = 18.0f;
+		float orthoBottom = -19.0f;
+		float orthoTop = 18.0f;
 
 		float movementSpeed = 10.0f;
 		float shiftMultiplier = 5.0f;
 
 		float fov = 90.0f;
-		float zNear = 0.1f;
-		float zFar = 75.0f;
+		float zNear = 1.0f;
+		float zFar = 100.0f;
 		float aspect = 16.0f/9.0f;
 
 		float sensitivity = 0.003f;
