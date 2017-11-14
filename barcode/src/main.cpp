@@ -50,7 +50,7 @@ namespace Barcode {
 		}
 
 		~Engine() final {
-			setState_(nullptr);
+			_state.reset();
 
 			// Mirror Hydra::World::World::reset, but without create a new world root
 			Hydra::World::World::_isResetting = true;

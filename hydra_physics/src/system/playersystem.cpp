@@ -99,6 +99,8 @@ void PlayerSystem::tick(float delta) {
 		wt->rotation = glm::normalize(glm::conjugate(transform->rotation) * glm::quat(glm::vec3(glm::radians(180.0f), 0, glm::radians(180.0f))));
 		wt->dirty = true;
 	}
+
+	entities.clear();
 }
 
 void PlayerSystem::registerUI() {}
