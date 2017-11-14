@@ -38,22 +38,20 @@
 class TileGeneration
 {
 public:
-	std::shared_ptr<Hydra::Component::RoomComponent> grid[GRID_SIZE][GRID_SIZE];
-	bool** pathfindingMap;
+	int maxRooms = 1;
+	std::shared_ptr<Hydra::Component::RoomComponent> roomGrid[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
+	bool** pathfindingMap;	
 	TileGeneration(std::string middleRoomPath);
 	~TileGeneration();
-
-	int maxRooms = 1;
-
 private:
 	std::vector<std::string> _roomFileNames;
 	int _roomCounter = 0;
 
 	void _setUpMiddleRoom(std::string middleRoomPath);
 	void _createMapRecursivly(glm::ivec2 pos);
+	void _insertPathFindingMap(glm::ivec2 room);
 	void _setupGrid();
 	void _obtainRoomFiles();
 	glm::vec3 _gridToWorld(int x, int y);
 	bool _checkAdjacents(int x, int y, std::shared_ptr<Hydra::Component::RoomComponent>& r);
-
 };
