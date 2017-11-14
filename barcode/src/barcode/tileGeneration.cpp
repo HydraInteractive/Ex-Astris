@@ -21,7 +21,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 	//or we will go otuside the tile grid
 	
 	enum { NORTH, EAST, SOUTH, WEST };
-	if (grid[pos.x][pos.y]->door[SOUTH] && grid[pos.x][pos.y + 1] == nullptr)
+	if (grid[pos.x][pos.y]->door[NORTH] && grid[pos.x][pos.y + 1] == nullptr)
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
@@ -55,7 +55,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 		}
 	}
 
-	if (grid[pos.x][pos.y]->door[WEST] && grid[pos.x + 1][pos.y] == nullptr)
+	if (grid[pos.x][pos.y]->door[EAST] && grid[pos.x + 1][pos.y] == nullptr)
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
@@ -89,7 +89,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 		}
 	}
 
-	if (grid[pos.x][pos.y]->door[NORTH] && grid[pos.x][pos.y - 1] == nullptr)
+	if (grid[pos.x][pos.y]->door[SOUTH] && grid[pos.x][pos.y - 1] == nullptr)
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
@@ -123,7 +123,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 		}
 	}
 
-	if (grid[pos.x][pos.y]->door[EAST] && grid[pos.x - 1][pos.y] == nullptr)
+	if (grid[pos.x][pos.y]->door[WEST] && grid[pos.x - 1][pos.y] == nullptr)
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
@@ -205,42 +205,42 @@ glm::vec3 TileGeneration::_gridToWorld(int x, int y) {
 	float xPos = (ROOM_SIZE * x) - ((GRID_SIZE * ROOM_SIZE) / 2) + 17;
 	float yPos = (ROOM_SIZE * y) - ((GRID_SIZE * ROOM_SIZE) / 2) + 17;
 
-	return glm::vec3(xPos * 1.2, -5, yPos * 1.2);
+	return glm::vec3(xPos * 1.5, -5, yPos * 1.5);
 	
 }
 
 bool TileGeneration::_checkAdjacents(int x, int y, std::shared_ptr<Hydra::Component::RoomComponent>& r) {
-	if (r->door[r->SOUTH])
+	if (r->door[r->NORTH])
 	{
 		if (y >= GRID_SIZE - 1)
 			return false;
 		if (grid[x][y + 1] != nullptr)
-			if (!grid[x][y + 1]->door[r->NORTH])
+			if (!grid[x][y + 1]->door[r->SOUTH])
 				return false;
 		
 	}
-	if (r->door[r->EAST])
+	if (r->door[r->WEST])
 	{
 		if (x <= 0)
 			return false;
 		if (grid[x - 1][y] != nullptr)
-			if(!grid[x - 1][y]->door[r->WEST])
+			if(!grid[x - 1][y]->door[r->EAST])
 				return false;
 	}
-	if (r->door[r->NORTH])
+	if (r->door[r->SOUTH])
 	{
 		if (y <= 0)
 			return false;
 		if (grid[x][y - 1] != nullptr)
-			if(!grid[x][y - 1]->door[r->SOUTH])
+			if(!grid[x][y - 1]->door[r->NORTH])
 				return false;
 	}
-	if (r->door[r->WEST])
+	if (r->door[r->EAST])
 	{
 		if (x >= GRID_SIZE - 1)
 			return false;
 		if (grid[x + 1][y] != nullptr)
-			if(!grid[x + 1][y]->door[r->EAST])
+			if(!grid[x + 1][y]->door[r->WEST])
 				return false;
 	}
 	return true;
