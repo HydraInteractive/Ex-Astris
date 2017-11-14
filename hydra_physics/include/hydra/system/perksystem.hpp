@@ -11,7 +11,7 @@ namespace Hydra::System {
 		~PerkSystem() final;
 
 		void tick(float delta) final;
-		void onPickUp(Perk newPerk, const std::shared_ptr<Hydra::World::Entity>& playerEntity);
+		void onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const std::shared_ptr<Hydra::World::Entity>& playerEntity);
 
 		inline const std::string type() const final { return "PerkSystem"; }
 		void registerUI() final;

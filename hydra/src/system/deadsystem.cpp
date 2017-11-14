@@ -15,6 +15,8 @@ void DeadSystem::tick(float delta) {
 		if (e->dead)
 			world::removeEntity(e->id);
 	}
+
+	entities.clear();
 }
 
 void DeadSystem::registerUI() {}
