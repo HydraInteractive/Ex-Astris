@@ -61,7 +61,7 @@ public:
 
 		_fullscreenQuad = Hydra::Renderer::GLMesh::createFullscreenQuad();
 		// TODO: Does it need sizeof(float)?
-		_animationTransTexture = Hydra::Renderer::GLTexture::createDataTexture(100 * sizeof(glm::mat4), _maxInstancedAnimatedModels, Hydra::Renderer::TextureType::f16RGBA);
+		_animationTransTexture = Hydra::Renderer::GLTexture::createDataTexture(100 * 4, _maxInstancedAnimatedModels, Hydra::Renderer::TextureType::f16RGBA);
 
 		glGenBuffers(1, &_modelMatrixBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
@@ -163,7 +163,6 @@ public:
 			unsigned int nrOfJoints = 0;
 			for (size_t i = 0; i < size; i += maxPerLoop) {
 				for (size_t instanceIdx = i; instanceIdx < i + maxPerLoop && instanceIdx < size; instanceIdx++) {
-					//unsigned int w = mesh->getNrOfJoints(currAnimIndices[instanceIdx]) * 16 * 4;
 					int frame = currentFrames[instanceIdx];
 					int animIdx = currAnimIndices[instanceIdx];
 					nrOfJoints = mesh->getNrOfJoints(currAnimIndices[instanceIdx]);

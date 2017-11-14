@@ -823,7 +823,7 @@ namespace Barcode {
 		for (int i = 0; i < 10; i++) {
 			{
 				auto alienEntity = world::newEntity("Alien" + std::to_string(i), world::root());
-				alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+				alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
 				//alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
 				//alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
 				auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
@@ -844,7 +844,7 @@ namespace Barcode {
 				auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 				rgbc->createBox(glm::vec3(0.5f, 0.5f, 0.5f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 					0, 0, 0.6f, 1.0f);
-				//rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+				rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 			}
 		}
 		{
