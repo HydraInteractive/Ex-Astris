@@ -104,7 +104,7 @@ void BulletPhysicsSystem::tick(float delta) {
 		Hydra::Component::PlayerComponent* pc = nullptr;
 		Hydra::Component::PickUpComponent* puc = nullptr;
 		Hydra::Component::PerkComponent* pec = nullptr;
-		if (bc = eA->getComponent<Hydra::Component::BulletComponent>().get())
+		if ((bc = eA->getComponent<Hydra::Component::BulletComponent>().get()))
 			lc = eB->getComponent<Hydra::Component::LifeComponent>().get();
 		else if ((bc = eB->getComponent<Hydra::Component::BulletComponent>().get()))
 			lc = eA->getComponent<Hydra::Component::LifeComponent>().get();
@@ -113,9 +113,9 @@ void BulletPhysicsSystem::tick(float delta) {
 		if (!pc)
 			pc = eB->getComponent<Hydra::Component::PlayerComponent>().get();
 		
-		if (puc = eA->getComponent<Hydra::Component::PickUpComponent>().get())
+		if ((puc = eA->getComponent<Hydra::Component::PickUpComponent>().get()))
 			pec = eB->getComponent<Hydra::Component::PerkComponent>().get();
-		else if (puc = eB->getComponent<Hydra::Component::PickUpComponent>().get())
+		else if ((puc = eB->getComponent<Hydra::Component::PickUpComponent>().get()))
 			pec = eA->getComponent<Hydra::Component::PerkComponent>().get();
 
 		if (puc) {
