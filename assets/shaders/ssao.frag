@@ -11,7 +11,7 @@ layout(location = 2) uniform sampler2D texNoise;
 layout(location = 3) uniform mat4 projection;
 layout(location = 4) uniform vec3 samples[64];
 
-const vec2 noiseScale = vec2(1920.0 / 4.0, 1080.0 / 4.0);
+const vec2 noiseScale = vec2(1920.0  / 4.0, 1080.0  / 4.0);
 
 void main() {
 	vec3 fragPos = texture(positions, texCoords).xyz;
@@ -19,7 +19,7 @@ void main() {
 
 	float bias = 0.025f;
 	float kernelRadius = 0.5f;
-	int kernelSize = 8;
+	int kernelSize = 16;
 	
 	vec3 randomVec = texture(texNoise, texCoords * noiseScale).xyz;
 

@@ -380,12 +380,14 @@ public:
 		using world = Hydra::World::World;
 		if (ImGui::TreeNode(entity, ICON_FA_USER_O " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", entity->name.c_str(), entity->id, entity->componentCount(), entity->children.size()))
 		{
-			bool deleteThis = false;
 			std::string entityID = std::to_string(entity->id);
 			if (ImGui::BeginPopupContextItem(entityID.c_str()))
-			{
-				ImGui::MenuItem("Delete", "", &deleteThis);
-				if (deleteThis)
+			{				
+				if (ImGui::MenuItem("New Child..."))
+				{
+					newEntityParent = entity->id;
+				}
+				if (ImGui::MenuItem("Delete"))
 				{
 					world::removeEntity(entity->id);
 				}
@@ -399,12 +401,14 @@ public:
 		}
 		else
 		{
-			bool deleteThis = false;
-			std::string pls = std::to_string(entity->id);
-			if (ImGui::BeginPopupContextItem(pls.c_str()))
+			std::string entityID = std::to_string(entity->id);
+			if (ImGui::BeginPopupContextItem(entityID.c_str()))
 			{
-				ImGui::MenuItem("Delete", "", &deleteThis);
-				if (deleteThis)
+				if (ImGui::MenuItem("New Child..."))
+				{
+					newEntityParent = entity->id;
+				}
+				if (ImGui::MenuItem("Delete"))
 				{
 					world::removeEntity(entity->id);
 				}
@@ -417,7 +421,8 @@ public:
 	void renderComponent(IComponentBase* component) {
 		if (!component)
 			return;
-		if (!ImGui::TreeNode(component, ICON_FA_MICROCHIP " %s", component->type().c_str()))
+		ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
+		if (!ImGui::TreeNodeEx(component, nodeFlags, ICON_FA_MICROCHIP " %s", component->type().c_str()))
 			return;
 
 		component->registerUI();
@@ -444,6 +449,9 @@ private:
 	ImFont* _monospaceFont;
 	ImFont* _bigFont;
 
+	int newEntityParent = -1;
+	char inputText[32] = "";
+
 	void _renderEntityWindow() {
 		ImGui::SetNextWindowSize(ImVec2(480, 640), ImGuiSetCond_Once);
 		ImGui::Begin("Entity List", &_entityWindow);
@@ -452,14 +460,61 @@ private:
 		auto worldRoot = world::root().get();
 
 		// This doesn't use _renderEntity, because I want a globe instad of a user
-		if (ImGui::TreeNode(worldRoot, ICON_FA_GLOBE " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", worldRoot->name.c_str(), worldRoot->id, worldRoot->componentCount(), worldRoot->children.size())) {
+		ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
+		if (ImGui::TreeNodeEx(worldRoot, nodeFlags, ICON_FA_GLOBE " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", worldRoot->name.c_str(), worldRoot->id, worldRoot->componentCount(), worldRoot->children.size())) {
 			RenderComponents<Hydra::Component::ComponentTypes>::apply(this, worldRoot);
+
+			std::string entityID = std::to_string(worldRoot->id);
+			if (ImGui::BeginPopupContextItem(entityID.c_str()))
+			{
+				if (ImGui::MenuItem("New Child..."))
+				{
+					newEntityParent = worldRoot->id;
+				}
+				ImGui::EndPopup();
+			}
 
 			for (auto& child : worldRoot->children)
 				renderEntity(world::getEntity(child).get());
 			ImGui::TreePop();
 		}
+		else
+		{
+			std::string entityID = std::to_string(worldRoot->id);
+			if (ImGui::BeginPopupContextItem(entityID.c_str()))
+			{
+				if (ImGui::MenuItem("New Child..."))
+				{
+					newEntityParent = worldRoot->id;
+				}
+				ImGui::EndPopup();
+			}
+		}
+		//Open new entity popup
+		if (newEntityParent != -1)
+		{
+			ImGui::OpenPopup("New Entity");
+		}
+		if (ImGui::BeginPopupModal("New Entity", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::InputText("Enter name of new entity: ", inputText, 32);
+			ImGui::Separator();
 
+			if (ImGui::Button("Create", ImVec2(120, 0)))
+			{
+				std::string cstrToStr = inputText;
+				world::newEntity(cstrToStr, newEntityParent);
+				newEntityParent = -1;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel", ImVec2(120, 0)))
+			{
+				newEntityParent = -1;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
 		ImGui::End();
 	}
 };

@@ -119,6 +119,7 @@ namespace Barcode {
 		RenderBatch<Hydra::Renderer::AnimationBatch> _shadowAnimationBatch;
 
 		RenderBatch<Hydra::Renderer::Batch> _ssaoBatch;
+		RenderBatch<Hydra::Renderer::Batch> _ssaoBlurBatch;
 		std::shared_ptr<Hydra::Renderer::ITexture> _ssaoNoise;
 
 		RenderBatch<Hydra::Renderer::Batch> _glowBatch;

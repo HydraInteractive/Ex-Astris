@@ -1,5 +1,7 @@
 #include <barcode/gamestate.hpp>
 
+#include <barcode/menustate.hpp>
+
 #include <hydra/renderer/glrenderer.hpp>
 #include <hydra/renderer/glshader.hpp>
 #include <hydra/io/gltextureloader.hpp>
@@ -60,6 +62,13 @@ namespace Barcode {
 		_lifeSystem.tick(delta);
 		_pickUpSystem.tick(delta);
 
+
+		static bool enableHitboxDebug = true;
+		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
+		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
+		ImGui::Checkbox("Enable SSAO", &MenuState::ssaoEnabled);
+		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);
+
 		const glm::vec3& cameraPos = _playerTransform->position;
 		auto viewMatrix = _cc->getViewMatrix();
 		glm::vec3 rightVector = { viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0] };
@@ -69,8 +78,6 @@ namespace Barcode {
 		_cameraSystem.setCamDef(_playerTransform->position, forwardVector, upVector, rightVector, *_cc);
 
 		_dgp->render(cameraPos, *_playerTransform);
-		static bool enableHitboxDebug = true;
-		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
 
 		if (enableHitboxDebug) {
 			for (auto& kv : _hitboxBatch.batch.objects)
@@ -273,11 +280,12 @@ namespace Barcode {
 		for (size_t i = 0; i < 1; i++){
 			auto pickUpEntity = world::newEntity("PickUp", world::root());
 			auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3(0.0f, 0.0f, -4.0f);
+			t->position = glm::vec3(i, 0.0f, -4.0f);
 			pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/GreenCargoBox.mATTIC");
 			pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
 			auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
+			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		}
 
 		{

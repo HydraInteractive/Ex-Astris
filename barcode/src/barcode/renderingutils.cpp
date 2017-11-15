@@ -1,5 +1,7 @@
 #include <barcode/renderingutils.hpp>
 
+#include <barcode/menustate.hpp>
+
 #include <cstdlib>
 #include <imgui/imgui.h>
 
@@ -101,8 +103,10 @@ namespace Barcode {
 
 		_ssaoBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/ssao.vert", "", "assets/shaders/ssao.frag", size / 2);
 		_ssaoBatch.output->addTexture(0, Hydra::Renderer::TextureType::f16R).finalize();
+		_ssaoBlurBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/ssaoblur.vert", "", "assets/shaders/ssaoblur.frag", size/2);
+		_ssaoBatch.output->addTexture(0, Hydra::Renderer::TextureType::f16R).finalize();
 
-		constexpr size_t kernelSize = 8;
+		constexpr size_t kernelSize = 16;
 		constexpr size_t noiseSize = 4;
 		auto ssaoKernel = _getSSAOKernel(kernelSize);
 		for (size_t i = 0; i < ssaoKernel.size(); i++)
@@ -175,25 +179,33 @@ namespace Barcode {
 			if (drawObj->disable || !drawObj->mesh)
 				continue;
 
+			bool renderNormal = true;
 			if (enableFrustumCulling) {
 				auto result = _cameraSystem.sphereInFrustum(tc->position, radius, *cc);
 				if (result == Hydra::System::CameraSystem::FrustrumCheck::outside)
-					continue;
+					renderNormal = false;
 			}
 
 			if (drawObj->mesh->hasAnimation()) {
 				auto mc = e->getComponent<Hydra::Component::MeshComponent>();
 
-				_geometryAnimationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-				_geometryAnimationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
-				_geometryAnimationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
+				if (renderNormal) {
+					_geometryAnimationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+					_geometryAnimationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
+					_geometryAnimationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
+				}
 
-				_shadowAnimationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-				_shadowAnimationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
-				_shadowAnimationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
+				if (MenuState::shadowEnabled) {
+					_shadowAnimationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+					_shadowAnimationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
+					_shadowAnimationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
+				}
 			} else {
-				_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-				_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+				if (renderNormal)
+					_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+
+				if (MenuState::shadowEnabled)
+					_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 			}
 		}
 
@@ -211,9 +223,7 @@ namespace Barcode {
 			_engine->getRenderer()->renderShadows(_shadowAnimationBatch.batch);
 		}
 
-		static bool enableSSAO = false;
-		ImGui::Checkbox("Enable SSAO", &enableSSAO);
-		if (enableSSAO) {
+		if (MenuState::ssaoEnabled) {
 			_ssaoBatch.pipeline->setValue(0, 0);
 			_ssaoBatch.pipeline->setValue(1, 1);
 			_ssaoBatch.pipeline->setValue(2, 2);
@@ -225,8 +235,6 @@ namespace Barcode {
 			_ssaoNoise->bind(2);
 
 			_engine->getRenderer()->postProcessing(_ssaoBatch.batch);
-			int nrOfTimes = 1;
-			_blurUtil.blur((*_ssaoBatch.output)[0], nrOfTimes, (*_ssaoBatch.output)[0]->getSize());
 		}
 
 		{ // Lighting pass
@@ -238,8 +246,8 @@ namespace Barcode {
 			_lightingBatch.pipeline->setValue(5, 5);
 			_lightingBatch.pipeline->setValue(6, 6);
 
-			_lightingBatch.pipeline->setValue(7, playerTransform.sdposition);
-			_lightingBatch.pipeline->setValue(8, enableSSAO);
+			_lightingBatch.pipeline->setValue(7, playerTransform.position);
+			_lightingBatch.pipeline->setValue(8, MenuState::ssaoEnabled);
 			auto& lights = Hydra::Component::PointLightComponent::componentHandler->getActiveComponents();
 
 			_lightingBatch.pipeline->setValue(9, (int)(lights.size()));
@@ -264,16 +272,13 @@ namespace Barcode {
 			(*_geometryBatch.output)[2]->bind(2);
 			(*_geometryBatch.output)[3]->bind(3);
 			_shadowBatch.output->getDepth()->bind(4);
-			_blurUtil.getOutput()->bind(5);
+			(*_ssaoBatch.output)[0]->bind(5);
 			(*_geometryBatch.output)[5]->bind(6);
 
 			_engine->getRenderer()->postProcessing(_lightingBatch.batch);
 		}
 
-		static bool enableBlur = true;
-		ImGui::Checkbox("Enable blur", &enableBlur);
-
-		if (enableBlur) {
+		if (MenuState::glowEnabled) {
 			size_t nrOfTimes = 4;
 
 			_blurUtil.blur((*_lightingBatch.output)[1], nrOfTimes, _lightingBatch.output->getSize() / 4);
