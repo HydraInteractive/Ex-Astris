@@ -34,7 +34,7 @@
 
 #include <fstream>
 #include <json.hpp>
-#define GRID_SIZE 3
+#define GRID_SIZE 5
 #define ROOM_SIZE 34
 
 class TileGeneration
@@ -45,12 +45,14 @@ public:
 	TileGeneration(std::string middleRoomPath);
 	~TileGeneration();
 
-	int maxRooms = 9;
+	int maxRooms = 20;
 
 private:
 	std::vector<std::string> _roomFileNames;
 	int _roomCounter = 0;
 
+
+	glm::vec2 localXY;
 	void _setUpMiddleRoom(std::string middleRoomPath);
 	void _createMapRecursivly(glm::ivec2 pos);
 	void _setupGrid();
