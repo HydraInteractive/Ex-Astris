@@ -5,6 +5,8 @@
 
 #include <hydra/world/world.hpp>
 #include <glm/glm.hpp>
+#include <hydra/engine.hpp>
+#include <hydra/io/textfactory.hpp>
 
 using namespace Hydra::World;
 
@@ -22,6 +24,26 @@ namespace Hydra::Component {
 	};
 
 	std::vector<CharRenderInfo> renderingData;
+	std::string text;
+	int maxLength = 10;
+
+	void rebuild() {
+		auto factory = IEngine::getInstance()->getState()->getTextFactory();
+		glm::vec3 pos{ 0 };
+		for (unsigned int i = 0; i < text.size(); i++) {
+			const Hydra::IO::ITextFactory::CharInfo& info = factory->getChar(text[i]);
+			pos.x -= info.xAdvanceAmount * 1.2;
+		}
+		pos /= -2;
+
+		for (unsigned int i = 0; i < text.size(); i++) {
+			const Hydra::IO::ITextFactory::CharInfo& info = factory->getChar(text[i]);
+			CharRenderInfo& rInfo = renderingData[i];
+			rInfo.charRect = glm::vec4{info.pos, info.size};
+			rInfo.charPos = pos;
+			pos.x -= info.xAdvanceAmount * 1.2;
+		}
+	}
 
 	~TextComponent() final;
 

@@ -21,9 +21,9 @@ void PerkSystem::tick(float delta) {
 		auto perks = entities[i]->getComponent<PerkComponent>();
 
 		//Adding new perks
-		for (size_t i = 0; i < perks->newPerks.size(); i++){
+		while (!perks->newPerks.empty()){
 			onPickUp(perks->newPerks.back(), entities[i]);
-			perks->newPerks.pop_back(); 
+			perks->newPerks.pop_back();
 		}
 
 		//Use active ability
@@ -32,18 +32,23 @@ void PerkSystem::tick(float delta) {
 			&& !perks->activeAbilities.empty()
 			&& perks->activeAbilities[perks->activeAbility]->cooldown == 0) {
 			perks->activeAbilities[perks->activeAbility]->useAbility(entities[i]);
+			
 			if (++perks->activeAbility >= perks->activeAbilities.size())
 				perks->activeAbility = 0;
 		}
 
 		//Active abilities tick
-		for (size_t i = 0; i < perks->activeAbilities.size(); i++) {
-			perks->activeAbilities[i]->activeTimer -= delta;
-			perks->activeAbilities[i]->timeSinceLastTick += delta;
+		for (size_t j = 0; j < perks->activeAbilities.size(); j++) {
+			perks->activeAbilities[j]->activeTimer -= delta;
+			perks->activeAbilities[j]->timeSinceLastTick += delta;
 
-			if (perks->activeAbilities[i]->activeTimer >= 0 && perks->activeAbilities[i]->tickFreq <= perks->activeAbilities[i]->timeSinceLastTick) {
-				perks->activeAbilities[i]->tick(delta, entities[i]);
-				perks->activeAbilities[i]->timeSinceLastTick = 0;
+			if (perks->activeAbilities[j]->activeTimer >= 0 && perks->activeAbilities[j]->tickFreq <= perks->activeAbilities[j]->timeSinceLastTick) {
+				perks->activeAbilities[j]->tick(delta, entities[i]);
+				perks->activeAbilities[j]->timeSinceLastTick = 0;
+			}
+			if (perks->activeAbilities[j]->activeTimer < 0 && perks->activeAbilities[j]->afterLastTick){
+				perks->activeAbilities[j]->doneTick(delta,entities[i]);
+				perks->activeAbilities[j]->afterLastTick = false;
 			}
 		}
 
@@ -52,34 +57,34 @@ void PerkSystem::tick(float delta) {
 
 	entities.clear();
 }
-void PerkSystem::onPickUp(Perk newPerk, const std::shared_ptr<Hydra::World::Entity>& playerEntity) {
+void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const std::shared_ptr<Hydra::World::Entity>& playerEntity) {
 	switch (newPerk){
-	case PERK_MAGNETICBULLETS:	{
+	case Hydra::Component::PerkComponent::PERK_MAGNETICBULLETS:	{
 		auto weapon = playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>();
 		weapon->bulletType = BULLETTYPE_MAGNETIC;
 		break;
 	}
-	case PERK_HOMINGBULLETS: {
+	case Hydra::Component::PerkComponent::PERK_HOMINGBULLETS: {
 		auto weapon = playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>();
 		weapon->bulletType = BULLETTYPE_HOMING;
 		break;
 	}
-	case PERK_GRENADE: {
+	case Hydra::Component::PerkComponent::PERK_GRENADE: {
 		auto perk = playerEntity->getComponent<PerkComponent>();
 		perk->activeAbilities.push_back(new GrenadeAbility());
 		break;
 	}
-	case PERK_MINE: {
+	case Hydra::Component::PerkComponent::PERK_MINE: {
 		auto perk = playerEntity->getComponent<PerkComponent>();
 		perk->activeAbilities.push_back(new MineAbility());
 		break;
 	}
-	case PERK_FORCEPUSH: {
+	case Hydra::Component::PerkComponent::PERK_FORCEPUSH: {
 		auto perk = playerEntity->getComponent<PerkComponent>();
 		perk->activeAbilities.push_back(new forcePushAbility());
 		break;
 	}
-	case PERK_BULLETSPRAY: {
+	case Hydra::Component::PerkComponent::PERK_BULLETSPRAY: {
 		auto perk = playerEntity->getComponent<PerkComponent>();
 		perk->activeAbilities.push_back(new BulletSprayAbillity());
 		break;

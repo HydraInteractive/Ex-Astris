@@ -6,6 +6,6 @@
 
 namespace Hydra::IO {
 	namespace GLTextFactory {
-		HYDRA_GRAPHICS_API std::unique_ptr<ITextFactory> create();
+		HYDRA_GRAPHICS_API std::unique_ptr<ITextFactory> create(const std::string& fontFile);
 	};
 }

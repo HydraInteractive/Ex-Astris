@@ -46,8 +46,9 @@ namespace Hydra::Component {
 		Room = BIT(17),
 		Spawner = BIT(18),
 		SoundFx = BIT(19),
-		Perk = BIT(20),
-		Text = BIT(21)
+		Perk = BIT(20),	
+		PickUp = BIT(21),
+		Text = BIT(22)
 	};
 #undef BIT
 
@@ -85,6 +86,7 @@ namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API SpawnerComponent;
 	struct HYDRA_SOUND_API SoundFxComponent;
 	struct HYDRA_PHYSICS_API PerkComponent;
+	struct HYDRA_PHYSICS_API PickUpComponent;
 	struct HYDRA_GRAPHICS_API TextComponent;
 
 	using ComponentTypes = Hydra::Ext::TypeTuple<
@@ -109,6 +111,7 @@ namespace Hydra::Component {
 		Hydra::World::IComponent<SpawnerComponent, ComponentBits::Spawner>,
 		Hydra::World::IComponent<SoundFxComponent, ComponentBits::SoundFx>,
 		Hydra::World::IComponent<PerkComponent, ComponentBits::Perk>,
+		Hydra::World::IComponent<PickUpComponent, ComponentBits::PickUp>,
 		Hydra::World::IComponent<TextComponent, ComponentBits::Text>
 	>;
 };
@@ -289,6 +292,8 @@ namespace Hydra::World {
 	template <>
 	IComponentHandler* IComponent<Hydra::Component::PerkComponent, Hydra::Component::ComponentBits::Perk>::componentHandler;
 	template <>
+	IComponentHandler* IComponent<Hydra::Component::PickUpComponent, Hydra::Component::ComponentBits::PickUp>::componentHandler;
+	template <>
 	IComponentHandler* IComponent<Hydra::Component::TextComponent, Hydra::Component::ComponentBits::Text>::componentHandler;
 #endif
 
@@ -313,6 +318,7 @@ namespace Hydra::World {
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::SpawnerComponent, Hydra::Component::ComponentBits::Spawner>;
 	template HYDRA_SOUND_API struct IComponent<Hydra::Component::SoundFxComponent, Hydra::Component::ComponentBits::SoundFx>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::PerkComponent, Hydra::Component::ComponentBits::Perk>;
+	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::PickUpComponent, Hydra::Component::ComponentBits::PickUp>;
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::TextComponent, Hydra::Component::ComponentBits::Text>;
 
 	struct HYDRA_BASE_API World final {
