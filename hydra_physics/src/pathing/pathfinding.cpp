@@ -139,7 +139,7 @@ void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode)
 		return;
 	}
 	//If this node is inaccessable, ignore it
-	if (map[x][z] == 1)
+	if (map[x][z] == 0)
 	{
 		return;
 	}

@@ -564,10 +564,7 @@ namespace Barcode {
 		if (_showExporter)
 			_exporterMenu->render(_showExporter);
 		if (_showPathMapCreator)
-		{
 			_pathingMenu.render(_showPathMapCreator, delta);
-			_importerMenu->render(_showImporter, &_previewBatch.batch, delta);
-		}
 			
 		_glowBatch.output->resolve(0, _finalImage->image);
 		_glowBatch.batch.renderTarget = _engine->getView();
