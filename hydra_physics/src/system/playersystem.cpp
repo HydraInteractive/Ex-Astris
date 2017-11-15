@@ -54,7 +54,7 @@ void PlayerSystem::tick(float delta) {
 			if (keysArray[SDL_SCANCODE_W])
 				movement->velocity.z -= movement->movementSpeed;
 			if (keysArray[SDL_SCANCODE_R]) {
-				this->_isReloading = true;
+				weapon->_isReloading = true;
 			}
 
 			if (keysArray[SDL_SCANCODE_S])
@@ -75,13 +75,13 @@ void PlayerSystem::tick(float delta) {
 				//TODO: Make pretty?
 				glm::quat bulletOrientation = glm::angleAxis(-camera->cameraYaw, glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->cameraPitch, glm::vec3(1, 0, 0)));
 				float bulletVelocity = 20.0f;
-				if(!_isReloading)
+				if(!weapon->_isReloading)
 					if (weapon->shoot(transform->position, movement->direction, bulletOrientation, bulletVelocity)) {
 						float rn = 500;//rand() % 1000;
 						rn /= 10000;
 
 						rn *= 0.8;
-						_dpitch -= rn;
+						weapon->_dpitch -= rn;
 						rn = rand() % 900 + 100;
 						rn /= 10000;
 						rn *= 0.8;
@@ -94,16 +94,16 @@ void PlayerSystem::tick(float delta) {
 			}
 		}
 
-		if (this->_isReloading)
-			_isReloading = weapon->reload(delta);
+		if (weapon->_isReloading)
+			weapon->_isReloading = weapon->reload(delta);
 
 		//auto camera = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get());
 		float* yaw = &camera->cameraYaw;
 		float* pitch = &camera->cameraPitch;
-		*yaw = lerp(*yaw, (*yaw + _dyaw), 0.5);
-		*pitch = lerp(*pitch, (*pitch + _dpitch), 0.5);
-		_dyaw /= 2;
-		_dpitch /= 2;
+		*yaw = lerp(*yaw, (*yaw + weapon->_dyaw), 0.5);
+		*pitch = lerp(*pitch, (*pitch + weapon->_dpitch), 0.5);
+		weapon->_dyaw /= 2;
+		weapon->_dpitch /= 2;
 		//movement->acceleration.y -= 10.0f * delta;
 		glm::vec4 movementVector = glm::vec4(movement->velocity, 0) * rotation;
 		//movementVector.y = movement->acceleration.y;

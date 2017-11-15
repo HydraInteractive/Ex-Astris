@@ -26,6 +26,9 @@ namespace Hydra::Component {
 		int bulletsPerShot = 14;
 		float recoil = 0.7;
 
+		float _dyaw, _dpitch = 0;
+		bool _isReloading = false;
+
 		/*unsigned short*/ int maxammo = 20;
 		/*unsigned short*/ int currammo = 20;
 		/*unsigned short*/ int maxmagammo = 10;
