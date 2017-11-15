@@ -61,7 +61,7 @@ public:
 
 		_fullscreenQuad = Hydra::Renderer::GLMesh::createFullscreenQuad();
 		// TODO: Does it need sizeof(float)?
-		_animationTransTexture = Hydra::Renderer::GLTexture::createDataTexture(100 * 16 * sizeof(float), _maxInstancedAnimatedModels, Hydra::Renderer::TextureType::f16RGBA);
+		_animationTransTexture = Hydra::Renderer::GLTexture::createDataTexture(100 * 4, _maxInstancedAnimatedModels, Hydra::Renderer::TextureType::f16RGBA);
 
 		glGenBuffers(1, &_modelMatrixBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
@@ -104,30 +104,30 @@ public:
 			mesh->getMaterial().normal->bind(1);
 			mesh->getMaterial().specular->bind(2);
 			mesh->getMaterial().glow->bind(3);
-
 			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
 			glBindVertexArray(mesh->getID());
 
-			constexpr unsigned int h = 1; // Width is always going to be 1
 			auto& currentFrames = batch.currentFrames[mesh];
 			auto& currAnimIndices = batch.currAnimIndices[mesh];
 			const size_t maxPerLoop = _maxInstancedAnimatedModels;
 			size_t size = batch.currentFrames[mesh].size();
+			static glm::mat4 jointTransformMX[2000];
+			unsigned int nrOfJoints = 0;
 			for (size_t i = 0; i < size; i += maxPerLoop) {
 				for (size_t instanceIdx = i; instanceIdx < i + maxPerLoop && instanceIdx < size; instanceIdx++) {
-					unsigned int w = mesh->getNrOfJoints(currAnimIndices[instanceIdx]) * 16 * 4;
-					std::vector<glm::mat4> jointTransformMX;
 					int frame = currentFrames[instanceIdx];
 					int animIdx = currAnimIndices[instanceIdx];
-					for (int currJoint = 0; currJoint < mesh->getNrOfJoints(currAnimIndices[instanceIdx]); currJoint++) {
-						jointTransformMX.push_back(mesh->getTransformationMatrices(animIdx, currJoint, frame));
+					nrOfJoints = mesh->getNrOfJoints(currAnimIndices[instanceIdx]);
+					for (size_t currJoint = 0; currJoint < nrOfJoints; currJoint++) {
+						jointTransformMX[instanceIdx * 100 + currJoint] = mesh->getTransformationMatrices(animIdx, currJoint, frame);
 					}
-					_animationTransTexture->setData(glm::ivec2(0, instanceIdx), glm::ivec2(w, h), jointTransformMX.data());
 				}
 
+				size_t amount = std::min(size - i, maxPerLoop);
+
+				_animationTransTexture->setData(glm::ivec2(0, 0), glm::ivec2(100 * 4, amount), jointTransformMX);
 				_animationTransTexture->bind(4);
 
-				size_t amount = std::min(size - i, maxPerLoop);
 				glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
 				glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &kv.second[i]);
 				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
@@ -148,34 +148,34 @@ public:
 
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
 
+		batch.pipeline->setValue(20, 0);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
 
 			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
 			glBindVertexArray(mesh->getID());
 
-			batch.pipeline->setValue(20, 0);
-
-			constexpr unsigned int h = 1; // Width is always going to be 1
 			auto& currentFrames = batch.currentFrames[mesh];
 			auto& currAnimIndices = batch.currAnimIndices[mesh];
 			const size_t maxPerLoop = _maxInstancedAnimatedModels;
 			size_t size = batch.currentFrames[mesh].size();
-
+			static glm::mat4 jointTransformMX[2000];
+			unsigned int nrOfJoints = 0;
 			for (size_t i = 0; i < size; i += maxPerLoop) {
 				for (size_t instanceIdx = i; instanceIdx < i + maxPerLoop && instanceIdx < size; instanceIdx++) {
-					unsigned int w = mesh->getNrOfJoints(currAnimIndices[instanceIdx]) * 16 * 4;
-					std::vector<glm::mat4> jointTransformMX;
 					int frame = currentFrames[instanceIdx];
 					int animIdx = currAnimIndices[instanceIdx];
-					for (int currJoint = 0; currJoint < mesh->getNrOfJoints(currAnimIndices[instanceIdx]); currJoint++) {
-						jointTransformMX.push_back(mesh->getTransformationMatrices(animIdx, currJoint, frame));
-					}
-					_animationTransTexture->setData(glm::ivec2(0, instanceIdx), glm::ivec2(w, h), jointTransformMX.data());
+					nrOfJoints = mesh->getNrOfJoints(currAnimIndices[instanceIdx]);
+					for (size_t currJoint = 0; currJoint < nrOfJoints; currJoint++) {
+						jointTransformMX[instanceIdx * 100 + currJoint] = mesh->getTransformationMatrices(animIdx, currJoint, frame);
+					}	
 				}
-				_animationTransTexture->bind(0);
 
 				size_t amount = std::min(size - i, maxPerLoop);
+
+				_animationTransTexture->setData(glm::ivec2(0, 0), glm::ivec2(100 * 4, amount), jointTransformMX);
+				_animationTransTexture->bind(0);
+
 				glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
 				glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &kv.second[i]);
 				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));

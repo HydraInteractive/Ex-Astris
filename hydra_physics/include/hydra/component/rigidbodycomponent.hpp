@@ -19,6 +19,17 @@
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API RigidBodyComponent final : public Hydra::World::IComponent<RigidBodyComponent, ComponentBits::RigidBody> {
 		friend class Hydra::System::BulletPhysicsSystem;
+
+		enum class ActivationState : int{
+			activeTag = 0,
+			islandSleeping,
+			wantsDeactivation,
+			disableDeactivation,
+			disableSimulation,
+
+			MAX_COUNT
+		};
+
 		~RigidBodyComponent() final;
 
 #define DEFAULT_PARAMS Hydra::System::BulletPhysicsSystem::CollisionTypes collType = Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_NOTHING, float mass = 0, float linearDamping = 0, float angularDamping = 0, float friction = 0, float rollingFriction = 0
@@ -34,7 +45,8 @@ namespace Hydra::Component {
 		void createCylinderZ(const glm::vec3& halfExtents, DEFAULT_PARAMS);
 #undef DEFAULT_PARAMS
 
-		void setActivationState(const int newState);
+		void setActivationState(ActivationState newState);
+		void setAngularForce(glm::vec3 angularForce);
 		void* getRigidBody();
 		glm::vec3 getHalfExtentScale() { return _halfExtents; }
 

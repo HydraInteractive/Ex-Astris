@@ -55,28 +55,30 @@ void CameraSystem::tick(float delta) {
 		glm::quat qYaw = glm::angleAxis(cc->cameraYaw, glm::vec3(0, 1, 0));
 		glm::quat qRoll = glm::angleAxis(glm::radians(0.f), glm::vec3(0, 0, 1));
 
-		cc->orientation = qPitch * qYaw * qRoll;
-		cc->orientation = glm::normalize(cc->orientation);
+		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
+		t->rotation = glm::normalize(qPitch * qYaw * qRoll);
 	}
 
 	//Process FreeCameraComponent
 	world::getEntitiesWithComponents<Hydra::Component::FreeCameraComponent>(entities);
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
-		auto ec = entities[i]->getComponent<Hydra::Component::FreeCameraComponent>();
+		auto fc = entities[i]->getComponent<Hydra::Component::FreeCameraComponent>();
 
-		ec->cameraYaw = ec->cameraYaw + mouseX * ec->sensitivity; //std::min(std::max(ec->cameraYaw + mouseX * ec->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
-		ec->cameraPitch = std::min(std::max(ec->cameraPitch + mouseY * ec->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
+		fc->cameraYaw = fc->cameraYaw + mouseX * fc->sensitivity; //std::min(std::max(fc->cameraYaw + mouseX * fc->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
+		fc->cameraPitch = std::min(std::max(fc->cameraPitch + mouseY * fc->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
 
-		glm::quat qPitch = glm::angleAxis(ec->cameraPitch, glm::vec3(1, 0, 0));
-		glm::quat qYaw = glm::angleAxis(ec->cameraYaw, glm::vec3(0, 1, 0));
+		glm::quat qPitch = glm::angleAxis(fc->cameraPitch, glm::vec3(1, 0, 0));
+		glm::quat qYaw = glm::angleAxis(fc->cameraYaw, glm::vec3(0, 1, 0));
 		glm::quat qRoll = glm::angleAxis(glm::radians(0.f), glm::vec3(0, 0, 1));
 
-		ec->orientation = qPitch * qYaw * qRoll;
-		ec->orientation = glm::normalize(ec->orientation);
+		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
+		t->rotation = glm::normalize(qPitch * qYaw * qRoll);
 
-		const glm::mat4 viewMat = ec->getViewMatrix();
-		ec->position += glm::vec3(glm::vec4(velocity * ec->movementSpeed * (multiplier ? ec->shiftMultiplier : 1), 1.0f) * viewMat) * delta;
+		const glm::mat4 viewMat = fc->getViewMatrix();
+		t->position += glm::vec3(glm::vec4(velocity * fc->movementSpeed * (multiplier ? fc->shiftMultiplier : 1), 1.0f) * viewMat) * delta;
 	}
+
+	entities.clear();
 }
 
 void CameraSystem::setCamInternals(Hydra::Component::CameraComponent& cc) {

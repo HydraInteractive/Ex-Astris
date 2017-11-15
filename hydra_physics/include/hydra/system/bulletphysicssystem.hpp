@@ -8,7 +8,7 @@
 #pragma once
 
 #include <hydra/world/world.hpp>
-#include <btBulletDynamicsCommon.h>
+#include <glm/glm.hpp>
 #define BIT(x) (1 << (x))
 
 namespace Hydra::System {
@@ -34,16 +34,18 @@ namespace Hydra::System {
 			COLL_ENEMY = BIT(3),
 			COLL_PLAYER_PROJECTILE = BIT(4),
 			COLL_ENEMY_PROJECTILE = BIT(5),
-			COLL_MISC_OBJECT = BIT(6)
+			COLL_MISC_OBJECT = BIT(6),
+			COLL_PICKUP_OBJECT = BIT(7)
 		};
 
 		enum CollisionCondition : std::underlying_type<CollisionTypes>::type {
-			playerCollidesWith = COLL_WALL | COLL_ENEMY | COLL_MISC_OBJECT | COLL_ENEMY_PROJECTILE,
+			playerCollidesWith = COLL_WALL | COLL_ENEMY | COLL_MISC_OBJECT | COLL_ENEMY_PROJECTILE | COLL_PICKUP_OBJECT,
 			enemyCollidesWith = COLL_WALL | COLL_PLAYER | COLL_MISC_OBJECT | COLL_PLAYER_PROJECTILE,
 			wallCollidesWith = COLL_MISC_OBJECT | COLL_PLAYER | COLL_ENEMY | COLL_ENEMY_PROJECTILE | COLL_PLAYER_PROJECTILE,
 			enemyProjCollidesWith = COLL_PLAYER | COLL_WALL | COLL_MISC_OBJECT,
 			playerProjCollidesWith = COLL_ENEMY | COLL_WALL | COLL_MISC_OBJECT,
-			miscObjectCollidesWith = COLL_WALL | COLL_ENEMY | COLL_PLAYER | COLL_ENEMY_PROJECTILE | COLL_PLAYER_PROJECTILE
+			miscObjectCollidesWith = COLL_WALL | COLL_ENEMY | COLL_PLAYER | COLL_ENEMY_PROJECTILE | COLL_PLAYER_PROJECTILE,
+			pickupObjectCollidesWith = COLL_PLAYER
 		};
 
 		BulletPhysicsSystem();
@@ -59,7 +61,8 @@ namespace Hydra::System {
 		void registerUI() final;
 
 	private:
-		void _spawnParticleEmitterAt(btVector3 pos, btVector3 normal);
+		void _spawnParticleEmitterAt(const glm::vec3& pos, const glm::vec3& normal);
+		void _addPickUp(Hydra::Component::PickUpComponent* puc, Hydra::Component::PerkComponent* pec);
 		struct Data;
 		Data* _data;
 	};

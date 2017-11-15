@@ -27,6 +27,8 @@ void LifeSystem::tick(float delta) {
 		if (entities[i]->getComponent<Hydra::Component::ParticleComponent>())
 			lifeC->health -= 1 * delta;
 	}
+
+	entities.clear();
 }
 
 void LifeSystem::registerUI() {

@@ -27,9 +27,9 @@
 #include <hydra/component/spawnercomponent.hpp>
 #include <hydra/component/soundfxcomponent.hpp>
 #include <hydra/component/perkcomponent.hpp>
+#include <hydra/component/pickupcomponent.hpp>
 
 #include <hydra/system/camerasystem.hpp>
-#include <hydra/system/lightsystem.hpp>
 #include <hydra/system/particlesystem.hpp>
 #include <hydra/system/abilitysystem.hpp>
 #include <hydra/system/lifesystem.hpp>
@@ -41,6 +41,8 @@
 #include <hydra/system/spawnersystem.hpp>
 #include <hydra/system/soundfxsystem.hpp>
 #include <hydra/system/perksystem.hpp>
+#include <hydra/system/animationsystem.hpp>
+#include <hydra/system/pickupsystem.hpp>
 
 #include <hydra/io/input.hpp>
 
@@ -95,7 +97,6 @@ namespace Barcode {
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
 
 		Hydra::System::CameraSystem _cameraSystem;
-		Hydra::System::LightSystem _lightSystem;
 		Hydra::System::ParticleSystem _particleSystem;
 		Hydra::System::AbilitySystem _abilitySystem;
 		Hydra::System::LifeSystem _lifeSystem;
@@ -107,6 +108,8 @@ namespace Barcode {
 		Hydra::System::SpawnerSystem _spawnerSystem;
 		Hydra::System::SoundFxSystem _soundFxSystem;
 		Hydra::System::PerkSystem _perkSystem;
+		Hydra::System::AnimationSystem _animationSystem;
+		Hydra::System::PickUpSystem _pickUpSystem;
 
 		RenderBatch _geometryBatch; // First part of deferred rendering
 		AnimationRenderBatch _animationBatch; // AnimationBatch
@@ -144,9 +147,8 @@ namespace Barcode {
 		std::shared_ptr<Hydra::Renderer::IMesh> _hitboxCube;
 
 		Hydra::Component::CameraComponent* _cc = nullptr;
-		Hydra::Component::PlayerComponent* player = nullptr;
-		Hydra::Component::AIComponent* _enemy = nullptr;
-		Hydra::Component::LightComponent* _light = nullptr;
+		Hydra::Component::TransformComponent* _playerTransform = nullptr;
+		Hydra::Component::LightComponent* _dirLight = nullptr;
 
 		Input _input;
 

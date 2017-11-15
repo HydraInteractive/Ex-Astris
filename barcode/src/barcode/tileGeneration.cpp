@@ -172,6 +172,7 @@ void TileGeneration::_setUpMiddleRoom(std::string middleRoomPath) {
 	auto t = room->addComponent<Hydra::Component::TransformComponent>();
 	t->position = glm::vec3(0, -5, 0);
 	t->scale = glm::vec3(1, 1, 1);
+	t->rotation = glm::quat(1, 0, 1, 0);
 
 	//auto loadedRoom = world->getWorldRoot()->spawn(BlueprintLoader::load(middleRoomPath.c_str())->spawn(world));
 	//auto middleRoomTile = world->createEntity("MiddleRoom");
@@ -197,13 +198,12 @@ void TileGeneration::_obtainRoomFiles() {
 			std::swap(_roomFileNames[i], _roomFileNames[randomPos]);
 		}
 	}
-
 }
 
 glm::vec3 TileGeneration::_gridToWorld(int x, int y) {
 
-	float xPos = (ROOM_SIZE * x) - ((GRID_SIZE * ROOM_SIZE) / 2) + 34;
-	float yPos = (ROOM_SIZE * y) - ((GRID_SIZE * ROOM_SIZE) / 2) + 34;
+	float xPos = (ROOM_SIZE * x) - ((GRID_SIZE * ROOM_SIZE) / 2) + 17;
+	float yPos = (ROOM_SIZE * y) - ((GRID_SIZE * ROOM_SIZE) / 2) + 17;
 
 	return glm::vec3(xPos, -5, yPos);
 	
@@ -260,9 +260,9 @@ void TileGeneration::_setupGrid() {
 	//	middleTile = ((_xSize * _ySize) - 1) / 2;
 	//}
 
-	/*for (int y = 0; y < _ySize; y++) {
+	/*for (size_t y = 0; y < _ySize; y++) {
 
-		for (int x = 0; x < _xSize; x++) {
+		for (size_t x = 0; x < _xSize; x++) {
 
 			std::shared_ptr<tileInfo> tile = std::make_shared<tileInfo>();
 
