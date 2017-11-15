@@ -4,7 +4,6 @@
 #include <hydra/renderer/glshader.hpp>
 #include <hydra/io/gltextureloader.hpp>
 #include <hydra/io/glmeshloader.hpp>
-#include <barcode/tileGeneration.hpp>
 
 #include <glm/gtx/matrix_decompose.hpp>
 
@@ -869,7 +868,7 @@ namespace Barcode {
 		}
 
 		{
-			TileGeneration worldTiles("assets/room/threewayRoom.room");
+			tileGen = new TileGeneration("assets/room/threewayRoom.room");
 		}
 
 		{
@@ -915,8 +914,10 @@ namespace Barcode {
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
 			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
-			a->damage = 4;
 			a->behaviour->originalRange = 4;
+			a->behaviour->setPathMap(tileGen->pathfindingMap);
+			a->damage = 4;
+			
 			a->radius = 1;
 
 			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
@@ -939,6 +940,7 @@ namespace Barcode {
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
 			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+			a->behaviour->setPathMap(tileGen->pathfindingMap);
 			a->damage = 4;
 			a->behaviour->originalRange = 4;
 			a->radius = 2;

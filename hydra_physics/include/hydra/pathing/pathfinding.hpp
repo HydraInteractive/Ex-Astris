@@ -91,12 +91,15 @@ public:
 	PathFinding();
 	virtual ~PathFinding();
 
-	void findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, bool** map);
+	bool intializedStartGoal;
+	bool foundGoal;
+	std::vector<glm::vec3> _pathToEnd;
+	bool** map = nullptr;
+
+	void findPath(const glm::vec3& currentPos, const glm::vec3& targetPos);
 	glm::vec3 nextPathPos(const glm::vec3& pos, const float& radius);
 	MapVec worldToMapCoords(const glm::vec3& worldPos) const;
 	glm::vec3 mapToWorldCoords(const MapVec& mapPos) const;
-	bool intializedStartGoal;
-	bool foundGoal;
 
 	struct {
 		bool operator()(const std::shared_ptr<Node>& _Left, const std::shared_ptr<Node>& _Right) const
@@ -112,7 +115,7 @@ public:
 			return (_Left->getF() > _Right->getF());
 		}
 	} comparisonFunctor;
-	std::vector<glm::vec3> _pathToEnd;
+	
 private:
 	std::vector<std::shared_ptr<Node>> _visitedList;
 	std::vector<std::shared_ptr<Node>> _openList;
@@ -120,5 +123,5 @@ private:
 	std::shared_ptr<Node> _endNode;
 
 	bool isOutOfBounds(const glm::vec2& vec)const;
-	void _discoverNode(int x, int z, std::shared_ptr<Node> lastNode, bool** map);
+	void _discoverNode(int x, int z, std::shared_ptr<Node> lastNode);
 };

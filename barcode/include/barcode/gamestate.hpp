@@ -41,6 +41,8 @@
 #include <hydra/system/soundfxsystem.hpp>
 #include <hydra/system/perksystem.hpp>
 
+#include <barcode/tileGeneration.hpp>
+
 #include <hydra/io/input.hpp>
 
 namespace Barcode {
@@ -146,6 +148,7 @@ namespace Barcode {
 		Hydra::Component::LightComponent* _dirLight = nullptr;
 
 		Input _input;
+		TileGeneration* tileGen;
 
 		void _initSystem();
 		void _initWorld();

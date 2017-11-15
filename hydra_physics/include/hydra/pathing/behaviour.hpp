@@ -8,7 +8,7 @@
 #include <hydra/ext/api.hpp>
 #include <memory>
 #include <random>
-#include <barcode/tileGeneration.hpp>
+
 
 class HYDRA_PHYSICS_API Behaviour
 {
@@ -49,7 +49,7 @@ public:
 	virtual void run(float dt) = 0;
 	void setEnemyEntity(std::shared_ptr<Hydra::World::Entity> enemy);
 	void setTargetPlayer(std::shared_ptr<Hydra::World::Entity> player);
-
+	virtual void setPathMap(bool** map);
 	bool checkLOS(int levelmap[ROOM_MAP_SIZE][ROOM_MAP_SIZE], glm::vec3 A, glm::vec3 B);
 protected:
 	struct ComponentSet
@@ -74,6 +74,7 @@ protected:
 	virtual unsigned int foundState(float dt);
 	virtual unsigned int attackingState(float dt);
 	virtual void executeTransforms();
+	
 };
 
 class HYDRA_PHYSICS_API AlienBehaviour final : public Behaviour

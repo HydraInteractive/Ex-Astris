@@ -124,7 +124,7 @@ unsigned int Behaviour::searchingState(float dt)
 	//	return IDLE;
 	//}
 	pathFinding->intializedStartGoal = false;
-	pathFinding->findPath(thisEnemy.transform->position, targetPlayer.transform->position, TileGeneration::pathfindingMap);
+ 	pathFinding->findPath(thisEnemy.transform->position, targetPlayer.transform->position);
 	isAtGoal = false;
 
 
@@ -226,6 +226,11 @@ void Behaviour::executeTransforms()
 	rigidBody->setLinearVelocity(btVector3(movementForce.x, movementForce.y, movementForce.z));
 	
 	thisEnemy.transform->setRotation(rotation);
+}
+
+void Behaviour::setPathMap(bool** map)
+{
+	pathFinding->map = map;
 }
 
 AlienBehaviour::AlienBehaviour(std::shared_ptr<Hydra::World::Entity> enemy) : Behaviour(enemy)
@@ -507,13 +512,13 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 				if (spawnTimer >= 2)
 				{
 					auto alienSpawn = world::newEntity("AlienSpawn", world::root());
-
+					
 					auto a = alienSpawn->addComponent <Hydra::Component::AIComponent>();
-					a->behaviour = std::make_shared<AlienBehaviour>(alienSpawn);
+					//a->behaviour = std::make_shared<AlienBehaviour>(alienSpawn);
 					a->damage = 4;
-					a->behaviour->originalRange = 4;
+					//a->behaviour->originalRange = 4;
 					a->radius = 2.0f;
-
+					
 					auto h = alienSpawn->addComponent<Hydra::Component::LifeComponent>();
 					h->maxHP = 80;
 					h->health = 80;

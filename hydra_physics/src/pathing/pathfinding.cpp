@@ -21,8 +21,13 @@ PathFinding::~PathFinding() {
 
 }
 
-void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, bool** map)
+void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetPos)
 {
+	if (map == nullptr)
+	{
+		return;
+	}
+
 	if (!intializedStartGoal) 
 	{
 		_openList.clear();
@@ -69,21 +74,21 @@ void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 		else
 		{
 			//East
-			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z(), currentNode, map);
+			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z(), currentNode);
 			//West
-			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z(), currentNode, map);
+			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z(), currentNode);
 			//North
-			_discoverNode(currentNode->pos.x(), currentNode->pos.z() + 1, currentNode, map);
+			_discoverNode(currentNode->pos.x(), currentNode->pos.z() + 1, currentNode);
 			//South
-			_discoverNode(currentNode->pos.x(), currentNode->pos.z() - 1, currentNode, map);
+			_discoverNode(currentNode->pos.x(), currentNode->pos.z() - 1, currentNode);
 			//North West
-			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() + 1, currentNode, map);
+			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() + 1, currentNode);
 			//North East
-			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() + 1, currentNode, map);
+			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() + 1, currentNode);
 			//South West
-			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() - 1, currentNode, map);
+			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() - 1, currentNode);
 			//South East
-			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() - 1, currentNode, map);
+			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() - 1, currentNode);
 		}
 	}
 }
@@ -126,7 +131,7 @@ bool PathFinding::isOutOfBounds(const glm::vec2& vec) const
 	return false;
 }
 
-void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode, bool** map)
+void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode)
 {
 	MapVec currentPos = MapVec(x, z);
 	if (isOutOfBounds(currentPos.baseVec))

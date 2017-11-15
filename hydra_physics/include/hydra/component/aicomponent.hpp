@@ -30,7 +30,6 @@ namespace Hydra::Component {
 	int damage = 0;
 	float radius = 1;
 
-
 	inline const std::string type() const final { return "AIComponent"; }
 	std::shared_ptr<Hydra::World::Entity> getPlayerEntity();
 	void serialize(nlohmann::json& json) const final;

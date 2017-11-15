@@ -15,17 +15,8 @@
 #include <filesystem>
 #include <memory>
 #include <imgui/imgui.h>
-#include <barcode/ImporterMenu.hpp>
-#include <barcode/ExporterMenu.hpp>
 
 #include <barcode/filetree.hpp>
-#include <hydra/component/meshcomponent.hpp>
-#include <hydra/component/cameracomponent.hpp>
-#include <hydra/component/playercomponent.hpp>
-#include <hydra/component/particlecomponent.hpp>
-#include <hydra/component/aicomponent.hpp>
-#include <hydra/component/lightcomponent.hpp>
-#include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
@@ -40,7 +31,7 @@ class TileGeneration
 public:
 	int maxRooms = 1;
 	std::shared_ptr<Hydra::Component::RoomComponent> roomGrid[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
-	static bool** pathfindingMap;
+	bool** pathfindingMap;
 	TileGeneration(std::string middleRoomPath);
 	~TileGeneration();
 private:
