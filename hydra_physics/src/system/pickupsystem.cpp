@@ -20,8 +20,8 @@ void PickUpSystem::tick(float delta) {
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto rgbc = entities[i]->getComponent<RigidBodyComponent>();
 		auto rbc = static_cast<btRigidBody*>(entities[i]->getComponent<RigidBodyComponent>()->getRigidBody());
-		
 		rbc->setGravity(btVector3(0, 0, 0));
+		rbc->setLinearVelocity(btVector3(0, 0, 0));
 		rbc->setAngularVelocity(btVector3(0, 2, 0));
 	}
 }
