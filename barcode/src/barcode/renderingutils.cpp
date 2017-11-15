@@ -117,6 +117,8 @@ namespace Barcode {
 
 		_glowBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/glow.vert", "", "assets/shaders/glow.frag", _engine->getView());
 
+		_copyBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/copy.vert", "", "assets/shaders/copy.frag", _engine->getView());
+
 		_particleBatch = RenderBatch<Hydra::Renderer::ParticleBatch>("assets/shaders/particles.vert", "", "assets/shaders/particles.frag", _engine->getView());
 		_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/ParticleAtlases.png");
 		_particleBatch.batch.clearFlags = ClearFlags::none;
@@ -292,8 +294,13 @@ namespace Barcode {
 			_geometryBatch.output->getDepth()->bind(4);
 
 			_engine->getRenderer()->postProcessing(_glowBatch.batch);
-		} else
-			_engine->getView()->blit(_lightingBatch.output.get());
+		} else {
+			_copyBatch.batch.pipeline->setValue(1, 1);
+			_copyBatch.batch.pipeline->setValue(2, 2);
+			(*_lightingBatch.output)[0]->bind(1);
+			_geometryBatch.output->getDepth()->bind(2);
+			_engine->getRenderer()->postProcessing(_copyBatch.batch);
+		}
 
 		{ // Particle batch
 			for (auto& kv : _particleBatch.batch.objects) {
