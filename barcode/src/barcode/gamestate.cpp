@@ -272,6 +272,24 @@ namespace Barcode {
 			batch.batch.pipeline = batch.pipeline.get();
 		}
 
+		{
+			auto& batch = _textBatch;
+			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/text.vert");
+			batch.geometryShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::geometry, "assets/shaders/text.geom");
+			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/text.frag");
+
+			batch.pipeline = Hydra::Renderer::GLPipeline::create();
+			batch.pipeline->attachStage(*batch.vertexShader);
+			batch.pipeline->attachStage(*batch.geometryShader);
+			batch.pipeline->attachStage(*batch.fragmentShader);
+			batch.pipeline->finalize();
+
+			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
+			batch.batch.clearFlags = ClearFlags::none;
+			batch.batch.renderTarget = _lightingBatch.output.get();
+			batch.batch.pipeline = batch.pipeline.get();
+		}
+
 		size_t boneCount = 32;
 		size_t animationBatch = 16;
 		// TODO: Change to f16?
@@ -840,6 +858,10 @@ namespace Barcode {
 			rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 				0, 0, 0.6f, 1.0f);
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+
+			auto textC = alienEntity->addComponent<Hydra::Component::TextComponent>();
+			textC->text = "123";
+			textC->rebuild();
 		}
 
 		{
@@ -898,7 +920,7 @@ namespace Barcode {
 
 			{
 				auto particleEmitter = world::newEntity("ParticleEmitter", world::root());
-				particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("QUAD");
+				particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("PARTICLEQUAD");
 				auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
 				p->delay = 1.0f / 1.0f;
 				auto t = particleEmitter->addComponent<Hydra::Component::TransformComponent>();

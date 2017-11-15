@@ -37,8 +37,10 @@ public:
 	std::shared_ptr<IMesh> getMesh(const std::string& file) final {
 		if (file.empty())
 			return _errorMesh;
-		if (file == "QUAD")
-			return getQuad();
+		if (file == "PARTICLEQUAD")
+			return getParticleQuad();
+		if (file == "TEXTQUAD")
+			return getTextQuad();
 
 		std::shared_ptr<IMesh> mesh = _storage[file];
 		if (!mesh) {
@@ -55,10 +57,17 @@ public:
 		return mesh;
 	}
 
-	std::shared_ptr<IMesh> getQuad() final{
-		std::shared_ptr<IMesh> mesh = _storage["RendererQuad"];
+	std::shared_ptr<IMesh> getParticleQuad() final{
+		std::shared_ptr<IMesh> mesh = _storage["ParticleQuad"];
 		if (!mesh)
-			mesh = _storage["RendererQuad"] = GLMesh::createQuad(_renderer);
+			mesh = _storage["ParticleQuad"] = GLMesh::createParticleQuad(_renderer);
+		return mesh;
+	}
+
+	std::shared_ptr<IMesh> getTextQuad() final {
+		std::shared_ptr<IMesh> mesh = _storage["TextQuad"];
+		if (!mesh)
+			mesh = _storage["TextQuad"] = GLMesh::createTextQuad(_renderer);
 		return mesh;
 	}
 

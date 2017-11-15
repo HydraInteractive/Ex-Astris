@@ -28,6 +28,7 @@ namespace Hydra::Component {
 	int maxLength = 10;
 
 	void rebuild() {
+		renderingData.resize(text.size());
 		auto factory = IEngine::getInstance()->getState()->getTextFactory();
 		glm::vec3 pos{ 0 };
 		for (unsigned int i = 0; i < text.size(); i++) {

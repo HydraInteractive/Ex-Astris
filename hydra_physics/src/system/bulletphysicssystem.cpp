@@ -153,7 +153,7 @@ void BulletPhysicsSystem::tick(float delta) {
 void BulletPhysicsSystem::_spawnParticleEmitterAt(const glm::vec3& pos, const glm::vec3& normal) {
 	auto pE = Hydra::World::World::newEntity("Collision Particle Spawner", Hydra::World::World::rootID);
 
-	pE->addComponent<Hydra::Component::MeshComponent>()->loadMesh("QUAD");
+	pE->addComponent<Hydra::Component::MeshComponent>()->loadMesh("PARTICLEQUAD");
 
 	auto pETC = pE->addComponent<Hydra::Component::TransformComponent>();
 	pETC->position = pos;

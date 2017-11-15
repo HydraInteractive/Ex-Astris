@@ -216,6 +216,7 @@ namespace Hydra::Renderer {
 
 		virtual void* getModelMatrixBuffer() = 0;
 		virtual void* getParticleExtraBuffer() = 0;
+		virtual void* getTextExtraBuffer() = 0;
 	};
 	inline IRenderer::~IRenderer() {}
 }

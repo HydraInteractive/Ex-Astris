@@ -125,6 +125,7 @@ namespace Barcode {
 		RenderBatch _ssaoBatch;
 		RenderBatch _hudBatch;
 		RenderBatch _hitboxBatch;
+		RenderBatch _textBatch;
 
 		ParticleRenderBatch _particleBatch;
 

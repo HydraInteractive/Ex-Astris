@@ -70,11 +70,16 @@ public:
 		glGenBuffers(1, &_particleBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, _particleBuffer);
 		glBufferData(GL_ARRAY_BUFFER, _particleBufferSize, NULL, GL_STREAM_DRAW);
+
+		glGenBuffers(1, &_textBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, _textBuffer);
+		glBufferData(GL_ARRAY_BUFFER, _textBufferSize, NULL, GL_STREAM_DRAW);
 	}
 
 	~GLRendererImpl() final {
 		glDeleteBuffers(1, &_modelMatrixBuffer);
 		glDeleteBuffers(1, &_particleBuffer);
+		glDeleteBuffers(1, &_textBuffer);
 		SDL_GL_DeleteContext(_glContext);
 	}
 
@@ -488,6 +493,7 @@ public:
 
 	void* getModelMatrixBuffer() final { return static_cast<void*>(&_modelMatrixBuffer); }
 	void* getParticleExtraBuffer() final { return static_cast<void*>(&_particleBuffer); }
+	void* getTextExtraBuffer() final { return static_cast<void*>(&_textBuffer); }
 
 private:
 	SDL_Window* _window;
@@ -499,8 +505,13 @@ private:
 
 	const size_t _modelMatrixSize = sizeof(glm::mat4) * 128; // max 128 mesh instances per draw call
 	GLuint _modelMatrixBuffer;
-	GLuint _particleBuffer;
+
 	const size_t _particleBufferSize = sizeof(glm::vec2) * 3 * 128; // Particle buffer holds three vec2, and max 128 particle instances per draw call.
+	GLuint _particleBuffer;
+
+	const size_t _textBufferSize = sizeof(float) * 7; // 1 vec4 and 1 vec3
+	GLuint _textBuffer;
+
 	const int _maxInstancedAnimatedModels = 20;
 
 	static void _loadGLAD() {
