@@ -18,6 +18,10 @@
 using world = Hydra::World::World;
 
 namespace Barcode {
+	bool GameState::ssaoOnOff = true;
+	bool GameState::glowOnOff = true;
+	bool GameState::shadowOnOff = true;
+
 	GameState::GameState() : _engine(Hydra::IEngine::getInstance()) {}
 
 	void GameState::load() {
@@ -324,6 +328,8 @@ namespace Barcode {
 		//TODO: These should go straight to the transform component, not via the camera component
 		const glm::vec3 cameraPos = _playerTransform->position;
 
+		static bool enableShadow = GameState::shadowOnOff;
+
 		{ // Render objects (Deferred rendering)
 		  //_world->tick(TickAction::render, delta);
 
@@ -399,7 +405,6 @@ namespace Barcode {
 					if (result == _cc->INSIDE || result == _cc->INTERSECT) {
 						if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false) {
 							_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-							_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 						}
 
 						else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
@@ -407,6 +412,19 @@ namespace Barcode {
 							_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 							_animationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
 							_animationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
+							mc->animationCounter += 1 * delta;
+						}
+					}
+					if (enableShadow)
+					{
+						if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false) 
+						{
+							_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+						}
+						else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true)
+						{
+							auto mc = e->getComponent < Hydra::Component::MeshComponent>();
+							int currentFrame = mc->currentFrame;
 							_shadowAnimationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 							_shadowAnimationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
 							_shadowAnimationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
@@ -448,20 +466,25 @@ namespace Barcode {
 		}
 
 		{
-			_shadowBatch.pipeline->setValue(0, _dirLight->getViewMatrix());
-			_shadowBatch.pipeline->setValue(1, _dirLight->getProjectionMatrix());
+			if (enableShadow)
+			{
+				_shadowBatch.pipeline->setValue(0, _dirLight->getViewMatrix());
+				_shadowBatch.pipeline->setValue(1, _dirLight->getProjectionMatrix());
 
-			_shadowAnimationBatch.pipeline->setValue(0, _dirLight->getViewMatrix());
-			_shadowAnimationBatch.pipeline->setValue(1, _dirLight->getProjectionMatrix());
+				_shadowAnimationBatch.pipeline->setValue(0, _dirLight->getViewMatrix());
+				_shadowAnimationBatch.pipeline->setValue(1, _dirLight->getProjectionMatrix());
 
-			_engine->getRenderer()->renderShadows(_shadowBatch.batch);
-			_engine->getRenderer()->renderShadows(_shadowAnimationBatch.batch);
+				_engine->getRenderer()->renderShadows(_shadowBatch.batch);
+				_engine->getRenderer()->renderShadows(_shadowAnimationBatch.batch);
+			}
 		}
 
-		static bool enableSSAO = false;
+		static bool enableSSAO = GameState::ssaoOnOff;
 		ImGui::Checkbox("Enable SSAO", &enableSSAO);
-		static bool enableBlur = true;
+		static bool enableBlur = GameState::glowOnOff;
 		ImGui::Checkbox("Enable blur", &enableBlur);
+		//decleared earlyer
+		ImGui::Checkbox("Enable shadow", &enableShadow);
 		static bool enableHitboxDebug = true;
 		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
 
@@ -522,7 +545,11 @@ namespace Barcode {
 
 			(*_geometryBatch.output)[2]->bind(2);
 			(*_geometryBatch.output)[3]->bind(3);
-			_shadowBatch.output->getDepth()->bind(4);
+			if (enableShadow)
+			{
+				_shadowBatch.output->getDepth()->bind(4);
+			}
+			
 			(*_blurrExtraFBO1)[0]->bind(5);
 			//(*_ssaoBatch.output)[0]->bind(5);
 			(*_geometryBatch.output)[5]->bind(6);
