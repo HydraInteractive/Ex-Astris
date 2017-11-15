@@ -450,6 +450,7 @@ private:
 	ImFont* _bigFont;
 
 	int newEntityParent = -1;
+	char inputText[32] = "";
 
 	void _renderEntityWindow() {
 		ImGui::SetNextWindowSize(ImVec2(480, 640), ImGuiSetCond_Once);
@@ -463,35 +464,57 @@ private:
 		if (ImGui::TreeNodeEx(worldRoot, nodeFlags, ICON_FA_GLOBE " %s [%lu] ( " ICON_FA_MICROCHIP " %lu / " ICON_FA_USER_O " %lu )", worldRoot->name.c_str(), worldRoot->id, worldRoot->componentCount(), worldRoot->children.size())) {
 			RenderComponents<Hydra::Component::ComponentTypes>::apply(this, worldRoot);
 
+			std::string entityID = std::to_string(worldRoot->id);
+			if (ImGui::BeginPopupContextItem(entityID.c_str()))
+			{
+				if (ImGui::MenuItem("New Child..."))
+				{
+					newEntityParent = worldRoot->id;
+				}
+				ImGui::EndPopup();
+			}
+
 			for (auto& child : worldRoot->children)
 				renderEntity(world::getEntity(child).get());
 			ImGui::TreePop();
 		}
-		if (newEntityParent != -1)
+		else
 		{
-			bool test = false;
-			if (ImGui::BeginPopupModal("New Entity", &test, ImGuiWindowFlags_AlwaysAutoResize))
+			std::string entityID = std::to_string(worldRoot->id);
+			if (ImGui::BeginPopupContextItem(entityID.c_str()))
 			{
-				char inputText[32] = "";
-				ImGui::InputText("Enter name of new entity: ", inputText, 32);
-				ImGui::Separator();
-
-				if (ImGui::Button("Create", ImVec2(120, 0)))
+				if (ImGui::MenuItem("New Child..."))
 				{
-					world::newEntity(inputText, newEntityParent);
-					newEntityParent = -1;
-					ImGui::CloseCurrentPopup();
-				}
-				ImGui::SameLine();
-				if (ImGui::Button("Cancel", ImVec2(120, 0)))
-				{
-					newEntityParent = -1;
-					ImGui::CloseCurrentPopup();
+					newEntityParent = worldRoot->id;
 				}
 				ImGui::EndPopup();
 			}
 		}
+		//Open new entity popup
+		if (newEntityParent != -1)
+		{
+			ImGui::OpenPopup("New Entity");
+		}
+		if (ImGui::BeginPopupModal("New Entity", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::InputText("Enter name of new entity: ", inputText, 32);
+			ImGui::Separator();
 
+			if (ImGui::Button("Create", ImVec2(120, 0)))
+			{
+				std::string cstrToStr = inputText;
+				world::newEntity(cstrToStr, newEntityParent);
+				newEntityParent = -1;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel", ImVec2(120, 0)))
+			{
+				newEntityParent = -1;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
 		ImGui::End();
 	}
 };
