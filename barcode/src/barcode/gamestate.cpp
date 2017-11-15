@@ -944,6 +944,9 @@ namespace Barcode {
 				0, 0, 0.5f, 0);
 			rgbc->setAngularForce(glm::vec3(0, 0, 0));
 
+			//auto rbc = static_cast<btRigidBody*>(rgbc->getRigidBody());
+			//rbc->setAngularFactor(btVector3(0.0f,0.0f,0.0f));
+
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 			t->position = glm::vec3{ 0, 0, 20 };
 			{

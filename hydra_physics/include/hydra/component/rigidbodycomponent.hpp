@@ -46,7 +46,7 @@ namespace Hydra::Component {
 #undef DEFAULT_PARAMS
 
 		void setActivationState(ActivationState newState);
-		void setAngularForce(glm::vec3 angForce);
+		void setAngularForce(glm::vec3 angularForce);
 		void* getRigidBody();
 		glm::vec3 getHalfExtentScale() { return _halfExtents; }
 
