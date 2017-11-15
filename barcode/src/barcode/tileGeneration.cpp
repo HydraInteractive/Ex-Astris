@@ -35,7 +35,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 
 			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
-			if (roomC->SOUTH == true) {
+			if (roomC->door[SOUTH] == true) {
 				if (_checkAdjacents(pos.x, pos.y + 1, roomC))
 				{
 					placed = true;
@@ -54,6 +54,11 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 		//If for some reason no room at all fits, spawn a door/rubble/something
 		if (placed == false) {
 			//Place stuff to cover door
+			auto doorBlock = world::newEntity("DoorBlock", world::root());
+			doorBlock->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BlockCube2.mATTIC");
+			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
+			t->position = _gridToWorld(pos.x, pos.y + 1);
+			//t->position
 		}
 	}
 
@@ -72,7 +77,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
 
-			if (roomC->EAST == true) {
+			if (roomC->door[EAST] == true) {
 				if (_checkAdjacents(pos.x + 1, pos.y, roomC))
 				{
 					placed = true;
@@ -91,6 +96,11 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 		//If for some reason no room at all fits, spawn a door/rubble/something
 		if (placed == false) {
 			//Place stuff to cover door
+			auto doorBlock = world::newEntity("DoorBlock", world::root());
+			doorBlock->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BlockCube2.mATTIC");
+			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
+			t->position = _gridToWorld(pos.x + 1, pos.y);
+			//t->position
 		}
 	}
 
@@ -108,7 +118,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 
 			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
-			if (roomC->NORTH == true) {
+			if (roomC->door[NORTH] == true) {
 				if (_checkAdjacents(pos.x, pos.y - 1, roomC))
 				{
 					placed = true;
@@ -127,6 +137,11 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 		//If for some reason no room at all fits, spawn a door/rubble/something
 		if (placed == false) {
 			//Place stuff to cover door
+			auto doorBlock = world::newEntity("DoorBlock", world::root());
+			doorBlock->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BlockCube2.mATTIC");
+			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
+			t->position = _gridToWorld(pos.x, pos.y - 1);
+			//t->position
 		}
 	}
 
@@ -144,7 +159,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 
 			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
-			if (roomC->WEST == true) {
+			if (roomC->door[WEST] == true) {
 				if (_checkAdjacents(pos.x - 1, pos.y, roomC))
 				{
 					placed = true;
@@ -163,6 +178,11 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 		//If for some reason no room at all fits, spawn a door/rubble/something
 		if (placed == false) {
 			//Place stuff to cover door
+			auto doorBlock = world::newEntity("DoorBlock", world::root());
+			doorBlock->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BlockCube2.mATTIC");
+			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
+			t->position = _gridToWorld(pos.x - 1, pos.y);
+			//t->position
 		}
 	}
 }

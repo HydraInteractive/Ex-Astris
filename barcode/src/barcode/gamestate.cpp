@@ -764,6 +764,7 @@ namespace Barcode {
 		}
 
 		{
+			//Remove this to gain frames like never before
 			TileGeneration worldTiles("assets/room/centralRoomPipes.room");
 		}
 

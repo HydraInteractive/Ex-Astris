@@ -34,7 +34,7 @@
 
 #include <fstream>
 #include <json.hpp>
-#define GRID_SIZE 5
+#define GRID_SIZE 4
 #define ROOM_SIZE 34
 
 class TileGeneration
