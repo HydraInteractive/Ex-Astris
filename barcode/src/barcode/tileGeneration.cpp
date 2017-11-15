@@ -104,6 +104,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
 			t->position = _gridToWorld(pos.x + 1, pos.y);
 			t->position.x -= 17;
+			t->position.y += 1.5;
 			t->scale = glm::vec3(3, 3, 3);
 			//t->position
 		}

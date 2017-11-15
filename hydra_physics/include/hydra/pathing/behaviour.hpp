@@ -74,6 +74,7 @@ protected:
 	virtual unsigned int foundState(float dt);
 	virtual unsigned int attackingState(float dt);
 	virtual void executeTransforms();
+	virtual void resetAnimationOnStart(int animationIndex);
 };
 
 class HYDRA_PHYSICS_API AlienBehaviour final : public Behaviour
