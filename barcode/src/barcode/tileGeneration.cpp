@@ -58,6 +58,8 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			doorBlock->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BlockCube2.mATTIC");
 			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
 			t->position = _gridToWorld(pos.x, pos.y + 1);
+			t->position.z -= 17;
+			t->scale = glm::vec3(3, 3, 3);
 			//t->position
 		}
 	}
@@ -100,6 +102,8 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			doorBlock->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BlockCube2.mATTIC");
 			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
 			t->position = _gridToWorld(pos.x + 1, pos.y);
+			t->position.x -= 17;
+			t->scale = glm::vec3(3, 3, 3);
 			//t->position
 		}
 	}
@@ -141,7 +145,8 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			doorBlock->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BlockCube2.mATTIC");
 			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
 			t->position = _gridToWorld(pos.x, pos.y - 1);
-			//t->position
+			t->position.z += 17;
+			t->scale = glm::vec3(3, 3, 3);
 		}
 	}
 
@@ -182,7 +187,8 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			doorBlock->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BlockCube2.mATTIC");
 			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
 			t->position = _gridToWorld(pos.x - 1, pos.y);
-			//t->position
+			t->position.x += 17;
+			t->scale = glm::vec3(3, 3, 3);
 		}
 	}
 }
@@ -245,7 +251,7 @@ bool TileGeneration::_checkAdjacents(int x, int y, std::shared_ptr<Hydra::Compon
 		if (y >= GRID_SIZE - 1)
 			return false;
 		if (grid[x][y + 1] != nullptr)
-			if (!grid[x][y + 1]->door[r->SOUTH])
+			if (grid[x][y + 1]->door[r->SOUTH] == false)
 				return false;
 		
 	}
@@ -254,7 +260,7 @@ bool TileGeneration::_checkAdjacents(int x, int y, std::shared_ptr<Hydra::Compon
 		if (x <= 0)
 			return false;
 		if (grid[x - 1][y] != nullptr)
-			if(!grid[x - 1][y]->door[r->WEST])
+			if(grid[x - 1][y]->door[r->WEST] == false)
 				return false;
 	}
 	if (r->door[r->SOUTH])
@@ -262,7 +268,7 @@ bool TileGeneration::_checkAdjacents(int x, int y, std::shared_ptr<Hydra::Compon
 		if (y <= 0)
 			return false;
 		if (grid[x][y - 1] != nullptr)
-			if(!grid[x][y - 1]->door[r->NORTH])
+			if(grid[x][y - 1]->door[r->NORTH] == false)
 				return false;
 	}
 	if (r->door[r->WEST])
@@ -270,7 +276,7 @@ bool TileGeneration::_checkAdjacents(int x, int y, std::shared_ptr<Hydra::Compon
 		if (x >= GRID_SIZE - 1)
 			return false;
 		if (grid[x + 1][y] != nullptr)
-			if(!grid[x + 1][y]->door[r->EAST])
+			if(grid[x + 1][y]->door[r->EAST] == false)
 				return false;
 	}
 	return true;

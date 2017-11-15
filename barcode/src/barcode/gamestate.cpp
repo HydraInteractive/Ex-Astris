@@ -862,7 +862,6 @@ namespace Barcode {
 			auto p3LC = pointLight3->addComponent<Hydra::Component::PointLightComponent>();
 			p3LC->color = glm::vec3(1, 1, 1);
 		}
-
 		{
 			auto pointLight4 = world::newEntity("Pointlight4", world::root());
 			auto t = pointLight4->addComponent<Hydra::Component::TransformComponent>();

@@ -83,8 +83,8 @@ void PlayerSystem::tick(float delta) {
 			else
 				weaponMesh->animationIndex = 0;
 			//Hard coded reload animation
-			if (keysArray[SDL_SCANCODE_R])
-				weaponMesh->animationIndex = 3;
+			//if (keysArray[SDL_SCANCODE_R])
+				//weaponMesh->animationIndex = 3;
 
 			//if !reloading()?
 
@@ -107,7 +107,7 @@ void PlayerSystem::tick(float delta) {
 						//	dyaw += rn/3;
 						//else
 						//	dyaw -= rn/3;
-
+						weaponMesh->animationIndex = 2;
 					}
 			}
 		}
