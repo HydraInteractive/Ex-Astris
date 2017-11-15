@@ -18,11 +18,10 @@ void ExporterMenu::render(bool &openBool, Hydra::Renderer::Batch* previewBatch, 
 	_menuBar();
 
 	Node* selectedNode = nullptr;
-	bool doubleClicked = false;
 	//File tree
 	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 60));
 	if (_root != nullptr)
-		_root->render(&selectedNode, doubleClicked);
+		_root->render(&selectedNode);
 	ImGui::EndChild();
 
 	ImGui::SameLine();

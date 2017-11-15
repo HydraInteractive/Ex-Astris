@@ -196,7 +196,7 @@ void FileTree::Node::clean()
 		}
 	}
 }
-void FileTree::Node::render(Node** selectedNode, bool& isDoubleClicked)
+void FileTree::Node::render(Node** selectedNode)
 {
 	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
 	//TODO: Folder icon opening
@@ -213,7 +213,7 @@ void FileTree::Node::render(Node** selectedNode, bool& isDoubleClicked)
 		//Child folders
 		for (size_t i = 0; i < this->_subfolders.size(); i++)
 		{
-			_subfolders[i]->render(selectedNode, isDoubleClicked);
+			_subfolders[i]->render(selectedNode);
 		}
 		//Files
 		for (size_t i = 0; i < this->_files.size(); i++)
@@ -237,10 +237,6 @@ void FileTree::Node::render(Node** selectedNode, bool& isDoubleClicked)
 			if (ImGui::IsItemClicked())
 			{
 				(*selectedNode) = _files[i];
-				if (ImGui::IsMouseDoubleClicked(0))
-				{
-					isDoubleClicked = true;
-				}
 			}
 			ImGui::TreePop();
 		}

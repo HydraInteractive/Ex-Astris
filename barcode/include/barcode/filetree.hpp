@@ -46,7 +46,7 @@ public:
 		std::string reverseEngineerPath();
 		int numberOfFiles();
 		void clean();
-		virtual void render(Node** selectedNode, bool& isDoubleClicked);
+		virtual void render(Node** selectedNode);
 		virtual void popupMenu(Node* currentNode);
 	private:
 		std::string _name;

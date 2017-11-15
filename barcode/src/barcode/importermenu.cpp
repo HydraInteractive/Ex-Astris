@@ -28,9 +28,8 @@ void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch* previewBatch,
 
 	//File tree
 	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.3f, ImGui::GetWindowContentRegionMax().y - 60));
-	bool doubleClicked = false;
 	if(_root != nullptr)
-		_root->render(&selectedNode, doubleClicked);
+		_root->render(&selectedNode);
 	if (selectedNode != nullptr) 
 	{
 		if (selectedNode->openInFileExplorer)
@@ -49,7 +48,7 @@ void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch* previewBatch,
 			auto drawObject = _previewEntity->getComponent<Hydra::Component::DrawObjectComponent>();
 			drawObject->drawObject->disable = true; // Disable mesh to only see the model in preview window
 			auto t = _previewEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ 0, 0, 5 };
+			t->position = glm::vec3{ 0, 0, 10 };
 			auto cc = _previewEntity->addComponent<Hydra::Component::CameraComponent>();
 			previewBatch->pipeline->setValue(0, cc->getViewMatrix());
 			previewBatch->pipeline->setValue(1, cc->getProjectionMatrix());
