@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\hydra\component\pickupcomponent.hpp" />
     <ClInclude Include="include\hydra\component\textcomponent.hpp" />
     <ClInclude Include="include\hydra\io\gltextfactory.hpp" />
     <ClInclude Include="include\hydra\system\animationsystem.hpp" />

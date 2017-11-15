@@ -12,6 +12,7 @@
 #include <glad/glad.h>
 
 #include <hydra/engine.hpp>
+#include <hydra/component/textcomponent.hpp> // Little Fuling LmAO
 
 #include <iostream>
 #include <fstream>
@@ -35,9 +36,9 @@ public:
 		_loadATTICModel(file.c_str(), modelMatrixBuffer);
 	}
 
-	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices, bool animation, GLuint modelMatrixBuffer, GLuint rendererExtraBuffer, GLuint textExtraBuffer) {
+	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices, bool animation, GLuint modelMatrixBuffer, GLuint particleExtraBuffer, GLuint textExtraBuffer) {
 		_makeBuffers();
-		_uploadData(vertices, indices, animation, modelMatrixBuffer, rendererExtraBuffer, textExtraBuffer);
+		_uploadData(vertices, indices, animation, modelMatrixBuffer, particleExtraBuffer, textExtraBuffer);
 	}
 
 	~GLMeshImpl() final {
@@ -136,7 +137,7 @@ private:
 		_ibo = buffers[1];
 	}
 
-	void _uploadData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, bool animation, GLuint modelMatrixBuffer, GLuint rendererExtraBuffer, GLuint textExtraBuffer) {
+	void _uploadData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, bool animation, GLuint modelMatrixBuffer, GLuint particleExtraBuffer, GLuint textExtraBuffer) {
 		_indicesCount = indices.size();
 		glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
@@ -172,8 +173,8 @@ private:
 				glVertexAttribDivisor(VertexLocation::modelMatrix + i, 1);
 			}
 		}
-		if (rendererExtraBuffer) {
-			glBindBuffer(GL_ARRAY_BUFFER, rendererExtraBuffer);
+		if (particleExtraBuffer) {
+			glBindBuffer(GL_ARRAY_BUFFER, particleExtraBuffer);
 			for (int i = 0; i < 3; i++) {
 				glEnableVertexAttribArray(VertexLocation::textureOffset1 + i);
 				glVertexAttribPointer(VertexLocation::textureOffset1 + i, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2) * 3, (GLvoid*)(sizeof(glm::vec2) * i));
@@ -181,7 +182,14 @@ private:
 			}
 		}
 		if (textExtraBuffer) {
-			//glBindBuffer(GL_ARRAY_BUFFER, textExtraBuffer);
+			glBindBuffer(GL_ARRAY_BUFFER, textExtraBuffer);
+			glEnableVertexAttribArray(VertexLocation::charRect);
+			glVertexAttribPointer(VertexLocation::charRect, 4, GL_FLOAT, GL_FALSE, sizeof(Hydra::Renderer::CharRenderInfo), (GLvoid*)(sizeof(glm::vec4)));
+			glVertexAttribDivisor(VertexLocation::charRect, 1);
+
+			glEnableVertexAttribArray(VertexLocation::charPos);
+			glVertexAttribPointer(VertexLocation::charPos, 3, GL_FLOAT, GL_FALSE, sizeof(Hydra::Renderer::CharRenderInfo), (GLvoid*)(sizeof(glm::vec4) + sizeof(glm::vec3)));
+			glVertexAttribDivisor(VertexLocation::charPos, 1);
 		}
 	}
 
@@ -521,7 +529,7 @@ std::unique_ptr<IMesh> GLMesh::createTextQuad(IRenderer* renderer) {
 		Vertex{ { -0.5, -0.5, 0 },{ 0, 0, -1 },{ 1, 1, 1 },{ 0, 0 },{ 0, 0, 0 } }
 	};
 	std::vector<GLuint> indices{ 0, 2, 1, 2, 0, 3 };
-	return std::unique_ptr<IMesh>(new ::GLMeshImpl(vertices, indices, false, *static_cast<GLuint*>(renderer->getModelMatrixBuffer()), 0, *static_cast<GLuint*>(renderer->getTextExtraBuffer())));
+	return std::unique_ptr<IMesh>(new ::GLMeshImpl(vertices, indices, false, 0, 0, *static_cast<GLuint*>(renderer->getTextExtraBuffer())));
 }
 
 std::unique_ptr<IMesh> GLMesh::createFullscreenQuad() {

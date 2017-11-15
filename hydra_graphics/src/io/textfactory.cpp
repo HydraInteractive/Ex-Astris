@@ -21,7 +21,7 @@ public:
 
 	}
 	~TextFactoryImpl() final {
-		
+
 	}
 
 	std::shared_ptr<ITexture> getTexture() final { return _fontMap; }

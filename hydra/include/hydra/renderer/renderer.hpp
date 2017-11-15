@@ -35,7 +35,17 @@ namespace Hydra::Renderer {
 		controllers = 10,
 		textureOffset1 = 11,
 		textureOffset2 = 12,
-		textureCoordInfo = 13
+		textureCoordInfo = 13,
+		charRect = 14,
+		charPos = 15
+	};
+
+	struct CharRenderInfo {
+		// charRect.xy = [startX, startY] in texture
+		// charRect.zw = [width, height] of char
+		// charPos     = [xPos, yPos, zPos]
+		glm::vec4 charRect;
+		glm::vec3 charPos;
 	};
 
 	struct HYDRA_BASE_API Vertex final {
@@ -192,6 +202,16 @@ namespace Hydra::Renderer {
 		std::vector<glm::vec2> textureInfo;
 	};
 
+
+	struct HYDRA_BASE_API TextBatch {
+		glm::vec4 clearColor;
+		ClearFlags clearFlags;
+		IRenderTarget* renderTarget;
+		IPipeline* pipeline;
+		std::map<IMesh*, std::vector<glm::mat4 /* Model matrix */>> objects;
+		std::vector<CharRenderInfo> textInfo;
+	};
+
 	class HYDRA_BASE_API IRenderer {
 	public:
 		virtual ~IRenderer() = 0;
@@ -201,6 +221,7 @@ namespace Hydra::Renderer {
 		virtual void render(ParticleBatch& batch) = 0;
 		virtual void renderShadows(Batch& batch) = 0;
 		virtual void renderShadows(AnimationBatch& batch) = 0;
+		virtual void renderText(TextBatch& batch) = 0;
 		// Note: this will ignore batch.objects
 		virtual void postProcessing(Batch& batch) = 0;
 		virtual void renderHitboxes(Batch& batch) = 0;

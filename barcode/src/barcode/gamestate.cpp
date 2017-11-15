@@ -25,7 +25,7 @@ namespace Barcode {
 	void GameState::load() {
 		_textureLoader = Hydra::IO::GLTextureLoader::create();
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
-		_textFactory = Hydra::IO::GLTextFactory::create("assest/fonts/font.png");
+		_textFactory = Hydra::IO::GLTextFactory::create("assets/fonts/font.png");
 
 		auto windowSize = _engine->getView()->getSize();
 		{
@@ -763,6 +763,25 @@ namespace Barcode {
 			ImGui::PopStyleColor();
 			ImGui::PopStyleVar();
 			ImGui::PopStyleVar();
+		}
+
+		{	// Is this what the text gods forsaw?
+			for (auto& kv : _textBatch.batch.objects)
+				kv.second.clear();
+
+			_textBatch.batch.textInfo.clear();
+			std::vector<std::shared_ptr<Entity>> textEntities;
+			world::getEntitiesWithComponents<Hydra::Component::TextComponent, Hydra::Component::DrawObjectComponent>(textEntities);
+			for (auto& e : textEntities) {
+				auto textC = e->getComponent<Hydra::Component::TextComponent>();
+				auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
+
+				_textBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+				for (size_t i = 0; i < textC->renderingData.size(); i++) {
+					_textBatch.batch.textInfo.push_back(textC->renderingData[i]);
+				}
+			}
+			_engine->getRenderer()->renderText(_textBatch.batch);
 		}
 	}
 
