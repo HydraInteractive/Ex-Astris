@@ -9,12 +9,12 @@
 */
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
+#include <hydra/component/cameracomponent.hpp>
 #include <btBulletDynamicsCommon.h>
 #include <hydra/engine.hpp>
 
 #include <imgui/imgui.h>
 #include <glm/gtc/type_ptr.hpp>
-#include <random>
 
 using namespace Hydra::World;
 using namespace Hydra::Component;
@@ -23,10 +23,48 @@ using world = Hydra::World::World;
 
 WeaponComponent::~WeaponComponent() { }
 
+
+bool WeaponComponent::reload(float delta) {
+	if (this->currammo > 0) {
+
+		this->reloadTime += delta;
+		//WTF IS THIS
+		this->currmagammo = (reloadTime / maxReloadTime) * maxmagammo;
+		//WTF IS THIS END
+		if (reloadTime >= this->maxReloadTime) {
+			reloadTime = 0;
+			// ADD AGAIN AFTER REMOVING WTF IS THIS
+			//this->currammo += currmagammo;
+			if (currammo >= maxmagammo) {
+				this->currmagammo = maxmagammo;
+				this->currammo -= maxmagammo;
+			}
+			else {
+				this->currmagammo = currammo;
+				currammo = 0;
+			}
+			return false;
+		}
+		return true;
+	}
+	return false;
+}
+
+void WeaponComponent::resetReload() {
+	this->reloadTime = 0;
+}
+
 //TODO: (Re)move? to system?
-void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity) {
+bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity) {
 	if (fireRateTimer > 0)
-		return;
+		return false;
+	// maxmagammo == 0 = sv_infinite_ammo 1
+	if (maxmagammo != 0) {
+		if (currmagammo == 0) {
+			return false;
+		}
+		currmagammo -= this->ammoPerShot;
+	}
 
 	if (bulletSpread == 0.0f) {
 		auto bullet = world::newEntity("Bullet", world::rootID);
@@ -86,11 +124,10 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 			rigidBody->setActivationState(DISABLE_DEACTIVATION);
 			rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 300);
 			rigidBody->setGravity(btVector3(0,0,0));
-
 		}
 	}
 	fireRateTimer = 1.0f/(fireRateRPM / 60.0f);
-
+	return true;
 }
 
 void WeaponComponent::serialize(nlohmann::json& json) const {
@@ -112,4 +149,8 @@ void WeaponComponent::registerUI() {
 	ImGui::DragFloat("Bullet Size", &bulletSize, 0.001f);
 	ImGui::DragFloat("Bullet Spread", &bulletSpread, 0.001f);
 	ImGui::InputInt("Bullets Per Shot", &bulletsPerShot);
+	ImGui::InputInt("Magazine", &this->currmagammo);
+	ImGui::InputInt("Max Ammo", &this->maxammo);
+	ImGui::InputInt("Ammo", &this->currammo);
+	ImGui::InputInt("Max Magazine", &this->maxmagammo);
 }

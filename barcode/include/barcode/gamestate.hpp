@@ -29,6 +29,7 @@
 #include <hydra/component/spawnercomponent.hpp>
 #include <hydra/component/soundfxcomponent.hpp>
 #include <hydra/component/perkcomponent.hpp>
+#include <hydra/component/pickupcomponent.hpp>
 
 #include <hydra/system/camerasystem.hpp>
 #include <hydra/system/particlesystem.hpp>
@@ -42,6 +43,8 @@
 #include <hydra/system/spawnersystem.hpp>
 #include <hydra/system/soundfxsystem.hpp>
 #include <hydra/system/perksystem.hpp>
+#include <hydra/system/animationsystem.hpp>
+#include <hydra/system/pickupsystem.hpp>
 
 #include <hydra/io/input.hpp>
 
@@ -77,6 +80,8 @@ namespace Barcode {
 		Hydra::System::SpawnerSystem _spawnerSystem;
 		Hydra::System::SoundFxSystem _soundFxSystem;
 		Hydra::System::PerkSystem _perkSystem;
+		Hydra::System::AnimationSystem _animationSystem;
+		Hydra::System::PickUpSystem _pickUpSystem;
 
 		RenderBatch<Hydra::Renderer::Batch> _geometryBatch; // First part of deferred rendering
 		RenderBatch<Hydra::Renderer::AnimationBatch> _animationBatch; // AnimationBatch
