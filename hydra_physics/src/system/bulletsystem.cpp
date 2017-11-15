@@ -73,6 +73,8 @@ void BulletSystem::tick(float delta) {
 		if (b->deleteTimer <= 0)
 			entities[i]->dead = true;
 	}
+
+	entities.clear();
 }
 
 void BulletSystem::registerUI() {}

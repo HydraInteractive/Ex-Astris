@@ -68,6 +68,8 @@ void SoundFxSystem::tick(float delta) {
 			}
 		}	
 	}
+
+	entities.clear();
 }
 
 void SoundFxSystem::registerUI() {}

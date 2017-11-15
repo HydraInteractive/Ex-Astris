@@ -77,6 +77,8 @@ void CameraSystem::tick(float delta) {
 		const glm::mat4 viewMat = fc->getViewMatrix();
 		t->position += glm::vec3(glm::vec4(velocity * fc->movementSpeed * (multiplier ? fc->shiftMultiplier : 1), 1.0f) * viewMat) * delta;
 	}
+
+	entities.clear();
 }
 
 void CameraSystem::setCamInternals(Hydra::Component::CameraComponent& cc) {
