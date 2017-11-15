@@ -71,11 +71,13 @@ namespace Barcode {
 	private:
 		ComponentMenu _componentMenu;
 		FileTree* _importerMenu;
-		FileTree* _exporterMenu;
+		FileTree* _roomExporterMenu;
+		//FileTree* _prefabExporterMenu;
 
 		bool _showComponentMenu = false;
 		bool _showImporter = false;
 		bool _showExporter = false;
+		//bool _showprefabExporter = false;
 		
 		std::string selectedPath;
 

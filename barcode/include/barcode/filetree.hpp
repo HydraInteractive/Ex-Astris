@@ -32,10 +32,12 @@ public:
 	virtual void refresh(std::string relativePath);
 	static std::shared_ptr<Hydra::World::Entity> getRoomEntity();
 	virtual void render(bool &openBool, Hydra::Renderer::Batch* previewBatch = nullptr, float delta = 0.0f) = 0;
+	
 	class Node {
 	public:
 		bool isAllowedFile = false;
 		bool openInFileExplorer = false;
+
 		Node();
 		Node(std::string path, const std::vector<std::string>& extWhitelist, Node* parent = nullptr, bool isFile = false);
 		virtual ~Node();

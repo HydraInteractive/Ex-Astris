@@ -257,7 +257,7 @@ namespace Barcode {
 
 		_initWorld();
 		this->_importerMenu = new ImporterMenu();
-		this->_exporterMenu = new ExporterMenu();
+		this->_roomExporterMenu = new ExporterMenu();
 		this->_componentMenu = ComponentMenu();
 	}
 
@@ -276,7 +276,7 @@ namespace Barcode {
 			{
 				_showExporter = !_showExporter;
 				if (_showExporter)
-					_exporterMenu->refresh("/assets");
+					_roomExporterMenu->refresh("/assets");
 			}
 			if (ImGui::MenuItem("Add component..."))
 			{
@@ -554,7 +554,7 @@ namespace Barcode {
 		if (_showImporter)
 			_importerMenu->render(_showImporter, &_previewBatch.batch, delta);
 		if (_showExporter)
-			_exporterMenu->render(_showExporter);
+			_roomExporterMenu->render(_showExporter);
 		if (_showComponentMenu)
 			_componentMenu.render(_showComponentMenu);
 		_glowBatch.output->resolve(0, _finalImage->image);

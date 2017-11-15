@@ -222,22 +222,20 @@ void FileTree::Node::render(Node** selectedNode)
 			if (ext == ".mattic" || ext == ".mATTIC")
 			{
 				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBE " %s", _files[i]->_name.c_str());
-				popupMenu(_files[i]);
 			}
 			else if (ext == ".room" || ext == ".ROOM")
 			{
 				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBES " %s", _files[i]->_name.c_str());
-				popupMenu(_files[i]);
 			}
 			else
 			{
 				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_QUESTION_CIRCLE_O " %s", _files[i]->_name.c_str());
-				popupMenu(_files[i]);
 			}
 			if (ImGui::IsItemClicked())
 			{
 				(*selectedNode) = _files[i];
 			}
+			popupMenu(_files[i]);
 			ImGui::TreePop();
 		}
 		ImGui::TreePop();

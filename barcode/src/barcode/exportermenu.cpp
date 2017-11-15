@@ -1,6 +1,6 @@
 #include <barcode/exportermenu.hpp>
 #include <hydra/component/roomcomponent.hpp>
-
+#include <hydra/world/world.hpp>
 using world = Hydra::World::World; 
 ExporterMenu::ExporterMenu() : FileTree()
 {
@@ -32,7 +32,7 @@ void ExporterMenu::render(bool &openBool, Hydra::Renderer::Batch* previewBatch, 
 	//Refresh changes from file tree
 	if (selectedNode != nullptr)
 	{
-		if (ImGui::IsMouseDoubleClicked(0) && selectedNode->getExt() == ".room")
+		if (ImGui::IsMouseDoubleClicked(0) && selectedNode->getExt().c_str() == _exportTypes[_fileType])
 		{
 			_prepExporting = true;
 		}
@@ -58,10 +58,17 @@ void ExporterMenu::render(bool &openBool, Hydra::Renderer::Batch* previewBatch, 
 		}
 	}
 
-	//Draw gui
+	//Draw form
 	ImGui::Text("Path: "); ImGui::SameLine(); ImGui::Text("%s", _selectedPath.c_str());
-	ImGui::InputText(".room", _selectedFileName, 128);
-
+	ImGui::InputText("", _selectedFileName, 128);
+	ImGui::SameLine();
+	ImGui::PushItemWidth(100);
+	ImGui::Combo("", &_fileType, _exportTypes, IM_ARRAYSIZE(_exportTypes));
+	ImGui::PopItemWidth();
+	if (_fileType == 1) //Prefab only
+	{
+		_renderEntitySelector();
+	}
 	if (ImGui::Button("Save"))
 	{
 		_prepExporting = true;
@@ -114,4 +121,17 @@ void ExporterMenu::render(bool &openBool, Hydra::Renderer::Batch* previewBatch, 
 	}
 	ImGui::EndChild();
 	ImGui::End();
+}
+
+void ExporterMenu::_renderEntitySelector()
+{
+	ImGui::BeginChild("Prefab", ImVec2(300, 500), true);
+	auto& e = world::root()->children;
+	for (int i = 0; i < e.size(); i++)
+	{
+		auto entity = world::getEntity(e[i]);
+		std::string title = entity->name + " [" + std::to_string(entity->id) + "]";
+		ImGui::MenuItem(title.c_str());
+	}
+	ImGui::EndChild();
 }

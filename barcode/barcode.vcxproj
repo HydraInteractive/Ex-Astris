@@ -18,7 +18,6 @@
     <ClInclude Include="include\barcode\importermenu.hpp" />
     <ClInclude Include="include\barcode\menustate.hpp" />
     <ClInclude Include="include\barcode\tileGeneration.hpp" />
-    <ClInclude Include="include\barcode\prefabexporter.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="include\barcode\componentmenu.hpp" />
@@ -29,7 +28,6 @@
     <ClCompile Include="src\barcode\gamestate.cpp" />
     <ClCompile Include="src\barcode\importermenu.cpp" />
     <ClCompile Include="src\barcode\menustate.cpp" />
-    <ClCompile Include="src\barcode\prefabexporter.cpp" />
     <ClCompile Include="src\barcode\tileGeneration.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
