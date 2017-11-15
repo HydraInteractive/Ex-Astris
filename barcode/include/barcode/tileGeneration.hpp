@@ -34,7 +34,7 @@
 
 #include <fstream>
 #include <json.hpp>
-#define GRID_SIZE 4
+#define GRID_SIZE 6
 #define ROOM_SIZE 34
 
 class TileGeneration
@@ -45,7 +45,7 @@ public:
 	TileGeneration(std::string middleRoomPath);
 	~TileGeneration();
 
-	int maxRooms = 20;
+	int maxRooms = 36;
 
 private:
 	std::vector<std::string> _roomFileNames;
@@ -57,7 +57,8 @@ private:
 	void _createMapRecursivly(glm::ivec2 pos);
 	void _setupGrid();
 	void _obtainRoomFiles();
+	void _randomizeRooms();
 	glm::vec3 _gridToWorld(int x, int y);
 	bool _checkAdjacents(int x, int y, std::shared_ptr<Hydra::Component::RoomComponent>& r);
-
+	
 };

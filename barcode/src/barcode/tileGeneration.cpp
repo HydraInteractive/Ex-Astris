@@ -13,6 +13,11 @@ TileGeneration::~TileGeneration() {}
 void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 
 	_roomCounter++;
+	
+	//Random the rooms vector each time we're about to spawn a new room
+	_randomizeRooms();
+
+
 	//Go through all doors in the room of the tile, create a random room
 	//That fits with the door, go through that room and so on, until the next
 	//you get to a "end room". Then go back and continue for next door
@@ -30,8 +35,6 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
 			auto loadedRoom = world::newEntity("Room", world::root());
-			
-			int randomRoomInt = rand() % _roomFileNames.size();
 
 			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
@@ -73,8 +76,6 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
 			std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", world::root());
-
-			int randomRoomInt = rand() % _roomFileNames.size();
 
 			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
@@ -118,8 +119,6 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
 			std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", world::root());
 
-			int randomRoomInt = rand() % _roomFileNames.size();
-
 			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
 			if (roomC->door[NORTH] == true) {
@@ -159,8 +158,6 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
 			std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", world::root());
-
-			int randomRoomInt = rand() % _roomFileNames.size();
 
 			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
@@ -227,13 +224,20 @@ void TileGeneration::_obtainRoomFiles() {
 		_roomFileNames.push_back(p.path().string());
 	}
 
-	//Randomize the list 3 times for extra randomness
-	for (int k = 0; k < 3; k++) {
+	_randomizeRooms();
+
+}
+
+void TileGeneration::_randomizeRooms() {
+
+	//Randomize the list 2 times for extra randomness
+	for (int k = 0; k < 2; k++) {
 		for (int i = 0; i < _roomFileNames.size(); i++) {
 			int randomPos = rand() % _roomFileNames.size();
 			std::swap(_roomFileNames[i], _roomFileNames[randomPos]);
 		}
 	}
+
 }
 
 glm::vec3 TileGeneration::_gridToWorld(int x, int y) {
