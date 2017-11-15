@@ -87,7 +87,7 @@ void BulletPhysicsSystem::disable(Hydra::Component::RigidBodyComponent* componen
 }
 
 void BulletPhysicsSystem::tick(float delta) {
-	_data->dynamicsWorld->stepSimulation(delta);
+	_data->dynamicsWorld->stepSimulation(delta,3);
 	// Gets all collisions happening between all rigidbody entities.
 	int numManifolds = _data->dynamicsWorld->getDispatcher()->getNumManifolds();
 	for (int i = 0; i < numManifolds; i++) {
@@ -119,9 +119,8 @@ void BulletPhysicsSystem::tick(float delta) {
 		else if (pickupComponent = eB->getComponent<Hydra::Component::PickUpComponent>().get())
 			perkComponent = eA->getComponent<Hydra::Component::PerkComponent>().get();
 
-		if (pickupComponent) {
+		if (pickupComponent)
 			_addPickUp(pickupComponent, perkComponent);
-		}
 
 		// Gets the contact points
 		int numContacts = contactManifold->getNumContacts();
