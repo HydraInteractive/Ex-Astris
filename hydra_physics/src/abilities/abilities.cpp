@@ -50,7 +50,7 @@ void MineAbility::useAbility(const std::shared_ptr<Hydra::World::Entity>& player
 }
 
 void forcePushAbility::useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity) {
-	auto playerTransform = playerEntity->getComponent<Hydra::Component::TransformComponent>();
+	/*auto playerTransform = playerEntity->getComponent<Hydra::Component::TransformComponent>();
 
 	std::vector<std::shared_ptr<Hydra::World::Entity>> entities;
 	world::getEntitiesWithComponents<Hydra::Component::TransformComponent, Hydra::Component::RigidBodyComponent>(entities);
@@ -64,11 +64,12 @@ void forcePushAbility::useAbility(const std::shared_ptr<Hydra::World::Entity>& p
 			glm::vec3 forcePush = glm::normalize(t->position - playerTransform->position)*1000.0f;
 			rigidBody->applyCentralForce(btVector3(forcePush.x, forcePush.y, forcePush.z));
 		}
-	}
+	}*/
 }
 
 void BulletSprayAbillity::useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity) {
 	activeTimer = 1.5f;
+	afterLastTick = true;
 }
 
 void BulletSprayAbillity::tick(float delta, const std::shared_ptr<Hydra::World::Entity>& playerEntity)
