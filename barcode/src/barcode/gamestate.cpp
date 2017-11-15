@@ -765,7 +765,7 @@ namespace Barcode {
 		}
 		
 		{
-			//TileGeneration worldTiles("assets/room/threewayRoom.room");
+			TileGeneration worldTiles("assets/room/threewayRoom.room");
 		}
 
 		{
