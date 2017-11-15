@@ -21,7 +21,7 @@ namespace Hydra::Component {
 		float shiftMultiplier = 5.0f;
 
 		float fov = 90.0f;
-		float zNear = 0.001f;
+		float zNear = 0.2f;
 		float zFar = 75.0f;
 		float aspect = 16.0f/9.0f;
 

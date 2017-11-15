@@ -25,29 +25,29 @@ WeaponComponent::~WeaponComponent() { }
 
 
 bool WeaponComponent::reload(float delta) {
-	if (this->currammo > 0) {
-
-		this->reloadTime += delta;
-		//WTF IS THIS
-		this->currmagammo = (reloadTime / maxReloadTime) * maxmagammo;
-		//WTF IS THIS END
-		if (reloadTime >= this->maxReloadTime) {
-			reloadTime = 0;
-			// ADD AGAIN AFTER REMOVING WTF IS THIS
-			//this->currammo += currmagammo;
-			if (currammo >= maxmagammo) {
-				this->currmagammo = maxmagammo;
-				this->currammo -= maxmagammo;
-			}
-			else {
-				this->currmagammo = currammo;
-				currammo = 0;
-			}
-			return false;
+	if (this->currmagammo == this->maxmagammo)
+		return false;
+	if (this->currammo <= 0)
+		return false;
+	
+	this->reloadTime += delta;
+	//WTF IS THIS
+	this->currmagammo = (reloadTime / maxReloadTime) * maxmagammo;
+	//WTF IS THIS END
+	if (reloadTime >= this->maxReloadTime) {
+		reloadTime = 0;
+		// ADD AGAIN AFTER REMOVING WTF IS THIS
+		//this->currammo += currmagammo;
+		if (currammo >= maxmagammo) {
+			this->currmagammo = maxmagammo;
+			this->currammo -= maxmagammo;
+		} else {
+			this->currmagammo = currammo;
+			currammo = 0;
 		}
-		return true;
+		return false;
 	}
-	return false;
+	return true;
 }
 
 void WeaponComponent::resetReload() {
