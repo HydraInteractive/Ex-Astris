@@ -83,36 +83,13 @@ namespace Barcode {
 		Hydra::System::AnimationSystem _animationSystem;
 		Hydra::System::PickUpSystem _pickUpSystem;
 
-		RenderBatch<Hydra::Renderer::Batch> _geometryBatch; // First part of deferred rendering
-		RenderBatch<Hydra::Renderer::AnimationBatch> _animationBatch; // AnimationBatch
-		RenderBatch<Hydra::Renderer::Batch> _lightingBatch; // Second part of deferred rendering
-		RenderBatch<Hydra::Renderer::Batch> _glowBatch; // Glow batch.
-		RenderBatch<Hydra::Renderer::Batch> _viewBatch;
-		RenderBatch<Hydra::Renderer::Batch> _shadowBatch;
-		RenderBatch<Hydra::Renderer::AnimationBatch> _shadowAnimationBatch;
-		RenderBatch<Hydra::Renderer::Batch> _ssaoBatch;
-		RenderBatch<Hydra::Renderer::Batch> _hudBatch;
+		std::unique_ptr<DefaultGraphicsPipeline> _dgp;
 		RenderBatch<Hydra::Renderer::Batch> _hitboxBatch;
 
-		RenderBatch<Hydra::Renderer::ParticleBatch> _particleBatch;
-
-		std::unique_ptr<BlurUtil> _blurUtil;
-
-		std::shared_ptr<Hydra::Renderer::ITexture> _animationData;
-
-		std::shared_ptr<Hydra::Renderer::ITexture> _particleAtlases;
-
-		std::shared_ptr<Hydra::Renderer::IPipeline> _shadowPipeline;
-		std::unique_ptr<Hydra::Renderer::IShader> _shadowVertexShader;
-		std::unique_ptr<Hydra::Renderer::IShader> _shadowFragmentShader;
-		std::shared_ptr<Hydra::Renderer::ITexture> _shadowMap;
-
-		std::shared_ptr<Hydra::Renderer::ITexture> _ssaoNoise;
 		std::shared_ptr<Hydra::Renderer::IMesh> _hitboxCube;
 
 		Hydra::Component::CameraComponent* _cc = nullptr;
 		Hydra::Component::TransformComponent* _playerTransform = nullptr;
-		Hydra::Component::LightComponent* _dirLight = nullptr;
 
 		Input _input;
 

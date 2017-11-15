@@ -38,8 +38,7 @@ namespace Hydra::Component {
 		bool mouseControl = true;
 
 		enum {
-			TOP = 0, BOTTOM, LEFT, RIGHT, NEARP, FARP,
-			OUTSIDE, INTERSECT, INSIDE
+			TOP = 0, BOTTOM, LEFT, RIGHT, NEARP, FARP
 		};
 
 		struct Plane {

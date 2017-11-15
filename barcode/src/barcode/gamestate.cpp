@@ -25,104 +25,12 @@ namespace Barcode {
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
 
 		auto windowSize = _engine->getView()->getSize();
-		_blurUtil = std::make_unique<BlurUtil>(_engine->getRenderer(), windowSize, Hydra::Renderer::TextureType::u8RGB);
+		_dgp = std::make_unique<DefaultGraphicsPipeline>(_cameraSystem, windowSize);
 
 		{
-			_geometryBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/geometry.vert", "assets/shaders/geometry.geom", "assets/shaders/geometry.frag", windowSize);
-			_geometryBatch.output
-				->addTexture(0, Hydra::Renderer::TextureType::f16RGB) // Position
-				.addTexture(1, Hydra::Renderer::TextureType::u8RGBA) // Diffuse
-				.addTexture(2, Hydra::Renderer::TextureType::f16RGB) // Normal
-				.addTexture(3, Hydra::Renderer::TextureType::f16RGBA) // Light pos
-				.addTexture(4, Hydra::Renderer::TextureType::u8RGB) // Position in view-space
-				.addTexture(5, Hydra::Renderer::TextureType::u8R) // Glow.
-				.addTexture(6, Hydra::Renderer::TextureType::f16Depth) // real depth
-				.finalize();
-		}
-
-		{
-			_animationBatch = RenderBatch<Hydra::Renderer::AnimationBatch>("assets/shaders/animationGeometry.vert", "assets/shaders/animationGeometry.geom", "assets/shaders/animationGeometry.frag", _geometryBatch);
-			_animationBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::none;
-		}
-
-		{ // Lighting pass batch
-			_lightingBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/lighting.vert", "", "assets/shaders/lighting.frag", windowSize);
-
-			_lightingBatch.output
-				->addTexture(0, Hydra::Renderer::TextureType::u8RGB)
-				.addTexture(1, Hydra::Renderer::TextureType::u8RGB)
-				.finalize();
-		}
-
-		{
-			_glowBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/glow.vert", "", "assets/shaders/glow.frag", _engine->getView());
-		}
-
-		{ // PARTICLES
-			_particleBatch = RenderBatch<Hydra::Renderer::ParticleBatch>("assets/shaders/particles.vert", "", "assets/shaders/particles.frag", _engine->getView());
-			_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/ParticleAtlases.png");
-			_particleBatch.batch.clearFlags = ClearFlags::none;
-		}
-
-		{ // Shadow pass
-			_shadowBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/shadow.vert", "", "assets/shaders/shadow.frag", glm::vec2(1024));
-			_shadowBatch.output->addTexture(0, Hydra::Renderer::TextureType::f16Depth).finalize();
-			_shadowBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::depth;
-
-			_shadowAnimationBatch = RenderBatch<Hydra::Renderer::AnimationBatch>("assets/shaders/shadowAnimation.vert", "", "assets/shaders/shadow.frag", _shadowBatch);
-			_shadowAnimationBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::none;
-		}
-
-		{ // SSAO
-			_ssaoBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/ssao.vert", "", "assets/shaders/ssao.frag", windowSize / 2);
-			_ssaoBatch.output->addTexture(0, Hydra::Renderer::TextureType::f16R).finalize();
-
-			std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
-			std::default_random_engine generator;
-			size_t kernelSize = 8;
-			std::vector<glm::vec3> ssaoKernel;
-			for (size_t i = 0; i < kernelSize; i++) {
-				glm::vec3 sample(
-					randomFloats(generator) * 2.0 - 1.0,
-					randomFloats(generator) * 2.0 - 1.0,
-					randomFloats(generator)
-				);
-				sample = glm::normalize(sample);
-				sample *= randomFloats(generator);
-				float scale = (float)i / kernelSize;
-				scale = 0.1 + (scale * scale) * (1.0 - 0.1);
-				sample *= scale;
-				ssaoKernel.push_back(sample);
-			}
-
-			std::vector<glm::vec3> ssaoNoise;
-			for (unsigned int i = 0; i < 16; i++) {
-				glm::vec3 noise(
-					randomFloats(generator) * 2.0 - 1.0,
-					randomFloats(generator) * 2.0 - 1.0,
-					0.0f);
-				ssaoNoise.push_back(noise);
-			}
-
-			_ssaoNoise = Hydra::Renderer::GLTexture::createFromData(4, 4, TextureType::f32RGB, ssaoNoise.data());
-
-			for (size_t i = 0; i < kernelSize; i++)
-				_ssaoBatch.pipeline->setValue(4 + i, ssaoKernel[i]);
-		}
-
-		{
-			_viewBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/view.vert", "", "assets/shaders/view.frag", _engine->getView());
-		}
-
-		{
-			_hitboxBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/hitboxdebug.vert", "", "assets/shaders/hitboxdebug.frag", _lightingBatch);
+			_hitboxBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/hitboxdebug.vert", "", "assets/shaders/hitboxdebug.frag", _engine->getView());
 			_hitboxBatch.batch.clearFlags = ClearFlags::none;
 		}
-
-		size_t boneCount = 32;
-		size_t animationBatch = 16;
-		// TODO: Change to f16?
-		_animationData = Hydra::Renderer::GLTexture::createDataTexture(boneCount * 4, animationBatch, Hydra::Renderer::TextureType::f32RGBA);
 
 		_initWorld();
 	}
@@ -134,7 +42,7 @@ namespace Barcode {
 	void GameState::runFrame(float delta) {
 		auto windowSize = _engine->getView()->getSize();
 
-		if (ImGui::Button("Remove unused meshes")) 
+		if (ImGui::Button("Remove unused meshes"))
 			_meshLoader->clear();
 
 		_physicsSystem.tick(delta);
@@ -152,210 +60,21 @@ namespace Barcode {
 		_lifeSystem.tick(delta);
 		_pickUpSystem.tick(delta);
 
-		//TODO: These should go straight to the transform component, not via the camera component
-		const glm::vec3 cameraPos = _playerTransform->position;
+		const glm::vec3& cameraPos = _playerTransform->position;
+		auto viewMatrix = _cc->getViewMatrix();
+		glm::vec3 rightVector = { viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0] };
+		glm::vec3 upVector = { viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1] };
+		glm::vec3 forwardVector = { viewMatrix[0][2], viewMatrix[1][2], viewMatrix[2][2] }; //glm::cross(rightVector, upVector);
+		_cameraSystem.setCamInternals(*_cc);
+		_cameraSystem.setCamDef(_playerTransform->position, forwardVector, upVector, rightVector, *_cc);
 
-		{ // Render objects (Deferred rendering)
-		  //_world->tick(TickAction::render, delta);
-
-		  // Render to geometryFBO
-
-		  // FIXME: Fix this shit code
-			for (auto& light : Hydra::Component::LightComponent::componentHandler->getActiveComponents())
-				_dirLight = static_cast<Hydra::Component::LightComponent*>(light.get());
-
-			auto lightViewMX = _dirLight->getViewMatrix();
-			auto lightPMX = _dirLight->getProjectionMatrix();
-			glm::mat4 biasMatrix(
-				0.5, 0.0, 0.0, 0.0,
-				0.0, 0.5, 0.0, 0.0,
-				0.0, 0.0, 0.5, 0.0,
-				0.5, 0.5, 0.5, 1.0
-			);
-			glm::mat4 lightS = biasMatrix * lightPMX * lightViewMX;
-
-			_geometryBatch.pipeline->setValue(0, _cc->getViewMatrix());
-			_geometryBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
-			_geometryBatch.pipeline->setValue(2, cameraPos);
-			_geometryBatch.pipeline->setValue(4, lightS);
-
-			_animationBatch.pipeline->setValue(0, _cc->getViewMatrix());
-			_animationBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
-			_animationBatch.pipeline->setValue(2, cameraPos);
-			_animationBatch.pipeline->setValue(4, lightS);
-
-			for (auto& kv : _geometryBatch.batch.objects)
-				kv.second.clear();
-
-			for (auto& kv : _shadowBatch.batch.objects)
-				kv.second.clear();
-
-			for (auto& kv : _animationBatch.batch.objects)
-				kv.second.clear();
-
-			for (auto& kv : _animationBatch.batch.currentFrames)
-				kv.second.clear();
-
-			for (auto& kv : _animationBatch.batch.currAnimIndices)
-				kv.second.clear();
-
-			for (auto& kv : _shadowAnimationBatch.batch.objects)
-				kv.second.clear();
-
-			for (auto& kv : _shadowAnimationBatch.batch.currAnimIndices)
-				kv.second.clear();
-
-			for (auto& kv : _shadowAnimationBatch.batch.currentFrames)
-				kv.second.clear();
-
-			static bool enableFrustumCulling = true;
-
-			ImGui::Checkbox("Enable VF Culling", &enableFrustumCulling);
-			if (enableFrustumCulling) {
-				float radius = 5.f;
-				std::vector<std::shared_ptr<Entity>> entities;
-				world::getEntitiesWithComponents<Hydra::Component::MeshComponent, Hydra::Component::DrawObjectComponent, Hydra::Component::TransformComponent>(entities);
-
-				auto viewMatrix = _cc->getViewMatrix();
-				glm::vec3 rightVector = { viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0] };
-				glm::vec3 upVector = { viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1] };
-				glm::vec3 dir = glm::cross(rightVector, upVector);
-				_cameraSystem.setCamInternals(*_cc);
-				_cameraSystem.setCamDef(_playerTransform->position, dir, upVector, rightVector, *_cc);
-
-				for (auto e : entities) {
-					auto tc = e->getComponent<Hydra::Component::TransformComponent>();
-					auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
-					int result = _cameraSystem.sphereInFrustum(tc->position, radius, *_cc);
-					if (result == _cc->INSIDE || result == _cc->INTERSECT) {
-						if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false) {
-							_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-							_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-						}
-
-						else if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == true) {
-							auto mc = e->getComponent<Hydra::Component::MeshComponent>();
-							_animationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-							_animationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
-							_animationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
-							_shadowAnimationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-							_shadowAnimationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
-							_shadowAnimationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
-						}
-					}
-				}
-			}
-			else {
-				// This is so stupid; someone save this code I need to do other stuff.
-				for (auto& drawObj : _engine->getRenderer()->activeDrawObjects()) {
-					if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false) {
-						_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-						_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-					}
-				}
-
-				// Should fix so drawobject has pointer to entity so i don't have to use getEntitiesWithComponents since it unnecessary
-				std::vector<std::shared_ptr<Hydra::World::Entity>> meshEntities;
-				world::getEntitiesWithComponents<Hydra::Component::MeshComponent, Hydra::Component::DrawObjectComponent, Hydra::Component::TransformComponent>(meshEntities);
-				int i = 0;
-				for (auto e : meshEntities) {
-					auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
-					auto mesh = drawObj->mesh;
-					if (mesh->hasAnimation() == false || drawObj->disable || !drawObj->mesh)
-						continue;
-					
-					auto mc = e->getComponent<Hydra::Component::MeshComponent>();
-
-					_animationBatch.batch.objects[mesh].push_back(drawObj->modelMatrix);
-					_animationBatch.batch.currentFrames[mesh].push_back(mc->currentFrame);
-					_animationBatch.batch.currAnimIndices[mesh].push_back(mc->animationIndex);
-					_shadowAnimationBatch.batch.objects[mesh].push_back(drawObj->modelMatrix);
-					_shadowAnimationBatch.batch.currentFrames[mesh].push_back(mc->currentFrame);
-					_shadowAnimationBatch.batch.currAnimIndices[mesh].push_back(mc->animationIndex);
-				}
-			}
-			_engine->getRenderer()->render(_geometryBatch.batch);
-			_engine->getRenderer()->renderAnimation(_animationBatch.batch);
-		}
-
-		{
-			_shadowBatch.pipeline->setValue(0, _dirLight->getViewMatrix());
-			_shadowBatch.pipeline->setValue(1, _dirLight->getProjectionMatrix());
-
-			_shadowAnimationBatch.pipeline->setValue(0, _dirLight->getViewMatrix());
-			_shadowAnimationBatch.pipeline->setValue(1, _dirLight->getProjectionMatrix());
-
-			_engine->getRenderer()->renderShadows(_shadowBatch.batch);
-			_engine->getRenderer()->renderShadows(_shadowAnimationBatch.batch);
-		}
-
-		static bool enableSSAO = false;
-		ImGui::Checkbox("Enable SSAO", &enableSSAO);
-		static bool enableBlur = true;
-		ImGui::Checkbox("Enable blur", &enableBlur);
+		_dgp->render(cameraPos, *_playerTransform);
 		static bool enableHitboxDebug = true;
 		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
 
-		if (enableSSAO) {
-			_ssaoBatch.pipeline->setValue(0, 0);
-			_ssaoBatch.pipeline->setValue(1, 1);
-			_ssaoBatch.pipeline->setValue(2, 2);
-
-			_ssaoBatch.pipeline->setValue(3, _cc->getProjectionMatrix());
-
-			(*_geometryBatch.output)[4]->bind(0);
-			(*_geometryBatch.output)[2]->bind(1);
-			_ssaoNoise->bind(2);
-
-			_engine->getRenderer()->postProcessing(_ssaoBatch.batch);
-			int nrOfTimes = 1;
-			_blurUtil->blur((*_ssaoBatch.output)[0], nrOfTimes, (*_ssaoBatch.output)[0]->getSize());
-		}
-
-		{ // Lighting pass
-			_lightingBatch.pipeline->setValue(0, 0);
-			_lightingBatch.pipeline->setValue(1, 1);
-			_lightingBatch.pipeline->setValue(2, 2);
-			_lightingBatch.pipeline->setValue(3, 3);
-			_lightingBatch.pipeline->setValue(4, 4);
-			_lightingBatch.pipeline->setValue(5, 5);
-			_lightingBatch.pipeline->setValue(6, 6);
-
-			_lightingBatch.pipeline->setValue(7, _playerTransform->position);
-			_lightingBatch.pipeline->setValue(8, enableSSAO);
-			auto& lights = Hydra::Component::PointLightComponent::componentHandler->getActiveComponents();
-
-			_lightingBatch.pipeline->setValue(9, (int)(lights.size()));
-			_lightingBatch.pipeline->setValue(10, _dirLight->getDirVec());
-			_lightingBatch.pipeline->setValue(11, _dirLight->color);
-
-
-			// good code lmao XD
-			int i = 12;
-			for (auto& p : lights) {
-				auto pc = static_cast<Hydra::Component::PointLightComponent*>(p.get());
-				_lightingBatch.pipeline->setValue(i++, pc->getTransformComponent()->position);
-				_lightingBatch.pipeline->setValue(i++, pc->color);
-				_lightingBatch.pipeline->setValue(i++, pc->constant);
-				_lightingBatch.pipeline->setValue(i++, pc->linear);
-				_lightingBatch.pipeline->setValue(i++, pc->quadratic);
-			}
-
-			(*_geometryBatch.output)[0]->bind(0);
-			(*_geometryBatch.output)[1]->bind(1);
-
-			(*_geometryBatch.output)[2]->bind(2);
-			(*_geometryBatch.output)[3]->bind(3);
-			_shadowBatch.output->getDepth()->bind(4);
-			_blurUtil->getOutput()->bind(5);
-			(*_geometryBatch.output)[5]->bind(6);
-
-			_engine->getRenderer()->postProcessing(_lightingBatch.batch);
-		}
 		if (enableHitboxDebug) {
-			for (auto& kv : _hitboxBatch.batch.objects) {
+			for (auto& kv : _hitboxBatch.batch.objects)
 				kv.second.clear();
-			}
 
 			std::vector<std::shared_ptr<Entity>> entities;
 			world::getEntitiesWithComponents<Hydra::Component::RigidBodyComponent, Hydra::Component::DrawObjectComponent>(entities);
@@ -374,77 +93,6 @@ namespace Barcode {
 			_hitboxBatch.pipeline->setValue(0, _cc->getViewMatrix());
 			_hitboxBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
 			_engine->getRenderer()->renderHitboxes(_hitboxBatch.batch);
-		}
-		{ // Glow
-			if (enableBlur) {
-				int nrOfTimes;
-				nrOfTimes = 4;
-
-				glm::vec2 size = windowSize;
-
-				_blurUtil->blur((*_lightingBatch.output)[1], nrOfTimes, size * 0.25f);
-
-				_glowBatch.batch.pipeline->setValue(1, 1);
-				_glowBatch.batch.pipeline->setValue(2, 2);
-
-				(*_lightingBatch.output)[0]->bind(1);
-				_blurUtil->getOutput()->bind(2);
-				_glowBatch.batch.pipeline->setValue(4, 4);
-				_geometryBatch.output->getDepth()->bind(4);
-
-				_engine->getRenderer()->postProcessing(_glowBatch.batch);
-			}
-			else
-				_engine->getView()->blit(_lightingBatch.output.get());
-		}
-
-		{ // Render transparent objects	(Forward rendering)
-		  //_world->tick(TickAction::renderTransparent, delta);
-		}
-
-		{ // Particle batch
-			for (auto& kv : _particleBatch.batch.objects) {
-				kv.second.clear();
-				_particleBatch.batch.textureInfo.clear();
-			}
-			std::vector<std::shared_ptr<Entity>> emitters;
-			world::getEntitiesWithComponents<Hydra::Component::ParticleComponent>(emitters);
-			for (auto& ee : emitters) { // Emitter Entities
-				auto pc = ee->getComponent<Hydra::Component::ParticleComponent>();
-				auto drawObj = ee->getComponent<Hydra::Component::DrawObjectComponent>();
-				auto t = ee->getComponent<Hydra::Component::TransformComponent>();
-				auto particles = pc->particles;
-				for (size_t i = 0; i < Hydra::Component::ParticleComponent::MaxParticleAmount; i++) {
-					if (particles[i].life <= 0)
-						continue;
-					_particleBatch.batch.objects[drawObj->drawObject->mesh].push_back(particles[i].getMatrix());
-					_particleBatch.batch.textureInfo.push_back(particles[i].texOffset1);
-					_particleBatch.batch.textureInfo.push_back(particles[i].texOffset2);
-					_particleBatch.batch.textureInfo.push_back(particles[i].texCoordInfo);
-				}
-			}
-			{
-				auto viewMatrix = _cc->getViewMatrix();
-				glm::vec3 rightVector = { viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0] };
-				glm::vec3 upVector = { viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1] };
-				_particleBatch.pipeline->setValue(0, viewMatrix);
-				_particleBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
-				_particleBatch.pipeline->setValue(2, rightVector);
-				_particleBatch.pipeline->setValue(3, upVector);
-				_particleBatch.pipeline->setValue(4, 0);
-				_particleAtlases->bind(0);
-
-				// Can't sort with objects need to sort per particle.
-				//for (auto& kv : _particleBatch.batch.objects) {
-				//	std::vector<glm::mat4>& list = kv.second;
-				//
-				//	std::sort(list.begin(), list.end(), [cameraPos](const glm::mat4& a, const glm::mat4& b) {
-				//		return glm::distance(glm::vec3(a[3]), cameraPos) < glm::distance(glm::vec3(b[3]), cameraPos);
-				//	});
-				//}
-
-				_engine->getRenderer()->render(_particleBatch.batch);
-			}
 		}
 
 		{ // Hud windows

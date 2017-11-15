@@ -89,7 +89,7 @@ void CameraSystem::setCamInternals(Hydra::Component::CameraComponent& cc) {
 	cc.fw = cc.fh * cc.aspect;
 }
 
-void CameraSystem::setCamDef(glm::vec3& cPos, glm::vec3& cDir, glm::vec3& up, glm::vec3& right, Hydra::Component::CameraComponent& cc) {
+void CameraSystem::setCamDef(const glm::vec3& cPos, const glm::vec3& cDir, const glm::vec3& up, const glm::vec3& right, Hydra::Component::CameraComponent& cc) {
 	glm::vec3 dir, nc, fc, X, Y, Z;
 
 	Z = cPos - cDir;
@@ -124,24 +124,15 @@ void CameraSystem::setCamDef(glm::vec3& cPos, glm::vec3& cDir, glm::vec3& up, gl
 
 }
 
-/*int CameraSystem::pointInFrustum(glm::vec3& p, Hydra::Component::CameraComponent& cc) {
-	int result = 1;
-	for (int i = 0; i < 6; i++) {
-	if (cc.pl[i].distance(p) < 0)
-		return 0;
-	}
-	return result;
-}*/
-
-int CameraSystem::sphereInFrustum(glm::vec3& p, float radius, Hydra::Component::CameraComponent& cc) {
+CameraSystem::FrustrumCheck CameraSystem::sphereInFrustum(const glm::vec3& p, float radius, Hydra::Component::CameraComponent& cc) {
 	float distance = 0;
-	int result = cc.INSIDE;
+	CameraSystem::FrustrumCheck result = CameraSystem::FrustrumCheck::inside;
 	for (int i = 0; i < 6; i++) {
 		distance = cc.pl[i].distance(p);
 		if (distance < -radius)
-			return cc.OUTSIDE;
+			return CameraSystem::FrustrumCheck::outside;
 		else if (distance < radius)
-			result = cc.INTERSECT;
+			result = CameraSystem::FrustrumCheck::intersect;
 	}
 	return result;
 }

@@ -1,8 +1,11 @@
 #pragma once
 
+#include <hydra/engine.hpp>
 #include <hydra/renderer/renderer.hpp>
 #include <hydra/renderer/glrenderer.hpp>
 #include <hydra/renderer/glshader.hpp>
+
+#include <hydra/system/camerasystem.hpp>
 
 #include <glm/glm.hpp>
 
@@ -83,5 +86,46 @@ namespace Barcode {
 		RenderBatch<Hydra::Renderer::Batch> _batch;
 		std::shared_ptr<Hydra::Renderer::IFramebuffer> _fbo0;
 		std::shared_ptr<Hydra::Renderer::IFramebuffer> _fbo1;
+	};
+
+
+	class IGraphicsPipeline {
+	public:
+		IGraphicsPipeline() : _engine(Hydra::IEngine::getInstance()) {}
+		virtual ~IGraphicsPipeline() = 0;
+
+		virtual void render(const glm::vec3& cameraPos, Hydra::Component::TransformComponent& playerTransform) = 0;
+
+	protected:
+		Hydra::IEngine* _engine;
+	};
+	inline IGraphicsPipeline::~IGraphicsPipeline() {}
+
+	class DefaultGraphicsPipeline final : public IGraphicsPipeline {
+	public:
+		DefaultGraphicsPipeline(Hydra::System::CameraSystem& cameraSystem, const glm::ivec2& size);
+		~DefaultGraphicsPipeline();
+		void render(const glm::vec3& cameraPos, Hydra::Component::TransformComponent& playerTransform) final;
+
+	private:
+		Hydra::System::CameraSystem& _cameraSystem;
+		BlurUtil _blurUtil;
+		RenderBatch<Hydra::Renderer::Batch> _geometryBatch;
+		RenderBatch<Hydra::Renderer::AnimationBatch> _geometryAnimationBatch;
+
+		RenderBatch<Hydra::Renderer::Batch> _lightingBatch;
+
+		RenderBatch<Hydra::Renderer::Batch> _shadowBatch;
+		RenderBatch<Hydra::Renderer::AnimationBatch> _shadowAnimationBatch;
+
+		RenderBatch<Hydra::Renderer::Batch> _ssaoBatch;
+		std::shared_ptr<Hydra::Renderer::ITexture> _ssaoNoise;
+
+		RenderBatch<Hydra::Renderer::Batch> _glowBatch;
+		RenderBatch<Hydra::Renderer::ParticleBatch> _particleBatch;
+		std::shared_ptr<Hydra::Renderer::ITexture> _particleAtlases;
+
+		std::vector<glm::vec3> _getSSAOKernel(size_t size);
+		std::vector<glm::vec3> _getSSAONoise(size_t size);
 	};
 };
