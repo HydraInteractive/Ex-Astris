@@ -11,18 +11,18 @@ ExporterMenu::~ExporterMenu()
 {
 	
 }
-void ExporterMenu::render(bool &closeBool, Hydra::Renderer::Batch* previewBatch, float delta)
+void ExporterMenu::render(bool &openBool, Hydra::Renderer::Batch* previewBatch, float delta)
 {
 	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiSetCond_Once);
-	ImGui::Begin("Export", &closeBool, ImGuiWindowFlags_MenuBar);
+	ImGui::Begin("Export", &openBool, ImGuiWindowFlags_MenuBar);
 	_menuBar();
 
 	Node* selectedNode = nullptr;
-
+	bool doubleClicked = false;
 	//File tree
 	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 60));
 	if (_root != nullptr)
-		_root->render(&selectedNode, _prepExporting);
+		_root->render(&selectedNode, doubleClicked);
 	ImGui::EndChild();
 
 	ImGui::SameLine();
@@ -33,6 +33,10 @@ void ExporterMenu::render(bool &closeBool, Hydra::Renderer::Batch* previewBatch,
 	//Refresh changes from file tree
 	if (selectedNode != nullptr)
 	{
+		if (ImGui::IsMouseDoubleClicked(0) && selectedNode->getExt() == ".room")
+		{
+			_prepExporting = true;
+		}
 		if (selectedNode->openInFileExplorer)
 		{
 			openInExplorer(selectedNode->reverseEngineerPath());
@@ -106,77 +110,9 @@ void ExporterMenu::render(bool &closeBool, Hydra::Renderer::Batch* previewBatch,
 			if (getRoomEntity() != nullptr)
 				BlueprintLoader::save(fileToSave, "Room", getRoomEntity());
 			_prepExporting = false;
-			closeBool = false;
+			openBool = false;
 		}
 	}
 	ImGui::EndChild();
 	ImGui::End();
-}
-void ExporterMenu::Node::render(Node** selectedNode, bool& prepExporting)
-{
-	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
-	//TODO: Folder icon opening
-	auto label = ICON_FA_FOLDER " %s";
-	if (ImGui::TreeNodeEx(this, node_flags, label, _name.c_str()))
-	{
-		label = ICON_FA_FOLDER_OPEN " %s";
-		if (ImGui::BeginPopupContextItem(_name.c_str()))
-		{
-			ImGui::MenuItem("Show in File Explorer", "", &openInFileExplorer);
-			(*selectedNode) = this;
-			ImGui::EndPopup();
-		}
-		if (ImGui::IsItemClicked())
-		{
-			(*selectedNode) = this;
-		}
-		for (size_t i = 0; i < this->_subfolders.size(); i++)
-		{
-			_subfolders[i]->render(selectedNode, prepExporting);
-		}
-		for (size_t i = 0; i < this->_files.size(); i++)
-		{
-			std::string ext = this->_files[i]->getExt();
-			if (ext == ".mattic" || ext == ".mATTIC")
-			{
-				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBE " %s", _files[i]->_name.c_str());
-				if (ImGui::BeginPopupContextItem(_files[i]->_name.c_str()))
-				{
-					ImGui::MenuItem("Show in File Explorer", "", &_files[i]->openInFileExplorer);
-					(*selectedNode) = _files[i];
-					ImGui::EndPopup();
-				}
-			}
-			else if (ext == ".room" || ext == ".ROOM")
-			{
-				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBES " %s", _files[i]->_name.c_str());
-				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
-				{
-					prepExporting = true;
-				}
-				if (ImGui::BeginPopupContextItem(_files[i]->_name.c_str()))
-				{
-					ImGui::MenuItem("Show in File Explorer", "", &_files[i]->openInFileExplorer);
-					(*selectedNode) = _files[i];
-					ImGui::EndPopup();
-				}
-			}
-			else
-			{
-				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_QUESTION_CIRCLE_O " %s", _files[i]->_name.c_str());
-				if (ImGui::BeginPopupContextItem(_files[i]->_name.c_str()))
-				{
-					ImGui::MenuItem("Show in File Explorer", "", &_files[i]->openInFileExplorer);
-					(*selectedNode) = _files[i];
-					ImGui::EndPopup();
-				}
-			}
-			if (ImGui::IsItemClicked())
-			{
-				(*selectedNode) = _files[i];
-			}
-			ImGui::TreePop();
-		}
-		ImGui::TreePop();
-	}
 }

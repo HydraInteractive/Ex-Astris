@@ -1,12 +1,12 @@
 #pragma once
-class PrefabExporter
+#include <barcode/filetree.hpp>
+class PrefabExporter : public FileTree
 {
 public:
 	PrefabExporter();
 	~PrefabExporter();
-	void render();
-	void refresh();
-
+	void refresh(std::string path);
+	void render(bool &closeBool, Hydra::Renderer::Batch* previewBatch = nullptr, float delta = 0.0f);
 private:
 
 };

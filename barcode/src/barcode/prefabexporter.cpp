@@ -1,8 +1,9 @@
 #include <barcode/prefabexporter.hpp>
 
-PrefabExporter::PrefabExporter()
+PrefabExporter::PrefabExporter() : FileTree()
 {
-
+	this->_extWhitelist = { ".room", ".ROOM" };
+	refresh("/assets");
 }
 
 PrefabExporter::~PrefabExporter()
@@ -10,12 +11,15 @@ PrefabExporter::~PrefabExporter()
 
 }
 
-void PrefabExporter::render()
+void PrefabExporter::refresh(std::string path)
 {
-
+	FileTree::refresh(path);
 }
 
-void PrefabExporter::refresh()
+void PrefabExporter::render(bool &closeBool, Hydra::Renderer::Batch* previewBatch, float delta)
 {
-
+	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiSetCond_Once);
+	ImGui::Begin("Export", &closeBool, ImGuiWindowFlags_MenuBar);
+	_menuBar();
+	ImGui::End();
 }
