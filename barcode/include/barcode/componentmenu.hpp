@@ -14,7 +14,7 @@ private:
 	std::vector<std::weak_ptr<Hydra::World::Entity>> _entities;
 	
 	std::weak_ptr<Hydra::World::Entity> _selectedEntity = std::weak_ptr<Hydra::World::Entity>();
-	std::vector<std::string> _componentTypes = {"Transform", "PointLight"};
+	std::vector<std::string> _componentTypes = {"Transform", "PointLight", "RigidBody", "Spawner"};
 	std::string _selectedString = "";
 	void _menuBar();
 
@@ -35,4 +35,20 @@ private:
 		float linear = 0.045f;
 		float quadratic = 0.0075f;
 	} pointLightInput;
+
+	//RigidBody
+	struct RBI
+	{
+		float sizeX = 0;
+		float sizeY = 0;
+		float sizeZ = 0;
+	} rigidBodyInput;
+
+	//Spawner
+	struct SI
+	{
+		float sizeX = 0;
+		float sizeY = 0;
+		float sizeZ = 0;
+	} spawnerInput;
 };
