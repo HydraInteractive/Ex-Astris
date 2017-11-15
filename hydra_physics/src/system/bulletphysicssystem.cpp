@@ -87,7 +87,7 @@ void BulletPhysicsSystem::disable(Hydra::Component::RigidBodyComponent* componen
 }
 
 void BulletPhysicsSystem::tick(float delta) {
-	_data->dynamicsWorld->stepSimulation(delta);
+	_data->dynamicsWorld->stepSimulation(delta,3);
 	// Gets all collisions happening between all rigidbody entities.
 	int numManifolds = _data->dynamicsWorld->getDispatcher()->getNumManifolds();
 	for (int i = 0; i < numManifolds; i++) {
@@ -99,28 +99,28 @@ void BulletPhysicsSystem::tick(float delta) {
 		if (!eA || !eB)
 			continue;
 
-		Hydra::Component::BulletComponent* bc = nullptr;
-		Hydra::Component::LifeComponent* lc = nullptr;
-		Hydra::Component::PlayerComponent* pc = nullptr;
-		Hydra::Component::PickUpComponent* puc = nullptr;
-		Hydra::Component::PerkComponent* pec = nullptr;
-		if (bc = eA->getComponent<Hydra::Component::BulletComponent>().get())
-			lc = eB->getComponent<Hydra::Component::LifeComponent>().get();
-		else if ((bc = eB->getComponent<Hydra::Component::BulletComponent>().get()))
-			lc = eA->getComponent<Hydra::Component::LifeComponent>().get();
+		Hydra::Component::BulletComponent* bulletComponent = nullptr;
+		Hydra::Component::LifeComponent* lifeComponent = nullptr;
+		Hydra::Component::PlayerComponent* playerComponent = nullptr;
+		Hydra::Component::PickUpComponent* pickupComponent = nullptr;
+		Hydra::Component::PerkComponent* perkComponent = nullptr;
 
-		pc = eA->getComponent<Hydra::Component::PlayerComponent>().get();
-		if (!pc)
-			pc = eB->getComponent<Hydra::Component::PlayerComponent>().get();
+		if (bulletComponent = eA->getComponent<Hydra::Component::BulletComponent>().get())
+			lifeComponent = eB->getComponent<Hydra::Component::LifeComponent>().get();
+		else if (bulletComponent = eB->getComponent<Hydra::Component::BulletComponent>().get())
+			lifeComponent = eA->getComponent<Hydra::Component::LifeComponent>().get();
+
+		playerComponent = eA->getComponent<Hydra::Component::PlayerComponent>().get();
+		if (!playerComponent)
+			playerComponent = eB->getComponent<Hydra::Component::PlayerComponent>().get();
 		
-		if (puc = eA->getComponent<Hydra::Component::PickUpComponent>().get())
-			pec = eB->getComponent<Hydra::Component::PerkComponent>().get();
-		else if (puc = eB->getComponent<Hydra::Component::PickUpComponent>().get())
-			pec = eA->getComponent<Hydra::Component::PerkComponent>().get();
+		if (pickupComponent = eA->getComponent<Hydra::Component::PickUpComponent>().get())
+			perkComponent = eB->getComponent<Hydra::Component::PerkComponent>().get();
+		else if (pickupComponent = eB->getComponent<Hydra::Component::PickUpComponent>().get())
+			perkComponent = eA->getComponent<Hydra::Component::PerkComponent>().get();
 
-		if (puc) {
-			_addPickUp(puc, pec);
-		}
+		if (pickupComponent)
+			_addPickUp(pickupComponent, perkComponent);
 
 		// Gets the contact points
 		int numContacts = contactManifold->getNumContacts();
@@ -129,16 +129,16 @@ void BulletPhysicsSystem::tick(float delta) {
 			btVector3 collPosB = pt.getPositionWorldOnB();
 			btVector3 normalOnB = pt.m_normalWorldOnB;
 
-			if (pc && normalOnB.y() > 0.7){
-				pc->onGround = true;
+			if (playerComponent && normalOnB.y() > 0.7){
+				playerComponent->onGround = true;
 			}
 
-			if (lc)
-				lc->applyDamage(bc->damage);
+			if (lifeComponent)
+				lifeComponent->applyDamage(bulletComponent->damage);
 
 			// Set the bullet entity to dead.
-			if (bc) {
-				World::World::World::getEntity(bc->entityID)->dead = true;
+			if (bulletComponent) {
+				World::World::World::getEntity(bulletComponent->entityID)->dead = true;
 				_spawnParticleEmitterAt(cast(collPosB), cast(normalOnB));
 			}
 
@@ -170,44 +170,46 @@ void BulletPhysicsSystem::_spawnParticleEmitterAt(const glm::vec3& pos, const gl
 	pELC->health = 0.9f;
 }
 
-void Hydra::System::BulletPhysicsSystem::_addPickUp(Hydra::Component::PickUpComponent * puc, Hydra::Component::PerkComponent * pec)
+void Hydra::System::BulletPhysicsSystem::_addPickUp(Hydra::Component::PickUpComponent * pickupComponent, Hydra::Component::PerkComponent * perkComponent)
 {
-	switch (puc->pickUpType)
+	switch (pickupComponent->pickUpType)
 	{
 	case Hydra::Component::PickUpComponent::PICKUP_RANDOMPERK: {
 		std::vector<int> perksNotFound;
 		
-		for (size_t i = 0; i < pec->AMOUNTOFPERKS; i++){
+		for (size_t i = 0; i < perkComponent->AMOUNTOFPERKS; i++){
 			bool perkFound = false;
-			for (size_t j = 0; j < pec->activePerks.size(); j++){
-				if (Hydra::Component::PerkComponent::Perk(i) == pec->activePerks[j]){
+			for (size_t j = 0; j < perkComponent->activePerks.size(); j++){
+				if (Hydra::Component::PerkComponent::Perk(i) == perkComponent->activePerks[j]){
 					perkFound = true;
-					j = pec->activePerks.size();
+					j = perkComponent->activePerks.size();
 				}
 			}
-			for (size_t j = 0; j < pec->newPerks.size(); j++){
-				if (Hydra::Component::PerkComponent::Perk(i) == pec->newPerks[j]) {
+			for (size_t j = 0; j < perkComponent->newPerks.size(); j++){
+				if (Hydra::Component::PerkComponent::Perk(i) == perkComponent->newPerks[j]) {
 					perkFound = true;
-					j = pec->newPerks.size();
+					j = perkComponent->newPerks.size();
 				}
 			}
 			if (!perkFound)
-			{
 				perksNotFound.push_back(i);
-			}
 		}
 
 		if (!perksNotFound.empty()){
 			int newPerk = rand() % (perksNotFound.size());
-			pec->newPerks.push_back(Hydra::Component::PerkComponent::Perk(perksNotFound[newPerk]));
+			perkComponent->newPerks.push_back(Hydra::Component::PerkComponent::Perk(perksNotFound[newPerk]));
 		}
 		
-		World::World::World::getEntity(puc->entityID)->dead = true;
+		World::World::World::getEntity(pickupComponent->entityID)->dead = true;
 	}
 		break;
-	case Hydra::Component::PickUpComponent::PICKUP_HEALTH:
+	case Hydra::Component::PickUpComponent::PICKUP_HEALTH: {
+
+	}
 		break;
-	case Hydra::Component::PickUpComponent::PICKUP_AMMO:
+	case Hydra::Component::PickUpComponent::PICKUP_AMMO: {
+
+	}
 		break;
 	default:
 		break;
