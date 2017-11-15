@@ -498,6 +498,13 @@ namespace Barcode {
 			_engine->getRenderer()->postProcessing(_ssaoBatch.batch);
 			int nrOfTimes = 1;
 			//_blurGlowTexture((*_ssaoBatch.output)[0], nrOfTimes, (*_ssaoBatch.output)[0]->getSize());
+			
+
+			_ssaoBlurBatch.batch.renderTarget = _blurrExtraFBO1.get();
+			_ssaoBlurBatch.pipeline->setValue(0, 0);
+			(*_ssaoBatch.output)[0]->bind(0);
+			_engine->getRenderer()->postProcessing(_ssaoBlurBatch.batch);
+			_ssaoBlurBatch.batch.renderTarget = _ssaoBlurBatch.output.get();
 		}
 
 		{ // Lighting pass
@@ -535,8 +542,8 @@ namespace Barcode {
 			(*_geometryBatch.output)[2]->bind(2);
 			(*_geometryBatch.output)[3]->bind(3);
 			_shadowBatch.output->getDepth()->bind(4);
-			//(*_blurrExtraFBO1)[0]->bind(5);
-			(*_ssaoBatch.output)[0]->bind(5);
+			(*_blurrExtraFBO1)[0]->bind(5);
+			//(*_ssaoBatch.output)[0]->bind(5);
 			(*_geometryBatch.output)[5]->bind(6);
 
 			_engine->getRenderer()->postProcessing(_lightingBatch.batch);
