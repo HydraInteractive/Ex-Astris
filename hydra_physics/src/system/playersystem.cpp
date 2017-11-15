@@ -26,6 +26,10 @@ using world = Hydra::World::World;
 PlayerSystem::PlayerSystem() {}
 PlayerSystem::~PlayerSystem() {}
 
+float lerp(float a, float b, float f) {
+	return a + f * (b - a);
+}
+
 void PlayerSystem::tick(float delta) {
 	const Uint8* keysArray = SDL_GetKeyboardState(nullptr);
 
@@ -46,21 +50,31 @@ void PlayerSystem::tick(float delta) {
 		movement->direction = -glm::vec3(glm::vec4{ 0, 0, 1, 0 } *rotation);
 
 		{
-			movement->velocity = glm::vec3{0};
+			//movement->velocity = glm::vec3{0};
+
+			glm::vec3 forward = glm::normalize(glm::vec3(movement->direction.x, 0, movement->direction.z));
+			
+			glm::vec3 rightDir = glm::vec3(glm::vec4{ 1, 0, 0, 0 } *rotation);
+			glm::vec3 right = glm::normalize(glm::vec3(rightDir.x, 0, rightDir.z));
+
 			if (keysArray[SDL_SCANCODE_W])
-				movement->velocity.z -= movement->movementSpeed;
+				movement->velocity += movement->movementSpeed * forward * delta;
+			
+			if (keysArray[SDL_SCANCODE_R]) {
+				weapon->_isReloading = true;
+			}
 
 			if (keysArray[SDL_SCANCODE_S])
-				movement->velocity.z += movement->movementSpeed;
+				movement->velocity -= movement->movementSpeed * forward * delta;
 
 			if (keysArray[SDL_SCANCODE_A])
-				movement->velocity.x -= movement->movementSpeed;
+				movement->velocity -= movement->movementSpeed * right * delta;
 
 			if (keysArray[SDL_SCANCODE_D])
-				movement->velocity.x += movement->movementSpeed;
+				movement->velocity += movement->movementSpeed * right * delta;
 
 			if (keysArray[SDL_SCANCODE_SPACE] && player->onGround){
-				movement->acceleration.y += 6.0f;
+				rbc->applyCentralForce(btVector3(0,20000,0));
 				player->onGround = false;
 			}
 
@@ -68,24 +82,49 @@ void PlayerSystem::tick(float delta) {
 				//TODO: Make pretty?
 				glm::quat bulletOrientation = glm::angleAxis(-camera->cameraYaw, glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->cameraPitch, glm::vec3(1, 0, 0)));
 				float bulletVelocity = 20.0f;
+				if(!weapon->_isReloading)
+					if (weapon->shoot(transform->position, movement->direction, bulletOrientation, bulletVelocity)) {
+						float rn = 500;//rand() % 1000;
+						rn /= 10000;
 
-				weapon->shoot(transform->position, movement->direction, bulletOrientation, bulletVelocity);
+						rn *= 0.8;
+						weapon->_dpitch -= rn;
+						rn = rand() % 900 + 100;
+						rn /= 10000;
+						rn *= 0.8;
+						//if (rand() % 2 == 1)
+						//	dyaw += rn/3;
+						//else
+						//	dyaw -= rn/3;
+
+					}
 			}
 		}
+		if (!keysArray[SDL_SCANCODE_W]
+			&& !keysArray[SDL_SCANCODE_S]
+			&& !keysArray[SDL_SCANCODE_A]
+			&& !keysArray[SDL_SCANCODE_D]) {
+			movement->velocity *= delta;
+		}
 
-		//movement->acceleration.y -= 10.0f * delta;
-		glm::vec4 movementVector = glm::vec4(movement->velocity, 0) * rotation;
-		//movementVector.y = movement->acceleration.y;
-		rbc->setLinearVelocity(btVector3(movementVector.x, 0, movementVector.z));
-		rbc->setInterpolationLinearVelocity(btVector3(movementVector.x, 0, movementVector.z) * movement->movementSpeed);
-		//rbc->applyCentralForce(btVector3(movementVector.x, movementVector.y, movementVector.z) * 100);
-		//transform->position += glm::vec3(movementVector) * delta;
+		float speed = glm::length(movement->velocity);
+		if (speed > 10)
+		{
+			movement->velocity *= 10 / speed;
+		}
 
-		//if (transform->position.y < 0) {
-		//	transform->position.y = 0;
-		//	movement->acceleration.y = 0;
-		//	player->onGround = true;
-		//}
+		if (weapon->_isReloading)
+			weapon->_isReloading = weapon->reload(delta);
+
+		float* yaw = &camera->cameraYaw;
+		float* pitch = &camera->cameraPitch;
+		*yaw = lerp(*yaw, (*yaw + weapon->_dyaw), 0.5);
+		*pitch = lerp(*pitch, (*pitch + weapon->_dpitch), 0.5);
+		weapon->_dyaw /= 2;
+		weapon->_dpitch /= 2;
+
+		btVector3 vel = rbc->getLinearVelocity();
+		rbc->setLinearVelocity(btVector3(movement->velocity.x,vel.y(),movement->velocity.z));
 
 		//if (player->firstPerson)
 		//	camera->position = transform->position;

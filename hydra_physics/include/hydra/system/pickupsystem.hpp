@@ -3,13 +3,10 @@
 #include <hydra/world/world.hpp>
 
 namespace Hydra::System {
-	class HYDRA_PHYSICS_API PlayerSystem final : public Hydra::World::ISystem {
-	private:
-		float _dyaw, _dpitch = 0;
-		bool _isReloading = false;
+	class HYDRA_PHYSICS_API PickUpSystem final : public Hydra::World::ISystem{
 	public:
-		PlayerSystem();
-		~PlayerSystem() final;
+		PickUpSystem();
+		~PickUpSystem() final;
 
 		void tick(float delta) final;
 

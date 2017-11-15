@@ -23,7 +23,7 @@ using namespace Hydra::World;
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API PlayerComponent final : public IComponent<PlayerComponent, ComponentBits::Player> {
 		glm::vec3 weaponOffset = glm::vec3{2, -1.5, -3};
-		bool onGround = false;
+		bool onGround = true;
 		bool firstPerson = true;
 		bool isDead = false;
 

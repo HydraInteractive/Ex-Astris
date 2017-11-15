@@ -260,6 +260,10 @@ void RigidBodyComponent::setActivationState(ActivationState newState) {
 	_data->getRigidBody()->setActivationState(lookup[static_cast<int>(newState)]);
 }
 
+void Hydra::Component::RigidBodyComponent::setAngularForce(glm::vec3 angularForce){
+	_data->getRigidBody()->setAngularFactor(btVector3(angularForce.x,angularForce.y,angularForce.z));
+}
+
 void* RigidBodyComponent::getRigidBody() { return static_cast<void*>(_data->getRigidBody()); }
 void RigidBodyComponent::serialize(nlohmann::json& json) const {
 	json = {
