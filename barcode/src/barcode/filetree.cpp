@@ -225,6 +225,10 @@ void FileTree::Node::render(Node** selectedNode)
 			}
 			else if (ext == ".room" || ext == ".ROOM")
 			{
+				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_MAP " %s", _files[i]->_name.c_str());
+			}
+			else if (ext == ".prefab" || ext == ".PREFAB")
+			{
 				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBES " %s", _files[i]->_name.c_str());
 			}
 			else

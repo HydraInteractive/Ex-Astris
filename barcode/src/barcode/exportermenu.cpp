@@ -1,11 +1,9 @@
 #include <barcode/exportermenu.hpp>
 #include <hydra/component/roomcomponent.hpp>
-#include <hydra/world/world.hpp>
 using world = Hydra::World::World; 
 ExporterMenu::ExporterMenu() : FileTree()
 {
-	this->_extWhitelist = { ".room", ".ROOM" };
-	refresh("/assets");
+	refresh();
 }
 ExporterMenu::~ExporterMenu()
 {
@@ -16,7 +14,11 @@ void ExporterMenu::render(bool &openBool, Hydra::Renderer::Batch* previewBatch, 
 	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiSetCond_Once);
 	ImGui::Begin("Export", &openBool, ImGuiWindowFlags_MenuBar);
 	_menuBar();
-
+	//If the filetype has been switched, update the filetree
+	if (_fileTreeFileType != _fileType)
+	{
+		refresh();
+	}
 	Node* selectedNode = nullptr;
 	//File tree
 	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 60));
@@ -26,7 +28,7 @@ void ExporterMenu::render(bool &openBool, Hydra::Renderer::Batch* previewBatch, 
 
 	ImGui::SameLine();
 
-	//File name dialog
+	//File settings dialog
 	ImGui::BeginChild("File", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 60));
 
 	//Refresh changes from file tree
@@ -65,7 +67,7 @@ void ExporterMenu::render(bool &openBool, Hydra::Renderer::Batch* previewBatch, 
 	ImGui::PushItemWidth(100);
 	ImGui::Combo("", &_fileType, _exportTypes, IM_ARRAYSIZE(_exportTypes));
 	ImGui::PopItemWidth();
-	if (_fileType == 1) //Prefab only
+	if (_fileType == 1) //Entity selector
 	{
 		_renderEntitySelector();
 	}
@@ -78,7 +80,7 @@ void ExporterMenu::render(bool &openBool, Hydra::Renderer::Batch* previewBatch, 
 		std::string fileToSave = "";
 		fileToSave.append(_selectedPath);
 		fileToSave.append(_selectedFileName);
-		fileToSave.append(".room");
+		fileToSave.append(_exportTypes[_fileType]);
 		std::ifstream infile(fileToSave);
 		bool doExport = false;
 		if (infile.good())
@@ -90,48 +92,88 @@ void ExporterMenu::render(bool &openBool, Hydra::Renderer::Batch* previewBatch, 
 			doExport = true;
 		}
 
-		if (ImGui::BeginPopupModal("Overwrite?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		if (_overwritePopup(fileToSave)) //Returns true if overwrite is confirmed
 		{
-			std::string textline = "This action will overwrite the file at " + fileToSave + ". Continue?";
-			ImGui::Text("%s", textline.c_str());
-			ImGui::Separator();
-
-			if (ImGui::Button("OK", ImVec2(120, 0)))
-			{
-				doExport = true;
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Cancel", ImVec2(120, 0)))
-			{	
-				_prepExporting = false;
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::EndPopup();
+			doExport = true;
 		}
 
 		if (doExport)
 		{
-			std::ofstream outFile;
-			if (getRoomEntity() != nullptr)
-				BlueprintLoader::save(fileToSave, "Room", getRoomEntity());
+			if (_fileType == 0 && getRoomEntity() != nullptr)
+			{
+				BlueprintLoader::save(fileToSave, "Room", getRoomEntity().get());
+				openBool = false;
+			}
+			else if (_fileType == 1 && selectedEntity != nullptr)
+			{
+				BlueprintLoader::save(fileToSave, selectedEntity->name, selectedEntity);
+				openBool = false;
+			}
 			_prepExporting = false;
-			openBool = false;
 		}
 	}
 	ImGui::EndChild();
 	ImGui::End();
 }
 
+void ExporterMenu::refresh(std::string path)
+{
+	_extWhitelist.clear();
+	_extWhitelist.push_back(_exportTypes[_fileType]);
+	_fileTreeFileType = _fileType;
+	selectedEntity = nullptr;
+	FileTree::refresh(path);
+}
+
 void ExporterMenu::_renderEntitySelector()
 {
 	ImGui::BeginChild("Prefab", ImVec2(300, 500), true);
-	auto& e = world::root()->children;
+	std::string title = "";
+	bool selected = false;
+	auto room = getRoomEntity();
+	if (room == nullptr)
+	{
+		ImGui::Text("Error, workspace not found");
+		ImGui::EndChild();
+		return;
+	}
+
+	auto& e =room->children;
 	for (int i = 0; i < e.size(); i++)
 	{
 		auto entity = world::getEntity(e[i]);
-		std::string title = entity->name + " [" + std::to_string(entity->id) + "]";
-		ImGui::MenuItem(title.c_str());
+		title = entity->name + " [" + std::to_string(entity->id) + "]";
+		selected = (entity.get() == selectedEntity);
+		ImGui::MenuItem(title.c_str(),"",selected);
+		if (ImGui::IsItemClicked())
+		{
+			selectedEntity = entity.get();
+		}
 	}
 	ImGui::EndChild();
+}
+
+bool ExporterMenu::_overwritePopup(std::string fileToSave)
+{
+	bool confirm = false;
+	if (ImGui::BeginPopupModal("Overwrite?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		std::string textline = "This action will overwrite the file at " + fileToSave + ". Continue?";
+		ImGui::Text("%s", textline.c_str());
+		ImGui::Separator();
+
+		if (ImGui::Button("OK", ImVec2(120, 0)))
+		{
+			confirm = true;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel", ImVec2(120, 0)))
+		{
+			_prepExporting = false;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+	return confirm;
 }

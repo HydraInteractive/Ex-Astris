@@ -9,7 +9,7 @@ ImporterMenu::ImporterMenu() : FileTree()
 {
 	this->executableDir = _getExecutableDir();
 	this->_root = nullptr;
-	this->_extWhitelist = {".mATTIC", ".mattic", ".room", ".ROOM"};
+	this->_extWhitelist = {".mATTIC", ".mattic", ".room", ".ROOM", ".prefab", ".PREFAB"};
 	refresh("/assets");
 	_root->clean();
 }
@@ -74,6 +74,21 @@ void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch* previewBatch,
 					getRoomEntity().get()->dead = true;
 				}
 				auto room = world::newEntity("Room", world::root());
+				auto bp = BlueprintLoader::load(selectedNode->reverseEngineerPath());
+				bp->spawn(room);
+			}
+		}
+		else if (ext == ".prefab" || ext == ".PREFAB")
+		{
+			if (ImGui::IsMouseDoubleClicked(0))
+			{
+				if (getRoomEntity() == nullptr)
+				{
+					auto room = world::newEntity("Workspace", world::root());
+					auto t = room->addComponent<Hydra::Component::TransformComponent>();
+					auto r = room->addComponent<Hydra::Component::RoomComponent>();
+				}
+				auto room = world::newEntity("Prefab", getRoomEntity());
 				auto bp = BlueprintLoader::load(selectedNode->reverseEngineerPath());
 				bp->spawn(room);
 			}
