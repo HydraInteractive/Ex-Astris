@@ -81,9 +81,9 @@ void PlayerSystem::tick(float delta) {
 			if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && !ImGui::GetIO().WantCaptureMouse) {
 				//TODO: Make pretty?
 				glm::quat bulletOrientation = glm::angleAxis(-camera->cameraYaw, glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->cameraPitch, glm::vec3(1, 0, 0)));
-				float bulletVelocity = 20.0f;
+				float bulletVelocity = 300;
 				if(!weapon->_isReloading)
-					if (weapon->shoot(transform->position, movement->direction, bulletOrientation, bulletVelocity)) {
+					if (weapon->shoot(transform->position, movement->direction, bulletOrientation, bulletVelocity, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE, 5)) {
 						float rn = 500;//rand() % 1000;
 						rn /= 10000;
 
