@@ -94,7 +94,7 @@ namespace Barcode {
 		IGraphicsPipeline() : _engine(Hydra::IEngine::getInstance()) {}
 		virtual ~IGraphicsPipeline() = 0;
 
-		virtual void render(const glm::vec3& cameraPos, Hydra::Component::TransformComponent& playerTransform) = 0;
+		virtual void render(const glm::vec3& cameraPos, Hydra::Component::CameraComponent& cc, Hydra::Component::TransformComponent& playerTransform) = 0;
 
 	protected:
 		Hydra::IEngine* _engine;
@@ -105,7 +105,7 @@ namespace Barcode {
 	public:
 		DefaultGraphicsPipeline(Hydra::System::CameraSystem& cameraSystem, const glm::ivec2& size);
 		~DefaultGraphicsPipeline();
-		void render(const glm::vec3& cameraPos, Hydra::Component::TransformComponent& playerTransform) final;
+		void render(const glm::vec3& cameraPos, Hydra::Component::CameraComponent& cc, Hydra::Component::TransformComponent& playerTransform) final;
 
 	private:
 		Hydra::System::CameraSystem& _cameraSystem;

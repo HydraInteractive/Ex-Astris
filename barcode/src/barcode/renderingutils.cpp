@@ -127,11 +127,10 @@ namespace Barcode {
 	DefaultGraphicsPipeline::~DefaultGraphicsPipeline() {
 	}
 
-	void DefaultGraphicsPipeline::render(const glm::vec3& cameraPos, Hydra::Component::TransformComponent& playerTransform) {
-		auto dirLight = static_cast<Hydra::Component::LightComponent*>(Hydra::Component::LightComponent::componentHandler->getActiveComponents()[0].get());
-		auto cc = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get());
-		auto lightViewMX = dirLight->getViewMatrix();
-		auto lightPMX = dirLight->getProjectionMatrix();
+	void DefaultGraphicsPipeline::render(const glm::vec3& cameraPos, Hydra::Component::CameraComponent& cc, Hydra::Component::TransformComponent& playerTransform) {
+		auto& dirLight = *static_cast<Hydra::Component::LightComponent*>(Hydra::Component::LightComponent::componentHandler->getActiveComponents()[0].get());
+		auto lightViewMX = dirLight.getViewMatrix();
+		auto lightPMX = dirLight.getProjectionMatrix();
 		glm::mat4 biasMatrix(
 			0.5, 0.0, 0.0, 0.0,
 			0.0, 0.5, 0.0, 0.0,
@@ -140,13 +139,13 @@ namespace Barcode {
 		);
 		glm::mat4 lightS = biasMatrix * lightPMX * lightViewMX;
 
-		_geometryBatch.pipeline->setValue(0, cc->getViewMatrix());
-		_geometryBatch.pipeline->setValue(1, cc->getProjectionMatrix());
+		_geometryBatch.pipeline->setValue(0, cc.getViewMatrix());
+		_geometryBatch.pipeline->setValue(1, cc.getProjectionMatrix());
 		_geometryBatch.pipeline->setValue(2, cameraPos);
 		_geometryBatch.pipeline->setValue(4, lightS);
 
-		_geometryAnimationBatch.pipeline->setValue(0, cc->getViewMatrix());
-		_geometryAnimationBatch.pipeline->setValue(1, cc->getProjectionMatrix());
+		_geometryAnimationBatch.pipeline->setValue(0, cc.getViewMatrix());
+		_geometryAnimationBatch.pipeline->setValue(1, cc.getProjectionMatrix());
 		_geometryAnimationBatch.pipeline->setValue(2, cameraPos);
 		_geometryAnimationBatch.pipeline->setValue(4, lightS);
 
@@ -183,7 +182,7 @@ namespace Barcode {
 
 			bool renderNormal = true;
 			if (enableFrustumCulling) {
-				auto result = _cameraSystem.sphereInFrustum(tc->position, radius, *cc);
+				auto result = _cameraSystem.sphereInFrustum(tc->position, radius, cc);
 				if (result == Hydra::System::CameraSystem::FrustrumCheck::outside)
 					renderNormal = false;
 			}
@@ -215,11 +214,11 @@ namespace Barcode {
 		_engine->getRenderer()->renderAnimation(_geometryAnimationBatch.batch);
 
 		{
-			_shadowBatch.pipeline->setValue(0, dirLight->getViewMatrix());
-			_shadowBatch.pipeline->setValue(1, dirLight->getProjectionMatrix());
+			_shadowBatch.pipeline->setValue(0, dirLight.getViewMatrix());
+			_shadowBatch.pipeline->setValue(1, dirLight.getProjectionMatrix());
 
-			_shadowAnimationBatch.pipeline->setValue(0, dirLight->getViewMatrix());
-			_shadowAnimationBatch.pipeline->setValue(1, dirLight->getProjectionMatrix());
+			_shadowAnimationBatch.pipeline->setValue(0, dirLight.getViewMatrix());
+			_shadowAnimationBatch.pipeline->setValue(1, dirLight.getProjectionMatrix());
 
 			_engine->getRenderer()->renderShadows(_shadowBatch.batch);
 			_engine->getRenderer()->renderShadows(_shadowAnimationBatch.batch);
@@ -230,7 +229,7 @@ namespace Barcode {
 			_ssaoBatch.pipeline->setValue(1, 1);
 			_ssaoBatch.pipeline->setValue(2, 2);
 
-			_ssaoBatch.pipeline->setValue(3, cc->getProjectionMatrix());
+			_ssaoBatch.pipeline->setValue(3, cc.getProjectionMatrix());
 
 			(*_geometryBatch.output)[4]->bind(0);
 			(*_geometryBatch.output)[2]->bind(1);
@@ -253,8 +252,8 @@ namespace Barcode {
 			auto& lights = Hydra::Component::PointLightComponent::componentHandler->getActiveComponents();
 
 			_lightingBatch.pipeline->setValue(9, (int)(lights.size()));
-			_lightingBatch.pipeline->setValue(10, dirLight->getDirVec());
-			_lightingBatch.pipeline->setValue(11, dirLight->color);
+			_lightingBatch.pipeline->setValue(10, dirLight.getDirVec());
+			_lightingBatch.pipeline->setValue(11, dirLight.color);
 
 
 			// good code lmao XD
@@ -324,11 +323,11 @@ namespace Barcode {
 				}
 			}
 			{
-				auto viewMatrix = cc->getViewMatrix();
+				auto viewMatrix = cc.getViewMatrix();
 				glm::vec3 rightVector = { viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0] };
 				glm::vec3 upVector = { viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1] };
 				_particleBatch.pipeline->setValue(0, viewMatrix);
-				_particleBatch.pipeline->setValue(1, cc->getProjectionMatrix());
+				_particleBatch.pipeline->setValue(1, cc.getProjectionMatrix());
 				_particleBatch.pipeline->setValue(2, rightVector);
 				_particleBatch.pipeline->setValue(3, upVector);
 				_particleBatch.pipeline->setValue(4, 0);

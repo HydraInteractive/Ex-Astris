@@ -77,7 +77,7 @@ namespace Barcode {
 		_cameraSystem.setCamInternals(*_cc);
 		_cameraSystem.setCamDef(_playerTransform->position, forwardVector, upVector, rightVector, *_cc);
 
-		_dgp->render(cameraPos, *_playerTransform);
+		_dgp->render(cameraPos, *_cc, *_playerTransform);
 
 		if (enableHitboxDebug) {
 			for (auto& kv : _hitboxBatch.batch.objects)

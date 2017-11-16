@@ -46,8 +46,6 @@
 #include <hydra/system/animationsystem.hpp>
 #include <hydra/system/pickupsystem.hpp>
 
-#include <hydra/io/input.hpp>
-
 namespace Barcode {
 	class GameState final : public Hydra::IState {
 	public:
@@ -85,13 +83,10 @@ namespace Barcode {
 
 		std::unique_ptr<DefaultGraphicsPipeline> _dgp;
 		RenderBatch<Hydra::Renderer::Batch> _hitboxBatch;
-
 		std::shared_ptr<Hydra::Renderer::IMesh> _hitboxCube;
 
 		Hydra::Component::CameraComponent* _cc = nullptr;
 		Hydra::Component::TransformComponent* _playerTransform = nullptr;
-
-		Input _input;
 
 		void _initSystem();
 		void _initWorld();

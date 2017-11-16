@@ -3,12 +3,13 @@
 #include <hydra/ext/openmp.hpp>
 
 #include <hydra/component/cameracomponent.hpp>
-#include <hydra/component/freecameracomponent.hpp>
 #include <algorithm>
+
+#include <SDL2/SDL.h>
 
 using namespace Hydra::System;
 
-#define ANG2RAD 3.14159265358979323846/180.0
+#define ANG2RAD (3.14159265358979323846/180.0)
 
 CameraSystem::CameraSystem() {}
 CameraSystem::~CameraSystem() {}
@@ -38,7 +39,7 @@ void CameraSystem::tick(float delta) {
 		if (keysArray[SDL_SCANCODE_D])
 			velocity.x += 1;
 
-		multiplier = keysArray[SDL_SCANCODE_LSHIFT];//velocity *= ;
+		multiplier = keysArray[SDL_SCANCODE_LSHIFT];
 	}
 
 	//Process CameraComponent
@@ -47,7 +48,7 @@ void CameraSystem::tick(float delta) {
 		auto cc = entities[i]->getComponent<Hydra::Component::CameraComponent>();
 
 		if (cc->mouseControl) {
-			cc->cameraYaw = cc->cameraYaw + mouseX * cc->sensitivity; // std::min(std::max(cc->cameraYaw + mouseX * cc->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
+			cc->cameraYaw = cc->cameraYaw + mouseX * cc->sensitivity;
 			cc->cameraPitch = std::min(std::max(cc->cameraPitch + mouseY * cc->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
 		}
 
@@ -57,25 +58,11 @@ void CameraSystem::tick(float delta) {
 
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 		t->rotation = glm::normalize(qPitch * qYaw * qRoll);
-	}
 
-	//Process FreeCameraComponent
-	world::getEntitiesWithComponents<Hydra::Component::FreeCameraComponent>(entities);
-	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
-		auto fc = entities[i]->getComponent<Hydra::Component::FreeCameraComponent>();
-
-		fc->cameraYaw = fc->cameraYaw + mouseX * fc->sensitivity; //std::min(std::max(fc->cameraYaw + mouseX * fc->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
-		fc->cameraPitch = std::min(std::max(fc->cameraPitch + mouseY * fc->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
-
-		glm::quat qPitch = glm::angleAxis(fc->cameraPitch, glm::vec3(1, 0, 0));
-		glm::quat qYaw = glm::angleAxis(fc->cameraYaw, glm::vec3(0, 1, 0));
-		glm::quat qRoll = glm::angleAxis(glm::radians(0.f), glm::vec3(0, 0, 1));
-
-		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
-		t->rotation = glm::normalize(qPitch * qYaw * qRoll);
-
-		const glm::mat4 viewMat = fc->getViewMatrix();
-		t->position += glm::vec3(glm::vec4(velocity * fc->movementSpeed * (multiplier ? fc->shiftMultiplier : 1), 1.0f) * viewMat) * delta;
+		if (cc->noClip) {
+			const glm::mat4 viewMat = cc->getViewMatrix();
+			t->position += glm::vec3(glm::vec4(velocity * cc->movementSpeed * (multiplier ? cc->shiftMultiplier : 1), 1.0f) * viewMat) * delta;
+		}
 	}
 
 	entities.clear();
