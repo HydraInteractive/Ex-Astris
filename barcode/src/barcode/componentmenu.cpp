@@ -162,17 +162,18 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 		else
 		{
 			ImGui::BeginChild("RigidBody", ImVec2(ImGui::GetWindowContentRegionWidth() *0.3f, ImGui::GetWindowContentRegionMax().y - 160), true);
-			ImGui::DragFloat("SizeX", &rigidBodyInput.sizeX);
-			ImGui::DragFloat("SizeY", &rigidBodyInput.sizeY);
-			ImGui::DragFloat("SizeZ", &rigidBodyInput.sizeZ);
+			ImGui::DragFloat3("Size", glm::value_ptr(rigidBodyInput.size), 0.01f);
 			//ImGui::Checkbox("Ignore parent", &transformInput.ignoreParent);
+
+			//TODO: Selection box for picking collision type
+			//TODO: Float input for mass, linear dampening, angular dampening, friction, rolling friction
 			ImGui::EndChild();
 			ImGui::BeginChild("Confirm", ImVec2(ImGui::GetWindowContentRegionWidth() *0.3f, 25));
 			if (ImGui::Button("Finish"))
 			{
 				auto& t = _selectedEntity.lock()->addComponent<Hydra::Component::RigidBodyComponent>();
 				//physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(t->scale * 10.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_MISC_OBJECT, 10, 0, 0, 1.0f, 1.0f);
-				t->createBox(glm::tvec3<double>(rigidBodyInput.sizeX, rigidBodyInput.sizeY, rigidBodyInput.sizeZ), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, 100);
+				t->createBox(rigidBodyInput.size, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, 100);
 		
 				RBI();
 				openBool = false;
@@ -190,16 +191,14 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 		else
 		{
 			ImGui::BeginChild("Spawner", ImVec2(ImGui::GetWindowContentRegionWidth() *0.3f, ImGui::GetWindowContentRegionMax().y - 160), true);
-			ImGui::DragFloat("SizeX", &rigidBodyInput.sizeX);
-			ImGui::DragFloat("SizeY", &rigidBodyInput.sizeY);
-			ImGui::DragFloat("SizeZ", &rigidBodyInput.sizeZ);
+			ImGui::DragFloat3("Size", glm::value_ptr(rigidBodyInput.size), 0.01f);
 			//ImGui::Checkbox("Ignore parent", &transformInput.ignoreParent);
 			ImGui::EndChild();
 			ImGui::BeginChild("Confirm", ImVec2(ImGui::GetWindowContentRegionWidth() *0.3f, 25));
 			if (ImGui::Button("Finish"))
 			{
 				auto& t = _selectedEntity.lock()->addComponent<Hydra::Component::SpawnerComponent>();
-				t->
+				
 
 				SI();
 				openBool = false;

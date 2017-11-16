@@ -39,16 +39,12 @@ private:
 	//RigidBody
 	struct RBI
 	{
-		float sizeX = 0;
-		float sizeY = 0;
-		float sizeZ = 0;
+		glm::vec3 size = glm::vec3(1.0f, 1.0f, 1.0f);
 	} rigidBodyInput;
 
 	//Spawner
 	struct SI
 	{
-		float sizeX = 0;
-		float sizeY = 0;
-		float sizeZ = 0;
+		glm::vec3 size = glm::vec3(1.0f, 1.0f, 1.0f);
 	} spawnerInput;
 };
