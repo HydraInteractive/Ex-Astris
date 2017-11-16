@@ -265,9 +265,9 @@ namespace Barcode {
 
 		}
 		for (int i = 0; i < 1; i++) {
-			{
+			{ 
 				auto alienEntity = world::newEntity("Alien1", world::root()); 
-				alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
+				alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
 				auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 				a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 				a->damage = 4;
