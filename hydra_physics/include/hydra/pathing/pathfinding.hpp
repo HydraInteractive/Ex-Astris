@@ -98,7 +98,7 @@ public:
 	glm::vec3 mapToWorldCoords(const MapVec& mapPos) const;
 	bool intializedStartGoal;
 	bool foundGoal;
-
+	float enemyY = 0.0f;
 	struct {
 		bool operator()(const std::shared_ptr<Node>& _Left, const std::shared_ptr<Node>& _Right) const
 		{

@@ -288,7 +288,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		a->damage = 4;
 		a->behaviour->originalRange = 4;
 		a->radius = 1;
-
+		
 		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 		h->maxHP = 80;
 		h->health = 80;
