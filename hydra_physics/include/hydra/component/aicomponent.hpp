@@ -99,6 +99,7 @@ namespace Hydra::Component {
 		bool _patrolPointReached;
 		bool _playerSeen;
 		bool _stunned;
+		bool _playerInWall;
 
 		std::random_device rd;
 
