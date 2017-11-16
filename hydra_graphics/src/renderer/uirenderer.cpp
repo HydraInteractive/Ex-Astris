@@ -274,7 +274,7 @@ public:
 		}
 
 		if (_renderWindows.size()) { //TODO: Revert this, into multiple windows
-			ImGui::Begin("Render Windows");
+			ImGui::Begin("Render Window");
 			ImGuiWindow* wind = ImGui::GetCurrentWindow();
 			ImGuiStyle& style = ImGui::GetStyle();
 			{
