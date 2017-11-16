@@ -28,6 +28,7 @@
 #include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
+#include <hydra/component/pickupcomponent.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
 
@@ -36,6 +37,7 @@
 #define GRID_SIZE 5
 #define ROOM_SIZE 34
 #define MAX_ENEMIES 4
+#define PICKUP_CHANCE 20
 
 class TileGeneration
 {
@@ -59,6 +61,7 @@ private:
 	void _obtainRoomFiles();
 	void _randomizeRooms();
 	void _spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
+	void _spawnPickUps(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
 	glm::vec3 _gridToWorld(int x, int y);
 	bool _checkAdjacents(int x, int y, std::shared_ptr<Hydra::Component::RoomComponent>& r);
 	

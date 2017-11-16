@@ -78,7 +78,7 @@ namespace Barcode {
 		_cameraSystem.setCamDef(_playerTransform->position, forwardVector, upVector, rightVector, *_cc);
 
 		_dgp->render(cameraPos, *_cc, *_playerTransform);
-
+		 
 		if (enableHitboxDebug) {
 			for (auto& kv : _hitboxBatch.batch.objects)
 				kv.second.clear();
@@ -291,9 +291,8 @@ namespace Barcode {
 		//}
 		{
 			//Remove this to gain frames like never before
-			TileGeneration worldTiles("assets/room/centralRoomPipes.room");
+			TileGeneration worldTiles("assets/room/threewayRoom.room");
 		}
-
 		{
 			auto physicsBox = world::newEntity("Physics box", world::root());
 			auto t = physicsBox->addComponent<Hydra::Component::TransformComponent>();

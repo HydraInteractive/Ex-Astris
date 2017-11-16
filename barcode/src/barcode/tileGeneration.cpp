@@ -247,6 +247,8 @@ void TileGeneration::_randomizeRooms() {
 
 void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform){
 
+	_spawnPickUps(roomTransform);
+
 	int randomSlowAliens = rand() % int(MAX_ENEMIES);
 	int randomRobots = rand() % int(MAX_ENEMIES - randomSlowAliens);
 	int randomFastAliens = rand() % int(MAX_ENEMIES - randomRobots);
@@ -336,6 +338,22 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 	}
 
+}
+
+void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform) {
+
+	int randomChance = rand() % 100 + 1;
+
+	if (randomChance < (int)PICKUP_CHANCE) {
+		auto pickUpEntity = world::newEntity("PickUp", world::root());
+		auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
+		t->position = glm::vec3(roomTransform->position.x, 0.0f, roomTransform->position.z);
+		pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/GreenCargoBox.mATTIC");
+		pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
+		auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+		rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
+		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+	}
 }
 
 glm::vec3 TileGeneration::_gridToWorld(int x, int y) {
