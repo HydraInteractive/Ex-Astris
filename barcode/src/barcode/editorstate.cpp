@@ -26,6 +26,7 @@ namespace Barcode {
 		}
 
 		_initWorld();
+
 		_importerMenu = new ImporterMenu();
 		_exporterMenu = new ExporterMenu();
 		_componentMenu = ComponentMenu();
@@ -55,7 +56,7 @@ namespace Barcode {
 				if (FileTree::getRoomEntity() != nullptr)
 					FileTree::getRoomEntity()->dead = true;
 
-				auto room = world::newEntity("Room", world::root());
+				auto room = world::newEntity("Workspace", world::root());
 				auto t = room->addComponent<Hydra::Component::TransformComponent>();
 				auto r = room->addComponent<Hydra::Component::RoomComponent>();
 
@@ -105,7 +106,7 @@ namespace Barcode {
 	}
 	void EditorState::_initWorld() {
 		{
-			auto room = world::newEntity("Room", world::root());
+			auto room = world::newEntity("Workspace", world::root());
 			auto t = room->addComponent<Hydra::Component::TransformComponent>();
 			auto r = room->addComponent<Hydra::Component::RoomComponent>();
 		}
@@ -148,7 +149,7 @@ namespace Barcode {
 		}
 
 		{
-			BlueprintLoader::save("world.blueprint", "World Blueprint", world::root());
+			BlueprintLoader::save("world.blueprint", "World Blueprint", world::root().get());
 			Hydra::World::World::reset();
 			auto bp = BlueprintLoader::load("world.blueprint");
 			bp->spawn(world::root());
