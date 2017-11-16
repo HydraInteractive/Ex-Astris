@@ -1,7 +1,7 @@
 #include <barcode/editorstate.hpp>
 
 #include <barcode/menustate.hpp>
-
+#include <glm/gtx/matrix_decompose.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
 
 using world = Hydra::World::World;
@@ -29,7 +29,7 @@ namespace Barcode {
 
 		_importerMenu = new ImporterMenu();
 		_exporterMenu = new ExporterMenu();
-		_componentMenu = ComponentMenu();
+		_componentMenu = new ComponentMenu();
 	}
 
 	EditorState::~EditorState() { }
@@ -49,7 +49,7 @@ namespace Barcode {
 			if (ImGui::MenuItem("Add component...")){
 				_showComponentMenu = !_showComponentMenu;
 				if (_showComponentMenu)
-					_componentMenu.refresh();
+					_componentMenu->refresh();
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem("Clear room")) {
@@ -87,24 +87,58 @@ namespace Barcode {
 		auto viewMatrix = _cc->getViewMatrix();
 		glm::vec3 rightVector = { viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0] };
 		glm::vec3 upVector = { viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1] };
-		glm::vec3 forwardVector = { viewMatrix[0][2], viewMatrix[1][2], viewMatrix[2][2] }; //glm::cross(rightVector, upVector);
+		glm::vec3 forwardVector = { viewMatrix[0][2], viewMatrix[1][2], viewMatrix[2][2] };
 		_cameraSystem.setCamInternals(*_cc);
 		_cameraSystem.setCamDef(_playerTransform->position, forwardVector, upVector, rightVector, *_cc);
 
 		_dgp->render(cameraPos, *_cc, *_playerTransform);
+
+		if (enableHitboxDebug) {
+			for (auto& kv : _hitboxBatch.batch.objects)
+				kv.second.clear();
+
+			std::vector<std::shared_ptr<Entity>> entities;
+			world::getEntitiesWithComponents<Hydra::Component::RigidBodyComponent, Hydra::Component::DrawObjectComponent>(entities);
+			for (auto e : entities) {
+				// GOTTA MAKE IT VERSATILE SO IT CAN TAKE CAPSULE AS WELL.
+				auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
+				auto rgbc = e->getComponent<Hydra::Component::RigidBodyComponent>();
+				glm::vec3 newScale;
+				glm::quat rotation;
+				glm::vec3 translation;
+				glm::vec3 skew;
+				glm::vec4 perspective;
+				glm::decompose(drawObj->modelMatrix, newScale, rotation, translation, skew, perspective);
+				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(glm::translate(translation) * glm::mat4_cast(rotation) * glm::scale(rgbc->getHalfExtentScale() * glm::vec3(2)));
+			}
+			_hitboxBatch.pipeline->setValue(0, _cc->getViewMatrix());
+			_hitboxBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
+			_engine->getRenderer()->renderHitboxes(_hitboxBatch.batch);
+		}
 
 		if (_showImporter)
 			_importerMenu->render(_showImporter, &_previewBatch.batch, delta);
 		if (_showExporter)
 			_exporterMenu->render(_showExporter);
 		if (_showComponentMenu)
-			_componentMenu.render(_showComponentMenu, _physicsSystem);
+			_componentMenu->render(_showComponentMenu, _physicsSystem);
 	}
 	void EditorState::_initSystem() {
 		const std::vector<Hydra::World::ISystem*> systems = { _engine->getDeadSystem(), &_cameraSystem, &_particleSystem, &_abilitySystem, &_aiSystem, &_physicsSystem, &_bulletSystem, &_playerSystem, &_rendererSystem };
 		_engine->getUIRenderer()->registerSystems(systems);
 	}
 	void EditorState::_initWorld() {
+		_hitboxCube = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh("assets/objects/HitBox.mATTIC");
+		{
+			auto floor = world::newEntity("Floor", world::root());
+			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
+			t->position = glm::vec3(0, -7, 0);
+			auto rgbc = floor->addComponent<Hydra::Component::RigidBodyComponent>();
+			rgbc->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL
+				, 0, 0, 0, 0.6f, 0);
+			floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
+		}
+
 		{
 			auto room = world::newEntity("Workspace", world::root());
 			auto t = room->addComponent<Hydra::Component::TransformComponent>();
