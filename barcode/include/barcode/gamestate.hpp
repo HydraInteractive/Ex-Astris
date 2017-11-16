@@ -57,6 +57,11 @@ namespace Barcode {
 		int currentFrame = 0;
 		void runFrame(float delta) final;
 
+		static bool glowOnOff;
+		static bool ssaoOnOff;
+		static bool shadowOnOff;
+
+
 		inline Hydra::IO::ITextureLoader* getTextureLoader() final { return _textureLoader.get(); }
 		inline Hydra::IO::IMeshLoader* getMeshLoader() final { return _meshLoader.get(); }
 		inline Hydra::World::ISystem* getPhysicsSystem() final { return &_physicsSystem; }

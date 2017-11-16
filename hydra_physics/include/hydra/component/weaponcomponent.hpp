@@ -24,10 +24,24 @@ namespace Hydra::Component {
 		float bulletSize = 0.5f;
 		float bulletSpread = 0.0f;
 		int bulletsPerShot = 14;
+		float recoil = 0.7;
+
+		float _dyaw, _dpitch = 0;
+		bool _isReloading = false;
+
+		/*unsigned short*/ int maxammo = 500;
+		/*unsigned short*/ int currammo = 500;
+		/*unsigned short*/ int maxmagammo = 10;
+		/*unsigned short*/ int currmagammo = 10;
+		/*unsigned short*/ int ammoPerShot = 1;
+		float reloadTime = 0;
+		float maxReloadTime = 2;
 
 		~WeaponComponent() final;
 
-		void shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity);
+		bool shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity);
+		bool reload(float delta);
+		void resetReload();
 
 		inline const std::string type() const final { return "WeaponComponent"; }
 
