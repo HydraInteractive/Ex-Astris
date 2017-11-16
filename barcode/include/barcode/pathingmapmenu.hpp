@@ -7,6 +7,6 @@ public:
 	PathingMapMenu();
 	~PathingMapMenu();
 
-	void render(bool &closeBool, float delta);
+	void render(bool &closeBool, float delta, int sizeX, int sizeY);
 private:
 };

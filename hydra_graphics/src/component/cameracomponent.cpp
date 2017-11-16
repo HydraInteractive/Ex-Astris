@@ -20,15 +20,27 @@ void CameraComponent::serialize(nlohmann::json& json) const {
 	json["fov"] = fov;
 	json["zNear"] = zNear;
 	json["zFar"] = zFar;
+
+	json["sensitivity"] = sensitivity;
+	json["cameraYaw"] = cameraYaw;
+	json["cameraPitch"] = cameraPitch;
+	json["mouseControl"] = mouseControl;
+
 	json["noClip"] = noClip;
 	json["movementSpeed"] = movementSpeed;
 	json["shiftMultiplier"] = shiftMultiplier;
 }
 
 void CameraComponent::deserialize(nlohmann::json& json) {
-	fov = json.value<float>("fov", 0);
-	zNear = json.value<float>("zNear", 0);
-	zFar = json.value<float>("zFar", 0);
+	fov = json.value<float>("fov", 90);
+	zNear = json.value<float>("zNear", 0.1);
+	zFar = json.value<float>("zFar", 75);
+
+	sensitivity = json.value<float>("sensitivity", 0.003);
+	cameraYaw = json.value<float>("cameraYaw", 0);
+	cameraPitch = json.value<float>("cameraPitch", 0);
+	mouseControl = json.value<bool>("mouseControl", true);
+
 	noClip = json.value<bool>("noClip", false);
 	movementSpeed = json.value<float>("movementSpeed", 10);
 	shiftMultiplier = json.value<float>("shiftMultiplier", 5);

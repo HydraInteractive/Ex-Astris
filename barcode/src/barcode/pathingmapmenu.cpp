@@ -8,9 +8,9 @@ PathingMapMenu::~PathingMapMenu()
 {
 }
 
-void PathingMapMenu::render(bool & closeBool, float delta)
+void PathingMapMenu::render(bool & closeBool, float delta, int sizeX, int sizeY)
 {
-	ImGui::SetNextWindowSize(ImVec2(1024, 1024), ImGuiSetCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(sizeX, sizeY), ImGuiSetCond_Once);
 	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImColor(0.0f, 0.0f, 0.0f, 0.0f));
 	ImGui::Begin("Pathing", &closeBool, ImGuiWindowFlags_NoResize);
 	ImGui::Columns(ROOM_MAP_SIZE);
@@ -22,28 +22,31 @@ void PathingMapMenu::render(bool & closeBool, float delta)
 	{
 		for (int j = 0; j < ROOM_MAP_SIZE; j++)
 		{
-			ImGui::PushStyleVar(ImGuiStyleVar_ChildWindowRounding, 5.0f);
-			ImGui::BeginChild(j+(i*ROOM_MAP_SIZE), ImVec2(((ImGui::GetWindowContentRegionMax().x) / ROOM_MAP_SIZE) - 20.0f, ((ImGui::GetWindowContentRegionMax().y) / ROOM_MAP_SIZE - 10.0f)), true);
+			ImGui::PushStyleVar(ImGuiStyleVar_ChildWindowRounding, 10.0f);
+			ImGui::BeginChild(j+(i*ROOM_MAP_SIZE), ImVec2(((ImGui::GetWindowContentRegionMax().x) / ROOM_MAP_SIZE) - 10.0f, ((ImGui::GetWindowContentRegionMax().y) / ROOM_MAP_SIZE - 7.0f)), true);
 
 			ImGui::PushID(j);
 			
 			if(r->localMap[i][j] == 0)
 			{ 
-				ImGui::PushStyleColor(ImGuiCol_Button, ImColor::HSV(3/7.0f, 0.6f, 0.6f));
-				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImColor::HSV(3/7.0f, 0.7f, 0.7f));
-				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
-			
-				if (ImGui::Button("", ImVec2(25, 35)))
+				ImGui::PushStyleColor(ImGuiCol_Button, ImColor::HSV(7.0f, 0.6f, 0.6f));
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImColor::HSV(7.0f, 0.7f, 0.7f));
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImColor::HSV(7.0f, 0.8f, 0.8f));
+				ImGui::SameLine(0.0f, 15.0f);
+
+				if (ImGui::Button("", ImVec2(60, 35)))
 				{
 					r->localMap[i][j] = 1;
 				}
 			}
 			else if (r->localMap[i][j] == 1)
 			{
-				ImGui::PushStyleColor(ImGuiCol_Button, ImColor::HSV(7.0f, 0.6f, 0.6f));
-				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImColor::HSV(7.0f, 0.7f, 0.7f));
-				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImColor::HSV(7.0f, 0.8f, 0.8f));
-				if (ImGui::Button("", ImVec2(25, 35)))
+				ImGui::PushStyleColor(ImGuiCol_Button, ImColor::HSV(3 / 7.0f, 0.6f, 0.6f));
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImColor::HSV(3 / 7.0f, 0.7f, 0.7f));
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
+				ImGui::SameLine(0.0f, 15.0f);
+
+				if (ImGui::Button("", ImVec2(60, 35)))
 				{
 					r->localMap[i][j] = 0;
 				}

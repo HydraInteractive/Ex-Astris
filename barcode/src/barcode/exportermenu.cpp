@@ -139,7 +139,7 @@ void ExporterMenu::_renderEntitySelector()
 	}
 
 	auto& e =room->children;
-	for (int i = 0; i < e.size(); i++)
+	for (size_t i = 0; i < e.size(); i++)
 	{
 		auto entity = world::getEntity(e[i]);
 		title = entity->name + " [" + std::to_string(entity->id) + "]";

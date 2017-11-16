@@ -90,8 +90,7 @@ namespace Barcode {
 		if (_showPathMapCreator)
 		{
 			_cc->getTransformComponent()->position = glm::vec3(0, 40, 0);
-			_playerTransform->rotation = glm::quat();
-			_cc->cameraPitch = 90;
+			_cc->cameraPitch = 1.571;
 			_cc->cameraYaw = 0;
 			_cc->movementSpeed = 0;
 			_cc->sensitivity = 0;
@@ -111,14 +110,13 @@ namespace Barcode {
 		_cameraSystem.setCamDef(_playerTransform->position, forwardVector, upVector, rightVector, *_cc);
 
 		_dgp->render(cameraPos, *_cc, *_playerTransform);
-
 			
 		if (_showImporter)
 			_importerMenu->render(_showImporter, &_previewBatch.batch, delta);
 		if (_showExporter)
 			_exporterMenu->render(_showExporter);
 		if (_showPathMapCreator)
-			_pathingMenu.render(_showPathMapCreator, delta);
+			_pathingMenu.render(_showPathMapCreator, delta, _engine->getView()->getSize().x, _engine->getView()->getSize().y);
 		if (_showComponentMenu)
 			_componentMenu.render(_showComponentMenu);
 	}
