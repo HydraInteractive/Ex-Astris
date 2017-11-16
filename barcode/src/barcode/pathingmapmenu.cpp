@@ -1,4 +1,4 @@
-#include "..\..\include\barcode\pathingmapmenu.hpp"
+#include <barcode/pathingmapmenu.hpp>
 
 PathingMapMenu::PathingMapMenu()
 {
