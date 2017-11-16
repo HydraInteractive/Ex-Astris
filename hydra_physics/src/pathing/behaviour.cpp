@@ -390,7 +390,7 @@ unsigned int RobotBehaviour::attackingState(float dt)
 	{
 		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
 		playerDir = glm::normalize(playerDir);
-		thisEnemy.weapon->shoot(thisEnemy.transform->position, -playerDir, glm::quat(), 8.0f);
+		thisEnemy.weapon->shoot(thisEnemy.transform->position, playerDir, glm::quat(), 8.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE, thisEnemy.ai->damage);
 		angle = atan2(playerDir.x, playerDir.z);
 		rotation = glm::angleAxis(angle, glm::vec3(0, 1, 0));
 	}
@@ -494,7 +494,7 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 		case BossPhase::SPITTING:
 		{
 			range = 30.0f;
-			thisEnemy.weapon->shoot(thisEnemy.transform->position, -playerDir, glm::quat(), 8.0f);
+			thisEnemy.weapon->shoot(thisEnemy.transform->position, playerDir, glm::quat(), 15.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE, thisEnemy.ai->damage);
 			if (phaseTimer >= 10)
 			{
 				bossPhase = SPAWNING;
