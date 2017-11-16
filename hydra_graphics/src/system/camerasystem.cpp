@@ -9,6 +9,8 @@
 #include <hydra/view/view.hpp>
 #include <SDL2/SDL.h>
 
+#include <imgui/imguizmo.h>
+
 using namespace Hydra::System;
 
 #define ANG2RAD (3.14159265358979323846/180.0)
@@ -66,6 +68,7 @@ void CameraSystem::tick(float delta) {
 				cc->cameraPitch = std::min(std::max(cc->cameraPitch + mousePos.y * cc->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
 			}
 			SDL_ShowCursor(cc->mouseControl ? SDL_DISABLE : SDL_ENABLE);
+			ImGuizmo::Enable(!cc->mouseControl);
 		}
 
 		glm::quat qPitch = glm::angleAxis(cc->cameraPitch, glm::vec3(1, 0, 0));
