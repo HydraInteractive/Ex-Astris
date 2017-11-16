@@ -170,7 +170,7 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 			ImGui::BeginChild("Confirm", ImVec2(ImGui::GetWindowContentRegionWidth() *0.3f, 25));
 			if (ImGui::Button("Finish"))
 			{
-				auto& t = _selectedEntity.lock()->addComponent<Hydra::Component::RigidBodyComponent>();
+				auto t = _selectedEntity.lock()->addComponent<Hydra::Component::RigidBodyComponent>();
 				//physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(t->scale * 10.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_MISC_OBJECT, 10, 0, 0, 1.0f, 1.0f);
 				t->createBox(rigidBodyInput.size, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, 100);
 				physicsSystem.enable(t.get());
