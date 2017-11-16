@@ -255,8 +255,13 @@ void RigidBodyComponent::createCylinderZ(const glm::vec3& halfExtents, DEFAULT_P
 #undef MAKE_DATA
 #undef DEFAULT_PARAMS
 
-void RigidBodyComponent::setActivationState(const int newState) {
-	_data->getRigidBody()->setActivationState(newState);
+void RigidBodyComponent::setActivationState(ActivationState newState) {
+	int lookup[static_cast<int>(ActivationState::MAX_COUNT)] = {ACTIVE_TAG, ISLAND_SLEEPING, WANTS_DEACTIVATION, DISABLE_DEACTIVATION, DISABLE_SIMULATION};
+	_data->getRigidBody()->setActivationState(lookup[static_cast<int>(newState)]);
+}
+
+void Hydra::Component::RigidBodyComponent::setAngularForce(glm::vec3 angularForce){
+	_data->getRigidBody()->setAngularFactor(btVector3(angularForce.x,angularForce.y,angularForce.z));
 }
 
 void* RigidBodyComponent::getRigidBody() { return static_cast<void*>(_data->getRigidBody()); }

@@ -12,16 +12,18 @@
 #include <hydra/io/gltextureloader.hpp>
 #include <hydra/io/glmeshloader.hpp>
 
-#include <filesystem>
 #include <memory>
 #include <imgui/imgui.h>
+<<<<<<< HEAD
+=======
+#include <barcode/importermenu.hpp>
+#include <barcode/exportermenu.hpp>
+>>>>>>> master
 
 #include <barcode/filetree.hpp>
 #include <hydra/component/roomcomponent.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
-
-#include <hydra/io/input.hpp>
 
 #include <fstream>
 #include <json.hpp>
@@ -34,6 +36,12 @@ public:
 	bool** pathfindingMap;
 	TileGeneration(std::string middleRoomPath);
 	~TileGeneration();
+<<<<<<< HEAD
+=======
+
+	int maxRooms = 4;
+
+>>>>>>> master
 private:
 	std::vector<std::string> _roomFileNames;
 	int _roomCounter = 0;
@@ -45,4 +53,9 @@ private:
 	void _obtainRoomFiles();
 	glm::vec3 _gridToWorld(int x, int y);
 	bool _checkAdjacents(int x, int y, std::shared_ptr<Hydra::Component::RoomComponent>& r);
+<<<<<<< HEAD
 };
+=======
+
+};
+>>>>>>> master

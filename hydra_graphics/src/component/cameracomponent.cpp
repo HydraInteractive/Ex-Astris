@@ -18,22 +18,23 @@ CameraComponent::~CameraComponent() {}
 
 void CameraComponent::serialize(nlohmann::json& json) const {
 	json["fov"] = fov;
-
 	json["zNear"] = zNear;
-
 	json["zFar"] = zFar;
+	json["noClip"] = noClip;
+	json["movementSpeed"] = movementSpeed;
+	json["shiftMultiplier"] = shiftMultiplier;
 }
 
 void CameraComponent::deserialize(nlohmann::json& json) {
 	fov = json.value<float>("fov", 0);
-
 	zNear = json.value<float>("zNear", 0);
-
 	zFar = json.value<float>("zFar", 0);
+	noClip = json.value<bool>("noClip", false);
+	movementSpeed = json.value<float>("movementSpeed", 10);
+	shiftMultiplier = json.value<float>("shiftMultiplier", 5);
 }
 
 void CameraComponent::registerUI() {
-	//TODO: Change if dirty flag is added!
 	ImGui::DragFloat("FOV", &fov);
 	ImGui::DragFloat("Z Near", &zNear, 0.001f);
 	ImGui::DragFloat("Z Far", &zFar);
@@ -44,4 +45,8 @@ void CameraComponent::registerUI() {
 	ImGui::DragFloat("Yaw", &cameraYaw);
 	ImGui::DragFloat("Pitch", &cameraPitch);
 	ImGui::Checkbox("Mouse Control", &mouseControl);
+
+	ImGui::Checkbox("NoClip", &noClip);
+	ImGui::InputFloat("Movement Speed", &movementSpeed);
+	ImGui::InputFloat("Shift Multiplier", &shiftMultiplier);
 }

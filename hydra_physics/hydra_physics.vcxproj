@@ -92,6 +92,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\system\pickupsystem.cpp" />
     <ClCompile Include="src\abilities\abilities.cpp" />
     <ClCompile Include="src\abilities\grenadecomponent.cpp" />
     <ClCompile Include="src\abilities\minecomponent.cpp" />
@@ -101,6 +102,7 @@
     <ClCompile Include="src\component\componentmanager_physics.cpp" />
     <ClCompile Include="src\component\lifecomponent.cpp" />
     <ClCompile Include="src\component\movementcomponent.cpp" />
+    <ClCompile Include="src\component\pickupcomponent.cpp" />
     <ClCompile Include="src\component\playercomponent.cpp" />
     <ClCompile Include="src\component\rigidbodycomponent.cpp" />
     <ClCompile Include="src\component\spawnercomponent.cpp" />
@@ -132,13 +134,13 @@
     <ClInclude Include="include\hydra\component\weaponcomponent.hpp" />
     <ClInclude Include="include\hydra\pathing\behaviour.hpp" />
     <ClInclude Include="include\hydra\pathing\pathfinding.hpp" />
-    <ClInclude Include="include\hydra\pathing\SearchCell.hpp" />
     <ClInclude Include="include\hydra\system\abilitysystem.hpp" />
     <ClInclude Include="include\hydra\system\aisystem.hpp" />
     <ClInclude Include="include\hydra\system\perksystem.hpp" />
     <ClInclude Include="include\hydra\system\bulletphysicssystem.hpp" />
     <ClInclude Include="include\hydra\system\bulletsystem.hpp" />
     <ClInclude Include="include\hydra\system\lifesystem.hpp" />
+    <ClInclude Include="include\hydra\system\pickupsystem.hpp" />
     <ClInclude Include="include\hydra\system\playersystem.hpp" />
     <ClInclude Include="include\hydra\system\spawnersystem.hpp" />
   </ItemGroup>

@@ -54,14 +54,14 @@ public:
 protected:
 	struct ComponentSet
 	{
-		std::shared_ptr<Hydra::World::Entity> entity;
-		std::shared_ptr<Hydra::Component::TransformComponent> transform;
-		std::shared_ptr<Hydra::Component::MeshComponent> meshComp;
-		std::shared_ptr<Hydra::Component::WeaponComponent> weapon;
-		std::shared_ptr<Hydra::Component::LifeComponent> life;
-		std::shared_ptr<Hydra::Component::MovementComponent> movement;
-		std::shared_ptr<Hydra::Component::AIComponent> ai;
-		std::shared_ptr<Hydra::Component::RigidBodyComponent> rigidBody;
+		Hydra::World::Entity* entity;
+		Hydra::Component::TransformComponent* transform;
+		Hydra::Component::MeshComponent* meshComp;
+		Hydra::Component::WeaponComponent* weapon;
+		Hydra::Component::LifeComponent* life;
+		Hydra::Component::MovementComponent* movement;
+		Hydra::Component::AIComponent* ai;
+		Hydra::Component::RigidBodyComponent* rigidBody;
 	};
 	ComponentSet thisEnemy;
 	ComponentSet targetPlayer;

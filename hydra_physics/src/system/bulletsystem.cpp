@@ -41,7 +41,7 @@ void BulletSystem::tick(float delta) {
 		if (temp.x() == 0)
 		{
 			//printf("IS STUCK : ");
-			rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 300);
+			rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * b->velocity);
 		}
 
 		// TESTING HOMNIG/MAGNETIC NOT REALLY GOOD RIGHT NOW
@@ -73,6 +73,8 @@ void BulletSystem::tick(float delta) {
 		if (b->deleteTimer <= 0)
 			entities[i]->dead = true;
 	}
+
+	entities.clear();
 }
 
 void BulletSystem::registerUI() {}

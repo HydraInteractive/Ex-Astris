@@ -6,7 +6,6 @@
 #include <hydra/component/pointlightcomponent.hpp>
 #include <hydra/component/particlecomponent.hpp>
 #include <hydra/component/drawobjectcomponent.hpp>
-#include <hydra/component/freecameracomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
 
 using namespace Hydra::World;
@@ -23,8 +22,6 @@ namespace Hydra::Component::ComponentManager {
 		creators["ParticleComponent"] = &createOrGetComponentHelper<ParticleComponent>;
 		PointLightComponent::componentHandler = new ComponentHandler<PointLightComponent>();
 		creators["PointLightComponent"] = &createOrGetComponentHelper<PointLightComponent>;
-		FreeCameraComponent::componentHandler = new ComponentHandler<FreeCameraComponent>();
-		creators["FreeCameraComponent"] = &createOrGetComponentHelper<FreeCameraComponent>;
 		DrawObjectComponent::componentHandler = new ComponentHandler<DrawObjectComponent>();
 		creators["DrawObjectComponent"] = &createOrGetComponentHelper<DrawObjectComponent>;
 		PointLightComponent::componentHandler = new ComponentHandler<PointLightComponent>();

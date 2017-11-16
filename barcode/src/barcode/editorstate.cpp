@@ -1,6 +1,9 @@
 #include <barcode/editorstate.hpp>
 
+#include <barcode/menustate.hpp>
+
 #include <hydra/component/rigidbodycomponent.hpp>
+
 using world = Hydra::World::World;
 namespace Barcode {
 	EditorState::EditorState() : _engine(Hydra::IEngine::getInstance()) {}
@@ -9,82 +12,16 @@ namespace Barcode {
 		_textureLoader = Hydra::IO::GLTextureLoader::create();
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
 
-		_finalImage = _engine->getUIRenderer()->addRenderWindow();
-		_finalImage->enabled = true;
-		_finalImage->title = "Final Image";
-		_finalImage->image = Hydra::Renderer::GLTexture::createFromData(_finalImage->size.x, _finalImage->size.y, TextureType::u8RGB, nullptr);
 		auto windowSize = _engine->getView()->getSize();
+		_dgp = std::make_unique<DefaultGraphicsPipeline>(_cameraSystem, windowSize);
+
 		{
-			auto& batch = _geometryBatch;
-			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/geometry.vert");
-			batch.geometryShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::geometry, "assets/shaders/geometry.geom");
-			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/geometry.frag");
-
-			batch.pipeline = Hydra::Renderer::GLPipeline::create();
-			batch.pipeline->attachStage(*batch.vertexShader);
-			batch.pipeline->attachStage(*batch.geometryShader);
-			batch.pipeline->attachStage(*batch.fragmentShader);
-			batch.pipeline->finalize();
-
-			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize, 0);
-			batch.output
-				->addTexture(0, Hydra::Renderer::TextureType::f16RGB) // Position
-				.addTexture(1, Hydra::Renderer::TextureType::u8RGBA) // Diffuse
-				.addTexture(2, Hydra::Renderer::TextureType::f16RGB) // Normal
-				.addTexture(3, Hydra::Renderer::TextureType::f16RGBA) // Light pos
-				.addTexture(4, Hydra::Renderer::TextureType::u8RGB) // Position in view-space
-				.addTexture(5, Hydra::Renderer::TextureType::u8R) // Glow.
-				.addTexture(6, Hydra::Renderer::TextureType::f16Depth) // real depth
-				.finalize();
-
-			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
-			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::color | Hydra::Renderer::ClearFlags::depth;
-			batch.batch.renderTarget = batch.output.get();
-			batch.batch.pipeline = batch.pipeline.get();
+			_hitboxBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/hitboxdebug.vert", "", "assets/shaders/hitboxdebug.frag", _engine->getView());
+			_hitboxBatch.batch.clearFlags = ClearFlags::none;
 		}
 
 		{
-			auto& batch = _animationBatch;
-			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/animationGeometry.vert");
-			batch.geometryShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::geometry, "assets/shaders/animationGeometry.geom");
-			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/animationGeometry.frag");
-
-			batch.pipeline = Hydra::Renderer::GLPipeline::create();
-			batch.pipeline->attachStage(*batch.vertexShader);
-			batch.pipeline->attachStage(*batch.geometryShader);
-			batch.pipeline->attachStage(*batch.fragmentShader);
-			batch.pipeline->finalize();;
-
-			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
-			batch.batch.clearFlags = ClearFlags::none;
-			batch.batch.renderTarget = _geometryBatch.output.get();
-			batch.batch.pipeline = batch.pipeline.get();
-		}
-
-		{ // Lighting pass batch
-			auto& batch = _lightingBatch;
-			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/editorLighting.vert");
-			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/editorLighting.frag");
-
-			batch.pipeline = Hydra::Renderer::GLPipeline::create();
-			batch.pipeline->attachStage(*batch.vertexShader);
-			batch.pipeline->attachStage(*batch.fragmentShader);
-			batch.pipeline->finalize();
-
-			batch.output = Hydra::Renderer::GLFramebuffer::create(windowSize, 0);
-			batch.output
-				->addTexture(0, Hydra::Renderer::TextureType::u8RGB)
-				.addTexture(1, Hydra::Renderer::TextureType::u8RGB)
-				.finalize();
-
-			batch.batch.clearColor = glm::vec4(0, 0, 0, 1);
-			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::color | Hydra::Renderer::ClearFlags::depth;
-			batch.batch.renderTarget = batch.output.get();
-			batch.batch.pipeline = batch.pipeline.get(); // TODO: Change to "null" pipeline
-		}
-
-
-		{
+<<<<<<< HEAD
 			auto& batch = _glowBatch;
 			batch.vertexShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::vertex, "assets/shaders/blur.vert");
 			batch.fragmentShader = Hydra::Renderer::GLShader::createFromSource(Hydra::Renderer::PipelineStage::fragment, "assets/shaders/blur.frag");
@@ -253,29 +190,33 @@ namespace Barcode {
 			batch.batch.clearFlags = Hydra::Renderer::ClearFlags::color | Hydra::Renderer::ClearFlags::depth;
 			batch.batch.renderTarget = batch.output.get();
 			batch.batch.pipeline = batch.pipeline.get();
+=======
+			_previewBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/previewWindow.vert", "", "assets/shaders/previewWindow.frag", glm::ivec2(720, 720));
+			_previewBatch.output->addTexture(0, Hydra::Renderer::TextureType::u8RGB).finalize();
+>>>>>>> master
 		}
 		_initWorld();
-		this->_importerMenu = new ImporterMenu();
-		this->_exporterMenu = new ExporterMenu();
+
+		_importerMenu = new ImporterMenu();
+		_exporterMenu = new ExporterMenu();
+		_componentMenu = ComponentMenu();
 	}
 
 	EditorState::~EditorState() { }
 
 	void EditorState::onMainMenu() {
-		if (ImGui::BeginMenu("Editor"))
-		{
-			if (ImGui::MenuItem("Import..."))
-			{
+		if (ImGui::BeginMenu("Editor")) {
+			if (ImGui::MenuItem("Import...")) {
 				_showImporter = !_showImporter;
 				if (_showImporter)
 					_importerMenu->refresh("/assets");
 			}
-			if (ImGui::MenuItem("Export..."))
-			{
+			if (ImGui::MenuItem("Export..."))	{
 				_showExporter = !_showExporter;
 				if (_showExporter)
 					_exporterMenu->refresh("/assets");
 			}
+<<<<<<< HEAD
 			if (ImGui::MenuItem("Pathfinding..."))
 			{
 				_showPathMapCreator = !_showPathMapCreator;
@@ -283,14 +224,19 @@ namespace Barcode {
 				{
 					_cc->useOrtho = true;
 				}
+=======
+			if (ImGui::MenuItem("Add component...")){
+				_showComponentMenu = !_showComponentMenu;
+				if (_showComponentMenu)
+					_componentMenu.refresh();
+>>>>>>> master
 			}
 			ImGui::Separator();
-			if (ImGui::MenuItem("Clear room"))
-			{
-				if(FileTree::getRoomEntity() != nullptr)
+			if (ImGui::MenuItem("Clear room")) {
+				if (FileTree::getRoomEntity() != nullptr)
 					FileTree::getRoomEntity()->dead = true;
 
-				auto room = world::newEntity("Room", world::root());
+				auto room = world::newEntity("Workspace", world::root());
 				auto t = room->addComponent<Hydra::Component::TransformComponent>();
 				auto r = room->addComponent<Hydra::Component::RoomComponent>();
 
@@ -300,13 +246,14 @@ namespace Barcode {
 		}
 	}
 
-	//Global variable to maintain a keyframe for now
 	void EditorState::runFrame(float delta) {
 		auto windowSize = _engine->getView()->getSize();
 		_cameraSystem.tick(delta);
 		_particleSystem.tick(delta);
 		_rendererSystem.tick(delta);
+		_animationSystem.tick(delta);
 
+<<<<<<< HEAD
 		const glm::vec3 cameraPos = _playerTransform->position;
 
 		if (_showPathMapCreator)
@@ -343,13 +290,25 @@ namespace Barcode {
 			_animationBatch.pipeline->setValue(0, _cc->getViewMatrix());
 			_animationBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
 			_animationBatch.pipeline->setValue(2, cameraPos);
+=======
+		static bool enableHitboxDebug = true;
+		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
+		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
+		ImGui::Checkbox("Enable SSAO", &MenuState::ssaoEnabled);
+		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);
+>>>>>>> master
 
-			for (auto& kv : _geometryBatch.batch.objects)
-				kv.second.clear();
+		const glm::vec3& cameraPos = _playerTransform->position;
+		auto viewMatrix = _cc->getViewMatrix();
+		glm::vec3 rightVector = { viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0] };
+		glm::vec3 upVector = { viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1] };
+		glm::vec3 forwardVector = { viewMatrix[0][2], viewMatrix[1][2], viewMatrix[2][2] }; //glm::cross(rightVector, upVector);
+		_cameraSystem.setCamInternals(*_cc);
+		_cameraSystem.setCamDef(_playerTransform->position, forwardVector, upVector, rightVector, *_cc);
 
-			for (auto& kv : _animationBatch.batch.objects)
-				kv.second.clear();
+		_dgp->render(cameraPos, *_cc, *_playerTransform);
 
+<<<<<<< HEAD
 			for (auto& drawObj : _engine->getRenderer()->activeDrawObjects()) {
 				if (!drawObj->disable && drawObj->mesh && drawObj->mesh->hasAnimation() == false)
 					_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
@@ -559,10 +518,13 @@ namespace Barcode {
 		}
 		
 
+=======
+>>>>>>> master
 		if (_showImporter)
 			_importerMenu->render(_showImporter, &_previewBatch.batch, delta);
 		if (_showExporter)
 			_exporterMenu->render(_showExporter);
+<<<<<<< HEAD
 		if (_showPathMapCreator)
 			_pathingMenu.render(_showPathMapCreator, delta);
 			
@@ -570,76 +532,72 @@ namespace Barcode {
 		_glowBatch.batch.renderTarget = _engine->getView();
 		_engine->getRenderer()->clear(_glowBatch.batch);
 		_glowBatch.batch.renderTarget = _glowBatch.output.get();
+=======
+		if (_showComponentMenu)
+			_componentMenu.render(_showComponentMenu);
+>>>>>>> master
 	}
 	void EditorState::_initSystem() {
 		const std::vector<Hydra::World::ISystem*> systems = { _engine->getDeadSystem(), &_cameraSystem, &_particleSystem, &_abilitySystem, &_aiSystem, &_physicsSystem, &_bulletSystem, &_playerSystem, &_rendererSystem };
 		_engine->getUIRenderer()->registerSystems(systems);
 	}
 	void EditorState::_initWorld() {
-		
 		{
-			auto room = world::newEntity("Room", world::root());
+			auto room = world::newEntity("Workspace", world::root());
 			auto t = room->addComponent<Hydra::Component::TransformComponent>();
 			auto r = room->addComponent<Hydra::Component::RoomComponent>();
 		}
+
+		{
+			auto compass = world::newEntity("Compass", world::root());
+			auto t = compass->addComponent<Hydra::Component::TransformComponent>();
+
+			auto n = world::newEntity("North", compass);
+			auto tn = n->addComponent<Hydra::Component::TransformComponent>();
+			tn->position = glm::vec3(0,0,17);
+
+			auto e = world::newEntity("East", compass);
+			auto te = e->addComponent<Hydra::Component::TransformComponent>();
+			te->position = glm::vec3(17, 0, 0);
+
+			auto s = world::newEntity("South", compass);
+			auto ts = s->addComponent<Hydra::Component::TransformComponent>();
+			ts->position = glm::vec3(0, 0, -17);
+
+			auto w = world::newEntity("West", compass);
+			auto tw = w->addComponent<Hydra::Component::TransformComponent>();
+			tw->position = glm::vec3(-17, 0, 0);
+		}
+
 		{
 			auto playerEntity = world::newEntity("Player", world::root());
-			auto c = playerEntity->addComponent<Hydra::Component::FreeCameraComponent>();
+			auto c = playerEntity->addComponent<Hydra::Component::CameraComponent>();
+			c->noClip = true;
+			c->mouseControl = false;
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
 			_playerTransform = t.get();
 		}
+
 		{
 			auto lightEntity = world::newEntity("Light", world::root());
 			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
 			auto t = lightEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(8.0, 0, 3.5);
 		}
+
 		{
-			BlueprintLoader::save("world.blueprint", "World Blueprint", world::root());
+			BlueprintLoader::save("world.blueprint", "World Blueprint", world::root().get());
 			Hydra::World::World::reset();
 			auto bp = BlueprintLoader::load("world.blueprint");
 			bp->spawn(world::root());
 		}
 
 		{
-			_cc = static_cast<Hydra::Component::FreeCameraComponent*>(Hydra::Component::FreeCameraComponent::componentHandler->getActiveComponents()[0].get());
+			_cc = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get());
 			for (auto& rb : Hydra::Component::RigidBodyComponent::componentHandler->getActiveComponents()) {
 				_engine->log(Hydra::LogLevel::normal, "Enabling bullet for %s", world::getEntity(rb->entityID)->name.c_str());
 				_physicsSystem.enable(static_cast<Hydra::Component::RigidBodyComponent*>(rb.get()));
 			}
 		}
-	}
-
-	std::shared_ptr<Hydra::Renderer::IFramebuffer> EditorState::_blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int nrOfTimes, glm::vec2 size, const std::vector<float>& kernel) { // TO-DO: Make it agile so it can blur any texture
-		_glowBatch.pipeline->setValue(1, 1); // This bind will never change
-		bool horizontal = true;
-		bool firstPass = true;
-		_blurrExtraFBO1->resize(size);
-		_blurrExtraFBO2->resize(size);
-		_glowBatch.pipeline->setValue(3, 5);
-		for (int i = 0; i < 5; i++) {
-			_glowBatch.pipeline->setValue(4 + i, kernel[i]);
-		}
-		for (int i = 0; i < nrOfTimes * 2; i++) {
-			if (firstPass) {
-				_glowBatch.batch.renderTarget = _blurrExtraFBO2.get();
-				texture->bind(1);
-				firstPass = false;
-			}
-			else if (horizontal) {
-				_glowBatch.batch.renderTarget = _blurrExtraFBO2.get();
-				(*_blurrExtraFBO1)[0]->bind(1);
-			}
-			else {
-				_glowBatch.batch.renderTarget = _blurrExtraFBO1.get();
-				(*_blurrExtraFBO2)[0]->bind(1);
-			}
-			_glowBatch.pipeline->setValue(2, horizontal);
-			_engine->getRenderer()->postProcessing(_glowBatch.batch);
-			horizontal = !horizontal;
-		}
-		// Change back to normal rendertarget.
-		_glowBatch.batch.renderTarget = _glowBatch.output.get();
-		return _blurrExtraFBO1;
 	}
 }
