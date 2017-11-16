@@ -818,7 +818,31 @@ namespace Barcode {
 			//floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 
 		}
+		for (int i = 0; i < 1; i++) {
+			{
+				auto alienEntity = world::newEntity("Alien1", world::root());
+				alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienFastModel.mATTIC");
+				auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+				a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+				a->damage = 4;
+				a->behaviour->originalRange = 4;
+				a->radius = 1;
 
+				auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+				h->maxHP = 80;
+				h->health = 80;
+				auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+				m->movementSpeed = 8.0f;
+				auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+				t->position = glm::vec3{ 10 + i, 0, 20 };
+				t->scale = glm::vec3{ 2,2,2 };
+				//t->rotation = glm::vec3{ 0, 90, 0 };
+				auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+				rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+					0, 0, 0.6f, 1.0f);
+				rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+			}
+		}
 		{
 			//Remove this to gain frames like never before
 			TileGeneration worldTiles("assets/room/centralRoomPipes.room");
@@ -873,31 +897,7 @@ namespace Barcode {
 				t2->ignoreParent = true;
 			}
 		}
-		for (int i = 0; i < 1; i++) {
-			{
-				auto alienEntity = world::newEntity("Alien1", world::root());
-				alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
-				auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
-				a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
-				a->damage = 4;
-				a->behaviour->originalRange = 4;
-				a->radius = 1;
-		
-				auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
-				h->maxHP = 80;
-				h->health = 80;
-				auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
-				m->movementSpeed = 8.0f;
-				auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
-				t->position = glm::vec3{ 10+i, 0, 20 };
-				t->scale = glm::vec3{ 2,2,2 };
-				//t->rotation = glm::vec3{ 0, 90, 0 };
-				auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-				rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
-					0, 0, 0.6f, 1.0f);
-				rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-			}
-		}
+
 		{
 			auto pointLight1 = world::newEntity("Pointlight1", world::root());
 			pointLight1->addComponent<Hydra::Component::TransformComponent>();

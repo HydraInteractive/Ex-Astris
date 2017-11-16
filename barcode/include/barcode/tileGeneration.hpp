@@ -27,6 +27,7 @@
 #include <hydra/component/lightcomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
+#include <hydra/component/lifecomponent.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
 
