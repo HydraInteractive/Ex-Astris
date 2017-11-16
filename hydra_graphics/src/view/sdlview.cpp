@@ -76,16 +76,6 @@ public:
 	void hide() final {	SDL_HideWindow(_window); }
 	void quit() final { _wantToClose = true; }
 
-	void blit(Hydra::Renderer::IFramebuffer* fb, size_t imageIdx, bool doDepth) final {
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, fb->getID());
-		glReadBuffer(static_cast<GLenum>(GL_COLOR_ATTACHMENT0+imageIdx));
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-		auto fromS = fb->getSize();
-		auto& toS = _size;
-		glBlitFramebuffer(0, 0, fromS.x, fromS.y, 0, 0, toS.x, toS.y, GL_COLOR_BUFFER_BIT | (doDepth ? GL_DEPTH_BUFFER_BIT : 0), GL_NEAREST);
-	}
-
 	void* getHandler() final { return _window; }
 
 	bool isClosed() final { return _wantToClose; }

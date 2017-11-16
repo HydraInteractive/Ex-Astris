@@ -3,12 +3,13 @@
 #include <hydra/ext/openmp.hpp>
 
 #include <hydra/component/cameracomponent.hpp>
-#include <hydra/component/freecameracomponent.hpp>
 #include <algorithm>
+
+#include <SDL2/SDL.h>
 
 using namespace Hydra::System;
 
-#define ANG2RAD 3.14159265358979323846/180.0
+#define ANG2RAD (3.14159265358979323846/180.0)
 
 CameraSystem::CameraSystem() {}
 CameraSystem::~CameraSystem() {}
@@ -38,7 +39,7 @@ void CameraSystem::tick(float delta) {
 		if (keysArray[SDL_SCANCODE_D])
 			velocity.x += 1;
 
-		multiplier = keysArray[SDL_SCANCODE_LSHIFT];//velocity *= ;
+		multiplier = keysArray[SDL_SCANCODE_LSHIFT];
 	}
 
 	//Process CameraComponent
@@ -47,7 +48,7 @@ void CameraSystem::tick(float delta) {
 		auto cc = entities[i]->getComponent<Hydra::Component::CameraComponent>();
 
 		if (cc->mouseControl) {
-			cc->cameraYaw = cc->cameraYaw + mouseX * cc->sensitivity; // std::min(std::max(cc->cameraYaw + mouseX * cc->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
+			cc->cameraYaw = cc->cameraYaw + mouseX * cc->sensitivity;
 			cc->cameraPitch = std::min(std::max(cc->cameraPitch + mouseY * cc->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
 		}
 
@@ -57,25 +58,11 @@ void CameraSystem::tick(float delta) {
 
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 		t->rotation = glm::normalize(qPitch * qYaw * qRoll);
-	}
 
-	//Process FreeCameraComponent
-	world::getEntitiesWithComponents<Hydra::Component::FreeCameraComponent>(entities);
-	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
-		auto fc = entities[i]->getComponent<Hydra::Component::FreeCameraComponent>();
-
-		fc->cameraYaw = fc->cameraYaw + mouseX * fc->sensitivity; //std::min(std::max(fc->cameraYaw + mouseX * fc->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
-		fc->cameraPitch = std::min(std::max(fc->cameraPitch + mouseY * fc->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
-
-		glm::quat qPitch = glm::angleAxis(fc->cameraPitch, glm::vec3(1, 0, 0));
-		glm::quat qYaw = glm::angleAxis(fc->cameraYaw, glm::vec3(0, 1, 0));
-		glm::quat qRoll = glm::angleAxis(glm::radians(0.f), glm::vec3(0, 0, 1));
-
-		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
-		t->rotation = glm::normalize(qPitch * qYaw * qRoll);
-
-		const glm::mat4 viewMat = fc->getViewMatrix();
-		t->position += glm::vec3(glm::vec4(velocity * fc->movementSpeed * (multiplier ? fc->shiftMultiplier : 1), 1.0f) * viewMat) * delta;
+		if (cc->noClip) {
+			const glm::mat4 viewMat = cc->getViewMatrix();
+			t->position += glm::vec3(glm::vec4(velocity * cc->movementSpeed * (multiplier ? cc->shiftMultiplier : 1), 1.0f) * viewMat) * delta;
+		}
 	}
 
 	entities.clear();
@@ -89,7 +76,7 @@ void CameraSystem::setCamInternals(Hydra::Component::CameraComponent& cc) {
 	cc.fw = cc.fh * cc.aspect;
 }
 
-void CameraSystem::setCamDef(glm::vec3& cPos, glm::vec3& cDir, glm::vec3& up, glm::vec3& right, Hydra::Component::CameraComponent& cc) {
+void CameraSystem::setCamDef(const glm::vec3& cPos, const glm::vec3& cDir, const glm::vec3& up, const glm::vec3& right, Hydra::Component::CameraComponent& cc) {
 	glm::vec3 dir, nc, fc, X, Y, Z;
 
 	Z = cPos - cDir;
@@ -124,24 +111,15 @@ void CameraSystem::setCamDef(glm::vec3& cPos, glm::vec3& cDir, glm::vec3& up, gl
 
 }
 
-/*int CameraSystem::pointInFrustum(glm::vec3& p, Hydra::Component::CameraComponent& cc) {
-	int result = 1;
-	for (int i = 0; i < 6; i++) {
-	if (cc.pl[i].distance(p) < 0)
-		return 0;
-	}
-	return result;
-}*/
-
-int CameraSystem::sphereInFrustum(glm::vec3& p, float radius, Hydra::Component::CameraComponent& cc) {
+CameraSystem::FrustrumCheck CameraSystem::sphereInFrustum(const glm::vec3& p, float radius, Hydra::Component::CameraComponent& cc) {
 	float distance = 0;
-	int result = cc.INSIDE;
+	CameraSystem::FrustrumCheck result = CameraSystem::FrustrumCheck::inside;
 	for (int i = 0; i < 6; i++) {
 		distance = cc.pl[i].distance(p);
 		if (distance < -radius)
-			return cc.OUTSIDE;
+			return CameraSystem::FrustrumCheck::outside;
 		else if (distance < radius)
-			result = cc.INTERSECT;
+			result = CameraSystem::FrustrumCheck::intersect;
 	}
 	return result;
 }

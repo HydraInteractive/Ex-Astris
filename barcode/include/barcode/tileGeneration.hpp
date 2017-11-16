@@ -31,13 +31,11 @@
 
 #include <hydra/world/blueprintloader.hpp>
 
-#include <hydra/io/input.hpp>
-
 #include <fstream>
 #include <json.hpp>
 #define GRID_SIZE 5
 #define ROOM_SIZE 34
-#define MAX_ENEMIES 5
+#define MAX_ENEMIES 4
 
 class TileGeneration
 {

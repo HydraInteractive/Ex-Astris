@@ -248,8 +248,8 @@ void TileGeneration::_randomizeRooms() {
 void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform){
 
 	int randomSlowAliens = rand() % int(MAX_ENEMIES);
-	int randomFastAliens = rand() % int(MAX_ENEMIES);
-	//int randomRobots = rand() % (int(MAX_ENEMIES) - randomAliens);
+	int randomFastAliens = rand() % int(MAX_ENEMIES - randomSlowAliens);
+	int randomRobots = rand() % int(MAX_ENEMIES - randomFastAliens);
 
 
 	for (int i = 0; i < randomSlowAliens; i++) {
