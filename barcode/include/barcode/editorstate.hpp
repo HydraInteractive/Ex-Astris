@@ -71,7 +71,7 @@ namespace Barcode {
 	private:
 		ComponentMenu _componentMenu;
 		FileTree* _importerMenu;
-		FileTree* _roomExporterMenu;
+		FileTree* _exporterMenu;
 
 		bool _showComponentMenu = false;
 		bool _showImporter = false;
@@ -100,16 +100,6 @@ namespace Barcode {
 
 		Hydra::Component::CameraComponent* _cc = nullptr;
 		Hydra::Component::TransformComponent* _playerTransform = nullptr;
-
-		ComponentMenu _componentMenu;
-		FileTree* _importerMenu;
-		FileTree* _exporterMenu;
-
-		bool _showComponentMenu = false;
-		bool _showImporter = false;
-		bool _showExporter = false;
-
-		std::string _selectedPath;
 
 		void _initSystem();
 		void _initWorld();

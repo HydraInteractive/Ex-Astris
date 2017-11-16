@@ -48,8 +48,8 @@ public:
 		std::string reverseEngineerPath();
 		int numberOfFiles();
 		void clean();
-		virtual void render(Node** selectedNode);
-		virtual void popupMenu(Node* currentNode);
+		void render(Node** selectedNode);
+		void popupMenu(Node* currentNode);
 	private:
 		std::string _name;
 		std::vector<Node*> _subfolders;

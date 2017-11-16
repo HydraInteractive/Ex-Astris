@@ -44,7 +44,7 @@ namespace Barcode {
 			if (ImGui::MenuItem("Export..."))	{
 				_showExporter = !_showExporter;
 				if (_showExporter)
-					_roomExporterMenu->refresh("/assets");
+					_exporterMenu->refresh("/assets");
 			}
 			if (ImGui::MenuItem("Add component...")){
 				_showComponentMenu = !_showComponentMenu;
@@ -96,7 +96,7 @@ namespace Barcode {
 		if (_showImporter)
 			_importerMenu->render(_showImporter, &_previewBatch.batch, delta);
 		if (_showExporter)
-			_roomExporterMenu->render(_showExporter);
+			_exporterMenu->render(_showExporter);
 		if (_showComponentMenu)
 			_componentMenu.render(_showComponentMenu);
 	}
