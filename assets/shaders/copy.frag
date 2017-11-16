@@ -16,6 +16,6 @@ layout (location = 2) uniform sampler2D depth;
 layout (location = 0) out vec4 fragColor;
 
 void main() {
-	fragColor = texture(diffuse, uv);
-	gl_FragDepth = texture(depth, uv).r;
+	fragColor = texture(diffuse, inData.uv);
+	gl_FragDepth = texture(depth, inData.uv).r;
 }
