@@ -13,6 +13,7 @@
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
+#include <hydra/system/bulletphysicssystem.hpp>
 
 using namespace Hydra::World;
 
