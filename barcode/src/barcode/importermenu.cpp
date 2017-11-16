@@ -50,6 +50,8 @@ void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch* previewBatch,
 			auto t = _previewEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ 0, 0, 10 };
 			auto cc = _previewEntity->addComponent<Hydra::Component::CameraComponent>();
+			cc->mouseControl = false;
+			cc->noClip = false;
 			previewBatch->pipeline->setValue(0, cc->getViewMatrix());
 			previewBatch->pipeline->setValue(1, cc->getProjectionMatrix());
 			previewBatch->pipeline->setValue(2, t->position);

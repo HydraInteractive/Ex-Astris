@@ -134,9 +134,9 @@ namespace Barcode {
 
 		{
 			auto playerEntity = world::newEntity("Player", world::root());
-			auto c = playerEntity->addComponent<Hydra::Component::CameraComponent>();
-			c->noClip = true;
-			c->mouseControl = false;
+			auto cc = playerEntity->addComponent<Hydra::Component::CameraComponent>();
+			cc->noClip = true;
+			cc->mouseControl = false;
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
 			_playerTransform = t.get();
 		}
