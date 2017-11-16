@@ -21,8 +21,13 @@ PathFinding::~PathFinding() {
 
 }
 
-void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, int(&map)[MAP_SIZE][MAP_SIZE])
+void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetPos)
 {
+	if (map == nullptr)
+	{
+		return;
+	}
+
 	if (!intializedStartGoal) 
 	{
 		_openList.clear();
@@ -69,40 +74,42 @@ void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 		else
 		{
 			//East
-			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z(), currentNode, map);
+			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z(), currentNode);
 			//West
-			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z(), currentNode, map);
+			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z(), currentNode);
 			//North
-			_discoverNode(currentNode->pos.x(), currentNode->pos.z() + 1, currentNode, map);
+			_discoverNode(currentNode->pos.x(), currentNode->pos.z() + 1, currentNode);
 			//South
-			_discoverNode(currentNode->pos.x(), currentNode->pos.z() - 1, currentNode, map);
+			_discoverNode(currentNode->pos.x(), currentNode->pos.z() - 1, currentNode);
 			//North West
-			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() + 1, currentNode, map);
+			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() + 1, currentNode);
 			//North East
-			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() + 1, currentNode, map);
+			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() + 1, currentNode);
 			//South West
-			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() - 1, currentNode, map);
+			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() - 1, currentNode);
 			//South East
-			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() - 1, currentNode, map);
+			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() - 1, currentNode);
 		}
 	}
 }
+
 PathFinding::MapVec PathFinding::worldToMapCoords(const glm::vec3& worldPos) const
 {
-	return MapVec((worldPos.x / MAP_SCALE) + (MAP_SIZE / 2), (worldPos.z / MAP_SCALE) + (MAP_SIZE / 2));
+	return MapVec((worldPos.x / ROOM_SCALE) + (WORLD_MAP_SIZE / 2), (worldPos.z / ROOM_SCALE) + (WORLD_MAP_SIZE / 2));
 }
 
 glm::vec3 PathFinding::mapToWorldCoords(const MapVec& mapPos) const
 {
-	return glm::vec3((mapPos.baseVec.x - (MAP_SIZE / 2)) * MAP_SCALE, 0.0f, (mapPos.baseVec.y - (MAP_SIZE / 2)) * MAP_SCALE);
+	return glm::vec3((mapPos.baseVec.x - (WORLD_MAP_SIZE / 2)) * ROOM_SCALE, 0.0f, (mapPos.baseVec.y - (WORLD_MAP_SIZE / 2)) * ROOM_SCALE);
 }
+
 glm::vec3 PathFinding::nextPathPos(const glm::vec3& pos, const float& radius)
 {
 	glm::vec3 nextPos = _pathToEnd.back();
 
 	//Centers the position in a node
-	nextPos.x += (MAP_SCALE / 2);
-	nextPos.z += (MAP_SCALE / 2);
+	nextPos.x += (ROOM_SCALE / 2);
+	nextPos.z += (ROOM_SCALE / 2);
 
 	float distance = glm::distance(pos, nextPos);
 	if (!_pathToEnd.empty())
@@ -117,14 +124,14 @@ glm::vec3 PathFinding::nextPathPos(const glm::vec3& pos, const float& radius)
 
 bool PathFinding::isOutOfBounds(const glm::vec2& vec) const
 {
-	if (vec.x > MAP_SIZE || vec.y > MAP_SIZE || vec.x < 0 || vec.y < 0)
+	if (vec.x > WORLD_MAP_SIZE || vec.y > WORLD_MAP_SIZE || vec.x < 0 || vec.y < 0)
 	{
 		return true;
 	}
 	return false;
 }
 
-void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode, int(&map)[MAP_SIZE][MAP_SIZE])
+void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode)
 {
 	MapVec currentPos = MapVec(x, z);
 	if (isOutOfBounds(currentPos.baseVec))
@@ -132,7 +139,7 @@ void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode, in
 		return;
 	}
 	//If this node is inaccessable, ignore it
-	if (map[x][z] == 1 || map[x][z] == 2)
+	if (map[x][z] == 0)
 	{
 		return;
 	}

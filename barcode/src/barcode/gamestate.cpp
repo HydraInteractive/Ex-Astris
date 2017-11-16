@@ -6,7 +6,6 @@
 #include <hydra/renderer/glshader.hpp>
 #include <hydra/io/gltextureloader.hpp>
 #include <hydra/io/glmeshloader.hpp>
-#include <barcode/tileGeneration.hpp>
 
 #include <glm/gtx/matrix_decompose.hpp>
 
@@ -263,9 +262,9 @@ namespace Barcode {
 				, 0, 0, 0, 0.6f, 0);
 			floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 		}
-		
+
 		{
-			TileGeneration worldTiles("assets/room/threewayRoom.room");
+			tileGen = new TileGeneration("assets/room/threewayRoom.room");
 		}
 
 		{
