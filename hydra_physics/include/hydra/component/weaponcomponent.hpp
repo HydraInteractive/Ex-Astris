@@ -40,7 +40,7 @@ namespace Hydra::Component {
 
 		~WeaponComponent() final;
 
-		bool shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity, Hydra::System::BulletPhysicsSystem::CollisionTypes collisionType, int damage);
+		bool shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity);
 		bool reload(float delta);
 		void resetReload();
 

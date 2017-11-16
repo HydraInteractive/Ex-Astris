@@ -41,7 +41,7 @@ void BulletSystem::tick(float delta) {
 		if (temp.x() == 0)
 		{
 			//printf("IS STUCK : ");
-			rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * b->velocity);
+			rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 300);
 		}
 
 		// TESTING HOMNIG/MAGNETIC NOT REALLY GOOD RIGHT NOW
