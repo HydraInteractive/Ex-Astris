@@ -118,7 +118,7 @@ namespace Barcode {
 		if (_showPathMapCreator)
 			_pathingMenu.render(_showPathMapCreator, delta, _engine->getView()->getSize().x, _engine->getView()->getSize().y);
 		if (_showComponentMenu)
-			_componentMenu.render(_showComponentMenu);
+			_componentMenu.render(_showComponentMenu, _physicsSystem);
 	}
 	void EditorState::_initSystem() {
 		const std::vector<Hydra::World::ISystem*> systems = { _engine->getDeadSystem(), &_cameraSystem, &_particleSystem, &_abilitySystem, &_aiSystem, &_physicsSystem, &_bulletSystem, &_playerSystem, &_rendererSystem };
