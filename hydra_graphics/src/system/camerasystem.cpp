@@ -5,6 +5,8 @@
 #include <hydra/component/cameracomponent.hpp>
 #include <algorithm>
 
+#include <hydra/engine.hpp>
+#include <hydra/view/view.hpp>
 #include <SDL2/SDL.h>
 
 using namespace Hydra::System;
@@ -16,16 +18,14 @@ CameraSystem::~CameraSystem() {}
 
 void CameraSystem::tick(float delta) {
 	using world = Hydra::World::World;
+	Hydra::View::IView* view = Hydra::IEngine::getInstance()->getView();
+	auto viewSize = view->getSize();
 
 	// Collect data
-	int mouseX = 0;
-	int mouseY = 0;
 	glm::vec3 velocity = glm::vec3{0, 0, 0};
 	bool multiplier = false;
 
-	if ((SDL_GetRelativeMouseState(&mouseX, &mouseY) & SDL_BUTTON(3)) == 0)
-		mouseX = mouseY = 0;
-
+	bool toggleMouse = false;
 
 	{
 		const Uint8* keysArray = SDL_GetKeyboardState(nullptr);
@@ -39,6 +39,12 @@ void CameraSystem::tick(float delta) {
 		if (keysArray[SDL_SCANCODE_D])
 			velocity.x += 1;
 
+		static bool wasCtrlDown = false;
+		if (keysArray[SDL_SCANCODE_LCTRL] && !wasCtrlDown)
+			toggleMouse = wasCtrlDown = true;
+		else if (!keysArray[SDL_SCANCODE_LCTRL] && wasCtrlDown)
+			wasCtrlDown = false;
+
 		multiplier = keysArray[SDL_SCANCODE_LSHIFT];
 	}
 
@@ -46,11 +52,19 @@ void CameraSystem::tick(float delta) {
 	world::getEntitiesWithComponents<Hydra::Component::CameraComponent>(entities);
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto cc = entities[i]->getComponent<Hydra::Component::CameraComponent>();
+		if (toggleMouse) {
+			cc->mouseControl = !cc->mouseControl;
+			SDL_WarpMouseInWindow(static_cast<SDL_Window*>(view->getHandler()), viewSize.x / 2, viewSize.y / 2);
+		} else if (cc->mouseControl) {
+			glm::ivec2 mousePos;
+			SDL_GetMouseState(&mousePos.x, &mousePos.y);
+			mousePos -= viewSize / 2;
+			SDL_WarpMouseInWindow(static_cast<SDL_Window*>(view->getHandler()), viewSize.x / 2, viewSize.y / 2);
 
-		if (cc->mouseControl) {
-			cc->cameraYaw = cc->cameraYaw + mouseX * cc->sensitivity;
-			cc->cameraPitch = std::min(std::max(cc->cameraPitch + mouseY * cc->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
+			cc->cameraYaw = cc->cameraYaw + mousePos.x * cc->sensitivity;
+			cc->cameraPitch = std::min(std::max(cc->cameraPitch + mousePos.y * cc->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
 		}
+		SDL_ShowCursor(cc->mouseControl ? SDL_DISABLE : SDL_ENABLE);
 
 		glm::quat qPitch = glm::angleAxis(cc->cameraPitch, glm::vec3(1, 0, 0));
 		glm::quat qYaw = glm::angleAxis(cc->cameraYaw, glm::vec3(0, 1, 0));
