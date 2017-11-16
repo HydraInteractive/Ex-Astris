@@ -12,7 +12,6 @@
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
-#include <hydra/component/freecameracomponent.hpp>
 #include <glm/gtc/type_ptr.hpp>
 using world = Hydra::World::World;
 ComponentMenu::ComponentMenu()
@@ -32,7 +31,7 @@ void ComponentMenu::render(bool &openBool)
 	_menuBar();
 	ImGui::Columns(3, "Columns");
 	ImGui::Text("Select entity");
-	for (int i = 0; i < _entities.size(); i++)
+	for (size_t i = 0; i < _entities.size(); i++)
 	{
 		if (_entities[i].expired())
 		{
@@ -48,7 +47,7 @@ void ComponentMenu::render(bool &openBool)
 	ImGui::Text("Select component type");
 	if (!_selectedEntity.expired())
 	{
-		for (int i = 0; i < _componentTypes.size(); i++)
+		for (size_t i = 0; i < _componentTypes.size(); i++)
 		{
 			if (ImGui::MenuItem(_componentTypes[i].c_str(), "", (_selectedString == _componentTypes[i])))
 			{
@@ -70,7 +69,7 @@ void ComponentMenu::refresh()
 {
 	_entities.clear();
 	auto& entityIDs = getRoomEntity()->children;
-	for (int i = 0; i < entityIDs.size(); i++)
+	for (size_t i = 0; i < entityIDs.size(); i++)
 	{
 		_entities.push_back(world::getEntity(entityIDs[i]));
 	}
@@ -108,7 +107,7 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 			ImGui::BeginChild("Confirm", ImVec2(ImGui::GetWindowContentRegionWidth() *0.3f, 25));
 			if (ImGui::Button("Finish"))
 			{
-				auto& t = _selectedEntity.lock()->addComponent<Hydra::Component::TransformComponent>();
+				auto t = _selectedEntity.lock()->addComponent<Hydra::Component::TransformComponent>();
 				t->position = transformInput.position;
 				t->scale = transformInput.scale;
 				t->rotation = transformInput.rotation;
@@ -136,7 +135,7 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 			ImGui::BeginChild("Confirm", ImVec2(ImGui::GetWindowContentRegionWidth() *0.3f, 25));
 			if (ImGui::Button("Finish"))
 			{
-				auto& p = _selectedEntity.lock()->addComponent<Hydra::Component::PointLightComponent>();
+				auto p = _selectedEntity.lock()->addComponent<Hydra::Component::PointLightComponent>();
 				p->color = pointLightInput.colour;
 				p->constant = pointLightInput.constant;
 				p->linear = pointLightInput.linear;

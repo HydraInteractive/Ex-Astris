@@ -65,9 +65,13 @@ public:
 	std::shared_ptr<IMesh> getErrorMesh() final { return _errorMesh; }
 
 	void clear() {
-		erase_if(_storage, _storage.begin(), _storage.end(), [](const std::pair<std::string, std::shared_ptr<IMesh>>& x) {
-			return x.second.use_count() == 2;
+		Hydra::IEngine::getInstance()->log(Hydra::LogLevel::verbose, "before _storage.size(): %lu", _storage.size());
+		size_t counter = 0;
+		erase_if(_storage, _storage.begin(), _storage.end(), [&counter](const std::pair<std::string, std::shared_ptr<IMesh>>& x) {
+				Hydra::IEngine::getInstance()->log(Hydra::LogLevel::verbose, "\t_storage[%lu].use_count: %ld", counter++, x.second.use_count());
+			return x.second.use_count() == 1;
 		});
+		Hydra::IEngine::getInstance()->log(Hydra::LogLevel::verbose, "after _storage.size(): %lu", _storage.size());
 	}
 
 private:

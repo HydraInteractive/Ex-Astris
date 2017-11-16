@@ -29,8 +29,6 @@
 
 #include <hydra/world/blueprintloader.hpp>
 
-#include <hydra/io/input.hpp>
-
 #include <fstream>
 #include <json.hpp>
 #define GRID_SIZE 7

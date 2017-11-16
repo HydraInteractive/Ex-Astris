@@ -18,6 +18,10 @@
 namespace Barcode {
 	class MenuState final : public Hydra::IState {
 	public:
+		static bool glowEnabled;
+		static bool ssaoEnabled;
+		static bool shadowEnabled;
+
 		MenuState();
 		~MenuState() final;
 

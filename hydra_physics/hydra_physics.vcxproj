@@ -134,7 +134,6 @@
     <ClInclude Include="include\hydra\component\weaponcomponent.hpp" />
     <ClInclude Include="include\hydra\pathing\behaviour.hpp" />
     <ClInclude Include="include\hydra\pathing\pathfinding.hpp" />
-    <ClInclude Include="include\hydra\pathing\SearchCell.hpp" />
     <ClInclude Include="include\hydra\system\abilitysystem.hpp" />
     <ClInclude Include="include\hydra\system\aisystem.hpp" />
     <ClInclude Include="include\hydra\system\perksystem.hpp" />

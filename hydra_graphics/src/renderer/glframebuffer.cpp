@@ -87,24 +87,6 @@ public:
 
 	std::shared_ptr<ITexture> getDepth() final { return _depth; }
 
-	//TODO: Add resolve to FBO and not just a texture
-	std::shared_ptr<ITexture> resolve(size_t idx, std::shared_ptr<ITexture> result) final {
-		result->resize(_size);
-
-		glBindFramebuffer(GL_FRAMEBUFFER, _resolverFramebuffer);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result->getID(), 0);
-		GLenum buffers = GL_COLOR_ATTACHMENT0;
-		glDrawBuffers(1, &buffers);
-
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _resolverFramebuffer);
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, _framebuffer);
-		glReadBuffer(static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + idx));
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-		glBlitFramebuffer(0, 0, _size.x, _size.y, 0, 0, _size.x, _size.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-
-		return result;
-	}
-
 	std::shared_ptr<ITexture>& operator[](size_t idx) final {
 		return _attachments[static_cast<GLuint>(idx)];
 	}

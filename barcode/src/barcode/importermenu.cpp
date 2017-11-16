@@ -9,14 +9,14 @@ ImporterMenu::ImporterMenu() : FileTree()
 {
 	this->executableDir = _getExecutableDir();
 	this->_root = nullptr;
-	this->_extWhitelist = {".mATTIC", ".mattic", ".room", ".ROOM", ".prefab", ".PREFAB"};
+	this->_extWhitelist = { ".mATTIC", ".mattic", ".room", ".ROOM", ".prefab", ".PREFAB" };
 	refresh("/assets");
 	_root->clean();
 }
 ImporterMenu::~ImporterMenu()
 {
-	if(_root != nullptr)
-	delete _root;
+	if (_root != nullptr)
+		delete _root;
 }
 void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch* previewBatch, float delta)
 {
@@ -28,16 +28,16 @@ void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch* previewBatch,
 
 	//File tree
 	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.3f, ImGui::GetWindowContentRegionMax().y - 60));
-	if(_root != nullptr)
+	if (_root != nullptr)
 		_root->render(&selectedNode);
-	if (selectedNode != nullptr) 
+	if (selectedNode != nullptr)
 	{
 		if (selectedNode->openInFileExplorer)
 		{
 			openInExplorer(selectedNode->reverseEngineerPath());
 			selectedNode->openInFileExplorer = false;
 		}
-		if (selectedNode->getExt() == ".mATTIC") 
+		if (selectedNode->getExt() == ".mATTIC")
 		{
 			std::string fileName = selectedNode->reverseEngineerPath();
 			previewBatch->objects.clear();

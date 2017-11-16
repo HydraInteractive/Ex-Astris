@@ -302,26 +302,18 @@ void FileTree::Node::_getContentsOfDir(const std::string &directory, std::vector
 	class stat st;
 
 	dir = opendir(directory.c_str());
-	while ((ent = readdir(dir)) != NULL)
-	{
+	if (!dir)
+		return;
+	while ((ent = readdir(dir)) != NULL) {
 		const std::string fileName = ent->d_name;
 		const std::string fullFileName = directory + "/" + fileName;
 
-		if (fileName[0] == '.')
-		{
-
-		}
-		else if (stat(fullFileName.c_str(), &st) != -1)
-		{
+		if (fileName[0] != '.' && stat(fullFileName.c_str(), &st) != -1) {
 			const bool isDir = (st.st_mode & S_IFDIR) != 0;
 			if (isDir)
-			{
 				folders.push_back(fullFileName);
-			}
 			else
-			{
 				files.push_back(fullFileName);
-			}
 		}
 	}
 	closedir(dir);
