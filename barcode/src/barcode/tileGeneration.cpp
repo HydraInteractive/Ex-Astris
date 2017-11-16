@@ -46,6 +46,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 					t->position = _gridToWorld(pos.x, pos.y + 1);
 					t->scale = glm::vec3(1, 1, 1);
 					grid[pos.x][pos.y + 1] = roomC;
+					_spawnRandomizedEnemies(t);
 					_createMapRecursivly(glm::ivec2(pos.x, pos.y + 1));
 				}
 				else
@@ -88,6 +89,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 					t->position = _gridToWorld(pos.x + 1, pos.y);
 					t->scale = glm::vec3(1, 1, 1);
 					grid[pos.x + 1][pos.y] = roomC;
+					_spawnRandomizedEnemies(t);
 					_createMapRecursivly(glm::ivec2(pos.x + 1, pos.y));
 				}
 				else
@@ -130,6 +132,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 					t->position = _gridToWorld(pos.x, pos.y - 1);
 					t->scale = glm::vec3(1, 1, 1);
 					grid[pos.x][pos.y - 1] = roomC;
+					_spawnRandomizedEnemies(t);
 					_createMapRecursivly(glm::ivec2(pos.x, pos.y - 1));
 				}
 				else
@@ -170,6 +173,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 					t->position = _gridToWorld(pos.x - 1, pos.y);
 					t->scale = glm::vec3(1, 1, 1);
 					grid[pos.x - 1][pos.y] = roomC;
+					_spawnRandomizedEnemies(t);
 					_createMapRecursivly(glm::ivec2(pos.x - 1, pos.y));
 				}
 				else
@@ -241,12 +245,74 @@ void TileGeneration::_randomizeRooms() {
 
 }
 
+void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform){
+
+	int randomAliens = rand() % int(MAX_ENEMIES);
+	int randomRobots = rand() % (int(MAX_ENEMIES) - randomAliens);
+
+
+	for (int i = 0; i < randomAliens; i++) {
+		auto alienEntity = world::newEntity("Alien1", world::root());
+		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+		a->damage = 4;
+		a->behaviour->originalRange = 4;
+		a->radius = 1;
+
+		//auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+		//h->maxHP = 80;
+		//h->health = 80;
+	
+		auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+		m->movementSpeed = 8.0f;
+
+		auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+		t->position.x = roomTransform->position.x + i;
+		t->position.y = 0;
+		t->position.z = roomTransform->position.z + i;
+		t->scale = glm::vec3{ 1,1,1 };
+
+		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+		rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+			0, 0, 0.6f, 1.0f);
+		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+	}
+
+	//for (int i = 0; i < randomRobots; i++) {
+	//	auto robotEntity = world::newEntity("Alien1", world::root());
+	//	robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+	//	auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
+	//	a->behaviour = std::make_shared<AlienBehaviour>(robotEntity);
+	//	a->damage = 4;
+	//	a->behaviour->originalRange = 4;
+	//	a->radius = 1;
+	//
+	//
+	//
+	//	auto h = robotEntity->addComponent<Hydra::Component::LifeComponent>();
+	//	//h->maxHP = 80;
+	//
+	//	auto m = robotEntity->addComponent<Hydra::Component::MovementComponent>();
+	//	m->movementSpeed = 8.0f;
+	//	auto t = robotEntity->addComponent<Hydra::Component::TransformComponent>();
+	//	t->position = glm::vec3{ 10 + i, 0, 20 };
+	//	t->scale = glm::vec3{ 2,2,2 };
+	//	//t->rotation = glm::vec3{ 0, 90, 0 };
+	//	auto rgbc = robotEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+	//	rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+	//		0, 0, 0.6f, 1.0f);
+	//	rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+	//}
+
+}
+
 glm::vec3 TileGeneration::_gridToWorld(int x, int y) {
 
 	float xPos = (ROOM_SIZE * x) - ((GRID_SIZE * ROOM_SIZE) / 2) + 17;
 	float yPos = (ROOM_SIZE * y) - ((GRID_SIZE * ROOM_SIZE) / 2) + 17;
 	 
-	glm::vec3 finalPos = glm::vec3(xPos, -5, yPos);
+	glm::vec3 finalPos = glm::vec3(xPos, -7, yPos);
 	return finalPos;
 }
 

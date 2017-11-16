@@ -234,7 +234,7 @@ void Behaviour::executeTransforms()
 
 void Behaviour::resetAnimationOnStart(int animationIndex) {
 	//When starting a new animation, use this to reset the keyframe to 0
-	//This prevents attacks and so fourth start in the middle of the animation
+	//This prevents animations to start in the middle of the animation
 	//animationIndex is which animation should be switched to
 	if (thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->animationIndex != animationIndex) {
 		thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->currentFrame = 0;

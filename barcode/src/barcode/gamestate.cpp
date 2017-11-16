@@ -866,7 +866,7 @@ namespace Barcode {
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
 				weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
-				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Gun.mATTIC");
 				auto t2 = weaponEntity->addComponent<Hydra::Component::TransformComponent>();
 				t2->position = glm::vec3(2, -7, -2);
 				t2->rotation = glm::quat(0, 0, 1, 0);
@@ -882,7 +882,7 @@ namespace Barcode {
 				a->damage = 4;
 				a->behaviour->originalRange = 4;
 				a->radius = 1;
-
+		
 				auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 				h->maxHP = 80;
 				h->health = 80;

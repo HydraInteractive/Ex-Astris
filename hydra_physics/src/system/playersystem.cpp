@@ -82,11 +82,6 @@ void PlayerSystem::tick(float delta) {
 				weaponMesh->animationIndex = 1;
 			else
 				weaponMesh->animationIndex = 0;
-			//Hard coded reload animation
-			//if (keysArray[SDL_SCANCODE_R])
-				//weaponMesh->animationIndex = 3;
-
-			//if !reloading()?
 
 			if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && !ImGui::GetIO().WantCaptureMouse) {
 				//TODO: Make pretty?
