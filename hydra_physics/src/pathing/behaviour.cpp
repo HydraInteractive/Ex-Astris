@@ -62,7 +62,7 @@ bool Behaviour::refreshRequiredComponents()
 	return hasRequiredComponents;
 }
 
-bool Behaviour::checkLOS(int levelmap[MAP_SIZE][MAP_SIZE], glm::vec3 enemyPos, glm::vec3 playerPos)
+bool Behaviour::checkLOS(int levelmap[ROOM_MAP_SIZE][ROOM_MAP_SIZE], glm::vec3 enemyPos, glm::vec3 playerPos)
 {
 	//TODO: ADD COORDINATE VERIFICATION, MAYBE MOVE TO PATHFINDING
 	//New code, not optimal
@@ -126,7 +126,7 @@ unsigned int Behaviour::searchingState(float dt)
 	//	return IDLE;
 	//}
 	pathFinding->intializedStartGoal = false;
-	pathFinding->findPath(thisEnemy.transform->position, targetPlayer.transform->position, map);
+ 	pathFinding->findPath(thisEnemy.transform->position, targetPlayer.transform->position);
 	isAtGoal = false;
 
 
@@ -228,6 +228,11 @@ void Behaviour::executeTransforms()
 	rigidBody->setLinearVelocity(btVector3(movementForce.x, movementForce.y, movementForce.z));
 	
 	thisEnemy.transform->setRotation(rotation);
+}
+
+void Behaviour::setPathMap(bool** map)
+{
+	pathFinding->map = map;
 }
 
 AlienBehaviour::AlienBehaviour(std::shared_ptr<Hydra::World::Entity> enemy) : Behaviour(enemy)
@@ -509,13 +514,13 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 				if (spawnTimer >= 2)
 				{
 					auto alienSpawn = world::newEntity("AlienSpawn", world::root());
-
+					
 					auto a = alienSpawn->addComponent <Hydra::Component::AIComponent>();
-					a->behaviour = std::make_shared<AlienBehaviour>(alienSpawn);
+					//a->behaviour = std::make_shared<AlienBehaviour>(alienSpawn);
 					a->damage = 4;
-					a->behaviour->originalRange = 4;
+					//a->behaviour->originalRange = 4;
 					a->radius = 2.0f;
-
+					
 					auto h = alienSpawn->addComponent<Hydra::Component::LifeComponent>();
 					h->maxHP = 80;
 					h->health = 80;

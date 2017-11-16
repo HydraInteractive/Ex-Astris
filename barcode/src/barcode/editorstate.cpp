@@ -24,7 +24,6 @@ namespace Barcode {
 			_previewBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/previewWindow.vert", "", "assets/shaders/previewWindow.frag", glm::ivec2(720, 720));
 			_previewBatch.output->addTexture(0, Hydra::Renderer::TextureType::u8RGB).finalize();
 		}
-
 		_initWorld();
 
 		_importerMenu = new ImporterMenu();
@@ -46,6 +45,14 @@ namespace Barcode {
 				if (_showExporter)
 					_exporterMenu->refresh("/assets");
 			}
+			if (ImGui::MenuItem("Pathfinding..."))
+			{
+				_showPathMapCreator = !_showPathMapCreator;
+				if (_showPathMapCreator)
+				{
+					_cc->useOrtho = true;
+				}
+			}
 			if (ImGui::MenuItem("Add component...")){
 				_showComponentMenu = !_showComponentMenu;
 				if (_showComponentMenu)
@@ -60,7 +67,8 @@ namespace Barcode {
 				auto t = room->addComponent<Hydra::Component::TransformComponent>();
 				auto r = room->addComponent<Hydra::Component::RoomComponent>();
 
-			}
+			}		
+
 			ImGui::EndMenu();
 		}
 	}
@@ -77,13 +85,23 @@ namespace Barcode {
 		_rendererSystem.tick(delta);
 		_animationSystem.tick(delta);
 
+		const glm::vec3 cameraPos = _playerTransform->position;
+
+		if (_showPathMapCreator)
+		{
+			_cc->getTransformComponent()->position = glm::vec3(0, 40, 0);
+			_cc->cameraPitch = 1.571;
+			_cc->cameraYaw = 0;
+			_cc->movementSpeed = 0;
+			_cc->sensitivity = 0;
+		}
+
 		static bool enableHitboxDebug = true;
 		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
 		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
 		ImGui::Checkbox("Enable SSAO", &MenuState::ssaoEnabled);
 		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);
 
-		const glm::vec3& cameraPos = _playerTransform->position;
 		auto viewMatrix = _cc->getViewMatrix();
 		glm::vec3 rightVector = { viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0] };
 		glm::vec3 upVector = { viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1] };
@@ -120,6 +138,8 @@ namespace Barcode {
 			_importerMenu->render(_showImporter, &_previewBatch.batch, delta);
 		if (_showExporter)
 			_exporterMenu->render(_showExporter);
+		if (_showPathMapCreator)
+			_pathingMenu.render(_showPathMapCreator, delta, _engine->getView()->getSize().x, _engine->getView()->getSize().y);
 		if (_showComponentMenu)
 			_componentMenu->render(_showComponentMenu, _physicsSystem);
 	}
@@ -168,9 +188,9 @@ namespace Barcode {
 
 		{
 			auto playerEntity = world::newEntity("Player", world::root());
-			auto cc = playerEntity->addComponent<Hydra::Component::CameraComponent>();
-			cc->noClip = true;
-			cc->mouseControl = false;
+			auto c = playerEntity->addComponent<Hydra::Component::CameraComponent>();
+			c->noClip = true;
+			c->mouseControl = false;
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
 			_playerTransform = t.get();
 		}

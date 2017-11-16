@@ -45,6 +45,7 @@
 #include <hydra/system/perksystem.hpp>
 #include <hydra/system/animationsystem.hpp>
 #include <hydra/system/pickupsystem.hpp>
+#include <barcode/tileGeneration.hpp>
 
 namespace Barcode {
 	class GameState final : public Hydra::IState {
@@ -87,6 +88,9 @@ namespace Barcode {
 
 		Hydra::Component::CameraComponent* _cc = nullptr;
 		Hydra::Component::TransformComponent* _playerTransform = nullptr;
+
+		TileGeneration* tileGen;
+
 
 		void _initSystem();
 		void _initWorld();

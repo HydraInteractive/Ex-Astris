@@ -45,8 +45,11 @@
 #include <hydra/component/roomcomponent.hpp>
 
 #include <imgui/imgui.h>
+
+#include <barcode/pathingmapmenu.hpp>
 #include <barcode/importermenu.hpp>
 #include <barcode/exportermenu.hpp>
+
 #include <barcode/filetree.hpp>
 #include <barcode/componentmenu.hpp>
 
@@ -72,11 +75,14 @@ namespace Barcode {
 		ComponentMenu* _componentMenu;
 		FileTree* _importerMenu;
 		FileTree* _exporterMenu;
+		PathingMapMenu _pathingMenu;
+		
 
 		bool _showComponentMenu = false;
 		bool _showImporter = false;
 		bool _showExporter = false;
-		
+		bool _showPathMapCreator = false;
+
 		std::string selectedPath;
 
 		Hydra::IEngine* _engine;
