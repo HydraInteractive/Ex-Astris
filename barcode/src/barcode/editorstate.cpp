@@ -98,7 +98,7 @@ namespace Barcode {
 		if (_showExporter)
 			_exporterMenu->render(_showExporter);
 		if (_showComponentMenu)
-			_componentMenu.render(_showComponentMenu);
+			_componentMenu.render(_showComponentMenu, _physicsSystem);
 	}
 	void EditorState::_initSystem() {
 		const std::vector<Hydra::World::ISystem*> systems = { _engine->getDeadSystem(), &_cameraSystem, &_particleSystem, &_abilitySystem, &_aiSystem, &_physicsSystem, &_bulletSystem, &_playerSystem, &_rendererSystem };
@@ -134,9 +134,9 @@ namespace Barcode {
 
 		{
 			auto playerEntity = world::newEntity("Player", world::root());
-			auto c = playerEntity->addComponent<Hydra::Component::CameraComponent>();
-			c->noClip = true;
-			c->mouseControl = false;
+			auto cc = playerEntity->addComponent<Hydra::Component::CameraComponent>();
+			cc->noClip = true;
+			cc->mouseControl = false;
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
 			_playerTransform = t.get();
 		}

@@ -9,6 +9,8 @@
 #include <hydra/view/view.hpp>
 #include <SDL2/SDL.h>
 
+#include <imgui/imguizmo.h>
+
 using namespace Hydra::System;
 
 #define ANG2RAD (3.14159265358979323846/180.0)
@@ -52,19 +54,22 @@ void CameraSystem::tick(float delta) {
 	world::getEntitiesWithComponents<Hydra::Component::CameraComponent>(entities);
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto cc = entities[i]->getComponent<Hydra::Component::CameraComponent>();
-		if (toggleMouse) {
-			cc->mouseControl = !cc->mouseControl;
-			SDL_WarpMouseInWindow(static_cast<SDL_Window*>(view->getHandler()), viewSize.x / 2, viewSize.y / 2);
-		} else if (cc->mouseControl) {
-			glm::ivec2 mousePos;
-			SDL_GetMouseState(&mousePos.x, &mousePos.y);
-			mousePos -= viewSize / 2;
-			SDL_WarpMouseInWindow(static_cast<SDL_Window*>(view->getHandler()), viewSize.x / 2, viewSize.y / 2);
+		if (i == 0) {
+			if (toggleMouse) {
+				cc->mouseControl = !cc->mouseControl;
+				SDL_WarpMouseInWindow(static_cast<SDL_Window*>(view->getHandler()), viewSize.x / 2, viewSize.y / 2);
+			} else if (cc->mouseControl) {
+				glm::ivec2 mousePos;
+				SDL_GetMouseState(&mousePos.x, &mousePos.y);
+				mousePos -= viewSize / 2;
+				SDL_WarpMouseInWindow(static_cast<SDL_Window*>(view->getHandler()), viewSize.x / 2, viewSize.y / 2);
 
-			cc->cameraYaw = cc->cameraYaw + mousePos.x * cc->sensitivity;
-			cc->cameraPitch = std::min(std::max(cc->cameraPitch + mousePos.y * cc->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
+				cc->cameraYaw = cc->cameraYaw + mousePos.x * cc->sensitivity;
+				cc->cameraPitch = std::min(std::max(cc->cameraPitch + mousePos.y * cc->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
+			}
+			SDL_ShowCursor(cc->mouseControl ? SDL_DISABLE : SDL_ENABLE);
+			ImGuizmo::Enable(!cc->mouseControl);
 		}
-		SDL_ShowCursor(cc->mouseControl ? SDL_DISABLE : SDL_ENABLE);
 
 		glm::quat qPitch = glm::angleAxis(cc->cameraPitch, glm::vec3(1, 0, 0));
 		glm::quat qYaw = glm::angleAxis(cc->cameraYaw, glm::vec3(0, 1, 0));

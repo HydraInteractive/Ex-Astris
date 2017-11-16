@@ -1,20 +1,21 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <hydra/world/world.hpp>
+#include <hydra/system/bulletphysicssystem.hpp>
 class ComponentMenu
 {
 public:
 	ComponentMenu();
 	~ComponentMenu();
-	void render(bool &openBool);
+	void render(bool &openBool, Hydra::System::BulletPhysicsSystem& physicsSystem);
 	void refresh();
 	std::shared_ptr<Hydra::World::Entity> getRoomEntity();
-	void configureComponent(bool &openBool, std::string componentType);
+	void configureComponent(bool &openBool, std::string componentType, Hydra::System::BulletPhysicsSystem& physicsSystem);
 private:
 	std::vector<std::weak_ptr<Hydra::World::Entity>> _entities;
 	
 	std::weak_ptr<Hydra::World::Entity> _selectedEntity = std::weak_ptr<Hydra::World::Entity>();
-	std::vector<std::string> _componentTypes = {"Transform", "PointLight"};
+	std::vector<std::string> _componentTypes = {"Transform", "PointLight", "RigidBody"};
 	std::string _selectedString = "";
 	void _menuBar();
 
@@ -35,4 +36,11 @@ private:
 		float linear = 0.045f;
 		float quadratic = 0.0075f;
 	} pointLightInput;
+
+
+	//RigidBody
+	struct RBI
+	{
+		glm::vec3 size = glm::vec3(1.0f, 1.0f, 1.0f);
+	} rigidBodyInput;
 };
