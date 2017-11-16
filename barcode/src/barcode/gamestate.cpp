@@ -296,7 +296,7 @@ namespace Barcode {
 			auto m = playerEntity->addComponent<Hydra::Component::MovementComponent>();
 			auto s = playerEntity->addComponent<Hydra::Component::SoundFxComponent>();
 			auto perks = playerEntity->addComponent<Hydra::Component::PerkComponent>();
-			h->health = h->maxHP = 2000.0f;
+			h->health = h->maxHP = 100.0f;
 			m->movementSpeed = 300.0f;
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
 			_playerTransform = t.get();

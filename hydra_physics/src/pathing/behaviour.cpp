@@ -96,7 +96,7 @@ unsigned int Behaviour::idleState(float dt)
 	//Play the idle animation
 	//if (targetPlayer.transform->position.x > mapOffset.x && targetPlayer.transform->position.x < MAP_SIZE && targetPlayer.transform->position.z > mapOffset.z && targetPlayer.transform->position.z < MAP_SIZE)
 	//{
-	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 50)
+	if (glm::length(thisEnemy.transform->position.x - targetPlayer.transform->position.x) < 50 || glm::length(thisEnemy.transform->position.z - targetPlayer.transform->position.z) < 50)
 	{
 		idleTimer = 0;
 		return SEARCHING;
@@ -114,7 +114,7 @@ unsigned int Behaviour::searchingState(float dt)
 	{
 		return IDLE;
 	}
-	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < range)
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) <= range)
 	{
 		isAtGoal = true;
 		pathFinding->foundGoal = true;
@@ -202,10 +202,10 @@ unsigned int Behaviour::attackingState(float dt)
 	{
 		std::mt19937 rng(rd());
 		std::uniform_int_distribution<> randDmg(thisEnemy.ai->damage - 1, thisEnemy.ai->damage + 2);
-		if (attackTimer > 1.5f)
+		if (attackTimer > 2.5)
 		{
-			//player->applyDamage(randDmg(rng));
-			attackTimer = 0.0f;
+			targetPlayer.life->applyDamage(randDmg(rng));
+			attackTimer = 0;
 		}
 
 		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
@@ -293,7 +293,7 @@ unsigned int AlienBehaviour::attackingState(float dt)
 	{
 		std::mt19937 rng(rd());
 		std::uniform_int_distribution<> randDmg(thisEnemy.ai->damage - 1, thisEnemy.ai->damage + 2);
-		if (attackTimer > 1.5f)
+		if (attackTimer > 2.5)
 		{
 			targetPlayer.life->applyDamage(randDmg(rng));
 			attackTimer = 0;
@@ -326,7 +326,7 @@ void RobotBehaviour::run(float dt)
 {
 	//If all components haven't been found, try to find them and abort if one or more do not exist
 	if (!hasRequiredComponents)
-		if (!refreshRequiredComponents())
+		if (!RobotBehaviour::refreshRequiredComponents())
 			return;
 	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
 	// Same as above.
@@ -390,7 +390,7 @@ unsigned int RobotBehaviour::attackingState(float dt)
 	{
 		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
 		playerDir = glm::normalize(playerDir);
-		thisEnemy.weapon->shoot(thisEnemy.transform->position, -playerDir, glm::quat(), 8.0f);
+		thisEnemy.weapon->shoot(thisEnemy.transform->position, playerDir, glm::quat(), 8.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE, thisEnemy.ai->damage);
 		angle = atan2(playerDir.x, playerDir.z);
 		rotation = glm::angleAxis(angle, glm::vec3(0, 1, 0));
 	}
@@ -494,7 +494,7 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 		case BossPhase::SPITTING:
 		{
 			range = 30.0f;
-			thisEnemy.weapon->shoot(thisEnemy.transform->position, -playerDir, glm::quat(), 15.0f);
+			thisEnemy.weapon->shoot(thisEnemy.transform->position, playerDir, glm::quat(), 15.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE, thisEnemy.ai->damage);
 			if (phaseTimer >= 10)
 			{
 				bossPhase = SPAWNING;
