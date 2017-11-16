@@ -84,9 +84,9 @@ namespace Barcode {
 				_view->finalize();
 
 				if (_newState) {
-					_state = std::move(_newState);
 					_uiRenderer->reset();
 					Hydra::World::World::reset();
+					_state = std::move(_newState);
 					_state->load();
 				}
 			}
