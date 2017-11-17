@@ -124,6 +124,6 @@ private:
 	std::shared_ptr<Node> _startNode;
 	std::shared_ptr<Node> _endNode;
 
-	bool isOutOfBounds(const glm::vec2& vec)const;
+	bool isOutOfBounds(const glm::ivec2& vec)const;
 	void _discoverNode(int x, int z, std::shared_ptr<Node> lastNode);
 };

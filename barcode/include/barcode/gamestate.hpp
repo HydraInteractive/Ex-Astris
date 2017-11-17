@@ -91,7 +91,7 @@ namespace Barcode {
 		Hydra::Component::TransformComponent* _playerTransform = nullptr;
 
 		TileGeneration* tileGen;
-
+		bool** pathfindingMap = nullptr;
 
 		void _initSystem();
 		void _initWorld();

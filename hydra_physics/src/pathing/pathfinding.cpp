@@ -26,9 +26,7 @@ void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 	enemyY = currentPos.y;
 
 	if (map == nullptr)
-	{
 		return;
-	}
 	if (!intializedStartGoal) 
 	{
 		_openList.clear();
@@ -39,9 +37,7 @@ void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 		MapVec mapTargetPos = worldToMapCoords(targetPos);
 		//If either position is out of bounds, abort
 		if (isOutOfBounds(mapCurrentPos.baseVec) || isOutOfBounds(mapTargetPos.baseVec))
-		{
 			return;
-		}
 		_startNode = std::make_shared<Node>(mapCurrentPos.x(), mapCurrentPos.z(), nullptr);
 		_endNode = std::make_shared<Node>(mapTargetPos.x(), mapTargetPos.z(), nullptr);
 
@@ -123,9 +119,13 @@ glm::vec3 PathFinding::nextPathPos(const glm::vec3& pos, const float& radius)
 	return nextPos;
 }
 
-bool PathFinding::isOutOfBounds(const glm::vec2& vec) const
+bool PathFinding::isOutOfBounds(const glm::ivec2& vec) const
 {
 	if (vec.x > WORLD_MAP_SIZE || vec.y > WORLD_MAP_SIZE || vec.x < 0 || vec.y < 0)
+	{
+		return true;
+	}
+	if (map[vec.x][vec.y] == 0)
 	{
 		return true;
 	}

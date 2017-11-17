@@ -39,27 +39,26 @@ void Hydra::Component::RoomComponent::deserialize(nlohmann::json & json)
 	openWalls[SOUTH] = json.value<bool>("openS", false);
 	openWalls[WEST] = json.value<bool>("openW", false);
 
-	if (json.value<unsigned int>("mapSize", 0) == ROOM_MAP_SIZE)
-	{
+	//if (json.value<unsigned int>("mapSize", 0) == ROOM_MAP_SIZE)
+	//{
+	//	for (size_t i = 0; i < ROOM_MAP_SIZE; i++)
+	//	{
+	//		for (size_t j = 0; j < ROOM_MAP_SIZE; j++)
+	//		{
+	//			localMap[i][j] = json["map"][i][j].get<bool>();
+	//		}
+	//	}
+	//}
+	//else
+	//{
 		for (size_t i = 0; i < ROOM_MAP_SIZE; i++)
 		{
 			for (size_t j = 0; j < ROOM_MAP_SIZE; j++)
 			{
-				localMap[i][j] = json["map"][i][j].get<bool>();
+				localMap[i][j] = true;
 			}
 		}
-	}
-	else
-	{
-		for (size_t i = 0; i < ROOM_MAP_SIZE; i++)
-		{
-			for (size_t j = 0; j < ROOM_MAP_SIZE; j++)
-			{
-				localMap[i][j] = false;
-			}
-		}
-	}
-
+	//}
 }
 
 void Hydra::Component::RoomComponent::registerUI()
