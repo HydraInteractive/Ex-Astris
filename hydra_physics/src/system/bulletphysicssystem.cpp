@@ -12,6 +12,7 @@
 #include <memory>
 
 #include <hydra/component/rigidbodycomponent.hpp>
+#include <hydra/component/ghostobjectcomponent.hpp>
 #include <hydra/component/particlecomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
@@ -85,6 +86,16 @@ void BulletPhysicsSystem::disable(Hydra::Component::RigidBodyComponent* componen
 	_data->dynamicsWorld->removeRigidBody(static_cast<btRigidBody*>(component->getRigidBody()));
 	component->_handler = nullptr;
 }
+
+void Hydra::System::BulletPhysicsSystem::enable(Hydra::Component::GhostObjectComponent * component){
+	_data->dynamicsWorld->addCollisionObject(component->ghostObject);
+}
+
+void Hydra::System::BulletPhysicsSystem::disable(Hydra::Component::GhostObjectComponent * component){
+	_data->dynamicsWorld->removeCollisionObject(component->ghostObject);
+}
+
+
 
 void BulletPhysicsSystem::tick(float delta) {
 	_data->dynamicsWorld->stepSimulation(delta,3);

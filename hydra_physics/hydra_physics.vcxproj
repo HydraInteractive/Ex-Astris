@@ -92,6 +92,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\component\ghostobjectcomponent.cpp" />
     <ClCompile Include="src\system\pickupsystem.cpp" />
     <ClCompile Include="src\abilities\abilities.cpp" />
     <ClCompile Include="src\abilities\grenadecomponent.cpp" />
@@ -123,6 +124,7 @@
     <ClInclude Include="include\hydra\abilities\grenadecomponent.hpp" />
     <ClInclude Include="include\hydra\abilities\minecomponent.hpp" />
     <ClInclude Include="include\hydra\component\aicomponent.hpp" />
+    <ClInclude Include="include\hydra\component\ghostobjectcomponent.hpp" />
     <ClInclude Include="include\hydra\component\perkcomponent.hpp" />
     <ClInclude Include="include\hydra\component\bulletcomponent.hpp" />
     <ClInclude Include="include\hydra\component\componentmanager_physics.hpp" />
