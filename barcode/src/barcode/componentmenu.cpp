@@ -171,7 +171,7 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 		}
 	}
 
-	else if (componentType == "GhostObject") {
+	else if (componentType == "StaticObject") {
 		if (_selectedEntity->hasComponent<Hydra::Component::GhostObjectComponent>())
 			ImGui::Text("The entity selected already has this component");
 		else {
