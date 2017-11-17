@@ -16,7 +16,7 @@
 using world = Hydra::World::World;
 ComponentMenu::ComponentMenu()
 {
-	_entities = std::vector<std::weak_ptr<Hydra::World::Entity>>();
+	glm::vec3 size = glm::vec3(1.0f, 1.0f, 1.0f);
 }
 
 ComponentMenu::~ComponentMenu()
@@ -24,28 +24,20 @@ ComponentMenu::~ComponentMenu()
 
 }
 
-void ComponentMenu::render(bool &openBool)
+void ComponentMenu::render(bool &openBool, Hydra::System::BulletPhysicsSystem& physicsSystem)
 {
 	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiSetCond_Once);
 	ImGui::Begin("Add component", &openBool, ImGuiWindowFlags_MenuBar);
 	_menuBar();
+
 	ImGui::Columns(3, "Columns");
 	ImGui::Text("Select entity");
-	for (size_t i = 0; i < _entities.size(); i++)
-	{
-		if (_entities[i].expired())
-		{
-			_entities.erase(_entities.begin() + i);
-		}
-		else if (ImGui::MenuItem(_entities[i].lock()->name.c_str(), "", (_selectedEntity.lock() == _entities[i].lock())))
-		{
-			_selectedEntity = _entities[i];
-			_selectedString = "";
-		}
-	}
+	if(getRoomEntity() != nullptr)
+		_renderEntity(getRoomEntity().get());
+
 	ImGui::NextColumn();
 	ImGui::Text("Select component type");
-	if (!_selectedEntity.expired())
+	if (_selectedEntity != nullptr)
 	{
 		for (size_t i = 0; i < _componentTypes.size(); i++)
 		{
@@ -58,23 +50,17 @@ void ComponentMenu::render(bool &openBool)
 
 	ImGui::NextColumn();
 	ImGui::Text("Configure component");
-	if (_selectedString != "" && !_selectedEntity.expired())
+	if (_selectedString != "" && _selectedEntity != nullptr)
 	{
-		configureComponent(openBool, _selectedString);
+		configureComponent(openBool, _selectedString, physicsSystem);
 	}
 	ImGui::End();
 }
 
 void ComponentMenu::refresh()
 {
-	_entities.clear();
-	auto& entityIDs = getRoomEntity()->children;
-	for (size_t i = 0; i < entityIDs.size(); i++)
-	{
-		_entities.push_back(world::getEntity(entityIDs[i]));
-	}
-	_selectedEntity = std::weak_ptr<Hydra::World::Entity>();
 	_selectedString = "";
+	_selectedEntity = nullptr;
 }
 
 std::shared_ptr<Hydra::World::Entity> ComponentMenu::getRoomEntity()
@@ -88,15 +74,15 @@ std::shared_ptr<Hydra::World::Entity> ComponentMenu::getRoomEntity()
 	return nullptr;
 }
 
-void ComponentMenu::configureComponent(bool &openBool, std::string componentType)
+void ComponentMenu::configureComponent(bool &openBool, std::string componentType, Hydra::System::BulletPhysicsSystem& physicsSystem)
 {
 	if (componentType == "Transform")
 	{
-		if (_selectedEntity.lock()->hasComponent<Hydra::Component::TransformComponent>())
+		if (_selectedEntity->hasComponent<Hydra::Component::TransformComponent>())
 		{
 			ImGui::Text("The entity selected already has this component");
 		}
-		else
+		else 
 		{
 			ImGui::BeginChild("Transform", ImVec2(ImGui::GetWindowContentRegionWidth() *0.3f, ImGui::GetWindowContentRegionMax().y - 160), true);
 			ImGui::DragFloat3("Position", glm::value_ptr(transformInput.position));
@@ -107,20 +93,20 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 			ImGui::BeginChild("Confirm", ImVec2(ImGui::GetWindowContentRegionWidth() *0.3f, 25));
 			if (ImGui::Button("Finish"))
 			{
-				auto t = _selectedEntity.lock()->addComponent<Hydra::Component::TransformComponent>();
+				auto t = _selectedEntity->addComponent<Hydra::Component::TransformComponent>();
 				t->position = transformInput.position;
 				t->scale = transformInput.scale;
 				t->rotation = transformInput.rotation;
 				t->ignoreParent = transformInput.ignoreParent;
 				transformInput = TI();
-				openBool = false;
+				//openBool = false;
 			}
 			ImGui::EndChild();
 		}
 	}
 	else if (componentType == "PointLight")
 	{
-		if (_selectedEntity.lock()->hasComponent<Hydra::Component::PointLightComponent>())
+		if (_selectedEntity->hasComponent<Hydra::Component::PointLightComponent>())
 		{
 			ImGui::Text("The entity selected already has this component");
 		}
@@ -135,18 +121,50 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 			ImGui::BeginChild("Confirm", ImVec2(ImGui::GetWindowContentRegionWidth() *0.3f, 25));
 			if (ImGui::Button("Finish"))
 			{
-				auto p = _selectedEntity.lock()->addComponent<Hydra::Component::PointLightComponent>();
+				auto p = _selectedEntity->addComponent<Hydra::Component::PointLightComponent>();
 				p->color = pointLightInput.colour;
 				p->constant = pointLightInput.constant;
 				p->linear = pointLightInput.linear;
 				p->quadratic = pointLightInput.quadratic;
 				pointLightInput = PLI();
-				openBool = false;
+				//openBool = false;
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("Reset"))
 			{
 
+			}
+			ImGui::EndChild();
+		}
+	}
+
+	else if (componentType == "RigidBody")
+	{
+		if (_selectedEntity->hasComponent<Hydra::Component::RigidBodyComponent>())
+		{
+			ImGui::Text("The entity selected already has this component");
+		}
+		else
+		{
+			ImGui::BeginChild("RigidBody", ImVec2(ImGui::GetWindowContentRegionWidth() *0.3f, ImGui::GetWindowContentRegionMax().y - 160), true);
+			ImGui::DragFloat3("Size", glm::value_ptr(rigidBodyInput.size), 0.01f);
+			ImGui::DragFloat("Mass", &rigidBodyInput.mass, 0.01f);
+			ImGui::DragFloat("Linear Dampening", &rigidBodyInput.linearDampening, 0.01f);
+			ImGui::DragFloat("Angular Dampening", &rigidBodyInput.angularDampening, 0.01f);
+			ImGui::DragFloat("Friction", &rigidBodyInput.friction, 0.01f);
+			ImGui::DragFloat("Rolling Friction", &rigidBodyInput.rollingFriction, 0.01f);
+
+			//TODO: Selection box for picking collision type
+			ImGui::EndChild();
+			ImGui::BeginChild("Confirm", ImVec2(ImGui::GetWindowContentRegionWidth() *0.3f, 25));
+			if (ImGui::Button("Finish"))
+			{
+				auto t = _selectedEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+				//physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(t->scale * 10.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_MISC_OBJECT, 10, 0, 0, 1.0f, 1.0f);
+				t->createBox(rigidBodyInput.size/2.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, rigidBodyInput.mass);
+				physicsSystem.enable(t.get());
+				rigidBodyInput = RBI();
+				//openBool = false;
 			}
 			ImGui::EndChild();
 		}
@@ -166,5 +184,25 @@ void ComponentMenu::_menuBar()
 			ImGui::EndMenu();
 		}
 		ImGui::EndMenuBar();
+	}
+}
+
+void ComponentMenu::_renderEntity(Hydra::World::Entity* entity)
+{
+	if (ImGui::IsItemClicked())
+	{
+		_selectedEntity = entity;
+		_selectedString = "";
+	}
+	ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
+	auto entityIDs = entity->children;
+	for (size_t i = 0; i < entityIDs.size(); i++)
+	{
+		auto child = world::getEntity(entityIDs[i]);
+		if (ImGui::TreeNodeEx(child.get(), nodeFlags | ((_selectedEntity == child.get()) ? ImGuiTreeNodeFlags_Selected : 0), "%s", child->name.c_str()))
+		{
+			_renderEntity(child.get());
+			ImGui::TreePop();
+		}
 	}
 }

@@ -196,7 +196,64 @@ void FileTree::Node::clean()
 		}
 	}
 }
-
+void FileTree::Node::render(Node** selectedNode)
+{
+	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
+	//TODO: Folder icon opening
+	auto label = ICON_FA_FOLDER " %s";
+	if (ImGui::TreeNodeEx(this, node_flags, label, _name.c_str()))
+	{
+		//Does not work
+		label = ICON_FA_FOLDER_OPEN " %s";
+		if (ImGui::IsItemClicked())
+		{
+			(*selectedNode) = this;
+		}
+		popupMenu(this);
+		//Child folders
+		for (size_t i = 0; i < this->_subfolders.size(); i++)
+		{
+			_subfolders[i]->render(selectedNode);
+		}
+		//Files
+		for (size_t i = 0; i < this->_files.size(); i++)
+		{
+			std::string ext = this->_files[i]->getExt();
+			if (ext == ".mattic" || ext == ".mATTIC")
+			{
+				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBE " %s", _files[i]->_name.c_str());
+			}
+			else if (ext == ".room" || ext == ".ROOM")
+			{
+				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_MAP " %s", _files[i]->_name.c_str());
+			}
+			else if (ext == ".prefab" || ext == ".PREFAB")
+			{
+				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBES " %s", _files[i]->_name.c_str());
+			}
+			else
+			{
+				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_QUESTION_CIRCLE_O " %s", _files[i]->_name.c_str());
+			}
+			if (ImGui::IsItemClicked())
+			{
+				(*selectedNode) = _files[i];
+			}
+			popupMenu(_files[i]);
+			ImGui::TreePop();
+		}
+		ImGui::TreePop();
+	}
+}
+void FileTree::Node::popupMenu(Node* currentNode)
+{
+	if (ImGui::BeginPopupContextItem(currentNode->_name.c_str()))
+	{
+		//Right-click menu items
+		ImGui::MenuItem("Show in File Explorer", "", &currentNode->openInFileExplorer);
+		ImGui::EndPopup();
+	}
+}
 void FileTree::Node::_getContentsOfDir(const std::string &directory, std::vector<std::string> &files, std::vector<std::string> &folders, const std::vector<std::string> &extWhitelist) const
 {
 #ifdef _WIN32 ///Windows

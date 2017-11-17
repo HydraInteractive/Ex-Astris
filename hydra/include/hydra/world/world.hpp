@@ -321,7 +321,7 @@ namespace Hydra::World {
 
 		static void reset();
 
-		inline static std::shared_ptr<Entity> newEntity(const std::string& name, std::shared_ptr<Entity>& parent) {
+		inline static std::shared_ptr<Entity> newEntity(const std::string& name, std::shared_ptr<Entity> parent) {
 			return newEntity(name, parent->id);
 		}
 		inline static std::shared_ptr<Entity> newEntity(const std::string& name, Entity* parent) {

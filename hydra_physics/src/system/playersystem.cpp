@@ -51,9 +51,7 @@ void PlayerSystem::tick(float delta) {
 		movement->direction = -glm::vec3(glm::vec4{ 0, 0, 1, 0 } *rotation);
 
 		{
-			//movement->velocity = glm::vec3{0};
-
-			glm::vec3 forward = glm::normalize(glm::vec3(movement->direction.x, 0, movement->direction.z));
+			glm::vec3 forward = glm::normalize(glm::vec3(movement->direction.x, 0, movement->direction.z));			
 
 			glm::vec3 rightDir = glm::vec3(glm::vec4{ 1, 0, 0, 0 } *rotation);
 			glm::vec3 right = glm::normalize(glm::vec3(rightDir.x, 0, rightDir.z));
@@ -61,9 +59,8 @@ void PlayerSystem::tick(float delta) {
 			if (keysArray[SDL_SCANCODE_W])
 				movement->velocity += movement->movementSpeed * forward * delta;
 
-			if (keysArray[SDL_SCANCODE_R]) {
+			if (keysArray[SDL_SCANCODE_R])
 				weapon->_isReloading = true;
-			}
 
 			if (keysArray[SDL_SCANCODE_S])
 				movement->velocity -= movement->movementSpeed * forward * delta;
@@ -83,7 +80,7 @@ void PlayerSystem::tick(float delta) {
 			else
 				weaponMesh->animationIndex = 0;
 
-			if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && !ImGui::GetIO().WantCaptureMouse) {
+			if (camera->mouseControl && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
 				//TODO: Make pretty?
 				glm::quat bulletOrientation = glm::angleAxis(-camera->cameraYaw, glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->cameraPitch, glm::vec3(1, 0, 0)));
 
@@ -115,27 +112,20 @@ void PlayerSystem::tick(float delta) {
 
 		float speed = glm::length(movement->velocity);
 		if (speed > 10)
-		{
 			movement->velocity *= 10 / speed;
-		}
 
 		if (weapon->_isReloading)
 			weapon->_isReloading = weapon->reload(delta);
 
-		float* yaw = &camera->cameraYaw;
-		float* pitch = &camera->cameraPitch;
-		*yaw = lerp(*yaw, (*yaw + weapon->_dyaw), 0.5);
-		*pitch = lerp(*pitch, (*pitch + weapon->_dpitch), 0.5);
+		float& yaw = camera->cameraYaw;
+		float& pitch = camera->cameraPitch;
+		yaw = lerp(yaw, (yaw + weapon->_dyaw), 0.5);
+		pitch = lerp(pitch, (pitch + weapon->_dpitch), 0.5);
 		weapon->_dyaw /= 2;
 		weapon->_dpitch /= 2;
 
 		btVector3 vel = rbc->getLinearVelocity();
 		rbc->setLinearVelocity(btVector3(movement->velocity.x,vel.y(),movement->velocity.z));
-
-		//if (player->firstPerson)
-		//	camera->position = transform->position;
-		//else
-		//	camera->position = transform->position + glm::vec3(0, 3, 0) + glm::vec3(glm::vec4{-4, 0, 4, 0} * rotation);
 
 		transform->dirty = true;
 

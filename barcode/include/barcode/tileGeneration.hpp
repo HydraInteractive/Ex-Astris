@@ -19,21 +19,18 @@
 #include <barcode/exportermenu.hpp>
 
 #include <barcode/filetree.hpp>
-#include <hydra/component/meshcomponent.hpp>
-#include <hydra/component/cameracomponent.hpp>
-#include <hydra/component/playercomponent.hpp>
-#include <hydra/component/particlecomponent.hpp>
-#include <hydra/component/aicomponent.hpp>
-#include <hydra/component/lightcomponent.hpp>
-#include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/pickupcomponent.hpp>
+#include <hydra/component/transformcomponent.hpp>
+#include <hydra/component/meshcomponent.hpp>
+#include <hydra/component/aicomponent.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
 
 #include <fstream>
 #include <json.hpp>
+
 #define GRID_SIZE 5
 #define ROOM_SIZE 34
 #define MAX_ENEMIES 4
@@ -42,8 +39,9 @@
 class TileGeneration
 {
 public:
-	std::shared_ptr<Hydra::Component::RoomComponent> grid[GRID_SIZE][GRID_SIZE];
-
+	int maxRooms = 1;
+	std::shared_ptr<Hydra::Component::RoomComponent> roomGrid[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
+	bool** pathfindingMap;
 	TileGeneration(std::string middleRoomPath);
 	~TileGeneration();
 
@@ -57,12 +55,12 @@ private:
 	glm::vec2 localXY;
 	void _setUpMiddleRoom(std::string middleRoomPath);
 	void _createMapRecursivly(glm::ivec2 pos);
-	void _setupGrid();
+	void _insertPathFindingMap(glm::ivec2 room);
 	void _obtainRoomFiles();
 	void _randomizeRooms();
 	void _spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
 	void _spawnPickUps(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
 	glm::vec3 _gridToWorld(int x, int y);
 	bool _checkAdjacents(int x, int y, std::shared_ptr<Hydra::Component::RoomComponent>& r);
-	
 };
+

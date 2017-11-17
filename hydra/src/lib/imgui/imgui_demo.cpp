@@ -542,7 +542,7 @@ void ImGui::ShowTestWindow(bool* p_open)
         }
 
         static bool check = true;
-        ImGui::Checkbox("checkbox", &check);
+		ImGui::Checkbox("checkbox", &check);
 
         static int e = 0;
         ImGui::RadioButton("radio a", &e, 0); ImGui::SameLine();

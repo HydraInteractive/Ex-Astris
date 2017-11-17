@@ -22,6 +22,12 @@ using namespace Hydra::World;
 namespace Hydra::Component {
 
 	struct HYDRA_GRAPHICS_API CameraComponent final : public IComponent<CameraComponent, ComponentBits::Camera> {
+		bool useOrtho = false;
+		float orthoLeft = -17.0f;
+		float orthoRight = 17.0f;
+		float orthoBottom = -17.0f;
+		float orthoTop = 17.0f;
+		
 		float fov = 90.0f;
 		float zNear = 0.1f;
 		float zFar = 75.0f;
@@ -70,7 +76,17 @@ namespace Hydra::Component {
 
 		// TODO: Cache these?
 		inline glm::mat4 getViewMatrix() { return glm::translate(glm::mat4_cast(getTransformComponent()->rotation), -getTransformComponent()->position); }
-		inline glm::mat4 getProjectionMatrix() const { return glm::perspective(glm::radians(fov), aspect, zNear, zFar); }
+		inline glm::mat4 getProjectionMatrix() const 
+		{ 
+			if (useOrtho)
+			{
+				return glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, zNear, zFar);
+			}
+			else
+			{
+				return glm::perspective(glm::radians(fov), aspect, zNear, zFar);
+			}
+		}
 		
 		inline std::shared_ptr<Hydra::Component::TransformComponent> getTransformComponent() { return Hydra::World::World::getEntity(entityID)->getComponent<Hydra::Component::TransformComponent>();}
 	};

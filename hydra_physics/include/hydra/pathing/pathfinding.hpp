@@ -12,10 +12,9 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <memory>
-#define MAP_SIZE 128 //The size in both X and Z of the map(/room?)
-#define MAP_SCALE 0.5f //How many world coordinates the map coordinates represent
 #include <math.h>
 #include <algorithm>
+#include <hydra/component/roomcomponent.hpp>
 
 class HYDRA_PHYSICS_API PathFinding
 {
@@ -92,13 +91,20 @@ public:
 	PathFinding();
 	virtual ~PathFinding();
 
-	void findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, int(&map)[MAP_SIZE][MAP_SIZE]);
+	bool intializedStartGoal;
+	bool foundGoal;
+	std::vector<glm::vec3> _pathToEnd;
+	bool** map = nullptr;
+
+	void findPath(const glm::vec3& currentPos, const glm::vec3& targetPos);
 	glm::vec3 nextPathPos(const glm::vec3& pos, const float& radius);
 	MapVec worldToMapCoords(const glm::vec3& worldPos) const;
 	glm::vec3 mapToWorldCoords(const MapVec& mapPos) const;
+
 	bool intializedStartGoal;
 	bool foundGoal;
 	float enemyY = 0.0f;
+
 	struct {
 		bool operator()(const std::shared_ptr<Node>& _Left, const std::shared_ptr<Node>& _Right) const
 		{
@@ -113,7 +119,7 @@ public:
 			return (_Left->getF() > _Right->getF());
 		}
 	} comparisonFunctor;
-	std::vector<glm::vec3> _pathToEnd;
+	
 private:
 	std::vector<std::shared_ptr<Node>> _visitedList;
 	std::vector<std::shared_ptr<Node>> _openList;
@@ -121,5 +127,5 @@ private:
 	std::shared_ptr<Node> _endNode;
 
 	bool isOutOfBounds(const glm::vec2& vec)const;
-	void _discoverNode(int x, int z, std::shared_ptr<Node> lastNode, int(&map)[MAP_SIZE][MAP_SIZE]);
+	void _discoverNode(int x, int z, std::shared_ptr<Node> lastNode);
 };
