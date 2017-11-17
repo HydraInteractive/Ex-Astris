@@ -14,5 +14,5 @@ void main() {
 	//if(charTex.a < 0.5f)
 	//	discard;
 
-	fragOutput = vec4(charTex.xyz * inData.color, 1);
+	fragOutput = vec4(charTex.xyz + inData.color, 1);
 }

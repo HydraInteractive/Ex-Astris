@@ -363,17 +363,18 @@ public:
 			size_t nrOfChars = batch.textInfo.size();
 			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
 			for (size_t i = 0; i < nrOfChars; i += maxPerLoop) {
-				size_t amount = std::min(size - i, maxPerLoop);
+				size_t amount = std::min(nrOfChars - i, maxPerLoop);
+
 				glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
 				glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
-				glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &kv.second[i]);
+				glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::mat4), &kv.second[i]);
 
 				glBindBuffer(GL_ARRAY_BUFFER, _textBuffer);
 				glBufferData(GL_ARRAY_BUFFER, _textBufferSize, nullptr, GL_STREAM_DRAW);
-				glBufferSubData(GL_ARRAY_BUFFER, 0, nrOfChars * sizeof(Hydra::Renderer::CharRenderInfo), &batch.textInfo[i]);
+				glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(Hydra::Renderer::CharRenderInfo), &batch.textInfo[i]);
 
 				glBindVertexArray(mesh->getID());
-				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(nrOfChars));
+				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
 			}
 		}
 	}
