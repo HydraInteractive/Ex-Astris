@@ -289,16 +289,15 @@ namespace Barcode {
 			physicsBox->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BigMonitor.mATTIC");
 		}
 
-		for (size_t i = 0; i < 1; i++) {
+		/*for (size_t i = 0; i < 1; i++) {
 			auto pickUpEntity = world::newEntity("PickUp", world::root());
 			auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(-5, -5.0f, -4.0f);
 			pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/GreenCargoBox.mATTIC");
 			pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
 			auto goc = pickUpEntity->addComponent<Hydra::Component::GhostObjectComponent>();
-			goc->createBox(glm::vec3(3,3,3));
-			_physicsSystem.enable(static_cast<Hydra::Component::GhostObjectComponent*>(goc.get()));
-		}
+			goc->createBox(glm::vec3(1,1,1));
+		}*/
 
 		{
 			auto playerEntity = world::newEntity("Player", world::root());
@@ -440,6 +439,9 @@ namespace Barcode {
 					for (auto& rb : Hydra::Component::RigidBodyComponent::componentHandler->getActiveComponents()) {
 						_engine->log(Hydra::LogLevel::normal, "Enabling bullet for %s", world::getEntity(rb->entityID)->name.c_str());
 						_physicsSystem.enable(static_cast<Hydra::Component::RigidBodyComponent*>(rb.get()));
+					}
+					for (auto& goc : Hydra::Component::GhostObjectComponent::componentHandler->getActiveComponents()) {
+						_physicsSystem.enable(static_cast<Hydra::Component::GhostObjectComponent*>(goc.get()));
 					}
 				}
 			}
