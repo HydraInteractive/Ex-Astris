@@ -96,7 +96,7 @@ public:
 	Material& getMaterial() final { return _material; }
 
 	bool hasAnimation() final { return _meshHasAnimation; }
-	glm::mat4 getTransformationMatrices(int currAnimIdx, int joint, int currentFrame) final { return _finishedMatrices[currAnimIdx][joint]->finishedTransformMat[currentFrame - 1]; }
+	glm::mat4 getTransformationMatrices(int currAnimIdx, int joint, int currentFrame) final { return _finishedMatrices[currAnimIdx][joint]->finishedTransformMat[currentFrame]; }
 	int getNrOfJoints(int currAnimIdx) final { return _finishedMatrices[currAnimIdx][0]->nrOfClusters; }
 	int getCurrentKeyframe() final { return _currentFrame; }
 	int getMaxFramesForAnimation(int currAnimIdx) final { return _finishedMatrices[currAnimIdx][0]->nrOfKeys; }

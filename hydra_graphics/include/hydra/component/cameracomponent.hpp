@@ -17,16 +17,17 @@
 
 #include <hydra/component/transformcomponent.hpp>
 
-#include <SDL2/SDL.h>
-
 using namespace Hydra::World;
 
 namespace Hydra::Component {
 
 	struct HYDRA_GRAPHICS_API CameraComponent final : public IComponent<CameraComponent, ComponentBits::Camera> {
-		//glm::vec3 position = glm::vec3{0, 0, 0};
-		//glm::quat orientation = glm::quat();
-
+		bool useOrtho = false;
+		float orthoLeft = -17.0f;
+		float orthoRight = 17.0f;
+		float orthoBottom = -17.0f;
+		float orthoTop = 17.0f;
+		
 		float fov = 90.0f;
 		float zNear = 0.1f;
 		float zFar = 75.0f;
@@ -37,9 +38,12 @@ namespace Hydra::Component {
 		float cameraPitch = 0.0f;
 		bool mouseControl = true;
 
+		bool noClip = false;
+		float movementSpeed = 10; // Only for noClip
+		float shiftMultiplier = 5; // Only for noClip
+
 		enum {
-			TOP = 0, BOTTOM, LEFT, RIGHT, NEARP, FARP,
-			OUTSIDE, INTERSECT, INSIDE
+			TOP = 0, BOTTOM, LEFT, RIGHT, NEARP, FARP
 		};
 
 		struct Plane {
@@ -72,7 +76,17 @@ namespace Hydra::Component {
 
 		// TODO: Cache these?
 		inline glm::mat4 getViewMatrix() { return glm::translate(glm::mat4_cast(getTransformComponent()->rotation), -getTransformComponent()->position); }
-		inline glm::mat4 getProjectionMatrix() const { return glm::perspective(glm::radians(fov), aspect, zNear, zFar); }
+		inline glm::mat4 getProjectionMatrix() const 
+		{ 
+			if (useOrtho)
+			{
+				return glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, zNear, zFar);
+			}
+			else
+			{
+				return glm::perspective(glm::radians(fov), aspect, zNear, zFar);
+			}
+		}
 		
 		inline std::shared_ptr<Hydra::Component::TransformComponent> getTransformComponent() { return Hydra::World::World::getEntity(entityID)->getComponent<Hydra::Component::TransformComponent>();}
 	};

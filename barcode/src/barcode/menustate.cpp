@@ -10,6 +10,10 @@
 #include <imgui/imgui.h>
 
 namespace Barcode {
+	bool MenuState::ssaoEnabled = true;
+	bool MenuState::glowEnabled = true;
+	bool MenuState::shadowEnabled = true;
+
 	MenuState::MenuState() : _engine(Hydra::IEngine::getInstance()) {}
 
 	void MenuState::load() {
@@ -355,7 +359,8 @@ namespace Barcode {
 				ImGui::Begin("Main menu 3 21", nullptr, windowFlags);
 				{
 					auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/shadowsSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/shadowsTransparent.png")->getID());
-					ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
+					if(ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
+						shadowEnabled = !shadowEnabled;
 				}
 				ImGui::End();
 			}
@@ -365,8 +370,10 @@ namespace Barcode {
 				ImGui::Begin("Main menu 3 22", nullptr, windowFlags);
 				{
 					auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/ssaoSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/ssaoTransparent.png")->getID());
-					ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
+					if (ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
+						ssaoEnabled = !ssaoEnabled;
 				}
+
 				ImGui::End();
 			}
 			{
@@ -375,7 +382,8 @@ namespace Barcode {
 				ImGui::Begin("Main menu 3 23", nullptr, windowFlags);
 				{
 					auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/glowSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/glowTransparent.png")->getID());
-					ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
+					if(ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
+						glowEnabled = !glowEnabled;
 				}
 				ImGui::End();
 			}

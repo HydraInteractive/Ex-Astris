@@ -18,33 +18,21 @@
 #include <barcode/exportermenu.hpp>
 
 #include <barcode/filetree.hpp>
-#include <hydra/component/meshcomponent.hpp>
-#include <hydra/component/cameracomponent.hpp>
-#include <hydra/component/playercomponent.hpp>
-#include <hydra/component/particlecomponent.hpp>
-#include <hydra/component/aicomponent.hpp>
-#include <hydra/component/lightcomponent.hpp>
-#include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
 
-#include <hydra/io/input.hpp>
-
 #include <fstream>
 #include <json.hpp>
-#define GRID_SIZE 7
-#define ROOM_SIZE 34
 
 class TileGeneration
 {
 public:
-	std::shared_ptr<Hydra::Component::RoomComponent> grid[GRID_SIZE][GRID_SIZE];
-
+	int maxRooms = 1;
+	std::shared_ptr<Hydra::Component::RoomComponent> roomGrid[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
+	bool** pathfindingMap;
 	TileGeneration(std::string middleRoomPath);
 	~TileGeneration();
-
-	int maxRooms = 1;
 
 private:
 	std::vector<std::string> _roomFileNames;
@@ -52,9 +40,10 @@ private:
 
 	void _setUpMiddleRoom(std::string middleRoomPath);
 	void _createMapRecursivly(glm::ivec2 pos);
+	void _insertPathFindingMap(glm::ivec2 room);
 	void _setupGrid();
 	void _obtainRoomFiles();
 	glm::vec3 _gridToWorld(int x, int y);
 	bool _checkAdjacents(int x, int y, std::shared_ptr<Hydra::Component::RoomComponent>& r);
-
 };
+

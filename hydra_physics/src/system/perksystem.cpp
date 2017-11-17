@@ -58,6 +58,9 @@ void PerkSystem::tick(float delta) {
 	entities.clear();
 }
 void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const std::shared_ptr<Hydra::World::Entity>& playerEntity) {
+	auto perk = playerEntity->getComponent<PerkComponent>();
+	perk->activePerks.push_back(newPerk);
+
 	switch (newPerk){
 	case Hydra::Component::PerkComponent::PERK_MAGNETICBULLETS:	{
 		auto weapon = playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>();
@@ -70,22 +73,18 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 		break;
 	}
 	case Hydra::Component::PerkComponent::PERK_GRENADE: {
-		auto perk = playerEntity->getComponent<PerkComponent>();
 		perk->activeAbilities.push_back(new GrenadeAbility());
 		break;
 	}
 	case Hydra::Component::PerkComponent::PERK_MINE: {
-		auto perk = playerEntity->getComponent<PerkComponent>();
 		perk->activeAbilities.push_back(new MineAbility());
 		break;
 	}
 	case Hydra::Component::PerkComponent::PERK_FORCEPUSH: {
-		auto perk = playerEntity->getComponent<PerkComponent>();
 		perk->activeAbilities.push_back(new forcePushAbility());
 		break;
 	}
 	case Hydra::Component::PerkComponent::PERK_BULLETSPRAY: {
-		auto perk = playerEntity->getComponent<PerkComponent>();
 		perk->activeAbilities.push_back(new BulletSprayAbillity());
 		break;
 	}

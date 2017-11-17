@@ -19,18 +19,15 @@ void AnimationSystem::tick(float delta) {
 		if (mesh->hasAnimation() == false || drawObj->disable || !mesh)
 			continue;
 
-		auto& mc = entities[i]->getComponent<Hydra::Component::MeshComponent>();
+		auto mc = entities[i]->getComponent<Hydra::Component::MeshComponent>();
 		int currentFrame = mc->currentFrame;
 		float animationCounter = mc->animationCounter;
 
-		if (animationCounter > 1 / 24.0f && currentFrame < mc->mesh->getMaxFramesForAnimation(mc->animationIndex)) {
-			mc->animationCounter -= 1 / 24.0f;
-			mc->currentFrame += 1;
-		}
-		else if (currentFrame >= mc->mesh->getMaxFramesForAnimation(mc->animationIndex))
-			mc->currentFrame = 1;
-
 		mc->animationCounter += 1 * delta;
+
+		int jumpFrames = mc->animationCounter / (1/24.0f);
+		mc->animationCounter -= jumpFrames / 24.0f;
+		mc->currentFrame = (mc->currentFrame + jumpFrames) % mesh->getMaxFramesForAnimation(mc->animationIndex);
 	}
 	entities.clear();
 }

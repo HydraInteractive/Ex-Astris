@@ -25,8 +25,8 @@
 #include <hydra/engine.hpp>
 #include <hydra/ext/stacktrace.hpp>
 #include <imgui/imgui.h>
-#include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
+#include <hydra/component/cameracomponent.hpp>
 
 using namespace Hydra::Renderer;
 
@@ -326,6 +326,7 @@ public:
 		glClear(clearFlags);
 
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
 			size_t size = kv.second.size();
@@ -336,9 +337,10 @@ public:
 				glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
 				glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &kv.second[i]);
 				glBindVertexArray(mesh->getID());
-				glDrawElementsInstanced(GL_LINES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
+				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
 			}
 		}
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
 	void renderText(TextBatch& batch) {
