@@ -318,37 +318,44 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 	}
 
-	for (int i = 0; i < randomRobots; i++) {
-		auto robotEntity = world::newEntity("Robot1", world::root());
-		robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
-		auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
-		a->behaviour = std::make_shared<AlienBehaviour>(robotEntity);
-		a->damage = 4;
-		a->behaviour->originalRange = 4;
-		a->radius = 5;
-		
-		//auto w = robotEntity->addComponent<Hydra::Component::WeaponComponent>();
-		//w->
-	
-		auto h = robotEntity->addComponent<Hydra::Component::LifeComponent>();
-		h->maxHP = 120;
-		h->health = 120;
-	
-		auto m = robotEntity->addComponent<Hydra::Component::MovementComponent>();
-		m->movementSpeed = 2.0f;
-		auto t = robotEntity->addComponent<Hydra::Component::TransformComponent>();
-		t->position.x = roomTransform->position.x + i + 2;
-		t->position.y = 0;
-		t->position.z = roomTransform->position.z + i + 2;
-		t->scale = glm::vec3{ 1,1,1 };
-	
-		//t->rotation = glm::vec3{ 0, 90, 0 };
-		auto rgbc = robotEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
-			0, 0, 0.6f, 1.0f);
-		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-	}
-
+	//for (int i = 0; i < randomRobots; i++) {
+	//	auto robotEntity = world::newEntity("Robot1", world::root());
+	//	robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
+	//	auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
+	//	a->behaviour = std::make_shared<RobotBehaviour>(robotEntity);
+	//	a->damage = 4;
+	//	a->behaviour->originalRange = 4;
+	//	a->radius = 5;
+	//	
+	//	auto w = robotEntity->addComponent<Hydra::Component::WeaponComponent>();
+	//	w->bulletSize = 5;
+	//	w->maxammo = 20;
+	//	w->currammo = 20;
+	//	w->bulletSpread = 1;
+	//	w->bulletsPerShot = 3;
+	//	w->currmagammo = 20;
+	//	w->recoil = 1;
+	//	w->fireRateRPM = 0.5;
+	//	
+	//
+	//	auto h = robotEntity->addComponent<Hydra::Component::LifeComponent>();
+	//	h->maxHP = 120;
+	//	h->health = 120;
+	//
+	//	auto m = robotEntity->addComponent<Hydra::Component::MovementComponent>();
+	//	m->movementSpeed = 2.0f;
+	//	auto t = robotEntity->addComponent<Hydra::Component::TransformComponent>();
+	//	t->position.x = roomTransform->position.x + i + 2;
+	//	t->position.y = 0;
+	//	t->position.z = roomTransform->position.z + i + 2;
+	//	t->scale = glm::vec3{ 1,1,1 };
+	//
+	//	//t->rotation = glm::vec3{ 0, 90, 0 };
+	//	auto rgbc = robotEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+	//	rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+	//		0, 0, 0.6f, 1.0f);
+	//	rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+	//}
 }
 
 void TileGeneration::_insertPathFindingMap(glm::ivec2 room)

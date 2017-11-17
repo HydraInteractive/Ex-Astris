@@ -32,7 +32,7 @@
 #include <json.hpp>
 
 #define MAX_ENEMIES 4
-#define PICKUP_CHANCE 20
+#define PICKUP_CHANCE 40
 
 class TileGeneration
 {
@@ -47,8 +47,7 @@ public:
 private:
 	std::vector<std::string> _roomFileNames;
 	int _roomCounter = 0;
-
-
+	
 	glm::vec2 localXY;
 	void _setUpMiddleRoom(std::string middleRoomPath);
 	void _createMapRecursivly(glm::ivec2 pos);
