@@ -199,7 +199,7 @@ void ComponentMenu::_renderEntity(Hydra::World::Entity* entity)
 	for (size_t i = 0; i < entityIDs.size(); i++)
 	{
 		auto child = world::getEntity(entityIDs[i]);
-		if (ImGui::TreeNodeEx(child.get(), nodeFlags | ((_selectedEntity == child.get()) ? ImGuiTreeNodeFlags_Selected : 0), child->name.c_str()))
+		if (ImGui::TreeNodeEx(child.get(), nodeFlags | ((_selectedEntity == child.get()) ? ImGuiTreeNodeFlags_Selected : 0), "%s", child->name.c_str()))
 		{
 			_renderEntity(child.get());
 			ImGui::TreePop();
