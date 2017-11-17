@@ -101,6 +101,8 @@ public:
 	MapVec worldToMapCoords(const glm::vec3& worldPos) const;
 	glm::vec3 mapToWorldCoords(const MapVec& mapPos) const;
 
+	float enemyY = 0.0f;
+
 	struct {
 		bool operator()(const std::shared_ptr<Node>& _Left, const std::shared_ptr<Node>& _Right) const
 		{

@@ -163,11 +163,12 @@ public:
 			unsigned int nrOfJoints = 0;
 			for (size_t i = 0; i < size; i += maxPerLoop) {
 				for (size_t instanceIdx = i; instanceIdx < i + maxPerLoop && instanceIdx < size; instanceIdx++) {
+					size_t instanceOffset = instanceIdx % maxPerLoop;
 					int frame = currentFrames[instanceIdx];
 					int animIdx = currAnimIndices[instanceIdx];
 					nrOfJoints = mesh->getNrOfJoints(currAnimIndices[instanceIdx]);
 					for (size_t currJoint = 0; currJoint < nrOfJoints; currJoint++) {
-						jointTransformMX[instanceIdx * 100 + currJoint] = mesh->getTransformationMatrices(animIdx, currJoint, frame);
+						jointTransformMX[instanceOffset * 100 + currJoint] = mesh->getTransformationMatrices(animIdx, currJoint, frame);
 					}	
 				}
 

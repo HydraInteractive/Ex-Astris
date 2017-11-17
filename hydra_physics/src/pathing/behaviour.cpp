@@ -92,7 +92,7 @@ bool Behaviour::checkLOS(int levelmap[ROOM_MAP_SIZE][ROOM_MAP_SIZE], glm::vec3 e
 
 unsigned int Behaviour::idleState(float dt)
 {
-	thisEnemy.meshComp->animationIndex = 0;
+	resetAnimationOnStart(0);
 	//Play the idle animation
 	//if (targetPlayer.transform->position.x > mapOffset.x && targetPlayer.transform->position.x < MAP_SIZE && targetPlayer.transform->position.z > mapOffset.z && targetPlayer.transform->position.z < MAP_SIZE)
 	//{
@@ -109,7 +109,8 @@ unsigned int Behaviour::idleState(float dt)
 unsigned int Behaviour::searchingState(float dt)
 {
 	//While the enemy is searching, play the walking animation
-	thisEnemy.meshComp->animationIndex = 1;
+	resetAnimationOnStart(1);
+
 	if (idleTimer >= 5)
 	{
 		return IDLE;
@@ -144,6 +145,7 @@ unsigned int Behaviour::searchingState(float dt)
 
 unsigned int Behaviour::foundState(float dt)
 {
+	resetAnimationOnStart(1);
 	if (!isAtGoal)
 	{
 		if (!pathFinding->_pathToEnd.empty())
@@ -192,7 +194,7 @@ unsigned int Behaviour::foundState(float dt)
 unsigned int Behaviour::attackingState(float dt)
 {
 	//When the enemy attack, start the attack animation
-	thisEnemy.meshComp->animationIndex = 2;
+	resetAnimationOnStart(2);
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) >= range)
 	{
 		idleTimer = 0.0f;
@@ -228,6 +230,17 @@ void Behaviour::executeTransforms()
 	rigidBody->setLinearVelocity(btVector3(movementForce.x, movementForce.y, movementForce.z));
 	
 	thisEnemy.transform->setRotation(rotation);
+}
+
+void Behaviour::resetAnimationOnStart(int animationIndex) {
+	//When starting a new animation, use this to reset the keyframe to 0
+	//This prevents animations to start in the middle of the animation
+	//animationIndex is which animation should be switched to
+	if (thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->animationIndex != animationIndex) {
+		thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->currentFrame = 0;
+	}
+	thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->animationIndex = animationIndex;
+
 }
 
 void Behaviour::setPathMap(bool** map)
@@ -288,7 +301,7 @@ void AlienBehaviour::run(float dt)
 unsigned int AlienBehaviour::attackingState(float dt)
 {
 	//When the enemy attack, start the attack animation
-	thisEnemy.meshComp->animationIndex = 2;
+	resetAnimationOnStart(2);
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) >= range)
 	{
 		idleTimer = 0;
@@ -330,6 +343,7 @@ RobotBehaviour::~RobotBehaviour()
 void RobotBehaviour::run(float dt)
 {
 	//If all components haven't been found, try to find them and abort if one or more do not exist
+	//thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->animationIndex = 0;
 	if (!hasRequiredComponents)
 		if (!RobotBehaviour::refreshRequiredComponents())
 			return;
@@ -368,6 +382,28 @@ void RobotBehaviour::run(float dt)
 	executeTransforms();
 }
 
+unsigned int RobotBehaviour::idleState(float dt)
+{
+	resetAnimationOnStart(0);
+	int currentFrame = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->currentFrame;
+	if (currentFrame > 50) {
+		thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->currentFrame = 50;
+	}
+
+	//if (targetPlayer.transform->position.x > mapOffset.x && targetPlayer.transform->position.x < MAP_SIZE && targetPlayer.transform->position.z > mapOffset.z && targetPlayer.transform->position.z < MAP_SIZE)
+	{
+		if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 50)
+		{
+			idleTimer = 0;
+			if (currentFrame >= 2)
+				thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->currentFrame -= 2;
+			else
+				return SEARCHING;
+			}
+		}
+	return state;
+}
+
 bool RobotBehaviour::refreshRequiredComponents()
 {
 	hasRequiredComponents = (
@@ -386,6 +422,8 @@ bool RobotBehaviour::refreshRequiredComponents()
 
 unsigned int RobotBehaviour::attackingState(float dt)
 {
+	resetAnimationOnStart(2);
+
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > range)
 	{
 		idleTimer = 0;
@@ -532,7 +570,7 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 					t->position = thisEnemy.transform->position + glm::vec3(3, thisEnemy.transform->position.y, 3);
 					t->scale = glm::vec3{ 2,2,2 };
 
-					alienSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel1.mATTIC");
+					alienSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
 					spawnAmount++;
 					spawnTimer = 0;
 				}
