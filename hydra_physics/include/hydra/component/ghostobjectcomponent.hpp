@@ -9,10 +9,12 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API GhostObjectComponent final : public IComponent<GhostObjectComponent, ComponentBits::GhostObject>{
+		
+		
 		btGhostObject* ghostObject;
 		glm::vec3 halfExtents = glm::vec3();
 
-		void createSphere(float radius);
+		//void createSphere(float radius);
 		void createBox(const glm::vec3& halfExtents);
 
 		~GhostObjectComponent() final;
