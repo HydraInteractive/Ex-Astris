@@ -189,12 +189,7 @@ namespace Hydra::Renderer {
 	};
 
 
-	struct HYDRA_BASE_API TextBatch {
-		glm::vec4 clearColor;
-		ClearFlags clearFlags;
-		IRenderTarget* renderTarget;
-		IPipeline* pipeline;
-		std::map<IMesh*, std::vector<glm::mat4 /* Model matrix */>> objects;
+	struct HYDRA_BASE_API TextBatch : public Batch{
 		std::vector<CharRenderInfo> textInfo;
 	};
 

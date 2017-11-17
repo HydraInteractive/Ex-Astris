@@ -87,6 +87,7 @@ namespace Barcode {
 
 		std::unique_ptr<DefaultGraphicsPipeline> _dgp;
 		RenderBatch<Hydra::Renderer::Batch> _hitboxBatch;
+		RenderBatch<Hydra::Renderer::TextBatch> _textBatch;
 
 		std::shared_ptr<Hydra::Renderer::IMesh> _hitboxCube;
 

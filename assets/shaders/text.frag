@@ -5,7 +5,7 @@ in GeometryData {
 	vec2 uv;
 } inData;
 
-out vec4 outColor;
+layout(location = 0) out vec4 fragOutput;
 
 layout(location = 20) uniform sampler2D charTexture;
 
@@ -14,5 +14,5 @@ void main() {
 	//if(charTex.a < 0.5f)
 	//	discard;
 
-	outColor = vec4(charTex.xyz * inData.color, 1);
+	fragOutput = vec4(charTex.xyz * inData.color, 1);
 }

@@ -12,6 +12,7 @@
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
+#include <hydra/component/textcomponent.hpp>
 #include <glm/gtc/type_ptr.hpp>
 using world = Hydra::World::World;
 ComponentMenu::ComponentMenu()

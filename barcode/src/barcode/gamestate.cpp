@@ -35,6 +35,11 @@ namespace Barcode {
 			_hitboxBatch.batch.clearFlags = ClearFlags::none;
 		}
 
+		{
+			_textBatch = RenderBatch<Hydra::Renderer::TextBatch>("assets/shaders/text.vert", "assets/shaders/text.geom", "assets/shaders/text.frag", _engine->getView());
+			_textBatch.batch.clearFlags = ClearFlags::none;
+		}
+
 		_initWorld();
 	}
 
@@ -246,6 +251,32 @@ namespace Barcode {
 			ImGui::PopStyleVar();
 			ImGui::PopStyleVar();
 		}
+	
+		{
+			for(auto kv : _textBatch.batch.objects)
+				kv.second.clear();
+
+			_textBatch.batch.textInfo.clear();
+
+			std::vector<std::shared_ptr<Entity>> entities;
+			world::getEntitiesWithComponents<Hydra::Component::TextComponent, Hydra::Component::DrawObjectComponent>(entities);
+			for (auto e : entities) {
+				auto textC = e->getComponent<Hydra::Component::TextComponent>();
+				auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
+				auto textData = textC->renderingData;
+			
+				for (int i = 0; i < textData.size(); i++) {
+					_textBatch.batch.textInfo.push_back(textC->renderingData[i]);
+				}
+			
+				_textBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+			}
+			_textBatch.pipeline->setValue(0, _cc->getProjectionMatrix() * _cc->getViewMatrix());
+			_textBatch.pipeline->setValue(20, 0);
+			_textFactory->getTexture()->bind(0);
+			_engine->getRenderer()->renderText(_textBatch.batch);
+			/*BOI*/
+		}
 	}
 
 	void GameState::_initSystem() {
@@ -341,8 +372,14 @@ namespace Barcode {
 			rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 				0, 0, 0.6f, 1.0f);
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+		}
 
-			auto textC = alienEntity->addComponent<Hydra::Component::TextComponent>();
+		{
+			auto textEntity = world::newEntity("Bogdan", world::root());
+			textEntity->addComponent<Hydra::Component::TransformComponent>();
+			textEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
+
+			auto textC = textEntity->addComponent<Hydra::Component::TextComponent>();
 			textC->text = "123";
 			textC->rebuild();
 		}

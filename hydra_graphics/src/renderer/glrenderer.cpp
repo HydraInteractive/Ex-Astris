@@ -360,14 +360,20 @@ public:
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
 			size_t size = kv.second.size();
+			size_t nrOfChars = batch.textInfo.size();
 			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
-			for (size_t i = 0; i < size; i += maxPerLoop) {
+			for (size_t i = 0; i < nrOfChars; i += maxPerLoop) {
 				size_t amount = std::min(size - i, maxPerLoop);
 				glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
 				glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
 				glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &kv.second[i]);
+
+				glBindBuffer(GL_ARRAY_BUFFER, _textBuffer);
+				glBufferData(GL_ARRAY_BUFFER, _textBufferSize, nullptr, GL_STREAM_DRAW);
+				glBufferSubData(GL_ARRAY_BUFFER, 0, nrOfChars * sizeof(Hydra::Renderer::CharRenderInfo), &batch.textInfo[i]);
+
 				glBindVertexArray(mesh->getID());
-				glDrawElementsInstanced(GL_LINES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
+				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(nrOfChars));
 			}
 		}
 	}
@@ -539,7 +545,7 @@ private:
 	const size_t _particleBufferSize = sizeof(glm::vec2) * 3 * 128; // Particle buffer holds three vec2, and max 128 particle instances per draw call.
 	GLuint _particleBuffer;
 
-	const size_t _textBufferSize = sizeof(float) * 7 * 128; // 1 vec4 and 1 vec3
+	const size_t _textBufferSize = sizeof(Hydra::Renderer::CharRenderInfo) * 128; // 1 vec4 and 1 vec3
 	GLuint _textBuffer;
 
 	const int _maxInstancedAnimatedModels = 20;
