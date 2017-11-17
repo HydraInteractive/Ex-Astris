@@ -43,6 +43,7 @@
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
+#include <hydra/component/ghostobjectcomponent.hpp>
 
 #include <imgui/imgui.h>
 
@@ -72,7 +73,7 @@ namespace Barcode {
 		inline Hydra::World::ISystem* getPhysicsSystem() final { return &_physicsSystem; }
 
 	private:
-		ComponentMenu _componentMenu;
+		ComponentMenu* _componentMenu;
 		FileTree* _importerMenu;
 		FileTree* _exporterMenu;
 		PathingMapMenu _pathingMenu;
