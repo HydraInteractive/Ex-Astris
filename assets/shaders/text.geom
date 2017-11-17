@@ -18,12 +18,6 @@ out GeometryData {
 	vec2 uv;
 } outData;
 
-out gl_PerVertex {
-	vec4 gl_Position;
-	float gl_PointSize;
-	float gl_ClipDistance[];
-};
-
 layout(location = 0) uniform mat4 vp;
 
 void main() {

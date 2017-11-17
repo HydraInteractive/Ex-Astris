@@ -184,11 +184,11 @@ private:
 		if (textExtraBuffer) {
 			glBindBuffer(GL_ARRAY_BUFFER, textExtraBuffer);
 			glEnableVertexAttribArray(VertexLocation::charRect);
-			glVertexAttribPointer(VertexLocation::charRect, 4, GL_FLOAT, GL_FALSE, sizeof(Hydra::Renderer::CharRenderInfo), (GLvoid*)(sizeof(glm::vec4)));
+			glVertexAttribPointer(VertexLocation::charRect, 4, GL_FLOAT, GL_FALSE, sizeof(Hydra::Renderer::CharRenderInfo), (GLvoid*)offsetof(Hydra::Renderer::CharRenderInfo, charRect));
 			glVertexAttribDivisor(VertexLocation::charRect, 1);
 
 			glEnableVertexAttribArray(VertexLocation::charPos);
-			glVertexAttribPointer(VertexLocation::charPos, 3, GL_FLOAT, GL_FALSE, sizeof(Hydra::Renderer::CharRenderInfo), (GLvoid*)(sizeof(glm::vec4) + sizeof(glm::vec3)));
+			glVertexAttribPointer(VertexLocation::charPos, 3, GL_FLOAT, GL_FALSE, sizeof(Hydra::Renderer::CharRenderInfo), (GLvoid*)offsetof(Hydra::Renderer::CharRenderInfo, charPos));
 			glVertexAttribDivisor(VertexLocation::charPos, 1);
 		}
 	}
@@ -528,6 +528,7 @@ std::unique_ptr<IMesh> GLMesh::createTextQuad(IRenderer* renderer) {
 		Vertex{ { 0.5, -0.5, 0 },{ 0, 0, -1 },{ 1, 1, 1 },{ 1, 0 },{ 0, 0, 0 } },
 		Vertex{ { -0.5, -0.5, 0 },{ 0, 0, -1 },{ 1, 1, 1 },{ 0, 0 },{ 0, 0, 0 } }
 	};
+	printf("BIG FAT HARDCORE, I WANT IT INSIDE OF ME\n");
 	std::vector<GLuint> indices{ 0, 2, 1, 2, 0, 3 };
 	return std::unique_ptr<IMesh>(new ::GLMeshImpl(vertices, indices, false, 0, 0, *static_cast<GLuint*>(renderer->getTextExtraBuffer())));
 }

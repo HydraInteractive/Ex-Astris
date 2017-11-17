@@ -18,7 +18,8 @@ namespace Hydra::Component {
 
 	std::vector<CharRenderInfo> renderingData;
 	std::string text;
-	int maxLength = 10;
+	int maxLength = 24;
+	bool isStatic = true;
 
 	void rebuild() {
 		renderingData.resize(text.size());
@@ -37,6 +38,15 @@ namespace Hydra::Component {
 			rInfo.charPos = pos;
 			pos.x -= info.xAdvanceAmount * 1.2;
 		}
+	}
+
+	void setText(const std::string& inText) {
+		if (inText.size() > maxLength)
+			text = inText.substr(0, maxLength);
+		else
+			text = inText;
+
+		rebuild();
 	}
 
 	~TextComponent() final;

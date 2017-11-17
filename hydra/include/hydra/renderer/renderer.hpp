@@ -191,6 +191,8 @@ namespace Hydra::Renderer {
 
 	struct HYDRA_BASE_API TextBatch : public Batch{
 		std::vector<CharRenderInfo> textInfo;
+		std::vector<size_t> textSizes;
+		std::vector<float> lifeFade;
 	};
 
 	class HYDRA_BASE_API IRenderer {

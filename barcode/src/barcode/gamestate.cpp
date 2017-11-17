@@ -35,10 +35,10 @@ namespace Barcode {
 			_hitboxBatch.batch.clearFlags = ClearFlags::none;
 		}
 
-		{
-			_textBatch = RenderBatch<Hydra::Renderer::TextBatch>("assets/shaders/text.vert", "assets/shaders/text.geom", "assets/shaders/text.frag", _engine->getView());
+		/*{
+			_textBatch = RenderBatch<Hydra::Renderer::TextBatch>("assets/shaders/text.vert", "", "assets/shaders/text.frag", _engine->getView());
 			_textBatch.batch.clearFlags = ClearFlags::none;
-		}
+		}*/
 
 		_initWorld();
 	}
@@ -67,6 +67,7 @@ namespace Barcode {
 		_perkSystem.tick(delta);
 		_lifeSystem.tick(delta);
 		_pickUpSystem.tick(delta);
+		_textSystem.tick(delta);
 
 
 		static bool enableHitboxDebug = true;
@@ -252,31 +253,31 @@ namespace Barcode {
 			ImGui::PopStyleVar();
 		}
 	
-		{
-			for(auto kv : _textBatch.batch.objects)
-				kv.second.clear();
+		//{ // Text pass.
+		//	for(auto& kv : _textBatch.batch.objects)
+		//		kv.second.clear();
 
-			_textBatch.batch.textInfo.clear();
+		//	_textBatch.batch.textInfo.clear();
 
-			std::vector<std::shared_ptr<Entity>> entities;
-			world::getEntitiesWithComponents<Hydra::Component::TextComponent, Hydra::Component::DrawObjectComponent>(entities);
-			for (auto e : entities) {
-				auto textC = e->getComponent<Hydra::Component::TextComponent>();
-				auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
-				auto textData = textC->renderingData;
-			
-				for (int i = 0; i < textData.size(); i++) {
-					_textBatch.batch.textInfo.push_back(textC->renderingData[i]);
-				}
-			
-				_textBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-			}
-			_textBatch.pipeline->setValue(0, _cc->getProjectionMatrix() * _cc->getViewMatrix());
-			_textBatch.pipeline->setValue(20, 0);
-			_textFactory->getTexture()->bind(0);
-			_engine->getRenderer()->renderText(_textBatch.batch);
-			/*BOI*/
-		}
+		//	std::vector<std::shared_ptr<Entity>> entities;
+		//	world::getEntitiesWithComponents<Hydra::Component::TextComponent, Hydra::Component::DrawObjectComponent>(entities);
+		//	for (auto e : entities) {
+		//		auto textC = e->getComponent<Hydra::Component::TextComponent>();
+		//		auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
+		//		auto textData = textC->renderingData;
+		//	
+		//		for (int i = 0; i < textData.size(); i++) {
+		//			_textBatch.batch.textInfo.push_back(textC->renderingData[i]);
+		//		}
+		//	
+		//		_textBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+		//	}
+		//	_textBatch.pipeline->setValue(0, _cc->getProjectionMatrix() * _cc->getViewMatrix());
+		//	_textBatch.pipeline->setValue(20, 0);
+		//	_textFactory->getTexture()->bind(0);
+		//	_engine->getRenderer()->renderText(_textBatch.batch);
+		//	/*BOI*/
+		//}
 	}
 
 	void GameState::_initSystem() {
@@ -374,15 +375,14 @@ namespace Barcode {
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		}
 
-		{
-			auto textEntity = world::newEntity("Bogdan", world::root());
-			textEntity->addComponent<Hydra::Component::TransformComponent>();
-			textEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
+		//{
+		//	auto textEntity = world::newEntity("Bogdan", world::root());
+		//	textEntity->addComponent<Hydra::Component::TransformComponent>()->setScale(glm::vec3(10));
+		//	textEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
 
-			auto textC = textEntity->addComponent<Hydra::Component::TextComponent>();
-			textC->text = "123";
-			textC->rebuild();
-		}
+		//	auto textC = textEntity->addComponent<Hydra::Component::TextComponent>();
+		//	textC->setText("Bogdan Here");
+		//}
 
 		{
 			auto pointLight1 = world::newEntity("Pointlight1", world::root());

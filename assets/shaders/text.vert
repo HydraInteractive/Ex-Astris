@@ -10,21 +10,22 @@ layout (location = 14) in vec4 charRect;
 layout (location = 15) in vec3 charPos;
 
 out VertexData {
-	vec3 position;
-	vec3 normal;
 	vec3 color;
 	vec2 uv;
-	mat4 m;
-	vec4 charRect;
-	vec3 charPos;
 } outData;
 
+layout(location = 0) uniform mat4 vp;
+layout(location = 2) uniform mat4 model;
+layout(location = 3) uniform vec3 rightVector;
+layout(location = 4) uniform vec3 upVector;
+
 void main() {
-	outData.position = position;
-	outData.normal = normal;
-	outData.color = color;
-	outData.uv = uv;
-	outData.m = m;
-	outData.charRect = charRect;
-	outData.charPos = charPos;
+	outData.color = vec3(1,1,1);
+	vec2 flippedUV = vec2(uv.x, 1 - uv.y);
+	outData.uv = flippedUV * charRect.zw + charRect.xy;
+	
+	// Fix billboarded effect.
+	vec3 billboardPos = (vec3(-charPos.x * rightVector) + vec3(-charPos.y * upVector)) + vec3(rightVector * position.x * charRect.z) + vec3(upVector * position.y * charRect.w);
+
+	gl_Position = vp * model * vec4(billboardPos, 1);
 }

@@ -18,6 +18,7 @@
 #include <hydra/component/playercomponent.hpp>
 #include <hydra/component/pickupcomponent.hpp>
 #include <hydra/component/perkcomponent.hpp>
+#include <hydra/component/textcomponent.hpp>
 #include <btBulletDynamicsCommon.h>
 
 inline static btQuaternion cast(const glm::quat& r) { return btQuaternion{r.x, r.y, r.z, r.w}; }
@@ -87,7 +88,7 @@ void BulletPhysicsSystem::disable(Hydra::Component::RigidBodyComponent* componen
 }
 
 void BulletPhysicsSystem::tick(float delta) {
-	_data->dynamicsWorld->stepSimulation(delta,3);
+	_data->dynamicsWorld->stepSimulation(delta, 3);
 	// Gets all collisions happening between all rigidbody entities.
 	int numManifolds = _data->dynamicsWorld->getDispatcher()->getNumManifolds();
 	for (int i = 0; i < numManifolds; i++) {
@@ -133,8 +134,10 @@ void BulletPhysicsSystem::tick(float delta) {
 				playerComponent->onGround = true;
 			}
 
-			if (lifeComponent)
+			if (lifeComponent) {
 				lifeComponent->applyDamage(bulletComponent->damage);
+				_spawnDamageText(cast(collPosB), bulletComponent->damage);
+			}
 
 			// Set the bullet entity to dead.
 			if (bulletComponent) {
@@ -169,6 +172,22 @@ void BulletPhysicsSystem::_spawnParticleEmitterAt(const glm::vec3& pos, const gl
 	pELC->maxHP = 0.9f;
 	pELC->health = 0.9f;
 }
+
+void BulletPhysicsSystem::_spawnDamageText(const glm::vec3& pos, const float& damage) {
+	auto textEntity = world::newEntity("Damage", world::root());
+	auto transC = textEntity->addComponent<Hydra::Component::TransformComponent>();
+	transC->setPosition(pos);
+	transC->setScale(glm::vec3(10));
+	textEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
+	auto lifeC = textEntity->addComponent<Hydra::Component::LifeComponent>();
+	lifeC->health = lifeC->maxHP = 2;
+	auto textC = textEntity->addComponent<Hydra::Component::TextComponent>();
+	char buff[64];
+	snprintf(buff, sizeof(buff), "%.0f\x01\x02", damage);
+	textC->setText(std::string(buff));
+	textC->isStatic = false;
+}
+
 
 void Hydra::System::BulletPhysicsSystem::_addPickUp(Hydra::Component::PickUpComponent * pickupComponent, Hydra::Component::PerkComponent * perkComponent)
 {
