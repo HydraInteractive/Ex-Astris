@@ -265,7 +265,14 @@ private:
 			tempFileName = new char[fileNameLength];
 			in.read(tempFileName, fileNameLength);
 
+			//If I acidentally used a psd file, just take a png file instead
 			fileName.append(tempFileName, fileNameLength);
+			char lastChar = fileName.back();
+			if (lastChar == 'd') {
+				fileName.erase(fileName.size() - 2, fileName.size());
+				fileName.append("ng", fileNameLength - 2);
+			}
+
 			if (fileName != "NULL" && fileNameLength != 0)
 				_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/" + fileName);
 			else

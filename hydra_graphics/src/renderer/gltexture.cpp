@@ -191,7 +191,9 @@ public:
 	void setData(const glm::ivec2& offset, const glm::ivec2& size, const void* data) final {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(_textureType, _texture);
-		glTexSubImage2D(_textureType, 0, offset.x, offset.y, size.x, size.y, toGLBase(_format), toGLDataType(_format), data);
+		//Fail safe, Me thinks
+		if(data != NULL)
+			glTexSubImage2D(_textureType, 0, offset.x, offset.y, size.x, size.y, toGLBase(_format), toGLDataType(_format), data);
 	}
 
 private:
