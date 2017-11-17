@@ -1,5 +1,6 @@
 #include <hydra/component/ghostobjectcomponent.hpp>
 #include <imgui/imgui.h>
+#include <glm/gtc/type_ptr.hpp>
 #include <btBulletDynamicsCommon.h>
 #include <hydra/system/bulletphysicssystem.hpp>
 #include <hydra/component/transformcomponent.hpp>
@@ -34,5 +35,8 @@ void GhostObjectComponent::deserialize(nlohmann::json& json) {
 }
 
 void GhostObjectComponent::registerUI() {
-
+	if (ImGui::DragFloat3("Weapon Offset", glm::value_ptr(halfExtents), 0.01f)) {
+		delete ghostObject->getCollisionShape();
+		ghostObject->setCollisionShape(new btBoxShape(btVector3(halfExtents.x, halfExtents.y, halfExtents.z)));
+	}
 }
