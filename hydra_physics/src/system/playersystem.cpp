@@ -40,6 +40,7 @@ void PlayerSystem::tick(float delta) {
 		auto transform = entities[i]->getComponent<TransformComponent>();
 		auto camera = entities[i]->getComponent<CameraComponent>();
 		auto weapon = player->getWeapon()->getComponent<Hydra::Component::WeaponComponent>();
+		auto weaponMesh = player->getWeapon()->getComponent<Hydra::Component::MeshComponent>();
 		auto life = entities[i]->getComponent<Component::LifeComponent>();
 		auto movement = entities[i]->getComponent<Component::MovementComponent>();
 		auto soundFx = entities[i]->getComponent<SoundFxComponent>();
@@ -51,6 +52,7 @@ void PlayerSystem::tick(float delta) {
 
 		{
 			glm::vec3 forward = glm::normalize(glm::vec3(movement->direction.x, 0, movement->direction.z));			
+
 			glm::vec3 rightDir = glm::vec3(glm::vec4{ 1, 0, 0, 0 } *rotation);
 			glm::vec3 right = glm::normalize(glm::vec3(rightDir.x, 0, rightDir.z));
 
@@ -69,14 +71,19 @@ void PlayerSystem::tick(float delta) {
 			if (keysArray[SDL_SCANCODE_D])
 				movement->velocity += movement->movementSpeed * right * delta;
 
-			if (keysArray[SDL_SCANCODE_SPACE] && player->onGround){
-				rbc->applyCentralForce(btVector3(0,20000,0));
+			if (keysArray[SDL_SCANCODE_SPACE] && player->onGround) {
+				rbc->applyCentralForce(btVector3(0, 20000, 0));
 				player->onGround = false;
 			}
+			if (movement->velocity.x != 0 || movement->velocity.y != 0 || movement->velocity.z != 0)
+				weaponMesh->animationIndex = 1;
+			else
+				weaponMesh->animationIndex = 0;
 
 			if (camera->mouseControl && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
 				//TODO: Make pretty?
 				glm::quat bulletOrientation = glm::angleAxis(-camera->cameraYaw, glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->cameraPitch, glm::vec3(1, 0, 0)));
+
 				float bulletVelocity = 300;
 				if(!weapon->_isReloading)
 					if (weapon->shoot(transform->position, movement->direction, bulletOrientation, bulletVelocity, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE, 5)) {
@@ -92,7 +99,9 @@ void PlayerSystem::tick(float delta) {
 						//	dyaw += rn/3;
 						//else
 						//	dyaw -= rn/3;
-
+						weaponMesh->animationIndex = 2;
+						if (weapon->currmagammo == 0)
+							weapon->_isReloading = true;
 					}
 			}
 		}

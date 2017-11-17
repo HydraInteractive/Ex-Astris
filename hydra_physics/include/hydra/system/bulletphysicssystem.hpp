@@ -55,6 +55,9 @@ namespace Hydra::System {
 
 		void disable(Hydra::Component::RigidBodyComponent* component);
 
+		void enable(Hydra::Component::GhostObjectComponent* component);
+		void disable(Hydra::Component::GhostObjectComponent* component);
+
 		void tick(float delta) final;
 
 		inline const std::string type() const final { return "BulletPhysicsSystem"; }

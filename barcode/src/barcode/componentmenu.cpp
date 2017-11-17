@@ -11,6 +11,7 @@
 #include <hydra/component/pointlightcomponent.hpp>
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
+#include <hydra/component/ghostobjectcomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
 #include <hydra/component/textcomponent.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -170,6 +171,28 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 			ImGui::EndChild();
 		}
 	}
+
+	else if (componentType == "StaticObject") {
+		if (_selectedEntity->hasComponent<Hydra::Component::GhostObjectComponent>())
+			ImGui::Text("The entity selected already has this component");
+		else {
+			ImGui::BeginChild("GhostObject", ImVec2(ImGui::GetWindowContentRegionWidth() *0.3f, ImGui::GetWindowContentRegionMax().y - 160), true);
+			ImGui::DragFloat3("Size", glm::value_ptr(ghostObjectInput.size), 0.01f);
+
+			//TODO: Selection box for picking collision type
+			ImGui::EndChild();
+			ImGui::BeginChild("Confirm", ImVec2(ImGui::GetWindowContentRegionWidth() *0.3f, 25));
+			if (ImGui::Button("Finish"))
+			{
+				auto goc = _selectedEntity->addComponent<Hydra::Component::GhostObjectComponent>();
+				goc->createBox(ghostObjectInput.size);
+				physicsSystem.enable(goc.get());
+				rigidBodyInput = RBI();
+			}
+			ImGui::EndChild();
+		}
+		
+	}
 }
 
 void ComponentMenu::_menuBar()
@@ -200,7 +223,7 @@ void ComponentMenu::_renderEntity(Hydra::World::Entity* entity)
 	for (size_t i = 0; i < entityIDs.size(); i++)
 	{
 		auto child = world::getEntity(entityIDs[i]);
-		if (ImGui::TreeNodeEx(child.get(), nodeFlags | ((_selectedEntity == child.get()) ? ImGuiTreeNodeFlags_Selected : 0), child->name.c_str()))
+		if (ImGui::TreeNodeEx(child.get(), nodeFlags | ((_selectedEntity == child.get()) ? ImGuiTreeNodeFlags_Selected : 0), "%s", child->name.c_str()))
 		{
 			_renderEntity(child.get());
 			ImGui::TreePop();

@@ -47,7 +47,8 @@ namespace Hydra::Component {
 		SoundFx = BIT(18),
 		Perk = BIT(19),
 		PickUp = BIT(20),
-		Text = BIT(21)
+		Text = BIT(21),
+		GhostObject = BIT(22)
 	};
 #undef BIT
 
@@ -86,6 +87,7 @@ namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API PerkComponent;
 	struct HYDRA_PHYSICS_API PickUpComponent;
 	struct HYDRA_GRAPHICS_API TextComponent;
+	struct HYDRA_PHYSICS_API GhostObjectComponent;
 
 	using ComponentTypes = Hydra::Ext::TypeTuple<
 		Hydra::World::IComponent<TransformComponent, ComponentBits::Transform>,
@@ -109,7 +111,8 @@ namespace Hydra::Component {
 		Hydra::World::IComponent<SoundFxComponent, ComponentBits::SoundFx>,
 		Hydra::World::IComponent<PerkComponent, ComponentBits::Perk>,
 		Hydra::World::IComponent<PickUpComponent, ComponentBits::PickUp>,
-		Hydra::World::IComponent<TextComponent, ComponentBits::Text>
+		Hydra::World::IComponent<TextComponent, ComponentBits::Text>,
+		Hydra::World::IComponent<GhostObjectComponent, ComponentBits::GhostObject>
 	>;
 };
 
@@ -290,6 +293,8 @@ namespace Hydra::World {
 	IComponentHandler* IComponent<Hydra::Component::PickUpComponent, Hydra::Component::ComponentBits::PickUp>::componentHandler;
 	template <>
 	IComponentHandler* IComponent<Hydra::Component::TextComponent, Hydra::Component::ComponentBits::Text>::componentHandler;
+	template <>
+	IComponentHandler* IComponent<Hydra::Component::GhostObjectComponent, Hydra::Component::ComponentBits::GhostObject>::componentHandler;
 #endif
 
 	template HYDRA_BASE_API struct IComponent<Hydra::Component::TransformComponent, Hydra::Component::ComponentBits::Transform>;
@@ -314,6 +319,7 @@ namespace Hydra::World {
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::PerkComponent, Hydra::Component::ComponentBits::Perk>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::PickUpComponent, Hydra::Component::ComponentBits::PickUp>;
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::TextComponent, Hydra::Component::ComponentBits::Text>;
+	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::GhostObjectComponent, Hydra::Component::ComponentBits::GhostObject>;
 
 	struct HYDRA_BASE_API World final {
 		inline static std::shared_ptr<Entity>& root() {
