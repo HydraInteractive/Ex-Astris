@@ -278,7 +278,7 @@ namespace Barcode {
 				h->maxHP = 80;
 				h->health = 80;
 				auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
-				m->movementSpeed = 8.0f;
+				m->movementSpeed = 8.0f; 
 				auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
 				t->position = glm::vec3{ 10 + i, 0, 20 };
 				t->scale = glm::vec3{ 2,2,2 };
