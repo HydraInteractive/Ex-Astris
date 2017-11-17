@@ -101,8 +101,6 @@ public:
 	MapVec worldToMapCoords(const glm::vec3& worldPos) const;
 	glm::vec3 mapToWorldCoords(const MapVec& mapPos) const;
 
-	bool intializedStartGoal;
-	bool foundGoal;
 	float enemyY = 0.0f;
 
 	struct {

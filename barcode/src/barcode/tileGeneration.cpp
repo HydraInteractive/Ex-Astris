@@ -3,13 +3,13 @@ using world = Hydra::World::World;
 
 TileGeneration::TileGeneration(std::string middleRoomPath) {
 	_obtainRoomFiles();
-	_setUpMiddleRoom(middleRoomPath);
-	_createMapRecursivly(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2));
 	pathfindingMap = new bool*[WORLD_MAP_SIZE];
 	for (int i = 0; i < WORLD_MAP_SIZE; i++)
 	{
 		pathfindingMap[i] = new bool[WORLD_MAP_SIZE];
 	}
+	_setUpMiddleRoom(middleRoomPath);
+	_createMapRecursivly(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2));
 }
 
 TileGeneration::~TileGeneration() {
@@ -214,8 +214,8 @@ void TileGeneration::_setUpMiddleRoom(std::string middleRoomPath) {
 	auto room = world::newEntity("Middle Room", world::root());
 	BlueprintLoader::load(middleRoomPath)->spawn(room);
 	auto roomC = room->getComponent<Hydra::Component::RoomComponent>();
-	roomGrid[GRID_SIZE / 2][GRID_SIZE / 2] = roomC;
-	_insertPathFindingMap(glm::ivec2(GRID_SIZE / 2, GRID_SIZE / 2));
+	roomGrid[ROOM_GRID_SIZE / 2][ROOM_GRID_SIZE / 2] = roomC;
+	_insertPathFindingMap(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2));
 	auto t = room->addComponent<Hydra::Component::TransformComponent>();
 	t->position = _gridToWorld(2, 2);
 	t->scale = glm::vec3(1, 1, 1);
@@ -380,8 +380,8 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::Component::TransformCo
 
 glm::vec3 TileGeneration::_gridToWorld(int x, int y) {
 
-	float xPos = (ROOM_SIZE * x) - ((GRID_SIZE * ROOM_SIZE) / 2) + 17;
-	float yPos = (ROOM_SIZE * y) - ((GRID_SIZE * ROOM_SIZE) / 2) + 17;
+	float xPos = (ROOM_SIZE * x) - ((ROOM_GRID_SIZE * ROOM_SIZE) / 2) + 17;
+	float yPos = (ROOM_SIZE * y) - ((ROOM_GRID_SIZE * ROOM_SIZE) / 2) + 17;
 	 
 	glm::vec3 finalPos = glm::vec3(xPos, -7, yPos);
 	return finalPos;
@@ -391,8 +391,7 @@ glm::vec3 TileGeneration::_gridToWorld(int x, int y) {
 bool TileGeneration::_checkAdjacents(int x, int y, std::shared_ptr<Hydra::Component::RoomComponent>& r) {
 	if (r->door[r->NORTH])
 	{
-
-		if (y >= GRID_SIZE - 1)
+		if (y >= ROOM_GRID_SIZE - 1)
 			return false;
 		if (roomGrid[x][y + 1] != nullptr)
 			if (roomGrid[x][y + 1]->door[r->SOUTH] == false)
@@ -417,7 +416,7 @@ bool TileGeneration::_checkAdjacents(int x, int y, std::shared_ptr<Hydra::Compon
 	}
 	if (r->door[r->WEST])
 	{
-		if (x >= GRID_SIZE - 1)
+		if (x >= ROOM_GRID_SIZE - 1)
 			return false;
 		if (roomGrid[x + 1][y] != nullptr)
 			if(roomGrid[x + 1][y]->door[r->EAST] == false)

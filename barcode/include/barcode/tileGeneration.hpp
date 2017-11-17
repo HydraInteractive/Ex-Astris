@@ -31,17 +31,14 @@
 #include <fstream>
 #include <json.hpp>
 
-#define GRID_SIZE 5
-#define ROOM_SIZE 34
 #define MAX_ENEMIES 4
 #define PICKUP_CHANCE 20
 
 class TileGeneration
 {
 public:
-	int maxRooms = 1;
 	std::shared_ptr<Hydra::Component::RoomComponent> roomGrid[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
-	bool** pathfindingMap;
+	bool** pathfindingMap = nullptr;
 	TileGeneration(std::string middleRoomPath);
 	~TileGeneration();
 
