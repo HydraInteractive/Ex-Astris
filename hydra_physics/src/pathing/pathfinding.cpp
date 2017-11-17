@@ -15,6 +15,7 @@ PathFinding::PathFinding() {
 	_visitedList = std::vector<std::shared_ptr<Node>>();
 	intializedStartGoal = false;
 	foundGoal = true;
+
 }
 
 PathFinding::~PathFinding() {
@@ -23,10 +24,10 @@ PathFinding::~PathFinding() {
 
 void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetPos)
 {
-	if (map == nullptr)
-	{
-		return;
-	}
+	//if (map == nullptr)
+	//{
+	//	return;
+	//}
 
 	if (!intializedStartGoal) 
 	{
@@ -139,10 +140,10 @@ void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode)
 		return;
 	}
 	//If this node is inaccessable, ignore it
-	if (map[x][z] == 0)
-	{
-		return;
-	}
+	//if (map[x][z] == 0)
+	//{
+	//	return;
+	//}
 
 	//If the node has already been visited, don't worry about it
 	for (size_t i = 0; i < _visitedList.size(); i++)

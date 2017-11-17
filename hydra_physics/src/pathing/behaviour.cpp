@@ -150,13 +150,20 @@ unsigned int Behaviour::foundState(float dt)
 		{
 			glm::vec3 targetDistance = pathFinding->nextPathPos(thisEnemy.transform->position, thisEnemy.ai->radius) - thisEnemy.transform->position;
 
+			//glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
+			//playerDir = glm::normalize(playerDir);
+			//angle = atan2(playerDir.x, playerDir.z);
+			//rotation = glm::angleAxis(angle, glm::vec3(0, 1, 0));
+
 			angle = atan2(targetDistance.x, targetDistance.z);
 			rotation = glm::angleAxis(angle, glm::vec3(0, 1, 0));
 
 			glm::vec3 direction = glm::normalize(targetDistance);
 
-			thisEnemy.movement->velocity.x = (thisEnemy.movement->movementSpeed * direction.x);
-			thisEnemy.movement->velocity.z = (thisEnemy.movement->movementSpeed * direction.z);
+			thisEnemy.movement->velocity.x = (thisEnemy.movement->movementSpeed * direction.x) * dt;
+			thisEnemy.movement->velocity.z = (thisEnemy.movement->movementSpeed * direction.z) * dt;
+			//thisEnemy.movement->velocity.x = (thisEnemy.movement->movementSpeed * playerDir.x) * dt;
+			//thisEnemy.movement->velocity.z = (thisEnemy.movement->movementSpeed * playerDir.z) * dt;
 			if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) <= range)
 			{
 				isAtGoal = true;
@@ -225,14 +232,14 @@ void Behaviour::executeTransforms()
 	//if (movementForce.x = 0 && movementForce.y == 0 && movementForce.z == 0)
 	//	rigidBody->clearForces();
 	//else
-	rigidBody->setLinearVelocity(btVector3(movementForce.x, movementForce.y, movementForce.z));
+	rigidBody->setLinearVelocity(btVector3(movementForce.x, rigidBody->getLinearVelocity().y(), movementForce.z));
 	
 	thisEnemy.transform->setRotation(rotation);
 }
 
 void Behaviour::setPathMap(bool** map)
 {
-	pathFinding->map = map;
+	//pathFinding->map = map;
 }
 
 AlienBehaviour::AlienBehaviour(std::shared_ptr<Hydra::World::Entity> enemy) : Behaviour(enemy)

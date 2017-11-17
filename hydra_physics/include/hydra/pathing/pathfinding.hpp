@@ -94,7 +94,7 @@ public:
 	bool intializedStartGoal;
 	bool foundGoal;
 	std::vector<glm::vec3> _pathToEnd;
-	bool** map = nullptr;
+	bool map[WORLD_MAP_SIZE][WORLD_MAP_SIZE] = { 0 };
 
 	void findPath(const glm::vec3& currentPos, const glm::vec3& targetPos);
 	glm::vec3 nextPathPos(const glm::vec3& pos, const float& radius);

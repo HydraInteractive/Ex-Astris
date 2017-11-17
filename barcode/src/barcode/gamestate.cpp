@@ -323,14 +323,14 @@ namespace Barcode {
 			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 			a->damage = 4;
-			a->behaviour->originalRange = 4;
+			a->behaviour->originalRange = 5;
 			a->radius = 1;
 
 			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 			h->maxHP = 80;
 			h->health = 80;
 			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
-			m->movementSpeed = 8.0f;
+			m->movementSpeed = 100.0f;
 			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ 10, 0, 20 };
 			t->scale = glm::vec3{ 2,2,2 };
