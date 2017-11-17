@@ -96,6 +96,19 @@ namespace Barcode {
 				glm::decompose(drawObj->modelMatrix, newScale, rotation, translation, skew, perspective);
 				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(glm::translate(translation) * glm::mat4_cast(rotation) * glm::scale(rgbc->getHalfExtentScale() * glm::vec3(2)));
 			}
+
+			world::getEntitiesWithComponents<Hydra::Component::GhostObjectComponent, Hydra::Component::DrawObjectComponent>(entities);
+			for (auto e : entities) {
+				auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
+				auto goc = e->getComponent<Hydra::Component::GhostObjectComponent>();
+				glm::vec3 newScale;
+				glm::quat rotation;
+				glm::vec3 translation;
+				glm::vec3 skew;
+				glm::vec4 perspective;
+				glm::decompose(drawObj->modelMatrix, newScale, rotation, translation, skew, perspective);
+				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(glm::translate(translation) * glm::mat4_cast(rotation) * glm::scale(goc->halfExtents * glm::vec3(2)));
+			}
 			_hitboxBatch.pipeline->setValue(0, _cc->getViewMatrix());
 			_hitboxBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
 			_engine->getRenderer()->renderHitboxes(_hitboxBatch.batch);
@@ -279,12 +292,12 @@ namespace Barcode {
 		for (size_t i = 0; i < 1; i++){
 			auto pickUpEntity = world::newEntity("PickUp", world::root());
 			auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3(i, 0.0f, -4.0f);
+			t->position = glm::vec3(-5, -5.0f, -4.0f);
 			pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/GreenCargoBox.mATTIC");
 			pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
-			auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
-			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+			auto goc = pickUpEntity->addComponent<Hydra::Component::GhostObjectComponent>();
+			goc->createBox(glm::vec3(3,3,3));
+			_physicsSystem.enable(static_cast<Hydra::Component::GhostObjectComponent*>(goc.get()));
 		}
 
 		{
