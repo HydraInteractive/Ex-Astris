@@ -107,7 +107,7 @@ namespace Barcode {
 				glm::vec3 skew;
 				glm::vec4 perspective;
 				glm::decompose(drawObj->modelMatrix, newScale, rotation, translation, skew, perspective);
-				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(glm::translate(translation) * glm::mat4_cast(rotation) * glm::scale(goc->halfExtents * glm::vec3(2)));
+				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(glm::translate(translation) * glm::mat4_cast(goc->quatRotation) * glm::scale(goc->halfExtents * glm::vec3(2)));
 			}
 			_hitboxBatch.pipeline->setValue(0, _cc->getViewMatrix());
 			_hitboxBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
@@ -278,7 +278,7 @@ namespace Barcode {
 		}
 		{
 			//Remove this to gain frames like never before
-			TileGeneration worldTiles("assets/room/threewayRoom.room");
+			//TileGeneration worldTiles("assets/room/threewayRoom.room");
 		}
 		{
 			auto physicsBox = world::newEntity("Physics box", world::root());
@@ -289,7 +289,7 @@ namespace Barcode {
 			physicsBox->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BigMonitor.mATTIC");
 		}
 
-		/*for (size_t i = 0; i < 1; i++) {
+		for (size_t i = 0; i < 1; i++) {
 			auto pickUpEntity = world::newEntity("PickUp", world::root());
 			auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(-5, -5.0f, -4.0f);
@@ -297,7 +297,7 @@ namespace Barcode {
 			pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
 			auto goc = pickUpEntity->addComponent<Hydra::Component::GhostObjectComponent>();
 			goc->createBox(glm::vec3(1,1,1));
-		}*/
+		}
 
 		{
 			auto playerEntity = world::newEntity("Player", world::root());
