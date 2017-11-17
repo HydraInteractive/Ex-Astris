@@ -23,11 +23,12 @@ PathFinding::~PathFinding() {
 
 void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetPos)
 {
+	enemyY = currentPos.y;
+
 	if (map == nullptr)
 	{
 		return;
 	}
-
 	if (!intializedStartGoal) 
 	{
 		_openList.clear();
@@ -100,7 +101,7 @@ PathFinding::MapVec PathFinding::worldToMapCoords(const glm::vec3& worldPos) con
 
 glm::vec3 PathFinding::mapToWorldCoords(const MapVec& mapPos) const
 {
-	return glm::vec3((mapPos.baseVec.x - (WORLD_MAP_SIZE / 2)) * ROOM_SCALE, 0.0f, (mapPos.baseVec.y - (WORLD_MAP_SIZE / 2)) * ROOM_SCALE);
+	return glm::vec3((mapPos.baseVec.x - (WORLD_MAP_SIZE / 2)) * ROOM_SCALE, enemyY, (mapPos.baseVec.y - (WORLD_MAP_SIZE / 2)) * ROOM_SCALE);
 }
 
 glm::vec3 PathFinding::nextPathPos(const glm::vec3& pos, const float& radius)
