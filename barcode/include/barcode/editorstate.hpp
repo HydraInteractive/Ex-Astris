@@ -43,6 +43,7 @@
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
+#include <hydra/component/ghostobjectcomponent.hpp>
 
 #include <imgui/imgui.h>
 
