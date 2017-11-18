@@ -100,6 +100,8 @@ void PlayerSystem::tick(float delta) {
 						//else
 						//	dyaw -= rn/3;
 						weaponMesh->animationIndex = 2;
+						if (weapon->currmagammo == 0)
+							weapon->_isReloading = true;
 					}
 			}
 		}
