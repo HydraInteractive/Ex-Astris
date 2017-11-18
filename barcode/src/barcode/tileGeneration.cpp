@@ -7,6 +7,10 @@ TileGeneration::TileGeneration(std::string middleRoomPath) {
 	for (int i = 0; i < WORLD_MAP_SIZE; i++)
 	{
 		pathfindingMap[i] = new bool[WORLD_MAP_SIZE];
+		for (int j = 0; j < WORLD_MAP_SIZE; j++)
+		{
+			pathfindingMap[i][j] = false;
+		}
 	}
 	_setUpMiddleRoom(middleRoomPath);
 }

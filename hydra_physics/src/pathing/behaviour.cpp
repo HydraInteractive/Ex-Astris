@@ -62,34 +62,6 @@ bool Behaviour::refreshRequiredComponents()
 	return hasRequiredComponents;
 }
 
-bool Behaviour::checkLOS(int levelmap[ROOM_MAP_SIZE][ROOM_MAP_SIZE], glm::vec3 enemyPos, glm::vec3 playerPos)
-{
-	//TODO: ADD COORDINATE VERIFICATION, MAYBE MOVE TO PATHFINDING
-	//New code, not optimal
-	double x = playerPos.x - enemyPos.x;
-	double z = playerPos.z - enemyPos.z;
-	double len = std::sqrt((x*x) + (z*z));
-
-	if (!len) //Player tile is same as target tile
-		return true;
-
-	double unitx = x / len;
-	double unitz = z / len;
-
-	x = enemyPos.x;
-	z = enemyPos.z;
-	for (double i = 1; i < len; i += 1)
-	{
-		if (levelmap[(int)x][(int)z] == 1)
-			{
-				return false;
-			}
-		x += unitx;
-		z += unitz;
-	}
-	return true;
-}
-
 unsigned int Behaviour::idleState(float dt)
 {
 	resetAnimationOnStart(0);
@@ -126,12 +98,8 @@ unsigned int Behaviour::searchingState(float dt)
 	//{
 	//	return IDLE;
 	//}
-	pathFinding->intializedStartGoal = false;
- 	pathFinding->findPath(thisEnemy.transform->position, targetPlayer.transform->position);
 	isAtGoal = false;
-
-
-	if (pathFinding->foundGoal)
+	if (pathFinding->findPath(thisEnemy.transform->position, targetPlayer.transform->position))
 	{
 		if (!pathFinding->_pathToEnd.empty())
 		{
@@ -139,6 +107,10 @@ unsigned int Behaviour::searchingState(float dt)
 		}
 		newPathTimer = 0;
 		return FOUND_GOAL;
+	}
+	else
+	{
+		targetPos = targetPlayer.transform->position;
 	}
 	return state;
 }

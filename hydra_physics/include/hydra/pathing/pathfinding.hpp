@@ -39,8 +39,8 @@ public:
 	};
 	struct Node
 	{
-		MapVec pos;
-		std::shared_ptr<Node> lastNode;
+		MapVec pos = MapVec();
+		std::shared_ptr<Node> lastNode = nullptr;
 		float G = 0.0f;
 		float H = 0.0f;
 		float F = 0.0f;
@@ -88,20 +88,19 @@ public:
 		bool operator>(Node& other) { return this->getF() > other.getF(); }
 	};
 
+	float enemyY = 0.0f;
+	bool foundGoal = false;
+	std::vector<glm::vec3> _pathToEnd = std::vector<glm::vec3>();
+	bool** map = nullptr;
+
 	PathFinding();
 	virtual ~PathFinding();
 
-	bool intializedStartGoal;
-	bool foundGoal;
-	std::vector<glm::vec3> _pathToEnd;
-	bool** map = nullptr;
-
-	void findPath(const glm::vec3& currentPos, const glm::vec3& targetPos);
+	bool findPath(const glm::vec3& currentPos, const glm::vec3& targetPos);
 	glm::vec3 nextPathPos(const glm::vec3& pos, const float& radius);
 	MapVec worldToMapCoords(const glm::vec3& worldPos) const;
 	glm::vec3 mapToWorldCoords(const MapVec& mapPos) const;
-
-	float enemyY = 0.0f;
+	bool inLineOfSight(glm::vec3 enemyPos, glm::vec3 playerPos);
 
 	struct {
 		bool operator()(const std::shared_ptr<Node>& _Left, const std::shared_ptr<Node>& _Right) const
@@ -119,11 +118,12 @@ public:
 	} comparisonFunctor;
 	
 private:
-	std::vector<std::shared_ptr<Node>> _visitedList;
-	std::vector<std::shared_ptr<Node>> _openList;
-	std::shared_ptr<Node> _startNode;
-	std::shared_ptr<Node> _endNode;
+	std::vector<std::shared_ptr<Node>> _visitedList = std::vector<std::shared_ptr<Node>>();
+	std::vector<std::shared_ptr<Node>> _openList = std::vector<std::shared_ptr<Node>>();
+	std::shared_ptr<Node> _startNode = nullptr;
+	std::shared_ptr<Node> _endNode = nullptr;
 
 	bool isOutOfBounds(const glm::ivec2& vec)const;
 	void _discoverNode(int x, int z, std::shared_ptr<Node> lastNode);
+	bool _inLineOfSight(MapVec enemyPos, MapVec playerPos);
 };
