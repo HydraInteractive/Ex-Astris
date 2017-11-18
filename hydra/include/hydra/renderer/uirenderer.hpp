@@ -40,6 +40,13 @@ namespace Hydra::Renderer {
 		monospace
 	};
 
+	struct HYDRA_BASE_API UIRenderWindow final {
+		bool enabled = false;
+		std::string title = "Untitled";
+		glm::ivec2 size = glm::ivec2{640, 280};
+		std::shared_ptr<ITexture> image;
+	};
+
 	class HYDRA_BASE_API IUIRenderer {
 	public:
 		virtual ~IUIRenderer() = 0;
@@ -52,6 +59,7 @@ namespace Hydra::Renderer {
 		virtual void render(float delta) = 0; // TODO: Move to IRenderer(?)
 
 		virtual void registerSystems(const std::vector<Hydra::World::ISystem*>& systems) = 0;
+		virtual UIRenderWindow* addRenderWindow() = 0;
 
 		virtual void pushFont(UIFont font) = 0;
 		virtual void popFont() = 0;

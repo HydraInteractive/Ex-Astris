@@ -7,11 +7,10 @@
  */
 #pragma once
 
-#include <barcode/renderingutils.hpp>
-
 #include <hydra/engine.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/renderer/renderer.hpp>
+#include <hydra/renderer/uirenderer.hpp>
 #include <hydra/io/meshloader.hpp>
 #include <hydra/io/textureloader.hpp>
 #include <hydra/io/gltextfactory.hpp>
@@ -38,6 +37,16 @@ namespace Barcode {
 		inline Hydra::World::ISystem* getPhysicsSystem() final { return &_physicsSystem; }
 
 	private:
+		struct RenderBatch final {
+			std::unique_ptr<Hydra::Renderer::IShader> vertexShader;
+			std::unique_ptr<Hydra::Renderer::IShader> geometryShader;
+			std::unique_ptr<Hydra::Renderer::IShader> fragmentShader;
+			std::unique_ptr<Hydra::Renderer::IPipeline> pipeline;
+
+			std::shared_ptr<Hydra::Renderer::IFramebuffer> output;
+			Hydra::Renderer::Batch batch;
+		};
+
 		enum class Menu : uint8_t {
 			none = 0,
 			play,
@@ -76,7 +85,7 @@ namespace Barcode {
 		std::unique_ptr<Hydra::IO::ITextFactory> _textFactory;
 		Hydra::System::BulletPhysicsSystem _physicsSystem;
 
-		RenderBatch<Hydra::Renderer::Batch> _viewBatch;
+		RenderBatch _viewBatch;
 
 		Menu _menu = Menu::none;
 		SubMenu _submenu = SubMenu{0};

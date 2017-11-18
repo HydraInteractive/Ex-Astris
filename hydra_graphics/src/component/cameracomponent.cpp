@@ -54,8 +54,8 @@ void CameraComponent::registerUI() {
 	ImGui::InputFloat("Aspect", &aspect, 0, 0, -1, ImGuiInputTextFlags_ReadOnly);
 
 	ImGui::DragFloat("Sensitivity", &sensitivity);
-	ImGui::DragFloat("Yaw", &cameraYaw, 0.0001);
-	ImGui::DragFloat("Pitch", &cameraPitch, 0.0001);
+	ImGui::DragFloat("Yaw", &cameraYaw);
+	ImGui::DragFloat("Pitch", &cameraPitch);
 	ImGui::Checkbox("Mouse Control", &mouseControl);
 
 	ImGui::Checkbox("NoClip", &noClip);

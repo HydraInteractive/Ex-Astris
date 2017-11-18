@@ -14,9 +14,7 @@
 
 #include <memory>
 #include <imgui/imgui.h>
-#ifdef _WIM32
 #include <filesystem>	//Git gud
-#endif
 #include <barcode/importermenu.hpp>
 #include <barcode/exportermenu.hpp>
 

@@ -93,11 +93,9 @@ namespace Barcode {
 
 		std::shared_ptr<Hydra::Renderer::IMesh> _hitboxCube;
 
-		Hydra::World::EntityID _playerID;
 		Hydra::Component::CameraComponent* _cc = nullptr;
 		Hydra::Component::TransformComponent* _playerTransform = nullptr;
 
-		float prevHP, hpTimeUp = 0;
 		TileGeneration* tileGen;
 
 

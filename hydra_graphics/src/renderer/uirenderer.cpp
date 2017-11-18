@@ -61,7 +61,7 @@ public:
 	}
 
 	void render(bool* pOpen) final {
-		ImGui::SetNextWindowSize(ImVec2(640, 480), ImGuiCond_Once);
+		ImGui::SetNextWindowSize(ImVec2(640, 480), ImGuiSetCond_Once);
 		ImGui::Begin("Hydra Log", pOpen);
 		if (ImGui::Button("Clear"))
 			clear();
@@ -161,7 +161,7 @@ public:
 
 		_monospaceFont = io.Fonts->AddFontFromFileTTF("assets/fonts/SourceCodePro-Regular.ttf", 18.0f);
 
-		/*ImGuiStyle& style = ImGui::GetStyle();
+		ImGuiStyle& style = ImGui::GetStyle();
 		style.Colors[ImGuiCol_Text] = ImVec4(0.83f, 0.95f, 0.95f, 1.00f);
 		style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.39f, 0.80f, 0.80f, 1.00f);
 		style.Colors[ImGuiCol_WindowBg] = ImVec4(0.09f, 0.27f, 0.27f, 0.87f);
@@ -204,7 +204,7 @@ public:
 		style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.53f, 0.84f, 0.84f, 1.00f);
 		style.Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.00f, 0.84f, 0.84f, 1.00f);
 		style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.13f, 0.40f, 0.40f, 1.00f);
-		style.Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(0.09f, 0.27f, 0.27f, 0.67f);*/
+		style.Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(0.09f, 0.27f, 0.27f, 0.67f);
 	}
 
 	~UIRendererImpl() final {
@@ -219,12 +219,20 @@ public:
 	}
 
 	void reset() final {
+		_renderWindows.clear();
 		_systems.clear();
 	}
 
 	void registerSystems(const std::vector<Hydra::World::ISystem*>& systems) final {
 		// TODO: Merge instead of replace?
 		_systems = systems;
+	}
+
+	UIRenderWindow* addRenderWindow() final {
+		auto window = std::make_unique<UIRenderWindow>();
+		UIRenderWindow* output = window.get();
+		_renderWindows.push_back(std::move(window));
+		return output;
 	}
 
 	void render(float delta) final {
@@ -265,6 +273,33 @@ public:
 			ImGui::EndMainMenuBar();
 		}
 
+		if (_renderWindows.size()) { //TODO: Revert this, into multiple windows
+			ImGui::Begin("Render Window");
+			ImGuiWindow* wind = ImGui::GetCurrentWindow();
+			ImGuiStyle& style = ImGui::GetStyle();
+			{
+				pushFont(UIFont::normalBold);
+				ImGui::BeginTabBar("#RenderWindows");
+				popFont();
+				ImGui::DrawTabsBackground();
+				for (auto& window : _renderWindows) {
+					if (!window->enabled)
+						continue;
+
+					if (!ImGui::AddTab(window->title.c_str()))
+						continue;
+
+					auto iSize = wind->Size - style.WindowPadding - ImVec2(24, 72);
+					if (iSize.x <= 2) iSize.x = 2;
+					if (iSize.y <= 2) iSize.y = 2;
+					window->size = glm::ivec2{iSize.x, iSize.y};
+					ImGui::Image(reinterpret_cast<ImTextureID>((size_t)window->image->getID()), iSize);
+				}
+				ImGui::EndTabBar();
+			}
+			ImGui::End();
+		}
+
 		{
 			constexpr int valueLen = 128;
 			static float fpsValues[valueLen] = {0};
@@ -295,8 +330,8 @@ public:
 			}
 
 			if (_performanceWindow) {
-				ImGui::SetNextWindowPos(ImVec2(_view->getSize().x - (300 + 16), 24), ImGuiCond_Always);
-				ImGui::SetNextWindowSize(ImVec2(300 + 16, 300 + 24), ImGuiCond_Always);
+				ImGui::SetNextWindowPos(ImVec2(_view->getSize().x - (300 + 16), 24), ImGuiSetCond_Always);
+				ImGui::SetNextWindowSize(ImVec2(300 + 16, 300 + 24), ImGuiSetCond_Always);
 				ImGui::Begin("Performance monitor", &_performanceWindow, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
 				//ImGui::Text("Counter: %f", counter);
 				ImGui::PlotHistogram("##FPS", fpsValues, valueLen, 0, fpsName, FLT_MAX, FLT_MAX, ImVec2(300, 100));
@@ -401,6 +436,7 @@ private:
 	std::unique_ptr<IUILog> _log;
 
 	std::vector<Hydra::World::ISystem*> _systems;
+	std::vector<std::unique_ptr<UIRenderWindow>> _renderWindows;
 
 	bool _logWindow = false;
 	bool _entityWindow = false;
@@ -417,7 +453,7 @@ private:
 	char inputText[32] = "";
 
 	void _renderEntityWindow() {
-		ImGui::SetNextWindowSize(ImVec2(480, 640), ImGuiCond_Once);
+		ImGui::SetNextWindowSize(ImVec2(480, 640), ImGuiSetCond_Once);
 		ImGui::Begin("Entity List", &_entityWindow);
 
 		using world = Hydra::World::World;

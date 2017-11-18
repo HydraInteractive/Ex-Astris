@@ -28,7 +28,7 @@ ComponentMenu::~ComponentMenu()
 
 void ComponentMenu::render(bool &openBool, Hydra::System::BulletPhysicsSystem& physicsSystem)
 {
-	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiSetCond_Once);
 	ImGui::Begin("Add component", &openBool, ImGuiWindowFlags_MenuBar);
 	_menuBar();
 

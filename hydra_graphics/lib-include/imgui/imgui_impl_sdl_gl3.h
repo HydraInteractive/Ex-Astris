@@ -1,3 +1,6 @@
+#ifndef IMGUI_IMPL_SDL_GL3
+#define IMGUI_IMPL_SDL_GL3
+
 // ImGui SDL2 binding with OpenGL3
 // In this binding, ImTextureID is used to store an OpenGL 'GLuint' texture identifier. Read the FAQ about ImTextureID in imgui.cpp.
 
@@ -9,11 +12,13 @@
 struct SDL_Window;
 typedef union SDL_Event SDL_Event;
 
-IMGUI_API bool        ImGui_ImplSdlGL3_Init(SDL_Window* window);
-IMGUI_API void        ImGui_ImplSdlGL3_Shutdown();
-IMGUI_API void        ImGui_ImplSdlGL3_NewFrame(SDL_Window* window);
-IMGUI_API bool        ImGui_ImplSdlGL3_ProcessEvent(SDL_Event* event);
+IMGUI_API_SDL2 bool        ImGui_ImplSdlGL3_Init(SDL_Window* window);
+IMGUI_API_SDL2 void        ImGui_ImplSdlGL3_Shutdown();
+IMGUI_API_SDL2 void        ImGui_ImplSdlGL3_NewFrame(SDL_Window* window);
+IMGUI_API_SDL2 bool        ImGui_ImplSdlGL3_ProcessEvent(SDL_Event* event);
 
 // Use if you want to reset your rendering device without losing ImGui state.
-IMGUI_API void        ImGui_ImplSdlGL3_InvalidateDeviceObjects();
-IMGUI_API bool        ImGui_ImplSdlGL3_CreateDeviceObjects();
+IMGUI_API_SDL2 void        ImGui_ImplSdlGL3_InvalidateDeviceObjects();
+IMGUI_API_SDL2 bool        ImGui_ImplSdlGL3_CreateDeviceObjects();
+
+#endif

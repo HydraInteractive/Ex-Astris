@@ -12,7 +12,7 @@ void Hydra::Component::TextComponent::serialize(nlohmann::json & json) const{
 
 void Hydra::Component::TextComponent::deserialize(nlohmann::json & json){
 	text = json.value<std::string>("text", "BigBoi");
-	maxLength = json.value<size_t>("maxLength", 24);
+	maxLength = json.value<int>("maxLength", 10);
 }
 
 void Hydra::Component::TextComponent::registerUI(){
@@ -21,32 +21,4 @@ void Hydra::Component::TextComponent::registerUI(){
 		text = buffer;
 		rebuild();
 	}
-}
-
-void Hydra::Component::TextComponent::rebuild() {
-	renderingData.resize(text.size());
-	auto factory = IEngine::getInstance()->getState()->getTextFactory();
-	glm::vec3 pos{ 0 };
-	for (size_t i = 0; i < text.size(); i++) {
-		const Hydra::IO::ITextFactory::CharInfo& info = factory->getChar(text[i]);
-		pos.x -= info.xAdvanceAmount * 1.2;
-	}
-	pos /= -2;
-
-	for (size_t i = 0; i < text.size(); i++) {
-		const Hydra::IO::ITextFactory::CharInfo& info = factory->getChar(text[i]);
-		CharRenderInfo& rInfo = renderingData[i];
-		rInfo.charRect = glm::vec4{info.pos, info.size};
-		rInfo.charPos = pos;
-		pos.x -= info.xAdvanceAmount * 1.2;
-	}
-}
-
-void  Hydra::Component::TextComponent::setText(const std::string& inText) {
-	if (inText.size() > maxLength)
-		text = inText.substr(0, maxLength);
-	else
-		text = inText;
-
-	rebuild();
 }

@@ -14,13 +14,13 @@ enum string SubProjectsLink = SubProjects.map!((string x) => "-l" ~ x).joiner(" 
 
 enum warnings = "-Wall -Wextra -Werror -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wrestrict -Wnull-dereference -Wformat=2 -Wno-error=unused-parameter -Wno-error=format-nonliteral -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=reorder -Wno-error=empty-body";
 
-enum string CFlagsLib = optimization ~ " -std=c++1z " ~ warnings ~ " -fdiagnostics-color=always -fPIC  -DBT_THREADSAFE -isystem/usr/include/bullet " ~ SubProjectsInclude;
-enum string CFlagsExecBase = optimization ~ " -std=c++1z " ~ warnings ~ " -fdiagnostics-color=always -fPIC  -DBT_THREADSAFE -isystem/usr/include/bullet ";
+enum string CFlagsLib = optimization ~ " -std=c++1z " ~ warnings ~ " -fdiagnostics-color=always -fPIC " ~ SubProjectsInclude;
+enum string CFlagsExecBase = optimization ~ " -std=c++1z " ~ warnings ~ " -fdiagnostics-color=always -fPIC ";
 
 enum string CFlagsHydraBaseLib = "-DHYDRA_BASE_EXPORTS " ~ CFlagsLib;
 enum string CFlagsHydraGraphicsLib = "-DHYDRA_GRAPHICS_EXPORTS " ~ CFlagsLib;
 enum string CFlagsHydraNetworkLib = "-DHYDRA_NETWORK_EXPORTS " ~ CFlagsLib;
-enum string CFlagsHydraPhysicsLib = "-DHYDRA_PHYSICS_EXPORTS " ~ CFlagsLib;
+enum string CFlagsHydraPhysicsLib = "-DHYDRA_PHYSICS_EXPORTS -DBT_THREADSAFE -isystem/usr/include/bullet " ~ CFlagsLib;
 enum string CFlagsHydraSoundLib = "-DHYDRA_SOUND_EXPORTS " ~ CFlagsLib;
 enum string CFlagsExec = "-DBARCODE_EXPORTS " ~ CFlagsExecBase ~ warnings ~ " -Ibarcode/include " ~ SubProjectsInclude;
 
@@ -51,7 +51,7 @@ Target[] MakeObjects(string src, CompileCommand cmd)() {
 
 	Target[] objs;
 
-	foreach (f; chain(dirEntries(src, "*.cpp", SpanMode.breadth), dirEntries(src, "*.c", SpanMode.breadth)).filter!(x => !x.isDir && x.name[x.lastIndexOf('/') + 1] != '.')) {
+	foreach (f; chain(dirEntries(src, "*.cpp", SpanMode.breadth), dirEntries(src, "*.c", SpanMode.breadth)).filter!(x => !x.isDir)) {
 		auto flags = cmd ~ (f.indexOf("src/lib") != -1 ? " -w " : "");
 
 		auto exec = executeShell("g++ -MM " ~ SubProjectsInclude ~ " " ~ f);

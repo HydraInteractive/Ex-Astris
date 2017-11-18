@@ -602,6 +602,8 @@ namespace ImGuizmo
 
    static ImVec2 worldToPos(const vec_t& worldPos, const matrix_t& mat)
    {
+      ImGuiIO& io = ImGui::GetIO();
+
       vec_t trans;
       trans.TransformPoint(worldPos, mat);
       trans *= 0.5f / trans.w;
@@ -667,16 +669,11 @@ namespace ImGuizmo
    {
       ImGuiIO& io = ImGui::GetIO();
 
-			ImGui::SetNextWindowSize(io.DisplaySize, ImGuiCond_FirstUseEver);
-			auto backup = ImGui::GetStyleColorVec4(ImGuiCol_WindowBg);
-			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
-      ImGui::Begin("gizmo", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus);
-			ImGui::PushStyleColor(ImGuiCol_WindowBg, backup);
+      ImGui::Begin("gizmo", NULL, io.DisplaySize, 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus);
+
       gContext.mDrawList = ImGui::GetWindowDrawList();
 
-			ImGui::PopStyleColor();
       ImGui::End();
-			ImGui::PopStyleColor();
    }
 
    bool IsUsing()
@@ -770,6 +767,8 @@ namespace ImGuizmo
             for (int i = 0; i < 3; i++)
                colors[i + 1] = (type == (int)(SCALE_X + i)) ? selectionColor : directionColor[i];
             break;
+         case BOUNDS:
+             break;
          }
       }
       else
@@ -865,6 +864,7 @@ namespace ImGuizmo
    static void DrawRotationGizmo(int type)
    {
       ImDrawList* drawList = gContext.mDrawList;
+      ImGuiIO& io = ImGui::GetIO();
 
       // colors
       ImU32 colors[7];
