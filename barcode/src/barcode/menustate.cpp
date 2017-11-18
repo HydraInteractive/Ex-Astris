@@ -12,6 +12,7 @@ namespace Barcode {
 	bool MenuState::ssaoEnabled = true;
 	bool MenuState::glowEnabled = true;
 	bool MenuState::shadowEnabled = true;
+	float MenuState::playerHPMultiplier = 1;
 
 	MenuState::MenuState() : _engine(Hydra::IEngine::getInstance()) {}
 
@@ -120,6 +121,41 @@ namespace Barcode {
 		ImGui::PopStyleVar();
 		ImGui::PopStyleColor();
 		ImGui::PopStyleColor();
+
+		if (_openDifficultyPopup) {
+			ImGui::OpenPopup("Select Difficulty");
+			_openDifficultyPopup = false;
+		}
+
+		if (ImGui::BeginPopupModal("Select Difficulty", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+			ImGui::Text("Please select the difficulty you want");
+
+			static int item = 1;
+
+			static const char* items[] = { "Easy", "Normal", "Hard", "Über" };
+			static float values[] = { 2, 1, 0.5f, 0.25f };
+			ImGui::ListBoxHeader("Difficulty", IM_ARRAYSIZE(items));
+			ImGui::Columns(2);
+			for (int i = 0; i < IM_ARRAYSIZE(items); i++) {
+				if (ImGui::Selectable(items[i], item == i)) {
+					playerHPMultiplier = values[i];
+					item = i;
+				}
+				ImGui::NextColumn();
+				ImGui::Text("%3.0f%% Player HP", 100 * values[i]);
+				ImGui::NextColumn();
+			}
+			ImGui::Columns(1);
+			ImGui::ListBoxFooter();
+
+			ImGui::Separator();
+			if (ImGui::Button("Start"))
+				_engine->setState<Barcode::GameState>();
+			ImGui::SameLine();
+			if(ImGui::Button("Cancel"))
+				ImGui::CloseCurrentPopup();
+			ImGui::EndPopup();
+		}
 	}
 
 	void MenuState::_initSystem() {
@@ -189,7 +225,7 @@ namespace Barcode {
 				{
 					auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/newSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/newTransparent.png")->getID());
 					if (ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
-						_engine->setState<Barcode::GameState>();
+						_openDifficultyPopup = true;
 				}
 				ImGui::End();
 			}

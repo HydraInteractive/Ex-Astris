@@ -23,6 +23,8 @@ namespace Barcode {
 		static bool glowEnabled;
 		static bool ssaoEnabled;
 		static bool shadowEnabled;
+		static int difficulty;
+		static float playerHPMultiplier;
 
 		MenuState();
 		~MenuState() final;
@@ -77,6 +79,7 @@ namespace Barcode {
 		Hydra::System::BulletPhysicsSystem _physicsSystem;
 
 		RenderBatch<Hydra::Renderer::Batch> _viewBatch;
+		bool _openDifficultyPopup = false;
 
 		Menu _menu = Menu::none;
 		SubMenu _submenu = SubMenu{0};
