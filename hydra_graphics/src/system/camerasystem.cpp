@@ -42,9 +42,9 @@ void CameraSystem::tick(float delta) {
 			velocity.x += 1;
 
 		static bool wasCtrlDown = false;
-		if (keysArray[SDL_SCANCODE_LCTRL] && !wasCtrlDown)
+		if (keysArray[SDL_SCANCODE_LALT] && !wasCtrlDown)
 			toggleMouse = wasCtrlDown = true;
-		else if (!keysArray[SDL_SCANCODE_LCTRL] && wasCtrlDown)
+		else if (!keysArray[SDL_SCANCODE_LALT] && wasCtrlDown)
 			wasCtrlDown = false;
 
 		multiplier = keysArray[SDL_SCANCODE_LSHIFT];
