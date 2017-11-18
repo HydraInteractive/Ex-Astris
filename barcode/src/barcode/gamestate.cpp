@@ -128,6 +128,8 @@ namespace Barcode {
 			for (auto& p : Hydra::Component::PlayerComponent::componentHandler->getActiveComponents()) {
 				auto player = static_cast<Hydra::Component::PlayerComponent*>(p.get());
 				auto weaponc = ((Hydra::Component::WeaponComponent*)player->getWeapon()->getComponent<Hydra::Component::WeaponComponent>().get());
+				auto lifeC = ((Hydra::Component::LifeComponent*)Hydra::World::World::getEntity(player->entityID)->getComponent<Hydra::Component::LifeComponent>().get());
+				hpP = 100 * ((float)lifeC->health / (float)lifeC->maxHP);
 				ammoP = 100 * ((float)weaponc->currmagammo / (float)weaponc->maxmagammo);
 				//perksList = player->activeBuffs.getActiveBuffs();
 			}
