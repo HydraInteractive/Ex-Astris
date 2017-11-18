@@ -7,6 +7,11 @@
 #include <hydra/component/soundfxcomponent.hpp>
 #include <hydra/abilities/grenadecomponent.hpp>
 #include <hydra/abilities/minecomponent.hpp>
+#include <hydra/component/aicomponent.hpp>
+#include <hydra/component/lifecomponent.hpp>
+#include <hydra/component/particlecomponent.hpp>
+
+
 
 using namespace Hydra::System;
 
@@ -28,6 +33,21 @@ void AbilitySystem::tick(float delta) {
 		if (g->detonateTimer <= 0 && !g->isExploding) {
 			s->soundsToPlay.push_back("assets/sounds/piano.wav");
 			g->isExploding = true;
+
+			std::vector<std::shared_ptr<Hydra::World::Entity>> allEnemies;
+			world::getEntitiesWithComponents<Hydra::Component::AIComponent>(allEnemies);
+			for (int_openmp_t i = 0; i < (int_openmp_t)allEnemies.size(); i++) {
+				auto tc = allEnemies[i]->getComponent<Hydra::Component::TransformComponent>();
+				auto lc = allEnemies[i]->getComponent<Hydra::Component::LifeComponent>();
+				
+				if (glm::length(tc->position - t->position) <= 20.0f)
+				{
+					lc->applyDamage(15);
+				}
+			}
+			_spawnParticleEmitterAt(t->position, glm::vec3(0,1,0));
+			allEnemies.clear();
+			entities[i]->dead = true;
 		}
 	}
 
@@ -43,3 +63,24 @@ void AbilitySystem::tick(float delta) {
 }
 
 void AbilitySystem::registerUI() {}
+
+void AbilitySystem::_spawnParticleEmitterAt(const glm::vec3 & pos, const glm::vec3 & normal)
+{
+	auto pE = Hydra::World::World::newEntity("Collision Particle Spawner", Hydra::World::World::rootID);
+
+	pE->addComponent<Hydra::Component::MeshComponent>()->loadMesh("PARTICLEQUAD");
+
+	auto pETC = pE->addComponent<Hydra::Component::TransformComponent>();
+	pETC->position = pos;
+
+	auto pEPC = pE->addComponent<Hydra::Component::ParticleComponent>();
+	pEPC->delay = 1.0f / 1.0f;
+	pEPC->accumulator = 5.0f;
+	pEPC->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::Explosion;
+	pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::Blood;
+	pEPC->optionalNormal = normal;
+
+	auto pELC = pE->addComponent<Hydra::Component::LifeComponent>();
+	pELC->maxHP = 1.0f;
+	pELC->health = 1.0f;
+}
