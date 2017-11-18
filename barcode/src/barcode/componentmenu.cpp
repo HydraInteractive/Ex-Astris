@@ -185,7 +185,7 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 			if (ImGui::Button("Finish"))
 			{
 				auto goc = _selectedEntity->addComponent<Hydra::Component::GhostObjectComponent>();
-				goc->createBox(ghostObjectInput.size);
+				goc->createBox(ghostObjectInput.size,Hydra::System::BulletPhysicsSystem::COLL_WALL);
 				physicsSystem.enable(goc.get());
 				rigidBodyInput = RBI();
 			}

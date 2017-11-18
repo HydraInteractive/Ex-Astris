@@ -4,6 +4,7 @@
 #include <hydra/world/world.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <hydra/system/bulletphysicssystem.hpp>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 
 using namespace Hydra::World;
@@ -16,8 +17,10 @@ namespace Hydra::Component {
 		glm::vec3 halfExtents = glm::vec3();
 		glm::vec3 rotation = glm::vec3();
 		glm::quat quatRotation = glm::quat(0.0f, 0.0f, 0.0f, 1.0f);
+		Hydra::System::BulletPhysicsSystem::CollisionTypes collisionType = Hydra::System::BulletPhysicsSystem::COLL_WALL;
+		
 		//void createSphere(float radius);
-		void createBox(const glm::vec3& halfExtents, const glm::quat& quatRotation = glm::quat(0,0,0,1));
+		void createBox(const glm::vec3& halfExtents, Hydra::System::BulletPhysicsSystem::CollisionTypes collType, const glm::quat& quatRotation = glm::quat(0,0,0,1));
 
 		~GhostObjectComponent() final;
 

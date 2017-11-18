@@ -22,6 +22,7 @@
 #include <hydra/component/textcomponent.hpp>
 #include <hydra/component/ghostobjectcomponent.hpp>
 #include <btBulletDynamicsCommon.h>
+#include <BulletCollision/CollisionDispatch/btGhostObject.h>
 
 inline static btQuaternion cast(const glm::quat& r) { return btQuaternion{r.x, r.y, r.z, r.w}; }
 inline static btVector3 cast(const glm::vec3& v) { return btVector3{v.x, v.y, v.z}; }
@@ -91,7 +92,33 @@ void BulletPhysicsSystem::disable(RigidBodyComponent* component) {
 }
 
 void Hydra::System::BulletPhysicsSystem::enable(GhostObjectComponent * component){
-	_data->dynamicsWorld->addCollisionObject(component->ghostObject, COLL_WALL, CollisionCondition::wallCollidesWith);
+	switch (component->ghostObject->getUserIndex2())
+	{
+	case CollisionTypes::COLL_PLAYER:
+		_data->dynamicsWorld->addCollisionObject(component->ghostObject, COLL_PLAYER, CollisionCondition::playerCollidesWith);
+		break;
+	case CollisionTypes::COLL_ENEMY:
+		_data->dynamicsWorld->addCollisionObject(component->ghostObject, COLL_ENEMY, CollisionCondition::enemyCollidesWith);
+		break;
+	case CollisionTypes::COLL_WALL:
+		_data->dynamicsWorld->addCollisionObject(component->ghostObject, COLL_WALL, CollisionCondition::wallCollidesWith);
+		break;
+	case CollisionTypes::COLL_PLAYER_PROJECTILE:
+		_data->dynamicsWorld->addCollisionObject(component->ghostObject, COLL_PLAYER_PROJECTILE, CollisionCondition::playerProjCollidesWith);
+		break;
+	case CollisionTypes::COLL_ENEMY_PROJECTILE:
+		_data->dynamicsWorld->addCollisionObject(component->ghostObject, COLL_ENEMY_PROJECTILE, CollisionCondition::enemyProjCollidesWith);
+		break;
+	case CollisionTypes::COLL_MISC_OBJECT:
+		_data->dynamicsWorld->addCollisionObject(component->ghostObject, COLL_MISC_OBJECT, CollisionCondition::miscObjectCollidesWith);
+		break;
+	case CollisionTypes::COLL_PICKUP_OBJECT:
+		_data->dynamicsWorld->addCollisionObject(component->ghostObject, COLL_PICKUP_OBJECT, CollisionCondition::pickupObjectCollidesWith);
+		break;
+	default:
+		_data->dynamicsWorld->addCollisionObject(component->ghostObject, COLL_NOTHING, COLL_NOTHING);
+		break;
+	}
 }
 
 void Hydra::System::BulletPhysicsSystem::disable(GhostObjectComponent * component){
@@ -110,6 +137,7 @@ void BulletPhysicsSystem::tick(float delta) {
 		const btCollisionObject* obB = contactManifold->getBody1();
 		Entity* eA = Hydra::World::World::getEntity(obA->getUserIndex()).get();
 		Entity* eB = Hydra::World::World::getEntity(obB->getUserIndex()).get();
+
 		if (!eA || !eB)
 			continue;
 
@@ -133,7 +161,7 @@ void BulletPhysicsSystem::tick(float delta) {
 		else if ((pickupComponent = eB->getComponent<PickUpComponent>().get()))
 			perkComponent = eA->getComponent<PerkComponent>().get();
 
-		if (pickupComponent)
+		if (pickupComponent && perkComponent)
 			_addPickUp(pickupComponent, perkComponent);
 
 		// Gets the contact points
@@ -161,11 +189,6 @@ void BulletPhysicsSystem::tick(float delta) {
 			// Breaks because just wanna check the first collision.
 			break;
 		}
-	}
-
-	world::getEntitiesWithComponents<GhostObjectComponent>(entities);
-	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
-		
 	}
 
 	entities.clear();
