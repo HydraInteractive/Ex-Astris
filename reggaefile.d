@@ -36,7 +36,7 @@ enum CC = "g++";
 
 enum CompileCommand : string {
 	CompileExec = CC ~ " -c " ~ CFlagsExec ~ " $in -o $out",
-	LinkExec = CC ~ " " ~ LFlagsExec ~ " $in -o $out"
+	LinkExec = CC ~ " " ~ LFlagsExec ~ " $in -lstdc++fs -o $out"
 }
 enum string Compile(string lib) = CC ~ " -c " ~ lib ~ " $in -o $out";
 enum string Link(string lib) = CC ~ " " ~ lib ~ " $in -o $out";

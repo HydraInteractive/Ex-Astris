@@ -14,8 +14,10 @@
 
 #include <memory>
 #include <imgui/imgui.h>
-#ifdef _WIM32
-#include <filesystem>	//Git gud
+#ifdef _WIN32
+#include <filesystem>
+#else
+#include <experimental/filesystem>
 #endif
 #include <barcode/importermenu.hpp>
 #include <barcode/exportermenu.hpp>

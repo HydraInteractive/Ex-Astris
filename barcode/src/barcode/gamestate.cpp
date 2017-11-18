@@ -172,7 +172,7 @@ namespace Barcode {
 				if (hpTimeUp >= 0) {
 					ImGui::SetNextWindowPos(ImVec2(0, 0));
 					ImGui::SetNextWindowSize(ImVec2(1920, 1080));
-					ImGui::Begin("DamageBleed", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+					ImGui::Begin("DamageBleed", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoInputs);
 					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/blood.png")->getID()), ImVec2(1920, 1080), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1,1,1, hpTimeUp));
 					ImGui::End();
 				}
