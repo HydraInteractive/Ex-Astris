@@ -32,8 +32,8 @@ namespace Hydra::Component {
 
 		/*unsigned short*/ int maxammo = 500;
 		/*unsigned short*/ int currammo = 500;
-		/*unsigned short*/ int maxmagammo = 10;
-		/*unsigned short*/ int currmagammo = 10;
+		/*unsigned short*/ int maxmagammo = 25;
+		/*unsigned short*/ int currmagammo = 25;
 		/*unsigned short*/ int ammoPerShot = 1;
 		float reloadTime = 0;
 		float maxReloadTime = 2;

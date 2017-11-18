@@ -20,7 +20,7 @@ ComponentMenu::ComponentMenu()
 {
 	glm::vec3 size = glm::vec3(1.0f, 1.0f, 1.0f);
 }
-
+ 
 ComponentMenu::~ComponentMenu()
 {
 
@@ -163,7 +163,7 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 			{
 				auto t = _selectedEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 				//physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(t->scale * 10.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_MISC_OBJECT, 10, 0, 0, 1.0f, 1.0f);
-				t->createBox(rigidBodyInput.size/2.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, rigidBodyInput.mass);
+				t->createBox(rigidBodyInput.size/2.0f, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, rigidBodyInput.mass);
 				physicsSystem.enable(t.get());
 				rigidBodyInput = RBI();
 				//openBool = false;

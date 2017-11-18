@@ -285,7 +285,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		t->scale = glm::vec3{ 1,1,1 };
 
 		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		rgbc->createBox(glm::vec3(0.5f) * t->scale, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 	}
@@ -313,7 +313,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		t->scale = glm::vec3{ 1,1,1 };
 
 		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		rgbc->createBox(glm::vec3(0.5f) * t->scale, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 	}
@@ -373,7 +373,7 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::Component::TransformCo
 		pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/GreenCargoBox.mATTIC");
 		pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
 		auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
+		rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 	}
 }

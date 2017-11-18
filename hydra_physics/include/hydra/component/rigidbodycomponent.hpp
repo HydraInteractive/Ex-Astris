@@ -33,7 +33,7 @@ namespace Hydra::Component {
 		~RigidBodyComponent() final;
 
 #define DEFAULT_PARAMS Hydra::System::BulletPhysicsSystem::CollisionTypes collType = Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_NOTHING, float mass = 0, float linearDamping = 0, float angularDamping = 0, float friction = 0, float rollingFriction = 0
-		void createBox(const glm::vec3& halfExtents, DEFAULT_PARAMS);
+		void createBox(const glm::vec3& halfExtents, const glm::vec3& offset, DEFAULT_PARAMS);
 		void createStaticPlane(const glm::vec3& planeNormal, float planeConstant, DEFAULT_PARAMS);
 		void createSphere(float radius, DEFAULT_PARAMS);
 		//void createTriangleMesh(btStridingMeshInterface *meshInterface, bool useQuantizedAabbCompression, bool buildBvh=true, DEFAULT_PARAMS);
@@ -48,7 +48,9 @@ namespace Hydra::Component {
 		void setActivationState(ActivationState newState);
 		void setAngularForce(glm::vec3 angularForce);
 		void* getRigidBody();
+		glm::vec3 getPosition();
 		glm::vec3 getHalfExtentScale() { return _halfExtents; }
+		glm::quat getRotation();
 
 		inline const std::string type() const final { return "RigidBodyComponent"; }
 

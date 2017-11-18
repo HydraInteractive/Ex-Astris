@@ -17,7 +17,7 @@ void GrenadeAbility::useAbility(const std::shared_ptr<Hydra::World::Entity>& pla
 
 	auto bulletPhysWorld = static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem());
 	auto rbc = grenade->addComponent<Hydra::Component::RigidBodyComponent>();
-	rbc->createBox(glm::vec3(0.5f, 0.3f, 0.3f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE, 0.4f);
+	rbc->createBox(glm::vec3(0.5f, 0.3f, 0.3f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE, 0.4f);
 	auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
 	bulletPhysWorld->enable(rbc.get());
 
@@ -101,7 +101,7 @@ void BulletSprayAbillity::tick(float delta, const std::shared_ptr<Hydra::World::
 		auto bulletPhysWorld = static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem());
 
 		auto rbc = bullet->addComponent<Hydra::Component::RigidBodyComponent>();
-		rbc->createBox(glm::vec3(0.5f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE, 0.0095f);
+		rbc->createBox(glm::vec3(0.5f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE, 0.0095f);
 		auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
 		bulletPhysWorld->enable(rbc.get());
 		rigidBody->setActivationState(DISABLE_DEACTIVATION);
