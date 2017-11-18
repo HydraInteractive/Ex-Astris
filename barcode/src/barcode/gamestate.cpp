@@ -2,6 +2,7 @@
 
 #include <barcode/menustate.hpp>
 #include <barcode/losestate.hpp>
+#include <barcode/winstate.hpp>
 
 #include <hydra/renderer/glrenderer.hpp>
 #include <hydra/renderer/glshader.hpp>
@@ -49,6 +50,17 @@ namespace Barcode {
 		if (!world::getEntity(_playerID)) {
 			_engine->setState<LoseState>();
 			return;
+		}
+
+		{
+			static std::vector<std::shared_ptr<Entity>> _enemies;
+			world::getEntitiesWithComponents<Hydra::Component::AIComponent, Hydra::Component::LifeComponent>(_enemies);
+			if (!_enemies.size()) {
+				_enemies.clear();
+				_engine->setState<WinState>();
+				return;
+			}
+			_enemies.clear();
 		}
 
 		if (ImGui::Button("Remove unused meshes"))
