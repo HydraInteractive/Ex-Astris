@@ -11,7 +11,7 @@ namespace Barcode {
 	void EditorState::load() {
 		_textureLoader = Hydra::IO::GLTextureLoader::create();
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
-
+		_textFactory = Hydra::IO::GLTextFactory::create("assets/fonts/font.png");
 		auto windowSize = _engine->getView()->getSize();
 		_dgp = std::make_unique<DefaultGraphicsPipeline>(_cameraSystem, windowSize);
 
