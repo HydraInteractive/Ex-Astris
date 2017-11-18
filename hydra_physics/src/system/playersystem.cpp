@@ -67,6 +67,8 @@ void PlayerSystem::tick(float delta) {
 
 			if (keysArray[SDL_SCANCODE_A])
 				movement->velocity -= movement->movementSpeed * right * delta;
+			if (keysArray[SDL_SCANCODE_K])
+				perks->newPerks.push_back(PerkComponent::PERK_DMGMUPRECOILUP);
 
 			if (keysArray[SDL_SCANCODE_D])
 				movement->velocity += movement->movementSpeed * right * delta;

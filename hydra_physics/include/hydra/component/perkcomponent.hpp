@@ -22,6 +22,8 @@ namespace Hydra::Component {
 			PERK_MINE,
 			PERK_FORCEPUSH,
 			PERK_BULLETSPRAY,
+			PERK_HPUP1,
+			PERK_DMGMUPRECOILUP,
 			AMOUNTOFPERKS
 		};
 		std::vector<Perk> newPerks;

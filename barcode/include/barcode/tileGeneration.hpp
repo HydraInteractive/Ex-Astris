@@ -42,7 +42,7 @@ public:
 	TileGeneration(std::string middleRoomPath);
 	~TileGeneration();
 
-	int maxRooms = 25;
+	int maxRooms = 1;
 
 private:
 	std::vector<std::string> _roomFileNames;

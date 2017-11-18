@@ -88,6 +88,15 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 		perk->activeAbilities.push_back(new BulletSprayAbillity());
 		break;
 	}
+	//case Hydra::Component::PerkComponent::PERK_HPUP1: {
+	//	playerEntity->getComponent<LifeComponent>();
+	//	break;
+	//}
+	case Hydra::Component::PerkComponent::PERK_DMGMUPRECOILUP: {
+		playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>()->bulletDamage *= 1.5;
+		playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>()->recoil += 1;
+		break;
+	}
 	default:
 		break;
 	}
