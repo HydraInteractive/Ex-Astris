@@ -21,6 +21,7 @@ namespace Barcode {
 	void LoseState::load() {
 		_textureLoader = Hydra::IO::GLTextureLoader::create();
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
+		_textFactory = Hydra::IO::GLTextFactory::create("assets/fonts/font.png");
 
 		_dgp = std::make_unique<DefaultGraphicsPipeline>(_cameraSystem, _engine->getView()->getSize());
 
@@ -108,7 +109,7 @@ namespace Barcode {
 			};
 			for (const glm::vec3& pos :  positions) {
 				auto particleEmitter = world::newEntity("Blood", p);
-				particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("QUAD");
+				particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("PARTICLEQUAD");
 				auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
 				p->delay = 1.0f / 128.0f;
 				p->texture = Hydra::Component::ParticleComponent::ParticleTexture::Blood;

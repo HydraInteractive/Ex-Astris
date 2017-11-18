@@ -21,6 +21,7 @@ namespace Barcode {
 	void WinState::load() {
 		_textureLoader = Hydra::IO::GLTextureLoader::create();
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
+		_textFactory = Hydra::IO::GLTextFactory::create("assets/fonts/font.png");
 
 		_dgp = std::make_unique<DefaultGraphicsPipeline>(_cameraSystem, _engine->getView()->getSize());
 
@@ -119,7 +120,7 @@ namespace Barcode {
 			m->currentFrame = 0;
 			_robotMesh = m.get(); {
 				auto particleEmitter = world::newEntity("Energy particles", p);
-				particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("QUAD");
+				particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("PARTICLEQUAD");
 				auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
 				p->delay = 1.0f / 32.0f;
 				p->texture = Hydra::Component::ParticleComponent::ParticleTexture::Energy;
@@ -141,7 +142,7 @@ namespace Barcode {
 			m->currentFrame = 0;
 			_alienMesh = m.get(); {
 				auto particleEmitter = world::newEntity("Blood", p);
-				particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("QUAD");
+				particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("PARTICLEQUAD");
 				auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
 				p->delay = 1.0f / 32.0f;
 				p->texture = Hydra::Component::ParticleComponent::ParticleTexture::AlienBlood;
