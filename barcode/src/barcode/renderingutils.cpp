@@ -352,7 +352,7 @@ namespace Barcode {
 				_engine->getRenderer()->render(_particleBatch.batch);
 			}
 		}
-	
+
 		{ // Text render batch.
 			for (auto& kv : _textBatch.batch.objects)
 				kv.second.clear();
@@ -368,7 +368,7 @@ namespace Barcode {
 				auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
 				auto textData = textC->renderingData;
 
-				for (int i = 0; i < textData.size(); i++)
+				for (size_t i = 0; i < textData.size(); i++)
 					_textBatch.batch.textInfo.push_back(textC->renderingData[i]);
 
 				auto lifeC = e->getComponent<Hydra::Component::LifeComponent>();
@@ -376,7 +376,7 @@ namespace Barcode {
 					_textBatch.batch.lifeFade.push_back(e->getComponent<Hydra::Component::LifeComponent>()->health);
 				else
 					_textBatch.batch.lifeFade.push_back(1.0f);
-				
+
 				_textBatch.batch.textSizes.push_back(textData.size());
 				_textBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 			}
