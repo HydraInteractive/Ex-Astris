@@ -66,10 +66,10 @@ void GhostObjectComponent::registerUI() {
 		delete ghostObject->getCollisionShape();
 		ghostObject->setCollisionShape(new btBoxShape(btVector3(halfExtents.x, halfExtents.y, halfExtents.z)));
 	}
-	if (ImGui::DragFloat3("Rotation", glm::value_ptr(rotation), 0.01f)){
-		glm::quat qPitch = glm::angleAxis(rotation.x, glm::vec3(1, 0, 0));
-		glm::quat qYaw = glm::angleAxis(rotation.y, glm::vec3(0, 1, 0));
-		glm::quat qRoll = glm::angleAxis(rotation.z, glm::vec3(0, 0, 1));
+	if (ImGui::DragFloat3("Rotation", glm::value_ptr(rotation), 1.0f)){
+		glm::quat qPitch = glm::angleAxis(glm::radians(rotation.x), glm::vec3(1, 0, 0));
+		glm::quat qYaw = glm::angleAxis(glm::radians(rotation.y), glm::vec3(0, 1, 0));
+		glm::quat qRoll = glm::angleAxis(glm::radians(rotation.z), glm::vec3(0, 0, 1));
 		quatRotation = glm::normalize(qPitch * qYaw * qRoll);
 
 		ghostObject->getWorldTransform().setRotation(btQuaternion(quatRotation.x, quatRotation.y, quatRotation.z, quatRotation.w));
