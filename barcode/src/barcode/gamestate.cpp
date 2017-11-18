@@ -15,6 +15,7 @@
 #include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
+#include <hydra/component/textcomponent.hpp>
 
 using world = Hydra::World::World;
 
@@ -24,6 +25,7 @@ namespace Barcode {
 	void GameState::load() {
 		_textureLoader = Hydra::IO::GLTextureLoader::create();
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
+		_textFactory = Hydra::IO::GLTextFactory::create("assets/fonts/font.png");
 
 		auto windowSize = _engine->getView()->getSize();
 		_dgp = std::make_unique<DefaultGraphicsPipeline>(_cameraSystem, windowSize);
@@ -60,6 +62,7 @@ namespace Barcode {
 		_perkSystem.tick(delta);
 		_lifeSystem.tick(delta);
 		_pickUpSystem.tick(delta);
+		_textSystem.tick(delta);
 
 
 		static bool enableHitboxDebug = true;
@@ -257,6 +260,32 @@ namespace Barcode {
 			ImGui::PopStyleVar();
 			ImGui::PopStyleVar();
 		}
+	
+		//{ // Text pass.
+		//	for(auto& kv : _textBatch.batch.objects)
+		//		kv.second.clear();
+
+		//	_textBatch.batch.textInfo.clear();
+
+		//	std::vector<std::shared_ptr<Entity>> entities;
+		//	world::getEntitiesWithComponents<Hydra::Component::TextComponent, Hydra::Component::DrawObjectComponent>(entities);
+		//	for (auto e : entities) {
+		//		auto textC = e->getComponent<Hydra::Component::TextComponent>();
+		//		auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
+		//		auto textData = textC->renderingData;
+		//	
+		//		for (int i = 0; i < textData.size(); i++) {
+		//			_textBatch.batch.textInfo.push_back(textC->renderingData[i]);
+		//		}
+		//	
+		//		_textBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+		//	}
+		//	_textBatch.pipeline->setValue(0, _cc->getProjectionMatrix() * _cc->getViewMatrix());
+		//	_textBatch.pipeline->setValue(20, 0);
+		//	_textFactory->getTexture()->bind(0);
+		//	_engine->getRenderer()->renderText(_textBatch.batch);
+		//	/*BOI*/
+		//}
 	}
 
 	void GameState::_initSystem() {
@@ -328,6 +357,39 @@ namespace Barcode {
 				t2->ignoreParent = true;
 			}
 		}
+
+		{
+			auto alienEntity = world::newEntity("Alien1", world::root());
+			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+			a->damage = 4;
+			a->behaviour->originalRange = 4;
+			a->radius = 1;
+
+			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+			h->maxHP = 80;
+			h->health = 80;
+			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+			m->movementSpeed = 8.0f;
+			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+			t->position = glm::vec3{ 10, 0, 20 };
+			t->scale = glm::vec3{ 2,2,2 };
+			t->rotation = glm::vec3{ 0, 90, 0 };
+			auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+			rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+				0, 0, 0.6f, 1.0f);
+			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+		}
+
+		//{
+		//	auto textEntity = world::newEntity("Bogdan", world::root());
+		//	textEntity->addComponent<Hydra::Component::TransformComponent>()->setScale(glm::vec3(10));
+		//	textEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
+
+		//	auto textC = textEntity->addComponent<Hydra::Component::TextComponent>();
+		//	textC->setText("Bogdan Here");
+		//}
 
 		{
 			auto pointLight1 = world::newEntity("Pointlight1", world::root());
@@ -407,7 +469,7 @@ namespace Barcode {
 
 				{
 					auto particleEmitter = world::newEntity("ParticleEmitter", world::root());
-					particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("QUAD");
+					particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("PARTICLEQUAD");
 					auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
 					p->delay = 1.0f / 1.0f;
 					auto t1 = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
@@ -422,7 +484,6 @@ namespace Barcode {
 					auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
 					auto t3 = lightEntity->addComponent<Hydra::Component::TransformComponent>();
 					t3->position = glm::vec3(8.0, 0, 3.5);
-
 				}
 
 				//TODO: Fix AI Serialization

@@ -117,6 +117,7 @@
     <ClInclude Include="include\hydra\ext\ram.hpp" />
     <ClInclude Include="include\hydra\ext\stacktrace.hpp" />
     <ClInclude Include="include\hydra\io\meshloader.hpp" />
+    <ClInclude Include="include\hydra\io\textfactory.hpp" />
     <ClInclude Include="include\hydra\io\textureloader.hpp" />
     <ClInclude Include="include\hydra\renderer\renderer.hpp" />
     <ClInclude Include="include\hydra\renderer\shader.hpp" />

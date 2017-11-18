@@ -25,8 +25,8 @@
 #include <hydra/engine.hpp>
 #include <hydra/ext/stacktrace.hpp>
 #include <imgui/imgui.h>
-#include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
+#include <hydra/component/cameracomponent.hpp>
 
 using namespace Hydra::Renderer;
 
@@ -70,11 +70,16 @@ public:
 		glGenBuffers(1, &_particleBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, _particleBuffer);
 		glBufferData(GL_ARRAY_BUFFER, _particleBufferSize, NULL, GL_STREAM_DRAW);
+
+		glGenBuffers(1, &_textBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, _textBuffer);
+		glBufferData(GL_ARRAY_BUFFER, _textBufferSize, NULL, GL_STREAM_DRAW);
 	}
 
 	~GLRendererImpl() final {
-		glDeleteBuffers(1, &_modelMatrixBuffer);
+		glDeleteBuffers(1, &_textBuffer);
 		glDeleteBuffers(1, &_particleBuffer);
+		glDeleteBuffers(1, &_modelMatrixBuffer);
 		SDL_GL_DeleteContext(_glContext);
 	}
 
@@ -213,7 +218,6 @@ public:
 		}
 	}
 
-
 	void render(ParticleBatch& batch) final { // For particles only.
 		SDL_GL_MakeCurrent(_window, _glContext);
 		glBindFramebuffer(GL_FRAMEBUFFER, batch.renderTarget->getID());
@@ -338,6 +342,47 @@ public:
 			}
 		}
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+
+	void renderText(TextBatch& batch) {
+		SDL_GL_MakeCurrent(_window, _glContext);
+		glBindFramebuffer(GL_FRAMEBUFFER, batch.renderTarget->getID());
+		const auto& size = batch.renderTarget->getSize();
+		glViewport(0, 0, size.x, size.y);
+
+		glClearColor(batch.clearColor.r, batch.clearColor.g, batch.clearColor.b, batch.clearColor.a);
+		GLenum clearFlags = 0;
+		clearFlags |= (batch.clearFlags & ClearFlags::color) == ClearFlags::color ? GL_COLOR_BUFFER_BIT : 0;
+		clearFlags |= (batch.clearFlags & ClearFlags::depth) == ClearFlags::depth ? GL_DEPTH_BUFFER_BIT : 0;
+		glClear(clearFlags);
+		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		for (auto& kv : batch.objects) {
+			auto& mesh = kv.first;
+			size_t nrOfChars = batch.textInfo.size();
+
+			int currModelMX = 0;
+			size_t charDataOffset = 0;
+			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
+			for (size_t textSize : batch.textSizes) {
+				batch.pipeline->setValue(2, kv.second[currModelMX]);
+				batch.pipeline->setValue(5, batch.lifeFade[currModelMX]);
+				for (size_t i = 0; i < textSize; i += maxPerLoop) {
+					size_t amount = std::min(textSize - i, maxPerLoop);
+
+					glBindBuffer(GL_ARRAY_BUFFER, _textBuffer);
+					glBufferData(GL_ARRAY_BUFFER, _textBufferSize, nullptr, GL_STREAM_DRAW);
+					glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(Hydra::Renderer::CharRenderInfo), &batch.textInfo[charDataOffset]);
+
+					glBindVertexArray(mesh->getID());
+					glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
+				}
+				charDataOffset += textSize;
+				currModelMX++;
+			}
+		}
+		glDisable(GL_BLEND);
 	}
 
 	DrawObject* aquireDrawObject() final {
@@ -491,6 +536,7 @@ public:
 
 	void* getModelMatrixBuffer() final { return static_cast<void*>(&_modelMatrixBuffer); }
 	void* getParticleExtraBuffer() final { return static_cast<void*>(&_particleBuffer); }
+	void* getTextExtraBuffer() final { return static_cast<void*>(&_textBuffer); }
 
 private:
 	SDL_Window* _window;
@@ -502,8 +548,13 @@ private:
 
 	const size_t _modelMatrixSize = sizeof(glm::mat4) * 128; // max 128 mesh instances per draw call
 	GLuint _modelMatrixBuffer;
-	GLuint _particleBuffer;
+
 	const size_t _particleBufferSize = sizeof(glm::vec2) * 3 * 128; // Particle buffer holds three vec2, and max 128 particle instances per draw call.
+	GLuint _particleBuffer;
+
+	const size_t _textBufferSize = sizeof(Hydra::Renderer::CharRenderInfo) * 128; // 1 vec4 and 1 vec3
+	GLuint _textBuffer;
+
 	const int _maxInstancedAnimatedModels = 20;
 
 	static void _loadGLAD() {
