@@ -1,4 +1,4 @@
-#include <barcode/losestate.hpp>
+#include <barcode/winstate.hpp>
 
 #include <barcode/menustate.hpp>
 
@@ -16,9 +16,9 @@
 #include <hydra/component/lightcomponent.hpp>
 
 namespace Barcode {
-	LoseState::LoseState() : _engine(Hydra::IEngine::getInstance()) {}
+	WinState::WinState() : _engine(Hydra::IEngine::getInstance()) {}
 
-	void LoseState::load() {
+	void WinState::load() {
 		_textureLoader = Hydra::IO::GLTextureLoader::create();
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
 
@@ -28,18 +28,25 @@ namespace Barcode {
 		_initWorld();
 	}
 
-	LoseState::~LoseState() { }
+	WinState::~WinState() { }
 
-	void LoseState::onMainMenu() {}
+	void WinState::onMainMenu() {}
 
-	void LoseState::runFrame(float delta) {
+	void WinState::runFrame(float delta) {
 		_physicsSystem.tick(delta);
 		_cameraSystem.tick(delta);
 		_particleSystem.tick(delta);
 		_rendererSystem.tick(delta);
 		_animationSystem.tick(delta);
 
-		(*_lightRotation) = glm::normalize((*_lightRotation) *glm::angleAxis(10 * delta, glm::vec3{0.2, 0.5, 0.8}));
+		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
+		ImGui::Checkbox("Enable SSAO", &MenuState::ssaoEnabled);
+		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);
+
+		_robotMesh->currentFrame = 0;
+		_alienMesh->currentFrame = 0;
+
+		//(*_lightRotation) = glm::normalize((*_lightRotation) *glm::angleAxis(10 * delta, glm::vec3{0.2, 0.5, 0.8}));
 
 		auto viewMatrix = _cc->getViewMatrix();
 		glm::vec3 rightVector = { viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0] };
@@ -52,14 +59,13 @@ namespace Barcode {
 
 		constexpr ImGuiWindowFlags windowFlags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse;
 		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
-
 		auto s = _engine->getView()->getSize();
 
 		ImGui::SetNextWindowPos(ImVec2(s.x * 0.5f, s.y * 0.2f), ImGuiCond_Always, ImVec2(0.5, 0.5));
 		ImGui::Begin("Title", nullptr, windowFlags);
 		{
 			_engine->getUIRenderer()->pushFont(UIFont::big);
-			ImGui::Text("You died!");
+			ImGui::Text("You won!");
 			_engine->getUIRenderer()->popFont();
 		}
 		ImGui::End();
@@ -84,69 +90,75 @@ namespace Barcode {
 		ImGui::PopStyleColor();
 	}
 
-	void LoseState::_initSystem() {
+	void WinState::_initSystem() {
 		const std::vector<Hydra::World::ISystem*> systems = { _engine->getDeadSystem(), &_cameraSystem, &_particleSystem, &_physicsSystem, &_rendererSystem, &_animationSystem };
 		_engine->getUIRenderer()->registerSystems(systems);
 	}
 
-	void LoseState::_initWorld() {
+	void WinState::_initWorld() {
 		using world = Hydra::World::World;
 
 		{
-			auto p = world::newEntity("Dead player", world::root());
+			auto p = world::newEntity("Player", world::root());
 			auto t = p->addComponent<Hydra::Component::TransformComponent>();
-			t->rotation = glm::quat{0.05, -0.777, -0.645, 0.005};
+			t->position = glm::vec3{-0.175, -0.036, -0.991};
+			t->rotation = glm::quat{0.985, 0, -0.175, 0};
 			auto m = p->addComponent<Hydra::Component::MeshComponent>();
 			m->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
 			m->animationIndex = 2;
-
-			static const glm::vec3 positions[] = {
-				{ 0.06, 1.81, 0.22 },
-				{ 0.06, 2.34, -0.05 },
-				{ 0.21, 3.31, -0.2 },
-				{ 0.32, 3.95, 0.39 }
-			};
-			for (const glm::vec3& pos :  positions) {
-				auto particleEmitter = world::newEntity("Blood", p);
-				particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("QUAD");
-				auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
-				p->delay = 1.0f / 128.0f;
-				p->texture = Hydra::Component::ParticleComponent::ParticleTexture::Blood;
-				p->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::Explosion;
-				auto t = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
-				t->position = pos;;
-				//t->rotation = glm::quat{ 0, 0, -1, 0 };
-				t->rotation = glm::quat{ -0.483, 0.160, -0.861, -0.018 };
-			}
 		}
 
 		{
 			auto p = world::newEntity("Robot", world::root());
 			auto t = p->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{5.048, -0.611, -1.495};
-			t->rotation = glm::quat{0.939, 0, -0.343, 0};
+			t->position = glm::vec3{1.024, -0.402, -0.977};
+			t->rotation = glm::quat{-0.834, 0.522, 0.127, 0.129};
 			auto m = p->addComponent<Hydra::Component::MeshComponent>();
 			m->loadMesh("assets/objects/characters/RobotModel.mATTIC");
-			m->animationIndex = 1;
+			m->animationIndex = 0;
+			m->currentFrame = 0;
+			_robotMesh = m.get(); {
+				auto particleEmitter = world::newEntity("Energy particles", p);
+				particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("QUAD");
+				auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
+				p->delay = 1.0f / 32.0f;
+				p->texture = Hydra::Component::ParticleComponent::ParticleTexture::Energy;
+				p->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::Explosion;
+				auto t = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
+				t->position = glm::vec3{ 0.2, 2.28, 0.64 };
+				t->rotation = glm::quat{ 0.273, 0.303, -0.019, 0.913};
+			}
 		}
 
 		{
 			auto p = world::newEntity("Alien", world::root());
 			auto t = p->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{1.237, -0.076, -0.871};
-			t->rotation = glm::quat{-0.908, -0.318, -0.243, 0.122};
+			t->position = glm::vec3{3.393, 1.117, 1.471};
+			t->rotation = glm::quat{0.629, -0.73, -0.171, -0.206};
 			auto m = p->addComponent<Hydra::Component::MeshComponent>();
 			m->loadMesh("assets/objects/characters/AlienModel.mATTIC");
-			m->animationIndex = 2;
+			m->animationIndex = 0;
+			m->currentFrame = 0;
+			_alienMesh = m.get(); {
+				auto particleEmitter = world::newEntity("Blood", p);
+				particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("QUAD");
+				auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
+				p->delay = 1.0f / 32.0f;
+				p->texture = Hydra::Component::ParticleComponent::ParticleTexture::AlienBlood;
+				p->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::PerSecond;
+				auto t = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
+				t->position = glm::vec3{ 0.43, 0.93, -0.16 };
+				t->rotation = glm::quat{ 0.710, 0.605, 0.265, -0.244};
+			}
 		}
 
 		{
 			auto lightEntity = world::newEntity("Light", world::root());
 			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
-			l->color = glm::vec3{1, 0, 0};
+			l->color = glm::vec3{1, 1, 1};
 			auto t = lightEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ 3, 2, 2 };
-			t->rotation = glm::quat{ 0.943, -0.102, 0.265, 0.173 };
+			t->rotation = glm::quat{ -0.496, 0.811, -0.117, -0.288 };
 			_lightRotation = &t->rotation;
 		}
 		{

@@ -1,5 +1,5 @@
 /**
- * Losemenu state
+ * Winmenu state
  *
  * License: Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/ OR See accompanying file LICENSE)
  * Authors:
@@ -21,10 +21,10 @@
 #include <hydra/system/animationsystem.hpp>
 
 namespace Barcode {
-	class LoseState final : public Hydra::IState {
+	class WinState final : public Hydra::IState {
 	public:
-		LoseState();
-		~LoseState() final;
+		WinState();
+		~WinState() final;
 
 		void onMainMenu() final;
 		void load() final;
@@ -50,6 +50,8 @@ namespace Barcode {
 		Hydra::Component::CameraComponent* _cc = nullptr;
 		Hydra::Component::TransformComponent* _cameraTransform = nullptr;
 		glm::quat* _lightRotation;
+		Hydra::Component::MeshComponent* _robotMesh;
+		Hydra::Component::MeshComponent* _alienMesh;
 
 		void _initSystem();
 		void _initWorld();
