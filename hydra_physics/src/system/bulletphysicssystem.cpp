@@ -20,6 +20,7 @@
 #include <hydra/component/pickupcomponent.hpp>
 #include <hydra/component/perkcomponent.hpp>
 #include <hydra/component/textcomponent.hpp>
+#include <hydra/component/ghostobjectcomponent.hpp>
 #include <btBulletDynamicsCommon.h>
 
 inline static btQuaternion cast(const glm::quat& r) { return btQuaternion{r.x, r.y, r.z, r.w}; }
@@ -29,6 +30,7 @@ inline static glm::quat cast(const btQuaternion& r) { return glm::quat(r.w(), r.
 inline static glm::vec3 cast(const btVector3& v) { return glm::vec3(v.x(), v.y(), v.z()); }
 
 using namespace Hydra::System;
+using namespace Hydra::Component;
 
 struct BulletPhysicsSystem::Data {
 	std::unique_ptr<btDefaultCollisionConfiguration> config;
@@ -50,7 +52,7 @@ BulletPhysicsSystem::BulletPhysicsSystem() {
 
 BulletPhysicsSystem::~BulletPhysicsSystem() { delete _data; }
 
-void BulletPhysicsSystem::enable(Hydra::Component::RigidBodyComponent* component) {
+void BulletPhysicsSystem::enable(RigidBodyComponent* component) {
 	component->_handler = this;
 	// Make so addRigidbody takes in collision filter group and what that group collides with.
 	btRigidBody* rigidBody = static_cast<btRigidBody*>(component->getRigidBody());
@@ -83,16 +85,16 @@ void BulletPhysicsSystem::enable(Hydra::Component::RigidBodyComponent* component
 	}
 }
 
-void BulletPhysicsSystem::disable(Hydra::Component::RigidBodyComponent* component) {
+void BulletPhysicsSystem::disable(RigidBodyComponent* component) {
 	_data->dynamicsWorld->removeRigidBody(static_cast<btRigidBody*>(component->getRigidBody()));
 	component->_handler = nullptr;
 }
 
-void Hydra::System::BulletPhysicsSystem::enable(Hydra::Component::GhostObjectComponent * component){
-	_data->dynamicsWorld->addCollisionObject(component->ghostObject);
+void Hydra::System::BulletPhysicsSystem::enable(GhostObjectComponent * component){
+	_data->dynamicsWorld->addCollisionObject(component->ghostObject, COLL_WALL, CollisionCondition::wallCollidesWith);
 }
 
-void Hydra::System::BulletPhysicsSystem::disable(Hydra::Component::GhostObjectComponent * component){
+void Hydra::System::BulletPhysicsSystem::disable(GhostObjectComponent * component){
 	_data->dynamicsWorld->removeCollisionObject(component->ghostObject);
 }
 
@@ -111,25 +113,25 @@ void BulletPhysicsSystem::tick(float delta) {
 		if (!eA || !eB)
 			continue;
 
-		Hydra::Component::BulletComponent* bulletComponent = nullptr;
-		Hydra::Component::LifeComponent* lifeComponent = nullptr;
-		Hydra::Component::PlayerComponent* playerComponent = nullptr;
-		Hydra::Component::PickUpComponent* pickupComponent = nullptr;
-		Hydra::Component::PerkComponent* perkComponent = nullptr;
+		BulletComponent* bulletComponent = nullptr;
+		LifeComponent* lifeComponent = nullptr;
+		PlayerComponent* playerComponent = nullptr;
+		PickUpComponent* pickupComponent = nullptr;
+		PerkComponent* perkComponent = nullptr;
 
-		if ((bulletComponent = eA->getComponent<Hydra::Component::BulletComponent>().get()))
-			lifeComponent = eB->getComponent<Hydra::Component::LifeComponent>().get();
-		else if ((bulletComponent = eB->getComponent<Hydra::Component::BulletComponent>().get()))
-			lifeComponent = eA->getComponent<Hydra::Component::LifeComponent>().get();
+		if ((bulletComponent = eA->getComponent<BulletComponent>().get()))
+			lifeComponent = eB->getComponent<LifeComponent>().get();
+		else if ((bulletComponent = eB->getComponent<BulletComponent>().get()))
+			lifeComponent = eA->getComponent<LifeComponent>().get();
 
-		playerComponent = eA->getComponent<Hydra::Component::PlayerComponent>().get();
+		playerComponent = eA->getComponent<PlayerComponent>().get();
 		if (!playerComponent)
-			playerComponent = eB->getComponent<Hydra::Component::PlayerComponent>().get();
+			playerComponent = eB->getComponent<PlayerComponent>().get();
 
-		if ((pickupComponent = eA->getComponent<Hydra::Component::PickUpComponent>().get()))
-			perkComponent = eB->getComponent<Hydra::Component::PerkComponent>().get();
-		else if ((pickupComponent = eB->getComponent<Hydra::Component::PickUpComponent>().get()))
-			perkComponent = eA->getComponent<Hydra::Component::PerkComponent>().get();
+		if ((pickupComponent = eA->getComponent<PickUpComponent>().get()))
+			perkComponent = eB->getComponent<PerkComponent>().get();
+		else if ((pickupComponent = eB->getComponent<PickUpComponent>().get()))
+			perkComponent = eA->getComponent<PerkComponent>().get();
 
 		if (pickupComponent)
 			_addPickUp(pickupComponent, perkComponent);
@@ -161,38 +163,43 @@ void BulletPhysicsSystem::tick(float delta) {
 		}
 	}
 
+	world::getEntitiesWithComponents<GhostObjectComponent>(entities);
+	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
+		
+	}
+
 	entities.clear();
 }
 
 void BulletPhysicsSystem::_spawnParticleEmitterAt(const glm::vec3& pos, const glm::vec3& normal) {
 	auto pE = Hydra::World::World::newEntity("Collision Particle Spawner", Hydra::World::World::rootID);
 
-	pE->addComponent<Hydra::Component::MeshComponent>()->loadMesh("PARTICLEQUAD");
+	pE->addComponent<MeshComponent>()->loadMesh("PARTICLEQUAD");
 
-	auto pETC = pE->addComponent<Hydra::Component::TransformComponent>();
+	auto pETC = pE->addComponent<TransformComponent>();
 	pETC->position = pos;
 
-	auto pEPC = pE->addComponent<Hydra::Component::ParticleComponent>();
+	auto pEPC = pE->addComponent<ParticleComponent>();
 	pEPC->delay = 1.0f / 1.0f;
 	pEPC->accumulator = 5.0f;
-	pEPC->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::Explosion;
-	pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::Blood;
+	pEPC->behaviour = ParticleComponent::EmitterBehaviour::Explosion;
+	pEPC->texture = ParticleComponent::ParticleTexture::Blood;
 	pEPC->optionalNormal = normal;
 
-	auto pELC = pE->addComponent<Hydra::Component::LifeComponent>();
+	auto pELC = pE->addComponent<LifeComponent>();
 	pELC->maxHP = 0.9f;
 	pELC->health = 0.9f;
 }
 
 void BulletPhysicsSystem::_spawnDamageText(const glm::vec3& pos, const float& damage) {
 	auto textEntity = world::newEntity("Damage", world::root());
-	auto transC = textEntity->addComponent<Hydra::Component::TransformComponent>();
+	auto transC = textEntity->addComponent<TransformComponent>();
 	transC->setPosition(pos);
 	transC->setScale(glm::vec3(10));
-	textEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
-	auto lifeC = textEntity->addComponent<Hydra::Component::LifeComponent>();
+	textEntity->addComponent<MeshComponent>()->loadMesh("TEXTQUAD");
+	auto lifeC = textEntity->addComponent<LifeComponent>();
 	lifeC->health = lifeC->maxHP = 2;
-	auto textC = textEntity->addComponent<Hydra::Component::TextComponent>();
+	auto textC = textEntity->addComponent<TextComponent>();
 	char buff[64];
 	snprintf(buff, sizeof(buff), "%.0f\x01\x02", damage);
 	textC->setText(std::string(buff));
@@ -200,23 +207,23 @@ void BulletPhysicsSystem::_spawnDamageText(const glm::vec3& pos, const float& da
 }
 
 
-void Hydra::System::BulletPhysicsSystem::_addPickUp(Hydra::Component::PickUpComponent * pickupComponent, Hydra::Component::PerkComponent * perkComponent)
+void Hydra::System::BulletPhysicsSystem::_addPickUp(PickUpComponent * pickupComponent, PerkComponent * perkComponent)
 {
 	switch (pickupComponent->pickUpType)
 	{
-	case Hydra::Component::PickUpComponent::PICKUP_RANDOMPERK: {
+	case PickUpComponent::PICKUP_RANDOMPERK: {
 		std::vector<int> perksNotFound;
 		
 		for (size_t i = 0; i < perkComponent->AMOUNTOFPERKS; i++){
 			bool perkFound = false;
 			for (size_t j = 0; j < perkComponent->activePerks.size(); j++){
-				if (Hydra::Component::PerkComponent::Perk(i) == perkComponent->activePerks[j]){
+				if (PerkComponent::Perk(i) == perkComponent->activePerks[j]){
 					perkFound = true;
 					j = perkComponent->activePerks.size();
 				}
 			}
 			for (size_t j = 0; j < perkComponent->newPerks.size(); j++){
-				if (Hydra::Component::PerkComponent::Perk(i) == perkComponent->newPerks[j]) {
+				if (PerkComponent::Perk(i) == perkComponent->newPerks[j]) {
 					perkFound = true;
 					j = perkComponent->newPerks.size();
 				}
@@ -227,17 +234,17 @@ void Hydra::System::BulletPhysicsSystem::_addPickUp(Hydra::Component::PickUpComp
 
 		if (!perksNotFound.empty()){
 			int newPerk = rand() % (perksNotFound.size());
-			perkComponent->newPerks.push_back(Hydra::Component::PerkComponent::Perk(perksNotFound[newPerk]));
+			perkComponent->newPerks.push_back(PerkComponent::Perk(perksNotFound[newPerk]));
 		}
 		
 		World::World::World::getEntity(pickupComponent->entityID)->dead = true;
 	}
 		break;
-	case Hydra::Component::PickUpComponent::PICKUP_HEALTH: {
+	case PickUpComponent::PICKUP_HEALTH: {
 
 	}
 		break;
-	case Hydra::Component::PickUpComponent::PICKUP_AMMO: {
+	case PickUpComponent::PICKUP_AMMO: {
 
 	}
 		break;
