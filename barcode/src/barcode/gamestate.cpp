@@ -143,6 +143,26 @@ namespace Barcode {
 			const int x = _engine->getView()->getSize().x / 2;
 			const ImVec2 pos = ImVec2(x, _engine->getView()->getSize().y / 2);
 
+			if (prevHP > hpP) {
+				//prevHP = (1 - (delta*3)) * prevHP + (delta*3) * hpP; //LERP
+				if (hpTimeUp == 0) {
+					hpTimeUp = 1;
+				}
+
+				hpTimeUp -= delta;
+
+				if (hpTimeUp >= 0) {
+					ImGui::SetNextWindowPos(ImVec2(0, 0));
+					ImGui::SetNextWindowSize(ImVec2(1920, 1080));
+					ImGui::Begin("DamageBleed", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/blood.png")->getID()), ImVec2(1920, 1080), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1,1,1, hpTimeUp));
+					ImGui::End();
+				}
+				else {
+					prevHP = hpP;
+					hpTimeUp = 0;
+				}
+			}
 			//Crosshair
 			ImGui::SetNextWindowPos(pos + ImVec2(-10, 1));
 			ImGui::SetNextWindowSize(ImVec2(20, 20));
@@ -339,6 +359,7 @@ namespace Barcode {
 			auto s = playerEntity->addComponent<Hydra::Component::SoundFxComponent>();
 			auto perks = playerEntity->addComponent<Hydra::Component::PerkComponent>();
 			h->health = h->maxHP = 100.0f;
+			prevHP = h->health;
 			m->movementSpeed = 300.0f;
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
 			_playerTransform = t.get();

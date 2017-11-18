@@ -96,6 +96,7 @@ namespace Barcode {
 		Hydra::Component::CameraComponent* _cc = nullptr;
 		Hydra::Component::TransformComponent* _playerTransform = nullptr;
 
+		float prevHP, hpTimeUp = 0;
 		TileGeneration* tileGen;
 
 
