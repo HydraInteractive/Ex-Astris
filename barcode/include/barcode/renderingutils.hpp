@@ -129,6 +129,8 @@ namespace Barcode {
 		RenderBatch<Hydra::Renderer::ParticleBatch> _particleBatch;
 		std::shared_ptr<Hydra::Renderer::ITexture> _particleAtlases;
 
+		RenderBatch<Hydra::Renderer::TextBatch> _textBatch;
+
 		std::vector<glm::vec3> _getSSAOKernel(size_t size);
 		std::vector<glm::vec3> _getSSAONoise(size_t size);
 	};

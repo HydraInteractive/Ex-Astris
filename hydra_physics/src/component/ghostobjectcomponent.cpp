@@ -53,10 +53,10 @@ void GhostObjectComponent::deserialize(nlohmann::json& json) {
 	rotation.y = json.value<float>("rotationY", 0);
 	rotation.z = json.value<float>("rotationZ", 0);
 
-	quatRotation.x = json.value<float>("rotationX", 0);
-	quatRotation.y = json.value<float>("rotationY", 0);
-	quatRotation.z = json.value<float>("rotationZ", 0);
-	quatRotation.w = json.value<float>("rotationW", 0);
+	quatRotation.x = json.value<float>("quatRotationX", 0);
+	quatRotation.y = json.value<float>("quatRotationY", 0);
+	quatRotation.z = json.value<float>("quatRotationZ", 0);
+	quatRotation.w = json.value<float>("quatRotationW", 0);
 
 	createBox(halfExtents,quatRotation);
 }

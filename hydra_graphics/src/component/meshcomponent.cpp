@@ -26,7 +26,7 @@ void MeshComponent::loadMesh(const std::string meshFile) {
 	mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(meshFile);
 	drawObject->drawObject->mesh = mesh.get();
 
-	if (meshFile == "QUAD")
+	if (meshFile == "PARTICLEQUAD" || meshFile == "TEXTQUAD" || meshFile == "QUAD")
 		drawObject->drawObject->disable = true;
 }
 

@@ -13,6 +13,7 @@
 #include <hydra/renderer/uirenderer.hpp>
 #include <hydra/io/meshloader.hpp>
 #include <hydra/io/textureloader.hpp>
+#include <hydra/io/gltextfactory.hpp>
 #include <hydra/system/bulletphysicssystem.hpp>
 
 namespace Barcode {
@@ -32,6 +33,7 @@ namespace Barcode {
 
 		inline Hydra::IO::ITextureLoader* getTextureLoader() final { return _textureLoader.get(); }
 		inline Hydra::IO::IMeshLoader* getMeshLoader() final { return _meshLoader.get(); }
+		inline Hydra::IO::ITextFactory* getTextFactory() final { return _textFactory.get(); }
 		inline Hydra::World::ISystem* getPhysicsSystem() final { return &_physicsSystem; }
 
 	private:
@@ -80,6 +82,7 @@ namespace Barcode {
 		Hydra::IEngine* _engine;
 		std::unique_ptr<Hydra::IO::ITextureLoader> _textureLoader;
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
+		std::unique_ptr<Hydra::IO::ITextFactory> _textFactory;
 		Hydra::System::BulletPhysicsSystem _physicsSystem;
 
 		RenderBatch _viewBatch;

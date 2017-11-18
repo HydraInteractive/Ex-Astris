@@ -14,6 +14,8 @@
 #include <hydra/component/particlecomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
+#include <hydra/component/textcomponent.hpp>
+#include <hydra/component/lifecomponent.hpp>
 
 #define frand() (float(rand())/RAND_MAX)
 
@@ -122,6 +124,9 @@ namespace Barcode {
 		_particleBatch = RenderBatch<Hydra::Renderer::ParticleBatch>("assets/shaders/particles.vert", "", "assets/shaders/particles.frag", _engine->getView());
 		_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/ParticleAtlases.png");
 		_particleBatch.batch.clearFlags = ClearFlags::none;
+
+		_textBatch = RenderBatch<Hydra::Renderer::TextBatch>("assets/shaders/text.vert", "", "assets/shaders/text.frag", _engine->getView());
+		_textBatch.batch.clearFlags = ClearFlags::none;
 	}
 
 	DefaultGraphicsPipeline::~DefaultGraphicsPipeline() {
@@ -301,6 +306,11 @@ namespace Barcode {
 			_engine->getRenderer()->postProcessing(_copyBatch.batch);
 		}
 
+		// Need it for my fruit salad down below (Text Rendering lmao)
+		auto viewMatrix = cc.getViewMatrix();
+		glm::vec3 rightVector = { viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0] };
+		glm::vec3 upVector = { viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1] };
+
 		{ // Particle batch
 			for (auto& kv : _particleBatch.batch.objects) {
 				kv.second.clear();
@@ -323,9 +333,6 @@ namespace Barcode {
 				}
 			}
 			{
-				auto viewMatrix = cc.getViewMatrix();
-				glm::vec3 rightVector = { viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0] };
-				glm::vec3 upVector = { viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1] };
 				_particleBatch.pipeline->setValue(0, viewMatrix);
 				_particleBatch.pipeline->setValue(1, cc.getProjectionMatrix());
 				_particleBatch.pipeline->setValue(2, rightVector);
@@ -345,6 +352,42 @@ namespace Barcode {
 				_engine->getRenderer()->render(_particleBatch.batch);
 			}
 		}
+	
+		{ // Text render batch.
+			for (auto& kv : _textBatch.batch.objects)
+				kv.second.clear();
+
+			_textBatch.batch.textInfo.clear();
+			_textBatch.batch.textSizes.clear();
+			_textBatch.batch.lifeFade.clear();
+
+			std::vector<std::shared_ptr<Entity>> entities;
+			world::getEntitiesWithComponents<Hydra::Component::TextComponent, Hydra::Component::DrawObjectComponent>(entities);
+			for (auto e : entities) {
+				auto textC = e->getComponent<Hydra::Component::TextComponent>();
+				auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
+				auto textData = textC->renderingData;
+
+				for (int i = 0; i < textData.size(); i++)
+					_textBatch.batch.textInfo.push_back(textC->renderingData[i]);
+
+				auto lifeC = e->getComponent<Hydra::Component::LifeComponent>();
+				if (lifeC)
+					_textBatch.batch.lifeFade.push_back(e->getComponent<Hydra::Component::LifeComponent>()->health);
+				else
+					_textBatch.batch.lifeFade.push_back(1.0f);
+				
+				_textBatch.batch.textSizes.push_back(textData.size());
+				_textBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+			}
+			_textBatch.pipeline->setValue(0, cc.getProjectionMatrix() * cc.getViewMatrix());
+			_textBatch.pipeline->setValue(1, 0);
+			_textBatch.pipeline->setValue(3, rightVector);
+			_textBatch.pipeline->setValue(4, upVector);
+			_engine->getState()->getTextFactory()->getTexture()->bind(0);
+			_engine->getRenderer()->renderText(_textBatch.batch);
+		}
+
 	}
 
 	std::vector<glm::vec3> DefaultGraphicsPipeline::_getSSAOKernel(size_t size) {
