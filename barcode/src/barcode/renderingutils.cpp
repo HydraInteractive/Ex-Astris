@@ -172,8 +172,8 @@ namespace Barcode {
 		for (auto& kv : _shadowAnimationBatch.batch.currentFrames)
 			kv.second.clear();
 
-		static bool enableFrustumCulling = true;
-		ImGui::Checkbox("Enable VF Culling", &enableFrustumCulling);
+		static bool enableFrustumCulling = false;
+		//ImGui::Checkbox("Enable VF Culling", &enableFrustumCulling);
 
 		constexpr float radius = 5.f;
 		std::vector<std::shared_ptr<Entity>> entities;

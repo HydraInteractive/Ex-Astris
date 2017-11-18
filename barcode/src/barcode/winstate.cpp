@@ -40,10 +40,6 @@ namespace Barcode {
 		_rendererSystem.tick(delta);
 		_animationSystem.tick(delta);
 
-		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
-		ImGui::Checkbox("Enable SSAO", &MenuState::ssaoEnabled);
-		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);
-
 		_robotMesh->currentFrame = 0;
 		_alienMesh->currentFrame = 0;
 
