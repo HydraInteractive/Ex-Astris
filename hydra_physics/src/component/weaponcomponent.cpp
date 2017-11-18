@@ -50,12 +50,20 @@ bool WeaponComponent::reload(float delta) {
 	return true;
 }
 
+void Hydra::Component::WeaponComponent::addOrSubtractDamage(float dmg) {
+	bulletDamage += dmg;
+}
+
+void Hydra::Component::WeaponComponent::multiplyDamage(float dmg) {
+	bulletDamage *= dmg;
+}
+
 void WeaponComponent::resetReload() {
 	this->reloadTime = 0;
 }
 
 //TODO: (Re)move? to system?
-bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity, Hydra::System::BulletPhysicsSystem::CollisionTypes collisionType, int damage) {
+bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity, Hydra::System::BulletPhysicsSystem::CollisionTypes collisionType) {
 	if (fireRateTimer > 0)
 		return false;
 	// maxmagammo == 0 = sv_infinite_ammo 1
@@ -74,7 +82,7 @@ bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 		b->direction = direction;
 		b->velocity = velocity;
 		b->bulletType = bulletType;
-		b->damage = damage;
+		b->damage = bulletDamage;
 
 		auto t = bullet->addComponent<Hydra::Component::TransformComponent>();
 		t->position = position;
@@ -110,7 +118,7 @@ bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 			b->direction = bulletDirection;
 			b->velocity = velocity;
 			b->bulletType = bulletType;
-			b->damage = damage;
+			b->damage = bulletDamage;
 
 			auto t = bullet->addComponent<Hydra::Component::TransformComponent>();
 			t->position = position;

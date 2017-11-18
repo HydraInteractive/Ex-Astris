@@ -1,5 +1,5 @@
 #include <barcode/gamestate.hpp>
-
+#include <barcode/tileGeneration.hpp>
 #include <barcode/menustate.hpp>
 
 #include <hydra/renderer/glrenderer.hpp>
@@ -309,7 +309,7 @@ namespace Barcode {
 		}
 		{
 			//Remove this to gain frames like never before
-			//TileGeneration worldTiles("assets/room/threewayRoom.room");
+			TileGeneration worldTiles("assets/room/threewayRoom.room");
 		}
 		{
 			auto physicsBox = world::newEntity("Physics box", world::root());

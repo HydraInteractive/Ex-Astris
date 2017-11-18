@@ -99,7 +99,7 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 				t->position = transformInput.position;
 				t->scale = transformInput.scale;
 				t->rotation = transformInput.rotation;
-				t->ignoreParent = transformInput.ignoreParent;
+				t->ignoreParent = transformInput.ignoreParent; 
 				transformInput = TI();
 				//openBool = false;
 			}

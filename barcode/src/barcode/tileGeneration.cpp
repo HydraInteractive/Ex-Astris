@@ -333,11 +333,11 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 	//	w->currammo = 20;
 	//	w->bulletSpread = 1;
 	//	w->bulletsPerShot = 3;
+	//	w->bulletDamage = 7.0f;
 	//	w->currmagammo = 20;
 	//	w->recoil = 1;
 	//	w->fireRateRPM = 0.5;
 	//	
-	//
 	//	auto h = robotEntity->addComponent<Hydra::Component::LifeComponent>();
 	//	h->maxHP = 120;
 	//	h->health = 120;

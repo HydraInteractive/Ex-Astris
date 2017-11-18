@@ -24,6 +24,7 @@ namespace Hydra::Component {
 		float fireRateRPM = 600;
 		float bulletSize = 0.5f;
 		float bulletSpread = 0.0f;
+		float bulletDamage = 5.0f;
 		int bulletsPerShot = 14;
 		float recoil = 0.7;
 
@@ -40,8 +41,10 @@ namespace Hydra::Component {
 
 		~WeaponComponent() final;
 
-		bool shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity, Hydra::System::BulletPhysicsSystem::CollisionTypes collisionType, int damage);
+		bool shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity, Hydra::System::BulletPhysicsSystem::CollisionTypes collisionType);
 		bool reload(float delta);
+		void addOrSubtractDamage(float dmg);
+		void multiplyDamage(float dmg);
 		void resetReload();
 
 		inline const std::string type() const final { return "WeaponComponent"; }
