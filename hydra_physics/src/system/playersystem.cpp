@@ -64,7 +64,6 @@ void PlayerSystem::tick(float delta) {
 
 			if (keysArray[SDL_SCANCODE_S]) {
 				movement->velocity -= movement->movementSpeed * forward * delta;
-				perks->newPerks.push_back(Hydra::Component::PerkComponent::PERK_GRENADE);
 			}
 
 			if (keysArray[SDL_SCANCODE_A])
