@@ -35,7 +35,7 @@ public:
 
 		bool operator==(const MapVec& other) { return this->baseVec == other.baseVec; }
 		//operator glm::vec3() { return glm::ivec3(baseVec.x, 0, baseVec.y); }
-		operator glm::vec2() { return baseVec; }
+		operator glm::vec2() const { return baseVec; }
 	};
 	struct Node
 	{
@@ -88,19 +88,17 @@ public:
 		bool operator>(Node& other) { return this->getF() > other.getF(); }
 	};
 
-	float enemyY = 0.0f;
 	bool foundGoal = false;
-	std::vector<glm::vec3> _pathToEnd = std::vector<glm::vec3>();
+	std::vector<glm::vec3> pathToEnd = std::vector<glm::vec3>();
 	bool** map = nullptr;
 
 	PathFinding();
 	virtual ~PathFinding();
 
 	bool findPath(const glm::vec3& currentPos, const glm::vec3& targetPos);
-	glm::vec3 nextPathPos(const glm::vec3& pos, const float& radius);
 	MapVec worldToMapCoords(const glm::vec3& worldPos) const;
 	glm::vec3 mapToWorldCoords(const MapVec& mapPos) const;
-	bool inLineOfSight(glm::vec3 enemyPos, glm::vec3 playerPos);
+	bool inLineOfSight(const glm::vec3 enemyPos, const glm::vec3 playerPos) const;
 
 	struct {
 		bool operator()(const std::shared_ptr<Node>& _Left, const std::shared_ptr<Node>& _Right) const
@@ -123,7 +121,7 @@ private:
 	std::shared_ptr<Node> _startNode = nullptr;
 	std::shared_ptr<Node> _endNode = nullptr;
 
-	bool isOutOfBounds(const glm::ivec2& vec)const;
+	bool isOutOfBounds(const glm::ivec2& vec) const;
 	void _discoverNode(int x, int z, std::shared_ptr<Node> lastNode);
-	bool _inLineOfSight(MapVec enemyPos, MapVec playerPos);
+	bool _inLineOfSight(const MapVec enemyPos, const MapVec playerPos) const;
 };

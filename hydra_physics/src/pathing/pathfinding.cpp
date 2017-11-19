@@ -22,14 +22,12 @@ PathFinding::~PathFinding() {
 
 bool PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetPos)
 {
-	enemyY = currentPos.y;
-
 	if (map == nullptr)
 		return false;
 
 	_openList.clear();
 	_visitedList.clear();
-	_pathToEnd.clear();
+	pathToEnd.clear();
 
 	MapVec mapCurrentPos = worldToMapCoords(currentPos);
 	MapVec mapTargetPos = worldToMapCoords(targetPos);
@@ -37,8 +35,9 @@ bool PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 	if (isOutOfBounds(mapCurrentPos.baseVec) || isOutOfBounds(mapTargetPos.baseVec))
 		return false;
 	//If the player is in line of sight don't path just go straight
-	if (_inLineOfSight(mapCurrentPos,mapTargetPos))
-		return false;
+	//if (_inLineOfSight(mapCurrentPos,mapTargetPos))
+	//	pathToEnd.push_back(targetPos);
+	//	return false;
 	_startNode = std::make_shared<Node>(mapCurrentPos.x(), mapCurrentPos.z(), nullptr);
 	_endNode = std::make_shared<Node>(mapTargetPos.x(), mapTargetPos.z(), nullptr);
 
@@ -62,7 +61,7 @@ bool PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 
 			while (getPath != nullptr)
 			{
-				_pathToEnd.push_back(mapToWorldCoords(getPath->pos));
+				pathToEnd.push_back(mapToWorldCoords(getPath->pos));
 				getPath = getPath->lastNode;
 			}
 			foundGoal = true;
@@ -99,26 +98,7 @@ PathFinding::MapVec PathFinding::worldToMapCoords(const glm::vec3& worldPos) con
 
 glm::vec3 PathFinding::mapToWorldCoords(const MapVec& mapPos) const
 {
-	return glm::vec3((mapPos.baseVec.x - (WORLD_MAP_SIZE / 2)) * ROOM_SCALE, enemyY, (mapPos.baseVec.y - (WORLD_MAP_SIZE / 2)) * ROOM_SCALE);
-}
-
-glm::vec3 PathFinding::nextPathPos(const glm::vec3& pos, const float& radius)
-{
-	glm::vec3 nextPos = _pathToEnd.back();
-
-	//Centers the position in a node
-	nextPos.x += (ROOM_SCALE / 2);
-	nextPos.z += (ROOM_SCALE / 2);
-
-	float distance = glm::distance(pos, nextPos);
-	if (!_pathToEnd.empty())
-	{
-		if (distance < radius)
-		{
-			_pathToEnd.pop_back();
-		}
-	}
-	return nextPos;
+	return glm::vec3((mapPos.baseVec.x - (WORLD_MAP_SIZE / 2)) * ROOM_SCALE, 0, (mapPos.baseVec.y - (WORLD_MAP_SIZE / 2)) * ROOM_SCALE);
 }
 
 bool PathFinding::isOutOfBounds(const glm::ivec2& vec) const
@@ -133,13 +113,13 @@ bool PathFinding::isOutOfBounds(const glm::ivec2& vec) const
 	}
 	return false;
 }
-bool PathFinding::inLineOfSight(glm::vec3 enemyPos, glm::vec3 playerPos)
+bool PathFinding::inLineOfSight(const glm::vec3 enemyPos, const glm::vec3 playerPos) const
 {
 	MapVec e = worldToMapCoords(enemyPos);
 	MapVec p = worldToMapCoords(playerPos);
 	return _inLineOfSight(e, p);
 }
-bool PathFinding::_inLineOfSight(MapVec enemyPos, MapVec playerPos)
+bool PathFinding::_inLineOfSight(const MapVec enemyPos, const MapVec playerPos) const
 {
 	glm::vec2 dir = playerPos.baseVec - enemyPos.baseVec;
 	float distance = dir.length();
