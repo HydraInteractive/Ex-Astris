@@ -107,6 +107,11 @@ bool PathFinding::isOutOfBounds(const glm::ivec2& vec) const
 	{
 		return true;
 	}
+	if (map == nullptr)
+	{
+		std::cout << "ERROR: NO PATHFINDING MAP\n";
+		return true;
+	}
 	if (map[vec.x][vec.y] == 0)
 	{
 		return true;
