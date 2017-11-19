@@ -31,9 +31,7 @@ out gl_PerVertex {
 layout(location = 0) uniform mat4 v;
 layout(location = 1) uniform mat4 p;
 layout(location = 2) uniform vec3 cameraPos;
-
-layout(location = 3) uniform bool setting_doBackFaceCulling = true;
-layout(location = 4) uniform mat4 lightS;
+layout(location = 3) uniform mat4 lightS;
 
 
 #define M_PI 3.1415
@@ -49,21 +47,6 @@ mat3 calcTBN(mat3 normalMatrix, vec3 normal, int idx) {
 
 void main() {
 	int i;
-
-	if (setting_doBackFaceCulling) {
-		vec3 p0 = (inData[0].m * vec4(inData[0].position, 1.0f)).xyz;
-		vec3 p1 = (inData[1].m * vec4(inData[1].position, 1.0f)).xyz;
-		vec3 p2 = (inData[2].m * vec4(inData[2].position, 1.0f)).xyz;
-
-		vec3 edge0 = p1 - p0;
-		vec3 edge1 = p2 - p0;
-
-		vec3 triangleNormal = cross(edge0, edge1);
-
-		
-		if (dot(normalize(p0 - cameraPos), triangleNormal) >= 0)
-			return;
-	}
 
 	for (i = 0; i < 3; i++) {
 		vec4 pos = inData[i].m * vec4(inData[i].position, 1.0f);

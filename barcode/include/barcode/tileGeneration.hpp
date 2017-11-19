@@ -14,7 +14,11 @@
 
 #include <memory>
 #include <imgui/imgui.h>
-#include <filesystem>	//Git gud
+#ifdef _WIN32
+#include <filesystem>
+#else
+#include <experimental/filesystem>
+#endif
 #include <barcode/importermenu.hpp>
 #include <barcode/exportermenu.hpp>
 

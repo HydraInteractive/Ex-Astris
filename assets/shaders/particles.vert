@@ -23,7 +23,13 @@ void main() {
 	textureCoords1 = uv * textureCoordInfo.x + textureOffset1;
 	textureCoords2 = uv * textureCoordInfo.x + textureOffset2;
 	blend = textureCoordInfo.y;
+	mat4 mWithoutRotation = mat4(
+		vec4(1,       0,       0,       m[0][3]),
+		vec4(0,       1,       0,       m[1][3]),
+		vec4(0,       0,       1,       m[2][3]),
+		vec4(m[3][0], m[3][1], m[3][2], m[3][3])
+	);
 	vec3 pos = (vec3(rightVector * position.x) + vec3(upVector * position.y));
 
-	gl_Position = proj * view * m * vec4(pos, 1);
+	gl_Position = proj * view * mWithoutRotation * vec4(pos, 1);
 }

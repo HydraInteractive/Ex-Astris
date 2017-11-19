@@ -10,8 +10,8 @@ PathingMapMenu::~PathingMapMenu()
 
 void PathingMapMenu::render(bool & closeBool, float delta, int sizeX, int sizeY)
 {
-	ImGui::SetNextWindowSize(ImVec2(sizeX, sizeY), ImGuiSetCond_Once);
-	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImColor(0.0f, 0.0f, 0.0f, 0.0f));
+	ImGui::SetNextWindowSize(ImVec2(sizeX, sizeY), ImGuiCond_Once);
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
 	ImGui::Begin("Pathing", &closeBool, ImGuiWindowFlags_NoResize);
 	ImGui::Columns(ROOM_MAP_SIZE);
 
@@ -29,9 +29,9 @@ void PathingMapMenu::render(bool & closeBool, float delta, int sizeX, int sizeY)
 			
 			if(r->localMap[i][j] == 0)
 			{ 
-				ImGui::PushStyleColor(ImGuiCol_Button, ImColor::HSV(7.0f, 0.6f, 0.6f));
-				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImColor::HSV(7.0f, 0.7f, 0.7f));
-				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImColor::HSV(7.0f, 0.8f, 0.8f));
+				ImGui::PushStyleColor(ImGuiCol_Button, ImColor::HSV(7.0f, 0.6f, 0.6f).Value);
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImColor::HSV(7.0f, 0.7f, 0.7f).Value);
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImColor::HSV(7.0f, 0.8f, 0.8f).Value);
 				ImGui::SameLine(0.0f, 15.0f);
 
 				if (ImGui::Button("", ImVec2(60, 35)))
@@ -41,9 +41,9 @@ void PathingMapMenu::render(bool & closeBool, float delta, int sizeX, int sizeY)
 			}
 			else if (r->localMap[i][j] == 1)
 			{
-				ImGui::PushStyleColor(ImGuiCol_Button, ImColor::HSV(3 / 7.0f, 0.6f, 0.6f));
-				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImColor::HSV(3 / 7.0f, 0.7f, 0.7f));
-				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
+				ImGui::PushStyleColor(ImGuiCol_Button, ImColor::HSV(3 / 7.0f, 0.6f, 0.6f).Value);
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImColor::HSV(3 / 7.0f, 0.7f, 0.7f).Value);
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImColor::HSV(3 / 7.0f, 0.8f, 0.8f).Value);
 				ImGui::SameLine(0.0f, 15.0f);
 
 				if (ImGui::Button("", ImVec2(60, 35)))
