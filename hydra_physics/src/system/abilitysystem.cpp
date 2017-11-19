@@ -40,7 +40,7 @@ void AbilitySystem::tick(float delta) {
 				auto tc = allEnemies[i]->getComponent<Hydra::Component::TransformComponent>();
 				auto lc = allEnemies[i]->getComponent<Hydra::Component::LifeComponent>();
 				
-				if (glm::length(tc->position - t->position) <= 20.0f)
+				if (glm::length(tc->position - t->position) <= 8.0f)
 				{
 					lc->applyDamage(15);
 				}
@@ -57,6 +57,26 @@ void AbilitySystem::tick(float delta) {
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto m = entities[i]->getComponent<Hydra::Component::MineComponent>();
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
+		m->detonateTimer -= delta;
+		
+		std::vector<std::shared_ptr<Hydra::World::Entity>> allEnemies;
+		world::getEntitiesWithComponents<Hydra::Component::AIComponent>(allEnemies);
+		for (int_openmp_t i = 0; i < (int_openmp_t)allEnemies.size(); i++) {
+			auto tc = allEnemies[i]->getComponent<Hydra::Component::TransformComponent>();
+			auto lc = allEnemies[i]->getComponent<Hydra::Component::LifeComponent>();
+
+			if (glm::length(tc->position - t->position) <= 5.0f)
+			{
+				lc->applyDamage(15);
+				m->isExploding = true;
+			}
+		}
+		if (m->isExploding || m->detonateTimer <= 0)
+		{
+			entities[i]->dead = true;
+			_spawnParticleEmitterAt(t->position, glm::vec3(0, 1, 0));
+		}
+		allEnemies.clear();
 	}
 
 	entities.clear();
