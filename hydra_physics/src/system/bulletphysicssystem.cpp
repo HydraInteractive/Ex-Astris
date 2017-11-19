@@ -173,8 +173,8 @@ void BulletPhysicsSystem::_spawnParticleEmitterAt(const glm::vec3& pos, const gl
 	pETC->position = pos;
 
 	auto pEPC = pE->addComponent<Hydra::Component::ParticleComponent>();
-	pEPC->delay = 1.0f / 1.0f;
-	pEPC->accumulator = 5.0f;
+	pEPC->delay = 1.0f / 2.0f;
+	pEPC->accumulator = 2 * 5.0f;
 	pEPC->tempVelocity = glm::vec3(6.0f, 6.0f, 6.0f);
 	pEPC->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::Explosion;
 	pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::Blood;

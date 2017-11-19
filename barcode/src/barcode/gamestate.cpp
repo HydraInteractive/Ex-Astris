@@ -1,6 +1,8 @@
 #include <barcode/gamestate.hpp>
 
 #include <barcode/menustate.hpp>
+#include <barcode/losestate.hpp>
+#include <barcode/winstate.hpp>
 
 #include <hydra/renderer/glrenderer.hpp>
 #include <hydra/renderer/glshader.hpp>
@@ -44,6 +46,22 @@ namespace Barcode {
 
 	void GameState::runFrame(float delta) {
 		auto windowSize = _engine->getView()->getSize();
+
+		if (!world::getEntity(_playerID)) {
+			_engine->setState<LoseState>();
+			return;
+		}
+
+		{
+			static std::vector<std::shared_ptr<Entity>> _enemies;
+			world::getEntitiesWithComponents<Hydra::Component::AIComponent, Hydra::Component::LifeComponent>(_enemies);
+			if (!_enemies.size()) {
+				_enemies.clear();
+				_engine->setState<WinState>();
+				return;
+			}
+			_enemies.clear();
+		}
 
 		if (ImGui::Button("Remove unused meshes"))
 			_meshLoader->clear();
@@ -143,15 +161,35 @@ namespace Barcode {
 			const int x = _engine->getView()->getSize().x / 2;
 			const ImVec2 pos = ImVec2(x, _engine->getView()->getSize().y / 2);
 
+			if (prevHP > hpP) {
+				//prevHP = (1 - (delta*3)) * prevHP + (delta*3) * hpP; //LERP
+				if (hpTimeUp == 0) {
+					hpTimeUp = 1;
+				}
+
+				hpTimeUp -= delta;
+
+				if (hpTimeUp >= 0) {
+					ImGui::SetNextWindowPos(ImVec2(0, 0));
+					ImGui::SetNextWindowSize(ImVec2(1920, 1080));
+					ImGui::Begin("DamageBleed", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoInputs);
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/blood.png")->getID()), ImVec2(1920, 1080), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1,1,1, hpTimeUp));
+					ImGui::End();
+				}
+				else {
+					prevHP = hpP;
+					hpTimeUp = 0;
+				}
+			}
 			//Crosshair
-			ImGui::SetNextWindowPos(pos + ImVec2(-10, 1));
+			ImGui::SetNextWindowPos(ImVec2(-10 + pos.x, 1 + pos.y));
 			ImGui::SetNextWindowSize(ImVec2(20, 20));
 			ImGui::Begin("Crosshair", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Crosshair.png")->getID()), ImVec2(20, 20));
 			ImGui::End();
 
 			//AimRing
-			ImGui::SetNextWindowPos(pos + ImVec2(-51, -42));
+			ImGui::SetNextWindowPos(ImVec2(-51 + pos.x, -42 + pos.y));
 			ImGui::SetNextWindowSize(ImVec2(120, 120));
 			ImGui::Begin("AimRing", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/AimRing.png")->getID()), ImVec2(100, 100));
@@ -160,7 +198,7 @@ namespace Barcode {
 			//Hp bar on ring
 			float offsetHpF = 72 * hpP * 0.01;
 			int offsetHp = offsetHpF;
-			ImGui::SetNextWindowPos(pos + ImVec2(-47, -26 + 72 - offsetHp));
+			ImGui::SetNextWindowPos(ImVec2(-47 + pos.x, -26 + 72 - offsetHp + pos.y));
 			ImGui::SetNextWindowSize(ImVec2(100, 100));
 			ImGui::Begin("HpOnRing", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HpOnRing.png")->getID()), ImVec2(22, offsetHp), ImVec2(0, 1 - hpP * 0.01), ImVec2(1, 1));
@@ -169,7 +207,7 @@ namespace Barcode {
 			//Ammo on bar
 			float offsetAmmoF = 72 * ammoP * 0.01;
 			int offsetAmmo = offsetAmmoF;
-			ImGui::SetNextWindowPos(pos + ImVec2(+25, -26 + 72 - offsetAmmo));
+			ImGui::SetNextWindowPos(ImVec2(+25 + pos.x, -26 + 72 - offsetAmmo + pos.y));
 			ImGui::SetNextWindowSize(ImVec2(100, 100));
 			ImGui::Begin("AmmoOnRing", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/AmmoOnRing.png")->getID()), ImVec2(22, offsetAmmo), ImVec2(0, 1 - ammoP * 0.01), ImVec2(1, 1));
@@ -239,7 +277,7 @@ namespace Barcode {
 				snprintf(buf, sizeof(buf), "Cooldown%lu", i);
 				float yOffset = float(stepSize * float(i + 1));
 				float xOffset = pow(abs((yOffset - (stepSize / float(2)) - float(35))) * 0.1069, 2);
-				ImGui::SetNextWindowPos(pos + ImVec2(-64 + xOffset, -24 + yOffset - ((stepSize + 10.0) / 2.0)));
+				ImGui::SetNextWindowPos(ImVec2(-64 + xOffset + pos.x, -24 + yOffset - ((stepSize + 10.0) / 2.0) + pos.y));
 				ImGui::SetNextWindowSize(ImVec2(15, 15));
 				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 				if (coolDownList[i] >= 7)
@@ -338,7 +376,8 @@ namespace Barcode {
 			auto m = playerEntity->addComponent<Hydra::Component::MovementComponent>();
 			auto s = playerEntity->addComponent<Hydra::Component::SoundFxComponent>();
 			auto perks = playerEntity->addComponent<Hydra::Component::PerkComponent>();
-			h->health = h->maxHP = 100.0f;
+			h->health = h->maxHP = 100.0f * MenuState::playerHPMultiplier;
+			prevHP = h->health;
 			m->movementSpeed = 300.0f;
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
 			_playerTransform = t.get();
@@ -488,16 +527,9 @@ namespace Barcode {
 					t3->position = glm::vec3(8.0, 0, 3.5);
 				}
 
-				//TODO: Fix AI Serialization
-				//{
-				//	BlueprintLoader::save("world.blueprint", "World Blueprint", world::root());
-				//	Hydra::World::World::reset();
-				//	auto bp = BlueprintLoader::load("world.blueprint");
-				//	bp->spawn(world::root());
-				//}
-
 				{
 					_cc = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get());
+					_playerID = _cc->entityID;
 
 					for (auto& rb : Hydra::Component::RigidBodyComponent::componentHandler->getActiveComponents()) {
 						_engine->log(Hydra::LogLevel::normal, "Enabling bullet for %s", world::getEntity(rb->entityID)->name.c_str());

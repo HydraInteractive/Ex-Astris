@@ -40,7 +40,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
-		for (int i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
+		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
 
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
@@ -83,7 +83,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
-		for (int i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
+		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
 
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
@@ -128,7 +128,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
-		for (int i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
+		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
 
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
@@ -170,7 +170,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
-		for (int i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
+		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
 
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
@@ -232,7 +232,6 @@ void TileGeneration::_setUpMiddleRoom(std::string middleRoomPath) {
 }
 
 void TileGeneration::_obtainRoomFiles() {
-
 	//Get the files in order
 	std::string path = "assets/room/";
 	for (auto & p : std::experimental::filesystem::directory_iterator(path)) {
@@ -246,8 +245,8 @@ void TileGeneration::_obtainRoomFiles() {
 void TileGeneration::_randomizeRooms() {
 
 	//Randomize the list 2 times for extra randomness
-	for (int k = 0; k < 2; k++) {
-		for (int i = 0; i < _roomFileNames.size(); i++) {
+	for (size_t k = 0; k < 2; k++) {
+		for (size_t i = 0; i < _roomFileNames.size(); i++) {
 			int randomPos = rand() % _roomFileNames.size();
 			std::swap(_roomFileNames[i], _roomFileNames[randomPos]);
 		}
