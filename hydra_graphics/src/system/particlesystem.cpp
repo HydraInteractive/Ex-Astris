@@ -18,7 +18,6 @@ void ParticleSystem::tick(float delta) {
 
 	//Process ParticleComponent
 	world::getEntitiesWithComponents<Hydra::Component::ParticleComponent>(entities);
-	//#pragma omp parallel for
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto p = entities[i]->getComponent<Hydra::Component::ParticleComponent>();
 

@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\hydra\system\animationsystem.hpp" />
+    <ClInclude Include="include\hydra\system\textsystem.hpp" />
     <ClInclude Include="lib-include\glad\glad.h" />
     <ClInclude Include="include\hydra\component\cameracomponent.hpp" />
     <ClInclude Include="include\hydra\component\componentmanager_graphics.hpp" />
@@ -21,9 +22,11 @@
     <ClInclude Include="include\hydra\component\particlecomponent.hpp" />
     <ClInclude Include="include\hydra\component\pickupcomponent.hpp" />
     <ClInclude Include="include\hydra\component\pointlightcomponent.hpp" />
+    <ClInclude Include="include\hydra\component\textcomponent.hpp" />
     <ClInclude Include="include\hydra\ext\vram.hpp" />
     <ClInclude Include="include\hydra\io\glmeshloader.hpp" />
     <ClInclude Include="include\hydra\io\gltextureloader.hpp" />
+    <ClInclude Include="include\hydra\io\gltextfactory.hpp" />
     <ClInclude Include="include\hydra\renderer\glrenderer.hpp" />
     <ClInclude Include="include\hydra\renderer\glshader.hpp" />
     <ClInclude Include="include\hydra\system\camerasystem.hpp" />
@@ -41,9 +44,11 @@
     <ClCompile Include="src\component\meshcomponent.cpp" />
     <ClCompile Include="src\component\particlecomponent.cpp" />
     <ClCompile Include="src\component\pointlightcomponent.cpp" />
+    <ClCompile Include="src\component\textcomponent.cpp" />
     <ClCompile Include="src\ext\vram.cpp" />
     <ClCompile Include="src\io\meshloader.cpp" />
     <ClCompile Include="src\io\textureloader.cpp" />
+    <ClCompile Include="src\io\textfactory.cpp" />
     <ClCompile Include="src\lib\glad\glad.c" />
     <ClCompile Include="src\lib\imgui\imgui_impl_sdl_gl3.cpp" />
     <ClCompile Include="src\renderer\glframebuffer.cpp" />
@@ -56,6 +61,7 @@
     <ClCompile Include="src\system\camerasystem.cpp" />
     <ClCompile Include="src\system\particlesystem.cpp" />
     <ClCompile Include="src\system\renderersystem.cpp" />
+    <ClCompile Include="src\system\textsystem.cpp" />
     <ClCompile Include="src\view\sdlview.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

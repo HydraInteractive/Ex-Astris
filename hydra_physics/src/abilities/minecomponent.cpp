@@ -19,25 +19,11 @@ MineComponent::~MineComponent() { }
 
 void MineComponent::serialize(nlohmann::json& json) const {
 	json = {
-		{ "direction", { direction.x, direction.y, direction.z } },
-		{ "velocity", velocity },
-		{ "fallingVelocity", fallingVelocity },
-		{ "timer", timer }
 	};
 }
 
 void MineComponent::deserialize(nlohmann::json& json) {
-	auto& dir = json["direction"];
-	direction = glm::vec3{ dir[0].get<float>(), dir[1].get<float>(), dir[2].get<float>() };
-
-	velocity = json["velocity"].get<float>();
-	fallingVelocity = json["fallingVelocity"].get<float>();
-	timer = json["timer"].get<float>();
 }
 
 void MineComponent::registerUI() {
-	ImGui::DragFloat3("Direction", glm::value_ptr(direction));
-	ImGui::DragFloat("Velocity", &velocity);
-	ImGui::DragFloat("Falling Velocity", &fallingVelocity);
-	ImGui::DragFloat("Timer", &timer);
 }

@@ -62,8 +62,9 @@ void PlayerSystem::tick(float delta) {
 			if (keysArray[SDL_SCANCODE_R])
 				weapon->_isReloading = true;
 
-			if (keysArray[SDL_SCANCODE_S])
+			if (keysArray[SDL_SCANCODE_S]) {
 				movement->velocity -= movement->movementSpeed * forward * delta;
+			}
 
 			if (keysArray[SDL_SCANCODE_A])
 				movement->velocity -= movement->movementSpeed * right * delta;
@@ -84,9 +85,10 @@ void PlayerSystem::tick(float delta) {
 				//TODO: Make pretty?
 				glm::quat bulletOrientation = glm::angleAxis(-camera->cameraYaw, glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->cameraPitch, glm::vec3(1, 0, 0)));
 
-				float bulletVelocity = 300;
+				//Changed to see if modell is correct, original bulletVelocity was 300 (A little too fast imo, das me tho)
+				float bulletVelocity = 3;
 				if(!weapon->_isReloading)
-					if (weapon->shoot(transform->position, movement->direction, bulletOrientation, bulletVelocity, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE, 5)) {
+					if (weapon->shoot(transform->position, movement->direction, bulletOrientation, bulletVelocity, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE)) {
 						float rn = 500;//rand() % 1000;
 						rn /= 10000;
 
@@ -100,6 +102,8 @@ void PlayerSystem::tick(float delta) {
 						//else
 						//	dyaw -= rn/3;
 						weaponMesh->animationIndex = 2;
+						if (weapon->currmagammo == 0)
+							weapon->_isReloading = true;
 					}
 			}
 		}

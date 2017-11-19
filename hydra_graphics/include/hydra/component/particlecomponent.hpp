@@ -17,8 +17,8 @@ namespace Hydra::Component {
 	struct HYDRA_GRAPHICS_API ParticleComponent final : public IComponent<ParticleComponent, ComponentBits::Particle> {
 		enum class EmitterBehaviour : int { PerSecond = 0, Explosion, MAX_COUNT };
 		static constexpr const char* EmitterBehaviourStr[] = { "PerSecond", "Explosion" };
-		enum class ParticleTexture : int { Fire = 0, Knas, Blood, MAX_COUNT };
-		static constexpr const char* ParticleTextureStr[] = { "Fire", "Knas", "Blood" };
+		enum class ParticleTexture : int { Energy = 0, AlienBlood, Blood, MAX_COUNT };
+		static constexpr const char* ParticleTextureStr[] = { "Energy", "AlienBlood", "Blood" };
 
 		struct HYDRA_GRAPHICS_API Particle {
 			TransformComponent transform;
@@ -46,8 +46,9 @@ namespace Hydra::Component {
 
 		float delay = 1; // 0.1 = 10 Particle/Second
 		float accumulator = 256;
+		glm::vec3 tempVelocity = glm::vec3(1.0f, 1.0f, 1.0f);
 		EmitterBehaviour behaviour = EmitterBehaviour::PerSecond;
-		ParticleTexture texture = ParticleTexture::Fire;
+		ParticleTexture texture = ParticleTexture::Energy;
 		Particle particles[MaxParticleAmount];
 		glm::vec3 optionalNormal;
 

@@ -15,6 +15,7 @@
 #include <hydra/renderer/uirenderer.hpp>
 #include <hydra/io/meshloader.hpp>
 #include <hydra/io/textureloader.hpp>
+#include <hydra/io/textfactory.hpp>
 
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
@@ -46,6 +47,7 @@
 #include <hydra/system/perksystem.hpp>
 #include <hydra/system/animationsystem.hpp>
 #include <hydra/system/pickupsystem.hpp>
+#include <hydra/system/textsystem.hpp>
 #include <barcode/tileGeneration.hpp>
 
 namespace Barcode {
@@ -61,12 +63,14 @@ namespace Barcode {
 
 		inline Hydra::IO::ITextureLoader* getTextureLoader() final { return _textureLoader.get(); }
 		inline Hydra::IO::IMeshLoader* getMeshLoader() final { return _meshLoader.get(); }
+		inline Hydra::IO::ITextFactory* getTextFactory() final { return _textFactory.get(); }
 		inline Hydra::World::ISystem* getPhysicsSystem() final { return &_physicsSystem; }
 
 	private:
 		Hydra::IEngine* _engine;
 		std::unique_ptr<Hydra::IO::ITextureLoader> _textureLoader;
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
+		std::unique_ptr<Hydra::IO::ITextFactory> _textFactory;
 
 		Hydra::System::CameraSystem _cameraSystem;
 		Hydra::System::ParticleSystem _particleSystem;
@@ -82,14 +86,19 @@ namespace Barcode {
 		Hydra::System::PerkSystem _perkSystem;
 		Hydra::System::AnimationSystem _animationSystem;
 		Hydra::System::PickUpSystem _pickUpSystem;
+		Hydra::System::TextSystem _textSystem;
 
 		std::unique_ptr<DefaultGraphicsPipeline> _dgp;
 		RenderBatch<Hydra::Renderer::Batch> _hitboxBatch;
+
 		std::shared_ptr<Hydra::Renderer::IMesh> _hitboxCube;
 
+		bool _paused = false;
+		Hydra::World::EntityID _playerID;
 		Hydra::Component::CameraComponent* _cc = nullptr;
 		Hydra::Component::TransformComponent* _playerTransform = nullptr;
 
+		float prevHP, hpTimeUp = 0;
 		TileGeneration* tileGen;
 		bool** pathfindingMap = nullptr;
 
