@@ -341,8 +341,18 @@ namespace Barcode {
 
 		}
 		{
+			auto pickUpEntity = world::newEntity("PickUp", world::root());
+			auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
+			t->position = glm::vec3(5, 5, 5);
+			pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Lock.mATTIC");
+			pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
+			auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+			rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
+			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+		}
+		{
 			//Remove this to gain frames like never before
-			TileGeneration worldTiles("assets/room/trashedComputerRoom.room");
+			TileGeneration worldTiles("assets/room/tryTwo.room");
 		}
 	/*	{
 			auto physicsBox = world::newEntity("Physics box", world::root());
@@ -430,6 +440,7 @@ namespace Barcode {
 			w->bulletSpread = 0.3f;
 			w->fireRateRPM = 50;
 			w->bulletsPerShot = 1;
+			w->damage = 5;
 			w->maxmagammo = 100000000;
 			w->currmagammo = 100000000;
 			w->maxammo = 100000000;

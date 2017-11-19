@@ -74,8 +74,10 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
 			t->position = _gridToWorld(pos.x, pos.y + 1);
 			t->position.z -= 17;
-			t->scale = glm::vec3(3, 3, 3);
-			//t->position
+			t->position.y += 3;
+			t->scale = glm::vec3(4);
+			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
+			rgbc->createBox(glm::vec3(3.2f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
 		}
 	}
 
@@ -118,9 +120,10 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
 			t->position = _gridToWorld(pos.x + 1, pos.y);
 			t->position.x -= 17;
-			t->position.y += 1.5;
-			t->scale = glm::vec3(3, 3, 3);
-			//t->position
+			t->position.y += 3;
+			t->scale = glm::vec3(4);
+			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
+			rgbc->createBox(glm::vec3(3.2f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
 		}
 	}
 
@@ -162,7 +165,10 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
 			t->position = _gridToWorld(pos.x, pos.y - 1);
 			t->position.z += 17;
-			t->scale = glm::vec3(3, 3, 3);
+			t->position.y += 3;
+			t->scale = glm::vec3(4);
+			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
+			rgbc->createBox(glm::vec3(3.2f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
 		}
 	}
 
@@ -204,7 +210,10 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
 			t->position = _gridToWorld(pos.x - 1, pos.y);
 			t->position.x += 17;
-			t->scale = glm::vec3(3, 3, 3);
+			t->position.y += 3;
+			t->scale = glm::vec3(4);
+			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
+			rgbc->createBox(glm::vec3(3.2f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
 		}
 	}
 }
@@ -369,7 +378,7 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::Component::TransformCo
 		auto pickUpEntity = world::newEntity("PickUp", world::root());
 		auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
 		t->position = glm::vec3(roomTransform->position.x, 0.0f, roomTransform->position.z);
-		pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/GreenCargoBox.mATTIC");
+		pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Lock.mATTIC");
 		pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
 		auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 		rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
