@@ -18,7 +18,7 @@ using namespace Hydra::World;
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API GrenadeComponent final : public IComponent<GrenadeComponent, ComponentBits::Grenade> {
 		bool isExploding = false;
-		float detonateTimer = 4;
+		float detonateTimer = 2.0;
 
 		~GrenadeComponent() final;
 

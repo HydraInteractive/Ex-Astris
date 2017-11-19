@@ -121,6 +121,7 @@ namespace Barcode {
 				p->delay = 1.0f / 32.0f;
 				p->texture = Hydra::Component::ParticleComponent::ParticleTexture::Energy;
 				p->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::Explosion;
+				p->tempVelocity = glm::vec3(6.0f, 6.0f, 6.0f);
 				auto t = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
 				t->position = glm::vec3{ 0.2f, 2.28f, 0.64f };
 				t->rotation = glm::quat{ 0.273f, 0.303f, -0.019f, 0.913f};
@@ -152,7 +153,7 @@ namespace Barcode {
 		{
 			auto lightEntity = world::newEntity("Light", world::root());
 			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
-			l->color = glm::vec3{1, 1, 1};
+			l->color = glm::vec3{1.f, 1.f, 1.f};
 			auto t = lightEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ 3.0f, 2.0f, 2.0f };
 			t->rotation = glm::quat{ -0.496f, 0.811f, -0.117f, -0.288f };
@@ -166,7 +167,7 @@ namespace Barcode {
 			_cc->cameraYaw = -0.15;
 			_cc->cameraPitch = 0.3; // 0.051;
 			auto t = camera->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ 4, 3, 6 };
+			t->position = glm::vec3{ 4.f, 3.f, 6.f };
 			_cameraTransform = t.get();
 		}
 	}
