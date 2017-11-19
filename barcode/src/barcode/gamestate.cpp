@@ -342,16 +342,16 @@ namespace Barcode {
 		}
 		{
 			//Remove this to gain frames like never before
-			TileGeneration worldTiles("assets/room/starterRoom.room");
+			TileGeneration worldTiles("assets/room/trashedComputerRoom.room");
 		}
-		{
+	/*	{
 			auto physicsBox = world::newEntity("Physics box", world::root());
 			auto t = physicsBox->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(2, 10, -40);
 			physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(t->scale * 10.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_MISC_OBJECT, 10
 				, 0, 0, 1.0f, 1.0f);
 			physicsBox->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BigMonitor.mATTIC");
-		}
+		}*/
 
 		/*for (size_t i = 0; i < 1; i++) {
 			auto pickUpEntity = world::newEntity("PickUp", world::root());
@@ -487,19 +487,19 @@ namespace Barcode {
 					auto parent = world::newEntity("Parent", world::root());
 					auto tp = parent->addComponent<Hydra::Component::TransformComponent>();
 					tp->position = glm::vec3{ 0, 0, 10 };
-					parent->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BigMonitor.mATTIC");
+					//parent->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BigMonitor.mATTIC");
 
 					{
 						auto child = world::newEntity("child", parent);
 						auto t = child->addComponent<Hydra::Component::TransformComponent>();
 						t->position = glm::vec3{ 1, 0, 0 };
-						child->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SourceCode_Monitor.mATTIC");
+						//child->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SourceCode_Monitor.mATTIC");
 					}
 					{
 						auto child = world::newEntity("child", parent);
 						auto t = child->addComponent<Hydra::Component::TransformComponent>();
 						t->position = glm::vec3{ -1, 0, 0 };
-						child->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SourceCode_Monitor.mATTIC");
+						//child->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SourceCode_Monitor.mATTIC");
 					}
 				}
 
@@ -539,8 +539,8 @@ namespace Barcode {
 						glm::vec3 skew;
 						glm::vec4 perspective;
 						glm::decompose(tc->getMatrix(), newScale, rotation, translation, skew, perspective);
+						
 						ghostobject->ghostObject->setWorldTransform(btTransform(btQuaternion(ghostobject->quatRotation.x, ghostobject->quatRotation.y, ghostobject->quatRotation.z, ghostobject->quatRotation.w), btVector3(translation.x, translation.y, translation.z)));
-						//ghostobject->_matrix = glm::translate(translation) * glm::mat4_cast(ghostobject->quatRotation) * glm::scale(ghostobject->halfExtents);
 
 						_physicsSystem.enable(static_cast<Hydra::Component::GhostObjectComponent*>(goc.get()));
 					}

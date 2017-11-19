@@ -15,8 +15,8 @@ namespace Hydra::Component {
 		Hydra::System::BulletPhysicsSystem::CollisionTypes collisionType = Hydra::System::BulletPhysicsSystem::COLL_WALL;
 		Hydra::System::BulletPhysicsSystem* _handler;
 		
-		glm::vec3 halfExtents = glm::vec3();
-		glm::vec3 rotation = glm::vec3();
+		glm::vec3 halfExtents = glm::vec3(1.f,1.f,1.f);
+		glm::vec3 rotation = glm::vec3(0.f,0.f,0.f);
 		glm::quat quatRotation = glm::quat(0.0f, 0.0f, 0.0f, 1.0f);
 		
 		glm::mat4 _matrix = glm::mat4(1);
