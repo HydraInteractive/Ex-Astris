@@ -436,7 +436,7 @@ namespace Barcode {
 			rgbc->setAngularForce(glm::vec3(0, 0, 0));
 
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-			t->position = glm::vec3{ 0, 0, 20 };
+			t->position = glm::vec3{ 0, 0, -10 };
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
 				weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
@@ -464,7 +464,7 @@ namespace Barcode {
 			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
 			m->movementSpeed = 8.0f;
 			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ 10, 0, 20 };
+			t->position = glm::vec3{ -10, 0, -10 };
 			t->scale = glm::vec3{ 2,2,2 };
 			t->rotation = glm::vec3{ 0, 90, 0 };
 			auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
@@ -497,7 +497,7 @@ namespace Barcode {
 			auto m = robotEntity->addComponent<Hydra::Component::MovementComponent>();
 			m->movementSpeed = 5.0f;
 			auto t = robotEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ 10, 0, 10 };
+			t->position = glm::vec3{ -10, 0, -10 };
 			t->scale = glm::vec3{ 2,2,2 };
 			t->rotation = glm::vec3{ 0, 90, 0 };
 			auto rgbc = robotEntity->addComponent<Hydra::Component::RigidBodyComponent>();
@@ -543,33 +543,6 @@ namespace Barcode {
 			//pointLight4->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
 			auto p4LC = pointLight4->addComponent<Hydra::Component::PointLightComponent>();
 			p4LC->color = glm::vec3(1, 1, 1);
-		}
-
-		{
-			auto alienEntity = world::newEntity("AlienEntity", world::root());
-			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
-			m->movementSpeed = 8.0f;
-
-			auto l = alienEntity->addComponent<Hydra::Component::LifeComponent>();
-			l->health = 100;
-
-			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ 0, 0, 5 };
-			t->scale = glm::vec3{ 2,2,2 };
-			
-			auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
-				0, 0, 0.6f, 1.0f);
-
-			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
-			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
-			a->behaviour->setPathMap(pathfindingMap);
-			a->damage = 4;
-			a->behaviour->originalRange = 4;
-			a->radius = 5;	
-
-			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
 		}
 
 		{

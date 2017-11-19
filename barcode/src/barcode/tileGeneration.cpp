@@ -230,7 +230,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 void TileGeneration::_setUpMiddleRoom(std::string middleRoomPath) {
 
 	auto room = world::newEntity("Middle Room", world::root());
-	BlueprintLoader::load(middleRoomPath)->spawn(room);
+	BlueprintLoader::load(middleRoomPath)->spawn(room); 
 	auto roomC = room->getComponent<Hydra::Component::RoomComponent>();
 	roomGrid[ROOM_GRID_SIZE / 2][ROOM_GRID_SIZE / 2] = roomC;
 	_insertPathFindingMap(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2));
