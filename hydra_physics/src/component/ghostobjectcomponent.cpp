@@ -2,9 +2,9 @@
 #include <imgui/imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <btBulletDynamicsCommon.h>
-#include <hydra/system/bulletphysicssystem.hpp>
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/drawobjectcomponent.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 using namespace Hydra::World;
 using namespace Hydra::Component;
@@ -15,19 +15,31 @@ using namespace Hydra::Component;
 //	ghostObject->setWorldTransform(btTransform(btQuaternion(0,0,0,1), btVector3(0,0,0)));
 //}
 
-void Hydra::Component::GhostObjectComponent::createBox(const glm::vec3 & halfExtents, const glm::quat& quatRotation) {
+void Hydra::Component::GhostObjectComponent::_recalculateMatrix(){
+	auto tc = Hydra::World::World::getEntity(entityID)->getComponent<TransformComponent>();
+	glm::vec3 newScale;
+	glm::quat rotation;
+	glm::vec3 translation;
+	glm::vec3 skew;
+	glm::vec4 perspective;
+	glm::decompose(tc->getMatrix(), newScale, rotation, translation, skew, perspective);
+	_matrix = glm::translate(translation) * glm::mat4_cast(quatRotation) * glm::scale(halfExtents);
+}
+
+void Hydra::Component::GhostObjectComponent::createBox(const glm::vec3& halfExtents, Hydra::System::BulletPhysicsSystem::CollisionTypes collType, const glm::quat& quatRotation) {
 	this->halfExtents = halfExtents;
 	this->quatRotation = quatRotation;
 	ghostObject = new btGhostObject();
 	ghostObject->setCollisionShape(new btBoxShape(btVector3(halfExtents.x, halfExtents.y, halfExtents.z)));
-
-	Hydra::World::World::getEntity(entityID)->addComponent<DrawObjectComponent>();
-	auto tc = Hydra::World::World::getEntity(entityID)->addComponent<TransformComponent>();
-
-	ghostObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(tc->position.x, tc->position.y, tc->position.z)));
+	ghostObject->setUserIndex(this->entityID);
+	ghostObject->setUserIndex2(collType);
 }
 
-GhostObjectComponent::~GhostObjectComponent() { }
+GhostObjectComponent::~GhostObjectComponent() {
+	if (_handler)
+		_handler->disable(this);
+	delete ghostObject;
+}
 
 void GhostObjectComponent::serialize(nlohmann::json& json) const {
 	json["halfExtentsX"] = halfExtents.x;
@@ -42,6 +54,8 @@ void GhostObjectComponent::serialize(nlohmann::json& json) const {
 	json["quatRotationY"] = quatRotation.y;
 	json["quatRotationZ"] = quatRotation.z;
 	json["quatRotationW"] = quatRotation.w;
+
+	json["collisionType"] = collisionType;
 }
 
 void GhostObjectComponent::deserialize(nlohmann::json& json) {
@@ -58,7 +72,19 @@ void GhostObjectComponent::deserialize(nlohmann::json& json) {
 	quatRotation.z = json.value<float>("quatRotationZ", 0);
 	quatRotation.w = json.value<float>("quatRotationW", 0);
 
-	createBox(halfExtents,quatRotation);
+	if (rotation == glm::vec3()) {
+		rotation == glm::vec3(0.00000000000001f);
+		glm::quat qPitch = glm::angleAxis(glm::radians(rotation.x), glm::vec3(1, 0, 0));
+		glm::quat qYaw = glm::angleAxis(glm::radians(rotation.y), glm::vec3(0, 1, 0));
+		glm::quat qRoll = glm::angleAxis(glm::radians(rotation.z), glm::vec3(0, 0, 1));
+		quatRotation = glm::normalize(qPitch * qYaw * qRoll);
+	}
+
+	collisionType = Hydra::System::BulletPhysicsSystem::CollisionTypes(json.value<int>("collisionType", 0));
+
+	collisionType = Hydra::System::BulletPhysicsSystem::COLL_WALL;
+
+	createBox(halfExtents, collisionType, quatRotation);
 }
 
 void GhostObjectComponent::registerUI() {
