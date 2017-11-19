@@ -56,7 +56,7 @@ namespace Barcode {
 
 		auto s = _engine->getView()->getSize();
 
-		ImGui::SetNextWindowPos(ImVec2(s.x * 0.5f, s.y * 0.2f), ImGuiCond_Always, ImVec2(0.5, 0.5));
+		ImGui::SetNextWindowPos(ImVec2(s.x * 0.5f, s.y * 0.2f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 		ImGui::Begin("Title", nullptr, windowFlags);
 		{
 			_engine->getUIRenderer()->pushFont(UIFont::big);
@@ -65,7 +65,7 @@ namespace Barcode {
 		}
 		ImGui::End();
 
-		ImGui::SetNextWindowPos(ImVec2(s.x * 0.5f, s.y * 0.75f), ImGuiCond_Always, ImVec2(0.5, 0.5));
+		ImGui::SetNextWindowPos(ImVec2(s.x * 0.5f, s.y * 0.75f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 		float scale = 1.0 - (128.0 / _engine->getView()->getSize().x);
 		ImGui::Begin("Buttons", nullptr, windowFlags);
 		ImGui::SetWindowFontScale(scale);
@@ -102,10 +102,10 @@ namespace Barcode {
 			m->animationIndex = 2;
 
 			static const glm::vec3 positions[] = {
-				{ 0.06, 1.81, 0.22 },
-				{ 0.06, 2.34, -0.05 },
-				{ 0.21, 3.31, -0.2 },
-				{ 0.32, 3.95, 0.39 }
+				{ 0.06f, 1.81f, 0.22f },
+				{ 0.06f, 2.34f, -0.05f },
+				{ 0.21f, 3.31f, -0.2f },
+				{ 0.32f, 3.95f, 0.39f }
 			};
 			for (const glm::vec3& pos :  positions) {
 				auto particleEmitter = world::newEntity("Blood", p);
@@ -114,6 +114,7 @@ namespace Barcode {
 				p->delay = 1.0f / 128.0f;
 				p->texture = Hydra::Component::ParticleComponent::ParticleTexture::Blood;
 				p->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::Explosion;
+				p->tempVelocity = glm::vec3(6.0f, 6.0f, 6.0f);
 				auto t = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
 				t->position = pos;;
 				//t->rotation = glm::quat{ 0, 0, -1, 0 };
@@ -144,9 +145,9 @@ namespace Barcode {
 		{
 			auto lightEntity = world::newEntity("Light", world::root());
 			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
-			l->color = glm::vec3{1, 0, 0};
+			l->color = glm::vec3{1.f, 0.f, 0.f};
 			auto t = lightEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ 3, 2, 2 };
+			t->position = glm::vec3{ 3.f, 2.f, 2.f };
 			t->rotation = glm::quat{ 0.943f, -0.102f, 0.265f, 0.173f };
 			_lightRotation = &t->rotation;
 		}
@@ -155,10 +156,10 @@ namespace Barcode {
 			_cc = camera->addComponent<Hydra::Component::CameraComponent>().get();
 			_cc->noClip = false;
 			_cc->mouseControl = false;
-			_cc->cameraYaw = -0.15;
-			_cc->cameraPitch = 0.3; // 0.051;
+			_cc->cameraYaw = -0.15f;
+			_cc->cameraPitch = 0.3f; // 0.051;
 			auto t = camera->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ 4, 3, 6 };
+			t->position = glm::vec3{ 4.f, 3.f, 6.f };
 			_cameraTransform = t.get();
 		}
 	}
