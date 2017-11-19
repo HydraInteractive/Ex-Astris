@@ -46,6 +46,7 @@ namespace Barcode {
 	void GameState::onMainMenu() { }
 
 	void GameState::runFrame(float delta) {
+
 		auto windowSize = _engine->getView()->getSize();
 
 		if (!world::getEntity(_playerID)) {
@@ -64,8 +65,49 @@ namespace Barcode {
 			_enemies.clear();
 		}
 
-		if (ImGui::Button("Remove unused meshes"))
-			_meshLoader->clear();
+		bool oldPaused = _paused;
+		if (ImGui::IsKeyPressed(SDLK_ESCAPE, false)) {
+			_paused = !_paused;
+
+			if (_paused)
+				ImGui::OpenPopup("Pause Menu");
+		}
+
+		if (ImGui::BeginPopupModal("Pause Menu", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+			ImGui::Text("The game is paused");
+
+			ImGui::Separator();
+
+			if (ImGui::Button("Continue"))
+				_paused = false;
+			ImGui::SameLine();
+			if (ImGui::Button("Return to the mainmenu")) {
+				_engine->setState<Barcode::MenuState>();
+				ImGui::EndPopup();
+				return;
+			}
+			if (!_paused)
+				ImGui::CloseCurrentPopup();
+			ImGui::EndPopup();
+		}
+
+		if (_paused != oldPaused) {
+			static bool oldMouseControl;
+			static bool oldNoClip;
+
+			if (_paused) {
+				oldMouseControl = _cc->mouseControl;
+				oldNoClip = _cc->noClip;
+				_cc->mouseControl = false;
+				_cc->noClip = false;
+			} else {
+				_cc->mouseControl = oldMouseControl;
+				_cc->noClip = oldNoClip;
+			}
+		}
+
+		if (_paused)
+			delta = 0;
 
 		_physicsSystem.tick(delta);
 		_cameraSystem.tick(delta);
