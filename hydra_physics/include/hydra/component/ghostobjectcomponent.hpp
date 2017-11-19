@@ -11,14 +11,22 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API GhostObjectComponent final : public IComponent<GhostObjectComponent, ComponentBits::GhostObject>{
-		
-		
 		btGhostObject* ghostObject;
+		Hydra::System::BulletPhysicsSystem::CollisionTypes collisionType = Hydra::System::BulletPhysicsSystem::COLL_WALL;
+		Hydra::System::BulletPhysicsSystem* _handler;
+		
 		glm::vec3 halfExtents = glm::vec3();
 		glm::vec3 rotation = glm::vec3();
 		glm::quat quatRotation = glm::quat(0.0f, 0.0f, 0.0f, 1.0f);
-		Hydra::System::BulletPhysicsSystem::CollisionTypes collisionType = Hydra::System::BulletPhysicsSystem::COLL_WALL;
-		Hydra::System::BulletPhysicsSystem* _handler;
+		
+		glm::mat4 _matrix = glm::mat4(1);
+
+		inline glm::mat4 getMatrix() {
+			_recalculateMatrix();
+			return _matrix;
+		}
+
+		void _recalculateMatrix();
 
 		//void createSphere(float radius);
 		void createBox(const glm::vec3& halfExtents, Hydra::System::BulletPhysicsSystem::CollisionTypes collType, const glm::quat& quatRotation = glm::quat(0,0,0,1));

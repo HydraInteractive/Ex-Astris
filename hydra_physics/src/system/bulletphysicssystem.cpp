@@ -205,11 +205,11 @@ void BulletPhysicsSystem::_spawnParticleEmitterAt(const glm::vec3& pos, const gl
 	auto pETC = pE->addComponent<TransformComponent>();
 	pETC->position = pos;
 
-	auto pEPC = pE->addComponent<ParticleComponent>();
-	pEPC->delay = 1.0f / 1.0f;
-	pEPC->accumulator = 5.0f;
-	pEPC->behaviour = ParticleComponent::EmitterBehaviour::Explosion;
-	pEPC->texture = ParticleComponent::ParticleTexture::Blood;
+	auto pEPC = pE->addComponent<Hydra::Component::ParticleComponent>();
+	pEPC->delay = 1.0f / 2.0f;
+	pEPC->accumulator = 2*5.0f;
+	pEPC->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::Explosion;
+	pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::Blood;
 	pEPC->optionalNormal = normal;
 
 	auto pELC = pE->addComponent<LifeComponent>();

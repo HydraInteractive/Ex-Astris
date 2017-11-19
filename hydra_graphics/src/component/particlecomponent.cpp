@@ -130,7 +130,7 @@ void ParticleComponent::spawnParticles() {
 			const float accY = velY * 2.0f;
 			const float accZ = velZ * 2.0f;
 
-			const float life = 4.0f;
+			const float life = frand() * 4;
 			const glm::vec3 vel = normalize(glm::vec3(velX, velY, velZ));
 			const glm::vec3 acc = glm::vec3(accX, accY, accZ);
 			p->respawn(*t, vel, acc, life);

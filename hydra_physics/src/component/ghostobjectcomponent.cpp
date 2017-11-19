@@ -14,6 +14,21 @@ using namespace Hydra::Component;
 //	ghostObject->setWorldTransform(btTransform(btQuaternion(0,0,0,1), btVector3(0,0,0)));
 //}
 
+void Hydra::Component::GhostObjectComponent::_recalculateMatrix(){
+	glm::quat qPitch = glm::angleAxis(glm::radians(rotation.x), glm::vec3(1, 0, 0));
+	glm::quat qYaw = glm::angleAxis(glm::radians(rotation.y), glm::vec3(0, 1, 0));
+	glm::quat qRoll = glm::angleAxis(glm::radians(rotation.z), glm::vec3(0, 0, 1));
+	quatRotation = glm::normalize(qPitch * qYaw * qRoll);
+
+	auto tc = Hydra::World::World::getEntity(entityID)->getComponent<TransformComponent>();
+	_matrix = (glm::translate(tc->position) * glm::mat4_cast(tc->rotation) * glm::scale(glm::vec3(1))) * (glm::translate(glm::vec3(0)) * glm::mat4_cast(quatRotation) * glm::scale(halfExtents));
+	
+	auto p = tc->_getParentComponent();
+	glm::mat4 parent = p ? p->getMatrix() : glm::mat4(1);
+
+	_matrix = parent * _matrix;
+}
+
 void Hydra::Component::GhostObjectComponent::createBox(const glm::vec3& halfExtents, Hydra::System::BulletPhysicsSystem::CollisionTypes collType, const glm::quat& quatRotation) {
 	this->halfExtents = halfExtents;
 	this->quatRotation = quatRotation;

@@ -11,7 +11,7 @@ ExporterMenu::~ExporterMenu()
 }
 void ExporterMenu::render(bool &openBool, Hydra::Renderer::Batch* previewBatch, float delta)
 {
-	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiSetCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiCond_Once);
 	ImGui::Begin("Export", &openBool, ImGuiWindowFlags_MenuBar);
 	_menuBar();
 	//If the filetype has been switched, update the filetree

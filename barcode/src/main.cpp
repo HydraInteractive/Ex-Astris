@@ -16,6 +16,8 @@
 #include <barcode/menustate.hpp>
 #include <barcode/gamestate.hpp>
 #include <barcode/editorstate.hpp>
+#include <barcode/losestate.hpp>
+#include <barcode/winstate.hpp>
 
 #include <cstdio>
 #include <chrono>
@@ -104,6 +106,10 @@ namespace Barcode {
 					setState<GameState>();
 				if (ImGui::MenuItem("EditorState", NULL, typeid(*_state) == typeid(EditorState)))
 					setState<EditorState>();
+				if (ImGui::MenuItem("LoseState", NULL, typeid(*_state) == typeid(LoseState)))
+					setState<LoseState>();
+				if (ImGui::MenuItem("WinState", NULL, typeid(*_state) == typeid(WinState)))
+					setState<WinState>();
 				ImGui::EndMenu();
 			}
 			if (_state)
