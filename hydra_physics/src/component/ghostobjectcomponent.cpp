@@ -27,7 +27,11 @@ void Hydra::Component::GhostObjectComponent::createBox(const glm::vec3& halfExte
 	ghostObject->setWorldTransform(btTransform(btQuaternion(quatRotation.x, quatRotation.y, quatRotation.z, quatRotation.w), btVector3(tc->position.x, tc->position.y, tc->position.z)));
 }
 
-GhostObjectComponent::~GhostObjectComponent() { }
+GhostObjectComponent::~GhostObjectComponent() {
+	if (_handler)
+		_handler->disable(this);
+	delete ghostObject;
+}
 
 void GhostObjectComponent::serialize(nlohmann::json& json) const {
 	json["halfExtentsX"] = halfExtents.x;

@@ -92,6 +92,8 @@ void BulletPhysicsSystem::disable(RigidBodyComponent* component) {
 }
 
 void Hydra::System::BulletPhysicsSystem::enable(GhostObjectComponent * component){
+	component->_handler = this;
+
 	switch (component->ghostObject->getUserIndex2())
 	{
 	case CollisionTypes::COLL_PLAYER:
@@ -123,6 +125,7 @@ void Hydra::System::BulletPhysicsSystem::enable(GhostObjectComponent * component
 
 void Hydra::System::BulletPhysicsSystem::disable(GhostObjectComponent * component){
 	_data->dynamicsWorld->removeCollisionObject(component->ghostObject);
+	component->_handler = nullptr;
 }
 
 

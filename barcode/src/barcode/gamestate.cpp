@@ -327,7 +327,7 @@ namespace Barcode {
 			pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/GreenCargoBox.mATTIC");
 			pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
 			auto goc = pickUpEntity->addComponent<Hydra::Component::GhostObjectComponent>();
-			goc->createBox(glm::vec3(1,1,1));
+			goc->createBox(glm::vec3(1,1,1),Hydra::System::BulletPhysicsSystem::COLL_WALL);
 		}
 
 		{
