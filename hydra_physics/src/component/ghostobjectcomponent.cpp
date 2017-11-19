@@ -4,6 +4,7 @@
 #include <btBulletDynamicsCommon.h>
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/drawobjectcomponent.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 using namespace Hydra::World;
 using namespace Hydra::Component;
@@ -15,18 +16,14 @@ using namespace Hydra::Component;
 //}
 
 void Hydra::Component::GhostObjectComponent::_recalculateMatrix(){
-	glm::quat qPitch = glm::angleAxis(glm::radians(rotation.x), glm::vec3(1, 0, 0));
-	glm::quat qYaw = glm::angleAxis(glm::radians(rotation.y), glm::vec3(0, 1, 0));
-	glm::quat qRoll = glm::angleAxis(glm::radians(rotation.z), glm::vec3(0, 0, 1));
-	quatRotation = glm::normalize(qPitch * qYaw * qRoll);
-
-	auto tc = Hydra::World::World::getEntity(entityID)->getComponent<TransformComponent>();
-	_matrix = (glm::translate(tc->position) * glm::mat4_cast(tc->rotation) * glm::scale(glm::vec3(1))) * (glm::translate(glm::vec3(0)) * glm::mat4_cast(quatRotation) * glm::scale(halfExtents));
-	
-	auto p = tc->_getParentComponent();
-	glm::mat4 parent = p ? p->getMatrix() : glm::mat4(1);
-
-	_matrix = parent * _matrix;
+	auto dc = Hydra::World::World::getEntity(entityID)->getComponent<DrawObjectComponent>()->drawObject;
+	glm::vec3 newScale;
+	glm::quat rotation;
+	glm::vec3 translation;
+	glm::vec3 skew;
+	glm::vec4 perspective;
+	glm::decompose(dc->modelMatrix, newScale, rotation, translation, skew, perspective);
+	_matrix = glm::translate(translation) * glm::mat4_cast(quatRotation) * glm::scale(halfExtents);
 }
 
 void Hydra::Component::GhostObjectComponent::createBox(const glm::vec3& halfExtents, Hydra::System::BulletPhysicsSystem::CollisionTypes collType, const glm::quat& quatRotation) {
@@ -36,10 +33,6 @@ void Hydra::Component::GhostObjectComponent::createBox(const glm::vec3& halfExte
 	ghostObject->setCollisionShape(new btBoxShape(btVector3(halfExtents.x, halfExtents.y, halfExtents.z)));
 	ghostObject->setUserIndex(this->entityID);
 	ghostObject->setUserIndex2(collType);
-	Hydra::World::World::getEntity(entityID)->addComponent<DrawObjectComponent>();
-	auto tc = Hydra::World::World::getEntity(entityID)->addComponent<TransformComponent>();
-
-	ghostObject->setWorldTransform(btTransform(btQuaternion(quatRotation.x, quatRotation.y, quatRotation.z, quatRotation.w), btVector3(tc->position.x, tc->position.y, tc->position.z)));
 }
 
 GhostObjectComponent::~GhostObjectComponent() {
@@ -80,6 +73,8 @@ void GhostObjectComponent::deserialize(nlohmann::json& json) {
 	quatRotation.w = json.value<float>("quatRotationW", 0);
 
 	collisionType = Hydra::System::BulletPhysicsSystem::CollisionTypes(json.value<int>("collisionType", 0));
+
+	collisionType = Hydra::System::BulletPhysicsSystem::COLL_WALL;
 
 	createBox(halfExtents, collisionType, quatRotation);
 }
