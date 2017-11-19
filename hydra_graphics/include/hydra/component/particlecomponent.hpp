@@ -46,6 +46,7 @@ namespace Hydra::Component {
 
 		float delay = 1; // 0.1 = 10 Particle/Second
 		float accumulator = 256;
+		glm::vec3 tempVelocity = glm::vec3(1.0f, 1.0f, 1.0f);
 		EmitterBehaviour behaviour = EmitterBehaviour::PerSecond;
 		ParticleTexture texture = ParticleTexture::Fire;
 		Particle particles[MaxParticleAmount];

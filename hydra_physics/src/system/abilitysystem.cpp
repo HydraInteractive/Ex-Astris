@@ -72,15 +72,17 @@ void AbilitySystem::_spawnParticleEmitterAt(const glm::vec3 & pos, const glm::ve
 
 	auto pETC = pE->addComponent<Hydra::Component::TransformComponent>();
 	pETC->position = pos;
+	pETC->scale = glm::vec3(3.0f, 3.0f, 3.0f);
 
 	auto pEPC = pE->addComponent<Hydra::Component::ParticleComponent>();
 	pEPC->delay = 1.0f / 1.0f;
-	pEPC->accumulator = 5.0f;
+	pEPC->accumulator = 40.0f;
+	pEPC->tempVelocity = glm::vec3(40.0f, 40.0f, 40.0f);
 	pEPC->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::Explosion;
 	pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::Blood;
 	pEPC->optionalNormal = normal;
 
 	auto pELC = pE->addComponent<Hydra::Component::LifeComponent>();
-	pELC->maxHP = 1.0f;
-	pELC->health = 1.0f;
+	pELC->maxHP = 0.6f;
+	pELC->health = 0.6f;
 }
