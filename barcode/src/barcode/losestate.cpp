@@ -126,7 +126,7 @@ namespace Barcode {
 			auto p = world::newEntity("Robot", world::root());
 			auto t = p->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{5.048f, -0.611f, -1.495f};
-			t->rotation = glm::quat{0.939f, 0.f, -0.343f, 0.f};
+			t->rotation = glm::quat{0.939f, 0.0f, -0.343f, 0.0f};
 			auto m = p->addComponent<Hydra::Component::MeshComponent>();
 			m->loadMesh("assets/objects/characters/RobotModel.mATTIC");
 			m->animationIndex = 1;

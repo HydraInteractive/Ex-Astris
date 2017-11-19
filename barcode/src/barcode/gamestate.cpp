@@ -348,6 +348,7 @@ namespace Barcode {
 		{
 			//Remove this to gain frames like never before
 			//TileGeneration worldTiles("assets/room/threewayRoom.room");
+			//hej fixa här
 		}
 		{
 			auto physicsBox = world::newEntity("Physics box", world::root());

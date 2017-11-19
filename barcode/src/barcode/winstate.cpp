@@ -99,7 +99,7 @@ namespace Barcode {
 			auto p = world::newEntity("Player", world::root());
 			auto t = p->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{-0.175f, -0.036f, -0.991f};
-			t->rotation = glm::quat{0.985f, 0.f, -0.175f, 0.f};
+			t->rotation = glm::quat{0.985f, 0.0f, -0.175f, 0.0f};
 			auto m = p->addComponent<Hydra::Component::MeshComponent>();
 			m->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
 			m->animationIndex = 2;
@@ -155,7 +155,7 @@ namespace Barcode {
 			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
 			l->color = glm::vec3{1.f, 1.f, 1.f};
 			auto t = lightEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ 3.f, 2.f, 2.f };
+			t->position = glm::vec3{ 3.0f, 2.0f, 2.0f };
 			t->rotation = glm::quat{ -0.496f, 0.811f, -0.117f, -0.288f };
 			_lightRotation = &t->rotation;
 		}
