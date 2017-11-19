@@ -98,8 +98,8 @@ namespace Barcode {
 		{
 			auto p = world::newEntity("Player", world::root());
 			auto t = p->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{-0.175, -0.036, -0.991};
-			t->rotation = glm::quat{0.985, 0, -0.175, 0};
+			t->position = glm::vec3{-0.175f, -0.036f, -0.991f};
+			t->rotation = glm::quat{0.985f, 0.0f, -0.175f, 0.0f};
 			auto m = p->addComponent<Hydra::Component::MeshComponent>();
 			m->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
 			m->animationIndex = 2;
@@ -108,8 +108,8 @@ namespace Barcode {
 		{
 			auto p = world::newEntity("Robot", world::root());
 			auto t = p->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{1.024, -0.402, -0.977};
-			t->rotation = glm::quat{-0.834, 0.522, 0.127, 0.129};
+			t->position = glm::vec3{1.024f, -0.402f, -0.977f};
+			t->rotation = glm::quat{-0.834f, 0.522f, 0.127f, 0.129f};
 			auto m = p->addComponent<Hydra::Component::MeshComponent>();
 			m->loadMesh("assets/objects/characters/RobotModel.mATTIC");
 			m->animationIndex = 0;
@@ -122,16 +122,16 @@ namespace Barcode {
 				p->texture = Hydra::Component::ParticleComponent::ParticleTexture::Energy;
 				p->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::Explosion;
 				auto t = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
-				t->position = glm::vec3{ 0.2, 2.28, 0.64 };
-				t->rotation = glm::quat{ 0.273, 0.303, -0.019, 0.913};
+				t->position = glm::vec3{ 0.2f, 2.28f, 0.64f };
+				t->rotation = glm::quat{ 0.273f, 0.303f, -0.019f, 0.913f};
 			}
 		}
 
 		{
 			auto p = world::newEntity("Alien", world::root());
 			auto t = p->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{3.393, 1.117, 1.471};
-			t->rotation = glm::quat{0.629, -0.73, -0.171, -0.206};
+			t->position = glm::vec3{3.393f, 1.117f, 1.471f};
+			t->rotation = glm::quat{0.629f, -0.73f, -0.171f, -0.206f};
 			auto m = p->addComponent<Hydra::Component::MeshComponent>();
 			m->loadMesh("assets/objects/characters/AlienModel.mATTIC");
 			m->animationIndex = 0;
@@ -144,8 +144,8 @@ namespace Barcode {
 				p->texture = Hydra::Component::ParticleComponent::ParticleTexture::AlienBlood;
 				p->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::PerSecond;
 				auto t = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
-				t->position = glm::vec3{ 0.43, 0.93, -0.16 };
-				t->rotation = glm::quat{ 0.710, 0.605, 0.265, -0.244};
+				t->position = glm::vec3{ 0.43f, 0.93f, -0.16f };
+				t->rotation = glm::quat{ 0.710f, 0.605f, 0.265f, -0.244f};
 			}
 		}
 
@@ -154,8 +154,8 @@ namespace Barcode {
 			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
 			l->color = glm::vec3{1, 1, 1};
 			auto t = lightEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ 3, 2, 2 };
-			t->rotation = glm::quat{ -0.496, 0.811, -0.117, -0.288 };
+			t->position = glm::vec3{ 3.0f, 2.0f, 2.0f };
+			t->rotation = glm::quat{ -0.496f, 0.811f, -0.117f, -0.288f };
 			_lightRotation = &t->rotation;
 		}
 		{

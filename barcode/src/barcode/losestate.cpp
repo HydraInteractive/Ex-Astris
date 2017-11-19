@@ -96,7 +96,7 @@ namespace Barcode {
 		{
 			auto p = world::newEntity("Dead player", world::root());
 			auto t = p->addComponent<Hydra::Component::TransformComponent>();
-			t->rotation = glm::quat{0.05, -0.777, -0.645, 0.005};
+			t->rotation = glm::quat{0.05f, -0.777f, -0.645f, 0.005f};
 			auto m = p->addComponent<Hydra::Component::MeshComponent>();
 			m->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
 			m->animationIndex = 2;
@@ -117,15 +117,15 @@ namespace Barcode {
 				auto t = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
 				t->position = pos;;
 				//t->rotation = glm::quat{ 0, 0, -1, 0 };
-				t->rotation = glm::quat{ -0.483, 0.160, -0.861, -0.018 };
+				t->rotation = glm::quat{ -0.483f, 0.160f, -0.861f, -0.018f };
 			}
 		}
 
 		{
 			auto p = world::newEntity("Robot", world::root());
 			auto t = p->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{5.048, -0.611, -1.495};
-			t->rotation = glm::quat{0.939, 0, -0.343, 0};
+			t->position = glm::vec3{5.048f, -0.611f, -1.495f};
+			t->rotation = glm::quat{0.939f, 0.0f, -0.343f, 0.0f};
 			auto m = p->addComponent<Hydra::Component::MeshComponent>();
 			m->loadMesh("assets/objects/characters/RobotModel.mATTIC");
 			m->animationIndex = 1;
@@ -134,8 +134,8 @@ namespace Barcode {
 		{
 			auto p = world::newEntity("Alien", world::root());
 			auto t = p->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{1.237, -0.076, -0.871};
-			t->rotation = glm::quat{-0.908, -0.318, -0.243, 0.122};
+			t->position = glm::vec3{1.237f, -0.076f, -0.871f};
+			t->rotation = glm::quat{-0.908f, -0.318f, -0.243f, 0.122f};
 			auto m = p->addComponent<Hydra::Component::MeshComponent>();
 			m->loadMesh("assets/objects/characters/AlienModel.mATTIC");
 			m->animationIndex = 2;
@@ -147,7 +147,7 @@ namespace Barcode {
 			l->color = glm::vec3{1, 0, 0};
 			auto t = lightEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ 3, 2, 2 };
-			t->rotation = glm::quat{ 0.943, -0.102, 0.265, 0.173 };
+			t->rotation = glm::quat{ 0.943f, -0.102f, 0.265f, 0.173f };
 			_lightRotation = &t->rotation;
 		}
 		{
