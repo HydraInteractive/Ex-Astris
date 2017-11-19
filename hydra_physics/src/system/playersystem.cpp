@@ -87,7 +87,7 @@ void PlayerSystem::tick(float delta) {
 
 				float bulletVelocity = 300;
 				if(!weapon->_isReloading)
-					if (weapon->shoot(transform->position, movement->direction, bulletOrientation, bulletVelocity, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE, 5)) {
+					if (weapon->shoot(transform->position, movement->direction, bulletOrientation, bulletVelocity, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE)) {
 						float rn = 500;//rand() % 1000;
 						rn /= 10000;
 
