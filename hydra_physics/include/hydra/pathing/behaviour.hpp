@@ -26,24 +26,23 @@ public:
 	enum BossPhase { CLAWING, SPITTING, SPAWNING, CHILLING };
 	BossPhase bossPhase = BossPhase::CLAWING;
 
-	float idleTimer = 0;
-	float attackTimer = 0;
+	float idleTimer = 0.0f;
+	float attackTimer = 0.0f;
 	float newPathTimer = 0.0f;
 	float newPathDelay = 1.0f;
-	float spawnTimer = 0;
-	float phaseTimer = 0;
+	float spawnTimer = 0.0f;
+	float phaseTimer = 0.0f;
 
 	std::random_device rd;
 	bool playerSeen = false;
 	bool isAtGoal = false;
 	int oldMapPosX = 0;
 	int oldMapPosZ = 0;
-	float angle = 1;
 
 	bool hasRequiredComponents = false;
 
-	float range = 1;
-	float originalRange = 1;
+	float range = 1.0f;
+	float originalRange = 1.0f;
 	glm::quat rotation = glm::quat();
 
 	virtual void run(float dt) = 0;

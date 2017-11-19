@@ -51,8 +51,11 @@ glm::vec2 Behaviour::flatVector(glm::vec3 vec)
 void Behaviour::move(glm::vec3 target)
 {
 	glm::vec2 direction = glm::normalize(flatVector(target) - flatVector(thisEnemy.transform->position));
+
 	thisEnemy.movement->velocity.x = (thisEnemy.movement->movementSpeed * direction.x);
 	thisEnemy.movement->velocity.z = (thisEnemy.movement->movementSpeed * direction.y);
+
+	rotation = glm::angleAxis(atan2(direction.x, direction.y), glm::vec3(0, 1, 0));
 }
 //Sets all components without setting new entities, use after adding new components to either entity
 bool Behaviour::refreshRequiredComponents()
@@ -169,7 +172,7 @@ unsigned int Behaviour::attackingState(float dt)
 {
 	//When the enemy attack, start the attack animation
 	resetAnimationOnStart(2);
-	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) >= range)
+	if (glm::distance(thisEnemy.transform->position, targetPlayer.transform->position) >= range)
 	{
 		idleTimer = 0.0f;
 		return SEARCHING;
@@ -184,10 +187,8 @@ unsigned int Behaviour::attackingState(float dt)
 			attackTimer = 0;
 		}
 
-		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
-		playerDir = glm::normalize(playerDir);
-		angle = atan2(playerDir.x, playerDir.z);
-		rotation = glm::angleAxis(angle, glm::vec3(0, 1, 0));
+		glm::vec3 playerDir = glm::normalize(targetPlayer.transform->position - thisEnemy.transform->position);
+		rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
 	}
 	return state;
 }
@@ -291,10 +292,8 @@ unsigned int AlienBehaviour::attackingState(float dt)
 			attackTimer = 0;
 		}
 
-		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
-		playerDir = glm::normalize(playerDir);
-		angle = atan2(playerDir.x, playerDir.z);
-		rotation = glm::angleAxis(angle, glm::vec3(0, 1, 0));
+		glm::vec3 playerDir = glm::normalize(targetPlayer.transform->position - thisEnemy.transform->position);
+		rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
 	}
 	return state;
 }
@@ -408,8 +407,7 @@ unsigned int RobotBehaviour::attackingState(float dt)
 		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
 		playerDir = glm::normalize(playerDir);
 		thisEnemy.weapon->shoot(thisEnemy.transform->position, playerDir, glm::quat(), 8.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE, thisEnemy.ai->damage);
-		angle = atan2(playerDir.x, playerDir.z);
-		rotation = glm::angleAxis(angle, glm::vec3(0, 1, 0));
+		rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
 	}
 	return state;
 }
@@ -573,8 +571,7 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 
 		if (!stunned)
 		{
-			angle = atan2(playerDir.x, playerDir.z);
-			rotation = glm::angleAxis(angle, glm::vec3(0, 1, 0));
+			rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
 		}
 		return state;
 	}
