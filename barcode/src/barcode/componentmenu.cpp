@@ -74,7 +74,7 @@ std::shared_ptr<Hydra::World::Entity> ComponentMenu::getRoomEntity()
 		return entities[0];
 	}
 	return nullptr;
-}
+} 
 
 void ComponentMenu::configureComponent(bool &openBool, std::string componentType, Hydra::System::BulletPhysicsSystem& physicsSystem)
 {

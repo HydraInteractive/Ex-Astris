@@ -29,6 +29,7 @@
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/aicomponent.hpp>
+#include <hydra/component/ghostobjectcomponent.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
 
