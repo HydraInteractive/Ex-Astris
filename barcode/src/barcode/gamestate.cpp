@@ -418,6 +418,37 @@ namespace Barcode {
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		}
 
+		{
+			auto robotEntity = world::newEntity("Robot1", world::root());
+			robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
+			auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
+			a->behaviour = std::make_shared<RobotBehaviour>(robotEntity);
+			a->damage = 7;
+			a->behaviour->originalRange = 25;
+			a->radius = 1;
+			auto w = robotEntity->addComponent<Hydra::Component::WeaponComponent>();
+			w->bulletSpread = 0.3f;
+			w->fireRateRPM = 50;
+			w->bulletsPerShot = 1;
+			w->maxmagammo = 100000000;
+			w->currmagammo = 100000000;
+			w->maxammo = 100000000;
+
+			auto h = robotEntity->addComponent<Hydra::Component::LifeComponent>();
+			h->maxHP = 70;
+			h->health = 70;
+			auto m = robotEntity->addComponent<Hydra::Component::MovementComponent>();
+			m->movementSpeed = 5.0f;
+			auto t = robotEntity->addComponent<Hydra::Component::TransformComponent>();
+			t->position = glm::vec3{ 10, 0, 10 };
+			t->scale = glm::vec3{ 2,2,2 };
+			t->rotation = glm::vec3{ 0, 90, 0 };
+			auto rgbc = robotEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+			rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+				0, 0, 0.6f, 1.0f);
+			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+		}
+
 		//{
 		//	auto textEntity = world::newEntity("Bogdan", world::root());
 		//	textEntity->addComponent<Hydra::Component::TransformComponent>()->setScale(glm::vec3(10));
