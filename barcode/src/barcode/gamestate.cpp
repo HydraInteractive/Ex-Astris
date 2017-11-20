@@ -158,7 +158,7 @@ namespace Barcode {
 				glm::vec3 skew;
 				glm::vec4 perspective;
 				glm::decompose(drawObj->modelMatrix, newScale, rotation, translation, skew, perspective);
-				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(glm::translate(translation) * glm::mat4_cast(rotation) * glm::scale(rgbc->getHalfExtentScale() * glm::vec3(2)));
+				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(glm::translate(rgbc->getPosition()) * glm::mat4_cast(rgbc->getRotation()) * glm::scale(rgbc->getHalfExtentScale() * glm::vec3(2)));
 			}
 
 			world::getEntitiesWithComponents<Hydra::Component::GhostObjectComponent, Hydra::Component::DrawObjectComponent>(entities);
@@ -337,32 +337,6 @@ namespace Barcode {
 			ImGui::PopStyleVar();
 			ImGui::PopStyleVar();
 		}
-	
-		//{ // Text pass.
-		//	for(auto& kv : _textBatch.batch.objects)
-		//		kv.second.clear();
-
-		//	_textBatch.batch.textInfo.clear();
-
-		//	std::vector<std::shared_ptr<Entity>> entities;
-		//	world::getEntitiesWithComponents<Hydra::Component::TextComponent, Hydra::Component::DrawObjectComponent>(entities);
-		//	for (auto e : entities) {
-		//		auto textC = e->getComponent<Hydra::Component::TextComponent>();
-		//		auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
-		//		auto textData = textC->renderingData;
-		//	
-		//		for (int i = 0; i < textData.size(); i++) {
-		//			_textBatch.batch.textInfo.push_back(textC->renderingData[i]);
-		//		}
-		//	
-		//		_textBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-		//	}
-		//	_textBatch.pipeline->setValue(0, _cc->getProjectionMatrix() * _cc->getViewMatrix());
-		//	_textBatch.pipeline->setValue(20, 0);
-		//	_textFactory->getTexture()->bind(0);
-		//	_engine->getRenderer()->renderText(_textBatch.batch);
-		//	/*BOI*/
-		//}
 	}
 
 	void GameState::_initSystem() {
@@ -390,7 +364,7 @@ namespace Barcode {
 			pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Lock.mATTIC");
 			pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
 			auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
+			rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		}
 		{
@@ -398,17 +372,6 @@ namespace Barcode {
 			tileGen = new TileGeneration("assets/room/threewayRoom.room");
 			pathfindingMap = tileGen->buildMap();
 		}
-		{
-			
-		}
-	/*	{
-			auto physicsBox = world::newEntity("Physics box", world::root());
-			auto t = physicsBox->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3(2, 10, -40);
-			physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(t->scale * 10.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_MISC_OBJECT, 10
-				, 0, 0, 1.0f, 1.0f);
-			physicsBox->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BigMonitor.mATTIC");
-		}*/
 
 		/*for (size_t i = 0; i < 1; i++) {
 			auto pickUpEntity = world::newEntity("PickUp", world::root());
@@ -435,12 +398,11 @@ namespace Barcode {
 			t->position = glm::vec3(-10, 0, -10);
 			_playerTransform = t.get();
 			auto rgbc = playerEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
+			rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
 				0, 0, 0.5f, 0);
 			rgbc->setAngularForce(glm::vec3(0, 0, 0));
 
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-			
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
 				weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
@@ -453,14 +415,14 @@ namespace Barcode {
 			}
 		}
 
-		{
+		/*{
 			auto alienEntity = world::newEntity("Alien1", world::root());
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
 			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 			a->behaviour->setPathMap(pathfindingMap);
 			a->damage = 4;
-			a->behaviour->originalRange = 4;
+			a->behaviour->originalRange = 5;
 			a->radius = 1;
 
 			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
@@ -470,12 +432,13 @@ namespace Barcode {
 			m->movementSpeed = 8.0f;
 			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ -10, 0, -10 };
-			t->scale = glm::vec3{ 2,2,2 };
+			t->scale = glm::vec3{ 1,1,1 };
 			t->rotation = glm::vec3{ 0, 90, 0 };
 			auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+			rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 3, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 				0, 0, 0.6f, 1.0f);
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+			rgbc->setAngularForce(glm::vec3(0));
 		}
 
 		{
@@ -485,7 +448,7 @@ namespace Barcode {
 			a->behaviour = std::make_shared<RobotBehaviour>(robotEntity);
 			a->behaviour->setPathMap(pathfindingMap);
 			a->damage = 7;
-			a->behaviour->originalRange = 25;
+			a->behaviour->originalRange = 20;
 			a->radius = 1;
 			auto w = robotEntity->addComponent<Hydra::Component::WeaponComponent>();
 			w->bulletSpread = 0.3f;
@@ -503,13 +466,13 @@ namespace Barcode {
 			m->movementSpeed = 5.0f;
 			auto t = robotEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ -10, 0, -10 };
-			t->scale = glm::vec3{ 2,2,2 };
+			t->scale = glm::vec3{ 1,1,1 };
 			t->rotation = glm::vec3{ 0, 90, 0 };
 			auto rgbc = robotEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+			rgbc->createBox(glm::vec3(0.5f) * t->scale, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 				0, 0, 0.6f, 1.0f);
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-		}
+		}*/
 
 		//{
 		//	auto textEntity = world::newEntity("Bogdan", world::root());
