@@ -296,6 +296,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
 		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+		a->behaviour->setPathMap(pathfindingMap);
 		a->damage = 4;
 		a->behaviour->originalRange = 4;
 		a->radius = 1;
@@ -325,6 +326,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienFastModel.mATTIC");
 		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+		a->behaviour->setPathMap(pathfindingMap);
 		a->damage = 4;
 		a->behaviour->originalRange = 4;
 		a->radius = 1;
@@ -354,6 +356,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
 		auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<RobotBehaviour>(robotEntity);
+		a->behaviour->setPathMap(pathfindingMap);
 		a->damage = 7;
 		a->behaviour->originalRange = 20;
 		a->radius = 1;
@@ -422,7 +425,7 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::Component::TransformCo
 		pickupText->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
 		pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
 		auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
-		textStuff->setText("Perk picked up \n");
+		textStuff->setText("Perk picked up");
 		textStuff->isStatic = true;
 
 	}
