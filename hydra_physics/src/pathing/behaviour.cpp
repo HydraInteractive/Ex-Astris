@@ -104,7 +104,7 @@ unsigned int Behaviour::movingState(float dt)
 {
 	resetAnimationOnStart(1);
 	
-	float distEnemyToPlayer = glm::distance(flatVector(thisEnemy.transform->position), flatVector(targetPlayer.transform->position));
+	float distEnemyToPlayer = glm::length(thisEnemy.transform->position - targetPlayer.transform->position);
 	if (distEnemyToPlayer <= range)
 	{
 		isAtGoal = true;
