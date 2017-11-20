@@ -255,12 +255,12 @@ void TileGeneration::_setUpMiddleRoom(std::string middleRoomPath) {
 void TileGeneration::_obtainRoomFiles() {
 	//Get the files in order
 	std::string path = "assets/room/";
-	for (auto & p : std::experimental::filesystem::directory_iterator(path)) {
-		_roomFileNames.push_back(p.path().string());
-	}
+	//for (auto & p : std::experimental::filesystem::directory_iterator(path)) {
+	//	_roomFileNames.push_back(p.path().string());
+	//}
 
 	
-	//_roomFileNames.push_back(path + "centralRoomBigScreen.room");
+	_roomFileNames.push_back(path + "centralRoomBigScreen.room");
 	//_roomFileNames.push_back(path + "centralRoomPipes.room"); ??FSD=O)F=ISD=FISD
 	//_roomFileNames.push_back(path + "trashedComputerRoom.room");
 	//_roomFileNames.push_back(path + "tryTree.room");hgfhgfhf
@@ -414,10 +414,18 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::Component::TransformCo
 		auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
 		t->position = glm::vec3(roomTransform->position.x, 3.0f, roomTransform->position.z);
 		pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Lock.mATTIC");
-		pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
+		auto pickUpC = pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
 		auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 		rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+
+		auto pickupText = world::newEntity("Textpickup", world::root());
+		pickupText->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
+		pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
+		auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
+		textStuff->setText("Perk picked up \n");
+		textStuff->isStatic = true;
+
 	}
 	//if (randomChance < (int)PICKUP_CHANCE) {
 	//	auto pickUpEntity = world::newEntity("PickUp", world::root());

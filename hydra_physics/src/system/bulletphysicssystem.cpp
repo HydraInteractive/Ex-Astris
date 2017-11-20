@@ -231,9 +231,9 @@ void BulletPhysicsSystem::_spawnDamageText(const glm::vec3& pos, const std::stri
 	auto lifeC = textEntity->addComponent<LifeComponent>();
 	lifeC->health = lifeC->maxHP = 2;
 	auto textC = textEntity->addComponent<TextComponent>();
-	char buff[64];
-	snprintf(buff, sizeof(buff), "%.0f\x01\x02", text);
-	textC->setText(std::string(buff));
+	//char buff[64];
+	//snprintf(buff, sizeof(buff), "%.0f\x01\x02", text);
+	textC->setText(text.substr(0, 1));
 	textC->isStatic = false;
 }
 

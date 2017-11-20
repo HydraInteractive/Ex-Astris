@@ -88,6 +88,21 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 		perk->activeAbilities.push_back(new BulletSprayAbillity());
 		break;
 	}
+	case Hydra::Component::PerkComponent::PERK_DMGUPSIZEUP: {
+		playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>()->bulletSize *= 2;
+		playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>()->damage*= 2;
+		break;
+	}
+	case Hydra::Component::PerkComponent::PERK_SPEEDUP: {
+		auto weapon = playerEntity->getComponent<MovementComponent>()->movementSpeed *= 2;
+		break;
+	}
+	case Hydra::Component::PerkComponent::PERK_FASTSHOWLOWDMG: {
+		playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>()->fireRateRPM *= 3;
+		playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>()->damage /= 2.5;
+		break;
+	}
+															
 	default:
 		break;
 	}

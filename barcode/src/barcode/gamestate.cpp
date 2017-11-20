@@ -366,6 +366,13 @@ namespace Barcode {
 			auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+			
+			auto pickupText = world::newEntity("Textpickup", world::root());
+			pickupText->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
+			pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
+			auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
+			textStuff->setText("Hellkoo \n");
+			textStuff->isStatic = true;
 		}
 		{
 			//Remove this to gain frames like never before

@@ -31,6 +31,7 @@
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/ghostobjectcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
+#include <hydra/component/textcomponent.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
 
