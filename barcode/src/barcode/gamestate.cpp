@@ -378,7 +378,7 @@ namespace Barcode {
 			_playerTransform = t.get();
 			auto rgbc = playerEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
-				0, 0, 0.5f, 0);
+				0, 0, 0.0f, 0);
 			rgbc->setAngularForce(glm::vec3(0, 0, 0));
 
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
@@ -389,6 +389,7 @@ namespace Barcode {
 				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Gun.mATTIC");
 				auto t2 = weaponEntity->addComponent<Hydra::Component::TransformComponent>();
 				t2->position = glm::vec3(2, -7, -2);
+				t2->scale = glm::vec3(0.1f, 0.1f, 0.1f);
 				t2->rotation = glm::quat(0, 0, 1, 0);
 				t2->ignoreParent = true;
 			}

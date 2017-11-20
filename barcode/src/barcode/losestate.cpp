@@ -116,7 +116,7 @@ namespace Barcode {
 				p->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::Explosion;
 				p->tempVelocity = glm::vec3(6.0f, 6.0f, 6.0f);
 				auto t = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
-				t->position = pos;;
+				t->position = pos;
 				//t->rotation = glm::quat{ 0, 0, -1, 0 };
 				t->rotation = glm::quat{ -0.483f, 0.160f, -0.861f, -0.018f };
 			}

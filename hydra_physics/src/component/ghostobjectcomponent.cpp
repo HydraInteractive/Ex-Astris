@@ -33,6 +33,7 @@ void Hydra::Component::GhostObjectComponent::createBox(const glm::vec3& halfExte
 	ghostObject->setCollisionShape(new btBoxShape(btVector3(halfExtents.x, halfExtents.y, halfExtents.z)));
 	ghostObject->setUserIndex(this->entityID);
 	ghostObject->setUserIndex2(collType);
+	ghostObject->setFriction(0);
 }
 
 GhostObjectComponent::~GhostObjectComponent() {
