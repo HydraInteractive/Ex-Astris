@@ -398,6 +398,9 @@ namespace Barcode {
 			tileGen = new TileGeneration("assets/room/threewayRoom.room");
 			pathfindingMap = tileGen->buildMap();
 		}
+		{
+			
+		}
 	/*	{
 			auto physicsBox = world::newEntity("Physics box", world::root());
 			auto t = physicsBox->addComponent<Hydra::Component::TransformComponent>();
