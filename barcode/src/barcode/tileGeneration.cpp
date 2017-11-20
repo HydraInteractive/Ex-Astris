@@ -259,12 +259,12 @@ void TileGeneration::_obtainRoomFiles() {
 
 	
 	//_roomFileNames.push_back(path + "centralRoomBigScreen.room");
-	_roomFileNames.push_back(path + "centralRoomPipes.room"); 
+	//_roomFileNames.push_back(path + "centralRoomPipes.room"); 
 	//_roomFileNames.push_back(path + "trashedComputerRoom.room");
-	_roomFileNames.push_back(path + "tryTree.room");
+	//_roomFileNames.push_back(path + "tryTree.room");
 	//_roomFileNames.push_back(path + "tryTwo.room");
 	//_roomFileNames.push_back(path + "tryOne.room");
-	_roomFileNames.push_back(path + "fourwayRoom.room");
+	//_roomFileNames.push_back(path + "fourwayRoom.room");
 	//_roomFileNames.push_back(path + "threewayRoom.room");
 
 
