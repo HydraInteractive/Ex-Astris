@@ -23,7 +23,8 @@ namespace Hydra::Component {
 		};
 
 		PickUpType pickUpType = PICKUP_RANDOMPERK;
-
+		int healthAmount = 30;
+		int ammoAmount = 30;
 		~PickUpComponent() final;
 
 		inline const std::string type() const final { return "PickUpComponent"; }
