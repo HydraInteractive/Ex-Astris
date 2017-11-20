@@ -46,6 +46,7 @@ namespace Barcode {
 	void GameState::onMainMenu() { }
 
 	void GameState::runFrame(float delta) {
+
 		auto windowSize = _engine->getView()->getSize();
 
 		if (!world::getEntity(_playerID)) {
@@ -64,8 +65,49 @@ namespace Barcode {
 			_enemies.clear();
 		}
 
-		if (ImGui::Button("Remove unused meshes"))
-			_meshLoader->clear();
+		bool oldPaused = _paused;
+		if (ImGui::IsKeyPressed(SDLK_ESCAPE, false)) {
+			_paused = !_paused;
+
+			if (_paused)
+				ImGui::OpenPopup("Pause Menu");
+		}
+
+		if (ImGui::BeginPopupModal("Pause Menu", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+			ImGui::Text("The game is paused");
+
+			ImGui::Separator();
+
+			if (ImGui::Button("Continue"))
+				_paused = false;
+			ImGui::SameLine();
+			if (ImGui::Button("Return to the mainmenu")) {
+				_engine->setState<Barcode::MenuState>();
+				ImGui::EndPopup();
+				return;
+			}
+			if (!_paused)
+				ImGui::CloseCurrentPopup();
+			ImGui::EndPopup();
+		}
+
+		if (_paused != oldPaused) {
+			static bool oldMouseControl;
+			static bool oldNoClip;
+
+			if (_paused) {
+				oldMouseControl = _cc->mouseControl;
+				oldNoClip = _cc->noClip;
+				_cc->mouseControl = false;
+				_cc->noClip = false;
+			} else {
+				_cc->mouseControl = oldMouseControl;
+				_cc->noClip = oldNoClip;
+			}
+		}
+
+		if (_paused)
+			delta = 0;
 
 		_physicsSystem.tick(delta);
 		_cameraSystem.tick(delta);
@@ -208,7 +250,7 @@ namespace Barcode {
 			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/AmmoOnRing.png")->getID()), ImVec2(22, offsetAmmo), ImVec2(0, 1 - ammoP * 0.01), ImVec2(1, 1));
 			ImGui::End();
 
-			//compas that turns with player
+			//Compass that turns with player
 			float degreesP = ((float(100) / float(360) * degrees) / 100);
 			float degreesO = float(1000) * degreesP;
 			ImGui::SetNextWindowPos(ImVec2(pos.x - 275, +70));
@@ -218,7 +260,7 @@ namespace Barcode {
 			_textureLoader->getTexture("assets/hud/CompassCut.png")->setRepeat();
 			ImGui::End();
 
-			//Enemys on compas
+			//Enemies on compass
 			int i = 0;
 			glm::mat4 viewMat = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get())->getViewMatrix();
 			std::vector<std::shared_ptr<Entity>> aiEntities;
@@ -333,16 +375,28 @@ namespace Barcode {
 		{
 			auto floor = world::newEntity("Floor", world::root());
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3(0, -7, 0);
+			t->position = glm::vec3(0, 0, 0);
 			auto rgbc = floor->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL
 				, 0, 0, 0, 0.6f, 0);
 			//floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 
 		}
+
+		{
+			auto pickUpEntity = world::newEntity("PickUp", world::root());
+			auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
+			t->position = glm::vec3(5, 5, 5);
+			pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Lock.mATTIC");
+			pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
+			auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+			rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
+			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+		}
 		{
 			//Remove this to gain frames like never before
-			TileGeneration worldTiles("assets/room/trashedComputerRoom.room");
+			tileGen = new TileGeneration("assets/room/threewayRoom.room");
+			pathfindingMap = tileGen->buildMap();
 		}
 	/*	{
 			auto physicsBox = world::newEntity("Physics box", world::root());
@@ -375,6 +429,7 @@ namespace Barcode {
 			prevHP = h->health;
 			m->movementSpeed = 300.0f;
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
+			t->position = glm::vec3(-10, 0, -10);
 			_playerTransform = t.get();
 			auto rgbc = playerEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
@@ -382,10 +437,11 @@ namespace Barcode {
 			rgbc->setAngularForce(glm::vec3(0, 0, 0));
 
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-			t->position = glm::vec3{ 0, -7, 20 };
+			
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
 				weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
+				weaponEntity->getComponent<Hydra::Component::WeaponComponent>()->bulletSize /= 2;
 				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Gun.mATTIC");
 				auto t2 = weaponEntity->addComponent<Hydra::Component::TransformComponent>();
 				t2->position = glm::vec3(2, -7, -2);
@@ -400,6 +456,7 @@ namespace Barcode {
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
 			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+			a->behaviour->setPathMap(pathfindingMap);
 			a->damage = 4;
 			a->behaviour->originalRange = 4;
 			a->radius = 1;
@@ -410,7 +467,7 @@ namespace Barcode {
 			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
 			m->movementSpeed = 8.0f;
 			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ 10, 0, 20 };
+			t->position = glm::vec3{ -10, 0, -10 };
 			t->scale = glm::vec3{ 2,2,2 };
 			t->rotation = glm::vec3{ 0, 90, 0 };
 			auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
@@ -424,6 +481,7 @@ namespace Barcode {
 			robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
 			auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
 			a->behaviour = std::make_shared<RobotBehaviour>(robotEntity);
+			a->behaviour->setPathMap(pathfindingMap);
 			a->damage = 7;
 			a->behaviour->originalRange = 25;
 			a->radius = 1;
@@ -431,6 +489,7 @@ namespace Barcode {
 			w->bulletSpread = 0.3f;
 			w->fireRateRPM = 50;
 			w->bulletsPerShot = 1;
+			w->damage = 5;
 			w->maxmagammo = 100000000;
 			w->currmagammo = 100000000;
 			w->maxammo = 100000000;
@@ -441,7 +500,7 @@ namespace Barcode {
 			auto m = robotEntity->addComponent<Hydra::Component::MovementComponent>();
 			m->movementSpeed = 5.0f;
 			auto t = robotEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ 10, 0, 10 };
+			t->position = glm::vec3{ -10, 0, -10 };
 			t->scale = glm::vec3{ 2,2,2 };
 			t->rotation = glm::vec3{ 0, 90, 0 };
 			auto rgbc = robotEntity->addComponent<Hydra::Component::RigidBodyComponent>();
@@ -487,21 +546,6 @@ namespace Barcode {
 			//pointLight4->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
 			auto p4LC = pointLight4->addComponent<Hydra::Component::PointLightComponent>();
 			p4LC->color = glm::vec3(1, 1, 1);
-		}
-
-		{
-			//auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
-			//m->movementSpeed = 8.0f;
-			//
-			//auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
-			//t->position = glm::vec3{ 10, 0, 20 };
-			//t->scale = glm::vec3{ 2,2,2 };
-			//
-			//auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			//rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
-			//	0, 0, 0.6f, 1.0f);
-			//rgbc->setActivationState(DISABLE_DEACTIVATION);
-			//alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
 		}
 
 		{

@@ -22,12 +22,12 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 	struct HYDRA_GRAPHICS_API MeshComponent final : public IComponent<MeshComponent, ComponentBits::Mesh> {
-		std::string meshFile;
-		std::shared_ptr<DrawObjectComponent> drawObject;
-		std::shared_ptr<Hydra::Renderer::IMesh> mesh;
+		std::string meshFile = "";
+		std::shared_ptr<DrawObjectComponent> drawObject = nullptr;
+		std::shared_ptr<Hydra::Renderer::IMesh> mesh = nullptr;
 		int currentFrame = 1;
 		int animationIndex = 0;
-		float animationCounter = 0;
+		float animationCounter = 0.0f;
 
 		~MeshComponent() final;
 

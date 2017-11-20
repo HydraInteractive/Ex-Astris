@@ -25,10 +25,11 @@ namespace Hydra::Component {
 	struct HYDRA_BASE_API RoomComponent final : public IComponent<RoomComponent, ComponentBits::Room>
 	{
 		enum { NORTH, EAST, SOUTH, WEST };
-		bool openWalls[4];
-		bool door[4];
+		bool openWalls[4] = { 0 };
+		bool door[4] = { 0 };
 		bool localMap[ROOM_MAP_SIZE][ROOM_MAP_SIZE] = { 0 };
 		bool change = 0;
+
 		~RoomComponent() final;
 
 		inline const std::string type() const final { return "RoomComponent"; }

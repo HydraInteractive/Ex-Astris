@@ -85,9 +85,10 @@ void PlayerSystem::tick(float delta) {
 				//TODO: Make pretty?
 				glm::quat bulletOrientation = glm::angleAxis(-camera->cameraYaw, glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->cameraPitch, glm::vec3(1, 0, 0)));
 
-				float bulletVelocity = 300;
-				if(!weapon->_isReloading)
-					if (weapon->shoot(transform->position, movement->direction, bulletOrientation, bulletVelocity, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE, 5)) {
+				//Changed to see if modell is correct, original bulletVelocity was 300 (A little too fast imo, das me tho)
+				float bulletVelocity = 2;
+				if (!weapon->_isReloading)
+					if (weapon->shoot(glm::vec3(transform->position + movement->direction * glm::vec3(5)) , movement->direction, bulletOrientation, bulletVelocity, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE)) {
 						float rn = 500;//rand() % 1000;
 						rn /= 10000;
 

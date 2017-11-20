@@ -20,14 +20,15 @@ using namespace Hydra::World;
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API WeaponComponent final : public IComponent<WeaponComponent, ComponentBits::Weapon> {
 		BulletType bulletType = BULLETTYPE_NORMAL;
-		float fireRateTimer = 0;
-		float fireRateRPM = 600;
+		float fireRateTimer = 0.0f;
+		float fireRateRPM = 600.0f;
 		float bulletSize = 0.5f;
 		float bulletSpread = 0.0f;
+		float damage = 5.0f;
 		int bulletsPerShot = 14;
-		float recoil = 0.7;
+		float recoil = 0.7f;
 
-		float _dyaw, _dpitch = 0;
+		float _dyaw, _dpitch = 0.0f;
 		bool _isReloading = false;
 
 		/*unsigned short*/ int maxammo = 500;
@@ -35,12 +36,12 @@ namespace Hydra::Component {
 		/*unsigned short*/ int maxmagammo = 10;
 		/*unsigned short*/ int currmagammo = 10;
 		/*unsigned short*/ int ammoPerShot = 1;
-		float reloadTime = 0;
-		float maxReloadTime = 2;
+		float reloadTime = 0.0f;
+		float maxReloadTime = 2.0f;
 
 		~WeaponComponent() final;
 
-		bool shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity, Hydra::System::BulletPhysicsSystem::CollisionTypes collisionType, int damage);
+		bool shoot(glm::vec3 position, glm::vec3 direction, glm::quat bulletOrientation, float velocity, Hydra::System::BulletPhysicsSystem::CollisionTypes collisionType);
 		bool reload(float delta);
 		void resetReload();
 

@@ -11,9 +11,9 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API GhostObjectComponent final : public IComponent<GhostObjectComponent, ComponentBits::GhostObject>{
-		btGhostObject* ghostObject;
+		btGhostObject* ghostObject = nullptr;
 		Hydra::System::BulletPhysicsSystem::CollisionTypes collisionType = Hydra::System::BulletPhysicsSystem::COLL_WALL;
-		Hydra::System::BulletPhysicsSystem* _handler;
+		Hydra::System::BulletPhysicsSystem* _handler = nullptr;
 		
 		glm::vec3 halfExtents = glm::vec3(1.f,1.f,1.f);
 		glm::vec3 rotation = glm::vec3(0.f,0.f,0.f);

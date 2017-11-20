@@ -25,7 +25,6 @@ void SpawnerSystem::tick(float delta)
 
 	//Process SystemComponent
 	world::getEntitiesWithComponents<Component::SpawnerComponent, Component::LifeComponent, Component::TransformComponent>(entities);
-#pragma omp parallel for
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto life = entities[i]->getComponent<Component::LifeComponent>();
 		auto transform = entities[i]->getComponent<Component::TransformComponent>();
