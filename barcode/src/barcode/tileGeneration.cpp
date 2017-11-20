@@ -258,9 +258,9 @@ void TileGeneration::_obtainRoomFiles() {
 	}*/
 
 	
-	_roomFileNames.push_back(path + "centralRoomBigScreen.room");
+	//_roomFileNames.push_back(path + "centralRoomBigScreen.room");
 	//_roomFileNames.push_back(path + "centralRoomPipes.room"); ??FSD=O)F=ISD=FISD
-	//_roomFileNames.push_back(path + "trashedComputerRoom.room");dfosdjfopjsdopf
+	_roomFileNames.push_back(path + "trashedComputerRoom.room");
 	//_roomFileNames.push_back(path + "tryTree.room");hgfhgfhf
 	//_roomFileNames.push_back(path + "tryTwo.room");
 
