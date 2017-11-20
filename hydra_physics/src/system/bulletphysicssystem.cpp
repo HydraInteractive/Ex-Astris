@@ -268,24 +268,11 @@ void Hydra::System::BulletPhysicsSystem::_addPickUp(PickUpComponent * pickupComp
 	}
 		break;
 	case PickUpComponent::PICKUP_HEALTH: {
-		auto playerEntity = World::World::getEntity(perkComponent->entityID);
-		auto lifeComponent = playerEntity->getComponent<Hydra::Component::LifeComponent>();
-		
-			if (lifeComponent->health != lifeComponent->maxHP) {
-			lifeComponent->health = std::max(lifeComponent->health + pickupComponent->healthAmount, lifeComponent->maxHP);
-			World::World::World::getEntity(pickupComponent->entityID)->dead = true;
-		}
+
 	}
 		break;
 	case PickUpComponent::PICKUP_AMMO: {
-		auto playerEntity = World::World::getEntity(perkComponent->entityID);
-		auto weaponEntity = playerEntity->getComponent<Hydra::Component::PlayerComponent>()->getWeapon();
-		auto weaponComponent = weaponEntity->getComponent<Hydra::Component::WeaponComponent>();
-		
-			if (weaponComponent->currammo != weaponComponent->maxammo) {
-			weaponComponent->currammo = std::max(weaponComponent->currammo + pickupComponent->ammoAmount, weaponComponent->maxammo);
-			World::World::World::getEntity(pickupComponent->entityID)->dead = true;
-		}
+
 	}
 		break;
 	default:
