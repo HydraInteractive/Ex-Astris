@@ -371,7 +371,7 @@ namespace Barcode {
 			pickupText->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
 			pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
 			auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
-			textStuff->setText("Hellkoo \n");
+			textStuff->setText("\x01Perk picked up\x02");
 			textStuff->isStatic = true;
 		}
 		{

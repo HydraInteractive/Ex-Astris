@@ -426,7 +426,7 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::Component::TransformCo
 		pickupText->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
 		pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
 		auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
-		textStuff->setText("Perk picked up \n");
+		textStuff->setText("Perk picked up");
 		textStuff->isStatic = true;
 
 	}
