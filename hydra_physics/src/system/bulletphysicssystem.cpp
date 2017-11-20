@@ -131,7 +131,7 @@ void Hydra::System::BulletPhysicsSystem::disable(GhostObjectComponent * componen
 
 
 void BulletPhysicsSystem::tick(float delta) {
-	_data->dynamicsWorld->stepSimulation(delta, 3, btScalar(1.0) / btScalar(180.));
+	_data->dynamicsWorld->stepSimulation(delta, 3);
 	// Gets all collisions happening between all rigidbody entities.
 	int numManifolds = _data->dynamicsWorld->getDispatcher()->getNumManifolds();
 	for (int i = 0; i < numManifolds; i++) {
