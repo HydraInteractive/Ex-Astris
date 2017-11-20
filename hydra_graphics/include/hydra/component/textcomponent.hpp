@@ -16,8 +16,8 @@ using namespace Hydra::World;
 namespace Hydra::Component {
 	struct HYDRA_GRAPHICS_API TextComponent final : public IComponent<TextComponent, ComponentBits::Text>{
 
-	std::vector<CharRenderInfo> renderingData;
-	std::string text;
+	std::vector<CharRenderInfo> renderingData = std::vector<CharRenderInfo>();
+	std::string text = "";
 	size_t maxLength = 24;
 	bool isStatic = true;
 

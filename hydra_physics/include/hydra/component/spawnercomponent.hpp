@@ -22,8 +22,8 @@ namespace Hydra::Component {
 
 	struct HYDRA_PHYSICS_API SpawnerComponent final : public IComponent<SpawnerComponent, ComponentBits::Spawner>{
 		SpawnerType spawnerID = SpawnerType::AlienSpawner;
-	std::vector<std::shared_ptr<Hydra::World::Entity>> spawnGroup;
-	float spawnTimer = 0;
+	std::vector<std::shared_ptr<Hydra::World::Entity>> spawnGroup = std::vector<std::shared_ptr<Hydra::World::Entity>>();
+	float spawnTimer = 0.0f;
 
 	~SpawnerComponent() final;
 

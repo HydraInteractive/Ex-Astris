@@ -55,11 +55,10 @@ void Hydra::Component::RoomComponent::deserialize(nlohmann::json & json)
 		{
 			for (size_t j = 0; j < ROOM_MAP_SIZE; j++)
 			{
-				localMap[i][j] = false;
+				localMap[i][j] = true;
 			}
 		}
 	}
-
 }
 
 void Hydra::Component::RoomComponent::registerUI()
