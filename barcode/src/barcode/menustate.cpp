@@ -11,7 +11,7 @@
 namespace Barcode {
 	bool MenuState::ssaoEnabled = true;
 	bool MenuState::glowEnabled = true;
-	bool MenuState::shadowEnabled = true;
+	bool MenuState::shadowEnabled = false;
 	float MenuState::playerHPMultiplier = 1;
 
 	MenuState::MenuState() : _engine(Hydra::IEngine::getInstance()) {}
