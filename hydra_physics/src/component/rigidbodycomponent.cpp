@@ -315,7 +315,7 @@ void RigidBodyComponent::deserialize(nlohmann::json& json) {
 	auto collisionShape = static_cast<CollisionShape>(json["collisionShape"].get<size_t>());
 	auto serializeShape = getShapeSerializer(collisionShape);
 	auto shape = createShape(collisionShape, json["shapeData"]);
-	std::unique_ptr<btCompoundShape> compound;
+	std::unique_ptr<btCompoundShape> compound = std::make_unique<btCompoundShape>();
 	auto mass = json["mass"].get<float>();
 	auto linearDamping = json["linearDamping"].get<float>();
 	auto angularDamping = json["angularDamping"].get<float>();
