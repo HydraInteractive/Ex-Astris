@@ -23,7 +23,6 @@ void AbilitySystem::tick(float delta) {
 
 	//Process GrenadeComponent
 	world::getEntitiesWithComponents<Hydra::Component::GrenadeComponent, Hydra::Component::TransformComponent>(entities);
-	#pragma omp parallel for
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto g = entities[i]->getComponent<Hydra::Component::GrenadeComponent>();
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
@@ -53,7 +52,6 @@ void AbilitySystem::tick(float delta) {
 
 	//Process MineComponent
 	world::getEntitiesWithComponents<Hydra::Component::MineComponent, Hydra::Component::TransformComponent>(entities);
-	#pragma omp parallel for
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto m = entities[i]->getComponent<Hydra::Component::MineComponent>();
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
