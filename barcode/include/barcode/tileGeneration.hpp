@@ -30,6 +30,8 @@
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/ghostobjectcomponent.hpp>
+#include <hydra/component/pointlightcomponent.hpp>
+#include <hydra/component/textcomponent.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
 
@@ -37,18 +39,19 @@
 #include <json.hpp>
 
 #define MAX_ENEMIES 4
-#define PICKUP_CHANCE 20
+#define PICKUP_CHANCE 40
 
 class TileGeneration
 {
 public:
 	std::shared_ptr<Hydra::Component::RoomComponent> roomGrid[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
 	bool** pathfindingMap = nullptr;
+	bool** buildMap();
 	TileGeneration(std::string middleRoomPath);
 	~TileGeneration();
 
-	int maxRooms = 3;
-	bool** buildMap();
+	int maxRooms = 6;
+
 private:
 	std::vector<std::string> _roomFileNames;
 	int _roomCounter = 0;
@@ -62,6 +65,7 @@ private:
 	void _randomizeRooms();
 	void _spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
 	void _spawnPickUps(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
+	void _spawnLight(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
 	glm::vec3 _gridToWorld(int x, int y);
 	bool _checkAdjacents(int x, int y, std::shared_ptr<Hydra::Component::RoomComponent>& r);
 };

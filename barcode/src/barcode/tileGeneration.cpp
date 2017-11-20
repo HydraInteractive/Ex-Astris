@@ -239,7 +239,9 @@ void TileGeneration::_setUpMiddleRoom(std::string middleRoomPath) {
 	t->position = _gridToWorld(2, 2);
 	t->scale = glm::vec3(1, 1, 1);
 	localXY = glm::vec2(0, 0);
+	_spawnLight(t);
 	
+	//_spawnRandomizedEnemies(t);
 	//t->rotation = glm::quat(1, 0, 1, 0);
 	//auto loadedRoom = world->getWorldRoot()->spawn(BlueprintLoader::load(middleRoomPath.c_str())->spawn(world));
 	//auto middleRoomTile = world->createEntity("MiddleRoom");
@@ -257,16 +259,7 @@ void TileGeneration::_obtainRoomFiles() {
 	//	_roomFileNames.push_back(p.path().string());
 	//}
 
-	
-	//_roomFileNames.push_back(path + "centralRoomBigScreen.room");
-	//_roomFileNames.push_back(path + "centralRoomPipes.room"); 
-	//_roomFileNames.push_back(path + "trashedComputerRoom.room");
-	//_roomFileNames.push_back(path + "tryTree.room");
-	//_roomFileNames.push_back(path + "tryTwo.room");
-	//_roomFileNames.push_back(path + "tryOne.room");
-	//_roomFileNames.push_back(path + "fourwayRoom.room");
-	//_roomFileNames.push_back(path + "threewayRoom.room");
-
+	_roomFileNames.push_back(path + "centralRoomBigScreen.room");
 
 	_randomizeRooms();
 
@@ -286,6 +279,7 @@ void TileGeneration::_randomizeRooms() {
 void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform) {
 
 	_spawnPickUps(roomTransform);
+	_spawnLight(roomTransform);
 
 	int randomSlowAliens = rand() % int(MAX_ENEMIES);
 	int randomRobots = rand() % int(MAX_ENEMIES - randomSlowAliens);
@@ -311,13 +305,15 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		t->position.x = roomTransform->position.x + i;
 		t->position.y = 0;
 		t->position.z = roomTransform->position.z + i;
+
 		t->scale = glm::vec3{ 1,1,1 };
+
 		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.5, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-		rgbc->setAngularForce(glm::vec3(0));
 	}
+
 
 	for (int i = 0; i < randomFastAliens; i++) {
 		auto alienEntity = world::newEntity("FastAlien1", world::root());
@@ -346,6 +342,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
 	}
+
 
 	for (int i = 0; i < randomRobots; i++) {
 		auto robotEntity = world::newEntity("Robot1", world::root());
@@ -383,6 +380,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
+
 	}
 
 }
@@ -408,12 +406,20 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::Component::TransformCo
 	if (randomChance < (int)PICKUP_CHANCE) {
 		auto pickUpEntity = world::newEntity("PickUp", world::root());
 		auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
-		t->position = glm::vec3(roomTransform->position.x, 0.0f, roomTransform->position.z);
+		t->position = glm::vec3(roomTransform->position.x, 3.0f, roomTransform->position.z);
 		pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Lock.mATTIC");
-		pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
+		auto pickUpC = pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
 		auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 		rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+
+		auto pickupText = world::newEntity("Textpickup", world::root());
+		pickupText->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
+		pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
+		auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
+		textStuff->setText("Perk picked up \n");
+		textStuff->isStatic = true;
+
 	}
 	//if (randomChance < (int)PICKUP_CHANCE) {
 	//	auto pickUpEntity = world::newEntity("PickUp", world::root());
@@ -425,6 +431,19 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::Component::TransformCo
 	//	rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
 	//	rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 	//}
+}
+
+void TileGeneration::_spawnLight(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform) {
+
+	auto pointLight1 = world::newEntity("Pointlight1", world::root());
+	pointLight1->addComponent<Hydra::Component::TransformComponent>();
+	auto t = pointLight1->getComponent<Hydra::Component::TransformComponent>();
+	t->position.x = roomTransform->position.x;
+	t->position.y = roomTransform->position.y + 7;
+	t->position.z = roomTransform->position.z;
+	auto p1LC = pointLight1->addComponent<Hydra::Component::PointLightComponent>();
+	p1LC->color = glm::vec3(1);
+
 }
 
 glm::vec3 TileGeneration::_gridToWorld(int x, int y) {

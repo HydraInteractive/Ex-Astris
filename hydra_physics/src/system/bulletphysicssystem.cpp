@@ -165,8 +165,10 @@ void BulletPhysicsSystem::tick(float delta) {
 		else if ((pickupComponent = eB->getComponent<PickUpComponent>().get()))
 			perkComponent = eA->getComponent<PerkComponent>().get();
 
-		if (pickupComponent && perkComponent)
+		if (pickupComponent && perkComponent) {
 			_addPickUp(pickupComponent, perkComponent);
+			_spawnDamageText(Hydra::World::World::getEntity(playerComponent->entityID)->getComponent<Hydra::Component::TransformComponent>()->position, "eyyy\n");
+		}
 
 		// Gets the contact points
 		int numContacts = contactManifold->getNumContacts();
@@ -181,7 +183,8 @@ void BulletPhysicsSystem::tick(float delta) {
 
 			if (lifeComponent) {
 				lifeComponent->applyDamage(bulletComponent->damage);
-				_spawnDamageText(cast(collPosB), bulletComponent->damage);
+
+				_spawnDamageText(cast(collPosB), std::to_string(bulletComponent->damage));
 			}
 
 			// Set the bullet entity to dead.
@@ -219,7 +222,7 @@ void BulletPhysicsSystem::_spawnParticleEmitterAt(const glm::vec3& pos, const gl
 	pELC->health = 0.9f;
 }
 
-void BulletPhysicsSystem::_spawnDamageText(const glm::vec3& pos, const float& damage) {
+void BulletPhysicsSystem::_spawnDamageText(const glm::vec3& pos, const std::string& text) {
 	auto textEntity = world::newEntity("Damage", world::root());
 	auto transC = textEntity->addComponent<TransformComponent>();
 	transC->setPosition(pos);
@@ -228,9 +231,9 @@ void BulletPhysicsSystem::_spawnDamageText(const glm::vec3& pos, const float& da
 	auto lifeC = textEntity->addComponent<LifeComponent>();
 	lifeC->health = lifeC->maxHP = 2;
 	auto textC = textEntity->addComponent<TextComponent>();
-	char buff[64];
-	snprintf(buff, sizeof(buff), "%.0f\x01\x02", damage);
-	textC->setText(std::string(buff));
+	//char buff[64];
+	//snprintf(buff, sizeof(buff), "%.0f\x01\x02", text);
+	textC->setText(text.substr(0, 2));
 	textC->isStatic = false;
 }
 

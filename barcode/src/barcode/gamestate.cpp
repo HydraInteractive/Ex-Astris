@@ -366,6 +366,13 @@ namespace Barcode {
 			auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+			
+			auto pickupText = world::newEntity("Textpickup", world::root());
+			pickupText->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
+			pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
+			auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
+			textStuff->setText("Hellkoo \n");
+			textStuff->isStatic = true;
 		}
 		{
 			//Remove this to gain frames like never before
@@ -483,35 +490,35 @@ namespace Barcode {
 		//	textC->setText("Bogdan Here");
 		//}
 
-		{
-			auto pointLight1 = world::newEntity("Pointlight1", world::root());
-			pointLight1->addComponent<Hydra::Component::TransformComponent>();
-			//pointLight1->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/EscapePodDoor.mATTIC");
-			auto p1LC = pointLight1->addComponent<Hydra::Component::PointLightComponent>();
-			p1LC->color = glm::vec3(1, 1, 1);
-		} {
-			auto pointLight2 = world::newEntity("Pointlight2", world::root());
-			auto t = pointLight2->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3(45, 0, 0);
-			//pointLight2->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
-			auto p2LC = pointLight2->addComponent<Hydra::Component::PointLightComponent>();
-			p2LC->color = glm::vec3(1, 1, 1);
-		} {
-			auto pointLight3 = world::newEntity("Pointlight3", world::root());
-			auto t = pointLight3->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3(45, 0, 0);
-			//pointLight3->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
-			auto p3LC = pointLight3->addComponent<Hydra::Component::PointLightComponent>();
-			p3LC->color = glm::vec3(1, 1, 1);
-		}
-		{
-			auto pointLight4 = world::newEntity("Pointlight4", world::root());
-			auto t = pointLight4->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3(45, 0, 0);
-			//pointLight4->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
-			auto p4LC = pointLight4->addComponent<Hydra::Component::PointLightComponent>();
-			p4LC->color = glm::vec3(1, 1, 1);
-		}
+		//{
+		//	auto pointLight1 = world::newEntity("Pointlight1", world::root());
+		//	pointLight1->addComponent<Hydra::Component::TransformComponent>();
+		//	//pointLight1->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/EscapePodDoor.mATTIC");
+		//	auto p1LC = pointLight1->addComponent<Hydra::Component::PointLightComponent>();
+		//	p1LC->color = glm::vec3(1, 1, 1);
+		//} {
+		//	auto pointLight2 = world::newEntity("Pointlight2", world::root());
+		//	auto t = pointLight2->addComponent<Hydra::Component::TransformComponent>();
+		//	t->position = glm::vec3(45, 0, 0);
+		//	//pointLight2->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
+		//	auto p2LC = pointLight2->addComponent<Hydra::Component::PointLightComponent>();
+		//	p2LC->color = glm::vec3(1, 1, 1);
+		//} {
+		//	auto pointLight3 = world::newEntity("Pointlight3", world::root());
+		//	auto t = pointLight3->addComponent<Hydra::Component::TransformComponent>();
+		//	t->position = glm::vec3(45, 0, 0);
+		//	//pointLight3->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
+		//	auto p3LC = pointLight3->addComponent<Hydra::Component::PointLightComponent>();
+		//	p3LC->color = glm::vec3(1, 1, 1);
+		//}
+		//{
+		//	auto pointLight4 = world::newEntity("Pointlight4", world::root());
+		//	auto t = pointLight4->addComponent<Hydra::Component::TransformComponent>();
+		//	t->position = glm::vec3(45, 0, 0);
+		//	//pointLight4->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
+		//	auto p4LC = pointLight4->addComponent<Hydra::Component::PointLightComponent>();
+		//	p4LC->color = glm::vec3(1, 1, 1);
+		//}
 
 		{
 			auto parent = world::newEntity("Parent", world::root());
