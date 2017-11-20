@@ -62,16 +62,16 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 	perk->activePerks.push_back(newPerk);
 
 	switch (newPerk){
-	case Hydra::Component::PerkComponent::PERK_MAGNETICBULLETS:	{
+	/*case Hydra::Component::PerkComponent::PERK_MAGNETICBULLETS:	{
 		auto weapon = playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>();
 		weapon->bulletType = BULLETTYPE_MAGNETIC;
 		break;
-	}
-	case Hydra::Component::PerkComponent::PERK_HOMINGBULLETS: {
+	}*/
+	/*case Hydra::Component::PerkComponent::PERK_HOMINGBULLETS: {
 		auto weapon = playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>();
 		weapon->bulletType = BULLETTYPE_HOMING;
 		break;
-	}
+	}*/
 	case Hydra::Component::PerkComponent::PERK_GRENADE: {
 		perk->activeAbilities.push_back(new GrenadeAbility());
 		break;
@@ -80,10 +80,10 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 		perk->activeAbilities.push_back(new MineAbility());
 		break;
 	}
-	case Hydra::Component::PerkComponent::PERK_FORCEPUSH: {
+	/*case Hydra::Component::PerkComponent::PERK_FORCEPUSH: {
 		perk->activeAbilities.push_back(new forcePushAbility());
 		break;
-	}
+	}*/
 	case Hydra::Component::PerkComponent::PERK_BULLETSPRAY: {
 		perk->activeAbilities.push_back(new BulletSprayAbillity());
 		break;
