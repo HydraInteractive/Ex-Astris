@@ -47,7 +47,7 @@ namespace Hydra::Component {
 		};
 
 		struct Plane {
-			glm::vec3 p0, p1, p2, n;
+			glm::vec3 p0, p1, p2, n = glm::vec3(0,0,0);
 			void set3Points(glm::vec3 pZero, glm::vec3 pOne, glm::vec3 pTwo) { p0 = pZero; p1 = pOne; p2 = pTwo; }
 			float distance(glm::vec3 p) {
 				glm::vec3 edge0 = p1 - p0;
@@ -62,9 +62,9 @@ namespace Hydra::Component {
 
 		Plane pl[6];
 
-		glm::vec3 ntl, ntr, nbl, nbr, ftl, ftr, fbl, fbr;
-		float nearD, farD, tang;
-		float nw, nh, fw, fh;
+		glm::vec3 ntl, ntr, nbl, nbr, ftl, ftr, fbl, fbr = glm::vec3();
+		float nearD, farD, tang = 0.0f;
+		float nw, nh, fw, fh = 0.0f;
 
 		~CameraComponent() final;
 
