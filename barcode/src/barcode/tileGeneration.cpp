@@ -239,6 +239,7 @@ void TileGeneration::_setUpMiddleRoom(std::string middleRoomPath) {
 	t->position = _gridToWorld(2, 2);
 	t->scale = glm::vec3(1, 1, 1);
 	localXY = glm::vec2(0, 0);
+	_spawnLight(t);
 	
 	//_spawnRandomizedEnemies(t);
 	//t->rotation = glm::quat(1, 0, 1, 0);
@@ -284,6 +285,7 @@ void TileGeneration::_randomizeRooms() {
 void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform) {
 
 	_spawnPickUps(roomTransform);
+	_spawnLight(roomTransform);
 
 	int randomSlowAliens = rand() % int(MAX_ENEMIES);
 	int randomRobots = rand() % int(MAX_ENEMIES - randomSlowAliens);
@@ -401,7 +403,7 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::Component::TransformCo
 	if (randomChance < (int)PICKUP_CHANCE) {
 		auto pickUpEntity = world::newEntity("PickUp", world::root());
 		auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
-		t->position = glm::vec3(roomTransform->position.x, 0.0f, roomTransform->position.z);
+		t->position = glm::vec3(roomTransform->position.x, 3.0f, roomTransform->position.z);
 		pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Lock.mATTIC");
 		pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
 		auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
@@ -418,6 +420,19 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::Component::TransformCo
 	//	rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
 	//	rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 	//}
+}
+
+void TileGeneration::_spawnLight(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform) {
+
+	auto pointLight1 = world::newEntity("Pointlight1", world::root());
+	pointLight1->addComponent<Hydra::Component::TransformComponent>();
+	auto t = pointLight1->getComponent<Hydra::Component::TransformComponent>();
+	t->position.x = roomTransform->position.x;
+	t->position.y = roomTransform->position.y + 7;
+	t->position.z = roomTransform->position.z;
+	auto p1LC = pointLight1->addComponent<Hydra::Component::PointLightComponent>();
+	p1LC->color = glm::vec3(1);
+
 }
 
 glm::vec3 TileGeneration::_gridToWorld(int x, int y) {

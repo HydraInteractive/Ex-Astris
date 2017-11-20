@@ -67,7 +67,7 @@ namespace Hydra::System {
 
 	private:
 		void _spawnParticleEmitterAt(const glm::vec3& pos, const glm::vec3& normal);
-		void _spawnDamageText(const glm::vec3& pos, const float& damage);
+		void _spawnDamageText(const glm::vec3& pos, const std::string& text);
 		void _addPickUp(PickUpComponent* puc, PerkComponent* pec);
 		struct Data;
 		Data* _data;
