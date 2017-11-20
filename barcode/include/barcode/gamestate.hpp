@@ -100,7 +100,7 @@ namespace Barcode {
 
 		float prevHP, hpTimeUp = 0;
 		TileGeneration* tileGen;
-
+		bool** pathfindingMap = nullptr;
 
 		void _initSystem();
 		void _initWorld();

@@ -17,7 +17,7 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 	struct HYDRA_GRAPHICS_API LightComponent final : public IComponent<LightComponent, ComponentBits::Light> {
-		glm::vec3 color = glm::vec3{1, 1, 1};
+		glm::vec3 color = glm::vec3(1, 1, 1);
 
 		float fov = 80.0f;
 		float zNear = 1.0f;

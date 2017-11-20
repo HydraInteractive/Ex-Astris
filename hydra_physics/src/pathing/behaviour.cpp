@@ -44,6 +44,19 @@ void Behaviour::setTargetPlayer(std::shared_ptr<Hydra::World::Entity> player)
 	targetPlayer.life = player->getComponent<Hydra::Component::LifeComponent>().get();
 	targetPlayer.transform = player->getComponent<Hydra::Component::TransformComponent>().get();
 }
+glm::vec2 Behaviour::flatVector(glm::vec3 vec)
+{
+	return glm::vec2(vec.x,vec.z);
+}
+void Behaviour::move(glm::vec3 target)
+{
+	glm::vec2 direction = glm::normalize(flatVector(target) - flatVector(thisEnemy.transform->position));
+
+	thisEnemy.movement->velocity.x = (thisEnemy.movement->movementSpeed * direction.x);
+	thisEnemy.movement->velocity.z = (thisEnemy.movement->movementSpeed * direction.y);
+
+	rotation = glm::angleAxis(atan2(direction.x, direction.y), glm::vec3(0, 1, 0));
+}
 //Sets all components without setting new entities, use after adding new components to either entity
 bool Behaviour::refreshRequiredComponents()
 {
@@ -61,47 +74,14 @@ bool Behaviour::refreshRequiredComponents()
 	return hasRequiredComponents;
 }
 
-bool Behaviour::checkLOS(int levelmap[ROOM_MAP_SIZE][ROOM_MAP_SIZE], glm::vec3 enemyPos, glm::vec3 playerPos)
-{
-	//TODO: ADD COORDINATE VERIFICATION, MAYBE MOVE TO PATHFINDING
-	//New code, not optimal
-	double x = playerPos.x - enemyPos.x;
-	double z = playerPos.z - enemyPos.z;
-	double len = std::sqrt((x*x) + (z*z));
-
-	if (!len) //Player tile is same as target tile
-		return true;
-
-	double unitx = x / len;
-	double unitz = z / len;
-
-	x = enemyPos.x;
-	z = enemyPos.z;
-	for (double i = 1; i < len; i += 1)
-	{
-		if (levelmap[(int)x][(int)z] == 1)
-			{
-				return false;
-			}
-		x += unitx;
-		z += unitz;
-	}
-	return true;
-}
-
 unsigned int Behaviour::idleState(float dt)
 {
 	resetAnimationOnStart(0);
-	//Play the idle animation
-	//if (targetPlayer.transform->position.x > mapOffset.x && targetPlayer.transform->position.x < MAP_SIZE && targetPlayer.transform->position.z > mapOffset.z && targetPlayer.transform->position.z < MAP_SIZE)
-	//{
-	if (glm::length(thisEnemy.transform->position.x - targetPlayer.transform->position.x) < 50 || glm::length(thisEnemy.transform->position.z - targetPlayer.transform->position.z) < 50)
+	//If the player is close enough, activate
+	if (glm::distance(flatVector(thisEnemy.transform->position), flatVector(targetPlayer.transform->position)) < 50.0f)
 	{
-		idleTimer = 0;
 		return SEARCHING;
-
 	}
-	//}
 	return state;
 }
 
@@ -109,84 +89,81 @@ unsigned int Behaviour::searchingState(float dt)
 {
 	//While the enemy is searching, play the walking animation
 	resetAnimationOnStart(1);
-
-	if (idleTimer >= 5)
-	{
-		return IDLE;
-	}
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) <= range)
 	{
-		isAtGoal = true;
 		pathFinding->foundGoal = true;
 		return ATTACKING;
 	}
 
-	//if (targetPlayer.transform->position.x <= mapOffset.x || targetPlayer.transform->position.x >= MAP_SIZE || targetPlayer.transform->position.z <= mapOffset.z || targetPlayer.transform->position.z >= MAP_SIZE)
-	//{
-	//	return IDLE;
-	//}
-	pathFinding->intializedStartGoal = false;
- 	pathFinding->findPath(thisEnemy.transform->position, targetPlayer.transform->position);
-	isAtGoal = false;
-
-
-	if (pathFinding->foundGoal)
-	{
-		if (!pathFinding->_pathToEnd.empty())
-		{
-			targetPos = pathFinding->_pathToEnd[0];
-		}
-		newPathTimer = 0;
-		return FOUND_GOAL;
-	}
-	return state;
+	pathFinding->findPath(thisEnemy.transform->position, targetPlayer.transform->position);
+	newPathTimer = 0;
+	return MOVING;
 }
 
-unsigned int Behaviour::foundState(float dt)
+unsigned int Behaviour::movingState(float dt)
 {
 	resetAnimationOnStart(1);
-	if (!isAtGoal)
+	
+	float distEnemyToPlayer = glm::distance(flatVector(thisEnemy.transform->position), flatVector(targetPlayer.transform->position));
+	if (distEnemyToPlayer <= range)
 	{
-		if (!pathFinding->_pathToEnd.empty())
-		{
-			glm::vec3 targetDistance = pathFinding->nextPathPos(thisEnemy.transform->position, thisEnemy.ai->radius) - thisEnemy.transform->position;
-
-			angle = atan2(targetDistance.x, targetDistance.z);
-			rotation = glm::angleAxis(angle, glm::vec3(0, 1, 0));
-
-			glm::vec3 direction = glm::normalize(targetDistance);
-
-			thisEnemy.movement->velocity.x = (thisEnemy.movement->movementSpeed * direction.x);
-			thisEnemy.movement->velocity.z = (thisEnemy.movement->movementSpeed * direction.z);
-			if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) <= range)
-			{
-				isAtGoal = true;
-				pathFinding->foundGoal = true;
-				return ATTACKING;
-			}
-			else if (glm::length(thisEnemy.transform->position - targetPos) <= 3.0f)
-			{
-				idleTimer = 0;
-				return SEARCHING;
-			}
-			else if (glm::length(targetPlayer.transform->position.x - targetPos.x) > 25.0f || glm::length(targetPlayer.transform->position.z - targetPos.z) > 25.0f)
-			{
-				idleTimer = 0;
-				return SEARCHING;
-			}
-		}
+		isAtGoal = true;
+		return ATTACKING;
 	}
 
-	if (newPathTimer >= 4.0f)
+	//If enemy can see the player, move toward them
+	if (pathFinding->inLineOfSight(thisEnemy.transform->position, targetPlayer.transform->position))
 	{
-		idleTimer = 0.0f;
+		move(targetPlayer.transform->position);
+	}
+	//If there is nowhere to go, search (prob not needed, should always have a goal here)
+	if (!pathFinding->pathToEnd.empty())
+	{	
+		//Made these as the code got very hard to read otherwise
+		float distEnemyToNextPos = glm::distance(flatVector(thisEnemy.transform->position), flatVector(pathFinding->pathToEnd.back()));
+		float distEnemyToGoal = glm::distance(flatVector(thisEnemy.transform->position), flatVector(pathFinding->pathToEnd.front()));
+		float distPlayerToGoal = glm::distance(flatVector(targetPlayer.transform->position), flatVector(pathFinding->pathToEnd.front()));
+		
+		//Check that the goal is closer to the player than we are, otherwise the path is invalid
+		if (distPlayerToGoal < distEnemyToPlayer)
+		{
+			//If the next pos is reached move on
+			if (distEnemyToNextPos <= 1.0f)
+			{
+				pathFinding->pathToEnd.pop_back();
+				//If there is nowhere to go, search
+				if (pathFinding->pathToEnd.empty())
+				{
+					move(targetPlayer.transform->position);
+					return SEARCHING;
+				}
+				else
+				{
+					move(pathFinding->pathToEnd.back());
+				}
+			}
+			else
+			{
+				move(pathFinding->pathToEnd.back());
+			}
+		}
+		else
+		{
+			move(targetPlayer.transform->position);
+			return SEARCHING;
+		}
+	}
+	else
+	{
+		move(targetPlayer.transform->position);
 		return SEARCHING;
 	}
 
-	//if (targetPlayer.transform->position.x <= mapOffset.x || targetPlayer.transform->position.x >= MAP_SIZE || targetPlayer.transform->position.z <= mapOffset.z || targetPlayer.transform->position.z >= MAP_SIZE)
-	//{
-	//	return IDLE;
-	//}
+	if (newPathTimer >= newPathDelay)
+	{
+		newPathTimer = 0.0f;
+		return SEARCHING;
+	}
 	return state;
 }
 
@@ -194,7 +171,7 @@ unsigned int Behaviour::attackingState(float dt)
 {
 	//When the enemy attack, start the attack animation
 	resetAnimationOnStart(2);
-	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) >= range)
+	if (glm::distance(thisEnemy.transform->position, targetPlayer.transform->position) >= range)
 	{
 		idleTimer = 0.0f;
 		return SEARCHING;
@@ -209,10 +186,8 @@ unsigned int Behaviour::attackingState(float dt)
 			attackTimer = 0;
 		}
 
-		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
-		playerDir = glm::normalize(playerDir);
-		angle = atan2(playerDir.x, playerDir.z);
-		rotation = glm::angleAxis(angle, glm::vec3(0, 1, 0));
+		glm::vec3 playerDir = glm::normalize(targetPlayer.transform->position - thisEnemy.transform->position);
+		rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
 	}
 	return state;
 }
@@ -287,8 +262,8 @@ void AlienBehaviour::run(float dt)
 	case SEARCHING:
 		state = searchingState(dt);
 		break;
-	case FOUND_GOAL:
-		state = foundState(dt);
+	case MOVING:
+		state = movingState(dt);
 		break;
 	case ATTACKING:
 		state = attackingState(dt);
@@ -316,10 +291,8 @@ unsigned int AlienBehaviour::attackingState(float dt)
 			attackTimer = 0;
 		}
 
-		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
-		playerDir = glm::normalize(playerDir);
-		angle = atan2(playerDir.x, playerDir.z);
-		rotation = glm::angleAxis(angle, glm::vec3(0, 1, 0));
+		glm::vec3 playerDir = glm::normalize(targetPlayer.transform->position - thisEnemy.transform->position);
+		rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
 	}
 	return state;
 }
@@ -371,8 +344,8 @@ void RobotBehaviour::run(float dt)
 	case SEARCHING:
 		state = searchingState(dt);
 		break;
-	case FOUND_GOAL:
-		state = foundState(dt);
+	case MOVING:
+		state = movingState(dt);
 		break;
 	case ATTACKING:
 		state = attackingState(dt);
@@ -433,9 +406,8 @@ unsigned int RobotBehaviour::attackingState(float dt)
 	{
 		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
 		playerDir = glm::normalize(playerDir);
-		thisEnemy.weapon->shoot(thisEnemy.transform->position, playerDir, glm::quat(), 7.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
-		//angle = atan2(playerDir.x, playerDir.z);
-		rotation = glm::angleAxis(angle, glm::vec3(0, 1, 0));
+		thisEnemy.weapon->shoot(thisEnemy.transform->position, playerDir, glm::quat(), 8.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
+		rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
 	}
 	return state;
 }
@@ -489,8 +461,8 @@ void AlienBossBehaviour::run(float dt)
 		state = searchingState(dt);
 		phaseTimer = 0;
 		break;
-	case FOUND_GOAL:
-		state = foundState(dt);
+	case MOVING:
+		state = movingState(dt);
 		phaseTimer = 0;
 		break;
 	case ATTACKING:
@@ -599,8 +571,7 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 
 		if (!stunned)
 		{
-			angle = atan2(playerDir.x, playerDir.z);
-			rotation = glm::angleAxis(angle, glm::vec3(0, 1, 0));
+			rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
 		}
 		return state;
 	}

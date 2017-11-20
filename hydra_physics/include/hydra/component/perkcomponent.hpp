@@ -24,11 +24,11 @@ namespace Hydra::Component {
 			PERK_BULLETSPRAY,
 			AMOUNTOFPERKS
 		};
-		std::vector<Perk> newPerks;
-		std::vector<Perk> activePerks;
-		std::vector<BaseAbility*> activeAbilities;
+		std::vector<Perk> newPerks = std::vector<Perk>();
+		std::vector<Perk> activePerks = std::vector<Perk>();
+		std::vector<BaseAbility*> activeAbilities = std::vector<BaseAbility*>();
 		size_t activeAbility = 0;
-		bool usedAbilityLastFrame = 0;
+		bool usedAbilityLastFrame = false;
 
 		~PerkComponent() final;
 		inline const std::string type() const final { return "PerkComponent"; }
