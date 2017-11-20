@@ -310,7 +310,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 
 		auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
 		t->position.x = roomTransform->position.x + i;
-		t->position.y = 0;
+		t->position.y = 5;
 		t->position.z = roomTransform->position.z + i;
 
 		t->scale = glm::vec3{ 1,1,1 };
@@ -340,7 +340,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 
 		auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
 		t->position.x = roomTransform->position.x + i + 2;
-		t->position.y = 0;
+		t->position.y = 5;
 		t->position.z = roomTransform->position.z + i + 2;
 		t->scale = glm::vec3{ 1,1,1 };
 		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
@@ -378,7 +378,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		m->movementSpeed = 3.0f;
 		auto t = robotEntity->addComponent<Hydra::Component::TransformComponent>();
 		t->position.x = roomTransform->position.x + i + 2;
-		t->position.y = 0;
+		t->position.y = 5;
 		t->position.z = roomTransform->position.z + i + 2;
 		t->scale = glm::vec3{ 1,1,1 };
 	
