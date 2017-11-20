@@ -346,7 +346,10 @@ namespace Hydra::World {
 		inline static std::shared_ptr<Entity> getEntity(EntityID id) {
 			if (!_map.count(id))
 				return std::shared_ptr<Entity>();
-			return _entities[_map[id]];
+			if (auto pos = _map[id]; pos < _entities.size())
+				return _entities[pos];
+			else
+				return std::shared_ptr<Entity>();
 		}
 
 		template <typename Component0, typename... Components>

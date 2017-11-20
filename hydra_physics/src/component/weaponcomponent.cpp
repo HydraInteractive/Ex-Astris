@@ -38,12 +38,18 @@ bool WeaponComponent::reload(float delta) {
 		reloadTime = 0;
 		// ADD AGAIN AFTER REMOVING WTF IS THIS
 		//this->currammo += currmagammo;
-		if (currammo >= maxmagammo) {
+		if (maxammo != 0) {
+			if (currammo >= maxmagammo) {
+				this->currmagammo = maxmagammo;
+				this->currammo -= maxmagammo;
+			}
+			else {
+				this->currmagammo = currammo;
+				currammo = 0;
+			}
+		} else {
 			this->currmagammo = maxmagammo;
 			this->currammo -= maxmagammo;
-		} else {
-			this->currmagammo = currammo;
-			currammo = 0;
 		}
 		return false;
 	}
@@ -79,18 +85,19 @@ bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 		auto t = bullet->addComponent<Hydra::Component::TransformComponent>();
 		t->position = position;
 		t->scale = glm::vec3(bulletSize);
-		t->rotation = bulletOrientation;
+		t->setRotation(bulletOrientation);
 
 		auto bulletPhysWorld = static_cast<Hydra::System::BulletPhysicsSystem*>(IEngine::getInstance()->getState()->getPhysicsSystem());
 
 		auto rbc = bullet->addComponent<Hydra::Component::RigidBodyComponent>();
 
-		rbc->createBox(glm::vec3(0.2f), collisionType, 0.0095f);
+		rbc->createBox(glm::vec3(0.2f), glm::vec3(0), collisionType, 0.0095f);
 		auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
 		bulletPhysWorld->enable(rbc.get());
 		rigidBody->setActivationState(DISABLE_DEACTIVATION);
 		rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * velocity);
 		rigidBody->setGravity(btVector3(0, 0, 0));
+		rbc->setAngularForce(glm::vec3(0));
 	} else {
 		for (int i = 0; i < bulletsPerShot; i++) {
 			auto bullet = world::newEntity("Bullet", world::rootID);
@@ -120,11 +127,12 @@ bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 			auto bulletPhysWorld = static_cast<Hydra::System::BulletPhysicsSystem*>(IEngine::getInstance()->getState()->getPhysicsSystem());
 
 			auto rbc = bullet->addComponent<Hydra::Component::RigidBodyComponent>();
-			rbc->createBox(glm::vec3(0.5f), collisionType, 0.0095f);
+			rbc->createBox(glm::vec3(0.5f), glm::vec3(0), collisionType, 0.0095f);
 			auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
 			bulletPhysWorld->enable(rbc.get());
 			rigidBody->setActivationState(DISABLE_DEACTIVATION);
 			rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * velocity);
+			rbc->setAngularForce(glm::vec3(0));
 			rigidBody->setGravity(btVector3(0,0,0));
 		}
 	}

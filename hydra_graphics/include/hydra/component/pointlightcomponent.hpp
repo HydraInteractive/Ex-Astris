@@ -46,6 +46,11 @@ namespace Hydra::Component {
 		void deserialize(nlohmann::json& json);
 		void registerUI() final;
 
-		inline std::shared_ptr<Hydra::Component::TransformComponent> getTransformComponent() { return Hydra::World::World::getEntity(entityID)->getComponent<Hydra::Component::TransformComponent>(); }
+		inline std::shared_ptr<Hydra::Component::TransformComponent> getTransformComponent() {
+			if (auto e = Hydra::World::World::getEntity(entityID); e)
+				return e->getComponent<Hydra::Component::TransformComponent>();
+			else
+				return std::shared_ptr<Hydra::Component::TransformComponent>();
+		}
 	};
 }
