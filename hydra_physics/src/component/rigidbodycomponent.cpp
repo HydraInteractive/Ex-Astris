@@ -283,13 +283,13 @@ void RigidBodyComponent::setActivationState(ActivationState newState) {
 }
 
 glm::vec3 RigidBodyComponent::getPosition() {
-	//return _data->motionState.getPosition() + cast(_data->compoundShape->getChildTransform(0).getOrigin());
 	return _data->motionState.getPosition() + cast(_data->compoundShape->getChildTransform(0).getOrigin());
+	//return _data->motionState.getPosition() + cast(_data->compoundShape->getChildTransform(0).getOrigin());
 }
 
 glm::quat RigidBodyComponent::getRotation() {
-	//return cast(_data->getRigidBody()->getWorldTransform().getRotation());
-	return _data->motionState.getRotation();
+	return cast(_data->getRigidBody()->getWorldTransform().getRotation());
+	//return _data->motionState.getRotation();
 }
 
 void Hydra::Component::RigidBodyComponent::setAngularForce(glm::vec3 angularForce){
