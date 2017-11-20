@@ -37,8 +37,12 @@ bool World::_isResetting = false;
 namespace {
 	template <typename T>
 	inline void removeComponent(Entity& this_) {
-		if (this_.hasComponent<T>())
+		if (this_.hasComponent<T>()) {
+			printf("\tRemoving compoent: %s\n", typeid(T).name());
 			T::componentHandler->removeComponent(this_.id);
+
+			printf("\t\tDONE");
+		}
 	}
 
 	template <typename... Args>
@@ -88,6 +92,7 @@ namespace {
 }
 Entity::~Entity() {
 	if (!World::_isResetting) {
+		printf("Removing: %zu\n", id);
 		if (parent != World::invalidID)
 			if (auto p = World::getEntity(parent); p)
 				p->children.erase(std::remove(p->children.begin(), p->children.end(), id), p->children.end());
@@ -170,11 +175,12 @@ void World::removeEntity(EntityID entityID) {
 	if (auto e = getEntity(entityID); e) {
 		for (auto& el : e->children)
 			if (auto ent = getEntity(el); ent)
-			ent->parent = invalidID;
+				ent->parent = invalidID;
 	} else
 		return;
 
 	const size_t pos = _map[entityID];
+	_entities[pos].reset();
 	if (pos != _entities.size() - 1) {
 		_map[_entities.back()->id] = pos;
 		std::swap(_entities[pos], _entities.back());
