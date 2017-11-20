@@ -253,14 +253,14 @@ void TileGeneration::_setUpMiddleRoom(std::string middleRoomPath) {
 void TileGeneration::_obtainRoomFiles() {
 	//Get the files in order
 	std::string path = "assets/room/";
-	/*for (auto & p : std::experimental::filesystem::directory_iterator(path)) {
+	for (auto & p : std::experimental::filesystem::directory_iterator(path)) {
 		_roomFileNames.push_back(p.path().string());
-	}*/
+	}
 
 	
 	//_roomFileNames.push_back(path + "centralRoomBigScreen.room");
 	//_roomFileNames.push_back(path + "centralRoomPipes.room"); ??FSD=O)F=ISD=FISD
-	_roomFileNames.push_back(path + "trashedComputerRoom.room");
+	//_roomFileNames.push_back(path + "trashedComputerRoom.room");
 	//_roomFileNames.push_back(path + "tryTree.room");hgfhgfhf
 	//_roomFileNames.push_back(path + "tryTwo.room");
 
@@ -294,7 +294,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 		a->damage = 4;
-		a->behaviour->originalRange = 4;
+		a->behaviour->originalRange = 5;
 		a->radius = 1;
 
 		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
@@ -302,7 +302,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		h->health = 80;
 
 		auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
-		m->movementSpeed = 4.0f;
+		m->movementSpeed = 5.0f;
 
 		auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
 		t->position.x = roomTransform->position.x + i;
@@ -322,7 +322,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 		a->damage = 4;
-		a->behaviour->originalRange = 4;
+		a->behaviour->originalRange = 5;
 		a->radius = 1;
 
 		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
@@ -349,16 +349,25 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
 		auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<AlienBehaviour>(robotEntity);
-		a->damage = 4;
-		a->behaviour->originalRange = 4;
-		a->radius = 5;		
+		a->damage = 7;
+		a->behaviour->originalRange = 20;
+		a->radius = 1;		
 	
 		auto h = robotEntity->addComponent<Hydra::Component::LifeComponent>();
-		h->maxHP = 120;
-		h->health = 120;
+		h->maxHP = 70;
+		h->health = 70;
+
+		auto w = robotEntity->addComponent<Hydra::Component::WeaponComponent>();
+		w->bulletSpread = 0.3f;
+		w->fireRateRPM = 50;
+		w->bulletsPerShot = 1;
+		w->damage = 7;
+		w->maxmagammo = 100000000;
+		w->currmagammo = 100000000;
+		w->maxammo = 100000000;
 	
 		auto m = robotEntity->addComponent<Hydra::Component::MovementComponent>();
-		m->movementSpeed = 2.0f;
+		m->movementSpeed = 3.0f;
 		auto t = robotEntity->addComponent<Hydra::Component::TransformComponent>();
 		t->position.x = roomTransform->position.x + i + 2;
 		t->position.y = 0;
