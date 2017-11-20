@@ -11,6 +11,8 @@
 #include <glm/glm.hpp>
 #define BIT(x) (1 << (x))
 
+using namespace Hydra::Component;
+
 namespace Hydra::System {
 	class HYDRA_PHYSICS_API BulletPhysicsSystem final : public Hydra::World::ISystem {
 	public:
@@ -51,12 +53,12 @@ namespace Hydra::System {
 		BulletPhysicsSystem();
 		~BulletPhysicsSystem() final;
 
-		void enable(Hydra::Component::RigidBodyComponent* component);
+		void enable(RigidBodyComponent* component);
 
-		void disable(Hydra::Component::RigidBodyComponent* component);
+		void disable(RigidBodyComponent* component);
 
-		void enable(Hydra::Component::GhostObjectComponent* component);
-		void disable(Hydra::Component::GhostObjectComponent* component);
+		void enable(GhostObjectComponent* component);
+		void disable(GhostObjectComponent* component);
 
 		void tick(float delta) final;
 
@@ -66,7 +68,7 @@ namespace Hydra::System {
 	private:
 		void _spawnParticleEmitterAt(const glm::vec3& pos, const glm::vec3& normal);
 		void _spawnDamageText(const glm::vec3& pos, const float& damage);
-		void _addPickUp(Hydra::Component::PickUpComponent* puc, Hydra::Component::PerkComponent* pec);
+		void _addPickUp(PickUpComponent* puc, PerkComponent* pec);
 		struct Data;
 		Data* _data;
 	};

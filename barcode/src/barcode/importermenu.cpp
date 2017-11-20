@@ -20,7 +20,7 @@ ImporterMenu::~ImporterMenu()
 }
 void ImporterMenu::render(bool &closeBool, Hydra::Renderer::Batch* previewBatch, float delta)
 {
-	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiSetCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiCond_Once);
 	ImGui::Begin("Import", &closeBool, ImGuiWindowFlags_MenuBar);
 	_menuBar();
 

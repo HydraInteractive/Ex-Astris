@@ -40,7 +40,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
-		for (int i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
+		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
 
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
@@ -74,8 +74,10 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
 			t->position = _gridToWorld(pos.x, pos.y + 1);
 			t->position.z -= 17;
-			t->scale = glm::vec3(3, 3, 3);
-			//t->position
+			t->position.y += 3;
+			t->scale = glm::vec3(4);
+			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
+			rgbc->createBox(glm::vec3(3.2f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
 		}
 	}
 
@@ -83,7 +85,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
-		for (int i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
+		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
 
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
@@ -118,9 +120,10 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
 			t->position = _gridToWorld(pos.x + 1, pos.y);
 			t->position.x -= 17;
-			t->position.y += 1.5;
-			t->scale = glm::vec3(3, 3, 3);
-			//t->position
+			t->position.y += 3;
+			t->scale = glm::vec3(4);
+			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
+			rgbc->createBox(glm::vec3(3.2f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
 		}
 	}
 
@@ -128,7 +131,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
-		for (int i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
+		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
 
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
@@ -162,7 +165,10 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
 			t->position = _gridToWorld(pos.x, pos.y - 1);
 			t->position.z += 17;
-			t->scale = glm::vec3(3, 3, 3);
+			t->position.y += 3;
+			t->scale = glm::vec3(4);
+			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
+			rgbc->createBox(glm::vec3(3.2f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
 		}
 	}
 
@@ -170,7 +176,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 	{
 		bool placed = false;
 		//Load all rooms and see if any of them fits
-		for (int i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
+		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
 
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
@@ -204,7 +210,10 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
 			t->position = _gridToWorld(pos.x - 1, pos.y);
 			t->position.x += 17;
-			t->scale = glm::vec3(3, 3, 3);
+			t->position.y += 3;
+			t->scale = glm::vec3(4);
+			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
+			rgbc->createBox(glm::vec3(3.2f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
 		}
 	}
 }
@@ -232,7 +241,6 @@ void TileGeneration::_setUpMiddleRoom(std::string middleRoomPath) {
 }
 
 void TileGeneration::_obtainRoomFiles() {
-
 	//Get the files in order
 	std::string path = "assets/room/";
 	for (auto & p : std::experimental::filesystem::directory_iterator(path)) {
@@ -246,8 +254,8 @@ void TileGeneration::_obtainRoomFiles() {
 void TileGeneration::_randomizeRooms() {
 
 	//Randomize the list 2 times for extra randomness
-	for (int k = 0; k < 2; k++) {
-		for (int i = 0; i < _roomFileNames.size(); i++) {
+	for (size_t k = 0; k < 2; k++) {
+		for (size_t i = 0; i < _roomFileNames.size(); i++) {
 			int randomPos = rand() % _roomFileNames.size();
 			std::swap(_roomFileNames[i], _roomFileNames[randomPos]);
 		}
@@ -370,7 +378,7 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::Component::TransformCo
 		auto pickUpEntity = world::newEntity("PickUp", world::root());
 		auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
 		t->position = glm::vec3(roomTransform->position.x, 0.0f, roomTransform->position.z);
-		pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/GreenCargoBox.mATTIC");
+		pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Lock.mATTIC");
 		pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
 		auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 		rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);

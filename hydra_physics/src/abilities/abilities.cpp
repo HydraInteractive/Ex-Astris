@@ -26,27 +26,26 @@ void GrenadeAbility::useAbility(const std::shared_ptr<Hydra::World::Entity>& pla
 }
 
 void MineAbility::useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity){
-	/*auto playerMovement = playerEntity->getComponent<Hydra::Component::MovementComponent>();
+	auto playerMovement = playerEntity->getComponent<Hydra::Component::MovementComponent>();
 	auto playerTransform = playerEntity->getComponent<Hydra::Component::TransformComponent>();
 
 	auto mine = world::newEntity("Mine", world::root());
 	mine->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SmallCargo.mATTIC");
-
-	auto m = mine->addComponent<Hydra::Component::MineComponent>();
-	m->direction = playerMovement->direction;
+	mine->addComponent<Hydra::Component::MineComponent>();
 
 	auto t = mine->addComponent<Hydra::Component::TransformComponent>();
 	t->position = playerTransform->position;
+	t->scale = glm::vec3(0.5f);
 
 	auto bulletPhysWorld = static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem());
 
 	auto rbc = mine->addComponent<Hydra::Component::RigidBodyComponent>();
-	rbc->createBox(glm::vec3(0.5f, 0.3f, 0.3f), 0.4f);
+	rbc->createBox(glm::vec3(0.5f, 0.3f, 0.3f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE, 0.4f);
 
 	auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
 	bulletPhysWorld->enable(rbc.get());
-	rigidBody->applyCentralForce(btVector3(m->direction.x, m->direction.y, m->direction.z) * 200);
-	rigidBody->setFriction(0.75f);*/
+	rigidBody->applyCentralForce(btVector3(playerMovement->direction.x, playerMovement->direction.y, playerMovement->direction.z) * 200);
+	rigidBody->setFriction(1.0f);
 }
 
 void forcePushAbility::useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity) {

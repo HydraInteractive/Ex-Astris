@@ -28,7 +28,7 @@ ComponentMenu::~ComponentMenu()
 
 void ComponentMenu::render(bool &openBool, Hydra::System::BulletPhysicsSystem& physicsSystem)
 {
-	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiSetCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiCond_Once);
 	ImGui::Begin("Add component", &openBool, ImGuiWindowFlags_MenuBar);
 	_menuBar();
 
@@ -49,7 +49,7 @@ void ComponentMenu::render(bool &openBool, Hydra::System::BulletPhysicsSystem& p
 			}
 		}
 	}
-
+	
 	ImGui::NextColumn();
 	ImGui::Text("Configure component");
 	if (_selectedString != "" && _selectedEntity != nullptr)
@@ -74,7 +74,7 @@ std::shared_ptr<Hydra::World::Entity> ComponentMenu::getRoomEntity()
 		return entities[0];
 	}
 	return nullptr;
-}
+} 
 
 void ComponentMenu::configureComponent(bool &openBool, std::string componentType, Hydra::System::BulletPhysicsSystem& physicsSystem)
 {
@@ -159,7 +159,7 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 			//TODO: Selection box for picking collision type
 			ImGui::EndChild();
 			ImGui::BeginChild("Confirm", ImVec2(ImGui::GetWindowContentRegionWidth() *0.3f, 25));
-			if (ImGui::Button("Finish"))
+			if (ImGui::Button("Finish")) 
 			{
 				auto t = _selectedEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 				//physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(t->scale * 10.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_MISC_OBJECT, 10, 0, 0, 1.0f, 1.0f);
@@ -185,7 +185,7 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 			if (ImGui::Button("Finish"))
 			{
 				auto goc = _selectedEntity->addComponent<Hydra::Component::GhostObjectComponent>();
-				goc->createBox(ghostObjectInput.size);
+				goc->createBox(ghostObjectInput.size,Hydra::System::BulletPhysicsSystem::COLL_WALL);
 				physicsSystem.enable(goc.get());
 				rigidBodyInput = RBI();
 			}

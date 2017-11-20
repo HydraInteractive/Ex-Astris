@@ -14,7 +14,11 @@
 
 #include <memory>
 #include <imgui/imgui.h>
-#include <filesystem>	//Git gud
+#ifdef _WIN32
+#include <filesystem>
+#else
+#include <experimental/filesystem>
+#endif
 #include <barcode/importermenu.hpp>
 #include <barcode/exportermenu.hpp>
 
@@ -25,6 +29,7 @@
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/aicomponent.hpp>
+#include <hydra/component/ghostobjectcomponent.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
 
@@ -42,7 +47,7 @@ public:
 	TileGeneration(std::string middleRoomPath);
 	~TileGeneration();
 
-	int maxRooms = 25;
+	int maxRooms = 1;
 
 private:
 	std::vector<std::string> _roomFileNames;
