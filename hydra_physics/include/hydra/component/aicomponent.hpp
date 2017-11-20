@@ -25,10 +25,10 @@ namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API AIComponent final : public IComponent<AIComponent, ComponentBits::AI>{
 		~AIComponent() final;
 
-	std::shared_ptr<Behaviour> behaviour;
-	int debugState;
+	std::shared_ptr<Behaviour> behaviour = nullptr;
+	int debugState = 0;
 	int damage = 0;
-	float radius = 1;
+	float radius = 1.0f;
 
 	inline const std::string type() const final { return "AIComponent"; }
 	std::shared_ptr<Hydra::World::Entity> getPlayerEntity();

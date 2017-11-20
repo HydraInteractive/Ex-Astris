@@ -24,11 +24,11 @@ namespace Hydra::Component {
 			TransformComponent transform;
 			glm::vec3 velocity = glm::vec3{0, 0, 0};
 			glm::vec3 acceleration = glm::vec3{0, 0, 0}; // TODO: Drop?
-			float life = 0;
-			float startLife = 0;
-			glm::vec2 texOffset1;
-			glm::vec2 texOffset2;
-			glm::vec2 texCoordInfo;
+			float life = 0.0f;
+			float startLife = 0.0f;
+			glm::vec2 texOffset1 = glm::vec2(0.0f,0.0f);
+			glm::vec2 texOffset2 = glm::vec2(0.0f,0.0f);
+			glm::vec2 texCoordInfo = glm::vec2(0.0f,0.0f);
 			void respawn(TransformComponent t, glm::vec3 vel, glm::vec3 acc, float l) {
 				transform = t;
 				// transform.ignoreParent = true;
@@ -44,13 +44,13 @@ namespace Hydra::Component {
 		static constexpr float ParticleSize = 1.0f / (TextureInnerGrid * TextureOuterGrid);
 		static constexpr size_t MaxParticleAmount = 256;
 
-		float delay = 1; // 0.1 = 10 Particle/Second
-		float accumulator = 256;
+		float delay = 1.0f; // 0.1 = 10 Particle/Second
+		float accumulator = 256.0f;
 		glm::vec3 tempVelocity = glm::vec3(1.0f, 1.0f, 1.0f);
 		EmitterBehaviour behaviour = EmitterBehaviour::PerSecond;
 		ParticleTexture texture = ParticleTexture::Energy;
 		Particle particles[MaxParticleAmount];
-		glm::vec3 optionalNormal;
+		glm::vec3 optionalNormal = glm::vec3(0.0f,0.0f,0.0f);
 
 		~ParticleComponent() final;
 

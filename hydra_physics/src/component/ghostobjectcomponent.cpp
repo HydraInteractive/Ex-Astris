@@ -16,14 +16,16 @@ using namespace Hydra::Component;
 //}
 
 void Hydra::Component::GhostObjectComponent::_recalculateMatrix(){
-	auto tc = Hydra::World::World::getEntity(entityID)->getComponent<TransformComponent>();
-	glm::vec3 newScale;
-	glm::quat rotation;
-	glm::vec3 translation;
-	glm::vec3 skew;
-	glm::vec4 perspective;
-	glm::decompose(tc->getMatrix(), newScale, rotation, translation, skew, perspective);
-	_matrix = glm::translate(translation) * glm::mat4_cast(quatRotation) * glm::scale(halfExtents);
+	if (auto tc = Hydra::World::World::getEntity(entityID)->getComponent<TransformComponent>())
+	{
+		glm::vec3 newScale;
+		glm::quat rotation;
+		glm::vec3 translation;
+		glm::vec3 skew;
+		glm::vec4 perspective;
+		glm::decompose(tc->getMatrix(), newScale, rotation, translation, skew, perspective);
+		_matrix = glm::translate(translation) * glm::mat4_cast(quatRotation) * glm::scale(halfExtents);
+	}
 }
 
 void Hydra::Component::GhostObjectComponent::createBox(const glm::vec3& halfExtents, Hydra::System::BulletPhysicsSystem::CollisionTypes collType, const glm::quat& quatRotation) {
