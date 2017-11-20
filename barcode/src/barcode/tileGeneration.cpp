@@ -260,6 +260,12 @@ void TileGeneration::_obtainRoomFiles() {
 	//}
 
 	_roomFileNames.push_back(path + "centralRoomBigScreen.room");
+	_roomFileNames.push_back(path + "fourwayRoom.room");
+	_roomFileNames.push_back(path + "starterRoom.room");
+	_roomFileNames.push_back(path + "threewayRoom.room");
+	_roomFileNames.push_back(path + "trashedComputerRoom.room");
+	_roomFileNames.push_back(path + "tryTree.room");
+	_roomFileNames.push_back(path + "tryTwo.room");
 
 	_randomizeRooms();
 
@@ -291,7 +297,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 		a->damage = 4;
-		a->behaviour->originalRange = 5;
+		a->behaviour->originalRange = 4;
 		a->radius = 1;
 
 		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
@@ -321,7 +327,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 		a->damage = 4;
-		a->behaviour->originalRange = 5;
+		a->behaviour->originalRange = 4;
 		a->radius = 1;
 
 		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
