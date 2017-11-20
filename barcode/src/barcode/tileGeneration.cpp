@@ -301,7 +301,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		t->scale = glm::vec3{ 1,1,1 };
 
 		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(0.5f) * t->scale, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 3, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 	}
@@ -329,7 +329,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		t->scale = glm::vec3{ 1,1,1 };
 
 		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(0.5f) * t->scale, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 3, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 	}
