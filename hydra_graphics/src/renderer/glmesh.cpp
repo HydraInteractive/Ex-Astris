@@ -286,11 +286,11 @@ private:
 			if (fileName != "NULL" && fileNameLength != 0)
 				_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/" + fileName);
 			else
-				_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/error2.png");
+				_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/1x1Gray.png");
 
 			delete[] tempFileName;
 
-			_material.specular = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/glow/errorGlow.png");
+			_material.specular = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/1x1Gray.png");
 
 			//Read the diffuse and specular value
 			in.read(reinterpret_cast<char*>(&diffuse), sizeof(diffuse));

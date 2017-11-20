@@ -319,8 +319,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 	}
-
-
+	
 	for (int i = 0; i < randomFastAliens; i++) {
 		auto alienEntity = world::newEntity("FastAlien1", world::root());
 		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienFastModel.mATTIC");
@@ -357,7 +356,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		a->behaviour = std::make_shared<RobotBehaviour>(robotEntity);
 		a->damage = 7;
 		a->behaviour->originalRange = 20;
-		a->radius = 1;		
+		a->radius = 1;
 	
 		auto h = robotEntity->addComponent<Hydra::Component::LifeComponent>();
 		h->maxHP = 70;
