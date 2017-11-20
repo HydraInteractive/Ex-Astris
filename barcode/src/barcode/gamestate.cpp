@@ -467,7 +467,7 @@ namespace Barcode {
 			m->movementSpeed = 8.0f;
 			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ -10, 0, -10 };
-			t->scale = glm::vec3{ 2,2,2 };
+			t->scale = glm::vec3{ 1,1,1 };
 			t->rotation = glm::vec3{ 0, 90, 0 };
 			auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
@@ -500,7 +500,7 @@ namespace Barcode {
 			m->movementSpeed = 5.0f;
 			auto t = robotEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ -10, 0, -10 };
-			t->scale = glm::vec3{ 2,2,2 };
+			t->scale = glm::vec3{ 1,1,1 };
 			t->rotation = glm::vec3{ 0, 90, 0 };
 			auto rgbc = robotEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createBox(glm::vec3(0.5f) * t->scale, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
