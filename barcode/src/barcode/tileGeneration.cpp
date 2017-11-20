@@ -259,13 +259,7 @@ void TileGeneration::_obtainRoomFiles() {
 	//	_roomFileNames.push_back(p.path().string());
 	//}
 
-	
 	_roomFileNames.push_back(path + "centralRoomBigScreen.room");
-	//_roomFileNames.push_back(path + "centralRoomPipes.room"); ??FSD=O)F=ISD=FISD
-	//_roomFileNames.push_back(path + "trashedComputerRoom.room");
-	//_roomFileNames.push_back(path + "tryTree.room");hgfhgfhf
-	//_roomFileNames.push_back(path + "tryTwo.room");
-
 
 	_randomizeRooms();
 
@@ -354,7 +348,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		auto robotEntity = world::newEntity("Robot1", world::root());
 		robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
 		auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
-		a->behaviour = std::make_shared<AlienBehaviour>(robotEntity);
+		a->behaviour = std::make_shared<RobotBehaviour>(robotEntity);
 		a->damage = 7;
 		a->behaviour->originalRange = 20;
 		a->radius = 1;		
