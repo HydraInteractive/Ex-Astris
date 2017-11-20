@@ -457,7 +457,7 @@ namespace Barcode {
 			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 			a->behaviour->setPathMap(pathfindingMap);
 			a->damage = 4;
-			a->behaviour->originalRange = 4;
+			a->behaviour->originalRange = 5;
 			a->radius = 1;
 
 			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
@@ -482,7 +482,7 @@ namespace Barcode {
 			a->behaviour = std::make_shared<RobotBehaviour>(robotEntity);
 			a->behaviour->setPathMap(pathfindingMap);
 			a->damage = 7;
-			a->behaviour->originalRange = 25;
+			a->behaviour->originalRange = 20;
 			a->radius = 1;
 			auto w = robotEntity->addComponent<Hydra::Component::WeaponComponent>();
 			w->bulletSpread = 0.3f;
