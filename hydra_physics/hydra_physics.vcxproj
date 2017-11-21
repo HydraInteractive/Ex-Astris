@@ -92,6 +92,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="include\hydra\component\spawnlocationcomponent.hpp" />
+    <ClCompile Include="src\component\spawnlocationcomponent.cpp" />
     <ClCompile Include="src\component\ghostobjectcomponent.cpp" />
     <ClCompile Include="src\system\pickupsystem.cpp" />
     <ClCompile Include="src\abilities\abilities.cpp" />
