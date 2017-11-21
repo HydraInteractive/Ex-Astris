@@ -73,7 +73,7 @@ void NetClient::_resolvePackets() {
 		case PacketType::ServerUpdate: 
 			serverUpdate = packets[i];
 			break;
-		case PacketType::ServerPlayer:
+	case PacketType::ServerPlayer:
 			_addPlayer(packets[i]);
 			break;
 		case PacketType::ServerSpawnEntity:
@@ -154,7 +154,7 @@ void NetClient::_addPlayer(Packet * playerPacket) {
 	_IDs[spp->entID] = ent->id;
 	Hydra::Component::TransformComponent* tc = ent->addComponent<Hydra::Component::TransformComponent>().get();
 	auto mesh = ent->addComponent<Hydra::Component::MeshComponent>();
-	mesh->loadMesh("assets/objects/playerModel.ATTIC");
+	mesh->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
 	tc->setPosition(spp->ti.pos);
 	tc->setRotation(spp->ti.rot);
 	tc->setScale(spp->ti.scale);

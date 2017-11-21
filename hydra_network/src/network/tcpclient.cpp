@@ -53,6 +53,8 @@ std::vector<Packet*> TCPClient::receiveData() {
 		if (len > 0) {
 			while (curr < len && curr < MAX_NETWORK_LENGTH) {
 				tmp = (Packet*)(&(this->_msg[curr]));
+				if (!tmp->h.len)
+					continue;
 				if (curr + tmp->h.len > len) {
 					memmove(_msg, _msg + curr, len - curr);
 					offset = len - curr;
