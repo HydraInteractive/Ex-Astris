@@ -70,10 +70,7 @@ void GhostObjectComponent::deserialize(nlohmann::json& json) {
 	quatRotation.w = json.value<float>("quatRotationW", 0);
 
 	if (rotation == glm::vec3()) {
-		glm::quat qPitch = glm::angleAxis(glm::radians(rotation.x), glm::vec3(1, 0, 0));
-		glm::quat qYaw = glm::angleAxis(glm::radians(rotation.y), glm::vec3(0, 1, 0));
-		glm::quat qRoll = glm::angleAxis(glm::radians(rotation.z), glm::vec3(0, 0, 1));
-		quatRotation = glm::normalize(qPitch * qYaw * qRoll);
+		quatRotation = glm::quat(glm::radians(rotation));
 	}
 
 	collisionType = Hydra::System::BulletPhysicsSystem::CollisionTypes(json.value<int>("collisionType", 0));
@@ -89,11 +86,7 @@ void GhostObjectComponent::registerUI() {
 		ghostObject->setCollisionShape(new btBoxShape(btVector3(halfExtents.x, halfExtents.y, halfExtents.z)));
 	}
 	if (ImGui::DragFloat3("Rotation", glm::value_ptr(rotation), 1.0f)){
-		glm::quat qPitch = glm::angleAxis(glm::radians(rotation.x), glm::vec3(1, 0, 0));
-		glm::quat qYaw = glm::angleAxis(glm::radians(rotation.y), glm::vec3(0, 1, 0));
-		glm::quat qRoll = glm::angleAxis(glm::radians(rotation.z), glm::vec3(0, 0, 1));
-		quatRotation = glm::normalize(qPitch * qYaw * qRoll);
-
+		quatRotation = glm::quat(glm::radians(rotation));
 		ghostObject->getWorldTransform().setRotation(btQuaternion(quatRotation.x, quatRotation.y, quatRotation.z, quatRotation.w));
 	}
 }
