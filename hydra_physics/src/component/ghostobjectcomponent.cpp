@@ -18,13 +18,7 @@ using namespace Hydra::Component;
 void Hydra::Component::GhostObjectComponent::_recalculateMatrix(){
 	if (auto tc = Hydra::World::World::getEntity(entityID)->getComponent<TransformComponent>())
 	{
-		glm::vec3 newScale;
-		glm::quat rotation;
-		glm::vec3 translation;
-		glm::vec3 skew;
-		glm::vec4 perspective;
-		glm::decompose(tc->getMatrix(), newScale, rotation, translation, skew, perspective);
-		_matrix = glm::translate(translation) * glm::mat4_cast(quatRotation) * glm::scale(halfExtents);
+		_matrix = tc->getMatrix() * glm::mat4_cast(quatRotation) * glm::scale(halfExtents);
 	}
 }
 
@@ -76,7 +70,6 @@ void GhostObjectComponent::deserialize(nlohmann::json& json) {
 	quatRotation.w = json.value<float>("quatRotationW", 0);
 
 	if (rotation == glm::vec3()) {
-		rotation == glm::vec3(0.00000000000001f);
 		glm::quat qPitch = glm::angleAxis(glm::radians(rotation.x), glm::vec3(1, 0, 0));
 		glm::quat qYaw = glm::angleAxis(glm::radians(rotation.y), glm::vec3(0, 1, 0));
 		glm::quat qRoll = glm::angleAxis(glm::radians(rotation.z), glm::vec3(0, 0, 1));

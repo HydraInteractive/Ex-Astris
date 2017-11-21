@@ -161,12 +161,13 @@ namespace Barcode {
 				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(glm::translate(rgbc->getPosition()) * glm::mat4_cast(rgbc->getRotation()) * glm::scale(rgbc->getHalfExtentScale() * glm::vec3(2)));
 			}
 
-			world::getEntitiesWithComponents<Hydra::Component::GhostObjectComponent, Hydra::Component::DrawObjectComponent>(entities);
+			world::getEntitiesWithComponents<Hydra::Component::GhostObjectComponent, Hydra::Component::TransformComponent>(entities);
 			for (auto e : entities) {
+				auto transform = e->getComponent<Hydra::Component::TransformComponent>();
 				auto goc = e->getComponent<Hydra::Component::GhostObjectComponent>();
-				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(goc->getMatrix()*glm::scale(glm::vec3(2)));
-				//_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(glm::translate(translation) * glm::mat4_cast(goc->quatRotation) * glm::scale(goc->halfExtents * glm::vec3(2)));
+				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(goc->getMatrix() * glm::scale(glm::vec3(2)));
 			}
+
 			_hitboxBatch.pipeline->setValue(0, _cc->getViewMatrix());
 			_hitboxBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
 			_engine->getRenderer()->renderHitboxes(_hitboxBatch.batch);
