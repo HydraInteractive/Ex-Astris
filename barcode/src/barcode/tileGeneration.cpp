@@ -323,23 +323,6 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		t->position.x = roomTransform->position.x + i;
 		t->position.y = 5;
 		t->position.z = roomTransform->position.z + i;
-		bool goodPos = false;
-		//int test = sizeof(pathfindingMap);
-		//for (int x = roomTransform->position.x; x < sizeof(pathfindingMap) && goodPos == false; x++) {
-		//	
-		//}
-		//while (goodPos == false) {		
-		//	if (pathfindingMap[(int)t->position.x][(int)t->position.z] == true)
-		//		goodPos = true;
-		//	else {
-		//		int randomX = rand() % int((roomTransform->position.x + (((int)ROOM_GRID_SIZE / 2)) + (roomTransform->position.x - ((int)ROOM_GRID_SIZE / 2))));
-		//		int randomZ = rand() % int((roomTransform->position.z + (((int)ROOM_GRID_SIZE / 2)) + (roomTransform->position.z - ((int)ROOM_GRID_SIZE / 2))));
-		//		
-		//		t->position = glm::vec3(randomX, t->position.y, randomZ);
-		//
-		//	}
-		//}
-
 		t->scale = glm::vec3{ 1,1,1 };
 
 		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
