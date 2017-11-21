@@ -3,28 +3,31 @@
 #include <hydra/ext/openmp.hpp>
 
 #include <hydra/component/cameracomponent.hpp>
-#include <hydra/component/freecameracomponent.hpp>
 #include <algorithm>
+
+#include <hydra/engine.hpp>
+#include <hydra/view/view.hpp>
+#include <SDL2/SDL.h>
+
+#include <imgui/imguizmo.h>
 
 using namespace Hydra::System;
 
-#define ANG2RAD 3.14159265358979323846/180.0
+#define ANG2RAD (3.14159265358979323846/180.0)
 
 CameraSystem::CameraSystem() {}
 CameraSystem::~CameraSystem() {}
 
 void CameraSystem::tick(float delta) {
 	using world = Hydra::World::World;
+	Hydra::View::IView* view = Hydra::IEngine::getInstance()->getView();
+	auto viewSize = view->getSize();
 
 	// Collect data
-	int mouseX = 0;
-	int mouseY = 0;
 	glm::vec3 velocity = glm::vec3{0, 0, 0};
 	bool multiplier = false;
 
-	if ((SDL_GetRelativeMouseState(&mouseX, &mouseY) & SDL_BUTTON(3)) == 0)
-		mouseX = mouseY = 0;
-
+	bool toggleMouse = false;
 
 	{
 		const Uint8* keysArray = SDL_GetKeyboardState(nullptr);
@@ -38,45 +41,50 @@ void CameraSystem::tick(float delta) {
 		if (keysArray[SDL_SCANCODE_D])
 			velocity.x += 1;
 
-		multiplier = keysArray[SDL_SCANCODE_LSHIFT];//velocity *= ;
+		static bool wasCtrlDown = false;
+		if (keysArray[SDL_SCANCODE_LALT] && !wasCtrlDown)
+			toggleMouse = wasCtrlDown = true;
+		else if (!keysArray[SDL_SCANCODE_LALT] && wasCtrlDown)
+			wasCtrlDown = false;
+
+		multiplier = keysArray[SDL_SCANCODE_LSHIFT];
 	}
 
 	//Process CameraComponent
 	world::getEntitiesWithComponents<Hydra::Component::CameraComponent>(entities);
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto cc = entities[i]->getComponent<Hydra::Component::CameraComponent>();
+		if (i == 0) {
+			if (toggleMouse) {
+				cc->mouseControl = !cc->mouseControl;
+				SDL_WarpMouseInWindow(static_cast<SDL_Window*>(view->getHandler()), viewSize.x / 2, viewSize.y / 2);
+			} else if (cc->mouseControl) {
+				glm::ivec2 mousePos;
+				SDL_GetMouseState(&mousePos.x, &mousePos.y);
+				mousePos -= viewSize / 2;
+				SDL_WarpMouseInWindow(static_cast<SDL_Window*>(view->getHandler()), viewSize.x / 2, viewSize.y / 2);
 
-		if (cc->mouseControl) {
-			cc->cameraYaw = cc->cameraYaw + mouseX * cc->sensitivity; // std::min(std::max(cc->cameraYaw + mouseX * cc->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
-			cc->cameraPitch = std::min(std::max(cc->cameraPitch + mouseY * cc->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
+				cc->cameraYaw = cc->cameraYaw + mousePos.x * cc->sensitivity;
+				cc->cameraPitch = std::min(std::max(cc->cameraPitch + mousePos.y * cc->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
+			}
+			SDL_ShowCursor(cc->mouseControl ? SDL_DISABLE : SDL_ENABLE);
+			ImGuizmo::Enable(!cc->mouseControl);
 		}
 
 		glm::quat qPitch = glm::angleAxis(cc->cameraPitch, glm::vec3(1, 0, 0));
 		glm::quat qYaw = glm::angleAxis(cc->cameraYaw, glm::vec3(0, 1, 0));
 		glm::quat qRoll = glm::angleAxis(glm::radians(0.f), glm::vec3(0, 0, 1));
 
-		cc->orientation = qPitch * qYaw * qRoll;
-		cc->orientation = glm::normalize(cc->orientation);
+		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
+		t->rotation = glm::normalize(qPitch * qYaw * qRoll);
+
+		if (cc->noClip) {
+			const glm::mat4 viewMat = cc->getViewMatrix();
+			t->position += glm::vec3(glm::vec4(velocity * cc->movementSpeed * (multiplier ? cc->shiftMultiplier : 1), 1.0f) * viewMat) * delta;
+		}
 	}
 
-	//Process FreeCameraComponent
-	world::getEntitiesWithComponents<Hydra::Component::FreeCameraComponent>(entities);
-	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
-		auto ec = entities[i]->getComponent<Hydra::Component::FreeCameraComponent>();
-
-		ec->cameraYaw = ec->cameraYaw + mouseX * ec->sensitivity; //std::min(std::max(ec->cameraYaw + mouseX * ec->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
-		ec->cameraPitch = std::min(std::max(ec->cameraPitch + mouseY * ec->sensitivity, glm::radians(-89.9999f)), glm::radians(89.9999f));
-
-		glm::quat qPitch = glm::angleAxis(ec->cameraPitch, glm::vec3(1, 0, 0));
-		glm::quat qYaw = glm::angleAxis(ec->cameraYaw, glm::vec3(0, 1, 0));
-		glm::quat qRoll = glm::angleAxis(glm::radians(0.f), glm::vec3(0, 0, 1));
-
-		ec->orientation = qPitch * qYaw * qRoll;
-		ec->orientation = glm::normalize(ec->orientation);
-
-		const glm::mat4 viewMat = ec->getViewMatrix();
-		ec->position += glm::vec3(glm::vec4(velocity * ec->movementSpeed * (multiplier ? ec->shiftMultiplier : 1), 1.0f) * viewMat) * delta;
-	}
+	entities.clear();
 }
 
 void CameraSystem::setCamInternals(Hydra::Component::CameraComponent& cc) {
@@ -87,7 +95,7 @@ void CameraSystem::setCamInternals(Hydra::Component::CameraComponent& cc) {
 	cc.fw = cc.fh * cc.aspect;
 }
 
-void CameraSystem::setCamDef(glm::vec3& cPos, glm::vec3& cDir, glm::vec3& up, glm::vec3& right, Hydra::Component::CameraComponent& cc) {
+void CameraSystem::setCamDef(const glm::vec3& cPos, const glm::vec3& cDir, const glm::vec3& up, const glm::vec3& right, Hydra::Component::CameraComponent& cc) {
 	glm::vec3 dir, nc, fc, X, Y, Z;
 
 	Z = cPos - cDir;
@@ -122,24 +130,15 @@ void CameraSystem::setCamDef(glm::vec3& cPos, glm::vec3& cDir, glm::vec3& up, gl
 
 }
 
-/*int CameraSystem::pointInFrustum(glm::vec3& p, Hydra::Component::CameraComponent& cc) {
-	int result = 1;
-	for (int i = 0; i < 6; i++) {
-	if (cc.pl[i].distance(p) < 0)
-		return 0;
-	}
-	return result;
-}*/
-
-int CameraSystem::sphereInFrustum(glm::vec3& p, float radius, Hydra::Component::CameraComponent& cc) {
+CameraSystem::FrustrumCheck CameraSystem::sphereInFrustum(const glm::vec3& p, float radius, Hydra::Component::CameraComponent& cc) {
 	float distance = 0;
-	int result = cc.INSIDE;
+	CameraSystem::FrustrumCheck result = CameraSystem::FrustrumCheck::inside;
 	for (int i = 0; i < 6; i++) {
 		distance = cc.pl[i].distance(p);
 		if (distance < -radius)
-			return cc.OUTSIDE;
+			return CameraSystem::FrustrumCheck::outside;
 		else if (distance < radius)
-			result = cc.INTERSECT;
+			result = CameraSystem::FrustrumCheck::intersect;
 	}
 	return result;
 }

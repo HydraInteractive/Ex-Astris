@@ -19,10 +19,21 @@
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API RigidBodyComponent final : public Hydra::World::IComponent<RigidBodyComponent, ComponentBits::RigidBody> {
 		friend class Hydra::System::BulletPhysicsSystem;
+
+		enum class ActivationState : int{
+			activeTag = 0,
+			islandSleeping,
+			wantsDeactivation,
+			disableDeactivation,
+			disableSimulation,
+
+			MAX_COUNT
+		};
+
 		~RigidBodyComponent() final;
 
 #define DEFAULT_PARAMS Hydra::System::BulletPhysicsSystem::CollisionTypes collType = Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_NOTHING, float mass = 0, float linearDamping = 0, float angularDamping = 0, float friction = 0, float rollingFriction = 0
-		void createBox(const glm::vec3& halfExtents, DEFAULT_PARAMS);
+		void createBox(const glm::vec3& halfExtents, const glm::vec3& offset, DEFAULT_PARAMS);
 		void createStaticPlane(const glm::vec3& planeNormal, float planeConstant, DEFAULT_PARAMS);
 		void createSphere(float radius, DEFAULT_PARAMS);
 		//void createTriangleMesh(btStridingMeshInterface *meshInterface, bool useQuantizedAabbCompression, bool buildBvh=true, DEFAULT_PARAMS);
@@ -34,9 +45,12 @@ namespace Hydra::Component {
 		void createCylinderZ(const glm::vec3& halfExtents, DEFAULT_PARAMS);
 #undef DEFAULT_PARAMS
 
-		void setActivationState(const int newState);
+		void setActivationState(ActivationState newState);
+		void setAngularForce(glm::vec3 angularForce);
 		void* getRigidBody();
+		glm::vec3 getPosition();
 		glm::vec3 getHalfExtentScale() { return _halfExtents; }
+		glm::quat getRotation();
 
 		inline const std::string type() const final { return "RigidBodyComponent"; }
 
@@ -45,10 +59,10 @@ namespace Hydra::Component {
 		void registerUI() final;
 
 	private:
-		Hydra::System::BulletPhysicsSystem::CollisionTypes doa;
+		Hydra::System::BulletPhysicsSystem::CollisionTypes doa = Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_NOTHING;
 		struct Data;
 		Data* _data;
-		glm::vec3 _halfExtents;
-		Hydra::System::BulletPhysicsSystem* _handler;
+		glm::vec3 _halfExtents = glm::vec3(0.5f,0.5f,0.5f);
+		Hydra::System::BulletPhysicsSystem* _handler = nullptr;
 	};
 };

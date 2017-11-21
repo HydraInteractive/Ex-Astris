@@ -1,38 +1,43 @@
 #include <barcode/exportermenu.hpp>
 #include <hydra/component/roomcomponent.hpp>
-
 using world = Hydra::World::World; 
 ExporterMenu::ExporterMenu() : FileTree()
 {
-	this->_extWhitelist = { ".room", ".ROOM" };
-	refresh("/assets");
+	refresh();
 }
 ExporterMenu::~ExporterMenu()
 {
 	
 }
-void ExporterMenu::render(bool &closeBool, Hydra::Renderer::Batch* previewBatch, float delta)
+void ExporterMenu::render(bool &openBool, Hydra::Renderer::Batch* previewBatch, float delta)
 {
-	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiSetCond_Once);
-	ImGui::Begin("Export", &closeBool, ImGuiWindowFlags_MenuBar);
+	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiCond_Once);
+	ImGui::Begin("Export", &openBool, ImGuiWindowFlags_MenuBar);
 	_menuBar();
-
+	//If the filetype has been switched, update the filetree
+	if (_fileTreeFileType != _fileType)
+	{
+		refresh();
+	}
 	Node* selectedNode = nullptr;
-
 	//File tree
 	ImGui::BeginChild("Browser", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 60));
 	if (_root != nullptr)
-		_root->render(&selectedNode, _prepExporting);
+		_root->render(&selectedNode);
 	ImGui::EndChild();
 
 	ImGui::SameLine();
 
-	//File name dialog
+	//File settings dialog
 	ImGui::BeginChild("File", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 60));
 
 	//Refresh changes from file tree
 	if (selectedNode != nullptr)
 	{
+		if (ImGui::IsMouseDoubleClicked(0) && selectedNode->getExt().c_str() == _exportTypes[_fileType])
+		{
+			_prepExporting = true;
+		}
 		if (selectedNode->openInFileExplorer)
 		{
 			openInExplorer(selectedNode->reverseEngineerPath());
@@ -55,10 +60,17 @@ void ExporterMenu::render(bool &closeBool, Hydra::Renderer::Batch* previewBatch,
 		}
 	}
 
-	//Draw gui
+	//Draw form
 	ImGui::Text("Path: "); ImGui::SameLine(); ImGui::Text("%s", _selectedPath.c_str());
-	ImGui::InputText(".room", _selectedFileName, 128);
-
+	ImGui::InputText("", _selectedFileName, 128);
+	ImGui::SameLine();
+	ImGui::PushItemWidth(100);
+	ImGui::Combo("", &_fileType, _exportTypes, IM_ARRAYSIZE(_exportTypes));
+	ImGui::PopItemWidth();
+	if (_fileType == 1) //Entity selector
+	{
+		_renderEntitySelector();
+	}
 	if (ImGui::Button("Save"))
 	{
 		_prepExporting = true;
@@ -68,7 +80,7 @@ void ExporterMenu::render(bool &closeBool, Hydra::Renderer::Batch* previewBatch,
 		std::string fileToSave = "";
 		fileToSave.append(_selectedPath);
 		fileToSave.append(_selectedFileName);
-		fileToSave.append(".room");
+		fileToSave.append(_exportTypes[_fileType]);
 		std::ifstream infile(fileToSave);
 		bool doExport = false;
 		if (infile.good())
@@ -80,103 +92,88 @@ void ExporterMenu::render(bool &closeBool, Hydra::Renderer::Batch* previewBatch,
 			doExport = true;
 		}
 
-		if (ImGui::BeginPopupModal("Overwrite?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		if (_overwritePopup(fileToSave)) //Returns true if overwrite is confirmed
 		{
-			std::string textline = "This action will overwrite the file at " + fileToSave + ". Continue?";
-			ImGui::Text("%s", textline.c_str());
-			ImGui::Separator();
-
-			if (ImGui::Button("OK", ImVec2(120, 0)))
-			{
-				doExport = true;
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Cancel", ImVec2(120, 0)))
-			{	
-				_prepExporting = false;
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::EndPopup();
+			doExport = true;
 		}
 
 		if (doExport)
 		{
-			std::ofstream outFile;
-			if (getRoomEntity() != nullptr)
-				BlueprintLoader::save(fileToSave, "Room", getRoomEntity());
+			if (_fileType == 0 && getRoomEntity() != nullptr)
+			{
+				BlueprintLoader::save(fileToSave, "Room", getRoomEntity().get());
+				openBool = false;
+			}
+			else if (_fileType == 1 && selectedEntity != nullptr)
+			{
+				BlueprintLoader::save(fileToSave, selectedEntity->name, selectedEntity);
+				openBool = false;
+			}
 			_prepExporting = false;
-			closeBool = false;
 		}
 	}
 	ImGui::EndChild();
 	ImGui::End();
 }
-void ExporterMenu::Node::render(Node** selectedNode, bool& prepExporting)
+
+void ExporterMenu::refresh(std::string path)
 {
-	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
-	//TODO: Folder icon opening
-	auto label = ICON_FA_FOLDER " %s";
-	if (ImGui::TreeNodeEx(this, node_flags, label, _name.c_str()))
+	_extWhitelist.clear();
+	_extWhitelist.push_back(_exportTypes[_fileType]);
+	_fileTreeFileType = _fileType;
+	selectedEntity = nullptr;
+	FileTree::refresh(path);
+}
+
+void ExporterMenu::_renderEntitySelector()
+{
+	ImGui::BeginChild("Prefab", ImVec2(300, 500), true);
+	std::string title = "";
+	bool selected = false;
+	auto room = getRoomEntity();
+	if (room == nullptr)
 	{
-		label = ICON_FA_FOLDER_OPEN " %s";
-		if (ImGui::BeginPopupContextItem(_name.c_str()))
-		{
-			ImGui::MenuItem("Show in File Explorer", "", &openInFileExplorer);
-			(*selectedNode) = this;
-			ImGui::EndPopup();
-		}
+		ImGui::Text("Error, workspace not found");
+		ImGui::EndChild();
+		return;
+	}
+
+	auto& e =room->children;
+	for (size_t i = 0; i < e.size(); i++)
+	{
+		auto entity = world::getEntity(e[i]);
+		title = entity->name + " [" + std::to_string(entity->id) + "]";
+		selected = (entity.get() == selectedEntity);
+		ImGui::MenuItem(title.c_str(),"",selected);
 		if (ImGui::IsItemClicked())
 		{
-			(*selectedNode) = this;
+			selectedEntity = entity.get();
 		}
-		for (size_t i = 0; i < this->_subfolders.size(); i++)
-		{
-			_subfolders[i]->render(selectedNode, prepExporting);
-		}
-		for (size_t i = 0; i < this->_files.size(); i++)
-		{
-			std::string ext = this->_files[i]->getExt();
-			if (ext == ".mattic" || ext == ".mATTIC")
-			{
-				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBE " %s", _files[i]->_name.c_str());
-				if (ImGui::BeginPopupContextItem(_files[i]->_name.c_str()))
-				{
-					ImGui::MenuItem("Show in File Explorer", "", &_files[i]->openInFileExplorer);
-					(*selectedNode) = _files[i];
-					ImGui::EndPopup();
-				}
-			}
-			else if (ext == ".room" || ext == ".ROOM")
-			{
-				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_CUBES " %s", _files[i]->_name.c_str());
-				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
-				{
-					prepExporting = true;
-				}
-				if (ImGui::BeginPopupContextItem(_files[i]->_name.c_str()))
-				{
-					ImGui::MenuItem("Show in File Explorer", "", &_files[i]->openInFileExplorer);
-					(*selectedNode) = _files[i];
-					ImGui::EndPopup();
-				}
-			}
-			else
-			{
-				ImGui::TreeNodeEx(_files[i], node_flags | ImGuiTreeNodeFlags_Leaf, ICON_FA_QUESTION_CIRCLE_O " %s", _files[i]->_name.c_str());
-				if (ImGui::BeginPopupContextItem(_files[i]->_name.c_str()))
-				{
-					ImGui::MenuItem("Show in File Explorer", "", &_files[i]->openInFileExplorer);
-					(*selectedNode) = _files[i];
-					ImGui::EndPopup();
-				}
-			}
-			if (ImGui::IsItemClicked())
-			{
-				(*selectedNode) = _files[i];
-			}
-			ImGui::TreePop();
-		}
-		ImGui::TreePop();
 	}
+	ImGui::EndChild();
+}
+
+bool ExporterMenu::_overwritePopup(std::string fileToSave)
+{
+	bool confirm = false;
+	if (ImGui::BeginPopupModal("Overwrite?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		std::string textline = "This action will overwrite the file at " + fileToSave + ". Continue?";
+		ImGui::Text("%s", textline.c_str());
+		ImGui::Separator();
+
+		if (ImGui::Button("OK", ImVec2(120, 0)))
+		{
+			confirm = true;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel", ImVec2(120, 0)))
+		{
+			_prepExporting = false;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+	return confirm;
 }

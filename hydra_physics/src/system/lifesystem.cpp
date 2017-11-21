@@ -1,6 +1,7 @@
 #include <hydra/system/lifesystem.hpp>
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/particlecomponent.hpp>
+#include <hydra/component/textcomponent.hpp>
 
 #include <hydra/ext/openmp.hpp>
 
@@ -24,9 +25,11 @@ void LifeSystem::tick(float delta) {
 		if (lifeC->health <= 0)
 			entities[i]->dead = true;
 
-		if (entities[i]->getComponent<Hydra::Component::ParticleComponent>())
+		if (entities[i]->getComponent<Hydra::Component::ParticleComponent>() || entities[i]->getComponent<Hydra::Component::TextComponent>())
 			lifeC->health -= 1 * delta;
 	}
+
+	entities.clear();
 }
 
 void LifeSystem::registerUI() {

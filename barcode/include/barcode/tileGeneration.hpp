@@ -12,51 +12,63 @@
 #include <hydra/io/gltextureloader.hpp>
 #include <hydra/io/glmeshloader.hpp>
 
-#include <filesystem>
 #include <memory>
 #include <imgui/imgui.h>
-#include <barcode/ImporterMenu.hpp>
-#include <barcode/ExporterMenu.hpp>
+#ifdef _WIN32
+#include <filesystem>
+#else
+#include <experimental/filesystem>
+#endif
+#include <barcode/importermenu.hpp>
+#include <barcode/exportermenu.hpp>
 
 #include <barcode/filetree.hpp>
-#include <hydra/component/meshcomponent.hpp>
-#include <hydra/component/cameracomponent.hpp>
-#include <hydra/component/playercomponent.hpp>
-#include <hydra/component/particlecomponent.hpp>
-#include <hydra/component/aicomponent.hpp>
-#include <hydra/component/lightcomponent.hpp>
-#include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
+#include <hydra/component/lifecomponent.hpp>
+#include <hydra/component/pickupcomponent.hpp>
+#include <hydra/component/transformcomponent.hpp>
+#include <hydra/component/meshcomponent.hpp>
+#include <hydra/component/aicomponent.hpp>
+#include <hydra/component/ghostobjectcomponent.hpp>
+#include <hydra/component/pointlightcomponent.hpp>
+#include <hydra/component/textcomponent.hpp>
 
 #include <hydra/world/blueprintloader.hpp>
-
-#include <hydra/io/input.hpp>
 
 #include <fstream>
 #include <json.hpp>
 #define GRID_SIZE 7
 #define ROOM_SIZE 34
 
+#define MAX_ENEMIES 4
+#define PICKUP_CHANCE 40
+
 class TileGeneration
 {
 public:
-	//std::vector<std::shared_ptr<tileInfo>> tiles;
-	std::shared_ptr<Hydra::Component::RoomComponent> grid[GRID_SIZE][GRID_SIZE];
-
+	std::shared_ptr<Hydra::Component::RoomComponent> roomGrid[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
+	bool** pathfindingMap = nullptr;
+	bool** buildMap();
 	TileGeneration(std::string middleRoomPath);
 	~TileGeneration();
 
-	int maxRooms = 1;
+	int maxRooms = 3;
 
 private:
 	std::vector<std::string> _roomFileNames;
 	int _roomCounter = 0;
 
+
+	glm::vec2 localXY;
 	void _setUpMiddleRoom(std::string middleRoomPath);
 	void _createMapRecursivly(glm::ivec2 pos);
-	void _setupGrid();
+	void _insertPathFindingMap(glm::ivec2 room);
 	void _obtainRoomFiles();
+	void _randomizeRooms();
+	void _spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
+	void _spawnPickUps(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
+	void _spawnLight(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
 	glm::vec3 _gridToWorld(int x, int y);
 	bool _checkAdjacents(int x, int y, std::shared_ptr<Hydra::Component::RoomComponent>& r);
-
 };
+

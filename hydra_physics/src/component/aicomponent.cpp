@@ -27,14 +27,6 @@ void AIComponent::serialize(nlohmann::json& json) const {
 		json["pathState"] = behaviour->state;
 		json["range"] = behaviour->range;
 		json["originalRange"] = behaviour->originalRange;
-
-		for (size_t i = 0; i < MAP_SIZE; i++)
-		{
-			for (size_t j = 0; j < MAP_SIZE; j++)
-			{
-				json["map"][i][j] = behaviour->map[i][j];
-			}
-		}
 	}
 	else
 	{
@@ -42,14 +34,6 @@ void AIComponent::serialize(nlohmann::json& json) const {
 		json["pathState"] = 0;
 		json["range"] = 0;
 		json["originalRange"] = 0;
-
-		for (size_t i = 0; i < MAP_SIZE; i++)
-		{
-			for (size_t j = 0; j < MAP_SIZE; j++)
-			{
-				json["map"][i][j] = 0;
-			}
-		}
 	}
 
 }
@@ -69,6 +53,7 @@ void AIComponent::deserialize(nlohmann::json& json) {
 		break;
 	default:
 		std::cout << "Invalid AI Behaviour Type" << std::endl;
+		behaviour = std::make_shared<AlienBehaviour>(Hydra::World::World::getEntity(entityID));
 		break;
 	}
 	radius = json.value<float>("radius", 0);
@@ -77,14 +62,6 @@ void AIComponent::deserialize(nlohmann::json& json) {
 
 	behaviour->range = json.value<float>("range", 0);
 	behaviour->originalRange = json.value<float>("originalRange", 0);
-
-	for (size_t i = 0; i < MAP_SIZE; i++)
-	{
-		for (size_t j = 0; j < MAP_SIZE; j++)
-		{
-			behaviour->map[i][j] = json["map"][i][j].get<int>();
-		}
-	}
 }
 
 // Register UI buttons in the debug UI

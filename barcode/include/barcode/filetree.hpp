@@ -29,16 +29,18 @@ public:
 	std::string executableDir;
 	FileTree();
 	~FileTree();
-	void refresh(std::string relativePath);
+	virtual void refresh(std::string relativePath);
 	static std::shared_ptr<Hydra::World::Entity> getRoomEntity();
-	virtual void render(bool &closeBool, Hydra::Renderer::Batch* previewBatch = nullptr, float delta = 0.0f) = 0;
+ 	virtual void render(bool &openBool, Hydra::Renderer::Batch* previewBatch = nullptr, float delta = 0.0f) = 0;
+	
 	class Node {
 	public:
 		bool isAllowedFile = false;
 		bool openInFileExplorer = false;
+
 		Node();
 		Node(std::string path, const std::vector<std::string>& extWhitelist, Node* parent = nullptr, bool isFile = false);
-		~Node();
+		virtual ~Node();
 
 		std::string name();
 		std::string getExt();
@@ -46,8 +48,8 @@ public:
 		std::string reverseEngineerPath();
 		int numberOfFiles();
 		void clean();
-		virtual void render(Node** selectedNode, bool& prepExporting);
-		virtual void render(Node** selectedNode);
+		void render(Node** selectedNode);
+		void popupMenu(Node* currentNode);
 	private:
 		std::string _name;
 		std::vector<Node*> _subfolders;

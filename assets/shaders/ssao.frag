@@ -19,7 +19,7 @@ void main() {
 
 	float bias = 0.025f;
 	float kernelRadius = 0.5f;
-	int kernelSize = 8;
+	int kernelSize = 16;
 	
 	vec3 randomVec = texture(texNoise, texCoords * noiseScale).xyz;
 

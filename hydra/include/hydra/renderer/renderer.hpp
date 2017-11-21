@@ -35,7 +35,17 @@ namespace Hydra::Renderer {
 		controllers = 10,
 		textureOffset1 = 11,
 		textureOffset2 = 12,
-		textureCoordInfo = 13
+		textureCoordInfo = 13,
+		charRect = 14,
+		charPos = 15
+	};
+
+	struct CharRenderInfo {
+		// charRect.xy = [startX, startY] in texture
+		// charRect.zw = [width, height] of char
+		// charPos     = [xPos, yPos, zPos]
+		glm::vec4 charRect;
+		glm::vec3 charPos;
 	};
 
 	struct HYDRA_BASE_API Vertex final {
@@ -107,10 +117,6 @@ namespace Hydra::Renderer {
 
 		virtual std::shared_ptr<ITexture> getDepth() = 0;
 
-		virtual std::shared_ptr<ITexture> resolve(size_t idx, std::shared_ptr<ITexture> result) = 0;
-
-		// Remember this texture is a MULTISAMPLE texture, and thus need to be resolve
-		// before being rendered as a standard texture
 		virtual std::shared_ptr<ITexture>& operator[](size_t idx) = 0;
 	};
 	inline IFramebuffer::~IFramebuffer() {}
@@ -173,23 +179,20 @@ namespace Hydra::Renderer {
 		std::map<IMesh*, std::vector<glm::mat4 /* Model matrix */>> objects;
 	};
 
-	struct HYDRA_BASE_API AnimationBatch {
-		glm::vec4 clearColor;
-		ClearFlags clearFlags;
-		IRenderTarget* renderTarget;
-		IPipeline* pipeline;
-		std::map<IMesh*, std::vector<glm::mat4 /* Model matrix */>> objects;
+	struct HYDRA_BASE_API AnimationBatch : public Batch {
 		std::map<IMesh*, std::vector<int>> currentFrames;
 		std::map<IMesh*, std::vector<int>> currAnimIndices;
 	};
 
-	struct HYDRA_BASE_API ParticleBatch {
-		glm::vec4 clearColor;
-		ClearFlags clearFlags;
-		IRenderTarget* renderTarget;
-		IPipeline* pipeline;
-		std::map<IMesh*, std::vector<glm::mat4 /* Model matrix */>> objects;
+	struct HYDRA_BASE_API ParticleBatch : public Batch {
 		std::vector<glm::vec2> textureInfo;
+	};
+
+
+	struct HYDRA_BASE_API TextBatch : public Batch{
+		std::vector<CharRenderInfo> textInfo;
+		std::vector<size_t> textSizes;
+		std::vector<float> lifeFade;
 	};
 
 	class HYDRA_BASE_API IRenderer {
@@ -201,6 +204,7 @@ namespace Hydra::Renderer {
 		virtual void render(ParticleBatch& batch) = 0;
 		virtual void renderShadows(Batch& batch) = 0;
 		virtual void renderShadows(AnimationBatch& batch) = 0;
+		virtual void renderText(TextBatch& batch) = 0;
 		// Note: this will ignore batch.objects
 		virtual void postProcessing(Batch& batch) = 0;
 		virtual void renderHitboxes(Batch& batch) = 0;
@@ -216,6 +220,7 @@ namespace Hydra::Renderer {
 
 		virtual void* getModelMatrixBuffer() = 0;
 		virtual void* getParticleExtraBuffer() = 0;
+		virtual void* getTextExtraBuffer() = 0;
 	};
 	inline IRenderer::~IRenderer() {}
 }

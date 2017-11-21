@@ -22,7 +22,8 @@ namespace Hydra::Renderer {
 
 	namespace GLMesh {
 		HYDRA_GRAPHICS_API std::unique_ptr<IMesh> create(const std::string& file, IRenderer* renderer);
-		HYDRA_GRAPHICS_API std::unique_ptr<IMesh> createQuad(IRenderer* renderer);
+		HYDRA_GRAPHICS_API std::unique_ptr<IMesh> createParticleQuad(IRenderer* renderer);
+		HYDRA_GRAPHICS_API std::unique_ptr<IMesh> createTextQuad(IRenderer* renderer);
 		HYDRA_GRAPHICS_API std::unique_ptr<IMesh> createFullscreenQuad();
 		HYDRA_GRAPHICS_API std::unique_ptr<IMesh> createCube();
 	};

@@ -24,8 +24,8 @@ public:
 	SDLViewImpl(const std::string& title) {
 		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER);
 		Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
-		_size = glm::ivec2{1920, 1080};
-		//_size = glm::ivec2{1280, 720};
+		//_size = glm::ivec2{1920, 1080};
+		_size = glm::ivec2{1280, 720};
 		_wantToClose = false;
 		_fullScreen = false;
 
@@ -52,9 +52,9 @@ public:
 			case SDL_KEYDOWN:
 				if (uiRenderer && uiRenderer->usingKeyboard())
 					break;
-				if (event.key.keysym.sym == SDLK_ESCAPE)
+				/*if (event.key.keysym.sym == SDLK_ESCAPE)
 					_wantToClose = true;
-				else if (event.key.keysym.sym == SDLK_F11) {
+				else */if (event.key.keysym.sym == SDLK_F11) {
 					if (_fullScreen)
 						SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN);
 					else
@@ -75,16 +75,6 @@ public:
 	void show() final { SDL_ShowWindow(_window); }
 	void hide() final {	SDL_HideWindow(_window); }
 	void quit() final { _wantToClose = true; }
-
-	void blit(Hydra::Renderer::IFramebuffer* fb, size_t imageIdx, bool doDepth) final {
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, fb->getID());
-		glReadBuffer(static_cast<GLenum>(GL_COLOR_ATTACHMENT0+imageIdx));
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-		auto fromS = fb->getSize();
-		auto& toS = _size;
-		glBlitFramebuffer(0, 0, fromS.x, fromS.y, 0, 0, toS.x, toS.y, GL_COLOR_BUFFER_BIT | (doDepth ? GL_DEPTH_BUFFER_BIT : 0), GL_NEAREST);
-	}
 
 	void* getHandler() final { return _window; }
 

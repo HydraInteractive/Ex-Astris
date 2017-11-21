@@ -11,6 +11,8 @@
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/spawnercomponent.hpp>
 #include <hydra/component/perkcomponent.hpp>
+#include <hydra/component/pickupcomponent.hpp>
+#include <hydra/component/ghostobjectcomponent.hpp>
 
 using namespace Hydra::World;
 
@@ -38,5 +40,9 @@ namespace Hydra::Component::ComponentManager {
 		creators["SpawnerComponent"] = &createOrGetComponentHelper<SpawnerComponent>;
 		PerkComponent::componentHandler = new ComponentHandler<PerkComponent>();
 		creators["PerkComponent"] = &createOrGetComponentHelper<PerkComponent>;
+		PickUpComponent::componentHandler = new ComponentHandler<PickUpComponent>();
+		creators["PickUpComponent"] = &createOrGetComponentHelper<PickUpComponent>;
+		GhostObjectComponent::componentHandler = new ComponentHandler<GhostObjectComponent>();
+		creators["GhostObjectComponent"] = &createOrGetComponentHelper<GhostObjectComponent>;
 	}
 }

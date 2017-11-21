@@ -37,7 +37,7 @@ std::unique_ptr<Blueprint> BlueprintLoader::load(const std::string& file) {
 	return bp;
 }
 
-void BlueprintLoader::save(const std::string& file, const std::string& name, std::shared_ptr<Entity> entity) {
+void BlueprintLoader::save(const std::string& file, const std::string& name, Entity* entity) {
 	nlohmann::json root;
 
 	root["name"] = name;

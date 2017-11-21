@@ -17,10 +17,7 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 	struct HYDRA_GRAPHICS_API LightComponent final : public IComponent<LightComponent, ComponentBits::Light> {
-		glm::vec3 position = glm::vec3{0, 0, 0};
-		glm::vec3 direction = glm::vec3{0, 0, 0};
-		glm::vec3 color = glm::vec3{1, 1, 1};
-		glm::vec3 up = glm::vec3{0, 1, 0};
+		glm::vec3 color = glm::vec3(1, 1, 1);
 
 		float fov = 80.0f;
 		float zNear = 1.0f;
@@ -36,6 +33,13 @@ namespace Hydra::Component {
 
 		//inline glm::mat4 getProjectionMatrix() const { return glm::ortho(-10.f, 10.f, -10.f, 10.f, zNear, zFar); }
 		inline glm::mat4 getProjectionMatrix() const { return glm::perspective<float>(fov, 1.0f, zNear, zFar); }
-		inline glm::mat4 getViewMatrix() const { return glm::lookAt(glm::vec3(position), glm::vec3(position + direction), up);	}
+		inline glm::mat4 getViewMatrix() { return glm::translate(glm::mat4_cast(getTransformComponent()->rotation), -getTransformComponent()->position); }
+		inline std::shared_ptr<Hydra::Component::TransformComponent> getTransformComponent() {
+			if (auto e = Hydra::World::World::getEntity(entityID); e)
+				return e->getComponent<Hydra::Component::TransformComponent>();
+			else
+				return std::shared_ptr<Hydra::Component::TransformComponent>();
+		}
+		inline glm::vec3 getDirVec(){ return glm::normalize(getTransformComponent()->rotation * glm::vec3(0, -1, 0)); }
 	};
 }

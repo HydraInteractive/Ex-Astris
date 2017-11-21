@@ -76,6 +76,11 @@ void TransformComponent::_recalculateMatrix() {
 }
 
 std::shared_ptr<Hydra::Component::TransformComponent> TransformComponent::_getParentComponent() {
-	auto parent = Hydra::World::World::getEntity(entityID)->parent;
-	return (ignoreParent || !parent) ? std::shared_ptr<TransformComponent>() : Hydra::World::World::getEntity(parent)->getComponent<TransformComponent>();
+	auto& pID = Hydra::World::World::getEntity(entityID)->parent;
+	auto p = Hydra::World::World::getEntity(pID);
+	if (ignoreParent || !p) {
+		pID = Hydra::World::World::invalidID;
+		return std::shared_ptr<TransformComponent>();
+	} else
+		return p->getComponent<TransformComponent>();
 }

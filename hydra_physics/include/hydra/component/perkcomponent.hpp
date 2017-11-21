@@ -12,23 +12,26 @@
 
 using namespace Hydra::World;
 
-enum Perk
-{
-	PERK_MAGNETICBULLETS,
-	PERK_HOMINGBULLETS,
-	PERK_GRENADE,
-	PERK_MINE,
-	PERK_FORCEPUSH,
-	PERK_BULLETSPRAY
-};
-
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API PerkComponent final : public IComponent<PerkComponent, ComponentBits::Perk>{
-		std::vector<Perk> newPerks;
-		std::vector<Perk> activePerks;
-		std::vector<BaseAbility*> activeAbilities;
+		enum Perk
+		{
+			//PERK_MAGNETICBULLETS,
+			//PERK_HOMINGBULLETS,
+			PERK_GRENADE,
+			PERK_MINE,
+			//PERK_FORCEPUSH,
+			PERK_BULLETSPRAY,
+			PERK_DMGUPSIZEUP,
+			PERK_SPEEDUP,
+			PERK_FASTSHOWLOWDMG,
+			AMOUNTOFPERKS
+		};
+		std::vector<Perk> newPerks = std::vector<Perk>();
+		std::vector<Perk> activePerks = std::vector<Perk>();
+		std::vector<BaseAbility*> activeAbilities = std::vector<BaseAbility*>();
 		size_t activeAbility = 0;
-		bool usedAbilityLastFrame = 0;
+		bool usedAbilityLastFrame = false;
 
 		~PerkComponent() final;
 		inline const std::string type() const final { return "PerkComponent"; }

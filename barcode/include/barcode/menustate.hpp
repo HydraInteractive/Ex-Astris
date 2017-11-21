@@ -7,17 +7,25 @@
  */
 #pragma once
 
+#include <barcode/renderingutils.hpp>
+
 #include <hydra/engine.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/renderer/renderer.hpp>
-#include <hydra/renderer/uirenderer.hpp>
 #include <hydra/io/meshloader.hpp>
 #include <hydra/io/textureloader.hpp>
+#include <hydra/io/gltextfactory.hpp>
 #include <hydra/system/bulletphysicssystem.hpp>
 
 namespace Barcode {
 	class MenuState final : public Hydra::IState {
 	public:
+		static bool glowEnabled;
+		static bool ssaoEnabled;
+		static bool shadowEnabled;
+		static int difficulty;
+		static float playerHPMultiplier;
+
 		MenuState();
 		~MenuState() final;
 
@@ -28,19 +36,10 @@ namespace Barcode {
 
 		inline Hydra::IO::ITextureLoader* getTextureLoader() final { return _textureLoader.get(); }
 		inline Hydra::IO::IMeshLoader* getMeshLoader() final { return _meshLoader.get(); }
+		inline Hydra::IO::ITextFactory* getTextFactory() final { return _textFactory.get(); }
 		inline Hydra::World::ISystem* getPhysicsSystem() final { return &_physicsSystem; }
 
 	private:
-		struct RenderBatch final {
-			std::unique_ptr<Hydra::Renderer::IShader> vertexShader;
-			std::unique_ptr<Hydra::Renderer::IShader> geometryShader;
-			std::unique_ptr<Hydra::Renderer::IShader> fragmentShader;
-			std::unique_ptr<Hydra::Renderer::IPipeline> pipeline;
-
-			std::shared_ptr<Hydra::Renderer::IFramebuffer> output;
-			Hydra::Renderer::Batch batch;
-		};
-
 		enum class Menu : uint8_t {
 			none = 0,
 			play,
@@ -76,9 +75,11 @@ namespace Barcode {
 		Hydra::IEngine* _engine;
 		std::unique_ptr<Hydra::IO::ITextureLoader> _textureLoader;
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
+		std::unique_ptr<Hydra::IO::ITextFactory> _textFactory;
 		Hydra::System::BulletPhysicsSystem _physicsSystem;
 
-		RenderBatch _viewBatch;
+		RenderBatch<Hydra::Renderer::Batch> _viewBatch;
+		bool _openDifficultyPopup = false;
 
 		Menu _menu = Menu::none;
 		SubMenu _submenu = SubMenu{0};

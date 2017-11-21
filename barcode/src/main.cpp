@@ -16,6 +16,8 @@
 #include <barcode/menustate.hpp>
 #include <barcode/gamestate.hpp>
 #include <barcode/editorstate.hpp>
+#include <barcode/losestate.hpp>
+#include <barcode/winstate.hpp>
 
 #include <cstdio>
 #include <chrono>
@@ -50,7 +52,7 @@ namespace Barcode {
 		}
 
 		~Engine() final {
-			setState_(nullptr);
+			_state.reset();
 
 			// Mirror Hydra::World::World::reset, but without create a new world root
 			Hydra::World::World::_isResetting = true;
@@ -84,9 +86,9 @@ namespace Barcode {
 				_view->finalize();
 
 				if (_newState) {
-					_state = std::move(_newState);
 					_uiRenderer->reset();
 					Hydra::World::World::reset();
+					_state = std::move(_newState);
 					_state->load();
 				}
 			}
@@ -104,6 +106,10 @@ namespace Barcode {
 					setState<GameState>();
 				if (ImGui::MenuItem("EditorState", NULL, typeid(*_state) == typeid(EditorState)))
 					setState<EditorState>();
+				if (ImGui::MenuItem("LoseState", NULL, typeid(*_state) == typeid(LoseState)))
+					setState<LoseState>();
+				if (ImGui::MenuItem("WinState", NULL, typeid(*_state) == typeid(WinState)))
+					setState<WinState>();
 				ImGui::EndMenu();
 			}
 			if (_state)

@@ -13,7 +13,6 @@
 PathFinding::PathFinding() {
 	_openList = std::vector<std::shared_ptr<Node>>();
 	_visitedList = std::vector<std::shared_ptr<Node>>();
-	intializedStartGoal = false;
 	foundGoal = true;
 }
 
@@ -21,30 +20,32 @@ PathFinding::~PathFinding() {
 
 }
 
-void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, int(&map)[MAP_SIZE][MAP_SIZE])
+bool PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetPos)
 {
-	if (!intializedStartGoal) 
-	{
-		_openList.clear();
-		_visitedList.clear();
-		_pathToEnd.clear();
+	if (map == nullptr)
+		return false;
 
-		MapVec mapCurrentPos = worldToMapCoords(currentPos);
-		MapVec mapTargetPos = worldToMapCoords(targetPos);
-		//If either position is out of bounds, abort
-		if (isOutOfBounds(mapCurrentPos.baseVec) || isOutOfBounds(mapTargetPos.baseVec))
-		{
-			return;
-		}
-		_startNode = std::make_shared<Node>(mapCurrentPos.x(), mapCurrentPos.z(), nullptr);
-		_endNode = std::make_shared<Node>(mapTargetPos.x(), mapTargetPos.z(), nullptr);
+	_openList.clear();
+	_visitedList.clear();
+	pathToEnd.clear();
 
-		_startNode->H = _startNode->hDistanceTo(_endNode);
-		_openList.push_back(_startNode);
+	MapVec mapCurrentPos = worldToMapCoords(currentPos);
+	MapVec mapTargetPos = worldToMapCoords(targetPos);
+	//If either position is out of bounds, abort
+	if (isOutOfBounds(mapCurrentPos.baseVec) || isOutOfBounds(mapTargetPos.baseVec))
+		return false;
+	//If the player is in line of sight don't path just go straight
+	//if (_inLineOfSight(mapCurrentPos,mapTargetPos))
+	//	pathToEnd.push_back(targetPos);
+	//	return false;
+	_startNode = std::make_shared<Node>(mapCurrentPos.x(), mapCurrentPos.z(), nullptr);
+	_endNode = std::make_shared<Node>(mapTargetPos.x(), mapTargetPos.z(), nullptr);
 
-		foundGoal = false;
-		intializedStartGoal = true;
-	}
+	_startNode->H = _startNode->hDistanceTo(_endNode);
+	_openList.push_back(_startNode);
+
+	foundGoal = false;
+
 	while (!_openList.empty() && !foundGoal)
 	{
 		std::shared_ptr<Node> currentNode = _openList.back();
@@ -60,79 +61,94 @@ void PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 
 			while (getPath != nullptr)
 			{
-				_pathToEnd.push_back(mapToWorldCoords(getPath->pos));
+				pathToEnd.push_back(mapToWorldCoords(getPath->pos));
 				getPath = getPath->lastNode;
 			}
 			foundGoal = true;
+			return true;
 		}
 		//Navigate map
 		else
 		{
 			//East
-			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z(), currentNode, map);
+			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z(), currentNode);
 			//West
-			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z(), currentNode, map);
+			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z(), currentNode);
 			//North
-			_discoverNode(currentNode->pos.x(), currentNode->pos.z() + 1, currentNode, map);
+			_discoverNode(currentNode->pos.x(), currentNode->pos.z() + 1, currentNode);
 			//South
-			_discoverNode(currentNode->pos.x(), currentNode->pos.z() - 1, currentNode, map);
+			_discoverNode(currentNode->pos.x(), currentNode->pos.z() - 1, currentNode);
 			//North West
-			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() + 1, currentNode, map);
+			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() + 1, currentNode);
 			//North East
-			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() + 1, currentNode, map);
+			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() + 1, currentNode);
 			//South West
-			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() - 1, currentNode, map);
+			_discoverNode(currentNode->pos.x() - 1, currentNode->pos.z() - 1, currentNode);
 			//South East
-			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() - 1, currentNode, map);
+			_discoverNode(currentNode->pos.x() + 1, currentNode->pos.z() - 1, currentNode);
 		}
 	}
+	return false;
 }
 PathFinding::MapVec PathFinding::worldToMapCoords(const glm::vec3& worldPos) const
 {
 	return MapVec((worldPos.x / MAP_SCALE) + (MAP_SIZE / 2), (worldPos.z / MAP_SCALE) + (MAP_SIZE / 2));
 }
 
+PathFinding::MapVec PathFinding::worldToMapCoords(const glm::vec3& worldPos) const
+{
+	return MapVec((worldPos.x / ROOM_SCALE) + (WORLD_MAP_SIZE / 2), (worldPos.z / ROOM_SCALE) + (WORLD_MAP_SIZE / 2));
+}
+
 glm::vec3 PathFinding::mapToWorldCoords(const MapVec& mapPos) const
 {
-	return glm::vec3((mapPos.baseVec.x - (MAP_SIZE / 2)) * MAP_SCALE, 0.0f, (mapPos.baseVec.y - (MAP_SIZE / 2)) * MAP_SCALE);
+	return glm::vec3((mapPos.baseVec.x - (WORLD_MAP_SIZE / 2)) * ROOM_SCALE, 0, (mapPos.baseVec.y - (WORLD_MAP_SIZE / 2)) * ROOM_SCALE);
 }
-glm::vec3 PathFinding::nextPathPos(const glm::vec3& pos, const float& radius)
+
+bool PathFinding::isOutOfBounds(const glm::ivec2& vec) const
 {
-	glm::vec3 nextPos = _pathToEnd.back();
-
-	//Centers the position in a node
-	nextPos.x += (MAP_SCALE / 2);
-	nextPos.z += (MAP_SCALE / 2);
-
-	float distance = glm::distance(pos, nextPos);
-	if (!_pathToEnd.empty())
+	if (vec.x > WORLD_MAP_SIZE || vec.y > WORLD_MAP_SIZE || vec.x < 0 || vec.y < 0)
 	{
-		if (distance < radius)
-		{
-			_pathToEnd.pop_back();
-		}
+		return true;
 	}
-	return nextPos;
-}
-
-bool PathFinding::isOutOfBounds(const glm::vec2& vec) const
-{
-	if (vec.x > MAP_SIZE || vec.y > MAP_SIZE || vec.x < 0 || vec.y < 0)
+	if (map == nullptr)
+	{
+		std::cout << "ERROR: NO PATHFINDING MAP\n";
+		return true;
+	}
+	if (map[vec.x][vec.y] == 0)
 	{
 		return true;
 	}
 	return false;
 }
+bool PathFinding::inLineOfSight(const glm::vec3 enemyPos, const glm::vec3 playerPos) const
+{
+	MapVec e = worldToMapCoords(enemyPos);
+	MapVec p = worldToMapCoords(playerPos);
+	return _inLineOfSight(e, p);
+}
+bool PathFinding::_inLineOfSight(const MapVec enemyPos, const MapVec playerPos) const
+{
+	glm::vec2 dir = playerPos.baseVec - enemyPos.baseVec;
+	float distance = dir.length();
+	dir = glm::normalize(dir);
+	glm::vec2 currentPos = enemyPos;
+	for (int i = 0; i < distance; i++)
+	{
+		if (isOutOfBounds(currentPos))
+		{
+			return false;
+		}
+		currentPos += dir;
+	}
+	return true;
+}
 
-void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode, int(&map)[MAP_SIZE][MAP_SIZE])
+void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode)
 {
 	MapVec currentPos = MapVec(x, z);
 	if (isOutOfBounds(currentPos.baseVec))
-	{
-		return;
-	}
-	//If this node is inaccessable, ignore it
-	if (map[x][z] == 1 || map[x][z] == 2)
 	{
 		return;
 	}
