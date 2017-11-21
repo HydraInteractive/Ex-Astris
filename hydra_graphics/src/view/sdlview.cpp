@@ -24,8 +24,8 @@ public:
 	SDLViewImpl(const std::string& title) {
 		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER);
 		Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
-		//_size = glm::ivec2{1920, 1080};
-		_size = glm::ivec2{1280, 720};
+		_size = glm::ivec2{1920, 1080};
+		//_size = glm::ivec2{1280, 720};
 		_wantToClose = false;
 		_fullScreen = false;
 

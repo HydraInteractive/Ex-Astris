@@ -19,17 +19,17 @@ Behaviour::Behaviour(std::shared_ptr<Hydra::World::Entity> enemy)
 
 	thisEnemy.entity = enemy.get();
 	refreshRequiredComponents();
-	pathFinding = std::make_shared<PathFinding>();
+	pathFinding = new PathFinding();
 
 }
 Behaviour::Behaviour()
 {
-
+	pathFinding = new PathFinding();
 }
 
 Behaviour::~Behaviour()
 {
-
+	delete pathFinding;
 }
 
 void Behaviour::setEnemyEntity(std::shared_ptr<Hydra::World::Entity> enemy)

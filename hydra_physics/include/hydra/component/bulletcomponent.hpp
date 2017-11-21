@@ -22,7 +22,6 @@ enum BulletType {
 	BULLETTYPE_HOMING
 };
 
-
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API BulletComponent final : public IComponent<BulletComponent, ComponentBits::Bullet> {
 		 BulletType bulletType = BULLETTYPE_HOMING;

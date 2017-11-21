@@ -13,7 +13,6 @@
 #include <SDL2/SDL.h>
 #include <hydra/world/world.hpp>
 
-
 using namespace Hydra::World;
 
 namespace Hydra::Component {
