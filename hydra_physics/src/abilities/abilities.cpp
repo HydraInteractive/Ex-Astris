@@ -2,6 +2,15 @@
 
 #include <btBulletDynamicsCommon.h>
 
+#include <hydra/component/transformcomponent.hpp>
+#include <hydra/component/meshcomponent.hpp>
+#include <hydra/component/movementcomponent.hpp>
+#include <hydra/component/soundfxcomponent.hpp>
+#include <hydra/component/rigidbodycomponent.hpp>
+#include <hydra/component/bulletcomponent.hpp>
+#include <hydra/abilities/grenadecomponent.hpp>
+#include <hydra/abilities/minecomponent.hpp>
+
 void GrenadeAbility::useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity) {
 	auto playerMovement = playerEntity->getComponent<Hydra::Component::MovementComponent>();
 	auto playerTransform = playerEntity->getComponent<Hydra::Component::TransformComponent>();

@@ -6,7 +6,7 @@
 
 #include <hydra/component/componentmanager.hpp>
 #include <hydra/component/componentmanager_network.hpp>
-#include <hydra/component/componentmanager_graphics.hpp>
+//#include <hydra/component/componentmanager_graphics.hpp>
 #include <hydra/component/componentmanager_physics.hpp>
 #include <server/gameserver.hpp>
 
@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
 	SDLNet_Init();
 	using namespace Hydra::Component::ComponentManager;
 	auto& map = createOrGetComponentMap();
-	registerComponents_graphics(map);
+	//registerComponents_graphics(map);
 	registerComponents_network(map);
 	registerComponents_physics(map);
 	//registerComponents_sound(map);

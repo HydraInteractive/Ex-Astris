@@ -10,6 +10,7 @@
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
+#include <hydra/component/meshcomponent.hpp>
 #include <btBulletDynamicsCommon.h>
 #include <hydra/engine.hpp>
 

@@ -1,5 +1,7 @@
 #include <server/packets.hpp>
 #include <hydra/component/transformcomponent.hpp>
+#include <hydra/component/bulletcomponent.hpp>
+#include <hydra/component/rigidbodycomponent.hpp>
 #include <server/server.hpp>
 #include <server/gameserver.hpp>
 
@@ -132,7 +134,7 @@ Entity* resolveClientSpawnEntityPacket(ClientSpawnEntityPacket* csep, EntityID i
 	ent->deserialize(json);
 	//ent->setID(world->getFreeID());
 
-	printf("Client Created Entity: \"%s\" with id: %d\n", ent->name.c_str(), ent->id);
+	printf("Client Created Entity: \"%s\" with id: %zu\n", ent->name.c_str(), ent->id);
 	
 	ServerSpawnEntityPacket* ssep = new ServerSpawnEntityPacket();
 	ssep->h.type = PacketType::ServerSpawnEntity;
