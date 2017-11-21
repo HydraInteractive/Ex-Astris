@@ -481,8 +481,8 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 	//Rotate the room 90 degrees
 	if (randomRotateChance < 25) {
 
-		std::shared_ptr<Hydra::Component::RoomComponent> tempRoom = Hydra::Component::RoomComponent;
-
+		std::shared_ptr<Hydra::Component::RoomComponent> tempRoom = std::make_shared<Hydra::Component::RoomComponent>();
+		
 		//rotate doors
 		if (room->door[NORTH] == true)
 			tempRoom->door[EAST] = true;
@@ -503,14 +503,17 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 		if (room->openWalls[3] == true)
 			tempRoom->openWalls[0] = true;
 
-		room = tempRoom;
-		rotation = glm::angleAxis(90, glm::vec3(0, 1, 0));
+		for (int i = 0; i < 4; i++) {
+			room->door[i] = tempRoom->door[i];
+			room->openWalls[i] = tempRoom->openWalls[i];
+		}
+		rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0, 1, 0));
 
 	}
 	//Rotate the room 180 degrees
 	else if (randomRotateChance >= 25 && randomRotateChance < 50) {
 
-		std::shared_ptr<Hydra::Component::RoomComponent> tempRoom = Hydra::Component::RoomComponent;
+		std::shared_ptr<Hydra::Component::RoomComponent> tempRoom = std::make_shared<Hydra::Component::RoomComponent>();
 
 		//rotate doors
 		if (room->door[NORTH] == true)
@@ -532,13 +535,16 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 		if (room->openWalls[3] == true)
 			tempRoom->openWalls[1] = true;
 
-		room = tempRoom;
-		rotation = glm::angleAxis(180, glm::vec3(0, 1, 0));
+		for (int i = 0; i < 4; i++) {
+			room->door[i] = tempRoom->door[i];
+			room->openWalls[i] = tempRoom->openWalls[i];
+		}
+		rotation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0, 1, 0));
 
 	}
 	else if (randomRotateChance >= 50 && randomRotateChance < 75) {
 
-		std::shared_ptr<Hydra::Component::RoomComponent> tempRoom = Hydra::Component::RoomComponent;
+		std::shared_ptr<Hydra::Component::RoomComponent> tempRoom = std::make_shared<Hydra::Component::RoomComponent>();
 
 		//rotate doors
 		if (room->door[NORTH] == true)
@@ -560,12 +566,15 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 		if (room->openWalls[3] == true)
 			tempRoom->openWalls[2] = true;
 
-		room = tempRoom;
-		rotation = glm::angleAxis(270, glm::vec3(0, 1, 0));
+		for (int i = 0; i < 4; i++) {
+			room->door[i] = tempRoom->door[i];
+			room->openWalls[i] = tempRoom->openWalls[i];
+		}
+		rotation = glm::angleAxis(glm::radians(270.0f), glm::vec3(0, 1, 0));
 
 	}
 	else
-		rotation = glm::angleAxis(0, glm::vec3(0, 1, 0));
+		rotation = glm::angleAxis(0.0f, glm::vec3(0, 1, 0));
 
 	return rotation;
 }

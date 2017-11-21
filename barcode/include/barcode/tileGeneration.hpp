@@ -12,6 +12,7 @@
 #include <hydra/io/gltextureloader.hpp>
 #include <hydra/io/glmeshloader.hpp>
 
+
 #include <memory>
 #include <imgui/imgui.h>
 #ifdef _WIN32
@@ -32,7 +33,8 @@
 #include <hydra/component/ghostobjectcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
 #include <hydra/component/textcomponent.hpp>
-
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/transform.hpp>
 #include <hydra/world/blueprintloader.hpp>
 
 #include <fstream>
