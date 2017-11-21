@@ -1,7 +1,7 @@
 #pragma once
-#include <SDL2\SDL_net.h>
+#include <SDL2/SDL_net.h>
 #include <vector>
-#include "ClientHandler.h"
+#include <server/clienthandler.hpp>
 
 //This class should (only) set up TCP connections with clients aswell as send and receive data from clients.
 

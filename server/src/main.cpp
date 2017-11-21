@@ -8,7 +8,7 @@
 #include <hydra/component/componentmanager_network.hpp>
 #include <hydra/component/componentmanager_graphics.hpp>
 #include <hydra/component/componentmanager_physics.hpp>
-#include <GameServer.h>
+#include <server/gameserver.hpp>
 
 #include <cstdio>
 #include <chrono>

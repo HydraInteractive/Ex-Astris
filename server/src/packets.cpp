@@ -1,7 +1,7 @@
-#include "Packets.h"
+#include <server/packets.hpp>
 #include <hydra/component/transformcomponent.hpp>
-#include <Server.h>
-#include <GameServer.h>
+#include <server/server.hpp>
+#include <server/gameserver.hpp>
 
 ServerDeletePacket * createServerDeletePacket(EntityID entID) {
 	ServerDeletePacket* sdp = new ServerDeletePacket();

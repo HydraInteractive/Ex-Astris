@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
-#include <SDL2\SDL_net.h>
-#include <Packets.h>
+#include <SDL2/SDL_net.h>
+#include <server/packets.hpp>
 
 #define MAX_NETWORK_LENGTH 100000
 

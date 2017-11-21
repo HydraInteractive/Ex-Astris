@@ -8,9 +8,6 @@
 #include <hydra/renderer/glshader.hpp>
 #include <hydra/io/gltextureloader.hpp>
 #include <hydra/io/glmeshloader.hpp>
-#include <barcode/tileGeneration.hpp>
-
-#include <glm/gtx/matrix_decompose.hpp>
 
 #include <glm/gtx/matrix_decompose.hpp>
 
@@ -433,7 +430,7 @@ namespace Barcode {
 			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 			a->behaviour->setPathMap(pathfindingMap);
 			a->damage = 4;
-			a->behaviour->originalRange = 1;
+			a->behaviour->originalRange = 5;
 			a->radius = 1;
 
 			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();

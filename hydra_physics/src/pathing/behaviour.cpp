@@ -82,7 +82,6 @@ unsigned int Behaviour::idleState(float dt)
 	{
 		return SEARCHING;
 	}
-	//}
 	return state;
 }
 

@@ -18,7 +18,6 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-
 MeshComponent::~MeshComponent() {}
 
 void MeshComponent::loadMesh(const std::string meshFile) {
@@ -39,7 +38,6 @@ void MeshComponent::serialize(nlohmann::json& json) const {
 }
 
 void MeshComponent::deserialize(nlohmann::json& json) {
-
 	loadMesh(json["meshFile"].get<std::string>());
 	currentFrame = json.value<int>("currentFrame", 1);
 	animationIndex = json.value<int>("animationIndex", 0);

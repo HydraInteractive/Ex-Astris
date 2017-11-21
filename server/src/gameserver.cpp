@@ -1,11 +1,9 @@
-#include "GameServer.h"
-#include "Packets.h"
+#include <server/gameserver.hpp>
+#include <server/packets.hpp>
 #include <hydra/component/transformcomponent.hpp>
 #include <iostream>
 #include <chrono>
 #include <thread>
-#define size_bajs size_t
-
 
 int64_t GameServer::_getEntityID(int serverid) {
 	for (size_t i = 0; i < this->_players.size(); i++) {

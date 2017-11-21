@@ -37,8 +37,6 @@
 
 #include <fstream>
 #include <json.hpp>
-#define GRID_SIZE 7
-#define ROOM_SIZE 34
 
 #define MAX_ENEMIES 4
 #define PICKUP_CHANCE 40

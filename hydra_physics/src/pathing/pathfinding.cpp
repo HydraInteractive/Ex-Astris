@@ -90,10 +90,6 @@ bool PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 	}
 	return false;
 }
-PathFinding::MapVec PathFinding::worldToMapCoords(const glm::vec3& worldPos) const
-{
-	return MapVec((worldPos.x / MAP_SCALE) + (MAP_SIZE / 2), (worldPos.z / MAP_SCALE) + (MAP_SIZE / 2));
-}
 
 PathFinding::MapVec PathFinding::worldToMapCoords(const glm::vec3& worldPos) const
 {

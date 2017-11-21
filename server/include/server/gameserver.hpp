@@ -1,9 +1,9 @@
 #pragma once
-#include <Server.h>
+#include <server/server.hpp>
 #include <hydra/world/world.hpp>
 #include <chrono>
 #include <hydra/system/bulletphysicssystem.hpp>
-#include <hydra/system/AISystem.hpp>
+#include <hydra/system/aisystem.hpp>
 #include <hydra/system/bulletsystem.hpp>
 #include <hydra/system/spawnersystem.hpp>
 #include <hydra/system/perksystem.hpp>
