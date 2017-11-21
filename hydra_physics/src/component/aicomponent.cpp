@@ -35,6 +35,7 @@ void AIComponent::serialize(nlohmann::json& json) const {
 		json["range"] = 0;
 		json["originalRange"] = 0;
 	}
+
 }
 
 void AIComponent::deserialize(nlohmann::json& json) {
