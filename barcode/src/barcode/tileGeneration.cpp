@@ -298,7 +298,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 		a->behaviour->setPathMap(pathfindingMap);
 		a->damage = 4;
-		a->behaviour->originalRange = 4;
+		a->behaviour->originalRange = 3.5f;
 		a->radius = 1;
 
 		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
@@ -329,7 +329,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 		a->behaviour->setPathMap(pathfindingMap);
 		a->damage = 4;
-		a->behaviour->originalRange = 4;
+		a->behaviour->originalRange = 3.5f;
 		a->radius = 1;
 
 		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();

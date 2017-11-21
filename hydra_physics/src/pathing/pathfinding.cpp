@@ -20,7 +20,7 @@ PathFinding::~PathFinding() {
 
 }
 
-bool PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetPos)
+bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 {
 	if (map == nullptr)
 		return false;
@@ -29,11 +29,22 @@ bool PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 	_visitedList.clear();
 	pathToEnd.clear();
 
+	if (inWall(targetPos))
+	{
+		targetPos = findViableTile(targetPos);
+	}
+
+	if (inWall(currentPos))
+	{
+		currentPos = findViableTile(currentPos);
+	}
+
 	MapVec mapCurrentPos = worldToMapCoords(currentPos);
 	MapVec mapTargetPos = worldToMapCoords(targetPos);
 	//If either position is out of bounds, abort
 	if (isOutOfBounds(mapCurrentPos.baseVec) || isOutOfBounds(mapTargetPos.baseVec))
 		return false;
+
 	//If the player is in line of sight don't path just go straight
 	//if (_inLineOfSight(mapCurrentPos,mapTargetPos))
 	//	pathToEnd.push_back(targetPos);
@@ -123,6 +134,59 @@ bool PathFinding::inLineOfSight(const glm::vec3 enemyPos, const glm::vec3 player
 	MapVec e = worldToMapCoords(enemyPos);
 	MapVec p = worldToMapCoords(playerPos);
 	return _inLineOfSight(e, p);
+}
+bool PathFinding::inWall(const glm::vec3 mapPos) const
+{
+	MapVec p = worldToMapCoords(mapPos);
+	glm::ivec2& vec = p.baseVec;
+	if (map[vec.x][vec.y] == 0)
+	{
+		return true;
+	}
+	return false;
+}
+glm::vec3 PathFinding::findViableTile(glm::vec3 mapPos) const
+{
+	MapVec p = worldToMapCoords(mapPos);
+	glm::ivec2& vec = p.baseVec;
+
+	for (int i = 0; i < 2; i++)
+	{
+		if (map[vec.x + i][vec.y] == 1)
+		{
+			return glm::vec3(mapPos.x + i, mapPos.y, mapPos.z);
+		}
+		else if (map[vec.x][vec.y + i] == 1)
+		{
+			return glm::vec3(mapPos.x, mapPos.y, mapPos.z + i);
+		}
+		else if (map[vec.x - i][vec.y] == 1)
+		{
+			return glm::vec3(mapPos.x - i, mapPos.y, mapPos.z);
+		}
+		else if (map[vec.x][vec.y - i] == 1)
+		{
+			return glm::vec3(mapPos.x + 1, mapPos.y, mapPos.z - i);
+		}
+		else if (map[vec.x + i][vec.y + i] == 1)
+		{
+			return glm::vec3(mapPos.x + i, mapPos.y, mapPos.z + i);
+		}
+		else if (map[vec.x - i][vec.y + i] == 1)
+		{
+			return glm::vec3(mapPos.x - i, mapPos.y, mapPos.z + i);
+		}
+		else if (map[vec.x - i][vec.y - i] == 1)
+		{
+			return glm::vec3(mapPos.x - i, mapPos.y, mapPos.z - i);
+		}
+		else if (map[vec.x + i][vec.y - i] == 1)
+		{
+			return glm::vec3(mapPos.x + i, mapPos.y, mapPos.z - i);
+		}
+	}
+
+	return mapPos;
 }
 bool PathFinding::_inLineOfSight(const MapVec enemyPos, const MapVec playerPos) const
 {

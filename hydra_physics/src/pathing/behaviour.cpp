@@ -78,10 +78,13 @@ unsigned int Behaviour::idleState(float dt)
 {
 	resetAnimationOnStart(0);
 	//If the player is close enough, activate
-	if (glm::distance(flatVector(thisEnemy.transform->position), flatVector(targetPlayer.transform->position)) < 50.0f)
+
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 50.0f)
 	{
 		return SEARCHING;
 	}
+
+
 	return state;
 }
 
