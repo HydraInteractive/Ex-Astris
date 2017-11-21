@@ -25,8 +25,8 @@
 #include <hydra/engine.hpp>
 #include <hydra/ext/stacktrace.hpp>
 #include <imgui/imgui.h>
-#include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
+#include <hydra/component/cameracomponent.hpp>
 
 using namespace Hydra::Renderer;
 
@@ -61,7 +61,7 @@ public:
 
 		_fullscreenQuad = Hydra::Renderer::GLMesh::createFullscreenQuad();
 		// TODO: Does it need sizeof(float)?
-		_animationTransTexture = Hydra::Renderer::GLTexture::createDataTexture(100 * 16 * sizeof(float), _maxInstancedAnimatedModels, Hydra::Renderer::TextureType::f16RGBA);
+		_animationTransTexture = Hydra::Renderer::GLTexture::createDataTexture(100 * 4, _maxInstancedAnimatedModels, Hydra::Renderer::TextureType::f16RGBA);
 
 		glGenBuffers(1, &_modelMatrixBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
@@ -70,11 +70,16 @@ public:
 		glGenBuffers(1, &_particleBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, _particleBuffer);
 		glBufferData(GL_ARRAY_BUFFER, _particleBufferSize, NULL, GL_STREAM_DRAW);
+
+		glGenBuffers(1, &_textBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, _textBuffer);
+		glBufferData(GL_ARRAY_BUFFER, _textBufferSize, NULL, GL_STREAM_DRAW);
 	}
 
 	~GLRendererImpl() final {
-		glDeleteBuffers(1, &_modelMatrixBuffer);
+		glDeleteBuffers(1, &_textBuffer);
 		glDeleteBuffers(1, &_particleBuffer);
+		glDeleteBuffers(1, &_modelMatrixBuffer);
 		SDL_GL_DeleteContext(_glContext);
 	}
 
@@ -104,30 +109,30 @@ public:
 			mesh->getMaterial().normal->bind(1);
 			mesh->getMaterial().specular->bind(2);
 			mesh->getMaterial().glow->bind(3);
-
 			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
 			glBindVertexArray(mesh->getID());
 
-			constexpr unsigned int h = 1; // Width is always going to be 1
 			auto& currentFrames = batch.currentFrames[mesh];
 			auto& currAnimIndices = batch.currAnimIndices[mesh];
 			const size_t maxPerLoop = _maxInstancedAnimatedModels;
 			size_t size = batch.currentFrames[mesh].size();
+			static glm::mat4 jointTransformMX[2000];
+			unsigned int nrOfJoints = 0;
 			for (size_t i = 0; i < size; i += maxPerLoop) {
 				for (size_t instanceIdx = i; instanceIdx < i + maxPerLoop && instanceIdx < size; instanceIdx++) {
-					unsigned int w = mesh->getNrOfJoints(currAnimIndices[instanceIdx]) * 16 * 4;
-					std::vector<glm::mat4> jointTransformMX;
 					int frame = currentFrames[instanceIdx];
 					int animIdx = currAnimIndices[instanceIdx];
-					for (int currJoint = 0; currJoint < mesh->getNrOfJoints(currAnimIndices[instanceIdx]); currJoint++) {
-						jointTransformMX.push_back(mesh->getTransformationMatrices(animIdx, currJoint, frame));
+					nrOfJoints = mesh->getNrOfJoints(currAnimIndices[instanceIdx]);
+					for (size_t currJoint = 0; currJoint < nrOfJoints; currJoint++) {
+						jointTransformMX[instanceIdx * 100 + currJoint] = mesh->getTransformationMatrices(animIdx, currJoint, frame);
 					}
-					_animationTransTexture->setData(glm::ivec2(0, instanceIdx), glm::ivec2(w, h), jointTransformMX.data());
 				}
 
+				size_t amount = std::min(size - i, maxPerLoop);
+
+				_animationTransTexture->setData(glm::ivec2(0, 0), glm::ivec2(100 * 4, amount), jointTransformMX);
 				_animationTransTexture->bind(4);
 
-				size_t amount = std::min(size - i, maxPerLoop);
 				glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
 				glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &kv.second[i]);
 				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
@@ -148,34 +153,35 @@ public:
 
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
 
+		batch.pipeline->setValue(20, 0);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
 
 			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
 			glBindVertexArray(mesh->getID());
 
-			batch.pipeline->setValue(20, 0);
-
-			constexpr unsigned int h = 1; // Width is always going to be 1
 			auto& currentFrames = batch.currentFrames[mesh];
 			auto& currAnimIndices = batch.currAnimIndices[mesh];
 			const size_t maxPerLoop = _maxInstancedAnimatedModels;
 			size_t size = batch.currentFrames[mesh].size();
-
+			static glm::mat4 jointTransformMX[2000];
+			unsigned int nrOfJoints = 0;
 			for (size_t i = 0; i < size; i += maxPerLoop) {
 				for (size_t instanceIdx = i; instanceIdx < i + maxPerLoop && instanceIdx < size; instanceIdx++) {
-					unsigned int w = mesh->getNrOfJoints(currAnimIndices[instanceIdx]) * 16 * 4;
-					std::vector<glm::mat4> jointTransformMX;
+					size_t instanceOffset = instanceIdx % maxPerLoop;
 					int frame = currentFrames[instanceIdx];
 					int animIdx = currAnimIndices[instanceIdx];
-					for (int currJoint = 0; currJoint < mesh->getNrOfJoints(currAnimIndices[instanceIdx]); currJoint++) {
-						jointTransformMX.push_back(mesh->getTransformationMatrices(animIdx, currJoint, frame));
-					}
-					_animationTransTexture->setData(glm::ivec2(0, instanceIdx), glm::ivec2(w, h), jointTransformMX.data());
+					nrOfJoints = mesh->getNrOfJoints(currAnimIndices[instanceIdx]);
+					for (size_t currJoint = 0; currJoint < nrOfJoints; currJoint++) {
+						jointTransformMX[instanceOffset * 100 + currJoint] = mesh->getTransformationMatrices(animIdx, currJoint, frame);
+					}	
 				}
-				_animationTransTexture->bind(0);
 
 				size_t amount = std::min(size - i, maxPerLoop);
+
+				_animationTransTexture->setData(glm::ivec2(0, 0), glm::ivec2(100 * 4, amount), jointTransformMX);
+				_animationTransTexture->bind(0);
+
 				glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
 				glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &kv.second[i]);
 				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
@@ -212,7 +218,6 @@ public:
 		}
 	}
 
-
 	void render(ParticleBatch& batch) final { // For particles only.
 		SDL_GL_MakeCurrent(_window, _glContext);
 		glBindFramebuffer(GL_FRAMEBUFFER, batch.renderTarget->getID());
@@ -229,7 +234,7 @@ public:
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glDepthMask(GL_FALSE);
+		//glDepthMask(GL_FALSE);
 		auto& particles = batch.textureInfo;
 		size_t sizeParticles = particles.size() / 3;
 		for (auto& kv : batch.objects) {
@@ -249,7 +254,7 @@ public:
 			}
 		}
 		glDisable(GL_BLEND);
-		glDepthMask(GL_TRUE);
+		//glDepthMask(GL_TRUE);
 	}
 
 	void render(Batch& batch) final {
@@ -307,6 +312,77 @@ public:
 		glBindVertexArray(_fullscreenQuad->getID());
 		glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(_fullscreenQuad->getIndicesCount()), GL_UNSIGNED_INT, nullptr, 1);
 		glEnable(GL_CULL_FACE);
+	}
+
+	void renderHitboxes(Batch& batch) {
+		SDL_GL_MakeCurrent(_window, _glContext);
+		glBindFramebuffer(GL_FRAMEBUFFER, batch.renderTarget->getID());
+		const auto& size = batch.renderTarget->getSize();
+		glViewport(0, 0, size.x, size.y);
+
+		glClearColor(batch.clearColor.r, batch.clearColor.g, batch.clearColor.b, batch.clearColor.a);
+		GLenum clearFlags = 0;
+		clearFlags |= (batch.clearFlags & ClearFlags::color) == ClearFlags::color ? GL_COLOR_BUFFER_BIT : 0;
+		clearFlags |= (batch.clearFlags & ClearFlags::depth) == ClearFlags::depth ? GL_DEPTH_BUFFER_BIT : 0;
+		glClear(clearFlags);
+
+		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		for (auto& kv : batch.objects) {
+			auto& mesh = kv.first;
+			size_t size = kv.second.size();
+			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
+			for (size_t i = 0; i < size; i += maxPerLoop) {
+				size_t amount = std::min(size - i, maxPerLoop);
+				glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
+				glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
+				glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &kv.second[i]);
+				glBindVertexArray(mesh->getID());
+				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
+			}
+		}
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+
+	void renderText(TextBatch& batch) {
+		SDL_GL_MakeCurrent(_window, _glContext);
+		glBindFramebuffer(GL_FRAMEBUFFER, batch.renderTarget->getID());
+		const auto& size = batch.renderTarget->getSize();
+		glViewport(0, 0, size.x, size.y);
+
+		glClearColor(batch.clearColor.r, batch.clearColor.g, batch.clearColor.b, batch.clearColor.a);
+		GLenum clearFlags = 0;
+		clearFlags |= (batch.clearFlags & ClearFlags::color) == ClearFlags::color ? GL_COLOR_BUFFER_BIT : 0;
+		clearFlags |= (batch.clearFlags & ClearFlags::depth) == ClearFlags::depth ? GL_DEPTH_BUFFER_BIT : 0;
+		glClear(clearFlags);
+		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		for (auto& kv : batch.objects) {
+			auto& mesh = kv.first;
+			size_t nrOfChars = batch.textInfo.size();
+
+			int currModelMX = 0;
+			size_t charDataOffset = 0;
+			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
+			for (size_t textSize : batch.textSizes) {
+				batch.pipeline->setValue(2, kv.second[currModelMX]);
+				batch.pipeline->setValue(5, batch.lifeFade[currModelMX]);
+				for (size_t i = 0; i < textSize; i += maxPerLoop) {
+					size_t amount = std::min(textSize - i, maxPerLoop);
+
+					glBindBuffer(GL_ARRAY_BUFFER, _textBuffer);
+					glBufferData(GL_ARRAY_BUFFER, _textBufferSize, nullptr, GL_STREAM_DRAW);
+					glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(Hydra::Renderer::CharRenderInfo), &batch.textInfo[charDataOffset]);
+
+					glBindVertexArray(mesh->getID());
+					glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
+				}
+				charDataOffset += textSize;
+				currModelMX++;
+			}
+		}
+		glDisable(GL_BLEND);
 	}
 
 	DrawObject* aquireDrawObject() final {
@@ -460,6 +536,7 @@ public:
 
 	void* getModelMatrixBuffer() final { return static_cast<void*>(&_modelMatrixBuffer); }
 	void* getParticleExtraBuffer() final { return static_cast<void*>(&_particleBuffer); }
+	void* getTextExtraBuffer() final { return static_cast<void*>(&_textBuffer); }
 
 private:
 	SDL_Window* _window;
@@ -471,8 +548,13 @@ private:
 
 	const size_t _modelMatrixSize = sizeof(glm::mat4) * 128; // max 128 mesh instances per draw call
 	GLuint _modelMatrixBuffer;
-	GLuint _particleBuffer;
+
 	const size_t _particleBufferSize = sizeof(glm::vec2) * 3 * 128; // Particle buffer holds three vec2, and max 128 particle instances per draw call.
+	GLuint _particleBuffer;
+
+	const size_t _textBufferSize = sizeof(Hydra::Renderer::CharRenderInfo) * 128; // 1 vec4 and 1 vec3
+	GLuint _textBuffer;
+
 	const int _maxInstancedAnimatedModels = 20;
 
 	static void _loadGLAD() {

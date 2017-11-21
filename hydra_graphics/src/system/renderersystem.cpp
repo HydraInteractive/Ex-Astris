@@ -15,12 +15,15 @@ void RendererSystem::tick(float delta) {
 
 	//Process ParticleComponent
 	world::getEntitiesWithComponents<Hydra::Component::DrawObjectComponent, Hydra::Component::TransformComponent>(entities);
+	//TODO: Safe?
 #pragma omp parallel for
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto d = entities[i]->getComponent<Hydra::Component::DrawObjectComponent>();
 		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 		d->drawObject->modelMatrix = t->getMatrix();
 	}
+
+	entities.clear();
 }
 
 void RendererSystem::registerUI() {}

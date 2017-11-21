@@ -100,7 +100,6 @@
     <ClCompile Include="src\lib\imgui\imguizmo.cpp" />
     <ClCompile Include="src\lib\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\lib\imgui\imgui_draw.cpp" />
-    <ClCompile Include="src\lib\imgui\imgui_tabs.cpp" />
     <ClCompile Include="src\lib\imgui\imgui_user.cpp" />
     <ClCompile Include="src\system\deadsystem.cpp" />
     <ClCompile Include="src\world\blueprintloader.cpp" />
@@ -117,6 +116,7 @@
     <ClInclude Include="include\hydra\ext\ram.hpp" />
     <ClInclude Include="include\hydra\ext\stacktrace.hpp" />
     <ClInclude Include="include\hydra\io\meshloader.hpp" />
+    <ClInclude Include="include\hydra\io\textfactory.hpp" />
     <ClInclude Include="include\hydra\io\textureloader.hpp" />
     <ClInclude Include="include\hydra\renderer\renderer.hpp" />
     <ClInclude Include="include\hydra\renderer\shader.hpp" />
@@ -130,7 +130,6 @@
     <ClInclude Include="lib-include\imgui\imgui.h" />
     <ClInclude Include="lib-include\imgui\imguizmo.h" />
     <ClInclude Include="lib-include\imgui\imgui_internal.h" />
-    <ClInclude Include="lib-include\imgui\imgui_tabs.h" />
     <ClInclude Include="lib-include\imgui\imgui_user.h" />
     <ClInclude Include="lib-include\imgui\stb_rect_pack.h" />
     <ClInclude Include="lib-include\imgui\stb_textedit.h" />

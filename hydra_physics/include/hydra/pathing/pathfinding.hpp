@@ -12,10 +12,9 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <memory>
-#define MAP_SIZE 64 //The size in both X and Z of the map(/room?)
-#define NODE_SCALE 1.0f //The size in both X and Z of a Node
 #include <math.h>
 #include <algorithm>
+#include <hydra/component/roomcomponent.hpp>
 
 class HYDRA_PHYSICS_API PathFinding
 {
@@ -23,64 +22,59 @@ public:
 	//A 2D vector with x and z axies instead of x and y
 	struct MapVec
 	{
-		glm::vec2 baseVec;
+		glm::ivec2 baseVec;
 
-		MapVec(float x, float z) { baseVec = glm::vec2(x, z); }
+		MapVec(int x, int z) { baseVec = glm::vec2(x, z); }
 		MapVec() { baseVec = glm::vec2(0.0f, 0.0f); }
 
-		float& x() { return baseVec.x; }
-		float& z() { return baseVec.y; }
+		int& x() { return baseVec.x; }
+		int& z() { return baseVec.y; }
 		void set(const glm::vec2 &vec) { baseVec = vec; }
-		void set(const glm::vec3 &vec) { baseVec = glm::vec2(vec.x,vec.z); }
+		void set(const glm::vec3 &vec) { baseVec = glm::vec2(vec.x, vec.z); }
 
-		bool operator==(MapVec& other) { return this->baseVec == other.baseVec; }
 
-		operator glm::vec3() { return glm::vec3(baseVec.x, 0, baseVec.y); }
-		operator glm::vec2() { return baseVec; }
+		bool operator==(const MapVec& other) { return this->baseVec == other.baseVec; }
+		//operator glm::vec3() { return glm::ivec3(baseVec.x, 0, baseVec.y); }
+		operator glm::vec2() const { return baseVec; }
 	};
 	struct Node
 	{
-		MapVec pos;
-		std::shared_ptr<Node> lastNode;
+		MapVec pos = MapVec();
+		Node* lastNode = nullptr;
 		float G = 0.0f;
 		float H = 0.0f;
-		float F = 0.0f;
 		Node() {}
-		Node(int x, int z, std::shared_ptr<Node> lastNode = nullptr)
+		Node(int x, int z, Node* lastNode = nullptr)
 		{
 			this->pos.x() = x;
 			this->pos.z() = z;
 			this->lastNode = lastNode;
 		}
 
-		float getF() { F = G + H; return F; }
+		float getF() const { return G + H; }
 
 		//Manhattan Distance - do not use, gives invalid values
-		//Distance to adjacent nodes is 1, diagonal is 2
-		float hDistanceTo(std::shared_ptr<Node> nodeEnd)
-		{
-			float x = fabs((float)(this->pos.x() - nodeEnd->pos.x()));
-			float z = fabs((float)(this->pos.z() - nodeEnd->pos.z()));
-			return x + z;
-		}
-
-		//Chebychev Distance - inaccurate but pretty safe
-		//Distance to adjacent nodes is 1
-		//float hDistanceTo(std::shared_ptr<Node> nodeEnd)
+		//Distance to side nodes is 1, diagonal is 2
+		//int hDistanceTo(Node* nodeEnd)
 		//{
-		//	float x = fabs((float)(this->pos.x() - nodeEnd->pos.x()));
-		//	float z = fabs((float)(this->pos.z() - nodeEnd->pos.z()));
-		//	return std::fmax(x, z);
+		//	return abs(this->pos.x() - nodeEnd->pos.x() + abs(this->pos.z() - nodeEnd->pos.z();
+		//}
+
+		//Chebychev Distance - inaccurate but safe
+		//Distance to all adjacent nodes is 1
+		//int hDistanceTo(Node* nodeEnd)
+		//{
+		//	return std::max(abs(this->pos.x() - nodeEnd->pos.x(), abs(this->pos.z() - nodeEnd->pos.z());
 		//}
 
 		//Actual Distance - probably the best maybe, float inaccuracies may break it
-		//float hDistanceTo(std::shared_ptr<Node> nodeEnd)
-		//{
-		//	return std::sqrtf(std::powf(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::powf(this->pos.z() - nodeEnd->pos.z(), 2.0f) * 0.99);
-		//}
+		float hDistanceTo(Node* nodeEnd)
+		{
+			return std::sqrt(std::pow(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::pow(this->pos.z() - nodeEnd->pos.z(), 2.0f));
+		}
 
 		//Must always be used to calculate G distance
-		float gDistanceTo(std::shared_ptr<Node> nodeEnd)
+		float gDistanceTo(Node* nodeEnd)
 		{
 			return std::sqrt(std::pow(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::pow(this->pos.z() - nodeEnd->pos.z(), 2.0f));
 		}
@@ -89,35 +83,40 @@ public:
 		bool operator>(Node& other) { return this->getF() > other.getF(); }
 	};
 
+	bool foundGoal = false;
+	std::vector<glm::vec3> pathToEnd = std::vector<glm::vec3>();
+	bool** map = nullptr;
+
 	PathFinding();
 	virtual ~PathFinding();
 
-	void findPath(const glm::vec3& currentPos, const glm::vec3& targetPos, int(&map)[MAP_SIZE][MAP_SIZE]);
-	glm::vec3 nextPathPos(const glm::vec3& pos, const float& radius);
-
-	bool intializedStartGoal;
-	bool foundGoal;
+	bool findPath(const glm::vec3& currentPos, const glm::vec3& targetPos);
+	MapVec worldToMapCoords(const glm::vec3& worldPos) const;
+	glm::vec3 mapToWorldCoords(const MapVec& mapPos) const;
+	bool inLineOfSight(const glm::vec3& enemyPos, const glm::vec3& playerPos) const;
 
 	struct {
-		bool operator()(const std::shared_ptr<Node>& _Left, const std::shared_ptr<Node>& _Right) const
+		bool operator()(const Node* _Left, const Node* _Right) const
 		{
 			if (_Left == nullptr)
 			{
-				return 0;
+				return false;
 			}
 			else if (_Right == nullptr)
 			{
-				return 1;
+				return true;
 			}
 			return (_Left->getF() > _Right->getF());
 		}
 	} comparisonFunctor;
-	std::vector<std::shared_ptr<Node>> _visitedList;
-	std::vector<MapVec> _pathToEnd;
+	
 private:
-	std::vector<std::shared_ptr<Node>> _openList;
-	std::shared_ptr<Node> _startNode;
-	std::shared_ptr<Node> _endNode;
+	std::vector<Node*> _visitedList = std::vector<Node*>();
+	std::vector<Node*> _openList = std::vector<Node*>();
+	Node* _startNode = nullptr;
+	Node* _endNode = nullptr;
 
-	void _discoverNode(int x, int z, std::shared_ptr<Node> lastNode, int(&map)[MAP_SIZE][MAP_SIZE]);
+	bool isOutOfBounds(const glm::ivec2& vec) const;
+	void _discoverNode(int x, int z, Node* lastNode);
+	bool _inLineOfSight(const MapVec& enemyPos, const MapVec& playerPos) const;
 };

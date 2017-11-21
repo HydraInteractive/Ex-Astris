@@ -22,13 +22,12 @@ enum BulletType {
 	BULLETTYPE_HOMING
 };
 
-
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API BulletComponent final : public IComponent<BulletComponent, ComponentBits::Bullet> {
 		 BulletType bulletType = BULLETTYPE_HOMING;
-		 glm::vec3 direction;
-		 float velocity;
-		 float deleteTimer = 10;
+		 glm::vec3 direction = glm::vec3(0.0f,0.0f,0.0f);
+		 float velocity = 0.0f;
+		 float deleteTimer = 10.0f;
 		 float damage = 30.0f;
 
 		~BulletComponent() final;

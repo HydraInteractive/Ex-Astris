@@ -46,3 +46,4 @@ Debug
 \#*\#
 .\#*
 .gdb_history
+callgrind*

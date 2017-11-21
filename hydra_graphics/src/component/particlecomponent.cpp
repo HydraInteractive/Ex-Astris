@@ -16,16 +16,20 @@ void ParticleComponent::serialize(nlohmann::json & json) const{
 	json["accumulator"] = accumulator;
 	json["behaviour"] = static_cast<int>(behaviour);
 	json["texture"] = static_cast<int>(texture);
+	json["velocityX"] = tempVelocity[0];
+	json["velocityY"] = tempVelocity[1];
+	json["velocityZ"] = tempVelocity[2];
 }
 
 void ParticleComponent::deserialize(nlohmann::json & json){
-
-
 	delay = json.value<float>("delay", 0);
 	accumulator = json.value<int>("accumulator", 0);
 
 	behaviour = static_cast<EmitterBehaviour>(json["behaviour"].get<int>());
 	texture = static_cast<ParticleTexture>(json["texture"].get<int>());
+	tempVelocity[0] = json.value<float>("velocityX", 0);
+	tempVelocity[1] = json.value<float>("velocityY", 0);
+	tempVelocity[2] = json.value<float>("velocityZ", 0);
 }
 
 void ParticleComponent::registerUI() {
@@ -122,15 +126,15 @@ void ParticleComponent::spawnParticles() {
 				break;
 
 			accumulator -= delay;
-			const float velX = (frand() * 6.0f - 3.0f) + optionalNormal.x;
-			const float velY = (frand() * 6.0f - 2.0f) + optionalNormal.y;
-			const float velZ = (frand() * 6.0f - 3.0f) + optionalNormal.z;
+			const float velX = (frand() * tempVelocity.x - 3.0f) + optionalNormal.x;
+			const float velY = (frand() * tempVelocity.y - 2.0f) + optionalNormal.y;
+			const float velZ = (frand() * tempVelocity.z - 3.0f) + optionalNormal.z;
 
 			const float accX = velX * 2.0f;
 			const float accY = velY * 2.0f;
 			const float accZ = velZ * 2.0f;
 
-			const float life = 4.0f;
+			const float life = frand() * 4;
 			const glm::vec3 vel = normalize(glm::vec3(velX, velY, velZ));
 			const glm::vec3 acc = glm::vec3(accX, accY, accZ);
 			p->respawn(*t, vel, acc, life);

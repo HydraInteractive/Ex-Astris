@@ -9,6 +9,7 @@
 #include <memory>
 #include <random>
 
+
 class HYDRA_PHYSICS_API Behaviour
 {
 public:
@@ -16,65 +17,65 @@ public:
 	Behaviour();
 	virtual ~Behaviour();
 
-	enum class Type{ALIEN,ROBOT,ALIENBOSS};
+	enum class Type { ALIEN, ROBOT, ALIENBOSS };
 	Type type = Type::ALIEN;
 
-	enum {IDLE, SEARCHING, FOUND_GOAL, ATTACKING};
+	enum { IDLE, SEARCHING, MOVING, ATTACKING };
 	unsigned int state = IDLE;
 
-	enum BossPhase {CLAWING, SPITTING, SPAWNING, CHILLING};
+	enum BossPhase { CLAWING, SPITTING, SPAWNING, CHILLING };
 	BossPhase bossPhase = BossPhase::CLAWING;
 
-	float idleTimer = 0;
-	float attackTimer = 0;
-	float newPathTimer = 0;
-	float spawnTimer = 0;
-	float phaseTimer = 0;
+	float idleTimer = 0.0f;
+	float attackTimer = 0.0f;
+	float newPathTimer = 0.0f;
+	float newPathDelay = 1.0f;
+	float spawnTimer = 0.0f;
+	float phaseTimer = 0.0f;
 
 	std::random_device rd;
-	int map[MAP_SIZE][MAP_SIZE];
 	bool playerSeen = false;
 	bool isAtGoal = false;
 	int oldMapPosX = 0;
 	int oldMapPosZ = 0;
-	float angle = 1;
 
 	bool hasRequiredComponents = false;
 
-	float range = 1;
-	float originalRange = 1;
-	glm::vec3 mapOffset = glm::vec3(-30.0f, 0, -30.0f);
-	glm::vec3 targetPos = glm::vec3{ 0, 0, 0 };
+	float range = 1.0f;
+	float originalRange = 1.0f;
 	glm::quat rotation = glm::quat();
 
 	virtual void run(float dt) = 0;
 	void setEnemyEntity(std::shared_ptr<Hydra::World::Entity> enemy);
 	void setTargetPlayer(std::shared_ptr<Hydra::World::Entity> player);
-
-	bool checkLOS(int levelmap[MAP_SIZE][MAP_SIZE], glm::vec3 A, glm::vec3 B);
+	virtual void setPathMap(bool** map);
 protected:
 	struct ComponentSet
 	{
-		std::shared_ptr<Hydra::World::Entity> entity;
-		std::shared_ptr<Hydra::Component::TransformComponent> transform;
-		std::shared_ptr<Hydra::Component::DrawObjectComponent> drawObject;
-		std::shared_ptr<Hydra::Component::WeaponComponent> weapon;
-		std::shared_ptr<Hydra::Component::LifeComponent> life;
-		std::shared_ptr<Hydra::Component::MovementComponent> movement;
-		std::shared_ptr<Hydra::Component::AIComponent> ai;
-		std::shared_ptr<Hydra::Component::RigidBodyComponent> rigidBody;
+		Hydra::World::Entity* entity = nullptr;
+		Hydra::Component::TransformComponent* transform = nullptr;
+		Hydra::Component::MeshComponent* meshComp = nullptr;
+		Hydra::Component::WeaponComponent* weapon = nullptr;
+		Hydra::Component::LifeComponent* life = nullptr;
+		Hydra::Component::MovementComponent* movement = nullptr;
+		Hydra::Component::AIComponent* ai = nullptr;
+		Hydra::Component::RigidBodyComponent* rigidBody = nullptr;
 	};
-	ComponentSet thisEnemy;
-	ComponentSet targetPlayer;
+	ComponentSet thisEnemy = ComponentSet();
+	ComponentSet targetPlayer = ComponentSet();
 
-	std::shared_ptr<PathFinding> pathFinding = std::make_shared<PathFinding>();
+	PathFinding* pathFinding = nullptr;
 
+	glm::vec2 flatVector(glm::vec3 vec);
+	void move(glm::vec3 target);
 	virtual bool refreshRequiredComponents();
 	virtual unsigned int idleState(float dt);
 	virtual unsigned int searchingState(float dt);
-	virtual unsigned int foundState(float dt);
+	virtual unsigned int movingState(float dt);
 	virtual unsigned int attackingState(float dt);
 	virtual void executeTransforms();
+	virtual void resetAnimationOnStart(int animationIndex);
+
 };
 
 class HYDRA_PHYSICS_API AlienBehaviour final : public Behaviour
@@ -95,7 +96,7 @@ public:
 	RobotBehaviour();
 	~RobotBehaviour();
 	void run(float dt);
-
+	unsigned int idleState(float dt) final;
 	unsigned int attackingState(float dt) final;
 private:
 	bool refreshRequiredComponents() final;
@@ -108,7 +109,7 @@ public:
 	AlienBossBehaviour();
 	~AlienBossBehaviour();
 
-	float stunTimer = 0;
+	float stunTimer = 0.0f;
 	bool stunned = false;
 	int spawnAmount = 0;
 

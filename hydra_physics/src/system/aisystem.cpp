@@ -20,11 +20,14 @@ void AISystem::tick(float delta) {
 
 	//Process AiComponent
 	world::getEntitiesWithComponents<Component::AIComponent, Component::TransformComponent, Component::LifeComponent>(entities);
-#pragma omp parallel for
+	// TODO: AIComponent can't use OpenGL commands
+	// #pragma omp parallel for
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto enemy = entities[i]->getComponent<Component::AIComponent>();
 		enemy->behaviour->run(delta);
 	}
+
+	entities.clear();
 }
 
 void AISystem::registerUI() {}

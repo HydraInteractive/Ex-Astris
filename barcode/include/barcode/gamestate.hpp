@@ -7,12 +7,15 @@
  */
 #pragma once
 
+#include <barcode/renderingutils.hpp>
+
 #include <hydra/engine.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/renderer/renderer.hpp>
 #include <hydra/renderer/uirenderer.hpp>
 #include <hydra/io/meshloader.hpp>
 #include <hydra/io/textureloader.hpp>
+#include <hydra/io/textfactory.hpp>
 
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
@@ -27,9 +30,10 @@
 #include <hydra/component/spawnercomponent.hpp>
 #include <hydra/component/soundfxcomponent.hpp>
 #include <hydra/component/perkcomponent.hpp>
+#include <hydra/component/pickupcomponent.hpp>
+#include <hydra/component/ghostobjectcomponent.hpp>
 
 #include <hydra/system/camerasystem.hpp>
-#include <hydra/system/lightsystem.hpp>
 #include <hydra/system/particlesystem.hpp>
 #include <hydra/system/abilitysystem.hpp>
 #include <hydra/system/lifesystem.hpp>
@@ -41,8 +45,10 @@
 #include <hydra/system/spawnersystem.hpp>
 #include <hydra/system/soundfxsystem.hpp>
 #include <hydra/system/perksystem.hpp>
-
-#include <hydra/io/input.hpp>
+#include <hydra/system/animationsystem.hpp>
+#include <hydra/system/pickupsystem.hpp>
+#include <hydra/system/textsystem.hpp>
+#include <barcode/tileGeneration.hpp>
 
 namespace Barcode {
 	class GameState final : public Hydra::IState {
@@ -60,45 +66,16 @@ namespace Barcode {
 
 		inline Hydra::IO::ITextureLoader* getTextureLoader() final { return _textureLoader.get(); }
 		inline Hydra::IO::IMeshLoader* getMeshLoader() final { return _meshLoader.get(); }
+		inline Hydra::IO::ITextFactory* getTextFactory() final { return _textFactory.get(); }
 		inline Hydra::World::ISystem* getPhysicsSystem() final { return &_physicsSystem; }
 
 	private:
-		struct RenderBatch final {
-			std::unique_ptr<Hydra::Renderer::IShader> vertexShader;
-			std::unique_ptr<Hydra::Renderer::IShader> geometryShader;
-			std::unique_ptr<Hydra::Renderer::IShader> fragmentShader;
-			std::unique_ptr<Hydra::Renderer::IPipeline> pipeline;
-
-			std::shared_ptr<Hydra::Renderer::IFramebuffer> output;
-			Hydra::Renderer::Batch batch;
-		};
-
-		struct AnimationRenderBatch final {
-			std::unique_ptr<Hydra::Renderer::IShader> vertexShader;
-			std::unique_ptr<Hydra::Renderer::IShader> geometryShader;
-			std::unique_ptr<Hydra::Renderer::IShader> fragmentShader;
-			std::unique_ptr<Hydra::Renderer::IPipeline> pipeline;
-
-			std::shared_ptr<Hydra::Renderer::IFramebuffer> output;
-			Hydra::Renderer::AnimationBatch batch;
-		};
-
-		struct ParticleRenderBatch final {
-			std::unique_ptr<Hydra::Renderer::IShader> vertexShader;
-			std::unique_ptr<Hydra::Renderer::IShader> geometryShader;
-			std::unique_ptr<Hydra::Renderer::IShader> fragmentShader;
-			std::unique_ptr<Hydra::Renderer::IPipeline> pipeline;
-
-			std::shared_ptr<Hydra::Renderer::IFramebuffer> output;
-			Hydra::Renderer::ParticleBatch batch;
-		};
-
 		Hydra::IEngine* _engine;
 		std::unique_ptr<Hydra::IO::ITextureLoader> _textureLoader;
 		std::unique_ptr<Hydra::IO::IMeshLoader> _meshLoader;
+		std::unique_ptr<Hydra::IO::ITextFactory> _textFactory;
 
 		Hydra::System::CameraSystem _cameraSystem;
-		Hydra::System::LightSystem _lightSystem;
 		Hydra::System::ParticleSystem _particleSystem;
 		Hydra::System::AbilitySystem _abilitySystem;
 		Hydra::System::LifeSystem _lifeSystem;
@@ -110,66 +87,25 @@ namespace Barcode {
 		Hydra::System::SpawnerSystem _spawnerSystem;
 		Hydra::System::SoundFxSystem _soundFxSystem;
 		Hydra::System::PerkSystem _perkSystem;
+		Hydra::System::AnimationSystem _animationSystem;
+		Hydra::System::PickUpSystem _pickUpSystem;
+		Hydra::System::TextSystem _textSystem;
 
-		RenderBatch _geometryBatch; // First part of deferred rendering
-		AnimationRenderBatch _animationBatch; // AnimationBatch
-		RenderBatch _lightingBatch; // Second part of deferred rendering
-		RenderBatch _glowBatch; // Glow batch.
-		RenderBatch _viewBatch;
-		RenderBatch _postTestBatch;
-		RenderBatch _shadowBatch;
-		AnimationRenderBatch _shadowAnimationBatch;
-		RenderBatch _ssaoBatch;
-		RenderBatch _hudBatch;
+		std::unique_ptr<DefaultGraphicsPipeline> _dgp;
+		RenderBatch<Hydra::Renderer::Batch> _hitboxBatch;
 
-		ParticleRenderBatch _particleBatch;
+		std::shared_ptr<Hydra::Renderer::IMesh> _hitboxCube;
 
-		std::shared_ptr<Hydra::Renderer::ITexture> _animationData;
-
-		// ParticleTexture
-		std::shared_ptr<Hydra::Renderer::ITexture> _particleAtlases;
-
-		// Extra framebuffers, pipeline and shaders for glow/bloom/blur
-		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurrExtraFBO1;
-		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurrExtraFBO2;
-		std::vector<float> _fiveGaussianKernel1;
-		std::vector<float> _fiveGaussianKernel2;
-		std::shared_ptr<Hydra::Renderer::ITexture> _blurredOriginal;
-		std::shared_ptr<Hydra::Renderer::ITexture> _blurredIMG1;
-		std::shared_ptr<Hydra::Renderer::ITexture> _blurredIMG2;
-		std::shared_ptr<Hydra::Renderer::ITexture> _blurredIMG3;
-
-		std::shared_ptr<Hydra::Renderer::IPipeline> _glowPipeline;
-		std::unique_ptr<Hydra::Renderer::IShader> _glowVertexShader;
-		std::unique_ptr<Hydra::Renderer::IShader> _glowFragmentShader;
-
-		std::shared_ptr<Hydra::Renderer::IPipeline> _shadowPipeline;
-		std::unique_ptr<Hydra::Renderer::IShader> _shadowVertexShader;
-		std::unique_ptr<Hydra::Renderer::IShader> _shadowFragmentShader;
-		std::shared_ptr<Hydra::Renderer::ITexture> _shadowMap;
-
-		std::shared_ptr<Hydra::Renderer::ITexture> _ssaoNoise;
-
+		bool _paused = false;
+		Hydra::World::EntityID _playerID;
 		Hydra::Component::CameraComponent* _cc = nullptr;
-		Hydra::Component::PlayerComponent* player = nullptr;
-		Hydra::Component::AIComponent* _enemy = nullptr;
-		Hydra::Component::LightComponent* _light = nullptr;
+		Hydra::Component::TransformComponent* _playerTransform = nullptr;
 
-		Input _input;
+		float prevHP, hpTimeUp = 0;
+		TileGeneration* tileGen;
+		bool** pathfindingMap = nullptr;
 
 		void _initSystem();
 		void _initWorld();
-
-		std::shared_ptr<Hydra::Renderer::IFramebuffer> _blurGlowTexture(std::shared_ptr<Hydra::Renderer::ITexture>& texture, int nrOfTimes, glm::vec2 size, const std::vector<float>& kernel, bool blurEnabled);
 	};
-
-	//class DemoWindow : public TBWindow
-	//{
-	//public:
-	//	DemoWindow(TBWidget *root);
-	//	bool LoadResourceFile(const char *filename);
-	//	void LoadResourceData(const char *data);
-	//	void LoadResource(TBNode &node);
-	//	virtual bool OnEvent(const TBWidgetEvent &ev);
-	//};
 }

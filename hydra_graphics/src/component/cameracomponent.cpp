@@ -17,43 +17,36 @@ using namespace Hydra::Component;
 CameraComponent::~CameraComponent() {}
 
 void CameraComponent::serialize(nlohmann::json& json) const {
-	json["positionX"] = position[0];
-	json["positionY"] = position[1];
-	json["positionZ"] = position[2];
-
-	json["orientationX"] = orientation[0];
-	json["orientationY"] = orientation[1];
-	json["orientationZ"] = orientation[2];
-	json["orientationW"] = orientation[3];
-
 	json["fov"] = fov;
-
 	json["zNear"] = zNear;
-
 	json["zFar"] = zFar;
+
+	json["sensitivity"] = sensitivity;
+	json["cameraYaw"] = cameraYaw;
+	json["cameraPitch"] = cameraPitch;
+	json["mouseControl"] = mouseControl;
+
+	json["noClip"] = noClip;
+	json["movementSpeed"] = movementSpeed;
+	json["shiftMultiplier"] = shiftMultiplier;
 }
 
 void CameraComponent::deserialize(nlohmann::json& json) {
-	position[0] = json.value<float>("positionX", 0);
-	position[1] = json.value<float>("positionY", 0);
-	position[2] = json.value<float>("positionZ", 0);
+	fov = json.value<float>("fov", 90);
+	zNear = json.value<float>("zNear", 0.1);
+	zFar = json.value<float>("zFar", 75);
 
-	orientation[0] = json.value<float>("orientationX", 0);
-	orientation[1] = json.value<float>("orientationY", 0);
-	orientation[2] = json.value<float>("orientationZ", 0);
-	orientation[3] = json.value<float>("orientationW", 0);
+	sensitivity = json.value<float>("sensitivity", 0.003);
+	cameraYaw = json.value<float>("cameraYaw", 0);
+	cameraPitch = json.value<float>("cameraPitch", 0);
+	mouseControl = json.value<bool>("mouseControl", true);
 
-	fov = json.value<float>("fov", 0);
-
-	zNear = json.value<float>("zNear", 0);
-
-	zFar = json.value<float>("zFar", 0);
+	noClip = json.value<bool>("noClip", false);
+	movementSpeed = json.value<float>("movementSpeed", 10);
+	shiftMultiplier = json.value<float>("shiftMultiplier", 5);
 }
 
 void CameraComponent::registerUI() {
-	//TODO: Change if dirty flag is added!
-	ImGui::DragFloat3("Position", glm::value_ptr(position), 0.01f);
-	ImGui::DragFloat4("Orientation", glm::value_ptr(orientation), 0.01f);
 	ImGui::DragFloat("FOV", &fov);
 	ImGui::DragFloat("Z Near", &zNear, 0.001f);
 	ImGui::DragFloat("Z Far", &zFar);
@@ -61,7 +54,11 @@ void CameraComponent::registerUI() {
 	ImGui::InputFloat("Aspect", &aspect, 0, 0, -1, ImGuiInputTextFlags_ReadOnly);
 
 	ImGui::DragFloat("Sensitivity", &sensitivity);
-	ImGui::DragFloat("Yaw", &cameraYaw);
-	ImGui::DragFloat("Pitch", &cameraPitch);
+	ImGui::DragFloat("Yaw", &cameraYaw, 0.0001);
+	ImGui::DragFloat("Pitch", &cameraPitch, 0.0001);
 	ImGui::Checkbox("Mouse Control", &mouseControl);
+
+	ImGui::Checkbox("NoClip", &noClip);
+	ImGui::InputFloat("Movement Speed", &movementSpeed);
+	ImGui::InputFloat("Shift Multiplier", &shiftMultiplier);
 }

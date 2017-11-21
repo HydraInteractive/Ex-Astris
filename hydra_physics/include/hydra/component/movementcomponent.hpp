@@ -13,14 +13,13 @@
 #include <SDL2/SDL.h>
 #include <hydra/world/world.hpp>
 
-
 using namespace Hydra::World;
 
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API MovementComponent final : public IComponent<MovementComponent, ComponentBits::Movement>{
-		glm::vec3 direction = glm::vec3{0, 0, 0};
-		glm::vec3 velocity = glm::vec3{0, 0, 0};
-		glm::vec3 acceleration = glm::vec3{0, 0, 0};
+		glm::vec3 direction = glm::vec3(0.0f, 0.0f, 0.0f);
+		glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+		glm::vec3 acceleration = glm::vec3(0.0f, 0.0f, 0.0f);
 		float movementSpeed = 20.0f;
 
 		~MovementComponent() final;

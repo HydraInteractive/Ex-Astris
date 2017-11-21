@@ -23,7 +23,7 @@ std::shared_ptr<Hydra::World::Entity> PlayerComponent::getWeapon() {
 	auto& children = Hydra::World::World::getEntity(entityID)->children;
 
 	for (auto child : children)
-		if (auto c =Hydra::World::World::getEntity(child); c->name == "Weapon")
+		if (auto c =Hydra::World::World::getEntity(child); c && c->name == "Weapon")
 			return c;
 
 	return std::shared_ptr<Hydra::World::Entity>();

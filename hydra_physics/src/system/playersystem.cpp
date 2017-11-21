@@ -14,6 +14,8 @@
 #include <hydra/component/perkcomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
 
+#include <btBulletDynamicsCommon.h>
+
 #include <hydra/engine.hpp>
 
 using namespace Hydra::System;
@@ -23,6 +25,10 @@ using world = Hydra::World::World;
 
 PlayerSystem::PlayerSystem() {}
 PlayerSystem::~PlayerSystem() {}
+
+float lerp(float a, float b, float f) {
+	return a + f * (b - a);
+}
 
 void PlayerSystem::tick(float delta) {
 	const Uint8* keysArray = SDL_GetKeyboardState(nullptr);
@@ -34,70 +40,106 @@ void PlayerSystem::tick(float delta) {
 		auto transform = entities[i]->getComponent<TransformComponent>();
 		auto camera = entities[i]->getComponent<CameraComponent>();
 		auto weapon = player->getWeapon()->getComponent<Hydra::Component::WeaponComponent>();
+		auto weaponMesh = player->getWeapon()->getComponent<Hydra::Component::MeshComponent>();
 		auto life = entities[i]->getComponent<Component::LifeComponent>();
 		auto movement = entities[i]->getComponent<Component::MovementComponent>();
 		auto soundFx = entities[i]->getComponent<SoundFxComponent>();
 		auto perks = entities[i]->getComponent<PerkComponent>();
 		auto rbc = static_cast<btRigidBody*>(entities[i]->getComponent<RigidBodyComponent>()->getRigidBody());
 
-		glm::mat4 rotation = glm::mat4_cast(camera->orientation);
+		glm::mat4 rotation = glm::mat4_cast(transform->rotation);
 		movement->direction = -glm::vec3(glm::vec4{ 0, 0, 1, 0 } *rotation);
 
 		{
-			movement->velocity = glm::vec3{0};
-			if (keysArray[SDL_SCANCODE_W])
-				movement->velocity.z -= movement->movementSpeed;
+			glm::vec3 forward = glm::normalize(glm::vec3(movement->direction.x, 0, movement->direction.z));			
 
-			if (keysArray[SDL_SCANCODE_S])
-				movement->velocity.z += movement->movementSpeed;
+			glm::vec3 rightDir = glm::vec3(glm::vec4{ 1, 0, 0, 0 } *rotation);
+			glm::vec3 right = glm::normalize(glm::vec3(rightDir.x, 0, rightDir.z));
+
+			if (keysArray[SDL_SCANCODE_W])
+				movement->velocity += movement->movementSpeed * forward * delta;
+
+			if (keysArray[SDL_SCANCODE_R])
+				weapon->_isReloading = true;
+
+			if (keysArray[SDL_SCANCODE_S]) {
+				movement->velocity -= movement->movementSpeed * forward * delta;
+			}
 
 			if (keysArray[SDL_SCANCODE_A])
-				movement->velocity.x -= movement->movementSpeed;
+				movement->velocity -= movement->movementSpeed * right * delta;
 
 			if (keysArray[SDL_SCANCODE_D])
-				movement->velocity.x += movement->movementSpeed;
+				movement->velocity += movement->movementSpeed * right * delta;
 
-			if (keysArray[SDL_SCANCODE_SPACE] && player->onGround){
-				movement->acceleration.y += 6.0f;
+			if (keysArray[SDL_SCANCODE_SPACE] && player->onGround) {
+				rbc->applyCentralForce(btVector3(0, 12000, 0));
 				player->onGround = false;
 			}
+			if (movement->velocity.x != 0 || movement->velocity.y != 0 || movement->velocity.z != 0)
+				weaponMesh->animationIndex = 1;
+			else
+				weaponMesh->animationIndex = 0;
 
-			if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && !ImGui::GetIO().WantCaptureMouse) {
+			if (camera->mouseControl && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
 				//TODO: Make pretty?
 				glm::quat bulletOrientation = glm::angleAxis(-camera->cameraYaw, glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->cameraPitch, glm::vec3(1, 0, 0)));
-				float bulletVelocity = 20.0f;
 
-				weapon->shoot(transform->position, movement->direction, bulletOrientation, bulletVelocity);
+				//Changed to see if modell is correct, original bulletVelocity was 300 (A little too fast imo, das me tho)
+				float bulletVelocity = 20;
+				if (!weapon->_isReloading)
+					if (weapon->shoot(glm::vec3(transform->position + movement->direction * glm::vec3(5)) , movement->direction, bulletOrientation, bulletVelocity, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE)) {
+						float rn = 500;//rand() % 1000;
+						rn /= 10000;
+
+						rn *= 0.8;
+						weapon->_dpitch -= rn;
+						rn = rand() % 900 + 100;
+						rn /= 10000;
+						rn *= 0.8;
+						//if (rand() % 2 == 1)
+						//	dyaw += rn/3;
+						//else
+						//	dyaw -= rn/3;
+						weaponMesh->animationIndex = 2;
+						if (weapon->currmagammo == 0)
+							weapon->_isReloading = true;
+					}
 			}
 		}
+		if (!keysArray[SDL_SCANCODE_W]
+			&& !keysArray[SDL_SCANCODE_S]
+			&& !keysArray[SDL_SCANCODE_A]
+			&& !keysArray[SDL_SCANCODE_D]) {
+			movement->velocity *= delta;
+		}
 
-		//movement->acceleration.y -= 10.0f * delta;
-		glm::vec4 movementVector = glm::vec4(movement->velocity, 0) * rotation;
-		//movementVector.y = movement->acceleration.y;
-		rbc->setLinearVelocity(btVector3(movementVector.x, 0, movementVector.z));
-		rbc->setInterpolationLinearVelocity(btVector3(movementVector.x, 0, movementVector.z) * movement->movementSpeed);
-		//rbc->applyCentralForce(btVector3(movementVector.x, movementVector.y, movementVector.z) * 100);
-		//transform->position += glm::vec3(movementVector) * delta;
+		float speed = glm::length(movement->velocity);
+		if (speed > 10)
+			movement->velocity *= 10 / speed;
 
-		//if (transform->position.y < 0) {
-		//	transform->position.y = 0;
-		//	movement->acceleration.y = 0;
-		//	player->onGround = true;
-		//}
+		if (weapon->_isReloading)
+			weapon->_isReloading = weapon->reload(delta);
 
-		if (player->firstPerson)
-			camera->position = transform->position;
-		else
-			camera->position = transform->position + glm::vec3(0, 3, 0) + glm::vec3(glm::vec4{-4, 0, 4, 0} * rotation);
+		float& yaw = camera->cameraYaw;
+		float& pitch = camera->cameraPitch;
+		yaw = lerp(yaw, (yaw + weapon->_dyaw), 0.5);
+		pitch = lerp(pitch, (pitch + weapon->_dpitch), 0.5);
+		weapon->_dyaw /= 2;
+		weapon->_dpitch /= 2;
 
-		transform->rotation = camera->orientation;
+		btVector3 vel = rbc->getLinearVelocity();
+		rbc->setLinearVelocity(btVector3(movement->velocity.x,vel.y(),movement->velocity.z));
+
 		transform->dirty = true;
 
 		auto wt = player->getWeapon()->getComponent<TransformComponent>();
 		wt->position = transform->position + glm::vec3(glm::vec4{player->weaponOffset, 0} * rotation);
-		wt->rotation = glm::normalize(glm::conjugate(camera->orientation) * glm::quat(glm::vec3(glm::radians(180.0f), 0, glm::radians(180.0f))));
+		wt->rotation = glm::normalize(glm::conjugate(transform->rotation) * glm::quat(glm::vec3(glm::radians(180.0f), 0, glm::radians(180.0f))));
 		wt->dirty = true;
 	}
+
+	entities.clear();
 }
 
 void PlayerSystem::registerUI() {}
