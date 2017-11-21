@@ -17,7 +17,7 @@
 #include <imgui/imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <random>
-#include <../hydra_network/include/NetClient.h> //Hej dan
+#include <hydra/network/netclient.hpp>
 
 using namespace Hydra::World;
 using namespace Hydra::Component;
@@ -92,8 +92,8 @@ bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 
 		//Network shoot
 
-		//Network::NetClient::updateBullet(bullet->id);
-		//Network::NetClient::shoot(t.get(), direction);
+		//Hydra::Network::NetClient::updateBullet(bullet->id);
+		//Hydra::Network::NetClient::shoot(t.get(), direction);
 
 		//end Network shoot
 

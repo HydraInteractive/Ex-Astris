@@ -1,16 +1,18 @@
 #pragma once
-#include <../hydra_network/include/TCPClient.h>
+#include <hydra/ext/api.hpp>
+
+#include <hydra/network/tcpclient.hpp>
 #include <hydra/world/world.hpp>
-#include <../hydra_network/include/Packets.h>
+#include <hydra/network/packets.hpp>
 
-typedef EntityID ServerID;
+namespace Hydra::Network {
+	typedef Hydra::World::EntityID ServerID;
 
-namespace Network {
 	struct HYDRA_NETWORK_API NetClient final {
 	private:
 		static TCPClient _tcp;
 		static EntityID _myID;
-		static std::map<ServerID, EntityID> _IDs;
+		static std::map<ServerID, Hydra::World::EntityID> _IDs;
 		static void _sendUpdatePacket();
 		static void _resolvePackets();
 		static void _updateWorld(Packet* updatePacket);

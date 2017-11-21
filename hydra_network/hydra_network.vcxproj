@@ -12,14 +12,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\hydra\component\componentmanager_network.hpp" />
-    <ClInclude Include="include\NetClient.h" />
-    <ClInclude Include="include\Packets.h" />
-    <ClInclude Include="include\TCPClient.h" />
+    <ClInclude Include="include\hydra\network\netclient.hpp" />
+    <ClInclude Include="include\hydra\network\packets.hpp" />
+    <ClInclude Include="include\hydra\network\tcpclient.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\component\componentmanager_network.cpp" />
-    <ClCompile Include="src\NetClient.cpp" />
-    <ClCompile Include="src\TCPClient.cpp" />
+    <ClCompile Include="src\network\netclient.cpp" />
+    <ClCompile Include="src\network\tcpclient.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

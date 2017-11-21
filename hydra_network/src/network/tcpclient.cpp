@@ -1,7 +1,9 @@
-#include <TCPClient.h>
+#include <hydra/network/tcpclient.hpp>
 #include <vector>
 #include <SDL2/SDL_net.h>
 #define MAX_NETWORK_LENGTH 100000
+
+using namespace Hydra::Network;
 
 TCPClient::TCPClient() {
     this->_connected = false;

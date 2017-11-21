@@ -1,7 +1,9 @@
-#include <NetClient.h>
+#include <hydra/network/netclient.hpp>
+#include <hydra/world/world.hpp>
 #include <hydra/component/meshcomponent.hpp>
 
-using namespace Network;
+using namespace Hydra::Network;
+using world = Hydra::World::World;
 
 TCPClient NetClient::_tcp;
 EntityID NetClient::_myID;
@@ -9,7 +11,7 @@ std::map<ServerID, EntityID> NetClient::_IDs;
 bool NetClient::running = false;
 
 void NetClient::_sendUpdatePacket() {
-	Entity* tmp = World::getEntity(_myID).get();
+	Entity* tmp = world::getEntity(_myID).get();
 	if (tmp) {
 		ClientUpdatePacket cpup;
 		Hydra::Component::TransformComponent* tc = tmp->getComponent<Hydra::Component::TransformComponent>().get();
@@ -24,7 +26,7 @@ void NetClient::_sendUpdatePacket() {
 }
 void NetClient::sendEntity(EntityID ent) {
 	nlohmann::json json;
-	Entity* entptr = World::getEntity(ent).get();
+	Entity* entptr = world::getEntity(ent).get();
 	entptr->serialize(json);
 	std::vector<uint8_t> vec = json.to_msgpack(json);
 	ClientSpawnEntityPacket* packet = new ClientSpawnEntityPacket();
@@ -54,16 +56,16 @@ void NetClient::_resolvePackets() {
 	for (size_t i = 0; i < packets.size(); i++) {
 		switch (packets[i]->h.type) {
 		case PacketType::ServerInitialize:
-			children = World::root()->children;
+			children = world::root()->children;
 			for (size_t i = 0; i < children.size(); i++) {
-				ent = World::getEntity(children[i]).get();
+				ent = world::getEntity(children[i]).get();
 				if (ent->name == "Player") {
 					_myID = children[i];
 					break;
 				}
 			}
 			_IDs[((ServerInitializePacket*)packets[i])->entityid] = _myID;
-			tc = World::getEntity(_myID)->getComponent<Hydra::Component::TransformComponent>().get();
+			tc = world::getEntity(_myID)->getComponent<Hydra::Component::TransformComponent>().get();
 			tc->setPosition(((ServerInitializePacket*)packets[i])->ti.pos);
 			tc->setRotation(((ServerInitializePacket*)packets[i])->ti.rot);
 			tc->setScale(((ServerInitializePacket*)packets[i])->ti.scale);
@@ -79,6 +81,8 @@ void NetClient::_resolvePackets() {
 			break;
 		case PacketType::ServerDeleteEntity:
 			_resolveServerDeletePacket((ServerDeletePacket*)packets[i]);
+			break;
+		default:
 			break;
 		}
 	}
@@ -100,36 +104,36 @@ void NetClient::_resolveServerSpawnEntityPacket(ServerSpawnEntityPacket* entPack
 		vec.push_back(((uint8_t*)entPacket->data)[i]);
 	}
 	json = json.from_msgpack(vec);
-	Entity* ent = World::newEntity("SERVER CREATED (ERROR)", World::root()).get();
+	Entity* ent = world::newEntity("SERVER CREATED (ERROR)", world::root()).get();
 	ent->deserialize(json);
 	//ent->setID(entPacket->id);
 	_IDs[entPacket->id] = ent->id;
 }
 
 void NetClient::_resolveServerDeletePacket(ServerDeletePacket* delPacket) {
-	std::vector<EntityID> children = World::root()->children;
+	std::vector<EntityID> children = world::root()->children;
 	for (size_t i = 0; i < children.size(); i++) {
 		if (children[i] == _IDs[delPacket->id]) {
-			World::getEntity(children[i])->dead = true;
+			world::getEntity(children[i])->dead = true;
 			break;
 		}
 	}
 }
 
 void NetClient::_updateWorld(Packet * updatePacket) {
-	std::vector<EntityID> children = World::root()->children;
+	std::vector<EntityID> children = world::root()->children;
 	ServerUpdatePacket* sup = (ServerUpdatePacket*)updatePacket;
 	Hydra::Component::TransformComponent* tc;
 	for (size_t k = 0; k < sup->nrOfEntUpdates; k++) {
 		if (_IDs[sup->data[k].entityid] == _myID)
 			continue;
 		else if (_IDs[sup->data[k].entityid] == 0) {
-			printf("Error updating entity: %d", _IDs[sup->data[k].entityid]);
+			printf("Error updating entity: %zu", _IDs[sup->data[k].entityid]);
 			continue;
 		}
 		for (size_t i = 0; i < children.size(); i++) {
 			if (children[i] == _IDs[((ServerUpdatePacket::EntUpdate)sup->data[k]).entityid]) {
-				tc = World::getEntity(children[i])->getComponent<Hydra::Component::TransformComponent>().get();
+				tc = world::getEntity(children[i])->getComponent<Hydra::Component::TransformComponent>().get();
 				tc->setPosition(((ServerUpdatePacket::EntUpdate)sup->data[k]).ti.pos);
 				tc->setRotation(((ServerUpdatePacket::EntUpdate)sup->data[k]).ti.rot);
 				tc->setScale(((ServerUpdatePacket::EntUpdate)sup->data[k]).ti.scale);
@@ -145,7 +149,7 @@ void NetClient::_addPlayer(Packet * playerPacket) {
 	memcpy(c, spp->name, spp->nameLength);
 	c[spp->nameLength] = '\0';
 
-	Entity* ent = World::newEntity(c, World::root()).get();
+	Entity* ent = world::newEntity(c, world::root()).get();
 	//ent->setID(spp->entID);
 	_IDs[spp->entID] = ent->id;
 	Hydra::Component::TransformComponent* tc = ent->addComponent<Hydra::Component::TransformComponent>().get();
@@ -162,15 +166,15 @@ bool NetClient::initialize(char* ip, int port) {
 	SDLNet_Init();
     if(_tcp.initialize(ip, port)) {
         _myID = 0;
-		Network::NetClient::running = true;
+		NetClient::running = true;
 		return true;
     }
-	Network::NetClient::running = false;
+	NetClient::running = false;
 	return false;
 }
 
-void Network::NetClient::shoot(Hydra::Component::TransformComponent * tc, glm::vec3 direction) {
-	if (Network::NetClient::_tcp.isConnected()) {
+void NetClient::shoot(Hydra::Component::TransformComponent * tc, glm::vec3 direction) {
+	if (NetClient::_tcp.isConnected()) {
 		ClientShootPacket* csp = new ClientShootPacket();
 
 		csp->h.len = sizeof(ClientShootPacket);
@@ -180,15 +184,15 @@ void Network::NetClient::shoot(Hydra::Component::TransformComponent * tc, glm::v
 		csp->ti.scale = tc->scale;
 		csp->ti.rot = tc->rotation;
 
-		Network::NetClient::_tcp.send(csp, sizeof(ClientShootPacket));
+		NetClient::_tcp.send(csp, sizeof(ClientShootPacket));
 
 		delete csp;
 	}
 }
 
-void Network::NetClient::updateBullet(EntityID newBulletID) {
+void NetClient::updateBullet(EntityID newBulletID) {
 	nlohmann::json json;
-	Entity* entptr = World::getEntity(newBulletID).get();
+	Entity* entptr = world::getEntity(newBulletID).get();
 	entptr->serialize(json);
 	std::vector<uint8_t> vec = json.to_msgpack(json);
 	ClientUpdateBulletPacket* packet = new ClientUpdateBulletPacket();

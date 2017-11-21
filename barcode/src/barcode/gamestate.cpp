@@ -20,8 +20,7 @@
 #include <hydra/component/textcomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
 
-#include <../hydra_network/include/NetClient.h> //FUCK YOU DAN
-
+#include <hydra/network/netclient.hpp>
 
 
 using world = Hydra::World::World;
@@ -358,8 +357,8 @@ namespace Barcode {
 
 		{ // Sync with network
 
-			if(Network::NetClient::running)
-				Network::NetClient::run();
+			if (Hydra::Network::NetClient::running)
+				Hydra::Network::NetClient::run();
 		  // _world->tick(TickAction::network, delta);
 		}
 	}
@@ -417,7 +416,7 @@ namespace Barcode {
 
 		{
 			
-			if (Network::NetClient::initialize(addr, port)) {
+			if (Hydra::Network::NetClient::initialize(addr, port)) {
 				//show feedback?
 			}
 			auto playerEntity = world::newEntity("Player", world::root());
