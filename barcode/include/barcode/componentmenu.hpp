@@ -13,7 +13,7 @@ public:
 	void configureComponent(bool &openBool, std::string componentType, Hydra::System::BulletPhysicsSystem& physicsSystem);
 private:
 	Hydra::World::Entity* _selectedEntity = nullptr;
-	std::vector<std::string> _componentTypes = {"Transform", "PointLight", "RigidBody", "StaticObject"};
+	std::vector<std::string> _componentTypes = {"Transform", "PointLight", "RigidBody", "StaticObject", "SpawnPoint"};
 	std::string _selectedString = "";
 	void _menuBar();
 	void _renderEntity(Hydra::World::Entity*);
@@ -50,4 +50,8 @@ private:
 	struct GOI{
 		glm::vec3 size = glm::vec3(1.0f, 1.0f, 1.0f);
 	} ghostObjectInput;
+	struct SPI {
+		bool playerSpawn = true;
+		bool enemySpawn = true;
+	}spawnPointInput;
 };
