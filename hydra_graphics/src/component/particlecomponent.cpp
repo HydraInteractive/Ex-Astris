@@ -22,8 +22,6 @@ void ParticleComponent::serialize(nlohmann::json & json) const{
 }
 
 void ParticleComponent::deserialize(nlohmann::json & json){
-
-	// teast
 	delay = json.value<float>("delay", 0);
 	accumulator = json.value<int>("accumulator", 0);
 

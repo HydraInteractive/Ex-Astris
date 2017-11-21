@@ -1,5 +1,7 @@
 #include <barcode/tileGeneration.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
+#include <hydra/component/movementcomponent.hpp>
+#include <hydra/component/weaponcomponent.hpp>
 using world = Hydra::World::World;
 
 TileGeneration::TileGeneration(std::string middleRoomPath) {
@@ -314,6 +316,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 
 		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 		h->maxHP = 80;
+
 		h->health = 80;
 
 		auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
@@ -336,10 +339,6 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienFastModel.mATTIC");
 		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
-		a->behaviour->setPathMap(pathfindingMap);
-		a->damage = 4;
-		a->behaviour->originalRange = 4;
-		a->radius = 1;
 
 		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 		h->maxHP = 60;
@@ -359,6 +358,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
+
 	}
 
 
@@ -392,7 +392,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		t->position.y = 5;
 		t->position.z = roomTransform->position.z + i + 2;
 		t->scale = glm::vec3{ 1,1,1 };
-		
+
 		auto rgbc = robotEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.5, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 			0, 0, 0.6f, 1.0f);
@@ -450,6 +450,7 @@ void TileGeneration::_spawnLight(std::shared_ptr<Hydra::Component::TransformComp
 	t->position.y = roomTransform->position.y + 7;
 	t->position.z = roomTransform->position.z;
 	auto p1LC = pointLight1->addComponent<Hydra::Component::PointLightComponent>();
+
 	p1LC->color = glm::vec3(1);
 
 }

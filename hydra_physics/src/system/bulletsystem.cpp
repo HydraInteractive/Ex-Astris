@@ -44,7 +44,7 @@ void BulletSystem::tick(float delta) {
 		}
 
 		// TESTING HOMNIG/MAGNETIC NOT REALLY GOOD RIGHT NOW
-		/*if (b->bulletType == BULLETTYPE_HOMING) {
+		/*if (b->bulletType == Hydra::Component::BulletComponent::BulletType::homing) {
 			float distance = 10000;
 			int_openmp_t closestEnemy = -1;
 			std::vector<std::shared_ptr<Hydra::World::Entity>> enemies;
