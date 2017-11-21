@@ -574,7 +574,7 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 
 	}
 	else
-		rotation = glm::angleAxis(0.0f, glm::vec3(0, 1, 0));
+		rotation = glm::angleAxis(glm::radians(0.0f), glm::vec3(0, 1, 0));
 
 	return rotation;
 }
