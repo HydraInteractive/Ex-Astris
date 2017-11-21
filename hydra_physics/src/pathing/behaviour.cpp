@@ -14,6 +14,8 @@
 
 #include <btBulletDynamicsCommon.h>
 
+using namespace Hydra::Physics::Behaviour;
+
 Behaviour::Behaviour(std::shared_ptr<Hydra::World::Entity> enemy)
 {
 

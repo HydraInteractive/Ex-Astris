@@ -108,23 +108,23 @@ void main() {
 
 	// Shadow
 	
-	if(lightPos.w > 1){
-		vec3 projCoords = lightPos.xyz / lightPos.w;
-		float closestDepth = texture(depthMap, projCoords.xy).r;
-		float currentDepth = projCoords.z;
-		float bias = max(0.05 * (1.0 - dot(normal, -dirLight.dir)), 0.005);
-		float shadow = 0.0f;
-		vec2 texelSize = 1.0 / textureSize(depthMap, 0);
-		for(int x = -1; x <= 1; x++) {
-			for(int y = -1; y <= 1; y++) {
-				float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
-				shadow += currentDepth - bias > pcfDepth ? 1 : 0;
-			}
-		}
-		shadow /= 9;
-		shadow = 1 - shadow;
-		result *= shadow;
-	}
+	//if(lightPos.w > 1){
+	//	vec3 projCoords = lightPos.xyz / lightPos.w;
+	//	float closestDepth = texture(depthMap, projCoords.xy).r;
+	//	float currentDepth = projCoords.z;
+	//	float bias = max(0.05 * (1.0 - dot(normal, -dirLight.dir)), 0.005);
+	//	float shadow = 0.0f;
+	//	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
+	//	for(int x = -1; x <= 1; x++) {
+	//		for(int y = -1; y <= 1; y++) {
+	//			float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
+	//			shadow += currentDepth - bias > pcfDepth ? 1 : 0;
+	//		}
+	//	}
+	//	shadow /= 9;
+	//	shadow = 1 - shadow;
+	//	result *= shadow;
+	//}
 
 	result += globalAmbient;
 
