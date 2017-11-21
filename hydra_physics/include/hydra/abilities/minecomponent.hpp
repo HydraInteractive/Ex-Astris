@@ -7,13 +7,8 @@
 *  - Dan Printzell
 */
 
-
 #include <hydra/ext/api.hpp>
-#include <glm/glm.hpp>
-#include <SDL2/SDL.h>
 #include <hydra/world/world.hpp>
-#include <hydra/component/transformcomponent.hpp>
-#include <hydra/component/meshcomponent.hpp>
 
 using namespace Hydra::World;
 

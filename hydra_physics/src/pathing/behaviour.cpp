@@ -19,17 +19,17 @@ Behaviour::Behaviour(std::shared_ptr<Hydra::World::Entity> enemy)
 
 	thisEnemy.entity = enemy.get();
 	refreshRequiredComponents();
-	pathFinding = std::make_shared<PathFinding>();
+	pathFinding = new PathFinding();
 
 }
 Behaviour::Behaviour()
 {
-
+	pathFinding = new PathFinding();
 }
 
 Behaviour::~Behaviour()
 {
-
+	delete pathFinding;
 }
 
 void Behaviour::setEnemyEntity(std::shared_ptr<Hydra::World::Entity> enemy)
@@ -67,7 +67,7 @@ bool Behaviour::refreshRequiredComponents()
 		(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
 		(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
-		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity().get()) &&
+		(targetPlayer.entity = Hydra::World::World::getEntity(thisEnemy.ai->entityID).get()) &&
 		(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 		(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
 	 );
@@ -386,7 +386,7 @@ bool RobotBehaviour::refreshRequiredComponents()
 		(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
 		(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
-		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity().get()) &&
+		(targetPlayer.entity = Hydra::World::World::getEntity(thisEnemy.ai->entityID).get()) &&
 		(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 		(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
 	);
