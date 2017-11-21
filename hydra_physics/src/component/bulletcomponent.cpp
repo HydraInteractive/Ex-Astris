@@ -19,24 +19,31 @@ using namespace Hydra::Component;
 BulletComponent::~BulletComponent() { }
 
 void BulletComponent::serialize(nlohmann::json& json) const {
+	json["bulletType"] = static_cast<size_t>(bulletType);
+
 	json["directionX"] = direction[0];
 	json["directionY"] = direction[1];
 	json["directionZ"] = direction[2];
 
 	json["velocity"] = velocity;
+	json["deleteTimer"] = deleteTimer;
 	json["damage"] = damage;
 }
 
 void BulletComponent::deserialize(nlohmann::json& json) {
+	bulletType = static_cast<BulletType>(json.value<size_t>("bulletType", 0));
+
 	direction[0] = json.value<float>("directionX", 0);
 	direction[1] = json.value<float>("directionY", 0);
 	direction[2] = json.value<float>("directionZ", 0);
 
 	velocity = json.value<float>("velocity", 0);
-	damage = json.value<float>("damage", 1.0f);
+	deleteTimer = json.value<float>("deleteTimer", 10);
+	damage = json.value<float>("damage", 30.0f);
 }
 
 void BulletComponent::registerUI() {
 	ImGui::DragFloat3("Direction", glm::value_ptr(direction));
 	ImGui::DragFloat("Velocity", &velocity);
+	ImGui::DragFloat("Damage", &damage);
 }

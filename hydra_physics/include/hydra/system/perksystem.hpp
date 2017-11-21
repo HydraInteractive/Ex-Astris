@@ -2,7 +2,6 @@
 
 #include <hydra/world/world.hpp>
 #include <hydra/component/perkcomponent.hpp>
-#include <hydra/component/playercomponent.hpp>
 
 namespace Hydra::System {
 	class HYDRA_PHYSICS_API PerkSystem final : public Hydra::World::ISystem{

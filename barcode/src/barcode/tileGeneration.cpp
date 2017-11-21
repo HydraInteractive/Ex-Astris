@@ -1,5 +1,7 @@
 #include <barcode/tileGeneration.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
+#include <hydra/component/movementcomponent.hpp>
+#include <hydra/component/weaponcomponent.hpp>
 using world = Hydra::World::World;
 
 TileGeneration::TileGeneration(std::string middleRoomPath) {

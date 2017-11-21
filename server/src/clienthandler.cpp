@@ -1,18 +1,8 @@
 #include <server/clienthandler.hpp>
 #define SocketSetSize 4
 
-
-
 int ClientHandler::_generateClientID() {
 	return this->_currID++;
-}
-
-ClientHandler::Client*& ClientHandler::_getClient(int clientID) {
-	for (size_t i = 0; i < this->_clients.size(); i++) {
-		if (this->_clients[i]->id == clientID) {
-			return this->_clients[i];
-		}
-	}
 }
 
 ClientHandler::ClientHandler() {
@@ -38,6 +28,7 @@ TCPsocket ClientHandler::getSocketFromID(int id) {
 			return this->_clients[i]->socket;
 		}
 	}
+	return TCPsocket();
 }
 
 int ClientHandler::getActivity() {
@@ -120,10 +111,10 @@ int ClientHandler::sendData(char * data, int len, int clientID) {
 	int k = SDLNet_TCP_Send(this->getSocketFromID(clientID), data, len);
 	if (k >= 0) {
 		return k;
-	}
-	else {
+	}	else {
 		this->_disconnectedClients.push_back(clientID);
 		this->disconnectClient(clientID);
+		return -1;
 	}
 }
 
@@ -145,8 +136,6 @@ std::vector<int> ClientHandler::getDisconnectedClients() {
 }
 
 void ClientHandler::disconnectClient(int id) {
-	//Client* c = this->_getClient(id);
-
 	for (size_t i = 0; i < this->_clients.size(); i++) {
 		if (this->_clients[i]->id == id) {
 			SDLNet_TCP_Close(this->_clients[i]->socket);
@@ -157,10 +146,6 @@ void ClientHandler::disconnectClient(int id) {
 			break;
 		}
 	}
-	
-	//c->isDead = true;
-	//delete c;
-	//c = nullptr;
 }
 
 int ClientHandler::getNrOfClients() {
