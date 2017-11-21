@@ -423,7 +423,7 @@ namespace Barcode {
 			}
 		}
 
-		/*{
+		{
 			auto alienEntity = world::newEntity("Alien1", world::root());
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
 			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
@@ -449,7 +449,7 @@ namespace Barcode {
 			rgbc->setAngularForce(glm::vec3(0));
 		}
 
-		{
+		/*{
 			auto robotEntity = world::newEntity("Robot1", world::root());
 			robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
 			auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();

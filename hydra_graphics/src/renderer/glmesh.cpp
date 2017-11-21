@@ -306,7 +306,7 @@ private:
 			if (fileName != "NULL" && fileNameLength != 0)
 				_material.normal = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/normals/" + fileName);
 			else
-				_material.normal = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/normals/futuristicNormal.png");
+				_material.normal = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/normals/errorNormal.png");
 			delete[] tempNormalFileName;
 
 			//Read the glow Texture
