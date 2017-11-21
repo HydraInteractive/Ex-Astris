@@ -11,6 +11,7 @@ int64_t GameServer::_getEntityID(int serverid) {
 			return this->_players[i]->entityid;
 		}
 	}
+	return INT64_MAX;
 }
 
 void GameServer::_setEntityID(int serverID, int64_t entityID) {
@@ -71,7 +72,7 @@ void GameServer::_handleDisconnects() {
 			if (this->_players[k]->serverid == vec[i]) {
 				ServerDeletePacket* sdp = createServerDeletePacket(this->_players[k]->entityid);
 				this->_server->sendDataToAll((char*)sdp, sdp->h.len);
-				printf("Player disconnected, entity id : %d\n", this->_players[k]->entityid);
+				printf("Player disconnected, entity id : %zu\n", this->_players[k]->entityid);
 				for (size_t j = 0; j < this->_networkEntities.size(); j++) {
 					if (this->_networkEntities[j] == this->_players[k]->entityid) {
 						World::getEntity(this->_networkEntities[j])->dead = true;
@@ -89,7 +90,7 @@ void GameServer::_handleDisconnects() {
 Entity* GameServer::_createEntity(std::string name, EntityID parentID, bool serverSynced) {
 	Entity* ent = World::newEntity(name, parentID).get();
 
-	printf("Created entity \"%s\" with entity id : %d\n", ent->name.c_str(), ent->id);
+	printf("Created entity \"%s\" with entity id : %zu\n", ent->name.c_str(), ent->id);
 	if (serverSynced) {
 		ent->addComponent<Hydra::Component::TransformComponent>();
 		this->_networkEntities.push_back(ent->id);
@@ -161,7 +162,7 @@ bool GameServer::_addPlayer(int id) {
 		tc->setScale(pi.ti.scale);
 		tc->setRotation(pi.ti.rot);
 		this->_networkEntities.push_back(p->entityid);
-		printf("Player connected with entity id: %d\n", pi.entityid);
+		printf("Player connected with entity id: %zu\n", pi.entityid);
 
 
 		//SEND A PACKET TO ALL OTHER CLIENTS
@@ -205,6 +206,8 @@ void GameServer::_resolvePackets(std::vector<Packet*> packets) {
 		case PacketType::ClientShoot:
 			resolveClientShootPacket((ClientShootPacket*)packets[i], this->getPlayer(this->_getEntityID(packets[i]->h.client)), _physicsSystem); //SUPER INEFFICIENT
 			createAndSendPlayerShootPacket(this->getPlayer(this->_getEntityID(packets[i]->h.client)), (ClientShootPacket*)packets[i], this->_server);
+			break;
+		default:
 			break;
 		}
 	}
