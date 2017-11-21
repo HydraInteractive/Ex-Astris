@@ -1,6 +1,6 @@
 #pragma once
 #include <SDL2\SDL_net.h>
-#include <Packets.h>
+#include <../hydra_network/include/Packets.h>
 
 class TCPClient {
 private:

@@ -12,7 +12,8 @@
 #include <hydra/component/lightcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
 
-#include <NetClient.h>
+#include <../hydra_network/include/NetClient.h> //FUCK YOU DAN
+
 
 
 using world = Hydra::World::World;

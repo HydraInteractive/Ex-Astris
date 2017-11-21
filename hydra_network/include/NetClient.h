@@ -1,7 +1,7 @@
 #pragma once
-#include <TCPClient.h>
+#include <../hydra_network/include/TCPClient.h>
 #include <hydra/world/world.hpp>
-#include <Packets.h>
+#include <../hydra_network/include/Packets.h>
 
 typedef EntityID ServerID;
 

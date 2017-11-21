@@ -15,7 +15,7 @@
 #include <imgui/imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <random>
-#include <NetClient.h>
+#include <../hydra_network/include/NetClient.h> //Hej dan
 
 using namespace Hydra::World;
 using namespace Hydra::Component;
@@ -45,8 +45,10 @@ void WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 		t->rotation = bulletOrientation;
 
 		//Network shoot
-		Network::NetClient::updateBullet(bullet->id);
-		Network::NetClient::shoot(t.get(), direction);
+
+		//Network::NetClient::updateBullet(bullet->id);
+		//Network::NetClient::shoot(t.get(), direction);
+
 		//end Network shoot
 
 		auto bulletPhysWorld = static_cast<Hydra::System::BulletPhysicsSystem*>(IEngine::getInstance()->getState()->getPhysicsSystem());
