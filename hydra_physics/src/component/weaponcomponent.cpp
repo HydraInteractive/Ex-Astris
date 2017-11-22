@@ -17,7 +17,7 @@
 #include <imgui/imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <random>
-#include <hydra/network/netclient.hpp>
+//#include <hydra/network/netclient.hpp>
 
 using namespace Hydra::World;
 using namespace Hydra::Component;

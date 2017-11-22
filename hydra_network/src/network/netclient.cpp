@@ -134,7 +134,7 @@ void NetClient::_updateWorld(Packet * updatePacket) {
 		for (size_t i = 0; i < children.size(); i++) {
 			if (children[i] == _IDs[((ServerUpdatePacket::EntUpdate&)sup->data[k]).entityid]) {
 				tc = world::getEntity(children[i])->getComponent<Hydra::Component::TransformComponent>().get();
-				tc->setPosition(((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos);
+				tc->position = { ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.x, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.y + 4, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.z };
 				tc->setRotation(((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.rot);
 				tc->setScale(((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.scale);
 				break;
@@ -228,6 +228,6 @@ void NetClient::run() {
 
     //Nåt
     {
-        
+        //du gillar sovpotatisar no?
     }
 }

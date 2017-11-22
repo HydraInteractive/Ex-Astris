@@ -58,8 +58,6 @@ std::vector<Packet*> TCPClient::receiveData() {
 			while (curr < len && curr < MAX_NETWORK_LENGTH) {
 				tmp = (Packet*)(&(this->_msg[curr]));
 				printf("Reading packet: offset: %zu, curr: %d\n\ttype: %d\n\tlen: %d\n\tclient: %d\n", offset, curr, tmp->h.type, tmp->h.len, tmp->h.client);
-				if (!tmp->h.len)
-					continue;
 				if (curr + tmp->h.len > len) {
 					memmove(_msg, _msg + curr, len - curr);
 					offset = len - curr;
