@@ -126,7 +126,7 @@ namespace Barcode {
 		_textSystem.tick(delta);
 
 
-		static bool enableHitboxDebug = false;
+		static bool enableHitboxDebug = true;
 /*		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
 		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
 		ImGui::Checkbox("Enable SSAO", &MenuState::ssaoEnabled);
@@ -377,7 +377,7 @@ namespace Barcode {
 		}
 		{
 			//Remove this to gain frames like never before
-			tileGen = new TileGeneration("assets/room/wq.room");
+			tileGen = new TileGeneration("assets/room/saveMEEEE.room");
 			pathfindingMap = tileGen->buildMap();
 		}
 
@@ -581,17 +581,7 @@ namespace Barcode {
 						_physicsSystem.enable(static_cast<Hydra::Component::RigidBodyComponent*>(rb.get()));
 					}
 					for (auto& goc : Hydra::Component::GhostObjectComponent::componentHandler->getActiveComponents()) {
-						/*auto tc = Hydra::World::World::getEntity(goc->entityID)->getComponent<TransformComponent>();
-						auto ghostobject = Hydra::World::World::getEntity(goc->entityID)->getComponent<GhostObjectComponent>();
-						glm::vec3 newScale;
-						glm::quat rotation;
-						glm::vec3 translation;
-						glm::vec3 skew;
-						glm::vec4 perspective;
-						glm::decompose(tc->getMatrix(), newScale, rotation, translation, skew, perspective);
-						
-						ghostobject->ghostObject->setWorldTransform(btTransform(btQuaternion(ghostobject->quatRotation.x, ghostobject->quatRotation.y, ghostobject->quatRotation.z, ghostobject->quatRotation.w), btVector3(translation.x, translation.y, translation.z)));*/
-
+						static_cast<Hydra::Component::GhostObjectComponent*>(goc.get())->updateWorldTransform();
 						_physicsSystem.enable(static_cast<Hydra::Component::GhostObjectComponent*>(goc.get()));
 					}
 				}

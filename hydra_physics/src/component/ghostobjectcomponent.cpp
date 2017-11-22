@@ -9,17 +9,15 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-//void Hydra::Component::GhostObjectComponent::createSphere(float radius){
-//	ghostObject = new btGhostObject();
-//	ghostObject->setCollisionShape(new btSphereShape(radius));
-//	ghostObject->setWorldTransform(btTransform(btQuaternion(0,0,0,1), btVector3(0,0,0)));
-//}
+inline static btQuaternion cast(const glm::quat& r) { return btQuaternion{ r.x, r.y, r.z, r.w }; }
+inline static btVector3 cast(const glm::vec3& v) { return btVector3{ v.x, v.y, v.z }; }
+
+inline static glm::quat cast(const btQuaternion& r) { return glm::quat(r.w(), r.x(), r.y(), r.z()); }
+inline static glm::vec3 cast(const btVector3& v) { return glm::vec3(v.x(), v.y(), v.z()); }
 
 void Hydra::Component::GhostObjectComponent::_recalculateMatrix(){
-	if (auto tc = Hydra::World::World::getEntity(entityID)->getComponent<TransformComponent>())
-	{
-		_matrix = tc->getMatrix() * glm::mat4_cast(quatRotation) * glm::scale(halfExtents);
-	}
+	auto tc = Hydra::World::World::getEntity(entityID)->addComponent<TransformComponent>();
+	_matrix = tc->getMatrix() * glm::mat4_cast(quatRotation) * glm::scale(halfExtents);
 }
 
 void Hydra::Component::GhostObjectComponent::createBox(const glm::vec3& halfExtents, Hydra::System::BulletPhysicsSystem::CollisionTypes collType, const glm::quat& quatRotation) {
@@ -32,6 +30,10 @@ void Hydra::Component::GhostObjectComponent::createBox(const glm::vec3& halfExte
 	ghostObject->setUserIndex2(collType);
 	ghostObject->setFriction(0);
 
+	//updateWorldTransform();
+}
+
+void Hydra::Component::GhostObjectComponent::updateWorldTransform(){
 	_recalculateMatrix();
 
 	glm::vec3 newScale;
@@ -41,7 +43,7 @@ void Hydra::Component::GhostObjectComponent::createBox(const glm::vec3& halfExte
 	glm::vec4 perspective;
 	glm::decompose(_matrix, newScale, rotation, translation, skew, perspective);
 
-	ghostObject->setWorldTransform(btTransform(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w), btVector3(translation.x, translation.y, translation.z)));
+	ghostObject->setWorldTransform(btTransform(cast(rotation).inverse(), cast(translation)));
 }
 
 GhostObjectComponent::~GhostObjectComponent() {
@@ -95,40 +97,9 @@ void GhostObjectComponent::registerUI() {
 	}
 	if (ImGui::DragFloat3("Rotation", glm::value_ptr(rotation), 1.0f)){
 		quatRotation = glm::quat(glm::radians(rotation));
-		ghostObject->getWorldTransform().setRotation(btQuaternion(quatRotation.x, quatRotation.y, quatRotation.z, quatRotation.w));
+		updateWorldTransform();
 	}
-	if (ImGui::Button("PRESS IT"))
-	{
-		if (auto tc = Hydra::World::World::getEntity(entityID)->getComponent<TransformComponent>()) {
-			glm::mat4 matrixen = _matrix;// tc->getMatrix();
-			std::stringstream temp;
-			temp << "NEW MATRIX!" << std::endl;
-			for (size_t i = 0; i < 4; i++)
-			{
-				for (size_t j = 0; j < 4; j++)
-				{
-					temp << matrixen[i][j] << " : ";
-				}
-				temp << std::endl;
-			}
-			printf(temp.str().c_str());
-		}
-	}
-	if (ImGui::Button("CHILD"))
-	{
-		if (auto tc = Hydra::World::World::getEntity(entityID)->getComponent<TransformComponent>()) {
-			glm::mat4 matrixen = _matrix;//tc->_getParentComponent()->getMatrix();
-			std::stringstream temp;
-			temp << "NEW MATRIX!" << std::endl;
-			for (size_t i = 0; i < 4; i++)
-			{
-				for (size_t j = 0; j < 4; j++)
-				{
-					temp << matrixen[i][j] << " : ";
-				}
-				temp << std::endl;
-			}
-			printf(temp.str().c_str());
-		}
+	if (ImGui::Button("BOG")){
+		updateWorldTransform();
 	}
 }
