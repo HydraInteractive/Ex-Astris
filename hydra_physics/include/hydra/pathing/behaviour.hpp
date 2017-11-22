@@ -40,6 +40,7 @@ public:
 	int oldMapPosZ = 0;
 
 	bool hasRequiredComponents = false;
+	bool playerUnreachable = false;
 
 	float range = 1.0f;
 	float originalRange = 1.0f;

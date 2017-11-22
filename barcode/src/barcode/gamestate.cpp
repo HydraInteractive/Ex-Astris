@@ -376,7 +376,7 @@ namespace Barcode {
 		}
 		{
 			//Remove this to gain frames like never before
-			tileGen = new TileGeneration("assets/room/trashedComputerRoom.room");
+			tileGen = new TileGeneration("assets/room/tryTwo.room");
 			pathfindingMap = tileGen->buildMap();
 		}
 
@@ -400,7 +400,7 @@ namespace Barcode {
 			auto perks = playerEntity->addComponent<Hydra::Component::PerkComponent>();
 			h->health = h->maxHP = 100.0f * MenuState::playerHPMultiplier;
 			prevHP = h->health;
-			m->movementSpeed = 300.0f;
+			m->movementSpeed = 250.0f;
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(-10, 0, -10);
 			_playerTransform = t.get();

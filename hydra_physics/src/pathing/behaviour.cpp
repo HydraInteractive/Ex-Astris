@@ -64,6 +64,7 @@ bool Behaviour::refreshRequiredComponents()
 		(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>().get()) &&
 		(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>().get()) &&
 		(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>().get()) &&
+		(thisEnemy.weapon = thisEnemy.entity->getComponent<Hydra::Component::WeaponComponent>().get()) &&
 		(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
 		(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
@@ -79,10 +80,13 @@ unsigned int Behaviour::idleState(float dt)
 	resetAnimationOnStart(0);
 	//If the player is close enough, activate
 
-	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 50.0f)
-	{
-		return SEARCHING;
-	}
+	/*if (!pathFinding->inWall(targetPlayer.transform->position))
+	{*/
+		if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 50.0f)
+		{
+			return SEARCHING;
+		}
+	//}
 
 
 	return state;
@@ -135,6 +139,7 @@ unsigned int Behaviour::movingState(float dt)
 			{
 				pathFinding->pathToEnd.pop_back();
 				//If there is nowhere to go, search
+
 				if (pathFinding->pathToEnd.empty())
 				{
 					move(targetPlayer.transform->position);
@@ -197,7 +202,20 @@ unsigned int Behaviour::attackingState(float dt)
 
 void Behaviour::executeTransforms()
 {
-	range = originalRange;
+
+	if (!pathFinding->inLineOfSight(thisEnemy.transform->position, targetPlayer.transform->position))
+	{
+
+		if (range > 3)
+		{
+			range -= 2;
+		}
+	}
+	else
+	{
+		range = originalRange;
+	}
+
 
 	auto rigidBody = static_cast<btRigidBody*>(thisEnemy.rigidBody->getRigidBody());
 	glm::vec3 movementForce = thisEnemy.movement->velocity;
@@ -252,7 +270,20 @@ void AlienBehaviour::run(float dt)
 	idleTimer += dt;
 	attackTimer += dt;
 	newPathTimer += dt;
+	if (targetPlayer.transform->position.y >= 4.6f && pathFinding->inWall(targetPlayer.transform->position))
+	{
+		playerUnreachable = true;
+		state = ATTACKING;
+	}
+	else if (targetPlayer.transform->position.y < 4.6f)
+	{
+		playerUnreachable = false;
+	}
 
+	//if (pathFinding->inWall(targetPlayer.transform->position))
+	//{
+	//	state = IDLE;
+	//}
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 50)
 	{
 		state = IDLE;
@@ -279,23 +310,43 @@ unsigned int AlienBehaviour::attackingState(float dt)
 {
 	//When the enemy attack, start the attack animation
 	resetAnimationOnStart(2);
-	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) >= range)
+	if (playerUnreachable)
 	{
-		idleTimer = 0;
-		return SEARCHING;
+		if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) >= (range+range+range+range))
+		{
+			idleTimer = 0;
+			return SEARCHING;
+		}
+		else
+		{
+			glm::vec3 playerDir = glm::normalize(targetPlayer.transform->position - thisEnemy.transform->position);
+			if (attackTimer > 2.5)
+			{
+				thisEnemy.weapon->shoot(thisEnemy.transform->position + glm::vec3{ 0, 1.5, 0 }, playerDir, glm::quat(), 5.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
+				attackTimer = 0;
+			}
+			rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
+		}
 	}
 	else
 	{
-		std::mt19937 rng(rd());
-		std::uniform_int_distribution<> randDmg(thisEnemy.ai->damage - 1, thisEnemy.ai->damage + 2);
-		if (attackTimer > 2.5)
+		if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) >= range)
 		{
-			targetPlayer.life->applyDamage(randDmg(rng));
-			attackTimer = 0;
+			idleTimer = 0;
+			return SEARCHING;
 		}
-
-		glm::vec3 playerDir = glm::normalize(targetPlayer.transform->position - thisEnemy.transform->position);
-		rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
+		else
+		{
+			std::mt19937 rng(rd());
+			std::uniform_int_distribution<> randDmg(thisEnemy.ai->damage - 1, thisEnemy.ai->damage + 2);
+			glm::vec3 playerDir = glm::normalize(targetPlayer.transform->position - thisEnemy.transform->position);
+			if (attackTimer > 2.5)
+			{
+				targetPlayer.life->applyDamage(randDmg(rng));
+				attackTimer = 0;
+			}
+			rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
+		}
 	}
 	return state;
 }
@@ -409,7 +460,7 @@ unsigned int RobotBehaviour::attackingState(float dt)
 	{
 		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
 		playerDir = glm::normalize(playerDir);
-		thisEnemy.weapon->shoot(thisEnemy.transform->position + glm::vec3{0, 1.5, 0}, playerDir, glm::quat(), 8.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
+		thisEnemy.weapon->shoot(thisEnemy.transform->position + glm::vec3{0, 1.5, 0}, playerDir, glm::quat(), 6.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
 		rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
 	}
 	return state;

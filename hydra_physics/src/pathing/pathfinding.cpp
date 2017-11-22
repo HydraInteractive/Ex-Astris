@@ -29,9 +29,12 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 	_visitedList.clear();
 	pathToEnd.clear();
 
-	if (inWall(targetPos))
+	if (targetPos.y < 4.6f)
 	{
-		targetPos = findViableTile(targetPos);
+		if (inWall(targetPos))
+		{
+			targetPos = findViableTile(targetPos);
+		}
 	}
 
 	if (inWall(currentPos))
@@ -150,7 +153,7 @@ glm::vec3 PathFinding::findViableTile(glm::vec3 mapPos) const
 	MapVec p = worldToMapCoords(mapPos);
 	glm::ivec2& vec = p.baseVec;
 
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		if (map[vec.x + i][vec.y] == 1)
 		{

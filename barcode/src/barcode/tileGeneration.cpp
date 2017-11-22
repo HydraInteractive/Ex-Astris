@@ -262,7 +262,6 @@ void TileGeneration::_obtainRoomFiles() {
 	_roomFileNames.push_back(path + "centralRoomBigScreen.room");
 	_roomFileNames.push_back(path + "fourwayRoom.room");
 	_roomFileNames.push_back(path + "starterRoom.room");
-	_roomFileNames.push_back(path + "threewayRoom.room");
 	_roomFileNames.push_back(path + "trashedComputerRoom.room");
 	_roomFileNames.push_back(path + "tryTree.room");
 	_roomFileNames.push_back(path + "tryTwo.room");
@@ -298,12 +297,20 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 		a->behaviour->setPathMap(pathfindingMap);
 		a->damage = 4;
-		a->behaviour->originalRange = 3.5f;
+		a->behaviour->originalRange = 4.0f;
 		a->radius = 1;
 
 		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 		h->maxHP = 80;
 		h->health = 80;
+
+		auto w = alienEntity->addComponent<Hydra::Component::WeaponComponent>();
+		w->bulletSpread = 0.2f;
+		w->bulletsPerShot = 1;
+		w->damage = 4;
+		w->maxmagammo = 100000000;
+		w->currmagammo = 100000000;
+		w->maxammo = 100000000;
 
 		auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
 		m->movementSpeed = 5.0f;
@@ -316,7 +323,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		t->scale = glm::vec3{ 1,1,1 };
 
 		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.5, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 	}
@@ -329,12 +336,20 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 		a->behaviour->setPathMap(pathfindingMap);
 		a->damage = 4;
-		a->behaviour->originalRange = 3.5f;
+		a->behaviour->originalRange = 4.0f;
 		a->radius = 1;
 
 		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 		h->maxHP = 60;
 		h->health = 60;
+
+		auto w = alienEntity->addComponent<Hydra::Component::WeaponComponent>();
+		w->bulletSpread = 0.2f;
+		w->bulletsPerShot = 1;
+		w->damage = 4;
+		w->maxmagammo = 100000000;
+		w->currmagammo = 100000000;
+		w->maxammo = 100000000;
 
 		auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
 		m->movementSpeed = 10.0f;
@@ -345,7 +360,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		t->position.z = roomTransform->position.z + i + 2;
 		t->scale = glm::vec3{ 1,1,1 };
 		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.5, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
