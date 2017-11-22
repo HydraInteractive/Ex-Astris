@@ -33,6 +33,7 @@ namespace Barcode {
 	GameState::GameState() : _engine(Hydra::IEngine::getInstance()) {}
 
 	void GameState::load() {
+		Hydra::Network::NetClient::reset();
 		_textureLoader = Hydra::IO::GLTextureLoader::create();
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
 		_textFactory = Hydra::IO::GLTextFactory::create("assets/fonts/font.png");
@@ -48,8 +49,7 @@ namespace Barcode {
 		_initWorld();
 	}
 
-	GameState::~GameState() { }
-
+	GameState::~GameState() {}
 	void GameState::onMainMenu() { }
 
 	void GameState::runFrame(float delta) {
@@ -416,7 +416,6 @@ namespace Barcode {
 		}*/
 
 		{
-			
 			if (Hydra::Network::NetClient::initialize(addr, port)) {
 				//show feedback?
 			}

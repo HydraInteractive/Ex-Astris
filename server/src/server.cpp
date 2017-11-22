@@ -1,5 +1,7 @@
 #include <server/server.hpp>
 
+using namespace Server;
+
 Server::Server() {
 	this->_running = false;
 }

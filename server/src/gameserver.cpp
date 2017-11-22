@@ -6,6 +6,8 @@
 #include <chrono>
 #include <thread>
 
+using namespace Server;
+
 int64_t GameServer::_getEntityID(int serverid) {
 	for (size_t i = 0; i < this->_players.size(); i++) {
 		if (this->_players[i]->serverid == serverid) {

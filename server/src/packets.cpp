@@ -5,6 +5,8 @@
 #include <server/server.hpp>
 #include <server/gameserver.hpp>
 
+using namespace Server;
+
 ServerDeletePacket * createServerDeletePacket(EntityID entID) {
 	ServerDeletePacket* sdp = new ServerDeletePacket();
 	sdp->h.type = PacketType::ServerDeleteEntity;

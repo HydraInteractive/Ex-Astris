@@ -55,11 +55,24 @@ namespace Hydra::Network {
 		char* data[0];
 		inline size_t getSize() { return sizeof(ClientUpdateBulletPacket) + sizeof(char) * size; }
 	};
+	struct ServerUpdateBulletPacket : public Packet {
+		EntityID serverPlayerID;
+		size_t size;
+		char* data[0];
+		inline size_t getSize() { return sizeof(ServerUpdateBulletPacket) + sizeof(char) * size; }
+	};
+
 
 	struct ClientShootPacket : public Packet {
 		TransformInfo ti;
 		glm::vec3 direction;
 	};
+	struct ServerShootPacket : public Packet {
+		EntityID serverPlayerID;
+		TransformInfo ti;
+		glm::vec3 direction;
+	};
+
 
 
 	struct ClientSpawnEntityPacket : public Packet {

@@ -27,5 +27,6 @@ namespace Hydra::Network {
 		static void shoot(Hydra::Component::TransformComponent* tc, glm::vec3 direction);
 		static void updateBullet(EntityID newBulletID);
 		static void run();
+		static void reset();
 	};
 }

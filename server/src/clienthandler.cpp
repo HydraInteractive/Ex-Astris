@@ -1,6 +1,8 @@
 #include <server/clienthandler.hpp>
 #define SocketSetSize 4
 
+using namespace Server;
+
 int ClientHandler::_generateClientID() {
 	return this->_currID++;
 }

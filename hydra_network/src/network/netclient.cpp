@@ -274,3 +274,11 @@ void NetClient::run() {
         //du gillar sovpotatisar no?
     }
 }
+
+void NetClient::reset() {
+	if (!running)
+		return;
+	_tcp.close();
+	_IDs.clear();
+	running = false;
+}
