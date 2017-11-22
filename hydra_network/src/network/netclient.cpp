@@ -128,15 +128,15 @@ void NetClient::_updateWorld(Packet * updatePacket) {
 		if (_IDs[sup->data[k].entityid] == _myID)
 			continue;
 		else if (_IDs[sup->data[k].entityid] == 0) {
-			printf("Error updating entity: %zu", _IDs[sup->data[k].entityid]);
+			printf("Error updating entity: %zu\n", _IDs[sup->data[k].entityid]);
 			continue;
 		}
 		for (size_t i = 0; i < children.size(); i++) {
-			if (children[i] == _IDs[((ServerUpdatePacket::EntUpdate)sup->data[k]).entityid]) {
+			if (children[i] == _IDs[((ServerUpdatePacket::EntUpdate&)sup->data[k]).entityid]) {
 				tc = world::getEntity(children[i])->getComponent<Hydra::Component::TransformComponent>().get();
-				tc->setPosition(((ServerUpdatePacket::EntUpdate)sup->data[k]).ti.pos);
-				tc->setRotation(((ServerUpdatePacket::EntUpdate)sup->data[k]).ti.rot);
-				tc->setScale(((ServerUpdatePacket::EntUpdate)sup->data[k]).ti.scale);
+				tc->setPosition(((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos);
+				tc->setRotation(((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.rot);
+				tc->setScale(((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.scale);
 				break;
 			}
 		}
@@ -154,7 +154,7 @@ void NetClient::_addPlayer(Packet * playerPacket) {
 	_IDs[spp->entID] = ent->id;
 	Hydra::Component::TransformComponent* tc = ent->addComponent<Hydra::Component::TransformComponent>().get();
 	auto mesh = ent->addComponent<Hydra::Component::MeshComponent>();
-	mesh->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
+	mesh->loadMesh("assets/objects/characters/AlienModel.mATTIC");
 	tc->setPosition(spp->ti.pos);
 	tc->setRotation(spp->ti.rot);
 	tc->setScale(spp->ti.scale);

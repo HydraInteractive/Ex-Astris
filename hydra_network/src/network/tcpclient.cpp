@@ -9,9 +9,7 @@ TCPClient::TCPClient() {
     this->_connected = false;
 }
 TCPClient::~TCPClient() {
-	if (this->_msg) {
-		delete this->_msg;
-	}
+	close();
 }
 
 bool TCPClient::initialize(char* ip, int port) {
@@ -33,26 +31,33 @@ bool TCPClient::initialize(char* ip, int port) {
 }
 
 int TCPClient::send(void* data, int length) {
+	if (!_connected)
+		return -1;
 	((Packet*)data)->h.client = -7;
 	return SDLNet_TCP_Send(this->_tcp, data, length);
 }
 
 std::vector<Packet*> TCPClient::receiveData() {
-    std::vector<Packet*> packets;
-    Packet* tmp;
-    Packet* tmp2;
-    int curr = 0;
+	std::vector<Packet*> packets;
+	if (!_connected)
+		return packets;
+
+	Packet* tmp;
+	Packet* tmp2;
+	int curr = 0;
 
 	static size_t offset = 0;
 	while (SDLNet_CheckSockets(this->_sset, 0)) {
-		if (offset != 0) {
-			offset += 5;
-			offset -= 5;
+		if (offset == MAX_NETWORK_LENGTH) {
+			close();
+			return packets;
 		}
+
 		int len = SDLNet_TCP_Recv(this->_tcp, this->_msg + offset, MAX_NETWORK_LENGTH - offset) + offset;
 		if (len > 0) {
 			while (curr < len && curr < MAX_NETWORK_LENGTH) {
 				tmp = (Packet*)(&(this->_msg[curr]));
+				printf("Reading packet: offset: %zu, curr: %d\n\ttype: %d\n\tlen: %d\n\tclient: %d\n", offset, curr, tmp->h.type, tmp->h.len, tmp->h.client);
 				if (!tmp->h.len)
 					continue;
 				if (curr + tmp->h.len > len) {
@@ -69,6 +74,9 @@ std::vector<Packet*> TCPClient::receiveData() {
 			}
 			if (curr == len)
 				offset = 0;
+		} else {
+			close();
+			return packets;
 		}
 	}
 	return packets;
@@ -79,6 +87,11 @@ bool TCPClient::isConnected() {
 }
 
 void TCPClient::close() {
-	//CLOSE CODE
+	printf("Disconnecting from the server!\n");
+	_connected = false;
+	SDLNet_FreeSocketSet(_sset);
+	_sset = nullptr;
+	SDLNet_TCP_Close(_tcp);
+	_tcp = nullptr;
 	delete[] this->_msg;
 }

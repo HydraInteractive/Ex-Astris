@@ -63,25 +63,26 @@ void createAndSendServerEntityPacket(Entity* ent, Server* s) {
 	ent->serialize(json);
 	data = json.to_msgpack(json);
 
-	ServerSpawnEntityPacket* ssep = new ServerSpawnEntityPacket();
-	ssep->h.type = PacketType::ServerSpawnEntity;
-	ssep->id = ent->id;
-	ssep->size = data.size();
-	ssep->h.len = ssep->getSize();
+	ServerSpawnEntityPacket* packet = new ServerSpawnEntityPacket();
+	packet->h.type = PacketType::ServerSpawnEntity;
+	packet->id = ent->id;
+	packet->size = data.size();
+	packet->h.len = packet->getSize();
 
 	char* result = new char[sizeof(ServerSpawnEntityPacket) + data.size() * sizeof(uint8_t)];
 
-	memcpy(result, ssep, sizeof(ServerSpawnEntityPacket));
+	memcpy(result, packet, sizeof(ServerSpawnEntityPacket));
 	memcpy(result + sizeof(ServerSpawnEntityPacket), data.data(), data.size() * sizeof(uint8_t));
 
+	printf("sendDataToAll:\n\ttype: ServerSpawnEntity\n\tlen: %d\n", packet->h.len);
 	s->sendDataToAll(result, sizeof(ServerSpawnEntityPacket) + data.size() * sizeof(uint8_t));
 
 	delete[] result;
 
-	//s->sendDataToAll((char*)ssep, sizeof(ServerSpawnEntityPacket));
+	//s->sendDataToAll((char*)packet, sizeof(ServerSpawnEntityPacket));
 	//s->sendDataToAll((char*)data.data(), data.size() * sizeof(uint8_t));
 
-	delete ssep;
+	delete packet;
 }
 
 void createAndSendPlayerUpdateBulletPacket(Player * p, Server * s) {
@@ -96,6 +97,7 @@ void createAndSendPlayerUpdateBulletPacket(Player * p, Server * s) {
 	memcpy(result, packet, sizeof(ServerUpdateBulletPacket));
 	memcpy(result + sizeof(ServerUpdateBulletPacket), vec.data(), vec.size() * sizeof(uint8_t));
 
+	printf("sendDataToAllExcept:\n\ttype: ServerUpdateBullet\n\tlen: %d\n", packet->h.len);
 	s->sendDataToAllExcept(result, sizeof(ServerUpdateBulletPacket) + vec.size() * sizeof(uint8_t), p->serverid);
 	//_tcp.send(packet, sizeof(ClientSpawnEntityPacket)); // DATA SNED
 	//_tcp.send(vec.data(), vec.size() * sizeof(uint8_t)); // DATA SKJICJIK
@@ -106,18 +108,19 @@ void createAndSendPlayerUpdateBulletPacket(Player * p, Server * s) {
 }
 
 void createAndSendPlayerShootPacket(Player * p, ClientShootPacket * csp, Server * s) {
-	ServerShootPacket* ssp = new ServerShootPacket();
+	ServerShootPacket* packet = new ServerShootPacket();
 
-	ssp->h.len = sizeof(ServerShootPacket);
-	ssp->h.type = PacketType::ServerShoot;
+	packet->h.len = sizeof(ServerShootPacket);
+	packet->h.type = PacketType::ServerShoot;
 
-	ssp->direction = csp->direction;
-	ssp->ti = csp->ti;
-	ssp->serverPlayerID = p->entityid;
+	packet->direction = csp->direction;
+	packet->ti = csp->ti;
+	packet->serverPlayerID = p->entityid;
 
-	s->sendDataToAllExcept((char*)ssp, sizeof(ServerShootPacket), p->serverid);
+	printf("sendDataToAllExcept:\n\ttype: ServerShoot\n\tlen: %d\n", packet->h.len);
+	s->sendDataToAllExcept((char*)packet, sizeof(ServerShootPacket), p->serverid);
 
-	delete ssp;
+	delete packet;
 }
 
 Entity* resolveClientSpawnEntityPacket(ClientSpawnEntityPacket* csep, EntityID id, Server* s) {
@@ -136,25 +139,26 @@ Entity* resolveClientSpawnEntityPacket(ClientSpawnEntityPacket* csep, EntityID i
 
 	printf("Client Created Entity: \"%s\" with id: %zu\n", ent->name.c_str(), ent->id);
 	
-	ServerSpawnEntityPacket* ssep = new ServerSpawnEntityPacket();
-	ssep->h.type = PacketType::ServerSpawnEntity;
-	ssep->id = ent->id;
-	ssep->size = data.size();
-	ssep->h.len = ssep->getSize();
+	ServerSpawnEntityPacket* packet = new ServerSpawnEntityPacket();
+	packet->h.type = PacketType::ServerSpawnEntity;
+	packet->id = ent->id;
+	packet->size = data.size();
+	packet->h.len = packet->getSize();
 
 	char* result = new char[sizeof(ServerSpawnEntityPacket) + data.size() * sizeof(uint8_t)];
 
-	memcpy(result, ssep, sizeof(ServerSpawnEntityPacket));
+	memcpy(result, packet, sizeof(ServerSpawnEntityPacket));
 	memcpy(result + sizeof(ServerSpawnEntityPacket), data.data(), data.size() * sizeof(uint8_t));
 
+	printf("sendDataToAll:\n\ttype: ServerShoot\n\tlen: %d\n", packet->h.len);
 	s->sendDataToAll(result, sizeof(ServerSpawnEntityPacket) + data.size() * sizeof(uint8_t));
 
 	delete[] result;
 
-	//s->sendDataToAll((char*)ssep, sizeof(ServerSpawnEntityPacket));
+	//s->sendDataToAll((char*)packet, sizeof(ServerSpawnEntityPacket));
 	//s->sendDataToAll((char*)data.data(), data.size() * sizeof(uint8_t));
 	
-	delete ssep;
+	delete packet;
 	return ent;
 }
 

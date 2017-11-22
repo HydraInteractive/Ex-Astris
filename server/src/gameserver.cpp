@@ -122,13 +122,17 @@ void GameServer::_convertEntityToTransform(ServerUpdatePacket::EntUpdate& dest, 
 
 void GameServer::_sendWorld() {
 	char* result = new char[(sizeof(ServerUpdatePacket) + (sizeof(ServerUpdatePacket::EntUpdate) * this->_networkEntities.size()))];
-	((ServerUpdatePacket*)result)->h.type = PacketType::ServerUpdate;
-	((ServerUpdatePacket*)result)->h.len = (sizeof(ServerUpdatePacket) + (sizeof(ServerUpdatePacket::EntUpdate) * this->_networkEntities.size()));
-	((ServerUpdatePacket*)result)->nrOfEntUpdates = this->_networkEntities.size();
+	ServerUpdatePacket* packet = (ServerUpdatePacket*)result;
+	packet->h.type = PacketType::ServerUpdate;
+	packet->h.len = (sizeof(ServerUpdatePacket) + (sizeof(ServerUpdatePacket::EntUpdate) * this->_networkEntities.size()));
+	packet->nrOfEntUpdates = this->_networkEntities.size();
 	for (size_t i = 0; i < this->_networkEntities.size(); i++) {
 		this->_convertEntityToTransform(*(ServerUpdatePacket::EntUpdate*)((char*)result + sizeof(ServerUpdatePacket) + sizeof(ServerUpdatePacket::EntUpdate) * i), this->_networkEntities[i]);
 	}
-	this->_server->sendDataToAll(result, ((ServerUpdatePacket*)result)->h.len);
+
+	if (_players.size())
+		printf("sendDataToAll:\n\ttype: ServerUpdate\n\tlen: %d\n", packet->h.len);
+	this->_server->sendDataToAll(result, packet->h.len);
 	delete[] result;
 }
 
@@ -155,6 +159,8 @@ bool GameServer::_addPlayer(int id) {
 		pi.ti.pos = { 0, 0, 0 };
 		pi.ti.scale = { 1, 1, 1 };
 		pi.ti.rot = glm::quat();
+		
+		printf("sendDataToClient:\n\ttype: ServerInitialize\n\tlen: %d\n", pi.h.len);
 		int tmp = this->_server->sendDataToClient((char*)&pi, pi.h.len, id);
 		
 		Hydra::Component::TransformComponent* tc = enttmp->addComponent<Hydra::Component::TransformComponent>(/*pi.ti.pos, pi.ti.scale, pi.ti.rot*/).get();
@@ -179,6 +185,7 @@ bool GameServer::_addPlayer(int id) {
 		
 		ServerPlayerPacket* spp = createServerPlayerPacket("Fjant", pi.ti);
 		spp->entID = p->entityid;
+		printf("sendDataToAllExcept:\n\ttype: SERVERPLAYERPACKET\n\tlen: %d\n", spp->h.len);
 		this->_server->sendDataToAllExcept((char*)spp, spp->getSize(), p->serverid);
 		delete[] (char*)spp;
 		
@@ -308,7 +315,7 @@ void GameServer::run() {
 	//Send updated world to clients
 	{
 		this->packetDelay += delta;
-		if (packetDelay >= 1/30) {
+		if (packetDelay >= 1/1) {
 			this->_sendWorld();
 			this->packetDelay = 0;
 		}

@@ -26,7 +26,7 @@
 using world = Hydra::World::World;
 
 namespace Barcode {
-	char GameState::addr[256] = "192.168.1.24";
+	char GameState::addr[256] = "127.0.0.1";
 	int GameState::port = 4545;
 
 	GameState::GameState() : _engine(Hydra::IEngine::getInstance()) {}
@@ -60,7 +60,7 @@ namespace Barcode {
 			return;
 		}
 
-		{
+		/*{
 			static std::vector<std::shared_ptr<Entity>> _enemies;
 			world::getEntitiesWithComponents<Hydra::Component::AIComponent, Hydra::Component::LifeComponent>(_enemies);
 			if (!_enemies.size()) {
@@ -69,7 +69,7 @@ namespace Barcode {
 				return;
 			}
 			_enemies.clear();
-		}
+		}*/
 
 		bool oldPaused = _paused;
 		if (ImGui::IsKeyPressed(SDLK_ESCAPE, false)) {

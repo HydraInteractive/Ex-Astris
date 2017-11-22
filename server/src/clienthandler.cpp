@@ -109,9 +109,9 @@ int ClientHandler::addNewConnection(TCPsocket sock) {
 
 int ClientHandler::sendData(char * data, int len, int clientID) {
 	int k = SDLNet_TCP_Send(this->getSocketFromID(clientID), data, len);
-	if (k >= 0) {
+	if (k > 0)
 		return k;
-	}	else {
+	else {
 		this->_disconnectedClients.push_back(clientID);
 		this->disconnectClient(clientID);
 		return -1;

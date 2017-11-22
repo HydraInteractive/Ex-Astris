@@ -18,19 +18,22 @@
 #include <stdlib.h>
 #include <crtdbg.h>
 
-static inline void reportMemoryLeaks() {
+static inline void setup() {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 }
 #else
-static inline void reportMemoryLeaks() {}
-#endif
+#include <signal.h>
 
-#define Jordgubbe Hydra::Physics
+static inline void setup() {
+	signal(SIGPIPE, SIG_IGN);
+}
+#endif
 
 #undef main
 int main(int argc, char** argv) {
 	(void)argc;
 	(void)argv;
+	setup();
 	SDLNet_Init();
 	using namespace Hydra::Component::ComponentManager;
 	auto& map = createOrGetComponentMap();

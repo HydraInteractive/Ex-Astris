@@ -6,7 +6,7 @@ import std.string;
 
 //-fopenmp
 enum optimization = "-Og -pg -ggdb -Wno-error=unknown-pragmas -ffat-lto-objects -Wno-error=maybe-uninitialized -Wno-error=null-dereference";
-//enum optimization = "-O3 -ggdb -fopenmp -ffat-lto-objects -Wno-error=maybe-uninitialized -Wno-error=null-dereference";
+//enum optimization = "-O3 -Wl,-O1 -march=native -ggdb -fopenmp -flto -ffat-lto-objects -Wno-error=maybe-uninitialized -Wno-error=null-dereference";
 
 enum string[] SubProjects = ["hydra", "hydra_graphics", "hydra_network", "hydra_physics", "hydra_sound"];
 enum string[] SubProjectsServer = ["hydra", "hydra_network", "hydra_physics"];
@@ -84,7 +84,7 @@ Build myBuild() {
 	auto barcode = Target("barcodegame", LinkBarcodeExec, MakeObjects!("barcode/src/", CompileBarcodeExec), [libhydra, libhydra_graphics, libhydra_network, libhydra_physics, libhydra_sound]);
 	auto server = Target("barcodeserver", LinkServerExec, MakeObjects!("server/src/", CompileServerExec), [libhydra, libhydra_network, libhydra_physics]);
 
-	auto project = Target.phony("barcodeproject", "cp objs/barcodeproject.objs/barcode{game,server} .", [barcode, server]);
+	auto project = Target.phony("barcodeproject", "(cp objs/barcodeproject.objs/barcodegame . || true); (cp objs/barcodeproject.objs/barcodeserver . || true)", [barcode, server]);
 
 	auto dist = optional(Target.phony("dist", `tar cfz dist-$$(git describe --long --tags | sed 's/\([^-]*-\)g/r\1/').tar.xz barcodegame barcodeserver assets -C objs/barcodeproject.objs libhydra{,_{graphics,network,physics,sound}}.so`, [project]));
 
