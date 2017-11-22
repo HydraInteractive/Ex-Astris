@@ -54,7 +54,7 @@ namespace Barcode {
 			return;
 		}
 
-		{
+		/*{
 			static std::vector<std::shared_ptr<Entity>> _enemies;
 			world::getEntitiesWithComponents<Hydra::Component::AIComponent, Hydra::Component::LifeComponent>(_enemies);
 			if (!_enemies.size()) {
@@ -63,7 +63,7 @@ namespace Barcode {
 				return;
 			}
 			_enemies.clear();
-		}
+		}*/
 
 		bool oldPaused = _paused;
 		if (ImGui::IsKeyPressed(SDLK_ESCAPE, false)) {
@@ -377,7 +377,7 @@ namespace Barcode {
 		}
 		{
 			//Remove this to gain frames like never before
-			tileGen = new TileGeneration("assets/room/starterRoom.room");
+			tileGen = new TileGeneration("assets/room/wq.room");
 			pathfindingMap = tileGen->buildMap();
 		}
 
@@ -581,7 +581,7 @@ namespace Barcode {
 						_physicsSystem.enable(static_cast<Hydra::Component::RigidBodyComponent*>(rb.get()));
 					}
 					for (auto& goc : Hydra::Component::GhostObjectComponent::componentHandler->getActiveComponents()) {
-						auto tc = Hydra::World::World::getEntity(goc->entityID)->getComponent<TransformComponent>();
+						/*auto tc = Hydra::World::World::getEntity(goc->entityID)->getComponent<TransformComponent>();
 						auto ghostobject = Hydra::World::World::getEntity(goc->entityID)->getComponent<GhostObjectComponent>();
 						glm::vec3 newScale;
 						glm::quat rotation;
@@ -590,7 +590,7 @@ namespace Barcode {
 						glm::vec4 perspective;
 						glm::decompose(tc->getMatrix(), newScale, rotation, translation, skew, perspective);
 						
-						ghostobject->ghostObject->setWorldTransform(btTransform(btQuaternion(ghostobject->quatRotation.x, ghostobject->quatRotation.y, ghostobject->quatRotation.z, ghostobject->quatRotation.w), btVector3(translation.x, translation.y, translation.z)));
+						ghostobject->ghostObject->setWorldTransform(btTransform(btQuaternion(ghostobject->quatRotation.x, ghostobject->quatRotation.y, ghostobject->quatRotation.z, ghostobject->quatRotation.w), btVector3(translation.x, translation.y, translation.z)));*/
 
 						_physicsSystem.enable(static_cast<Hydra::Component::GhostObjectComponent*>(goc.get()));
 					}

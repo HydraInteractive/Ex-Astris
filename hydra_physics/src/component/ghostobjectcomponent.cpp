@@ -25,11 +25,23 @@ void Hydra::Component::GhostObjectComponent::_recalculateMatrix(){
 void Hydra::Component::GhostObjectComponent::createBox(const glm::vec3& halfExtents, Hydra::System::BulletPhysicsSystem::CollisionTypes collType, const glm::quat& quatRotation) {
 	this->halfExtents = halfExtents;
 	this->quatRotation = quatRotation;
+	
 	ghostObject = new btGhostObject();
 	ghostObject->setCollisionShape(new btBoxShape(btVector3(halfExtents.x, halfExtents.y, halfExtents.z)));
 	ghostObject->setUserIndex(this->entityID);
 	ghostObject->setUserIndex2(collType);
 	ghostObject->setFriction(0);
+
+	_recalculateMatrix();
+
+	glm::vec3 newScale;
+	glm::quat rotation;
+	glm::vec3 translation;
+	glm::vec3 skew;
+	glm::vec4 perspective;
+	glm::decompose(_matrix, newScale, rotation, translation, skew, perspective);
+
+	ghostObject->setWorldTransform(btTransform(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w), btVector3(translation.x, translation.y, translation.z)));
 }
 
 GhostObjectComponent::~GhostObjectComponent() {
@@ -69,10 +81,6 @@ void GhostObjectComponent::deserialize(nlohmann::json& json) {
 	quatRotation.z = json.value<float>("quatRotationZ", 0);
 	quatRotation.w = json.value<float>("quatRotationW", 0);
 
-	if (rotation == glm::vec3()) {
-		quatRotation = glm::quat(glm::radians(rotation));
-	}
-
 	collisionType = Hydra::System::BulletPhysicsSystem::CollisionTypes(json.value<int>("collisionType", 0));
 
 	collisionType = Hydra::System::BulletPhysicsSystem::COLL_WALL;
@@ -88,5 +96,39 @@ void GhostObjectComponent::registerUI() {
 	if (ImGui::DragFloat3("Rotation", glm::value_ptr(rotation), 1.0f)){
 		quatRotation = glm::quat(glm::radians(rotation));
 		ghostObject->getWorldTransform().setRotation(btQuaternion(quatRotation.x, quatRotation.y, quatRotation.z, quatRotation.w));
+	}
+	if (ImGui::Button("PRESS IT"))
+	{
+		if (auto tc = Hydra::World::World::getEntity(entityID)->getComponent<TransformComponent>()) {
+			glm::mat4 matrixen = _matrix;// tc->getMatrix();
+			std::stringstream temp;
+			temp << "NEW MATRIX!" << std::endl;
+			for (size_t i = 0; i < 4; i++)
+			{
+				for (size_t j = 0; j < 4; j++)
+				{
+					temp << matrixen[i][j] << " : ";
+				}
+				temp << std::endl;
+			}
+			printf(temp.str().c_str());
+		}
+	}
+	if (ImGui::Button("CHILD"))
+	{
+		if (auto tc = Hydra::World::World::getEntity(entityID)->getComponent<TransformComponent>()) {
+			glm::mat4 matrixen = _matrix;//tc->_getParentComponent()->getMatrix();
+			std::stringstream temp;
+			temp << "NEW MATRIX!" << std::endl;
+			for (size_t i = 0; i < 4; i++)
+			{
+				for (size_t j = 0; j < 4; j++)
+				{
+					temp << matrixen[i][j] << " : ";
+				}
+				temp << std::endl;
+			}
+			printf(temp.str().c_str());
+		}
 	}
 }
