@@ -416,7 +416,7 @@ namespace Barcode {
 				weaponEntity->getComponent<Hydra::Component::WeaponComponent>()->bulletSize /= 2;
 				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/FPSModel.mATTIC");
 				auto t2 = weaponEntity->addComponent<Hydra::Component::TransformComponent>();
-				t2->position = glm::vec3(0);
+				t2->position = glm::vec3(2, -7, -2);
 				t2->scale = glm::vec3(0.3f);
 				t2->rotation = glm::quat(1, 1, 1, 1);
 				t2->ignoreParent = true;
