@@ -5,44 +5,6 @@
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/system/bulletphysicssystem.hpp>
 
-#ifdef _MSC_VER
-#    if (_MSC_VER >= 1800)
-#        define __alignas_is_defined 1
-#    endif
-#    if (_MSC_VER >= 1900)
-#        define __alignof_is_defined 1
-#    endif
-#else
-#    include <cstdalign>   // __alignas/of_is_defined directly from the implementation
-#endif
-
-#ifdef __alignas_is_defined
-#    define ALIGN(X) alignas(X)
-#else
-#    pragma message("C++11 alignas unsupported :( Falling back to compiler attributes")
-#    ifdef __GNUG__
-#        define ALIGN(X) __attribute__ ((aligned(X)))
-#    elif defined(_MSC_VER)
-#        define ALIGN(X) __declspec(align(X))
-#    else
-#        error Unknown compiler, unknown alignment attribute!
-#    endif
-#endif
-
-#ifdef __alignof_is_defined
-#    define ALIGNOF(X) alignof(x)
-#else
-#    pragma message("C++11 alignof unsupported :( Falling back to compiler attributes")
-#    ifdef __GNUG__
-#        define ALIGNOF(X) __alignof__ (X)
-#    elif defined(_MSC_VER)
-#        define ALIGNOF(X) __alignof(X)
-#    else
-#        error Unknown compiler, unknown alignment attribute!
-#    endif
-#endif
-
-
 class Server;
 struct Player;
 
@@ -63,64 +25,64 @@ enum PacketType {
 
 
 
-struct ALIGN(16) TransformInfo {
+struct TransformInfo {
 	glm::vec3 pos;
 	glm::vec3 scale;
 	glm::quat rot;
 	//INTERPOLATION INFO TEX VELOCITY
 };
 
-struct ALIGN(16) InterpolationInfo {
+struct InterpolationInfo {
 	// fill with shit
 };
 
 
-struct ALIGN(16) Header {
+struct Header {
 	PacketType type;
 	int len; // Length of total packet
 	int client; // Set manually irrelevant when sending packets
 };
 
-struct ALIGN(16) Packet {
+struct Packet {
 	Header h;
 };
 
-struct ALIGN(16) ServerDeletePacket : Packet {
+struct ServerDeletePacket : Packet {
 	EntityID id;
 };
 
-struct ALIGN(16) ClientUpdateBulletPacket : Packet {
+struct ClientUpdateBulletPacket : Packet {
 	size_t size;
 	char* data[0];
 	inline size_t getSize() { return sizeof(ClientUpdateBulletPacket) + sizeof(char) * size; }
 };
 
-struct ALIGN(16) ServerUpdateBulletPacket : Packet {
+struct ServerUpdateBulletPacket : Packet {
 	EntityID serverPlayerID;
 	size_t size;
 	char* data[0];
 	inline size_t getSize() { return sizeof(ServerUpdateBulletPacket) + sizeof(char) * size; }
 };
 
-struct ALIGN(16) ServerShootPacket : Packet {
+struct ServerShootPacket : Packet {
 	EntityID serverPlayerID;
 	TransformInfo ti;
 	glm::vec3 direction;
 };
 
-struct ALIGN(16) ClientShootPacket : Packet {
+struct ClientShootPacket : Packet {
 	TransformInfo ti;
 	glm::vec3 direction;
 };
 
 
-struct ALIGN(16) ClientSpawnEntityPacket : Packet {
+struct ClientSpawnEntityPacket : Packet {
 	size_t size;
 	char* data[0];
 	inline size_t getSize() { return sizeof(ClientSpawnEntityPacket) + sizeof(char) * size; }
 };
 
-struct ALIGN(16) ServerSpawnEntityPacket : Packet {
+struct ServerSpawnEntityPacket : Packet {
 	EntityID id;
 	size_t size;
 	char* data[0];
@@ -128,13 +90,13 @@ struct ALIGN(16) ServerSpawnEntityPacket : Packet {
 };
 
 
-struct ALIGN(16) ServerInitializePacket : Packet {
+struct ServerInitializePacket : Packet {
 	EntityID entityid;
 	TransformInfo ti;
 };
 
-struct ALIGN(16) ServerUpdatePacket : Packet {
-	struct ALIGN(16) EntUpdate {
+struct ServerUpdatePacket : Packet {
+	struct EntUpdate {
 		EntityID entityid;
 		TransformInfo ti;
 	};
@@ -142,7 +104,7 @@ struct ALIGN(16) ServerUpdatePacket : Packet {
 	EntUpdate data[0];
 };
 
-struct ALIGN(16) ServerPlayerPacket : Packet {
+struct ServerPlayerPacket : Packet {
 	TransformInfo ti;
 	EntityID entID;
 	int nameLength;
@@ -153,7 +115,7 @@ struct ALIGN(16) ServerPlayerPacket : Packet {
 	}
 };
 
-struct ALIGN(16) ClientUpdatePacket : Packet {
+struct ClientUpdatePacket : Packet {
 	TransformInfo ti;
 	InterpolationInfo ipi;
 };
