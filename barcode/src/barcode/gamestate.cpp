@@ -565,10 +565,10 @@ namespace Barcode {
 					t2->position = glm::vec3{ -1, 0, 0 };
 					//child->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SourceCode_Monitor.mATTIC");
 
-					auto lightEntity = world::newEntity("Light", world::root());
+					auto lightEntity = world::newEntity("Bogdan: Light Source", world::root());
 					auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
 					auto t3 = lightEntity->addComponent<Hydra::Component::TransformComponent>();
-					t3->position = glm::vec3(8.0, 0, 3.5);
+					t3->setPosition(glm::vec3(0, 7, 0));
 				}
 
 				{

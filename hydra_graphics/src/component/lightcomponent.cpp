@@ -35,5 +35,9 @@ void LightComponent::registerUI() {
 	ImGui::DragFloat3("Color", glm::value_ptr(color), 0.01f);
 	ImGui::DragFloat("FOV", &fov);
 	ImGui::DragFloat("Z Near", &zNear, 0.001f);
-	ImGui::DragFloat("Z Far", &zFar);
+	ImGui::DragFloat("Z Far", &zFar, 0.001f);
+	ImGui::DragFloat("X Near", &xNear, 0.001f);
+	ImGui::DragFloat("X Far", &xFar, 0.001f);
+	ImGui::DragFloat("Y Near", &yNear, 0.001f);
+	ImGui::DragFloat("Y Far", &yFar, 0.001f);
 }

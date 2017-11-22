@@ -59,14 +59,6 @@ namespace Hydra::Component {
 			dirty = true;
 			this->rotation = rotation;
 		}
-		inline void setDirection(const glm::vec3& direction, glm::vec3 up = glm::vec3{0, 1, 0}) {
-			if (direction == up)
-				up.x += 0.0001f;
-
-			static const glm::vec3 O = {0, 0, 0};
-			glm::mat3 m = glm::lookAt(O, direction, up);
-			setRotation(glm::quat_cast(m));
-		}
 
 		static TransformComponent* _currentlyEditing;
 		glm::mat4 _matrix = glm::mat4(1);

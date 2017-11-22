@@ -17,6 +17,13 @@ struct PointLight{
 	float quadratic;
 };
 
+vec2 poissonDisk[4] = vec2[](
+  vec2( -0.94201624, -0.39906216 ),
+  vec2( 0.94558609, -0.76890725 ),
+  vec2( -0.094184101, -0.92938870 ),
+  vec2( 0.34495938, 0.29387760 )
+);
+
 layout(location = 0) out vec3 fragOutput;
 layout(location = 1) out vec3 brightOutput;
 
@@ -107,31 +114,38 @@ void main() {
 		globalAmbient *= ambientOcclusion;
 
 	// Shadow
-	
-	//if(lightPos.w > 1){
-	//	vec3 projCoords = lightPos.xyz / lightPos.w;
-	//	float closestDepth = texture(depthMap, projCoords.xy).r;
-	//	float currentDepth = projCoords.z;
-	//	float bias = max(0.05 * (1.0 - dot(normal, -dirLight.dir)), 0.005);
-	//	float shadow = 0.0f;
-	//	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
-	//	for(int x = -1; x <= 1; x++) {
-	//		for(int y = -1; y <= 1; y++) {
-	//			float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
-	//			shadow += currentDepth - bias > pcfDepth ? 1 : 0;
-	//		}
+	vec3 projCoords = lightPos.xyz / lightPos.w;
+	float closestDepth = texture(depthMap, projCoords.xy).r;
+	float currentDepth = projCoords.z;
+	float bias = 0.005 * dot(normal, -dirLight.dir);
+	//bias = clamp(bias, 0, 0.01);
+	float shadow = 1.0f;
+	for(int i = 0; i < 4; i++){
+		if(texture(depthMap, projCoords.xy + poissonDisk[i] / 700.0).r < currentDepth - bias)
+			shadow -= 0.2f;
+	}
+
+	//if(closestDepth < currentDepth - bias)
+	//	shadow = 0.0f;
+
+	//vec2 texelSize = 1.0 / textureSize(depthMap, 0);
+	//for(int x = -1; x <= 1; x++) {
+	//	for(int y = -1; y <= 1; y++) {
+	//		float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
+	//		shadow += currentDepth - bias > pcfDepth ? 1 : 0;
 	//	}
-	//	shadow /= 9;
-	//	shadow = 1 - shadow;
-	//	result *= shadow;
 	//}
+	//shadow /= 9;
+	//shadow = 1 - shadow;
+
+	if(glowAmnt > 0)
+		brightOutput = result + globalAmbient;
+	else
+		brightOutput = vec3(0);
+
+	result *= shadow;
 
 	result += globalAmbient;
 
 	fragOutput = result;
-
-	if(glowAmnt > 0)
-		brightOutput = fragOutput;
-	else
-		brightOutput = vec3(0);
 }

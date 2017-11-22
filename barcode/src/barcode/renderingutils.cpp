@@ -16,6 +16,7 @@
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/textcomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
+#include <hydra/component/ghostobjectcomponent.hpp>
 
 #define frand() (float(rand())/RAND_MAX)
 
@@ -163,14 +164,14 @@ namespace Barcode {
 		for (auto& kv : _geometryAnimationBatch.batch.currAnimIndices)
 			kv.second.clear();
 
-		//for (auto& kv : _shadowBatch.batch.objects)
-		//	kv.second.clear();
-		//for (auto& kv : _shadowAnimationBatch.batch.objects)
-		//	kv.second.clear();
-		//for (auto& kv : _shadowAnimationBatch.batch.currAnimIndices)
-		//	kv.second.clear();
-		//for (auto& kv : _shadowAnimationBatch.batch.currentFrames)
-		//	kv.second.clear();
+		for (auto& kv : _shadowBatch.batch.objects)
+			kv.second.clear();
+		for (auto& kv : _shadowAnimationBatch.batch.objects)
+			kv.second.clear();
+		for (auto& kv : _shadowAnimationBatch.batch.currAnimIndices)
+			kv.second.clear();
+		for (auto& kv : _shadowAnimationBatch.batch.currentFrames)
+			kv.second.clear();
 
 		static bool enableFrustumCulling = false;
 		//ImGui::Checkbox("Enable VF Culling", &enableFrustumCulling);
@@ -202,16 +203,16 @@ namespace Barcode {
 				}
 
 				if (MenuState::shadowEnabled) {
-					//_shadowAnimationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-					//_shadowAnimationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
-					//_shadowAnimationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
+					_shadowAnimationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+					_shadowAnimationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
+					_shadowAnimationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
 				}
 			} else {
 				if (renderNormal)
 					_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
-			/*	if (MenuState::shadowEnabled)
-					_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);*/
+				if (MenuState::shadowEnabled)
+					_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 			}
 		}
 
@@ -219,14 +220,14 @@ namespace Barcode {
 		_engine->getRenderer()->renderAnimation(_geometryAnimationBatch.batch);
 
 		{
-			//_shadowBatch.pipeline->setValue(0, dirLight.getViewMatrix());
-			//_shadowBatch.pipeline->setValue(1, dirLight.getProjectionMatrix());
+			_shadowBatch.pipeline->setValue(0, dirLight.getViewMatrix());
+			_shadowBatch.pipeline->setValue(1, dirLight.getProjectionMatrix());
 
-			//_shadowAnimationBatch.pipeline->setValue(0, dirLight.getViewMatrix());
-			//_shadowAnimationBatch.pipeline->setValue(1, dirLight.getProjectionMatrix());
+			_shadowAnimationBatch.pipeline->setValue(0, dirLight.getViewMatrix());
+			_shadowAnimationBatch.pipeline->setValue(1, dirLight.getProjectionMatrix());
 
-			//_engine->getRenderer()->renderShadows(_shadowBatch.batch);
-			//_engine->getRenderer()->renderShadows(_shadowAnimationBatch.batch);
+			_engine->getRenderer()->renderShadows(_shadowBatch.batch);
+			_engine->getRenderer()->renderShadows(_shadowAnimationBatch.batch);
 		}
 
 		if (MenuState::ssaoEnabled) {
@@ -277,7 +278,7 @@ namespace Barcode {
 
 			(*_geometryBatch.output)[2]->bind(2);
 			(*_geometryBatch.output)[3]->bind(3);
-			//_shadowBatch.output->getDepth()->bind(4);
+			_shadowBatch.output->getDepth()->bind(4);
 			(*_ssaoBatch.output)[0]->bind(5);
 			(*_geometryBatch.output)[5]->bind(6);
 
