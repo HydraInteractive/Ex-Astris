@@ -124,6 +124,7 @@ namespace Barcode {
 		_lifeSystem.tick(delta);
 		_pickUpSystem.tick(delta);
 		_textSystem.tick(delta);
+		_lightSystem.tick(delta);
 
 
 		static bool enableHitboxDebug = false;
@@ -421,6 +422,12 @@ namespace Barcode {
 				t2->rotation = glm::quat(0, 0, 1, 0);
 				t2->ignoreParent = true;
 			}
+
+			auto lightEntity = world::newEntity("Bogdan: Light Source", playerEntity);
+			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
+			auto t3 = lightEntity->addComponent<Hydra::Component::TransformComponent>();
+			t3->setPosition(glm::vec3(0, 7, 0));
+			t3->setRotation(glm::quat(0, 0, 0.820f, 0.572f));
 		}
 
 		{
@@ -564,11 +571,6 @@ namespace Barcode {
 					auto t2 = child->addComponent<Hydra::Component::TransformComponent>();
 					t2->position = glm::vec3{ -1, 0, 0 };
 					//child->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SourceCode_Monitor.mATTIC");
-
-					auto lightEntity = world::newEntity("Bogdan: Light Source", world::root());
-					auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
-					auto t3 = lightEntity->addComponent<Hydra::Component::TransformComponent>();
-					t3->setPosition(glm::vec3(0, 7, 0));
 				}
 
 				{

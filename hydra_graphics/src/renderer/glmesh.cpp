@@ -286,7 +286,7 @@ private:
 			if (fileName != "NULL" && fileNameLength != 0)
 				_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/" + fileName);
 			else
-				_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/error2.png");
+				_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/Floor_specular.png");
 
 			delete[] tempFileName;
 

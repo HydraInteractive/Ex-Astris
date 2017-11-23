@@ -17,6 +17,9 @@
 #include <hydra/component/textcomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/ghostobjectcomponent.hpp>
+#include <hydra/component/bulletcomponent.hpp>
+#include <hydra/component/pickupcomponent.hpp>
+
 
 #define frand() (float(rand())/RAND_MAX)
 
@@ -96,7 +99,7 @@ namespace Barcode {
 			.addTexture(1, Hydra::Renderer::TextureType::u8RGB)
 			.finalize();
 
-		_shadowBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/shadow.vert", "", "assets/shaders/shadow.frag", glm::vec2(1024));
+		_shadowBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/shadow.vert", "", "assets/shaders/shadow.frag", glm::vec2(512));
 		_shadowBatch.output->addTexture(0, Hydra::Renderer::TextureType::f16Depth).finalize();
 		_shadowBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::depth;
 
@@ -211,7 +214,7 @@ namespace Barcode {
 				if (renderNormal)
 					_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
-				if (MenuState::shadowEnabled)
+				if (MenuState::shadowEnabled && (e->getComponent<Hydra::Component::BulletComponent>() || e->getComponent<Hydra::Component::PickUpComponent>()))
 					_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 			}
 		}
