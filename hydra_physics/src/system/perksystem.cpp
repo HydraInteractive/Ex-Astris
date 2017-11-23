@@ -94,6 +94,7 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 	case Hydra::Component::PerkComponent::PERK_DMGUPSIZEUP: {
 		playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>()->bulletSize *= 2;
 		playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>()->damage*= 2;
+
 		break;
 	}
 	case Hydra::Component::PerkComponent::PERK_SPEEDUP: {
