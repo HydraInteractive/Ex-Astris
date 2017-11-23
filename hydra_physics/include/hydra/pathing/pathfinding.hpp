@@ -99,6 +99,7 @@ public:
 	MapVec worldToMapCoords(const glm::vec3& worldPos) const;
 	glm::vec3 mapToWorldCoords(const MapVec& mapPos) const;
 	bool inLineOfSight(const glm::vec3 enemyPos, const glm::vec3 targetPos) const;
+	bool lineOfSight3D(const glm::vec3 enemyPos, const glm::vec3 targetPos) const;
 	bool inWall(const glm::vec3 mapPos) const;
 	glm::vec3 findViableTile(glm::vec3 mapPos) const;
 
@@ -126,4 +127,5 @@ private:
 	bool isOutOfBounds(const glm::ivec2& vec) const;
 	void _discoverNode(int x, int z, std::shared_ptr<Node> lastNode);
 	bool _inLineOfSight(const MapVec enemyPos, const MapVec playerPos) const;
+	bool _lineOfSight3D(const MapVec enemyPos, const MapVec playerPos) const;
 };

@@ -138,6 +138,13 @@ bool PathFinding::inLineOfSight(const glm::vec3 enemyPos, const glm::vec3 player
 	MapVec p = worldToMapCoords(playerPos);
 	return _inLineOfSight(e, p);
 }
+
+bool PathFinding::lineOfSight3D(const glm::vec3 enemyPos, const glm::vec3 targetPos) const
+{
+
+	return false;
+}
+
 bool PathFinding::inWall(const glm::vec3 mapPos) const
 {
 	MapVec p = worldToMapCoords(mapPos);
@@ -206,6 +213,12 @@ bool PathFinding::_inLineOfSight(const MapVec enemyPos, const MapVec playerPos) 
 		currentPos += dir;
 	}
 	return true;
+}
+
+bool PathFinding::_lineOfSight3D(const MapVec enemyPos, const MapVec playerPos) const
+{
+
+	return false;
 }
 
 void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode)
