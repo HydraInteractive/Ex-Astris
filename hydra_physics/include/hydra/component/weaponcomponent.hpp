@@ -10,8 +10,6 @@
 #include <glm/glm.hpp>
 #include <SDL2/SDL.h>
 #include <hydra/world/world.hpp>
-#include <hydra/component/transformcomponent.hpp>
-#include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
 #include <hydra/system/bulletphysicssystem.hpp>
 
@@ -19,7 +17,7 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API WeaponComponent final : public IComponent<WeaponComponent, ComponentBits::Weapon> {
-		BulletType bulletType = BULLETTYPE_NORMAL;
+		BulletComponent::BulletType bulletType = BulletComponent::BulletType::normal;
 		float fireRateTimer = 0.0f;
 		float fireRateRPM = 600.0f;
 		float bulletSize = 0.5f;

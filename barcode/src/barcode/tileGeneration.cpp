@@ -1,5 +1,7 @@
 #include <barcode/tileGeneration.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
+#include <hydra/component/movementcomponent.hpp>
+#include <hydra/component/weaponcomponent.hpp>
 using world = Hydra::World::World;
 
 TileGeneration::TileGeneration(std::string middleRoomPath) {
@@ -45,7 +47,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 	//Check if yTilePos or xTilePos == 0. If this is true, limit the rooms it can create
 	//or we will go otuside the tile grid
 	
-	enum { NORTH, EAST, SOUTH, WEST };
+	
 	if (roomGrid[pos.x][pos.y]->door[NORTH] && roomGrid[pos.x][pos.y + 1] == nullptr)
 	{
 		bool placed = false;
@@ -58,6 +60,8 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 
 			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
+			glm::quat rotation = _rotateRoom(roomC);
+
 			if (roomC->door[SOUTH] == true) {
 				if (_checkAdjacents(pos.x, pos.y + 1, roomC))
 				{
@@ -65,6 +69,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 					auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 					t->position = _gridToWorld(pos.x, pos.y + 1);
 					t->scale = glm::vec3(1, 1, 1);
+					t->rotation = rotation;
 					roomGrid[pos.x][pos.y + 1] = roomC;
 					_insertPathFindingMap(glm::ivec2(pos.x, pos.y + 1));
 					_spawnRandomizedEnemies(t);
@@ -103,6 +108,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 
 			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
+			glm::quat rotation = _rotateRoom(roomC);
 
 			if (roomC->door[EAST] == true) {
 				if (_checkAdjacents(pos.x + 1, pos.y, roomC))
@@ -111,6 +117,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 					auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 					t->position = _gridToWorld(pos.x + 1, pos.y);
 					t->scale = glm::vec3(1, 1, 1);
+					t->rotation = rotation;
 					roomGrid[pos.x + 1][pos.y] = roomC;
 					_insertPathFindingMap(glm::ivec2(pos.x + 1, pos.y));
 					_spawnRandomizedEnemies(t);
@@ -149,6 +156,8 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 
 			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
+			glm::quat rotation = _rotateRoom(roomC);
+
 			if (roomC->door[NORTH] == true) {
 				if (_checkAdjacents(pos.x, pos.y - 1, roomC))
 				{
@@ -156,6 +165,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 					auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 					t->position = _gridToWorld(pos.x, pos.y - 1);
 					t->scale = glm::vec3(1, 1, 1);
+					t->rotation = rotation;
 					roomGrid[pos.x][pos.y - 1] = roomC;
 					_insertPathFindingMap(glm::ivec2(pos.x, pos.y - 1));
 					_spawnRandomizedEnemies(t);
@@ -194,6 +204,8 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 
 			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
+			glm::quat rotation = _rotateRoom(roomC);
+
 			if (roomC->door[WEST] == true) {
 				if (_checkAdjacents(pos.x - 1, pos.y, roomC))
 				{
@@ -201,6 +213,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 					auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 					t->position = _gridToWorld(pos.x - 1, pos.y);
 					t->scale = glm::vec3(1, 1, 1);
+					t->rotation = rotation;
 					roomGrid[pos.x - 1][pos.y] = roomC;
 					_insertPathFindingMap(glm::ivec2(pos.x - 1, pos.y));
 					_spawnRandomizedEnemies(t);
@@ -303,6 +316,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 
 		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 		h->maxHP = 80;
+
 		h->health = 80;
 
 		auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
@@ -310,9 +324,8 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 
 		auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
 		t->position.x = roomTransform->position.x + i;
-		t->position.y = 0;
+		t->position.y = 5;
 		t->position.z = roomTransform->position.z + i;
-
 		t->scale = glm::vec3{ 1,1,1 };
 
 		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
@@ -320,17 +333,12 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 	}
-
-
+	
 	for (int i = 0; i < randomFastAliens; i++) {
 		auto alienEntity = world::newEntity("FastAlien1", world::root());
 		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienFastModel.mATTIC");
 		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
-		a->behaviour->setPathMap(pathfindingMap);
-		a->damage = 4;
-		a->behaviour->originalRange = 4;
-		a->radius = 1;
 
 		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 		h->maxHP = 60;
@@ -341,14 +349,16 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 
 		auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
 		t->position.x = roomTransform->position.x + i + 2;
-		t->position.y = 0;
+		t->position.y = 5;
 		t->position.z = roomTransform->position.z + i + 2;
 		t->scale = glm::vec3{ 1,1,1 };
+
 		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.5, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
+
 	}
 
 
@@ -360,7 +370,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		a->behaviour->setPathMap(pathfindingMap);
 		a->damage = 7;
 		a->behaviour->originalRange = 20;
-		a->radius = 1;		
+		a->radius = 1;
 	
 		auto h = robotEntity->addComponent<Hydra::Component::LifeComponent>();
 		h->maxHP = 70;
@@ -374,16 +384,15 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		w->maxmagammo = 100000000;
 		w->currmagammo = 100000000;
 		w->maxammo = 100000000;
-	
+		
 		auto m = robotEntity->addComponent<Hydra::Component::MovementComponent>();
 		m->movementSpeed = 3.0f;
 		auto t = robotEntity->addComponent<Hydra::Component::TransformComponent>();
 		t->position.x = roomTransform->position.x + i + 2;
-		t->position.y = 0;
+		t->position.y = 5;
 		t->position.z = roomTransform->position.z + i + 2;
 		t->scale = glm::vec3{ 1,1,1 };
-	
-		//t->rotation = glm::vec3{ 0, 90, 0 };
+
 		auto rgbc = robotEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.5, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 			0, 0, 0.6f, 1.0f);
@@ -430,16 +439,6 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::Component::TransformCo
 		textStuff->isStatic = true;
 
 	}
-	//if (randomChance < (int)PICKUP_CHANCE) {
-	//	auto pickUpEntity = world::newEntity("PickUp", world::root());
-	//	auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
-	//	t->position = glm::vec3(roomTransform->position.x, 0.0f, roomTransform->position.z);
-	//	pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/GreenCargoBox.mATTIC");
-	//	pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
-	//	auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-	//	rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
-	//	rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-	//}
 }
 
 void TileGeneration::_spawnLight(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform) {
@@ -451,8 +450,117 @@ void TileGeneration::_spawnLight(std::shared_ptr<Hydra::Component::TransformComp
 	t->position.y = roomTransform->position.y + 7;
 	t->position.z = roomTransform->position.z;
 	auto p1LC = pointLight1->addComponent<Hydra::Component::PointLightComponent>();
+
 	p1LC->color = glm::vec3(1);
 
+}
+
+glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComponent>& room) {
+	//glm::angleAxis(rotation, axis(y in your case));
+
+	glm::quat rotation;
+
+	int randomRotateChance = rand() % 100;
+
+	//Rotate the room 90 degrees
+	if (randomRotateChance < 25) {
+
+		std::shared_ptr<Hydra::Component::RoomComponent> tempRoom = std::make_shared<Hydra::Component::RoomComponent>();
+		
+		//rotate doors
+		if (room->door[NORTH] == true)
+			tempRoom->door[EAST] = true;
+		if (room->door[EAST] == true)
+			tempRoom->door[SOUTH] = true;
+		if (room->door[SOUTH] == true)
+			tempRoom->door[WEST] = true;
+		if (room->door[WEST] == true)
+			tempRoom->door[NORTH] = true;
+
+		//rotate open walls
+		if (room->openWalls[0] == true)
+			tempRoom->openWalls[1] = true;
+		if (room->openWalls[1] == true)
+			tempRoom->openWalls[2] = true;
+		if (room->openWalls[2] == true)
+			tempRoom->openWalls[3] = true;
+		if (room->openWalls[3] == true)
+			tempRoom->openWalls[0] = true;
+
+		for (int i = 0; i < 4; i++) {
+			room->door[i] = tempRoom->door[i];
+			room->openWalls[i] = tempRoom->openWalls[i];
+		}
+		rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0, 1, 0));
+
+	}
+	//Rotate the room 180 degrees
+	else if (randomRotateChance >= 25 && randomRotateChance < 50) {
+
+		std::shared_ptr<Hydra::Component::RoomComponent> tempRoom = std::make_shared<Hydra::Component::RoomComponent>();
+
+		//rotate doors
+		if (room->door[NORTH] == true)
+			tempRoom->door[SOUTH] = true;
+		if (room->door[EAST] == true)
+			tempRoom->door[WEST] = true;
+		if (room->door[SOUTH] == true)
+			tempRoom->door[NORTH] = true;
+		if (room->door[WEST] == true)
+			tempRoom->door[EAST] = true;
+
+		//rotate open walls
+		if (room->openWalls[0] == true)
+			tempRoom->openWalls[2] = true;
+		if (room->openWalls[1] == true)
+			tempRoom->openWalls[3] = true;
+		if (room->openWalls[2] == true)
+			tempRoom->openWalls[0] = true;
+		if (room->openWalls[3] == true)
+			tempRoom->openWalls[1] = true;
+
+		for (int i = 0; i < 4; i++) {
+			room->door[i] = tempRoom->door[i];
+			room->openWalls[i] = tempRoom->openWalls[i];
+		}
+		rotation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0, 1, 0));
+
+	}
+	else if (randomRotateChance >= 50 && randomRotateChance < 75) {
+
+		std::shared_ptr<Hydra::Component::RoomComponent> tempRoom = std::make_shared<Hydra::Component::RoomComponent>();
+
+		//rotate doors
+		if (room->door[NORTH] == true)
+			tempRoom->door[WEST] = true;
+		if (room->door[EAST] == true)
+			tempRoom->door[NORTH] = true;
+		if (room->door[SOUTH] == true)
+			tempRoom->door[EAST] = true;
+		if (room->door[WEST] == true)
+			tempRoom->door[SOUTH] = true;
+
+		//rotate open walls
+		if (room->openWalls[0] == true)
+			tempRoom->openWalls[3] = true;
+		if (room->openWalls[1] == true)
+			tempRoom->openWalls[0] = true;
+		if (room->openWalls[2] == true)
+			tempRoom->openWalls[1] = true;
+		if (room->openWalls[3] == true)
+			tempRoom->openWalls[2] = true;
+
+		for (int i = 0; i < 4; i++) {
+			room->door[i] = tempRoom->door[i];
+			room->openWalls[i] = tempRoom->openWalls[i];
+		}
+		rotation = glm::angleAxis(glm::radians(270.0f), glm::vec3(0, 1, 0));
+
+	}
+	else
+		rotation = glm::angleAxis(glm::radians(0.0f), glm::vec3(0, 1, 0));
+
+	return rotation;
 }
 
 glm::vec3 TileGeneration::_gridToWorld(int x, int y) {

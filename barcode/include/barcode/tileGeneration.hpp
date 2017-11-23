@@ -12,6 +12,7 @@
 #include <hydra/io/gltextureloader.hpp>
 #include <hydra/io/glmeshloader.hpp>
 
+
 #include <memory>
 #include <imgui/imgui.h>
 #ifdef _WIN32
@@ -32,7 +33,8 @@
 #include <hydra/component/ghostobjectcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
 #include <hydra/component/textcomponent.hpp>
-
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/transform.hpp>
 #include <hydra/world/blueprintloader.hpp>
 
 #include <fstream>
@@ -56,7 +58,7 @@ private:
 	std::vector<std::string> _roomFileNames;
 	int _roomCounter = 0;
 
-
+	enum { NORTH, EAST, SOUTH, WEST };
 	glm::vec2 localXY;
 	void _setUpMiddleRoom(std::string middleRoomPath);
 	void _createMapRecursivly(glm::ivec2 pos);
@@ -66,6 +68,7 @@ private:
 	void _spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
 	void _spawnPickUps(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
 	void _spawnLight(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
+	glm::quat _rotateRoom(std::shared_ptr<Hydra::Component::RoomComponent>& room);
 	glm::vec3 _gridToWorld(int x, int y);
 	bool _checkAdjacents(int x, int y, std::shared_ptr<Hydra::Component::RoomComponent>& r);
 };

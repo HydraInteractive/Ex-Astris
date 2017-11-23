@@ -13,6 +13,7 @@
 #include <hydra/component/soundfxcomponent.hpp>
 #include <hydra/component/perkcomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
+#include <hydra/component/meshcomponent.hpp>
 
 #include <btBulletDynamicsCommon.h>
 

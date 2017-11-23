@@ -29,7 +29,7 @@ private:
 
 	//DEFAULT SHIT
 
-	std::chrono::time_point<std::chrono::steady_clock> lastTime;
+	std::chrono::time_point<std::chrono::high_resolution_clock> lastTime;
 	float packetDelay;
 	Server* _server;
 	std::vector<EntityID> _networkEntities;

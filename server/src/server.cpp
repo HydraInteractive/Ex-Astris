@@ -40,7 +40,7 @@ int Server::checkForNewClients() {
 
 void Server::sendDataToAll(char * data, int length) {
 	std::vector<int> clients = this->_clientHandler.getAllClients();
-	for (int i = 0; i < clients.size(); i++) {
+	for (size_t i = 0; i < clients.size(); i++) {
 		this->_clientHandler.sendData(data, length, clients[i]);
 	}
 }
@@ -52,7 +52,7 @@ int Server::sendDataToClient(char * data, int length, int clientID) {
 
 void Server::sendDataToAllExcept(char * data, int length, int clientID) {
 	std::vector<int> clients = this->_clientHandler.getAllClients();
-	for (int i = 0; i < clients.size(); i++) {
+	for (size_t i = 0; i < clients.size(); i++) {
 		if (clients[i] != clientID) {
 			this->_clientHandler.sendData(data, length, clients[i]);
 		}
