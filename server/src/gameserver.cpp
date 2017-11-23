@@ -1,6 +1,7 @@
 #include <server/gameserver.hpp>
 #include <server/packets.hpp>
 #include <hydra/component/transformcomponent.hpp>
+#include <Game/tileGeneration.hpp>
 #include <iostream>
 #include <chrono>
 #include <thread>
@@ -163,6 +164,33 @@ bool GameServer::_addPlayer(int id) {
 		printf("sendDataToClient:\n\ttype: ServerInitialize\n\tlen: %d\n", pi.h.len);
 		int tmp = this->_server->sendDataToClient((char*)&pi, pi.h.len, id);
 		
+
+
+		//WORLD TEMP
+		Entity* map = nullptr;
+		std::vector<EntityID> children = world::root()->children;
+		for (size_t i = 0; i < children.size(); i++) {
+			map = world::getEntity(children[i]).get();
+			if (map->name == "Map") {
+				break;
+			}
+		}
+
+		createAndSendServerEntityPacket(map, this->_server);
+
+
+		//END TEMP WORLD
+
+
+
+
+
+
+
+
+
+
+
 		Hydra::Component::TransformComponent* tc = enttmp->addComponent<Hydra::Component::TransformComponent>(/*pi.ti.pos, pi.ti.scale, pi.ti.rot*/).get();
 		tc->setPosition(pi.ti.pos);
 		tc->setScale(pi.ti.scale);
@@ -283,6 +311,12 @@ void GameServer::start() {
 	this->_spawnerSystem = new Hydra::System::SpawnerSystem;
 	this->_perkSystem = new Hydra::System::PerkSystem;
 	this->_lifeSystem = new Hydra::System::LifeSystem;
+
+	TileGeneration* t;
+	//t = new TileGeneration("C:/Users/Dennis Persson/Documents/Hydra/x64/Debug/assets/room/starterRoom.room");
+	t = new TileGeneration("assets/room/starterRoom.room");
+	t->maxRooms = 4;
+	t->buildMap();
 }
 
 void GameServer::run() {
@@ -315,7 +349,7 @@ void GameServer::run() {
 	//Send updated world to clients
 	{
 		this->packetDelay += delta;
-		if (packetDelay >= 1/1) {
+		if (packetDelay >= 1.0f/30.0f) {
 			this->_sendWorld();
 			this->packetDelay = 0;
 		}
