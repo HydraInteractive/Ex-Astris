@@ -11,13 +11,21 @@
 #include <hydra/pathing/pathfinding.hpp>
 
 PathFinding::PathFinding() {
-	_openList = std::vector<std::shared_ptr<Node>>();
-	_visitedList = std::vector<std::shared_ptr<Node>>();
+	_openList = std::vector<Node*>();
+	_visitedList = std::vector<Node*>();
 	foundGoal = true;
 }
 
 PathFinding::~PathFinding() {
-
+	for (auto&& node : _openList)
+	{
+		delete node;
+	}
+	for (auto&& node : _visitedList)
+	{
+		delete node;
+	}
+	delete _endNode;
 }
 
 bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
@@ -52,8 +60,8 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 	//if (_inLineOfSight(mapCurrentPos,mapTargetPos))
 	//	pathToEnd.push_back(targetPos);
 	//	return false;
-	_startNode = std::make_shared<Node>(mapCurrentPos.x(), mapCurrentPos.z(), nullptr);
-	_endNode = std::make_shared<Node>(mapTargetPos.x(), mapTargetPos.z(), nullptr);
+	_startNode = new Node(mapCurrentPos.x(), mapCurrentPos.z(), nullptr);
+	_endNode = new Node(mapTargetPos.x(), mapTargetPos.z(), nullptr);
 
 	_startNode->H = _startNode->hDistanceTo(_endNode);
 	_openList.push_back(_startNode);
@@ -62,7 +70,7 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 
 	while (!_openList.empty() && !foundGoal)
 	{
-		std::shared_ptr<Node> currentNode = _openList.back();
+		Node* currentNode = _openList.back();
 		_visitedList.push_back(_openList.back());
 		_openList.pop_back();
 
@@ -71,7 +79,7 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 		{
 			_endNode->lastNode = currentNode->lastNode;
 
-			std::shared_ptr<Node> getPath = _endNode;
+			Node* getPath = _endNode;
 
 			while (getPath != nullptr)
 			{
@@ -132,7 +140,7 @@ bool PathFinding::isOutOfBounds(const glm::ivec2& vec) const
 	}
 	return false;
 }
-bool PathFinding::inLineOfSight(const glm::vec3 enemyPos, const glm::vec3 playerPos) const
+bool PathFinding::inLineOfSight(const glm::vec3& enemyPos, const glm::vec3& playerPos) const
 {
 	MapVec e = worldToMapCoords(enemyPos);
 	MapVec p = worldToMapCoords(playerPos);
@@ -155,6 +163,7 @@ bool PathFinding::inWall(const glm::vec3 mapPos) const
 	}
 	return false;
 }
+
 glm::vec3 PathFinding::findViableTile(glm::vec3 mapPos) const
 {
 	MapVec p = worldToMapCoords(mapPos);
@@ -198,6 +207,7 @@ glm::vec3 PathFinding::findViableTile(glm::vec3 mapPos) const
 
 	return mapPos;
 }
+
 bool PathFinding::_inLineOfSight(const MapVec enemyPos, const MapVec playerPos) const
 {
 	glm::vec2 dir = playerPos.baseVec - enemyPos.baseVec;
@@ -221,7 +231,8 @@ bool PathFinding::_lineOfSight3D(const MapVec enemyPos, const MapVec playerPos) 
 	return false;
 }
 
-void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode)
+
+void PathFinding::_discoverNode(int x, int z, Node* lastNode)
 {
 	MapVec currentPos = MapVec(x, z);
 	if (isOutOfBounds(currentPos.baseVec))
@@ -237,22 +248,20 @@ void PathFinding::_discoverNode(int x, int z, std::shared_ptr<Node> lastNode)
 			return;
 		}
 	}
-	std::shared_ptr<Node> thisNode;
+	Node* thisNode = nullptr;
 
 	//If this node exists in the open list, don't add it again
-	bool found = false;
-	for (size_t i = 0; i < _openList.size() && !found; i++)
+	for (size_t i = 0; i < _openList.size() && thisNode == nullptr; i++)
 	{
 		if (currentPos == _openList[i]->pos)
 		{
-			found = true;
 			thisNode = _openList[i];
 		}
 	}
 	//This node hasn't been found before, add it to the open list
-	if (!found)
+	if (thisNode == nullptr)
 	{
-		thisNode = std::make_shared<Node>(x, z, lastNode);
+		thisNode = new Node(x, z, lastNode);
 		thisNode->G = INFINITY;
 		thisNode->H = INFINITY;
 		_openList.push_back(thisNode);

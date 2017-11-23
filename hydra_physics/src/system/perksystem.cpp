@@ -4,6 +4,9 @@
 
 #include <hydra/ext/openmp.hpp>
 #include <hydra/engine.hpp>
+#include <hydra/component/playercomponent.hpp>
+#include <hydra/component/perkcomponent.hpp>
+#include <hydra/component/movementcomponent.hpp>
 
 using namespace Hydra::System;
 using namespace Hydra::Component;
@@ -64,12 +67,12 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 	switch (newPerk){
 	/*case Hydra::Component::PerkComponent::PERK_MAGNETICBULLETS:	{
 		auto weapon = playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>();
-		weapon->bulletType = BULLETTYPE_MAGNETIC;
+		weapon->bulletType = BulletComponent::BulletType::magnetic;
 		break;
 	}*/
 	/*case Hydra::Component::PerkComponent::PERK_HOMINGBULLETS: {
 		auto weapon = playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>();
-		weapon->bulletType = BULLETTYPE_HOMING;
+		weapon->bulletType = BulletComponent::BulletType::homing;
 		break;
 	}*/
 	case Hydra::Component::PerkComponent::PERK_GRENADE: {
@@ -91,6 +94,7 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 	case Hydra::Component::PerkComponent::PERK_DMGUPSIZEUP: {
 		playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>()->bulletSize *= 2;
 		playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>()->damage*= 2;
+
 		break;
 	}
 	case Hydra::Component::PerkComponent::PERK_SPEEDUP: {

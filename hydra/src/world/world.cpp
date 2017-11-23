@@ -63,9 +63,10 @@ namespace {
 		}
 	};
 
-
 	template <typename T>
 	inline void serializeComponent(const Entity& this_, nlohmann::json& json) {
+		if constexpr (std::is_same<T, Hydra::Component::DrawObjectComponent>::value)
+			return;
 		if (this_.hasComponent<T>()) {
 			auto component = this_.getComponent<T>();
 			component->serialize(json[component->type()]);
@@ -135,6 +136,7 @@ void Entity::deserialize(nlohmann::json& json) {
 			}
 		}
 	}
+
 
 	{
 		auto& c = json["children"];

@@ -7,6 +7,7 @@
 #include <hydra/component/spawnercomponent.hpp>
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/movementcomponent.hpp>
+#include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/engine.hpp>

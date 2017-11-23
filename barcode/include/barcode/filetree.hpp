@@ -31,7 +31,7 @@ public:
 	~FileTree();
 	virtual void refresh(std::string relativePath);
 	static std::shared_ptr<Hydra::World::Entity> getRoomEntity();
-	virtual void render(bool &openBool, Hydra::Renderer::Batch* previewBatch = nullptr, float delta = 0.0f) = 0;
+ 	virtual void render(bool &openBool, Hydra::Renderer::Batch* previewBatch = nullptr, float delta = 0.0f) = 0;
 	
 	class Node {
 	public:

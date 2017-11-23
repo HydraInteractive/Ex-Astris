@@ -40,46 +40,41 @@ public:
 	struct Node
 	{
 		MapVec pos = MapVec();
-		std::shared_ptr<Node> lastNode = nullptr;
+		Node* lastNode = nullptr;
 		float G = 0.0f;
 		float H = 0.0f;
-		float F = 0.0f;
 		Node() {}
-		Node(int x, int z, std::shared_ptr<Node> lastNode = nullptr)
+		Node(int x, int z, Node* lastNode = nullptr)
 		{
 			this->pos.x() = x;
 			this->pos.z() = z;
 			this->lastNode = lastNode;
 		}
 
-		float getF() { F = G + H; return F; }
+		float getF() const { return G + H; }
 
 		//Manhattan Distance - do not use, gives invalid values
-		//Distance to adjacent nodes is 1, diagonal is 2
-		int hDistanceTo(std::shared_ptr<Node> nodeEnd)
-		{
-			int x = abs(this->pos.x() - nodeEnd->pos.x());
-			int z = abs(this->pos.z() - nodeEnd->pos.z());
-			return x + z;
-		}
+		//Distance to side nodes is 1, diagonal is 2
+		//int hDistanceTo(Node* nodeEnd)
+		//{
+		//	return abs(this->pos.x() - nodeEnd->pos.x() + abs(this->pos.z() - nodeEnd->pos.z();
+		//}
 
 		//Chebychev Distance - inaccurate but safe
-		//Distance to adjacent nodes is 1
-		//int hDistanceTo(std::shared_ptr<Node> nodeEnd)
+		//Distance to all adjacent nodes is 1
+		//int hDistanceTo(Node* nodeEnd)
 		//{
-		//	int x = abs(this->pos.x() - nodeEnd->pos.x());
-		//	int z = abs(this->pos.z() - nodeEnd->pos.z());
-		//	return std::max(x, z);
+		//	return std::max(abs(this->pos.x() - nodeEnd->pos.x(), abs(this->pos.z() - nodeEnd->pos.z());
 		//}
 
 		//Actual Distance - probably the best maybe, float inaccuracies may break it
-		//float hDistanceTo(std::shared_ptr<Node> nodeEnd)
-		//{
-		//	return std::sqrt(std::pow(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::pow(this->pos.z() - nodeEnd->pos.z(), 2.0f) * 0.99);
-		//}
+		float hDistanceTo(Node* nodeEnd)
+		{
+			return std::sqrt(std::pow(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::pow(this->pos.z() - nodeEnd->pos.z(), 2.0f));
+		}
 
 		//Must always be used to calculate G distance
-		float gDistanceTo(std::shared_ptr<Node> nodeEnd)
+		float gDistanceTo(Node* nodeEnd)
 		{
 			return std::sqrt(std::pow(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::pow(this->pos.z() - nodeEnd->pos.z(), 2.0f));
 		}
@@ -98,34 +93,35 @@ public:
 	bool findPath(glm::vec3 currentPos, glm::vec3 targetPos);
 	MapVec worldToMapCoords(const glm::vec3& worldPos) const;
 	glm::vec3 mapToWorldCoords(const MapVec& mapPos) const;
-	bool inLineOfSight(const glm::vec3 enemyPos, const glm::vec3 targetPos) const;
+	bool inLineOfSight(const glm::vec3& enemyPos, const glm::vec3& targetPos) const;
 	bool lineOfSight3D(const glm::vec3 enemyPos, const glm::vec3 targetPos) const;
 	bool inWall(const glm::vec3 mapPos) const;
 	glm::vec3 findViableTile(glm::vec3 mapPos) const;
 
+
 	struct {
-		bool operator()(const std::shared_ptr<Node>& _Left, const std::shared_ptr<Node>& _Right) const
+		bool operator()(const Node* _Left, const Node* _Right) const
 		{
 			if (_Left == nullptr)
 			{
-				return 0;
+				return false;
 			}
 			else if (_Right == nullptr)
 			{
-				return 1;
+				return true;
 			}
 			return (_Left->getF() > _Right->getF());
 		}
 	} comparisonFunctor;
 	
 private:
-	std::vector<std::shared_ptr<Node>> _visitedList = std::vector<std::shared_ptr<Node>>();
-	std::vector<std::shared_ptr<Node>> _openList = std::vector<std::shared_ptr<Node>>();
-	std::shared_ptr<Node> _startNode = nullptr;
-	std::shared_ptr<Node> _endNode = nullptr;
+	std::vector<Node*> _visitedList = std::vector<Node*>();
+	std::vector<Node*> _openList = std::vector<Node*>();
+	Node* _startNode = nullptr;
+	Node* _endNode = nullptr;
 
 	bool isOutOfBounds(const glm::ivec2& vec) const;
-	void _discoverNode(int x, int z, std::shared_ptr<Node> lastNode);
 	bool _inLineOfSight(const MapVec enemyPos, const MapVec playerPos) const;
 	bool _lineOfSight3D(const MapVec enemyPos, const MapVec playerPos) const;
+	void _discoverNode(int x, int z, Node* lastNode);
 };
