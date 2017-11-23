@@ -1,7 +1,7 @@
 #include <server/gameserver.hpp>
 #include <server/packets.hpp>
 #include <hydra/component/transformcomponent.hpp>
-#include <Game/tileGeneration.hpp>
+#include <server/tilegeneration.hpp>
 #include <iostream>
 #include <chrono>
 #include <thread>

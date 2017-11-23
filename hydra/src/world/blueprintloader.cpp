@@ -22,6 +22,7 @@ std::unique_ptr<Blueprint> BlueprintLoader::load(const std::string& file) {
 	std::unique_ptr<Blueprint> bp;
 	std::vector<uint8_t> d;
 
+	printf("Loading blueprint: %s\n", file.c_str());
 	FILE* fp = fopen(file.c_str(), "rb");
 	fseek(fp, 0, SEEK_END);
 	d.resize(ftell(fp));
@@ -40,6 +41,7 @@ std::unique_ptr<Blueprint> BlueprintLoader::load(const std::string& file) {
 void BlueprintLoader::save(const std::string& file, const std::string& name, Entity* entity) {
 	nlohmann::json root;
 
+	printf("Saving blueprint: %s\n", file.c_str());
 	root["name"] = name;
 	entity->serialize(root["data"]);
 

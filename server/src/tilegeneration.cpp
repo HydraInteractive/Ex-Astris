@@ -1,8 +1,10 @@
-#include <Game/tileGeneration.hpp>
+#include <server/tilegeneration.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
 using world = Hydra::World::World;
+
+using namespace BarcodeServer;
 
 TileGeneration::TileGeneration(std::string middleRoomPath) {
 	mapentity = world::newEntity("Map", world::root());
@@ -261,20 +263,10 @@ void TileGeneration::_setUpMiddleRoom(std::string middleRoomPath) {
 void TileGeneration::_obtainRoomFiles() {
 	//Get the files in order
 	std::string path = "assets/room/";
-	//for (auto & p : std::experimental::filesystem::directory_iterator(path)) {
-	//	_roomFileNames.push_back(p.path().string());
-	//}
-
-	_roomFileNames.push_back(path + "centralRoomBigScreen.room");
-	_roomFileNames.push_back(path + "fourwayRoom.room");
-	_roomFileNames.push_back(path + "starterRoom.room");
-	_roomFileNames.push_back(path + "threewayRoom.room");
-	_roomFileNames.push_back(path + "trashedComputerRoom.room");
-	_roomFileNames.push_back(path + "tryTree.room");
-	_roomFileNames.push_back(path + "tryTwo.room");
+	for (auto & p : std::experimental::filesystem::directory_iterator(path))
+		_roomFileNames.push_back(p.path().string());
 
 	_randomizeRooms();
-
 }
 
 void TileGeneration::_randomizeRooms() {
