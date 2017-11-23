@@ -10,31 +10,31 @@
 #include <hydra/system/lifesystem.hpp>
 #include <json.hpp>
 
-namespace Server {
+namespace BarcodeServer {
 
 	struct Player {
-		int serverid;
-		EntityID entityid;
-		bool connected;
+		int serverid = -1;
+		EntityID entityid = -1;
+		bool connected = false;
 		nlohmann::json bullet;
-		//..
-		Player() {
-			this->serverid = -1;
-			this->entityid = -1;
-			this->connected = false;
-		}
+
+		Player() {}
 	};
 
 	class GameServer {
+	public:
+		GameServer();
+		~GameServer();
+		bool initialize(int port);
+		void start();
+		void run();
+		void quit();
+
 	private:
-		//DEFAULT SHIT
-
-		//DEFAULT SHIT
-
 		std::chrono::time_point<std::chrono::high_resolution_clock> lastTime;
 		float packetDelay;
 		Server* _server;
-		std::vector<EntityID> _networkEntities;
+		std::vector<Hydra::World::EntityID> _networkEntities;
 		std::vector<Player*> _players;
 
 
@@ -53,24 +53,18 @@ namespace Server {
 		//Hydra::System::AbilitySystem _abilitySystem;
 
 		void _sendWorld();
-		void _convertEntityToTransform(ServerUpdatePacket::EntUpdate& dest, EntityID ent);
+		void _convertEntityToTransform(Hydra::Network::ServerUpdatePacket::EntUpdate& dest, Hydra::World::EntityID ent);
 		void _updateWorld();
 		bool _addPlayer(int id);
-		void _resolvePackets(std::vector<Packet*> packets);
+		void _resolvePackets(std::vector<Hydra::Network::Packet*> packets);
 		int64_t _getEntityID(int serverid);
 		void _setEntityID(int serverID, int64_t entityID);
-		void _sendNewEntity(EntityID ent, int serverIDexception);
-		void _deleteEntity(EntityID ent);
+		void _sendNewEntity(Hydra::World::EntityID ent, int serverIDexception);
+		void _deleteEntity(Hydra::World::EntityID ent);
 		void _handleDisconnects();
-		Entity* _createEntity(std::string name, EntityID parentID, bool serverSynced);
-		Player* getPlayer(EntityID id);
-	public:
-		GameServer();
-		~GameServer();
-		bool initialize(int port);
-		void start();
-		void run();
-		void quit();
+		Entity* _createEntity(std::string name, Hydra::World::EntityID parentID, bool serverSynced);
+		Player* getPlayer(Hydra::World::EntityID id);
+
 	};
 
 }

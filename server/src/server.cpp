@@ -1,6 +1,6 @@
 #include <server/server.hpp>
 
-using namespace Server;
+using namespace BarcodeServer;
 
 Server::Server() {
 	this->_running = false;
@@ -65,7 +65,7 @@ std::vector<int> Server::getDisconnects() {
 	return this->_clientHandler.getDisconnectedClients();
 }
 
-std::vector<Packet*> Server::receiveData() {
+std::vector<Hydra::Network::Packet*> Server::receiveData() {
 	return this->_clientHandler.getReceivedData(this->_clientHandler.getActivity());
 }
 

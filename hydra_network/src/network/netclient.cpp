@@ -207,16 +207,16 @@ void NetClient::_addPlayer(Packet * playerPacket) {
 
 bool NetClient::initialize(char* ip, int port) {
 	SDLNet_Init();
-    if(_tcp.initialize(ip, port)) {
-        _myID = 0;
+	if(_tcp.initialize(ip, port)) {
+		_myID = 0;
 		NetClient::running = true;
 		return true;
-    }
+	}
 	NetClient::running = false;
 	return false;
 }
 
-void NetClient::shoot(Hydra::Component::TransformComponent * tc, glm::vec3 direction) {
+void NetClient::shoot(Hydra::Component::TransformComponent * tc, const glm::vec3& direction) {
 	if (NetClient::_tcp.isConnected()) {
 		ClientShootPacket* csp = new ClientShootPacket();
 

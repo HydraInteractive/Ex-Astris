@@ -5,14 +5,8 @@
 
 //This class should (only) set up TCP connections with clients aswell as send and receive data from clients.
 
-namespace Server {
+namespace BarcodeServer {
 	class Server {
-	private:
-		ClientHandler _clientHandler;
-
-		TCPsocket _sock;
-		bool _running;
-		int _port;
 	public:
 		Server();
 		~Server();
@@ -47,9 +41,15 @@ namespace Server {
 		///<summary>
 		///Delete packets after use.
 		///</summary>
-		std::vector<Packet*> receiveData();
-
+		std::vector<Hydra::Network::Packet*> receiveData();
 
 		bool isRunning();
+
+	private:
+		ClientHandler _clientHandler;
+
+		TCPsocket _sock;
+		bool _running;
+		int _port;
 	};
 }

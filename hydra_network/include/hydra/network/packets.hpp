@@ -7,8 +7,6 @@
 #include <hydra/component/transformcomponent.hpp>
 
 namespace Hydra::Network {
-	class Server;
-
 	enum PacketType {
 		ServerInitialize,
 		ServerUpdate,
@@ -18,7 +16,9 @@ namespace Hydra::Network {
 		ServerSpawnEntity,
 		ServerDeleteEntity,
 		ClientUpdateBullet,
-		ClientShoot
+		ServerUpdateBullet,
+		ClientShoot,
+		ServerShoot
 		//..
 	};
 
@@ -119,10 +119,5 @@ namespace Hydra::Network {
 		InterpolationInfo ipi;
 	};
 
-
-	ServerPlayerPacket* createServerPlayerPacket(std::string name, TransformInfo ti);
-
 	ClientUpdatePacket* createClientUpdatePacket(Entity* player);
-
-	void resolveClientUpdatePacket(ClientUpdatePacket* cup, Hydra::World::EntityID entityID);
 }

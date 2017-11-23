@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
 	registerComponents_network(map);
 	registerComponents_physics(map);
 	//registerComponents_sound(map);
-	GameServer server;
+	BarcodeServer::GameServer server;
 	if (server.initialize(4545)) {
 		World::reset();
 		server.start();

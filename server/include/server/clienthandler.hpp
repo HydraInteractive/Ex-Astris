@@ -5,7 +5,7 @@
 
 #define MAX_NETWORK_LENGTH 100000
 
-namespace Server {
+namespace BarcodeServer {
 	class ClientHandler {
 	private:
 		struct Client {
@@ -46,10 +46,10 @@ namespace Server {
 		///<summary>
 		///Delete packets after use!
 		///</summary>
-		std::vector<Packet*> getReceivedData(int pending);
+		std::vector<Hydra::Network::Packet*> getReceivedData(int pending);
 
 		///<summary>
-		///Returns id of new client. Quite inefficient, However shouldn't be a problem as this function is rarely called. Also, Dan sucks. 
+		///Returns id of new client. Quite inefficient, However shouldn't be a problem as this function is rarely called.
 		///</summary>
 		int addNewConnection(TCPsocket sock);
 		int sendData(char* data, int len, int clientID);

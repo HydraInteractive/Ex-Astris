@@ -6,7 +6,8 @@
 #include <chrono>
 #include <thread>
 
-using namespace Server;
+using namespace BarcodeServer;
+using namespace Hydra::Network;
 
 int64_t GameServer::_getEntityID(int serverid) {
 	for (size_t i = 0; i < this->_players.size(); i++) {
@@ -224,7 +225,7 @@ bool GameServer::_addPlayer(int id) {
 	return false;
 }
 
-void GameServer::_resolvePackets(std::vector<Packet*> packets) {
+void GameServer::_resolvePackets(std::vector<Hydra::Network::Packet*> packets) {
 	for (size_t i = 0; i < packets.size(); i++) {
 		switch (packets[i]->h.type) {
 		case PacketType::ClientUpdate:

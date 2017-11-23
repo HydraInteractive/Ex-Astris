@@ -6,11 +6,6 @@
 
 namespace Hydra::Network {
 	class HYDRA_NETWORK_API TCPClient {
-	private:
-		SDLNet_SocketSet _sset;
-		TCPsocket _tcp;
-		char* _msg;
-		bool _connected;
 	public:
 		TCPClient();
 		~TCPClient();
@@ -19,5 +14,10 @@ namespace Hydra::Network {
 		std::vector<Packet*> receiveData();
 		bool isConnected();
 		void close();
+	private:
+		SDLNet_SocketSet _sset;
+		TCPsocket _tcp;
+		char* _msg;
+		bool _connected;
 	};
 }
