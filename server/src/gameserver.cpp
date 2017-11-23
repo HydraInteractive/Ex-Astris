@@ -79,7 +79,7 @@ void GameServer::_handleDisconnects() {
 				printf("Player disconnected, entity id : %zu\n", this->_players[k]->entityid);
 				for (size_t j = 0; j < this->_networkEntities.size(); j++) {
 					if (this->_networkEntities[j] == this->_players[k]->entityid) {
-						World::getEntity(this->_networkEntities[j])->dead = true;
+						_deleteEntity(this->_networkEntities[j]);
 						break;
 					}
 				}
@@ -91,7 +91,7 @@ void GameServer::_handleDisconnects() {
 }
 
 //NO PARENT IMPLEMENTATION YET (ALWAYS CREATES IN ROOT)
-Entity* GameServer::_createEntity(std::string name, EntityID parentID, bool serverSynced) {
+Entity* GameServer::_createEntity(const std::string& name, EntityID parentID, bool serverSynced) {
 	Entity* ent = World::newEntity(name, parentID).get();
 
 	printf("Created entity \"%s\" with entity id : %zu\n", ent->name.c_str(), ent->id);

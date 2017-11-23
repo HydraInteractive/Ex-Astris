@@ -62,7 +62,7 @@ namespace BarcodeServer {
 		void _sendNewEntity(Hydra::World::EntityID ent, int serverIDexception);
 		void _deleteEntity(Hydra::World::EntityID ent);
 		void _handleDisconnects();
-		Entity* _createEntity(std::string name, Hydra::World::EntityID parentID, bool serverSynced);
+		Entity* _createEntity(const std::string& name, Hydra::World::EntityID parentID, bool serverSynced);
 		Player* getPlayer(Hydra::World::EntityID id);
 
 	};
