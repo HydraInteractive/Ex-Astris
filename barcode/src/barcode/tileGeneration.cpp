@@ -479,7 +479,7 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 
 	glm::quat rotation;
 
-	int randomRotateChance = rand() % 100;
+	int randomRotateChance = 100;//rand() % 100;
 
 	//Rotate the room 90 degrees
 	if (randomRotateChance < 25) {
