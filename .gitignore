@@ -28,6 +28,8 @@
 *.app
 .reggae
 /barcodegame
+/barcodeserver
+/objs
 *.ninja
 .ninja_*
 compile_commands.json

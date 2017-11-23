@@ -34,7 +34,6 @@ private:
 	int _currID;
 
 	int _generateClientID();
-	Client*& _getClient(int clientID);
 public:
 	ClientHandler();
 	~ClientHandler();

@@ -17,13 +17,8 @@ using namespace Hydra::Component;
 
 MineComponent::~MineComponent() { }
 
-void MineComponent::serialize(nlohmann::json& json) const {
-	json = {
-	};
-}
+void MineComponent::serialize(nlohmann::json& json) const {}
 
-void MineComponent::deserialize(nlohmann::json& json) {
-}
+void MineComponent::deserialize(nlohmann::json& json) {}
 
-void MineComponent::registerUI() {
-}
+void MineComponent::registerUI() {}

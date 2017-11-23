@@ -10,8 +10,7 @@
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/particlecomponent.hpp>
-
-
+#include <hydra/component/meshcomponent.hpp>
 
 using namespace Hydra::System;
 
