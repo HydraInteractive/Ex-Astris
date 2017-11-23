@@ -128,6 +128,16 @@ void Hydra::System::BulletPhysicsSystem::disable(GhostObjectComponent * componen
 	component->_handler = nullptr;
 }
 
+void* Hydra::System::BulletPhysicsSystem::rayTestFromTo(const glm::vec3& from, const glm::vec3& to)
+{
+	btVector3 playerPos(cast(from));
+	btVector3 directionBoi(cast(to));
+	btCollisionWorld::ClosestRayResultCallback callback(playerPos, directionBoi);
+	
+	_data->dynamicsWorld->rayTest(playerPos, directionBoi, callback);
+	return &callback;
+}
+
 
 
 void BulletPhysicsSystem::tick(float delta) {

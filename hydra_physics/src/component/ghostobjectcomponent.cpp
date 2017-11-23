@@ -29,8 +29,6 @@ void Hydra::Component::GhostObjectComponent::createBox(const glm::vec3& halfExte
 	ghostObject->setUserIndex(this->entityID);
 	ghostObject->setUserIndex2(collType);
 	ghostObject->setFriction(0);
-
-	//updateWorldTransform();
 }
 
 void Hydra::Component::GhostObjectComponent::updateWorldTransform(){
@@ -42,6 +40,15 @@ void Hydra::Component::GhostObjectComponent::updateWorldTransform(){
 	glm::vec3 skew;
 	glm::vec4 perspective;
 	glm::decompose(_matrix, newScale, rotation, translation, skew, perspective);
+
+	std::stringstream temp;
+	temp << "M-POS : " << translation.x << ", " << translation.y << ", " << translation.z << std::endl;
+	temp << "S-POS : " << _matrix[3][0] << ", " << _matrix[3][1] << ", " << _matrix[3][2] << std::endl;
+	temp << "M-ROT : " << rotation.x << ", " << rotation.y << ", " << rotation.z << ", " << rotation.w << std::endl;
+	temp << "S-ROT : " << rotation.x << ", " << rotation.y << ", " << rotation.z << ", " << rotation.w << std::endl;
+	temp << "M-SCL : " << newScale.x << ", " << newScale.y << ", " << newScale.z << std::endl;
+	temp << "S-POS : " << newScale.x << ", " << newScale.x << ", " << newScale.x << std::endl << std::endl;;
+	printf(temp.str().c_str());
 
 	ghostObject->setWorldTransform(btTransform(cast(rotation).inverse(), cast(translation)));
 }
