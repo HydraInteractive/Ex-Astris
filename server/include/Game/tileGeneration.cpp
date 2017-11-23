@@ -1,10 +1,11 @@
-#include <barcode/tileGeneration.hpp>
+#include <Game/tileGeneration.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
 using world = Hydra::World::World;
 
 TileGeneration::TileGeneration(std::string middleRoomPath) {
+	mapentity = world::newEntity("Map", world::root());
 	_obtainRoomFiles();
 	pathfindingMap = new bool*[WORLD_MAP_SIZE];
 	mapentity = Hydra::World::World::newEntity("Map", world::root());
@@ -72,7 +73,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 					t->scale = glm::vec3(1, 1, 1);
 					roomGrid[pos.x][pos.y + 1] = roomC;
 					_insertPathFindingMap(glm::ivec2(pos.x, pos.y + 1));
-					_spawnRandomizedEnemies(t);
+					//_spawnRandomizedEnemies(t);
 					_createMapRecursivly(glm::ivec2(pos.x, pos.y + 1));
 				}
 				else
@@ -118,7 +119,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 					t->scale = glm::vec3(1, 1, 1);
 					roomGrid[pos.x + 1][pos.y] = roomC;
 					_insertPathFindingMap(glm::ivec2(pos.x + 1, pos.y));
-					_spawnRandomizedEnemies(t);
+					//_spawnRandomizedEnemies(t);
 					_createMapRecursivly(glm::ivec2(pos.x + 1, pos.y));
 				}
 				else
@@ -163,7 +164,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 					t->scale = glm::vec3(1, 1, 1);
 					roomGrid[pos.x][pos.y - 1] = roomC;
 					_insertPathFindingMap(glm::ivec2(pos.x, pos.y - 1));
-					_spawnRandomizedEnemies(t);
+					//_spawnRandomizedEnemies(t);
 					_createMapRecursivly(glm::ivec2(pos.x, pos.y - 1));
 				}
 				else
@@ -208,7 +209,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 					t->scale = glm::vec3(1, 1, 1);
 					roomGrid[pos.x - 1][pos.y] = roomC;
 					_insertPathFindingMap(glm::ivec2(pos.x - 1, pos.y));
-					_spawnRandomizedEnemies(t);
+					//_spawnRandomizedEnemies(t);
 					_createMapRecursivly(glm::ivec2(pos.x - 1, pos.y));
 				}
 				else
@@ -246,7 +247,7 @@ void TileGeneration::_setUpMiddleRoom(std::string middleRoomPath) {
 	localXY = glm::vec2(0, 0);
 	_spawnLight(t);
 	
-	//_spawnRandomizedEnemies(t);
+	////_spawnRandomizedEnemies(t);
 	//t->rotation = glm::quat(1, 0, 1, 0);
 	//auto loadedRoom = world->getWorldRoot()->spawn(BlueprintLoader::load(middleRoomPath.c_str())->spawn(world));
 	//auto middleRoomTile = world->createEntity("MiddleRoom");
@@ -427,12 +428,12 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::Component::TransformCo
 		rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 
-		auto pickupText = world::newEntity("Textpickup", mapentity);
-		pickupText->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
-		pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
-		auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
-		textStuff->setText("Perk picked up");
-		textStuff->isStatic = true;
+		//auto pickupText = world::newEntity("Textpickup", mapentity);
+		//pickupText->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
+		//pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
+		//auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
+		//textStuff->setText("Perk picked up");
+		//textStuff->isStatic = true;
 
 	}
 	//if (randomChance < (int)PICKUP_CHANCE) {

@@ -19,10 +19,10 @@
 #else
 #include <experimental/filesystem>
 #endif
-#include <barcode/importermenu.hpp>
-#include <barcode/exportermenu.hpp>
+//#include <barcode/importermenu.hpp>
+//#include <barcode/exportermenu.hpp>
 
-#include <barcode/filetree.hpp>
+//#include <barcode/filetree.hpp>
 #include <hydra/component/roomcomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/pickupcomponent.hpp>

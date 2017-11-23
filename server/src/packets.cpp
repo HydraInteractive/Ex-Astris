@@ -15,6 +15,7 @@ ServerDeletePacket * createServerDeletePacket(EntityID entID) {
 
 ServerPlayerPacket* createServerPlayerPacket(std::string name, TransformInfo ti) {
 	ServerPlayerPacket* spp;
+	volatile int a = sizeof(*spp);
 	int size = (sizeof(*spp) + sizeof(char) * name.length());
 	spp = (ServerPlayerPacket*)new char[size];
 	spp->h.type = PacketType::ServerPlayer;
