@@ -7,6 +7,7 @@ using world = Hydra::World::World;
 TileGeneration::TileGeneration(std::string middleRoomPath) {
 	_obtainRoomFiles();
 	pathfindingMap = new bool*[WORLD_MAP_SIZE];
+	mapentity = Hydra::World::World::newEntity("Map", world::root());
 	for (int i = 0; i < WORLD_MAP_SIZE; i++)
 	{
 		pathfindingMap[i] = new bool[WORLD_MAP_SIZE];
@@ -34,6 +35,8 @@ bool** TileGeneration::buildMap()
 
 void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 
+	
+
 	_roomCounter++;
 	
 	//Random the rooms vector each time we're about to spawn a new room
@@ -56,7 +59,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
-			auto loadedRoom = world::newEntity("Room", world::root());
+			auto loadedRoom = world::newEntity("Room", mapentity);
 
 			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
@@ -81,7 +84,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 		//If for some reason no room at all fits, spawn a door/rubble/something
 		if (placed == false) {
 			//Place stuff to cover door
-			auto doorBlock = world::newEntity("DoorBlock", world::root());
+			auto doorBlock = world::newEntity("DoorBlock", mapentity);
 			doorBlock->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BlockCube2.mATTIC");
 			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
 			t->position = _gridToWorld(pos.x, pos.y + 1);
@@ -101,7 +104,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
-			std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", world::root());
+			std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", mapentity);
 
 			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
@@ -127,7 +130,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 		//If for some reason no room at all fits, spawn a door/rubble/something
 		if (placed == false) {
 			//Place stuff to cover door
-			auto doorBlock = world::newEntity("DoorBlock", world::root());
+			auto doorBlock = world::newEntity("DoorBlock", mapentity);
 			doorBlock->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BlockCube2.mATTIC");
 			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
 			t->position = _gridToWorld(pos.x + 1, pos.y);
@@ -147,7 +150,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
-			std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", world::root());
+			std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", mapentity);
 
 			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
@@ -172,7 +175,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 		//If for some reason no room at all fits, spawn a door/rubble/something
 		if (placed == false) {
 			//Place stuff to cover door
-			auto doorBlock = world::newEntity("DoorBlock", world::root());
+			auto doorBlock = world::newEntity("DoorBlock", mapentity);
 			doorBlock->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BlockCube2.mATTIC");
 			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
 			t->position = _gridToWorld(pos.x, pos.y - 1);
@@ -192,7 +195,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
-			std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", world::root());
+			std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", mapentity);
 
 			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
@@ -217,7 +220,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 		//If for some reason no room at all fits, spawn a door/rubble/something
 		if (placed == false) {
 			//Place stuff to cover door
-			auto doorBlock = world::newEntity("DoorBlock", world::root());
+			auto doorBlock = world::newEntity("DoorBlock", mapentity);
 			doorBlock->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BlockCube2.mATTIC");
 			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
 			t->position = _gridToWorld(pos.x - 1, pos.y);
@@ -232,7 +235,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 
 void TileGeneration::_setUpMiddleRoom(std::string middleRoomPath) {
 
-	auto room = world::newEntity("Middle Room", world::root());
+	auto room = world::newEntity("Middle Room", mapentity);
 	BlueprintLoader::load(middleRoomPath)->spawn(room); 
 	auto roomC = room->getComponent<Hydra::Component::RoomComponent>();
 	roomGrid[ROOM_GRID_SIZE / 2][ROOM_GRID_SIZE / 2] = roomC;
@@ -294,7 +297,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 	int randomFastAliens = rand() % int(MAX_ENEMIES - randomRobots);
 
 	for (int i = 0; i < randomSlowAliens; i++) {
-		auto alienEntity = world::newEntity("SlowAlien1", world::root());
+		auto alienEntity = world::newEntity("SlowAlien1", mapentity);
 		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
 		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
@@ -325,7 +328,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 
 
 	for (int i = 0; i < randomFastAliens; i++) {
-		auto alienEntity = world::newEntity("FastAlien1", world::root());
+		auto alienEntity = world::newEntity("FastAlien1", mapentity);
 		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienFastModel.mATTIC");
 		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
@@ -355,7 +358,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 
 
 	for (int i = 0; i < randomRobots; i++) {
-		auto robotEntity = world::newEntity("Robot1", world::root());
+		auto robotEntity = world::newEntity("Robot1", mapentity);
 		robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
 		auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<RobotBehaviour>(robotEntity);
@@ -415,7 +418,7 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::Component::TransformCo
 	int randomChance = rand() % 100 + 1;
 
 	if (randomChance < (int)PICKUP_CHANCE) {
-		auto pickUpEntity = world::newEntity("PickUp", world::root());
+		auto pickUpEntity = world::newEntity("PickUp", mapentity);
 		auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
 		t->position = glm::vec3(roomTransform->position.x, 3.0f, roomTransform->position.z);
 		pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Lock.mATTIC");
@@ -424,7 +427,7 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::Component::TransformCo
 		rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 
-		auto pickupText = world::newEntity("Textpickup", world::root());
+		auto pickupText = world::newEntity("Textpickup", mapentity);
 		pickupText->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
 		pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
 		auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
@@ -433,7 +436,7 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::Component::TransformCo
 
 	}
 	//if (randomChance < (int)PICKUP_CHANCE) {
-	//	auto pickUpEntity = world::newEntity("PickUp", world::root());
+	//	auto pickUpEntity = world::newEntity("PickUp", mapentity);
 	//	auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
 	//	t->position = glm::vec3(roomTransform->position.x, 0.0f, roomTransform->position.z);
 	//	pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/GreenCargoBox.mATTIC");
@@ -446,7 +449,7 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::Component::TransformCo
 
 void TileGeneration::_spawnLight(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform) {
 
-	auto pointLight1 = world::newEntity("Pointlight1", world::root());
+	auto pointLight1 = world::newEntity("Pointlight1", mapentity);
 	pointLight1->addComponent<Hydra::Component::TransformComponent>();
 	auto t = pointLight1->getComponent<Hydra::Component::TransformComponent>();
 	t->position.x = roomTransform->position.x;

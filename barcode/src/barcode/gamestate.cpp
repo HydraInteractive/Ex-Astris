@@ -27,7 +27,7 @@ using world = Hydra::World::World;
 
 namespace Barcode {
 	//char GameState::addr[256] = "127.0.0.1";
-	char GameState::addr[256] = "192.168.1.244";
+	char GameState::addr[256] = "192.168.1.24";
 	int GameState::port = 4545;
 
 	GameState::GameState() : _engine(Hydra::IEngine::getInstance()) {}
@@ -401,8 +401,8 @@ namespace Barcode {
 		}
 		{
 			//Remove this to gain frames like never before
-			tileGen = new TileGeneration("assets/room/starterRoom.room");
-			pathfindingMap = tileGen->buildMap();
+			//tileGen = new TileGeneration("assets/room/starterRoom.room");
+			//pathfindingMap = tileGen->buildMap();
 		}
 
 		/*for (size_t i = 0; i < 1; i++) {

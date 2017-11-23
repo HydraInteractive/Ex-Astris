@@ -102,7 +102,7 @@ Entity* GameServer::_createEntity(std::string name, EntityID parentID, bool serv
 		return ent;
 }
 
-Player * GameServer::getPlayer(EntityID id) {
+Player* GameServer::getPlayer(EntityID id) {
 	for (size_t i = 0; i < this->_players.size(); i++) {
 		if (this->_players[i]->entityid == id) {
 			return this->_players[i];

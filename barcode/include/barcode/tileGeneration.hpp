@@ -51,7 +51,7 @@ public:
 	~TileGeneration();
 
 	int maxRooms = 0;
-
+	std::shared_ptr<Hydra::World::Entity> mapentity;
 private:
 	std::vector<std::string> _roomFileNames;
 	int _roomCounter = 0;

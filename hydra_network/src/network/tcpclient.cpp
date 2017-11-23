@@ -46,7 +46,7 @@ std::vector<Packet*> TCPClient::receiveData() {
 	Packet* tmp2;
 	int curr = 0;
 
-	static size_t offset = 0;
+	size_t offset = 0;
 	while (SDLNet_CheckSockets(this->_sset, 0)) {
 		if (offset == MAX_NETWORK_LENGTH) {
 			close();
