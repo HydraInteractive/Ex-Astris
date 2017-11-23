@@ -2,6 +2,7 @@
 #include <server/server.hpp>
 #include <hydra/world/world.hpp>
 #include <chrono>
+#include <hydra/system/deadsystem.hpp>
 #include <hydra/system/bulletphysicssystem.hpp>
 #include <hydra/system/aisystem.hpp>
 #include <hydra/system/bulletsystem.hpp>
@@ -37,7 +38,7 @@ namespace BarcodeServer {
 		std::vector<Hydra::World::EntityID> _networkEntities;
 		std::vector<Player*> _players;
 
-
+		Hydra::System::DeadSystem _deadSystem;
 		Hydra::System::BulletPhysicsSystem* _physicsSystem;
 		Hydra::System::AISystem* _aiSystem;
 		Hydra::System::BulletSystem* _bulletSystem;

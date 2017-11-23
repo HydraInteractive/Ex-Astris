@@ -63,32 +63,20 @@ void BarcodeServer::resolveClientUpdatePacket(ClientUpdatePacket* cup, Hydra::Wo
 	}
 }
 
-void BarcodeServer::createAndSendServerEntityPacket(Hydra::World::Entity* ent, Server* s) {
+Hydra::Network::ServerSpawnEntityPacket* BarcodeServer::createServerSpawnEntity(Hydra::World::Entity* ent) {
 	std::vector<uint8_t> data;
 	nlohmann::json json;
 	ent->serialize(json);
 	data = json.to_msgpack(json);
 
-	ServerSpawnEntityPacket* packet = new ServerSpawnEntityPacket();
+	ServerSpawnEntityPacket* packet = (ServerSpawnEntityPacket*)new char[sizeof(ServerUpdateBulletPacket) + data.size()];
 	packet->h.type = PacketType::ServerSpawnEntity;
 	packet->id = ent->id;
 	packet->size = data.size();
 	packet->h.len = packet->getSize();
+	memcpy(packet->data, data.data(), data.size());
 
-	char* result = new char[sizeof(ServerSpawnEntityPacket) + data.size() * sizeof(uint8_t)];
-
-	memcpy(result, packet, sizeof(ServerSpawnEntityPacket));
-	memcpy(result + sizeof(ServerSpawnEntityPacket), data.data(), data.size() * sizeof(uint8_t));
-
-	printf("sendDataToAll:\n\ttype: ServerSpawnEntity\n\tlen: %d\n", packet->h.len);
-	s->sendDataToAll(result, sizeof(ServerSpawnEntityPacket) + data.size() * sizeof(uint8_t));
-
-	delete[] result;
-
-	//s->sendDataToAll((char*)packet, sizeof(ServerSpawnEntityPacket));
-	//s->sendDataToAll((char*)data.data(), data.size() * sizeof(uint8_t));
-
-	delete packet;
+	return packet;
 }
 
 void BarcodeServer::createAndSendPlayerUpdateBulletPacket(Player * p, Server * s) {

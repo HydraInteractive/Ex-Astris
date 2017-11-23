@@ -21,7 +21,19 @@ namespace Hydra::Network {
 		ServerShoot
 		//..
 	};
-
+	static constexpr const char* PacketTypeName[] = {
+		"ServerInitialize",
+		"ServerUpdate",
+		"ServerPlayer",
+		"ClientUpdate",
+		"ClientSpawnEntity",
+		"ServerSpawnEntity",
+		"ServerDeleteEntity",
+		"ClientUpdateBullet",
+		"ServerUpdateBullet",
+		"ClientShoot",
+		"ServerShoot"
+	};
 
 
 	struct TransformInfo {

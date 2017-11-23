@@ -99,7 +99,9 @@ Entity* GameServer::_createEntity(const std::string& name, EntityID parentID, bo
 		ent->addComponent<Hydra::Component::TransformComponent>();
 		this->_networkEntities.push_back(ent->id);
 
-		createAndSendServerEntityPacket(ent, this->_server);
+		auto p = createServerSpawnEntity(ent);
+		_server->sendDataToAll((char*)p, p->h.len);
+		delete[] (char*)p;
 		return ent;
 	}
 	else
@@ -179,8 +181,9 @@ bool GameServer::_addPlayer(int id) {
 			}
 		}
 
-		createAndSendServerEntityPacket(map, this->_server);
-
+		auto packet = createServerSpawnEntity(map);
+		_server->sendDataToClient((char*)packet, packet->h.len, id);
+		delete[] (char*)packet;
 
 		//END TEMP WORLD
 
@@ -318,8 +321,9 @@ void GameServer::start() {
 	TileGeneration* t;
 	//t = new TileGeneration("C:/Users/Dennis Persson/Documents/Hydra/x64/Debug/assets/room/starterRoom.room");
 	t = new TileGeneration("assets/room/starterRoom.room");
-	t->maxRooms = 4;
+	t->maxRooms = 3;
 	t->buildMap();
+	_deadSystem.tick(0);
 }
 
 void GameServer::run() {

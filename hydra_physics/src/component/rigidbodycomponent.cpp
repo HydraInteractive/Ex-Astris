@@ -223,7 +223,8 @@ private:
 RigidBodyComponent::~RigidBodyComponent() {
 	if (_handler)
 		_handler->disable(this);
-	delete _data;
+	if (_data)
+		delete _data;
 }
 
 #define DEFAULT_PARAMS Hydra::System::BulletPhysicsSystem::CollisionTypes collType, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction

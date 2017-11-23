@@ -10,7 +10,7 @@ namespace BarcodeServer {
 	Hydra::Network::ServerDeletePacket* createServerDeletePacket(Hydra::World::EntityID entID);
 	Hydra::Network::ServerPlayerPacket* createServerPlayerPacket(const std::string& name, const Hydra::Network::TransformInfo& ti);
 	//Hydra::Network::ClientUpdatePacket* createClientUpdatePacket(Hydra::World::Entity* player);
-	void createAndSendServerEntityPacket(Hydra::World::Entity* ent, Server* s);
+	Hydra::Network::ServerSpawnEntityPacket* createServerSpawnEntity(Hydra::World::Entity* ent);
 	void createAndSendPlayerUpdateBulletPacket(Player* p, Server* s);
 	void createAndSendPlayerShootPacket(Player* p, Hydra::Network::ClientShootPacket* csp, Server* s);
 

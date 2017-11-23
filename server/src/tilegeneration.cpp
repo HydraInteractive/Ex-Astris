@@ -10,7 +10,6 @@ TileGeneration::TileGeneration(std::string middleRoomPath) {
 	mapentity = world::newEntity("Map", world::root());
 	_obtainRoomFiles();
 	pathfindingMap = new bool*[WORLD_MAP_SIZE];
-	mapentity = Hydra::World::World::newEntity("Map", world::root());
 	for (int i = 0; i < WORLD_MAP_SIZE; i++)
 	{
 		pathfindingMap[i] = new bool[WORLD_MAP_SIZE];

@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 
 #include <memory>
+#include <ctime>
 
 #include <hydra/component/componentmanager.hpp>
 #include <hydra/component/componentmanager_network.hpp>
@@ -31,7 +32,7 @@ static inline void setup() {
 
 #undef main
 int main(int argc, char** argv) {
-	//srand(NULL);
+	srand(time(NULL));
 	(void)argc;
 	(void)argv;
 	setup();

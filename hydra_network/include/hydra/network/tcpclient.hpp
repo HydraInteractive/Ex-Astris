@@ -15,6 +15,7 @@ namespace Hydra::Network {
 		bool isConnected();
 		void close();
 	private:
+		const size_t MAX_NETWORK_LENGTH = 0x100000;
 		SDLNet_SocketSet _sset;
 		TCPsocket _tcp;
 		char* _msg;
