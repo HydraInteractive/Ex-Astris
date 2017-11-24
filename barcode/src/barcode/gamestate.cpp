@@ -165,14 +165,7 @@ namespace Barcode {
 			for (auto e : entities) {
 				auto transform = e->getComponent<Hydra::Component::TransformComponent>();
 				auto goc = e->getComponent<Hydra::Component::GhostObjectComponent>();
-				//_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(goc->getMatrix() * glm::scale(glm::vec3(2)));
-				glm::vec3 newScale;
-				glm::quat rotation;
-				glm::vec3 translation;
-				glm::vec3 skew;
-				glm::vec4 perspective;
-				glm::decompose(transform->getMatrix(), newScale, rotation, translation, skew, perspective);
-				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(glm::translate(translation) * glm::mat4_cast(goc->quatRotation) * glm::scale(goc->halfExtents * glm::vec3(2)));
+				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(goc->getMatrix() * glm::scale(glm::vec3(2)));
 			}
 
 			_hitboxBatch.pipeline->setValue(0, _cc->getViewMatrix());
