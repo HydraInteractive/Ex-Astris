@@ -324,6 +324,10 @@ void RigidBodyComponent::deserialize(nlohmann::json& json) {
 	auto rollingFriction = json["rollingFriction"].get<float>();
 	auto collisionType = static_cast<Hydra::System::BulletPhysicsSystem::CollisionTypes>(json["collisionType"].get<int>());
 
+	btTransform localTrans;
+	localTrans.setIdentity();
+	localTrans.setOrigin(cast(glm::vec3(0,0,0)));
+	compound->addChildShape(localTrans, shape.get());
 	_data = new Data(entityID, collisionShape, serializeShape, std::move(shape), std::move(compound), collisionType, mass, linearDamping, angularDamping, friction, rollingFriction);
 }
 
