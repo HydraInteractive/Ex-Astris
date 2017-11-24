@@ -1,8 +1,24 @@
 #include <barcode/editorstate.hpp>
 
+#include <fstream>
+#include <json.hpp>
+#include <imgui/imgui.h>
 #include <barcode/menustate.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+
 #include <hydra/component/rigidbodycomponent.hpp>
+#include <hydra/component/meshcomponent.hpp>
+#include <hydra/component/playercomponent.hpp>
+#include <hydra/component/weaponcomponent.hpp>
+#include <hydra/component/particlecomponent.hpp>
+#include <hydra/component/aicomponent.hpp>
+#include <hydra/component/lifecomponent.hpp>
+#include <hydra/component/lightcomponent.hpp>
+#include <hydra/component/pointlightcomponent.hpp>
+#include <hydra/component/movementcomponent.hpp>
+#include <hydra/component/lifecomponent.hpp>
+#include <hydra/component/roomcomponent.hpp>
+#include <hydra/component/ghostobjectcomponent.hpp>
 
 using world = Hydra::World::World;
 namespace Barcode {
