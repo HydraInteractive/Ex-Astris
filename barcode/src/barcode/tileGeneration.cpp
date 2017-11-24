@@ -46,6 +46,8 @@ TileGeneration::~TileGeneration() {
 bool** TileGeneration::buildMap()
 {
 	_createMapRecursivly(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2));
+	_spawnEnemies(t);
+	_clearSpawnPoints();
 	return pathfindingMap;
 }
 
@@ -266,8 +268,6 @@ void TileGeneration::_setUpMiddleRoom(std::string middleRoomPath) {
 	t->scale = glm::vec3(1, 1, 1);
 	_generatePlayerSpawnPoints();
 	_spawnLight(t);
-	_spawnEnemies(t);
-	_clearSpawnPoints();
 }
 
 void TileGeneration::_obtainRoomFiles() {
@@ -349,7 +349,6 @@ void TileGeneration::_spawnEnemies(std::shared_ptr<Hydra::Component::TransformCo
 	}
 	//_spawnPickUps(roomTransform);
 	//_spawnLight(roomTransform);
-	//_spawnRandomEnemy(glm::vec3());
 }
 
 void TileGeneration::_spawnRandomEnemy(glm::vec3 pos)
