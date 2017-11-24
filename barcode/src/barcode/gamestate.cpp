@@ -206,6 +206,8 @@ namespace Barcode {
 			const int x = _engine->getView()->getSize().x / 2;
 			const ImVec2 pos = ImVec2(x, _engine->getView()->getSize().y / 2);
 
+			//git plz
+
 			if (prevHP > hpP) {
 				//prevHP = (1 - (delta*3)) * prevHP + (delta*3) * hpP; //LERP
 				if (hpTimeUp == 0) {

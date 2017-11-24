@@ -68,7 +68,7 @@ bool Behaviour::refreshRequiredComponents()
 		(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
 		(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
-		(targetPlayer.entity = Hydra::World::World::getEntity(thisEnemy.ai->entityID).get()) &&
+		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity().get()) &&
 		(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 		(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
 	 );
@@ -440,7 +440,7 @@ bool RobotBehaviour::refreshRequiredComponents()
 		(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
 		(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
-		(targetPlayer.entity = Hydra::World::World::getEntity(thisEnemy.ai->entityID).get()) &&
+		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity().get()) &&
 		(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 		(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
 	);
