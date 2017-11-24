@@ -1,6 +1,11 @@
 #include <hydra/network/netclient.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/component/meshcomponent.hpp>
+#include <hydra/component/rigidbodycomponent.hpp>
+#include <hydra/system/bulletphysicssystem.hpp>
+#include <hydra/component/ghostobjectcomponent.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
+#include <hydra/engine.hpp>
 
 using namespace Hydra::Network;
 using world = Hydra::World::World;
@@ -9,6 +14,41 @@ TCPClient NetClient::_tcp;
 EntityID NetClient::_myID;
 std::map<ServerID, EntityID> NetClient::_IDs;
 bool NetClient::running = false;
+
+
+void enableEntity(Entity* ent) {
+	if (!ent)
+		return;
+
+	Hydra::System::BulletPhysicsSystem* bulletsystem = (Hydra::System::BulletPhysicsSystem*)Hydra::IEngine::getInstance()->getState()->getPhysicsSystem();
+	Hydra::Component::RigidBodyComponent* rgb = ent->getComponent<Hydra::Component::RigidBodyComponent>().get();
+	if (rgb)
+		bulletsystem->enable(rgb);
+	
+	
+	auto tc = ent->getComponent<TransformComponent>();
+	if (tc) {
+		auto ghostobject = ent->getComponent<GhostObjectComponent>();
+		if (ghostobject) {
+			glm::vec3 newScale;
+			glm::quat rotation;
+			glm::vec3 translation;
+			glm::vec3 skew;
+			glm::vec4 perspective;
+			glm::decompose(tc->getMatrix(), newScale, rotation, translation, skew, perspective);
+
+			ghostobject->ghostObject->setWorldTransform(btTransform(btQuaternion(ghostobject->quatRotation.x, ghostobject->quatRotation.y, ghostobject->quatRotation.z, ghostobject->quatRotation.w), btVector3(translation.x, translation.y, translation.z)));
+			
+			bulletsystem->enable(static_cast<Hydra::Component::GhostObjectComponent*>(ghostobject.get()));
+		}
+
+	}
+	std::vector<EntityID> children = ent->children;
+	for (size_t i = 0; i < children.size(); i++) {
+		
+		enableEntity(world::getEntity(children[i]).get());
+	}
+}
 
 void NetClient::_sendUpdatePacket() {
 	Entity* tmp = world::getEntity(_myID).get();
@@ -108,6 +148,9 @@ void NetClient::_resolveServerSpawnEntityPacket(ServerSpawnEntityPacket* entPack
 	ent->deserialize(json);
 	//ent->setID(entPacket->id);
 	_IDs[entPacket->id] = ent->id;
+
+	enableEntity(ent);
+	
 }
 
 void NetClient::_resolveServerDeletePacket(ServerDeletePacket* delPacket) {
@@ -134,7 +177,7 @@ void NetClient::_updateWorld(Packet * updatePacket) {
 		for (size_t i = 0; i < children.size(); i++) {
 			if (children[i] == _IDs[((ServerUpdatePacket::EntUpdate&)sup->data[k]).entityid]) {
 				tc = world::getEntity(children[i])->getComponent<Hydra::Component::TransformComponent>().get();
-				tc->setPosition(((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos);
+				tc->position = { ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.x, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.y - 2, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.z };
 				tc->setRotation(((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.rot);
 				tc->setScale(((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.scale);
 				break;
@@ -164,16 +207,16 @@ void NetClient::_addPlayer(Packet * playerPacket) {
 
 bool NetClient::initialize(char* ip, int port) {
 	SDLNet_Init();
-    if(_tcp.initialize(ip, port)) {
-        _myID = 0;
+	if(_tcp.initialize(ip, port)) {
+		_myID = 0;
 		NetClient::running = true;
 		return true;
-    }
+	}
 	NetClient::running = false;
 	return false;
 }
 
-void NetClient::shoot(Hydra::Component::TransformComponent * tc, glm::vec3 direction) {
+void NetClient::shoot(Hydra::Component::TransformComponent * tc, const glm::vec3& direction) {
 	if (NetClient::_tcp.isConnected()) {
 		ClientShootPacket* csp = new ClientShootPacket();
 
@@ -228,6 +271,14 @@ void NetClient::run() {
 
     //Nåt
     {
-        
+        //du gillar sovpotatisar no?
     }
+}
+
+void NetClient::reset() {
+	if (!running)
+		return;
+	_tcp.close();
+	_IDs.clear();
+	running = false;
 }

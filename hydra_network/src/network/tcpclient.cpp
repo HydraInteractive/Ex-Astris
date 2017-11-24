@@ -1,7 +1,6 @@
 #include <hydra/network/tcpclient.hpp>
 #include <vector>
 #include <SDL2/SDL_net.h>
-#define MAX_NETWORK_LENGTH 100000
 
 using namespace Hydra::Network;
 
@@ -44,22 +43,21 @@ std::vector<Packet*> TCPClient::receiveData() {
 
 	Packet* tmp;
 	Packet* tmp2;
-	int curr = 0;
+	size_t curr = 0;
 
-	static size_t offset = 0;
+	size_t offset = 0;
 	while (SDLNet_CheckSockets(this->_sset, 0)) {
 		if (offset == MAX_NETWORK_LENGTH) {
 			close();
 			return packets;
 		}
 
-		int len = SDLNet_TCP_Recv(this->_tcp, this->_msg + offset, MAX_NETWORK_LENGTH - offset) + offset;
-		if (len > 0) {
+		ssize_t lenTmp = SDLNet_TCP_Recv(this->_tcp, this->_msg + offset, MAX_NETWORK_LENGTH - offset) + offset;
+		if (lenTmp > 0) {
+			size_t len = lenTmp;
 			while (curr < len && curr < MAX_NETWORK_LENGTH) {
 				tmp = (Packet*)(&(this->_msg[curr]));
-				printf("Reading packet: offset: %zu, curr: %d\n\ttype: %d\n\tlen: %d\n\tclient: %d\n", offset, curr, tmp->h.type, tmp->h.len, tmp->h.client);
-				if (!tmp->h.len)
-					continue;
+				printf("Reading packet: offset: %zu, curr: %zu\n\ttype: %s\n\tlen: %d\n\tclient: %d\n", offset, curr, Hydra::Network::PacketTypeName[tmp->h.type], tmp->h.len, tmp->h.client);
 				if (curr + tmp->h.len > len) {
 					memmove(_msg, _msg + curr, len - curr);
 					offset = len - curr;

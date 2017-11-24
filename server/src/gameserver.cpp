@@ -1,10 +1,13 @@
 #include <server/gameserver.hpp>
 #include <server/packets.hpp>
 #include <hydra/component/transformcomponent.hpp>
-#include <Game/tileGeneration.hpp>
+#include <server/tilegeneration.hpp>
 #include <iostream>
 #include <chrono>
 #include <thread>
+
+using namespace BarcodeServer;
+using namespace Hydra::Network;
 
 int64_t GameServer::_getEntityID(int serverid) {
 	for (size_t i = 0; i < this->_players.size(); i++) {
@@ -76,7 +79,7 @@ void GameServer::_handleDisconnects() {
 				printf("Player disconnected, entity id : %zu\n", this->_players[k]->entityid);
 				for (size_t j = 0; j < this->_networkEntities.size(); j++) {
 					if (this->_networkEntities[j] == this->_players[k]->entityid) {
-						World::getEntity(this->_networkEntities[j])->dead = true;
+						_deleteEntity(this->_networkEntities[j]);
 						break;
 					}
 				}
@@ -88,7 +91,7 @@ void GameServer::_handleDisconnects() {
 }
 
 //NO PARENT IMPLEMENTATION YET (ALWAYS CREATES IN ROOT)
-Entity* GameServer::_createEntity(std::string name, EntityID parentID, bool serverSynced) {
+Entity* GameServer::_createEntity(const std::string& name, EntityID parentID, bool serverSynced) {
 	Entity* ent = World::newEntity(name, parentID).get();
 
 	printf("Created entity \"%s\" with entity id : %zu\n", ent->name.c_str(), ent->id);
@@ -96,14 +99,16 @@ Entity* GameServer::_createEntity(std::string name, EntityID parentID, bool serv
 		ent->addComponent<Hydra::Component::TransformComponent>();
 		this->_networkEntities.push_back(ent->id);
 
-		createAndSendServerEntityPacket(ent, this->_server);
+		auto p = createServerSpawnEntity(ent);
+		_server->sendDataToAll((char*)p, p->h.len);
+		delete[] (char*)p;
 		return ent;
 	}
 	else
 		return ent;
 }
 
-Player * GameServer::getPlayer(EntityID id) {
+Player* GameServer::getPlayer(EntityID id) {
 	for (size_t i = 0; i < this->_players.size(); i++) {
 		if (this->_players[i]->entityid == id) {
 			return this->_players[i];
@@ -176,8 +181,9 @@ bool GameServer::_addPlayer(int id) {
 			}
 		}
 
-		createAndSendServerEntityPacket(map, this->_server);
-
+		auto packet = createServerSpawnEntity(map);
+		_server->sendDataToClient((char*)packet, packet->h.len, id);
+		delete[] (char*)packet;
 
 		//END TEMP WORLD
 
@@ -222,7 +228,7 @@ bool GameServer::_addPlayer(int id) {
 	return false;
 }
 
-void GameServer::_resolvePackets(std::vector<Packet*> packets) {
+void GameServer::_resolvePackets(std::vector<Hydra::Network::Packet*> packets) {
 	for (size_t i = 0; i < packets.size(); i++) {
 		switch (packets[i]->h.type) {
 		case PacketType::ClientUpdate:
@@ -317,6 +323,7 @@ void GameServer::start() {
 	t = new TileGeneration("assets/room/starterRoom.room");
 	t->maxRooms = 3;
 	t->buildMap();
+	_deadSystem.tick(0);
 }
 
 void GameServer::run() {

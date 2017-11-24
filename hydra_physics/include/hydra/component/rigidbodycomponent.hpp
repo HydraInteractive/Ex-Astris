@@ -61,7 +61,7 @@ namespace Hydra::Component {
 	private:
 		Hydra::System::BulletPhysicsSystem::CollisionTypes doa = Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_NOTHING;
 		struct Data;
-		Data* _data;
+		Data* _data = nullptr;
 		glm::vec3 _halfExtents = glm::vec3(0.5f,0.5f,0.5f);
 		Hydra::System::BulletPhysicsSystem* _handler = nullptr;
 	};

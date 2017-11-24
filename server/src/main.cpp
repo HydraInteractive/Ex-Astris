@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 
 #include <memory>
+#include <ctime>
 
 #include <hydra/component/componentmanager.hpp>
 #include <hydra/component/componentmanager_network.hpp>
@@ -31,7 +32,7 @@ static inline void setup() {
 
 #undef main
 int main(int argc, char** argv) {
-	//srand(NULL);
+	srand(time(NULL));
 	(void)argc;
 	(void)argv;
 	setup();
@@ -43,7 +44,7 @@ int main(int argc, char** argv) {
 	registerComponents_network(map);
 	registerComponents_physics(map);
 	//registerComponents_sound(map);
-	GameServer server;
+	BarcodeServer::GameServer server;
 	if (server.initialize(4545)) {
 		World::reset();
 		server.start();

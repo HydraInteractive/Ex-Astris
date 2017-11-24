@@ -48,7 +48,6 @@
 #include <hydra/system/animationsystem.hpp>
 #include <hydra/system/pickupsystem.hpp>
 #include <hydra/system/textsystem.hpp>
-#include <barcode/tileGeneration.hpp>
 
 namespace Barcode {
 	class GameState final : public Hydra::IState {
@@ -102,7 +101,6 @@ namespace Barcode {
 		Hydra::Component::TransformComponent* _playerTransform = nullptr;
 
 		float prevHP, hpTimeUp = 0;
-		TileGeneration* tileGen;
 		bool** pathfindingMap = nullptr;
 
 		void _initSystem();

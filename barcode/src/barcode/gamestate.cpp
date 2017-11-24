@@ -26,12 +26,17 @@
 using world = Hydra::World::World;
 
 namespace Barcode {
+#ifdef _WIN32
+	char GameState::addr[256] = "192.168.1.24";
+#else
 	char GameState::addr[256] = "127.0.0.1";
+#endif
 	int GameState::port = 4545;
 
 	GameState::GameState() : _engine(Hydra::IEngine::getInstance()) {}
 
 	void GameState::load() {
+		Hydra::Network::NetClient::reset();
 		_textureLoader = Hydra::IO::GLTextureLoader::create();
 		_meshLoader = Hydra::IO::GLMeshLoader::create(_engine->getRenderer());
 		_textFactory = Hydra::IO::GLTextFactory::create("assets/fonts/font.png");
@@ -47,8 +52,7 @@ namespace Barcode {
 		_initWorld();
 	}
 
-	GameState::~GameState() { }
-
+	GameState::~GameState() {}
 	void GameState::onMainMenu() { }
 
 	void GameState::runFrame(float delta) {
@@ -141,11 +145,11 @@ namespace Barcode {
 		_textSystem.tick(delta);
 
 
-		static bool enableHitboxDebug = false;
-/*		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
+		static bool enableHitboxDebug = true;
+		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
 		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
 		ImGui::Checkbox("Enable SSAO", &MenuState::ssaoEnabled);
-		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);*/
+		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);
 
 		const glm::vec3& cameraPos = _playerTransform->position;
 		auto viewMatrix = _cc->getViewMatrix();
@@ -176,12 +180,20 @@ namespace Barcode {
 				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(glm::translate(rgbc->getPosition()) * glm::mat4_cast(rgbc->getRotation()) * glm::scale(rgbc->getHalfExtentScale() * glm::vec3(2)));
 			}
 
-			world::getEntitiesWithComponents<Hydra::Component::GhostObjectComponent, Hydra::Component::DrawObjectComponent>(entities);
+			world::getEntitiesWithComponents<Hydra::Component::GhostObjectComponent, Hydra::Component::TransformComponent>(entities);
 			for (auto e : entities) {
+				auto transform = e->getComponent<Hydra::Component::TransformComponent>();
 				auto goc = e->getComponent<Hydra::Component::GhostObjectComponent>();
-				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(goc->getMatrix()*glm::scale(glm::vec3(2)));
-				//_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(glm::translate(translation) * glm::mat4_cast(goc->quatRotation) * glm::scale(goc->halfExtents * glm::vec3(2)));
+				//_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(goc->getMatrix() * glm::scale(glm::vec3(2)));
+				glm::vec3 newScale;
+				glm::quat rotation;
+				glm::vec3 translation;
+				glm::vec3 skew;
+				glm::vec4 perspective;
+				glm::decompose(transform->getMatrix(), newScale, rotation, translation, skew, perspective);
+				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(glm::translate(translation) * glm::mat4_cast(goc->quatRotation) * glm::scale(goc->halfExtents * glm::vec3(2)));
 			}
+
 			_hitboxBatch.pipeline->setValue(0, _cc->getViewMatrix());
 			_hitboxBatch.pipeline->setValue(1, _cc->getProjectionMatrix());
 			_engine->getRenderer()->renderHitboxes(_hitboxBatch.batch);
@@ -390,7 +402,7 @@ namespace Barcode {
 			auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-			
+
 			auto pickupText = world::newEntity("Textpickup", world::root());
 			pickupText->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
 			pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
@@ -415,7 +427,6 @@ namespace Barcode {
 		}*/
 
 		{
-			
 			if (Hydra::Network::NetClient::initialize(addr, port)) {
 				//show feedback?
 			}

@@ -7,8 +7,6 @@
 #include <hydra/component/transformcomponent.hpp>
 
 namespace Hydra::Network {
-	class Server;
-
 	enum PacketType {
 		ServerInitialize,
 		ServerUpdate,
@@ -18,10 +16,24 @@ namespace Hydra::Network {
 		ServerSpawnEntity,
 		ServerDeleteEntity,
 		ClientUpdateBullet,
-		ClientShoot
+		ServerUpdateBullet,
+		ClientShoot,
+		ServerShoot
 		//..
 	};
-
+	static constexpr const char* PacketTypeName[] = {
+		"ServerInitialize",
+		"ServerUpdate",
+		"ServerPlayer",
+		"ClientUpdate",
+		"ClientSpawnEntity",
+		"ServerSpawnEntity",
+		"ServerDeleteEntity",
+		"ClientUpdateBullet",
+		"ServerUpdateBullet",
+		"ClientShoot",
+		"ServerShoot"
+	};
 
 
 	struct TransformInfo {
@@ -55,11 +67,24 @@ namespace Hydra::Network {
 		char* data[0];
 		inline size_t getSize() { return sizeof(ClientUpdateBulletPacket) + sizeof(char) * size; }
 	};
+	struct ServerUpdateBulletPacket : public Packet {
+		EntityID serverPlayerID;
+		size_t size;
+		char* data[0];
+		inline size_t getSize() { return sizeof(ServerUpdateBulletPacket) + sizeof(char) * size; }
+	};
+
 
 	struct ClientShootPacket : public Packet {
 		TransformInfo ti;
 		glm::vec3 direction;
 	};
+	struct ServerShootPacket : public Packet {
+		EntityID serverPlayerID;
+		TransformInfo ti;
+		glm::vec3 direction;
+	};
+
 
 
 	struct ClientSpawnEntityPacket : public Packet {
@@ -106,10 +131,5 @@ namespace Hydra::Network {
 		InterpolationInfo ipi;
 	};
 
-
-	ServerPlayerPacket* createServerPlayerPacket(std::string name, TransformInfo ti);
-
 	ClientUpdatePacket* createClientUpdatePacket(Entity* player);
-
-	void resolveClientUpdatePacket(ClientUpdatePacket* cup, Hydra::World::EntityID entityID);
 }
