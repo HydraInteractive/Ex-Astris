@@ -20,7 +20,7 @@ namespace Hydra::Component {
 		glm::vec3 color = glm::vec3(1, 1, 1);
 
 		float zNear = 0.01f;
-		float zFar = 80.0f;
+		float zFar = 120.0f;
 		float xNear = -20.0f;
 		float xFar = 20.0f;
 		float yNear = -20.0f;

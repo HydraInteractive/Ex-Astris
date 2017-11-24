@@ -24,7 +24,7 @@ void LightSystem::tick(float delta) {
 		auto lightParentTC = lightParent->getComponent<TransformComponent>();
 		
 		if (lightParentTC && lightParentTC->dirty)
-			lightTC->position = glm::vec3(0, 50, 0) + lightParentTC->position;
+			lightTC->position = glm::vec3(0, 100, 0) + lightParentTC->position;
 	}
 }
 
