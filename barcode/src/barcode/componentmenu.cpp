@@ -238,9 +238,9 @@ void ComponentMenu::_renderEntity(Hydra::World::Entity* entity)
 	}
 	ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
 	auto entityIDs = entity->children;
-	for (size_t i = 0; i < entityIDs.size(); i++)
+	for (auto e : entityIDs)
 	{
-		auto child = world::getEntity(entityIDs[i]);
+		auto child = world::getEntity(e);
 		if (ImGui::TreeNodeEx(child.get(), nodeFlags | ((_selectedEntity == child.get()) ? ImGuiTreeNodeFlags_Selected : 0), "%s", child->name.c_str()))
 		{
 			_renderEntity(child.get());

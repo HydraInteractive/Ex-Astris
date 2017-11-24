@@ -13,7 +13,8 @@ private:
 	char _selectedFileName[128] = "";
 	int _fileType = 0;
 	int _fileTreeFileType = 0;
-	const char* _exportTypes[2] = {".room",".prefab"};
+	static const int nrOfTypes = 2;
+	const char* _exportTypes[nrOfTypes] = {".room",".prefab"};
 	bool _prepExporting = false;
 	Hydra::World::Entity* selectedEntity = nullptr;
 

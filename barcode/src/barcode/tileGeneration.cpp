@@ -265,9 +265,9 @@ void TileGeneration::_setUpMiddleRoom(std::string middleRoomPath) {
 	t->position = _gridToWorld(2, 2);
 	t->scale = glm::vec3(1, 1, 1);
 	_generatePlayerSpawnPoints();
-	_clearSpawnPoints();
 	_spawnLight(t);
 	_spawnEnemies(t);
+	_clearSpawnPoints();
 }
 
 void TileGeneration::_obtainRoomFiles() {
@@ -330,17 +330,33 @@ bool TileGeneration::_generatePlayerSpawnPoints()
 
 void TileGeneration::_spawnEnemies(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform) {
 	std::vector<std::shared_ptr<Hydra::World::Entity>> entities;
-	world::getEntitiesWithComponents<Hydra::Component::SpawnPointComponent>(entities);
+	world::getEntitiesWithComponents<Hydra::Component::SpawnPointComponent, Hydra::Component::TransformComponent>(entities);
+	//Randomize order
+	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+	shuffle(entities.begin(), entities.end(), std::default_random_engine(seed));
 
-
+	int spawned = 0;
+	for (int i = 0; i < entities.size() && spawned < numberOfEnemies; i++)
+	{
+		auto sp = entities[i]->getComponent<Hydra::Component::SpawnPointComponent>();
+		if (sp->enemySpawn && !entities[i]->dead)
+		{
+			auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
+			_spawnRandomEnemy(t->getMatrix()[3]);
+			entities[i]->dead = true;
+			spawned++;
+		}
+	}
 	//_spawnPickUps(roomTransform);
 	//_spawnLight(roomTransform);
+	//_spawnRandomEnemy(glm::vec3());
+}
 
-	int randomSlowAliens = rand() % int(MAX_ENEMIES);
+void TileGeneration::_spawnRandomEnemy(glm::vec3 pos)
+{
 	//int randomRobots = rand() % int(MAX_ENEMIES - randomSlowAliens);
 	//int randomFastAliens = rand() % int(MAX_ENEMIES - randomRobots);
 
-	for (int i = 0; i < randomSlowAliens; i++) {
 		auto alienEntity = world::newEntity("SlowAlien1", world::root());
 		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
 		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
@@ -359,16 +375,15 @@ void TileGeneration::_spawnEnemies(std::shared_ptr<Hydra::Component::TransformCo
 		m->movementSpeed = 5.0f;
 
 		auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
-		t->position.x = roomTransform->position.x + i;
+		t->position.x = 0;
 		t->position.y = 5;
-		t->position.z = roomTransform->position.z + i;
+		t->position.z = 0;
 		t->scale = glm::vec3{ 1,1,1 };
 
 		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.5, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-	}
 	//
 	//for (int i = 0; i < randomFastAliens; i++) {
 	//	auto alienEntity = world::newEntity("FastAlien1", world::root());
@@ -436,12 +451,6 @@ void TileGeneration::_spawnEnemies(std::shared_ptr<Hydra::Component::TransformCo
 	//	rgbc->setAngularForce(glm::vec3(0));
 
 	//}
-
-}
-
-void TileGeneration::_spawnRandomEnemy(glm::vec3 pos)
-{
-
 }
 
 void TileGeneration::_clearSpawnPoints()
