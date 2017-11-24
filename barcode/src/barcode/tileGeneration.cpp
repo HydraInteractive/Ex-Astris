@@ -368,16 +368,14 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos)
 
 		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 		h->maxHP = 80;
-
 		h->health = 80;
 
 		auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
 		m->movementSpeed = 5.0f;
 
 		auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
-		t->position.x = 0;
-		t->position.y = 5;
-		t->position.z = 0;
+		t->position = pos;
+		t->position.y = t->position.y + 5;
 		t->scale = glm::vec3{ 1,1,1 };
 
 		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
@@ -522,7 +520,7 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 
 	glm::quat rotation;
 
-	int randomRotateChance = rand() % 100;
+	int randomRotateChance = 100;//rand() % 100;
 
 	//Rotate the room 90 degrees
 	if (randomRotateChance < 25) {
