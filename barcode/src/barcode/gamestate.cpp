@@ -420,15 +420,15 @@ namespace Barcode {
 			rgbc->setAngularForce(glm::vec3(0, 0, 0));
 
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-			{
-				auto weaponEntity = world::newEntity("Weapon", playerEntity);
+			{ 
+				auto weaponEntity = world::newEntity("Weapon", playerEntity);  
 				weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
 				weaponEntity->getComponent<Hydra::Component::WeaponComponent>()->bulletSize /= 2;
-				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Gun.mATTIC");
+				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/FPSModel.mATTIC");
 				auto t2 = weaponEntity->addComponent<Hydra::Component::TransformComponent>();
 				t2->position = glm::vec3(2, -7, -2);
-				t2->scale = glm::vec3(0.1f, 0.1f, 0.1f);
-				t2->rotation = glm::quat(0, 0, 1, 0);
+				t2->scale = glm::vec3(0.3f);
+				t2->rotation = glm::quat(1, 1, 1, 1);
 				t2->ignoreParent = true;
 			}
 		}
