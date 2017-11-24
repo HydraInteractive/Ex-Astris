@@ -69,7 +69,7 @@ Hydra::Network::ServerSpawnEntityPacket* BarcodeServer::createServerSpawnEntity(
 	ent->serialize(json);
 	data = json.to_msgpack(json);
 
-	ServerSpawnEntityPacket* packet = (ServerSpawnEntityPacket*)new char[sizeof(ServerUpdateBulletPacket) + data.size()];
+	ServerSpawnEntityPacket* packet = (ServerSpawnEntityPacket*)new char[sizeof(ServerSpawnEntityPacket) + data.size()];
 	packet->h.type = PacketType::ServerSpawnEntity;
 	packet->id = ent->id;
 	packet->size = data.size();
@@ -85,6 +85,7 @@ void BarcodeServer::createAndSendPlayerUpdateBulletPacket(Player * p, Server * s
 	packet->h.type = PacketType::ServerUpdateBullet;
 	packet->size = vec.size();
 	packet->h.len = packet->getSize();
+	packet->serverPlayerID = p->entityid;
 
 	char* result = new char[sizeof(ServerUpdateBulletPacket) + vec.size() * sizeof(uint8_t)];
 
@@ -96,7 +97,6 @@ void BarcodeServer::createAndSendPlayerUpdateBulletPacket(Player * p, Server * s
 	//_tcp.send(packet, sizeof(ClientSpawnEntityPacket)); // DATA SNED
 	//_tcp.send(vec.data(), vec.size() * sizeof(uint8_t)); // DATA SKJICJIK
 	//entptr->deserialize(json);
-
 	delete[] result;
 	delete packet;
 }
@@ -157,14 +157,13 @@ Hydra::World::Entity* BarcodeServer::resolveClientSpawnEntityPacket(ClientSpawnE
 }
 
 void BarcodeServer::resolveClientUpdateBulletPacket(ClientUpdateBulletPacket * cubp, nlohmann::json& dest) {
-	std::vector<uint8_t> data;
-
-	//Inefficient
-	for (size_t i = 0; i < cubp->size; i++) {
-		data.push_back(((uint8_t*)cubp->data)[i]);
-	}
-
-	dest = dest.from_msgpack(data);
+	/*uint8_t* d = reinterpret_cast<uint8_t*>(&cubp->data[0]);
+	uint8_t* e = reinterpret_cast<uint8_t*>(&cubp->data[cubp->size]);
+	std::vector<uint8_t> v;
+	v.resize(cubp->size);
+	memcpy(v.data(), d, cubp->size);
+	dest = nlohmann::json::from_msgpack(std::move(v));*/
+	dest = nlohmann::json::from_msgpack(std::vector<uint8_t>(&cubp->data[0], &cubp->data[cubp->size]));
 	printf("Successfully updated bullet.\n");
 }
 
@@ -184,6 +183,4 @@ Hydra::World::Entity* BarcodeServer::resolveClientShootPacket(ClientShootPacket 
 		bps->enable(r.get());
 
 	return ptr.get();
-
-	//printf("DIOfjil-äsdfjosdofsiodfjiohsiodfjosdoi\n");
 }

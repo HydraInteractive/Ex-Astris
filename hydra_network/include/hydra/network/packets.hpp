@@ -7,6 +7,7 @@
 #include <hydra/component/transformcomponent.hpp>
 
 namespace Hydra::Network {
+	typedef Hydra::World::EntityID ServerID;
 	enum PacketType {
 		ServerInitialize,
 		ServerUpdate,
@@ -59,18 +60,18 @@ namespace Hydra::Network {
 	};
 
 	struct ServerDeletePacket : public Packet {
-		EntityID id;
+		ServerID id;
 	};
 
 	struct ClientUpdateBulletPacket : public Packet {
 		size_t size;
-		char* data[0];
+		char data[0];
 		inline size_t getSize() { return sizeof(ClientUpdateBulletPacket) + sizeof(char) * size; }
 	};
 	struct ServerUpdateBulletPacket : public Packet {
-		EntityID serverPlayerID;
+		ServerID serverPlayerID;
 		size_t size;
-		char* data[0];
+		char data[0];
 		inline size_t getSize() { return sizeof(ServerUpdateBulletPacket) + sizeof(char) * size; }
 	};
 
@@ -80,7 +81,7 @@ namespace Hydra::Network {
 		glm::vec3 direction;
 	};
 	struct ServerShootPacket : public Packet {
-		EntityID serverPlayerID;
+		ServerID serverPlayerID;
 		TransformInfo ti;
 		glm::vec3 direction;
 	};
@@ -94,21 +95,21 @@ namespace Hydra::Network {
 	};
 
 	struct ServerSpawnEntityPacket : public Packet {
-		EntityID id;
+		ServerID id;
 		size_t size;
-		char* data[0];
+		char data[0];
 		inline size_t getSize() { return sizeof(ServerSpawnEntityPacket) + sizeof(char) * size; }
 	};
 
 
 	struct ServerInitializePacket : public Packet {
-		EntityID entityid;
+		ServerID entityid;
 		TransformInfo ti;
 	};
 
 	struct ServerUpdatePacket : public Packet {
 		struct EntUpdate {
-			EntityID entityid;
+			ServerID entityid;
 			TransformInfo ti;
 		};
 		size_t nrOfEntUpdates;
@@ -117,7 +118,7 @@ namespace Hydra::Network {
 
 	struct ServerPlayerPacket : public Packet {
 		TransformInfo ti;
-		EntityID entID;
+		ServerID entID;
 		int nameLength;
 		char name[0];
 

@@ -6,8 +6,6 @@
 #include <hydra/network/packets.hpp>
 
 namespace Hydra::Network {
-	typedef Hydra::World::EntityID ServerID;
-
 	struct HYDRA_NETWORK_API NetClient final {
 	public:
 		static bool running;
@@ -23,6 +21,7 @@ namespace Hydra::Network {
 		static TCPClient _tcp;
 		static Hydra::World::EntityID _myID;
 		static std::map<ServerID, Hydra::World::EntityID> _IDs;
+		static std::map<ServerID, nlohmann::json> _bullets;
 		static void _sendUpdatePacket();
 		static void _resolvePackets();
 		static void _updateWorld(Packet* updatePacket);

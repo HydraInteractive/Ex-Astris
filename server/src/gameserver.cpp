@@ -136,8 +136,8 @@ void GameServer::_sendWorld() {
 		this->_convertEntityToTransform(*(ServerUpdatePacket::EntUpdate*)((char*)result + sizeof(ServerUpdatePacket) + sizeof(ServerUpdatePacket::EntUpdate) * i), this->_networkEntities[i]);
 	}
 
-	if (_players.size())
-		printf("sendDataToAll:\n\ttype: ServerUpdate\n\tlen: %d\n", packet->h.len);
+/*	if (_players.size())
+		printf("sendDataToAll:\n\ttype: ServerUpdate\n\tlen: %d\n", packet->h.len);*/
 	this->_server->sendDataToAll(result, packet->h.len);
 	delete[] result;
 }
@@ -230,32 +230,33 @@ bool GameServer::_addPlayer(int id) {
 
 void GameServer::_resolvePackets(std::vector<Hydra::Network::Packet*> packets) {
 	for (size_t i = 0; i < packets.size(); i++) {
-		switch (packets[i]->h.type) {
+		auto& p = packets[i];
+		//printf("Resolving:\n\ttype: %s\n\tlen: %d\n", PacketTypeName[p->h.type], p->h.len);
+		switch (p->h.type) {
 		case PacketType::ClientUpdate:
-			resolveClientUpdatePacket((ClientUpdatePacket*)packets[i], this->_getEntityID(packets[i]->h.client));
+			resolveClientUpdatePacket((ClientUpdatePacket*)p, this->_getEntityID(p->h.client));
 			break;
 
 		case PacketType::ClientSpawnEntity:
-			resolveClientSpawnEntityPacket((ClientSpawnEntityPacket*)packets[i], this->_getEntityID(packets[i]->h.client), this->_server);
+			resolveClientSpawnEntityPacket((ClientSpawnEntityPacket*)p, this->_getEntityID(p->h.client), this->_server);
 			break;
 
 		case PacketType::ClientUpdateBullet:
-			resolveClientUpdateBulletPacket((ClientUpdateBulletPacket*)packets[i], this->getPlayer(this->_getEntityID(packets[i]->h.client))->bullet); // SUPER INEFFICIENT
-			createAndSendPlayerUpdateBulletPacket(this->getPlayer(this->_getEntityID(packets[i]->h.client)), this->_server);
+			resolveClientUpdateBulletPacket((ClientUpdateBulletPacket*)p, this->getPlayer(this->_getEntityID(p->h.client))->bullet); // SUPER INEFFICIENT
+			createAndSendPlayerUpdateBulletPacket(this->getPlayer(this->_getEntityID(p->h.client)), this->_server);
 			break;
 
 		case PacketType::ClientShoot:
-			resolveClientShootPacket((ClientShootPacket*)packets[i], this->getPlayer(this->_getEntityID(packets[i]->h.client)), _physicsSystem); //SUPER INEFFICIENT
-			createAndSendPlayerShootPacket(this->getPlayer(this->_getEntityID(packets[i]->h.client)), (ClientShootPacket*)packets[i], this->_server);
+			resolveClientShootPacket((ClientShootPacket*)p, this->getPlayer(this->_getEntityID(p->h.client)), _physicsSystem); //SUPER INEFFICIENT
+			createAndSendPlayerShootPacket(this->getPlayer(this->_getEntityID(p->h.client)), (ClientShootPacket*)p, this->_server);
 			break;
 		default:
 			break;
 		}
 	}
 
-	for (size_t i = 0; i < packets.size(); i++) {
+	for (size_t i = 0; i < packets.size(); i++)
 		delete packets[i];
-	}
 }
 
 

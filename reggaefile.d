@@ -5,7 +5,7 @@ import std.conv;
 import std.string;
 
 //-fopenmp
-enum optimization = "-Og -pg -ggdb -Wno-error=unknown-pragmas -ffat-lto-objects -Wno-error=maybe-uninitialized -Wno-error=null-dereference";
+enum optimization = "-O0 -pg -ggdb -Wno-error=unknown-pragmas -ffat-lto-objects -Wno-error=maybe-uninitialized -Wno-error=null-dereference";
 //enum optimization = "-O3 -Wl,-O1 -march=native -ggdb -fopenmp -flto -ffat-lto-objects -Wno-error=maybe-uninitialized -Wno-error=null-dereference";
 
 enum string[] SubProjects = ["hydra", "hydra_graphics", "hydra_network", "hydra_physics", "hydra_sound"];
