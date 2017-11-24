@@ -13,6 +13,7 @@
 #include <hydra/component/soundfxcomponent.hpp>
 #include <hydra/component/perkcomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
+#include <hydra/component/meshcomponent.hpp>
 
 #include <btBulletDynamicsCommon.h>
 
@@ -48,7 +49,7 @@ void PlayerSystem::tick(float delta) {
 		auto rbc = static_cast<btRigidBody*>(entities[i]->getComponent<RigidBodyComponent>()->getRigidBody());
 
 		glm::mat4 rotation = glm::mat4_cast(transform->rotation);
-		movement->direction = -glm::vec3(glm::vec4{ 0, 0, 1, 0 } *rotation);
+		movement->direction = -glm::vec3(glm::vec4{ 0, 0, 1, 0 } * rotation);
 
 		{
 			glm::vec3 forward = glm::normalize(glm::vec3(movement->direction.x, 0, movement->direction.z));			
@@ -101,6 +102,7 @@ void PlayerSystem::tick(float delta) {
 						//	dyaw += rn/3;
 						//else
 						//	dyaw -= rn/3;
+						
 						weaponMesh->animationIndex = 2;
 						if (weapon->currmagammo == 0)
 							weapon->_isReloading = true;
@@ -118,8 +120,10 @@ void PlayerSystem::tick(float delta) {
 		if (speed > 10)
 			movement->velocity *= 10 / speed;
 
-		if (weapon->_isReloading)
+		if (weapon->_isReloading) {
 			weapon->_isReloading = weapon->reload(delta);
+			weaponMesh->animationIndex = 3;
+		}
 
 		float& yaw = camera->cameraYaw;
 		float& pitch = camera->cameraPitch;

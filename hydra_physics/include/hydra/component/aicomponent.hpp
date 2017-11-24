@@ -18,23 +18,21 @@
 #include <math.h>
 #include <SDL2/SDL.h>
 
-
 using namespace Hydra::World;
 using namespace Hydra::Physics::Behaviour;
 namespace Hydra::Component {
-
 	struct HYDRA_PHYSICS_API AIComponent final : public IComponent<AIComponent, ComponentBits::AI>{
 		~AIComponent() final;
 
-	std::shared_ptr<Behaviour> behaviour = nullptr;
-	int debugState = 0;
-	int damage = 0;
-	float radius = 1.0f;
+		std::shared_ptr<Behaviour> behaviour = nullptr;
+		int debugState = 0;
+		int damage = 0;
+		float radius = 1.0f;
 
-	inline const std::string type() const final { return "AIComponent"; }
-	std::shared_ptr<Hydra::World::Entity> getPlayerEntity();
-	void serialize(nlohmann::json& json) const final;
-	void deserialize(nlohmann::json& json) final;
-	void registerUI() final;
+		inline const std::string type() const final { return "AIComponent"; }
+		std::shared_ptr<Hydra::World::Entity> getPlayerEntity();
+		void serialize(nlohmann::json& json) const final;
+		void deserialize(nlohmann::json& json) final;
+		void registerUI() final;
 	};
 };

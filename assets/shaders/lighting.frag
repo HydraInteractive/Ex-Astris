@@ -136,8 +136,6 @@ void main() {
 	//shadow /= 9;
 	//shadow = 0.5f - shadow;
 
-
-
 	if(glowAmnt > 0)
 		brightOutput = result + globalAmbient;
 	else
@@ -147,5 +145,5 @@ void main() {
 
 	result += globalAmbient;
 
-	fragOutput = normal;
+	fragOutput = result;
 }

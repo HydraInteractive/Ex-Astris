@@ -22,6 +22,7 @@
 #include <hydra/component/textcomponent.hpp>
 #include <hydra/component/ghostobjectcomponent.hpp>
 #include <hydra/component/aicomponent.hpp>
+#include <hydra/component/meshcomponent.hpp>
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 

@@ -20,8 +20,8 @@ ComponentMenu::ComponentMenu()
 {
 	glm::vec3 size = glm::vec3(1.0f, 1.0f, 1.0f);
 }
-  
-ComponentMenu::~ComponentMenu() 
+   
+ComponentMenu::~ComponentMenu()
 {
 
 }  
@@ -183,6 +183,8 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 			ImGui::BeginChild("Confirm", ImVec2(ImGui::GetWindowContentRegionWidth() *0.3f, 25));
 			if (ImGui::Button("Finish"))
 			{
+				_selectedEntity->addComponent<Hydra::Component::TransformComponent>();
+				_selectedEntity->addComponent<Hydra::Component::DrawObjectComponent>();
 				auto goc = _selectedEntity->addComponent<Hydra::Component::GhostObjectComponent>();
 				goc->createBox(ghostObjectInput.size,Hydra::System::BulletPhysicsSystem::COLL_WALL);
 				physicsSystem.enable(goc.get());
