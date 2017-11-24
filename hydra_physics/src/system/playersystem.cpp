@@ -82,12 +82,7 @@ void PlayerSystem::tick(float delta) {
 			else
 				weaponMesh->animationIndex = 0;
 
-			if (camera->mouseControl && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
-				
-				glm::vec3 dirPlusRange(transform->position + (movement->direction*50.0f));
-				if (static_cast<btCollisionWorld::ClosestRayResultCallback*>(static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->rayTestFromTo(transform->position, dirPlusRange))->hasHit())
-					printf("YEAH BOI\n");
-				
+			if (camera->mouseControl && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {				
 				//TODO: Make pretty?
 				glm::quat bulletOrientation = glm::angleAxis(-camera->cameraYaw, glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->cameraPitch, glm::vec3(1, 0, 0)));
 

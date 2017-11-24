@@ -32,6 +32,7 @@ public:
 	float newPathDelay = 1.0f;
 	float spawnTimer = 0.0f;
 	float phaseTimer = 0.0f;
+	float regainRange = 0.0f;
 
 	std::random_device rd;
 	bool playerSeen = false;
@@ -43,6 +44,7 @@ public:
 	bool playerUnreachable = false;
 
 	float range = 1.0f;
+	float savedRange = 0.0f;
 	float originalRange = 1.0f;
 	glm::quat rotation = glm::quat();
 

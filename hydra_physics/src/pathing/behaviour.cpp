@@ -202,18 +202,23 @@ unsigned int Behaviour::attackingState(float dt)
 
 void Behaviour::executeTransforms()
 {
-
-	if (!pathFinding->inLineOfSight(thisEnemy.transform->position, targetPlayer.transform->position))
+	//Line of sight check
+	//If AI dont have vision to shoot at player, move closer
+	auto callback = static_cast<btCollisionWorld::ClosestRayResultCallback*>(static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->rayTestFromTo(thisEnemy.transform->position, targetPlayer.transform->position));
+	if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_WALL)
 	{
-
 		if (range > 3)
 		{
-			range -= 2;
+			range -= 1;
 		}
+		regainRange = 0;
 	}
-	else
+	else if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_PLAYER)
 	{
-		range = originalRange;
+		if (regainRange > 1.5)
+		{
+			range = originalRange;
+		}
 	}
 
 
@@ -270,14 +275,17 @@ void AlienBehaviour::run(float dt)
 	idleTimer += dt;
 	attackTimer += dt;
 	newPathTimer += dt;
+	regainRange += dt;
 	if (targetPlayer.transform->position.y >= 4.6f && pathFinding->inWall(targetPlayer.transform->position))
 	{
 		playerUnreachable = true;
-		state = ATTACKING;
+		savedRange = originalRange;
+		originalRange = 10;
 	}
 	else if (targetPlayer.transform->position.y < 4.6f)
 	{
 		playerUnreachable = false;
+		originalRange = savedRange;
 	}
 
 	//if (pathFinding->inWall(targetPlayer.transform->position))
@@ -310,43 +318,32 @@ unsigned int AlienBehaviour::attackingState(float dt)
 {
 	//When the enemy attack, start the attack animation
 	resetAnimationOnStart(2);
-	if (playerUnreachable)
+
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) >= range)
 	{
-		if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) >= (range+range+range+range))
+		idleTimer = 0;
+		return SEARCHING;
+	}
+	else
+	{
+		std::mt19937 rng(rd());
+		std::uniform_int_distribution<> randDmg(thisEnemy.ai->damage - 1, thisEnemy.ai->damage + 2);
+		glm::vec3 playerDir = glm::normalize(targetPlayer.transform->position - thisEnemy.transform->position);
+
+		if (attackTimer > 2.5)
 		{
-			idleTimer = 0;
-			return SEARCHING;
-		}
-		else
-		{
-			glm::vec3 playerDir = glm::normalize(targetPlayer.transform->position - thisEnemy.transform->position);
-			if (attackTimer > 2.5)
+			if (playerUnreachable)
 			{
 				thisEnemy.weapon->shoot(thisEnemy.transform->position + glm::vec3{ 0, 1.5, 0 }, playerDir, glm::quat(), 5.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
 				attackTimer = 0;
 			}
-			rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
-		}
-	}
-	else
-	{
-		if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) >= range)
-		{
-			idleTimer = 0;
-			return SEARCHING;
-		}
-		else
-		{
-			std::mt19937 rng(rd());
-			std::uniform_int_distribution<> randDmg(thisEnemy.ai->damage - 1, thisEnemy.ai->damage + 2);
-			glm::vec3 playerDir = glm::normalize(targetPlayer.transform->position - thisEnemy.transform->position);
-			if (attackTimer > 2.5)
+			else
 			{
 				targetPlayer.life->applyDamage(randDmg(rng));
 				attackTimer = 0;
 			}
-			rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
 		}
+		rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
 	}
 	return state;
 }
@@ -385,6 +382,7 @@ void RobotBehaviour::run(float dt)
 	idleTimer += dt;
 	attackTimer += dt;
 	newPathTimer += dt;
+	regainRange += dt;
 
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 50)
 	{
@@ -501,6 +499,7 @@ void AlienBossBehaviour::run(float dt)
 	newPathTimer += dt;
 	phaseTimer += dt;
 	spawnTimer += dt;
+	regainRange += dt;
 
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 50)
 	{
