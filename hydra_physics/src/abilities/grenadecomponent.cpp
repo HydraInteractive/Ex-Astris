@@ -17,13 +17,8 @@ using namespace Hydra::Component;
 
 GrenadeComponent::~GrenadeComponent() { }
 
-void GrenadeComponent::serialize(nlohmann::json& json) const {
-	json = {
-	};
-}
+void GrenadeComponent::serialize(nlohmann::json& json) const {}
 
-void GrenadeComponent::deserialize(nlohmann::json& json) {
-}
+void GrenadeComponent::deserialize(nlohmann::json& json) {}
 
-void GrenadeComponent::registerUI() {
-}
+void GrenadeComponent::registerUI() {}

@@ -126,7 +126,7 @@ namespace Barcode {
 		_textSystem.tick(delta);
 
 
-		static bool enableHitboxDebug = false;
+		static bool enableHitboxDebug = true;
 /*		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
 		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
 		ImGui::Checkbox("Enable SSAO", &MenuState::ssaoEnabled);
@@ -165,7 +165,14 @@ namespace Barcode {
 			for (auto e : entities) {
 				auto transform = e->getComponent<Hydra::Component::TransformComponent>();
 				auto goc = e->getComponent<Hydra::Component::GhostObjectComponent>();
-				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(goc->getMatrix() * glm::scale(glm::vec3(2)));
+				//_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(goc->getMatrix() * glm::scale(glm::vec3(2)));
+				glm::vec3 newScale;
+				glm::quat rotation;
+				glm::vec3 translation;
+				glm::vec3 skew;
+				glm::vec4 perspective;
+				glm::decompose(transform->getMatrix(), newScale, rotation, translation, skew, perspective);
+				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(glm::translate(translation) * glm::mat4_cast(goc->quatRotation) * glm::scale(goc->halfExtents * glm::vec3(2)));
 			}
 
 			_hitboxBatch.pipeline->setValue(0, _cc->getViewMatrix());
@@ -369,7 +376,7 @@ namespace Barcode {
 			auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-			
+			 
 			auto pickupText = world::newEntity("Textpickup", world::root());
 			pickupText->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
 			pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
