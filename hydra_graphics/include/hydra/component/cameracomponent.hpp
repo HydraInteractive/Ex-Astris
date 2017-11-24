@@ -33,7 +33,7 @@ namespace Hydra::Component {
 		float zFar = 75.0f;
 		float aspect = 1920.0f/1080.0f;
 
-		float sensitivity = 0.003f;
+		float sensitivity = 0.0005f;
 		float cameraYaw = 0.0f;
 		float cameraPitch = 0.0f;
 		bool mouseControl = true;
