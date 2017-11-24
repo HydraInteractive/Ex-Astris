@@ -357,23 +357,27 @@ namespace Barcode {
 			//floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 
 		}
-
 		{
-			auto pickUpEntity = world::newEntity("PickUp", world::root());
-			auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3(5, 5, 5);
-			pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Lock.mATTIC");
-			pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
-			auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
-			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-			
-			auto pickupText = world::newEntity("Textpickup", world::root());
-			pickupText->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
-			pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
-			auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
-			textStuff->setText("\x01Perk picked up\x02");
-			textStuff->isStatic = true;
+			for (int i = 0; i < 4; i++) {
+				for (int j = 0; j < 4; j++) {
+					for (int k = 0; k < 4; k++) {
+						{
+							auto pickUpEntity = world::newEntity("PickUp", world::root());
+							auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
+							t->position = glm::vec3((i * 5), k * 5, (j * 5) - 5);
+							pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Lock.mATTIC");
+							pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
+							auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+							rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
+							rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+
+							auto pickupText = world::newEntity("Textpickup", world::root());
+							pickupText->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
+							pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
+						}
+					}
+				}
+			}
 		}
 		{
 			//Remove this to gain frames like never before
@@ -427,7 +431,7 @@ namespace Barcode {
 			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
 			auto t3 = lightEntity->addComponent<Hydra::Component::TransformComponent>();
 			t3->setPosition(glm::vec3(0, 7, 0));
-			t3->setRotation(glm::quat(0, 0, 0.820f, 0.572f));
+			//t3->setRotation(glm::quat(0, 0, 0.820f, 0.572f));
 		}
 
 		{
@@ -444,7 +448,7 @@ namespace Barcode {
 			h->maxHP = 80;
 			h->health = 80;
 			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
-			m->movementSpeed = 8.0f;
+			m->movementSpeed = 0.0f;
 			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3{ -10, 0, -10 };
 			t->scale = glm::vec3{ 1,1,1 };

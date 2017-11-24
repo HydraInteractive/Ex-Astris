@@ -201,7 +201,6 @@ public:
 		glClear(clearFlags);
 
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
-
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
 

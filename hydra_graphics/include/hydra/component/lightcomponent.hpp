@@ -19,13 +19,12 @@ namespace Hydra::Component {
 	struct HYDRA_GRAPHICS_API LightComponent final : public IComponent<LightComponent, ComponentBits::Light> {
 		glm::vec3 color = glm::vec3(1, 1, 1);
 
-		float fov = 80.0f;
-		float zNear = -20.0f;
-		float zFar = 40.0f;
-		float xNear = -14.0f;
-		float xFar = 14.0f;
-		float yNear = -14.0f;
-		float yFar = 14.0f;
+		float zNear = 0.01f;
+		float zFar = 80.0f;
+		float xNear = -20.0f;
+		float xFar = 20.0f;
+		float yNear = -20.0f;
+		float yFar = 20.0f;
 		~LightComponent() final;
 
 		void serialize(nlohmann::json& json) const;
@@ -36,7 +35,8 @@ namespace Hydra::Component {
 
 		inline glm::mat4 getProjectionMatrix() const { return glm::ortho(xNear, xFar, yNear, yFar, zNear, zFar); }
 		//inline glm::mat4 getProjectionMatrix() const { return glm::perspective<float>(fov, 1.0f, zNear, zFar); }
-		inline glm::mat4 getViewMatrix() { return glm::translate(glm::mat4_cast(getTransformComponent()->rotation), -getTransformComponent()->position); }
+		//inline glm::mat4 getViewMatrix() { return glm::translate(glm::mat4_cast(getTransformComponent()->rotation), -getTransformComponent()->position); }
+		inline glm::mat4 getViewMatrix() { return glm::lookAt(getTransformComponent()->position, normalize(getTransformComponent()->position + getTransformComponent()->rotation * glm::vec3(0, 0, -1)), getTransformComponent()->rotation * glm::vec3(0, 1, 0)); }
 		inline std::shared_ptr<Hydra::Component::TransformComponent> getTransformComponent() {
 			if (auto e = Hydra::World::World::getEntity(entityID); e)
 				return e->getComponent<Hydra::Component::TransformComponent>();

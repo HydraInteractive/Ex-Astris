@@ -118,25 +118,25 @@ void main() {
 	float closestDepth = texture(depthMap, projCoords.xy).r;
 	float currentDepth = projCoords.z;
 	float bias = 0.005 * dot(normal, -dirLight.dir);
-	//bias = clamp(bias, 0, 0.01);
-	float shadow = 0.0f;
-	//for(int i = 0; i < 4; i++){
-	//	if(texture(depthMap, projCoords.xy + poissonDisk[i] / 1000.0).r < currentDepth - bias)
-	//		shadow -= 0.2f;
-	//}
+	bias = clamp(bias, 0, 0.1);
+	float shadow = 1.0f;
 
-	//if(closestDepth < currentDepth - bias)
-	//	shadow = 0.0f;
-
-	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
-	for(int x = -1; x <= 1; x++) {
-		for(int y = -1; y <= 1; y++) {
-			float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
-			shadow += currentDepth - bias > pcfDepth ? 1 : 0;
-		}
+	for(int i = 0; i < 4; i++){
+		if(texture(depthMap, projCoords.xy + poissonDisk[i] / 1000.0).r < currentDepth - bias)
+			shadow -= 0.2f;
 	}
-	shadow /= 9;
-	shadow = 1 - shadow;
+
+	//vec2 texelSize = 1.0 / textureSize(depthMap, 0);
+	//for(int x = -1; x <= 1; x++) {
+	//	for(int y = -1; y <= 1; y++) {
+	//		float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
+	//		shadow += currentDepth - bias > pcfDepth ? 1 : 0;
+	//	}
+	//}
+	//shadow /= 9;
+	//shadow = 0.5f - shadow;
+
+
 
 	if(glowAmnt > 0)
 		brightOutput = result + globalAmbient;
@@ -147,5 +147,5 @@ void main() {
 
 	result += globalAmbient;
 
-	fragOutput = result;
+	fragOutput = normal;
 }

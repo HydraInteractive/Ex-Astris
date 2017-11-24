@@ -30,8 +30,8 @@ void main() {
 	diffuse = vec4(materialDiffuse, specular);
 
 	vec3 tempNormal = texture(normalTexture, inData.uv).rgb * 2 - 1;
-	normal = normalize(inData.tbn * tempNormal);
-
+	//normal = normalize(inData.tbn * tempNormal);
+	normal = inData.normal;
 	glow = texture(glowTexture, inData.uv).r;
 
 	position = inData.position;

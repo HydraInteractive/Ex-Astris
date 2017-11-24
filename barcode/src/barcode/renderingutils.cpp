@@ -213,8 +213,8 @@ namespace Barcode {
 			} else {
 				if (renderNormal)
 					_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-
-				if (MenuState::shadowEnabled && (e->getComponent<Hydra::Component::BulletComponent>() || e->getComponent<Hydra::Component::PickUpComponent>()))
+				
+				if (MenuState::shadowEnabled && drawObj->hasShadow)
 					_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 			}
 		}
