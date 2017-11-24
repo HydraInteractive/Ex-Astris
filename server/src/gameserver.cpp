@@ -315,7 +315,7 @@ void GameServer::start() {
 	TileGeneration* t;
 	//t = new TileGeneration("C:/Users/Dennis Persson/Documents/Hydra/x64/Debug/assets/room/starterRoom.room");
 	t = new TileGeneration("assets/room/starterRoom.room");
-	t->maxRooms = 4;
+	t->maxRooms = 3;
 	t->buildMap();
 }
 

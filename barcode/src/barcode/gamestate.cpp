@@ -419,6 +419,8 @@ namespace Barcode {
 			if (Hydra::Network::NetClient::initialize(addr, port)) {
 				//show feedback?
 			}
+
+
 			auto playerEntity = world::newEntity("Player", world::root());
 			auto p = playerEntity->addComponent<Hydra::Component::PlayerComponent>();
 			auto c = playerEntity->addComponent<Hydra::Component::CameraComponent>();

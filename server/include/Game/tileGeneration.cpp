@@ -258,17 +258,17 @@ void TileGeneration::_setUpMiddleRoom(std::string middleRoomPath) {
 void TileGeneration::_obtainRoomFiles() {
 	//Get the files in order
 	std::string path = "assets/room/";
-	//for (auto & p : std::experimental::filesystem::directory_iterator(path)) {
-	//	_roomFileNames.push_back(p.path().string());
-	//}
+	for (auto & p : std::experimental::filesystem::directory_iterator(path)) {
+		_roomFileNames.push_back(p.path().string());
+	}
 
-	_roomFileNames.push_back(path + "centralRoomBigScreen.room");
-	_roomFileNames.push_back(path + "fourwayRoom.room");
-	_roomFileNames.push_back(path + "starterRoom.room");
-	_roomFileNames.push_back(path + "threewayRoom.room");
-	_roomFileNames.push_back(path + "trashedComputerRoom.room");
-	_roomFileNames.push_back(path + "tryTree.room");
-	_roomFileNames.push_back(path + "tryTwo.room");
+	//_roomFileNames.push_back(path + "centralRoomBigScreen.room");
+	//_roomFileNames.push_back(path + "fourwayRoom.room");
+	//_roomFileNames.push_back(path + "starterRoom.room");
+	//_roomFileNames.push_back(path + "threewayRoom.room");
+	//_roomFileNames.push_back(path + "trashedComputerRoom.room");
+	//_roomFileNames.push_back(path + "tryTree.room");
+	//_roomFileNames.push_back(path + "tryTwo.room");
 
 	_randomizeRooms();
 
