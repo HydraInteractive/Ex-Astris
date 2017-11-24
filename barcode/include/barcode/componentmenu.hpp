@@ -20,8 +20,8 @@ private:
 	//Transform
 	struct TI
 	{
-		glm::vec3 position = glm::vec3{ 0, 0, 0 };
-		glm::vec3 scale = glm::vec3{ 1, 1, 1 };
+		glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
+		glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
 		glm::quat rotation = glm::quat();
 		bool ignoreParent = false;
 	} transformInput;
@@ -50,8 +50,10 @@ private:
 	struct GOI{
 		glm::vec3 size = glm::vec3(1.0f, 1.0f, 1.0f);
 	} ghostObjectInput;
+
+	//SpawnPoint
 	struct SPI {
 		bool playerSpawn = true;
 		bool enemySpawn = true;
-	}spawnPointInput;
+	} spawnPointInput;
 };
