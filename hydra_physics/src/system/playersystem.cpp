@@ -63,9 +63,8 @@ void PlayerSystem::tick(float delta) {
 			if (keysArray[SDL_SCANCODE_R])
 				weapon->_isReloading = true;
 
-			if (keysArray[SDL_SCANCODE_S]) {
+			if (keysArray[SDL_SCANCODE_S])
 				movement->velocity -= movement->movementSpeed * forward * delta;
-			}
 
 			if (keysArray[SDL_SCANCODE_A])
 				movement->velocity -= movement->movementSpeed * right * delta;
@@ -82,10 +81,14 @@ void PlayerSystem::tick(float delta) {
 			else
 				weaponMesh->animationIndex = 0;
 
-			if (camera->mouseControl && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+			if (camera->mouseControl && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {		
+				/*EMIL HÄR HARU
+				glm::vec3 dirPlusRange(transform->position + (movement->direction*50.0f));
+				if (static_cast<btCollisionWorld::ClosestRayResultCallback*>(static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->rayTestFromTo(transform->position, dirPlusRange))->hasHit())
+					printf("YEAH BOI\n");*/
+
 				//TODO: Make pretty?
 				glm::quat bulletOrientation = glm::angleAxis(-camera->cameraYaw, glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->cameraPitch, glm::vec3(1, 0, 0)));
-
 				//Changed to see if modell is correct, original bulletVelocity was 300 (A little too fast imo, das me tho)
 				float bulletVelocity = 20;
 				if (!weapon->_isReloading)

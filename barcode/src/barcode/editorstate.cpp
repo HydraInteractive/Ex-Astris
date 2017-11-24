@@ -223,6 +223,9 @@ namespace Barcode {
 				_engine->log(Hydra::LogLevel::normal, "Enabling bullet for %s", world::getEntity(rb->entityID)->name.c_str());
 				_physicsSystem.enable(static_cast<Hydra::Component::RigidBodyComponent*>(rb.get()));
 			}
+			for (auto& goc : Hydra::Component::GhostObjectComponent::componentHandler->getActiveComponents()) {
+				_physicsSystem.enable(static_cast<Hydra::Component::GhostObjectComponent*>(goc.get()));
+			}
 		}
 	}
 }
