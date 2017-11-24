@@ -27,7 +27,6 @@
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
 
-#define MAX_ENEMIES 4
 #define PICKUP_CHANCE 40
 
 class TileGeneration
@@ -55,7 +54,7 @@ private:
 	void _obtainRoomFiles();
 	void _randomizeRooms();
 	bool _generatePlayerSpawnPoints();
-	void _spawnEnemies(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
+	void _spawnEnemies();
 	void _spawnRandomEnemy(glm::vec3 pos);
 	void _clearSpawnPoints();
 	void _spawnPickUps(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);

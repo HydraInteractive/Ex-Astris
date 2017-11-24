@@ -46,7 +46,7 @@ TileGeneration::~TileGeneration() {
 bool** TileGeneration::buildMap()
 {
 	_createMapRecursivly(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2));
-	_spawnEnemies(t);
+	_spawnEnemies();
 	_clearSpawnPoints();
 	return pathfindingMap;
 }
@@ -328,7 +328,7 @@ bool TileGeneration::_generatePlayerSpawnPoints()
 	return true;
 }
 
-void TileGeneration::_spawnEnemies(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform) {
+void TileGeneration::_spawnEnemies() {
 	std::vector<std::shared_ptr<Hydra::World::Entity>> entities;
 	world::getEntitiesWithComponents<Hydra::Component::SpawnPointComponent, Hydra::Component::TransformComponent>(entities);
 	//Randomize order
@@ -374,7 +374,6 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos)
 
 		auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
 		t->position = pos;
-		t->position.y = t->position.y + 5;
 		t->scale = glm::vec3{ 1,1,1 };
 
 		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
