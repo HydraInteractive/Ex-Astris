@@ -379,7 +379,7 @@ namespace Barcode {
 		}
 		{
 			//Remove this to gain frames like never before
-			tileGen = new TileGeneration("assets/room/saveMEEEE.room");
+			tileGen = new TileGeneration("assets/room/testcoll.room");
 			pathfindingMap = tileGen->buildMap();
 		}
 

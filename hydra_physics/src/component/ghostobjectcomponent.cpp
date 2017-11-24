@@ -85,8 +85,6 @@ void GhostObjectComponent::deserialize(nlohmann::json& json) {
 
 	collisionType = Hydra::System::BulletPhysicsSystem::CollisionTypes(json.value<int>("collisionType", 0));
 
-	collisionType = Hydra::System::BulletPhysicsSystem::COLL_WALL;
-
 	createBox(halfExtents, collisionType, quatRotation);
 }
 
@@ -99,6 +97,8 @@ void GhostObjectComponent::registerUI() {
 		quatRotation = glm::quat(glm::radians(rotation));
 		updateWorldTransform();
 	}
+	ImGui::Combo("Collision Type", reinterpret_cast<int*>(&collisionType), "test\0Nothing\0Wall\0Player\0Enemy\0Player Projectile\0Enemy Projectile\0Misc Object\0Pickup Object\0\0");
+
 	if (ImGui::Button("BOG")){
 		updateWorldTransform();
 	}
