@@ -25,7 +25,7 @@ void Hydra::Component::GhostObjectComponent::createBox(const glm::vec3& halfExte
 	this->quatRotation = quatRotation;
 	
 	ghostObject = new btGhostObject();
-	ghostObject->setCollisionShape(new btBoxShape(btVector3(halfExtents.x, halfExtents.y, halfExtents.z)));
+	ghostObject->setCollisionShape(new btBoxShape(cast(halfExtents)));
 	ghostObject->setUserIndex(this->entityID);
 	ghostObject->setUserIndex2(collType);
 	ghostObject->setFriction(0);
@@ -41,6 +41,8 @@ void Hydra::Component::GhostObjectComponent::updateWorldTransform(){
 	glm::vec4 perspective;
 	glm::decompose(_matrix, newScale, rotation, translation, skew, perspective);
 
+	delete ghostObject->getCollisionShape();
+	ghostObject->setCollisionShape(new btBoxShape(cast(newScale)));
 	ghostObject->setWorldTransform(btTransform(cast(rotation).inverse(), cast(_matrix[3])));
 }
 
