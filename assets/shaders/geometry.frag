@@ -4,6 +4,7 @@ in GeometryData {
 	vec3 position;
 	vec3 vPos;
 	vec3 normal;
+	vec3 vNormal;
 	vec3 color;
 	vec2 uv;
 	mat3 tbn;
@@ -18,6 +19,7 @@ layout (location = 2) out vec3 normal;
 layout (location = 3) out vec4 lightPos;
 layout (location = 4) out vec3 viewPos;
 layout (location = 5) out float glow;
+layout (location = 6) out vec3 viewNormal;
 
 layout (location = 20) uniform sampler2D diffuseTexture;
 layout (location = 21) uniform sampler2D normalTexture;
@@ -29,8 +31,10 @@ void main() {
 	float specular = texture(specularTexture, inData.uv).r;
 	diffuse = vec4(materialDiffuse, specular);
 
-	vec3 tempNormal = texture(normalTexture, inData.uv).rgb * 2 - 1;
-	normal = normalize(inData.tbn * tempNormal);
+	//vec3 tempNormal = texture(normalTexture, inData.uv).rgb * 2 - 1;
+	//normal = normalize(inData.tbn * tempNormal);
+	normal = normalize(inData.normal);
+	viewNormal = inData.vNormal;
 
 	glow = texture(glowTexture, inData.uv).r;
 

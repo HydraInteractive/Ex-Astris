@@ -127,10 +127,10 @@ namespace Barcode {
 
 
 		static bool enableHitboxDebug = false;
-/*		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
+		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
 		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
 		ImGui::Checkbox("Enable SSAO", &MenuState::ssaoEnabled);
-		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);*/
+		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);
 
 		const glm::vec3& cameraPos = _playerTransform->position;
 		auto viewMatrix = _cc->getViewMatrix();
@@ -423,7 +423,7 @@ namespace Barcode {
 			}
 		}
 
-		/*{
+		{
 			auto alienEntity = world::newEntity("Alien1", world::root());
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
 			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
@@ -439,7 +439,7 @@ namespace Barcode {
 			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
 			m->movementSpeed = 8.0f;
 			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ -10, 0, -10 };
+			t->position = glm::vec3{ -1000, 0, -10 };
 			t->scale = glm::vec3{ 1,1,1 };
 			t->rotation = glm::vec3{ 0, 90, 0 };
 			auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
@@ -449,55 +449,55 @@ namespace Barcode {
 			rgbc->setAngularForce(glm::vec3(0));
 		}
 
-		{
-			auto robotEntity = world::newEntity("Robot1", world::root());
-			robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
-			auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
-			a->behaviour = std::make_shared<RobotBehaviour>(robotEntity);
-			a->behaviour->setPathMap(pathfindingMap);
-			a->damage = 7;
-			a->behaviour->originalRange = 20;
-			a->radius = 1;
-			auto w = robotEntity->addComponent<Hydra::Component::WeaponComponent>();
-			w->bulletSpread = 0.3f;
-			w->fireRateRPM = 50;
-			w->bulletsPerShot = 1;
-			w->damage = 5;
-			w->maxmagammo = 100000000;
-			w->currmagammo = 100000000;
-			w->maxammo = 100000000;
-
-			auto h = robotEntity->addComponent<Hydra::Component::LifeComponent>();
-			h->maxHP = 70;
-			h->health = 70;
-			auto m = robotEntity->addComponent<Hydra::Component::MovementComponent>();
-			m->movementSpeed = 5.0f;
-			auto t = robotEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ -10, 0, -10 };
-			t->scale = glm::vec3{ 1,1,1 };
-			t->rotation = glm::vec3{ 0, 90, 0 };
-			auto rgbc = robotEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(0.5f) * t->scale, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
-				0, 0, 0.6f, 1.0f);
-			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-		}*/
-
 		//{
-		//	auto textEntity = world::newEntity("Bogdan", world::root());
-		//	textEntity->addComponent<Hydra::Component::TransformComponent>()->setScale(glm::vec3(10));
-		//	textEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
+		//	auto robotEntity = world::newEntity("Robot1", world::root());
+		//	robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
+		//	auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
+		//	a->behaviour = std::make_shared<RobotBehaviour>(robotEntity);
+		//	a->behaviour->setPathMap(pathfindingMap);
+		//	a->damage = 7;
+		//	a->behaviour->originalRange = 20;
+		//	a->radius = 1;
+		//	auto w = robotEntity->addComponent<Hydra::Component::WeaponComponent>();
+		//	w->bulletSpread = 0.3f;
+		//	w->fireRateRPM = 50;
+		//	w->bulletsPerShot = 1;
+		//	w->damage = 5;
+		//	w->maxmagammo = 100000000;
+		//	w->currmagammo = 100000000;
+		//	w->maxammo = 100000000;
 
-		//	auto textC = textEntity->addComponent<Hydra::Component::TextComponent>();
-		//	textC->setText("Bogdan Here");
+		//	auto h = robotEntity->addComponent<Hydra::Component::LifeComponent>();
+		//	h->maxHP = 70;
+		//	h->health = 70;
+		//	auto m = robotEntity->addComponent<Hydra::Component::MovementComponent>();
+		//	m->movementSpeed = 5.0f;
+		//	auto t = robotEntity->addComponent<Hydra::Component::TransformComponent>();
+		//	t->position = glm::vec3{ -10, 0, -10 };
+		//	t->scale = glm::vec3{ 1,1,1 };
+		//	t->rotation = glm::vec3{ 0, 90, 0 };
+		//	auto rgbc = robotEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+		//	rgbc->createBox(glm::vec3(0.5f) * t->scale, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		//		0, 0, 0.6f, 1.0f);
+		//	rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		//}
 
-		//{
-		//	auto pointLight1 = world::newEntity("Pointlight1", world::root());
-		//	pointLight1->addComponent<Hydra::Component::TransformComponent>();
-		//	//pointLight1->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/EscapePodDoor.mATTIC");
-		//	auto p1LC = pointLight1->addComponent<Hydra::Component::PointLightComponent>();
-		//	p1LC->color = glm::vec3(1, 1, 1);
-		//} {
+		{
+			auto textEntity = world::newEntity("Bogdan", world::root());
+			textEntity->addComponent<Hydra::Component::TransformComponent>()->setScale(glm::vec3(10));
+			textEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
+
+			auto textC = textEntity->addComponent<Hydra::Component::TextComponent>();
+			textC->setText("Bogdan Here");
+		}
+
+		{
+			auto pointLight1 = world::newEntity("Pointlight1", world::root());
+			pointLight1->addComponent<Hydra::Component::TransformComponent>();
+			//pointLight1->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/EscapePodDoor.mATTIC");
+			auto p1LC = pointLight1->addComponent<Hydra::Component::PointLightComponent>();
+			p1LC->color = glm::vec3(1, 1, 1);
+		}
 		//	auto pointLight2 = world::newEntity("Pointlight2", world::root());
 		//	auto t = pointLight2->addComponent<Hydra::Component::TransformComponent>();
 		//	t->position = glm::vec3(45, 0, 0);

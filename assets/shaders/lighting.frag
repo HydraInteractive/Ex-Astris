@@ -91,16 +91,17 @@ void main() {
 
 	// Lighting 
 	// 0.1f should be ambient coefficient
-	vec3 globalAmbient = dirLight.color * objectColor.rgb * 0.1f;
+	//vec3 globalAmbient = dirLight.color * objectColor.rgb * 0.1f;
+	vec3 globalAmbient = vec3(1, 1, 1) * objectColor.rgb * 0.5;
 	vec3 result = vec3(0);
 
 	// Directional light
-	result = calcDirLight(dirLight, pos, normal, objectColor);
+	//result = calcDirLight(dirLight, pos, normal, objectColor);
 	
 	// Point Lights
-	for(int i = 0 ; i < nrOfPointLights; i++){
-		result += calcPointLight(pointLights[i], pos, normal, objectColor);
-	}
+	//for(int i = 0 ; i < nrOfPointLights; i++){
+	//	result += calcPointLight(pointLights[i], pos, normal, objectColor);
+	//}
 
 	float ambientOcclusion = texture(ssao, texCoords).r;
 	if (enableSSAO)
@@ -108,23 +109,23 @@ void main() {
 
 	// Shadow
 	
-	if(lightPos.w > 1){
-		vec3 projCoords = lightPos.xyz / lightPos.w;
-		float closestDepth = texture(depthMap, projCoords.xy).r;
-		float currentDepth = projCoords.z;
-		float bias = max(0.05 * (1.0 - dot(normal, -dirLight.dir)), 0.005);
-		float shadow = 0.0f;
-		vec2 texelSize = 1.0 / textureSize(depthMap, 0);
-		for(int x = -1; x <= 1; x++) {
-			for(int y = -1; y <= 1; y++) {
-				float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
-				shadow += currentDepth - bias > pcfDepth ? 1 : 0;
-			}
-		}
-		shadow /= 9;
-		shadow = 1 - shadow;
-		result *= shadow;
-	}
+	//if(lightPos.w > 1){
+	//	vec3 projCoords = lightPos.xyz / lightPos.w;
+	//	float closestDepth = texture(depthMap, projCoords.xy).r;
+	//	float currentDepth = projCoords.z;
+	//	float bias = max(0.05 * (1.0 - dot(normal, -dirLight.dir)), 0.005);
+	//	float shadow = 0.0f;
+	//	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
+	//	for(int x = -1; x <= 1; x++) {
+	//		for(int y = -1; y <= 1; y++) {
+	//			float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
+	//			shadow += currentDepth - bias > pcfDepth ? 1 : 0;
+	//		}
+	//	}
+	//	shadow /= 9;
+	//	shadow = 1 - shadow;
+	//	result *= shadow;
+	//}
 
 	result += globalAmbient;
 
