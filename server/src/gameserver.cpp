@@ -318,12 +318,27 @@ void GameServer::start() {
 	this->_perkSystem = new Hydra::System::PerkSystem;
 	this->_lifeSystem = new Hydra::System::LifeSystem;
 
-	TileGeneration* t;
-	//t = new TileGeneration("C:/Users/Dennis Persson/Documents/Hydra/x64/Debug/assets/room/starterRoom.room");
-	t = new TileGeneration("assets/room/starterRoom.room");
-	t->maxRooms = 3;
-	t->buildMap();
-	_deadSystem.tick(0);
+	//TileGeneration* t;
+	////t = new TileGeneration("C:/Users/Dennis Persson/Documents/Hydra/x64/Debug/assets/room/starterRoom.room");
+	//t = new TileGeneration("assets/room/starterRoom.room");
+	//t->maxRooms = 3;
+	//t->buildMap();
+	//_deadSystem.tick(0);
+
+
+	auto tmp = world::newEntity("TESTAI", world::root());
+	auto mesh = tmp->addComponent<Hydra::Component::MeshComponent>();
+	tmp->addComponent<Hydra::Component::TransformComponent>();
+	tmp->addComponent<Hydra::Component::LifeComponent>();
+	auto ai = tmp->addComponent<Hydra::Component::AIComponent>();
+	mesh->meshFile = "assets/models/Alien.MATTIC";
+	this->_networkEntities.push_back(tmp->id);
+
+	ai->behaviour = std::make_shared<AlienBehaviour>(tmp);
+	//ai->behaviour->setPathMap(pathfindingMap);
+	ai->damage = 4;
+	ai->behaviour->originalRange = 5;
+	ai->radius = 1;
 }
 
 void GameServer::run() {

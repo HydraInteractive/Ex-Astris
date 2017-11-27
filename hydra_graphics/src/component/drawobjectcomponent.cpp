@@ -13,7 +13,9 @@ DrawObjectComponent::DrawObjectComponent() {
 }
 
 DrawObjectComponent::~DrawObjectComponent() {
-	drawObject->refCounter = 0;
+	if (Hydra::IEngine::getInstance()) { //Hax-Fix
+		drawObject->refCounter = 0;
+	}
 }
 
 void DrawObjectComponent::serialize(nlohmann::json& json) const {}

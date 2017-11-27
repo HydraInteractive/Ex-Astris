@@ -134,15 +134,15 @@
     <ClInclude Include="include\server\gameserver.hpp" />
     <ClInclude Include="include\server\packets.hpp" />
     <ClInclude Include="include\server\server.hpp" />
-    <ClInclude Include="include\Game\tileGeneration.hpp" />
+    <ClInclude Include="include\server\tilegeneration.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="include\Game\tileGeneration.cpp" />
     <ClCompile Include="src\gameserver.cpp" />
     <ClCompile Include="src\clienthandler.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\packets.cpp" />
     <ClCompile Include="src\server.cpp" />
+    <ClCompile Include="src\tilegeneration.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

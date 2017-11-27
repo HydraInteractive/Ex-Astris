@@ -3,6 +3,7 @@
 #include <SDL2/SDL_net.h>
 
 using namespace Hydra::Network;
+typedef signed long ssize_t;
 
 TCPClient::TCPClient() {
     this->_connected = false;

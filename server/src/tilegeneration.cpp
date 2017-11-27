@@ -286,8 +286,6 @@ void TileGeneration::_obtainRoomFiles() {
 	//_roomFileNames.push_back(path + "trashedComputerRoom.room");
 	//_roomFileNames.push_back(path + "tryTree.room");
 	//_roomFileNames.push_back(path + "tryTwo.room")
-	for (auto & p : std::experimental::filesystem::directory_iterator(path))
-		_roomFileNames.push_back(p.path().string());
 
 	_randomizeRooms();
 }
