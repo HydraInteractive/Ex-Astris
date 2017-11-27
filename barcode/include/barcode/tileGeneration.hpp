@@ -34,7 +34,7 @@ class TileGeneration
 public:
 	std::shared_ptr<Hydra::Component::RoomComponent> roomGrid[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
 	bool** pathfindingMap = nullptr;
-	int maxRooms = 1;
+	int maxRooms = 2;
 	int numberOfPlayers = 4;
 	int numberOfEnemies = 10; //Can be per room or for the whole map depending on if the _spawnEnemies function is run once per room or after the whole map is generated
 	std::vector<glm::vec3> playerSpawns = std::vector<glm::vec3>();

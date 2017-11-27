@@ -90,7 +90,7 @@ namespace Barcode {
 				ImGui::CloseCurrentPopup();
 			ImGui::EndPopup();
 		}
-
+		 
 		if (_paused != oldPaused) {
 			static bool oldMouseControl;
 			static bool oldNoClip;
