@@ -314,8 +314,18 @@ namespace Barcode {
 			}
 
 			//Dynamic cooldown dots
-			size_t amountOfActives = 3;
-			int coolDownList[64] = { 5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5 };
+			auto perk = Hydra::World::World::getEntity(_playerID)->getComponent<PerkComponent>();
+
+			size_t amountOfActives = perk->activeAbilities.size();
+			
+			int *coolDownList = new int[perk->activeAbilities.size()];
+
+			int step = 0;
+			for each (auto usable in perk->activeAbilities)
+			{
+				coolDownList[step] = usable->cooldown;
+			}
+			/*{ perk->activeAbilities[0]->cooldown ,5,5,5,5,5,5,5,5,5 };*/
 			float pForEatchDot = float(1) / float(amountOfActives);
 			float stepSize = float(70) * pForEatchDot;
 			for (size_t i = 0; i < amountOfActives; i++)
@@ -338,6 +348,36 @@ namespace Barcode {
 				else
 				{
 					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Yellow.png")->getID()), ImVec2(10, 10));
+				}
+
+				ImGui::End();
+			}
+			delete [] coolDownList;
+
+			//Perk Icons
+			size_t amountOfPerks = perksList.size();
+			for (size_t i = 0; i < amountOfPerks; i++)
+			{
+				char buf[128];
+				snprintf(buf, sizeof(buf), "Perk%lu", i);
+				float xOffset = float((-10 * amountOfPerks) + (20 * i));
+				ImGui::SetNextWindowPos(pos + ImVec2(xOffset, +480));
+				ImGui::SetNextWindowSize(ImVec2(20, 20));
+				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+				switch (perksList[i])
+				{
+				case BUFF_BULLETVELOCITY:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/BulletVelocity.png")->getID()), ImVec2(20, 20));
+					break;
+				case BUFF_DAMAGEUPGRADE:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/DamageUpgrade.png")->getID()), ImVec2(20, 20));
+					break;
+				case BUFF_HEALING:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Healing.png")->getID()), ImVec2(20, 20));
+					break;
+				case BUFF_HEALTHUPGRADE:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
+					break;
 				}
 
 				ImGui::End();
