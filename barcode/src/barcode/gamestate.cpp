@@ -355,7 +355,7 @@ namespace Barcode {
 			delete [] coolDownList;
 
 			//Perk Icons
-			size_t amountOfPerks = perksList.size();
+			size_t amountOfPerks = perk->activePerks.size();
 			for (size_t i = 0; i < amountOfPerks; i++)
 			{
 				char buf[128];
@@ -364,9 +364,9 @@ namespace Barcode {
 				ImGui::SetNextWindowPos(pos + ImVec2(xOffset, +480));
 				ImGui::SetNextWindowSize(ImVec2(20, 20));
 				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-				switch (perksList[i])
+				switch (perk->activePerks[i])
 				{
-				case BUFF_BULLETVELOCITY:
+				case :
 					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/BulletVelocity.png")->getID()), ImVec2(20, 20));
 					break;
 				case BUFF_DAMAGEUPGRADE:
