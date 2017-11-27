@@ -33,9 +33,9 @@ void PerkSystem::tick(float delta) {
 		if (keysArray[SDL_SCANCODE_F] 
 			&& !perks->usedAbilityLastFrame 
 			&& !perks->activeAbilities.empty()
-			&& perks->activeAbilities[perks->activeAbility]->cooldown == 0) {
+			&& perks->activeAbilities[perks->activeAbility]->cooldown <= 0) {
 			perks->activeAbilities[perks->activeAbility]->useAbility(entities[i]);
-			
+			perks->activeAbilities[perks->activeAbility]->cooldown = 1;
 			if (++perks->activeAbility >= perks->activeAbilities.size())
 				perks->activeAbility = 0;
 		}
