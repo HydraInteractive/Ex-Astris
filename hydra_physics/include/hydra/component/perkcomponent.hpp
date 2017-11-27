@@ -16,11 +16,8 @@ namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API PerkComponent final : public IComponent<PerkComponent, ComponentBits::Perk>{
 		enum Perk
 		{
-			//PERK_MAGNETICBULLETS,
-			//PERK_HOMINGBULLETS,
 			PERK_GRENADE,
 			PERK_MINE,
-			//PERK_FORCEPUSH,
 			PERK_BULLETSPRAY,
 			PERK_DMGUPSIZEUP,
 			PERK_SPEEDUP,
