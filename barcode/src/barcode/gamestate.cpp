@@ -379,19 +379,9 @@ namespace Barcode {
 		}
 		{
 			//Remove this to gain frames like never before
-			tileGen = new TileGeneration("assets/room/testcoll.room");
+			tileGen = new TileGeneration("assets/room/PlantNTableRoom.room");
 			pathfindingMap = tileGen->buildMap();
 		}
-
-		/*for (size_t i = 0; i < 1; i++) {
-			auto pickUpEntity = world::newEntity("PickUp", world::root());
-			auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3(-5, -5.0f, -4.0f);
-			pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/GreenCargoBox.mATTIC");
-			pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
-			auto goc = pickUpEntity->addComponent<Hydra::Component::GhostObjectComponent>();
-			goc->createBox(glm::vec3(3,3,3),Hydra::System::BulletPhysicsSystem::COLL_WALL);
-		}*/
 
 		{
 			auto playerEntity = world::newEntity("Player", world::root());
