@@ -26,11 +26,6 @@ struct MineAbility : public BaseAbility {
 	void useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity);
 };
 
-struct forcePushAbility : public BaseAbility {
-	forcePushAbility() {}
-	void useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity);
-};
-
 struct BulletSprayAbillity: public BaseAbility {
 	BulletSprayAbillity() { tickFreq = 0.1f; }
 	void useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity);
