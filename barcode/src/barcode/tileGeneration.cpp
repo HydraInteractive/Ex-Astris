@@ -92,7 +92,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			t->position.y += 3;
 			t->scale = glm::vec3(4);
 			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
-			rgbc->createBox(glm::vec3(3.2f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
+			rgbc->createBox(glm::vec3(0.8f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
 		}
 	}
 
@@ -140,7 +140,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			t->position.y += 3;
 			t->scale = glm::vec3(4);
 			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
-			rgbc->createBox(glm::vec3(3.2f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
+			rgbc->createBox(glm::vec3(0.8f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
 		}
 	}
 
@@ -188,7 +188,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			t->position.y += 3;
 			t->scale = glm::vec3(4);
 			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
-			rgbc->createBox(glm::vec3(3.2f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
+			rgbc->createBox(glm::vec3(0.8f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
 		}
 	}
 
@@ -236,7 +236,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			t->position.y += 3;
 			t->scale = glm::vec3(4);
 			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
-			rgbc->createBox(glm::vec3(3.2f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
+			rgbc->createBox(glm::vec3(0.8f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
 		}
 	}
 }
