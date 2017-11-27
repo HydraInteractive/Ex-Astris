@@ -90,7 +90,7 @@ namespace Barcode {
 				ImGui::CloseCurrentPopup();
 			ImGui::EndPopup();
 		}
-
+		 
 		if (_paused != oldPaused) {
 			static bool oldMouseControl;
 			static bool oldNoClip;
@@ -379,19 +379,9 @@ namespace Barcode {
 		}
 		{
 			//Remove this to gain frames like never before
-			tileGen = new TileGeneration("assets/room/starterRoom.room");
+			tileGen = new TileGeneration("assets/room/PlantNTableRoom.room");
 			pathfindingMap = tileGen->buildMap();
 		}
-
-		/*for (size_t i = 0; i < 1; i++) {
-			auto pickUpEntity = world::newEntity("PickUp", world::root());
-			auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3(-5, -5.0f, -4.0f);
-			pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/GreenCargoBox.mATTIC");
-			pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
-			auto goc = pickUpEntity->addComponent<Hydra::Component::GhostObjectComponent>();
-			goc->createBox(glm::vec3(3,3,3),Hydra::System::BulletPhysicsSystem::COLL_WALL);
-		}*/
 
 		{
 			auto playerEntity = world::newEntity("Player", world::root());
@@ -417,10 +407,10 @@ namespace Barcode {
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
 				weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
 				weaponEntity->getComponent<Hydra::Component::WeaponComponent>()->bulletSize /= 2;
-				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Gun.mATTIC");
+				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/FPSModel.mATTIC");
 				auto t2 = weaponEntity->addComponent<Hydra::Component::TransformComponent>();
 				t2->position = glm::vec3(2, -7, -2);
-				t2->scale = glm::vec3(0.1f, 0.1f, 0.1f);
+				t2->scale = glm::vec3(0.3f);
 				t2->rotation = glm::quat(0, 0, 1, 0);
 				t2->ignoreParent = true;
 			}
