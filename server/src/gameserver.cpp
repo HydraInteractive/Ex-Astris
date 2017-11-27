@@ -247,7 +247,7 @@ void GameServer::_resolvePackets(std::vector<Hydra::Network::Packet*> packets) {
 			break;
 
 		case PacketType::ClientShoot:
-			resolveClientShootPacket((ClientShootPacket*)p, this->getPlayer(this->_getEntityID(p->h.client)), _physicsSystem); //SUPER INEFFICIENT
+			resolveClientShootPacket((ClientShootPacket*)p, this->getPlayer(this->_getEntityID(p->h.client)), &_physicsSystem); //SUPER INEFFICIENT
 			createAndSendPlayerShootPacket(this->getPlayer(this->_getEntityID(p->h.client)), (ClientShootPacket*)p, this->_server);
 			break;
 		default:
@@ -260,32 +260,9 @@ void GameServer::_resolvePackets(std::vector<Hydra::Network::Packet*> packets) {
 }
 
 
-GameServer::GameServer() {
-	this->_server = nullptr;
-	this->_physicsSystem = nullptr;
-	this->_aiSystem = nullptr;
-	this->_bulletSystem = nullptr;
-	this->_spawnerSystem = nullptr;
-	this->_perkSystem = nullptr;
-	this->_lifeSystem = nullptr;
-}
+GameServer::GameServer() {}
 
-GameServer::~GameServer() {
-	if (this->_physicsSystem)
-		delete this->_physicsSystem;
-
-	if (this->_aiSystem)
-		delete this->_aiSystem;
-	if (this->_bulletSystem)
-		delete this->_bulletSystem;
-
-	if (this->_spawnerSystem)
-		delete this->_spawnerSystem;
-	if (this->_perkSystem)
-		delete this->_perkSystem;
-	if (this->_lifeSystem)
-		delete this->_lifeSystem;
-}
+GameServer::~GameServer() {}
 
 void GameServer::quit() {
 	for (size_t i = 0; i < this->_players.size(); i++) {
@@ -312,13 +289,6 @@ bool GameServer::initialize(int port) {
 }
 
 void GameServer::start() {
-	this->_physicsSystem = new Hydra::System::BulletPhysicsSystem;
-	this->_aiSystem = new Hydra::System::AISystem;
-	this->_bulletSystem = new Hydra::System::BulletSystem;
-	this->_spawnerSystem = new Hydra::System::SpawnerSystem;
-	this->_perkSystem = new Hydra::System::PerkSystem;
-	this->_lifeSystem = new Hydra::System::LifeSystem;
-
 	TileGeneration* t;
 	//t = new TileGeneration("C:/Users/Dennis Persson/Documents/Hydra/x64/Debug/assets/room/starterRoom.room");
 	t = new TileGeneration("assets/room/starterRoom.room");
@@ -344,13 +314,14 @@ void GameServer::run() {
 
 	//Update World
 	{
-		this->_physicsSystem->tick(delta);
-		_aiSystem->tick(delta);
-		_bulletSystem->tick(delta);
+		_deadSystem.tick(delta);
+		_physicsSystem.tick(delta);
+		_aiSystem.tick(delta);
+		_bulletSystem.tick(delta);
 		////_abilitySystem.tick(delta);
-		_spawnerSystem->tick(delta);
-		//_perkSystem->tick(delta);
-		_lifeSystem->tick(delta);
+		_spawnerSystem.tick(delta);
+		//_perkSystem.tick(delta);
+		_lifeSystem.tick(delta);
 		//this->_updateWorld();
 	}
 

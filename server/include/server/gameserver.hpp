@@ -39,12 +39,12 @@ namespace BarcodeServer {
 		std::vector<Player*> _players;
 
 		Hydra::System::DeadSystem _deadSystem;
-		Hydra::System::BulletPhysicsSystem* _physicsSystem;
-		Hydra::System::AISystem* _aiSystem;
-		Hydra::System::BulletSystem* _bulletSystem;
-		Hydra::System::SpawnerSystem* _spawnerSystem;
-		Hydra::System::PerkSystem* _perkSystem;
-		Hydra::System::LifeSystem* _lifeSystem;
+		Hydra::System::BulletPhysicsSystem _physicsSystem;
+		Hydra::System::AISystem _aiSystem;
+		Hydra::System::BulletSystem _bulletSystem;
+		Hydra::System::SpawnerSystem _spawnerSystem;
+		Hydra::System::PerkSystem _perkSystem;
+		Hydra::System::LifeSystem _lifeSystem;
 		//Hydra::System::PlayerSystem _playerSystem;
 		//Hydra::System::RendererSystem _rendererSystem;
 		//Hydra::System::SoundFxSystem _soundFxSystem;

@@ -45,7 +45,7 @@ namespace BarcodeServer {
 		TileGeneration(const std::string& middleRoomPath);
 		~TileGeneration();
 
-		int maxRooms = 3;
+		int maxRooms = 1;
 		std::shared_ptr<Hydra::World::Entity> mapentity;
 	private:
 		std::vector<std::string> _roomFileNames;

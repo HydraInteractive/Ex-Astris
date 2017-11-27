@@ -41,42 +41,30 @@ std::vector<Packet*> TCPClient::receiveData() {
 	if (!_connected)
 		return packets;
 
-	Packet* tmp;
-	Packet* tmp2;
-	size_t curr = 0;
-
-	size_t offset = 0;
-	while (SDLNet_CheckSockets(this->_sset, 0)) {
-		if (offset == MAX_NETWORK_LENGTH) {
+	if (SDLNet_CheckSockets(this->_sset, 0) == 1) {
+		ssize_t lenTmp = SDLNet_TCP_Recv(this->_tcp, this->_msg, MAX_NETWORK_LENGTH);
+		if (lenTmp <= 0) {
 			close();
 			return packets;
 		}
 
-		ssize_t lenTmp = SDLNet_TCP_Recv(this->_tcp, this->_msg + offset, MAX_NETWORK_LENGTH - offset) + offset;
-		if (lenTmp > 0) {
-			size_t len = lenTmp;
-			while (curr < len && curr < MAX_NETWORK_LENGTH) {
-				tmp = (Packet*)(&(this->_msg[curr]));
-				printf("Reading packet: offset: %zu, curr: %zu\n\ttype: %s\n\tlen: %d\n\tclient: %d\n", offset, curr, Hydra::Network::PacketTypeName[tmp->h.type], tmp->h.len, tmp->h.client);
-				if (curr + tmp->h.len > len) {
-					memmove(_msg, _msg + curr, len - curr);
-					offset = len - curr;
-					curr = 0;
-					break;
-				}
-				curr += tmp->h.len;
-
-				tmp2 = (Packet*)(new char[tmp->h.len]);
-				memcpy(tmp2, tmp, tmp->h.len);
-				packets.push_back(tmp2);
+		size_t offset = 0;
+		size_t len = lenTmp;
+		while (offset < len) {
+			Packet* p = (Packet*)(&(this->_msg[offset]));
+			printf("Reading packet: offset: %zu\n\ttype: %s\n\tlen: %d\n\tclient: %d\n", offset, Hydra::Network::PacketTypeName[p->h.type], p->h.len, p->h.client);
+			offset += p->h.len;
+			if (offset < len) {
+				fprintf(stderr, "PACKET NEEDED MORE DATA THAN AVAILABLE!");
+				break;
 			}
-			if (curr == len)
-				offset = 0;
-		} else {
-			close();
-			return packets;
+
+			Packet* newPacket = (Packet*)(new char[p->h.len]);
+			memcpy(newPacket, p, p->h.len);
+			packets.push_back(newPacket);
 		}
 	}
+
 	return packets;
 }
 
