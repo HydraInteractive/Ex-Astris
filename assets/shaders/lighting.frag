@@ -119,22 +119,23 @@ void main() {
 	float currentDepth = projCoords.z;
 	float bias = 0.005 * dot(normal, -dirLight.dir);
 	bias = clamp(bias, 0, 0.1);
-	float shadow = 1.0f;
+	float shadow = 0.0f;
 
-	for(int i = 0; i < 4; i++){
-		if(texture(depthMap, projCoords.xy + poissonDisk[i] / 1000.0).r < currentDepth - bias)
-			shadow -= 0.2f;
-	}
-
-	//vec2 texelSize = 1.0 / textureSize(depthMap, 0);
-	//for(int x = -1; x <= 1; x++) {
-	//	for(int y = -1; y <= 1; y++) {
-	//		float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
-	//		shadow += currentDepth - bias > pcfDepth ? 1 : 0;
-	//	}
+	//for(int i = 0; i < 4; i++){
+	//	if(texture(depthMap, projCoords.xy + poissonDisk[i] / 1000.0).r < currentDepth)
+	//		shadow -= 0.2f;
 	//}
-	//shadow /= 9;
-	//shadow = 0.5f - shadow;
+
+	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
+	for(int x = -1; x <= 1; x++) {
+		for(int y = -1; y <= 1; y++) {
+			float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
+			shadow += currentDepth > pcfDepth ? 1 : 0;
+		}
+	}
+	shadow /= 9;
+	shadow = 1.0f - shadow;
+	shadow += 0.2f;
 
 	if(glowAmnt > 0)
 		brightOutput = result + globalAmbient;

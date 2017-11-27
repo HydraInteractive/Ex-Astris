@@ -441,6 +441,14 @@ namespace Barcode {
 			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
 			auto t3 = lightEntity->addComponent<Hydra::Component::TransformComponent>();
 			t3->setPosition(glm::vec3(0, 7, 0));
+			t3->setRotation(glm::quat(0, 0, 0.820f, 0.572f));
+		}
+
+		{
+			//auto lightEntity = world::newEntity("Bogdan: Light Source", world::root());
+			//auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
+			//auto t3 = lightEntity->addComponent<Hydra::Component::TransformComponent>();
+			//t3->setPosition(glm::vec3(0, 7, 0));
 			//t3->setRotation(glm::quat(0, 0, 0.820f, 0.572f));
 		}
 
