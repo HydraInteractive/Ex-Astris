@@ -43,7 +43,7 @@ std::vector<Packet*> TCPClient::receiveData() {
 		return packets;
 
 	if (SDLNet_CheckSockets(this->_sset, 0) == 1) {
-		ssize_t lenTmp = SDLNet_TCP_Recv(this->_tcp, this->_msg, MAX_NETWORK_LENGTH);
+		int64_t lenTmp = SDLNet_TCP_Recv(this->_tcp, this->_msg, MAX_NETWORK_LENGTH);
 		if (lenTmp <= 0) {
 			close();
 			return packets;
