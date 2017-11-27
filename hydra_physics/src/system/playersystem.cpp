@@ -49,7 +49,7 @@ void PlayerSystem::tick(float delta) {
 		auto rbc = static_cast<btRigidBody*>(entities[i]->getComponent<RigidBodyComponent>()->getRigidBody());
 
 		glm::mat4 rotation = glm::mat4_cast(transform->rotation);
-		movement->direction = -glm::vec3(glm::vec4{ 0, 0, 1, 0 } * rotation);
+		movement->direction = -glm::vec3(glm::vec4{ 0, 0, 1, 0 } *rotation);
 
 		{
 			glm::vec3 forward = glm::normalize(glm::vec3(movement->direction.x, 0, movement->direction.z));			
@@ -63,8 +63,9 @@ void PlayerSystem::tick(float delta) {
 			if (keysArray[SDL_SCANCODE_R])
 				weapon->_isReloading = true;
 
-			if (keysArray[SDL_SCANCODE_S])
+			if (keysArray[SDL_SCANCODE_S]) {
 				movement->velocity -= movement->movementSpeed * forward * delta;
+			}
 
 			if (keysArray[SDL_SCANCODE_A])
 				movement->velocity -= movement->movementSpeed * right * delta;
@@ -81,14 +82,10 @@ void PlayerSystem::tick(float delta) {
 			else
 				weaponMesh->animationIndex = 0;
 
-			if (camera->mouseControl && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {		
-				/*EMIL HÄR HARU
-				glm::vec3 dirPlusRange(transform->position + (movement->direction*50.0f));
-				if (static_cast<btCollisionWorld::ClosestRayResultCallback*>(static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->rayTestFromTo(transform->position, dirPlusRange))->hasHit())
-					printf("YEAH BOI\n");*/
-
+			if (camera->mouseControl && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
 				//TODO: Make pretty?
 				glm::quat bulletOrientation = glm::angleAxis(-camera->cameraYaw, glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->cameraPitch, glm::vec3(1, 0, 0)));
+				
 				//Changed to see if modell is correct, original bulletVelocity was 300 (A little too fast imo, das me tho)
 				float bulletVelocity = 20;
 				if (!weapon->_isReloading)
@@ -105,7 +102,6 @@ void PlayerSystem::tick(float delta) {
 						//	dyaw += rn/3;
 						//else
 						//	dyaw -= rn/3;
-						
 						weaponMesh->animationIndex = 2;
 						if (weapon->currmagammo == 0)
 							weapon->_isReloading = true;
@@ -123,10 +119,8 @@ void PlayerSystem::tick(float delta) {
 		if (speed > 10)
 			movement->velocity *= 10 / speed;
 
-		if (weapon->_isReloading) {
+		if (weapon->_isReloading)
 			weapon->_isReloading = weapon->reload(delta);
-			weaponMesh->animationIndex = 3;
-		}
 
 		float& yaw = camera->cameraYaw;
 		float& pitch = camera->cameraPitch;

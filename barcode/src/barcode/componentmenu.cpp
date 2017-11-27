@@ -14,17 +14,17 @@
 #include <hydra/component/ghostobjectcomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
 #include <hydra/component/textcomponent.hpp>
-#include <hydra/component/spawnpointcomponent.hpp>
 #include <glm/gtc/type_ptr.hpp>
 using world = Hydra::World::World;
 ComponentMenu::ComponentMenu()
 {
 	glm::vec3 size = glm::vec3(1.0f, 1.0f, 1.0f);
 }
-   
+  
 ComponentMenu::~ComponentMenu()
 {
-}
+
+}  
 
 void ComponentMenu::render(bool &openBool, Hydra::System::BulletPhysicsSystem& physicsSystem)
 {
@@ -34,7 +34,7 @@ void ComponentMenu::render(bool &openBool, Hydra::System::BulletPhysicsSystem& p
 	
 	ImGui::Columns(3, "Columns");
 	ImGui::Text("Select entity");
-	if (getRoomEntity() != nullptr)
+	if(getRoomEntity() != nullptr)
 		_renderEntity(getRoomEntity().get());
 
 	ImGui::NextColumn();
@@ -49,7 +49,7 @@ void ComponentMenu::render(bool &openBool, Hydra::System::BulletPhysicsSystem& p
 			}
 		}
 	}
-
+	
 	ImGui::NextColumn();
 	ImGui::Text("Configure component");
 	if (_selectedString != "" && _selectedEntity != nullptr)
@@ -74,7 +74,7 @@ std::shared_ptr<Hydra::World::Entity> ComponentMenu::getRoomEntity()
 		return entities[0];
 	}
 	return nullptr;
-}
+} 
 
 void ComponentMenu::configureComponent(bool &openBool, std::string componentType, Hydra::System::BulletPhysicsSystem& physicsSystem)
 {
@@ -84,7 +84,7 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 		{
 			ImGui::Text("The entity selected already has this component");
 		}
-		else
+		else 
 		{
 			ImGui::BeginChild("Transform", ImVec2(ImGui::GetWindowContentRegionWidth() *0.3f, ImGui::GetWindowContentRegionMax().y - 160), true);
 			ImGui::DragFloat3("Position", glm::value_ptr(transformInput.position));
@@ -134,6 +134,7 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 			ImGui::SameLine();
 			if (ImGui::Button("Reset"))
 			{
+
 			}
 			ImGui::EndChild();
 		}
@@ -158,12 +159,11 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 			//TODO: Selection box for picking collision type
 			ImGui::EndChild();
 			ImGui::BeginChild("Confirm", ImVec2(ImGui::GetWindowContentRegionWidth() *0.3f, 25));
-			if (ImGui::Button("Finish"))
+			if (ImGui::Button("Finish")) 
 			{
 				auto t = _selectedEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 				//physicsBox->addComponent<Hydra::Component::RigidBodyComponent>()->createBox(t->scale * 10.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_MISC_OBJECT, 10, 0, 0, 1.0f, 1.0f);
-				t->createBox(rigidBodyInput.size / 2.0f, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, rigidBodyInput.mass);
-
+				t->createBox(rigidBodyInput.size/2.0f, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_MISC_OBJECT, rigidBodyInput.mass);
 				physicsSystem.enable(t.get());
 				rigidBodyInput = RBI();
 				//openBool = false;
@@ -190,32 +190,14 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 				_selectedEntity->addComponent<Hydra::Component::TransformComponent>();
 				_selectedEntity->addComponent<Hydra::Component::DrawObjectComponent>();
 				auto goc = _selectedEntity->addComponent<Hydra::Component::GhostObjectComponent>();
-				goc->createBox(ghostObjectInput.size, Hydra::System::BulletPhysicsSystem::COLL_WALL);
+				goc->createBox(ghostObjectInput.size,Hydra::System::BulletPhysicsSystem::CollisionTypes(ghostObjectInput.collisionType+1));
+
 				physicsSystem.enable(goc.get());
 				rigidBodyInput = RBI();
 			}
 			ImGui::EndChild();
 		}
-	}
-	else if (componentType == "SpawnPoint") {
-		if (_selectedEntity->hasComponent<Hydra::Component::SpawnPointComponent>())
-			ImGui::Text("The entity selected already has this component");
-		else {
-			ImGui::BeginChild("SpawnPoint", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.3f, ImGui::GetWindowContentRegionMax().y - 160), true);
-			ImGui::Checkbox("Spawn Players", &spawnPointInput.playerSpawn);
-			ImGui::Checkbox("Spawn Enemies", &spawnPointInput.enemySpawn);
-			ImGui::EndChild();
-
-			ImGui::BeginChild("Confirm", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.3f, 25));
-			if (ImGui::Button("Finish"))
-			{
-				auto sp = _selectedEntity->addComponent<Hydra::Component::SpawnPointComponent>();
-				sp->playerSpawn = spawnPointInput.playerSpawn;
-				sp->enemySpawn = spawnPointInput.enemySpawn;
-				rigidBodyInput = RBI();
-			}
-			ImGui::EndChild();
-		}
+		
 	}
 }
 
@@ -244,9 +226,9 @@ void ComponentMenu::_renderEntity(Hydra::World::Entity* entity)
 	}
 	ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
 	auto entityIDs = entity->children;
-	for (auto e : entityIDs)
+	for (size_t i = 0; i < entityIDs.size(); i++)
 	{
-		auto child = world::getEntity(e);
+		auto child = world::getEntity(entityIDs[i]);
 		if (ImGui::TreeNodeEx(child.get(), nodeFlags | ((_selectedEntity == child.get()) ? ImGuiTreeNodeFlags_Selected : 0), "%s", child->name.c_str()))
 		{
 			_renderEntity(child.get());

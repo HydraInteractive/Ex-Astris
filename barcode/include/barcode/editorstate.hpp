@@ -32,8 +32,21 @@
 #include <hydra/system/renderersystem.hpp>
 #include <hydra/system/animationsystem.hpp>
 
+#include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
-#include <hydra/component/transformcomponent.hpp>
+#include <hydra/component/playercomponent.hpp>
+#include <hydra/component/weaponcomponent.hpp>
+#include <hydra/component/particlecomponent.hpp>
+#include <hydra/component/aicomponent.hpp>
+#include <hydra/component/lifecomponent.hpp>
+#include <hydra/component/lightcomponent.hpp>
+#include <hydra/component/pointlightcomponent.hpp>
+#include <hydra/component/movementcomponent.hpp>
+#include <hydra/component/lifecomponent.hpp>
+#include <hydra/component/roomcomponent.hpp>
+#include <hydra/component/ghostobjectcomponent.hpp>
+
+#include <imgui/imgui.h>
 
 #include <barcode/pathingmapmenu.hpp>
 #include <barcode/importermenu.hpp>
@@ -41,6 +54,9 @@
 
 #include <barcode/filetree.hpp>
 #include <barcode/componentmenu.hpp>
+
+#include <fstream>
+#include <json.hpp>
 
 namespace Barcode {
 	class EditorState final : public Hydra::IState {
