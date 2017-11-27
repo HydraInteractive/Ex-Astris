@@ -37,12 +37,8 @@ bool World::_isResetting = false;
 namespace {
 	template <typename T>
 	inline void removeComponent(Entity& this_) {
-		if (this_.hasComponent<T>()) {
-			//printf("\tRemoving compoent: %s", typeid(T).name());
+		if (this_.hasComponent<T>())
 			T::componentHandler->removeComponent(this_.id);
-
-			//printf("\t\tDONE\n");
-		}
 	}
 
 	template <typename... Args>
@@ -92,29 +88,17 @@ namespace {
 	};
 }
 
-//static size_t level = -1;
 Entity::~Entity() {
-	//level++;
-
-	//printf("[lvl:%zu] Removing: %zu\n", level, id);
 	if (!World::_isResetting) {
 		if (parent != World::invalidID)
 			if (auto p = World::getEntity(parent); p)
 				p->children.erase(std::remove(p->children.begin(), p->children.end(), id), p->children.end());
 
-		//printf("[lvl:%zu] Removing children for: %zu, count: %zu\n", level, id, children.size());
-		for (EntityID child : children) {
-			//printf("[lvl:%zu]\t Will remove: %zu\n", level, id);
+		for (EntityID child : children)
 			World::removeEntity(child);
-			//printf("[lvl:%zu]\t Did remove: %zu\n", level, id);
-		}
-		//printf("[lvl:%zu] Done Removing children for: %zu\n", level, id);
 	}
 
 	RemoveComponents<ComponentTypes>::apply(*this);
-	//printf("[lvl:%zu] Done Removing: %zu\n", level, id);
-
-	//level--;
 }
 
 void Entity::serialize(nlohmann::json& json) const {
@@ -196,15 +180,10 @@ void World::removeEntity(EntityID entityID) {
 
 	const size_t pos = _map.at(entityID);
 	auto& e = _entities.at(pos);
-	//printf("removeEntity(%zu): %zu (%s)\n", entityID, pos, e->name.c_str());
-	if (!_entities.back().get())
-		fprintf(stderr, "ENTITY LIST IS CORRUPTED!");
 	if (!e.get() || e->id != _entities.back()->id) {
-		//printf("\tSwapping...\n");
 		_map[_entities.back()->id] = pos;
 		e.swap(_entities.back());
 	}
-	//printf("\tResetting...\n");
 	auto entity = _entities.back();
 	_map.erase(entityID);
 	_entities.pop_back();
