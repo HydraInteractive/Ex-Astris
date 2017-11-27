@@ -38,10 +38,10 @@ namespace {
 	template <typename T>
 	inline void removeComponent(Entity& this_) {
 		if (this_.hasComponent<T>()) {
-			printf("\tRemoving compoent: %s\n", typeid(T).name());
+			//printf("\tRemoving compoent: %s", typeid(T).name());
 			T::componentHandler->removeComponent(this_.id);
 
-			printf("\t\tDONE");
+			//printf("\t\tDONE\n");
 		}
 	}
 
@@ -91,18 +91,30 @@ namespace {
 		}
 	};
 }
+
+//static size_t level = -1;
 Entity::~Entity() {
+	//level++;
+
+	//printf("[lvl:%zu] Removing: %zu\n", level, id);
 	if (!World::_isResetting) {
-		printf("Removing: %zu\n", id);
 		if (parent != World::invalidID)
 			if (auto p = World::getEntity(parent); p)
 				p->children.erase(std::remove(p->children.begin(), p->children.end(), id), p->children.end());
 
-		for (EntityID child : children)
+		//printf("[lvl:%zu] Removing children for: %zu, count: %zu\n", level, id, children.size());
+		for (EntityID child : children) {
+			//printf("[lvl:%zu]\t Will remove: %zu\n", level, id);
 			World::removeEntity(child);
+			//printf("[lvl:%zu]\t Did remove: %zu\n", level, id);
+		}
+		//printf("[lvl:%zu] Done Removing children for: %zu\n", level, id);
 	}
 
 	RemoveComponents<ComponentTypes>::apply(*this);
+	//printf("[lvl:%zu] Done Removing: %zu\n", level, id);
+
+	//level--;
 }
 
 void Entity::serialize(nlohmann::json& json) const {
@@ -182,15 +194,22 @@ void World::removeEntity(EntityID entityID) {
 	} else
 		return;
 
-	const size_t pos = _map[entityID];
-	_entities[pos].reset();
-	if (pos != _entities.size() - 1) {
+	const size_t pos = _map.at(entityID);
+	auto& e = _entities.at(pos);
+	//printf("removeEntity(%zu): %zu (%s)\n", entityID, pos, e->name.c_str());
+	if (!_entities.back().get())
+		fprintf(stderr, "ENTITY LIST IS CORRUPTED!");
+	if (!e.get() || e->id != _entities.back()->id) {
+		//printf("\tSwapping...\n");
 		_map[_entities.back()->id] = pos;
-		std::swap(_entities[pos], _entities.back());
+		e.swap(_entities.back());
 	}
-
-	_entities.pop_back();
+	//printf("\tResetting...\n");
+	auto entity = _entities.back();
 	_map.erase(entityID);
+	_entities.pop_back();
+
+	entity.reset();
 }
 
 void Blueprint::spawn(std::shared_ptr<Entity>& root) {

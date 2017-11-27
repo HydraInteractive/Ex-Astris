@@ -199,9 +199,6 @@ namespace Hydra::World {
 	public:
 		virtual const std::vector<std::shared_ptr<IComponentBase>>& getActiveComponents() = 0;
 
-		//virtual std::unordered_map<EntityID, size_t> _map;
-		//virtual std::vector<std::shared_ptr<IComponent<T, bit>>> _components;
-
 		virtual std::shared_ptr<IComponentBase> getComponent(EntityID entityID) = 0;
 		virtual std::shared_ptr<IComponentBase> addComponent(EntityID entityID) = 0;
 		virtual void removeComponent(EntityID entityID) = 0;

@@ -34,7 +34,7 @@ namespace BarcodeServer {
 	private:
 		std::chrono::time_point<std::chrono::high_resolution_clock> lastTime;
 		float packetDelay;
-		Server* _server;
+		Server* _server = nullptr;
 		std::vector<Hydra::World::EntityID> _networkEntities;
 		std::vector<Player*> _players;
 

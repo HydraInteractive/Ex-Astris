@@ -37,6 +37,7 @@ int TCPClient::send(void* data, int length) {
 }
 
 std::vector<Packet*> TCPClient::receiveData() {
+	static std::vector<uint8_t> data;
 	std::vector<Packet*> packets;
 	if (!_connected)
 		return packets;
@@ -52,9 +53,10 @@ std::vector<Packet*> TCPClient::receiveData() {
 		size_t len = lenTmp;
 		while (offset < len) {
 			Packet* p = (Packet*)(&(this->_msg[offset]));
-			printf("Reading packet: offset: %zu\n\ttype: %s\n\tlen: %d\n\tclient: %d\n", offset, Hydra::Network::PacketTypeName[p->h.type], p->h.len, p->h.client);
+			//if (p->h.type != ServerUpdate)
+				printf("Reading packet: offset: %zu\n\ttype: %s\n\tlen: %d\n\tclient: %d\n", offset, Hydra::Network::PacketTypeName[p->h.type], p->h.len, p->h.client);
 			offset += p->h.len;
-			if (offset < len) {
+			if (offset > len) {
 				fprintf(stderr, "PACKET NEEDED MORE DATA THAN AVAILABLE!");
 				break;
 			}

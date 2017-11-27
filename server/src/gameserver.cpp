@@ -9,6 +9,8 @@
 using namespace BarcodeServer;
 using namespace Hydra::Network;
 
+using world = Hydra::World::World;
+
 int64_t GameServer::_getEntityID(int serverid) {
 	for (size_t i = 0; i < this->_players.size(); i++) {
 		if (this->_players[i]->serverid == serverid) {
@@ -66,7 +68,7 @@ void GameServer::_deleteEntity(EntityID ent) {
 			break;
 		}
 	}
-	Hydra::World::World::getEntity(ent).get()->dead = true;
+	world::getEntity(ent).get()->dead = true;
 }
 
 void GameServer::_handleDisconnects() {
@@ -288,13 +290,51 @@ bool GameServer::initialize(int port) {
 	return true;
 }
 
+/*static void markDead(EntityID id, bool dead) {
+	std::shared_ptr<Entity> e = world::getEntity(id);
+	if (!e)
+		return;
+
+	dead = e->dead = dead | e->dead;
+
+	for (EntityID child : e->children)
+		markDead(child, dead);
+}
+
+static void removeRelations(EntityID id) {
+	std::shared_ptr<Entity> e = world::getEntity(id);
+	if (!e)
+		return;
+
+	if (e->dead)
+		e->parent = world::invalidID;
+
+	for (EntityID child : e->children)
+		removeRelations(child);
+
+	std::remove_if(e->children.begin(), e->children.end(), [](EntityID c) { return world::getEntity(c)->dead; });
+}*/
+
 void GameServer::start() {
-	TileGeneration* t;
-	//t = new TileGeneration("C:/Users/Dennis Persson/Documents/Hydra/x64/Debug/assets/room/starterRoom.room");
-	t = new TileGeneration("assets/room/starterRoom.room");
-	t->maxRooms = 3;
+	TileGeneration* t = new TileGeneration("assets/room/starterRoom.room");
 	t->buildMap();
+	/* markDead(world::rootID, false);
+	{
+		FILE* fp = fopen("tree.dot", "w");
+		fputs("digraph EntityTree {", fp);
+		for (const std::shared_ptr<Entity>& e : world::_entities) {
+			fprintf(fp, "E_%zu[label=\"%s\",color=%s,style=filled];", e->id, e->name.c_str(), e->dead ? "red" : "green");
+			fprintf(fp, "E_%zu -> E_%zu[style=dotted];", e->id, e->parent);
+			for (EntityID child : e->children)
+				fprintf(fp, "E_%zu -> E_%zu;\n", e->id, child);
+		}
+		fputs("}", fp);
+		fclose(fp);
+	}
+	removeRelations(world::rootID);*/
 	_deadSystem.tick(0);
+
+	printf("Room count: %zu\n", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size());
 }
 
 void GameServer::run() {
