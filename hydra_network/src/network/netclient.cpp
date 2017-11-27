@@ -33,22 +33,12 @@ void enableEntity(Entity* ent) {
 	if (tc) {
 		auto ghostobject = ent->getComponent<GhostObjectComponent>();
 		if (ghostobject) {
-			glm::vec3 newScale;
-			glm::quat rotation;
-			glm::vec3 translation;
-			glm::vec3 skew;
-			glm::vec4 perspective;
-			glm::decompose(tc->getMatrix(), newScale, rotation, translation, skew, perspective);
-
-			ghostobject->ghostObject->setWorldTransform(btTransform(btQuaternion(ghostobject->quatRotation.x, ghostobject->quatRotation.y, ghostobject->quatRotation.z, ghostobject->quatRotation.w), btVector3(translation.x, translation.y, translation.z)));
-			
+			ghostobject->updateWorldTransform();
 			bulletsystem->enable(static_cast<Hydra::Component::GhostObjectComponent*>(ghostobject.get()));
 		}
-
 	}
 	std::vector<EntityID> children = ent->children;
 	for (size_t i = 0; i < children.size(); i++) {
-		
 		enableEntity(world::getEntity(children[i]).get());
 	}
 }

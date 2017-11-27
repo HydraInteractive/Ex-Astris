@@ -14,5 +14,8 @@ namespace Hydra::System {
 
 		inline const std::string type() const final { return "PerkSystem"; }
 		void registerUI() final;
+	private:
+		float perkDescriptionTimer = 0;
+		std::string perkDescriptionText = "";
 	};
 }

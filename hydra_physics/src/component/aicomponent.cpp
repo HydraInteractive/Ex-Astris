@@ -9,26 +9,33 @@
 */
 #include <hydra/component/aicomponent.hpp>
 #include <imgui/imgui.h>
+#include <hydra/component/drawobjectcomponent.hpp>
 
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-AIComponent::~AIComponent() {}
+AIComponent::~AIComponent() {
+
+}
 
 void AIComponent::serialize(nlohmann::json& json) const {
 	json["radius"] = radius;
 	json["damage"] = damage;
-	if (behaviour != nullptr)	{
+	if (behaviour != nullptr)
+	{
 		json["behaviourType"] = (unsigned int)behaviour->type;
 		json["pathState"] = behaviour->state;
 		json["range"] = behaviour->range;
 		json["originalRange"] = behaviour->originalRange;
-	} else {
+	}
+	else
+	{
 		json["behaviourType"] = 0;
 		json["pathState"] = 0;
 		json["range"] = 0;
 		json["originalRange"] = 0;
 	}
+
 }
 
 void AIComponent::deserialize(nlohmann::json& json) {
@@ -64,4 +71,9 @@ void AIComponent::registerUI() {
 	ImGui::Checkbox("isAtGoal", &behaviour->isAtGoal);
 	ImGui::Checkbox("playerCanBeSeen", &behaviour->playerSeen);
 	ImGui::InputFloat("range", &behaviour->range);
+}
+
+std::shared_ptr<Hydra::World::Entity> AIComponent::getPlayerEntity()
+{
+	return Hydra::World::World::getEntity(PlayerComponent::componentHandler->getActiveComponents()[0]->entityID);
 }

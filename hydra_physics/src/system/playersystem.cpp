@@ -85,7 +85,7 @@ void PlayerSystem::tick(float delta) {
 			if (camera->mouseControl && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
 				//TODO: Make pretty?
 				glm::quat bulletOrientation = glm::angleAxis(-camera->cameraYaw, glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->cameraPitch, glm::vec3(1, 0, 0)));
-
+				
 				//Changed to see if modell is correct, original bulletVelocity was 300 (A little too fast imo, das me tho)
 				float bulletVelocity = 20;
 				if (!weapon->_isReloading)
