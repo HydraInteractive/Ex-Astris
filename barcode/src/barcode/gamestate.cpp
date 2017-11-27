@@ -54,7 +54,7 @@ namespace Barcode {
 			return;
 		}
 
-		/*{
+		{
 			static std::vector<std::shared_ptr<Entity>> _enemies;
 			world::getEntitiesWithComponents<Hydra::Component::AIComponent, Hydra::Component::LifeComponent>(_enemies);
 			if (!_enemies.size()) {
@@ -63,7 +63,7 @@ namespace Barcode {
 				return;
 			}
 			_enemies.clear();
-		}*/
+		}
 
 		bool oldPaused = _paused;
 		if (ImGui::IsKeyPressed(SDLK_ESCAPE, false)) {

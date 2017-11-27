@@ -272,11 +272,9 @@ void TileGeneration::_obtainRoomFiles() {
 	//	_roomFileNames.push_back(p.path().string());
 	//}
 
-	_roomFileNames.push_back(path + "centralRoomBigScreen.room");
+	_roomFileNames.push_back(path + "centralRoomPipes.room");
 	_roomFileNames.push_back(path + "fourwayRoom.room");
 	_roomFileNames.push_back(path + "starterRoom.room");
-	_roomFileNames.push_back(path + "threewayRoom.room");
-	_roomFileNames.push_back(path + "trashedComputerRoom.room");
 	_roomFileNames.push_back(path + "tryTree.room");
 	_roomFileNames.push_back(path + "tryTwo.room");
 
@@ -460,7 +458,7 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 
 	glm::quat rotation;
 
-	int randomRotateChance = 100;//rand() % 100;
+	int randomRotateChance = rand() % 100;
 
 	//Rotate the room 90 degrees
 	if (randomRotateChance < 25) {
