@@ -9,7 +9,7 @@ struct BaseAbility {
 	virtual void useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity) = 0;
 	virtual void tick(float delta, const std::shared_ptr<Hydra::World::Entity>& playerEntity) {};
 	virtual void doneTick(float delta, const std::shared_ptr<Hydra::World::Entity>& playerEntity) {};
-	int cooldown = 0;
+	int cooldown = 1;
 	float activeTimer = 0;
 	float tickFreq = 0;
 	float timeSinceLastTick = 0;
