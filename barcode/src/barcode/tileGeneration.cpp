@@ -312,6 +312,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		a->behaviour->setPathMap(pathfindingMap);
 		a->damage = 4;
 		a->behaviour->originalRange = 4;
+		a->behaviour->type = Hydra::Physics::Behaviour::Behaviour::Type::ALIEN;
 		a->radius = 1;
 
 		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
@@ -338,6 +339,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienFastModel.mATTIC");
 		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+		a->behaviour->type = Hydra::Physics::Behaviour::Behaviour::Type::ALIEN;
 
 		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 		h->maxHP = 60;
@@ -361,12 +363,13 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 	}
 
 
-	for (int i = 0; i < randomRobots; i++) {
+	/*for (int i = 0; i < randomRobots; i++) {
 		auto robotEntity = world::newEntity("Robot1", world::root());
 		robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
 		auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<RobotBehaviour>(robotEntity);
 		a->behaviour->setPathMap(pathfindingMap);
+		a->behaviour->type = Hydra::Physics::Behaviour::Behaviour::Type::ROBOT;
 		a->damage = 7;
 		a->behaviour->originalRange = 20;
 		a->radius = 1;
@@ -398,7 +401,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
 
-	}
+	}*/
 
 }
 

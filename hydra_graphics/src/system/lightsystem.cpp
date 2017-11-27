@@ -23,8 +23,8 @@ void LightSystem::tick(float delta) {
 		auto lightParent = World::World::getEntity(entities[i]->parent);
 		auto lightParentTC = lightParent->getComponent<TransformComponent>();
 		
-		if (lightParentTC && lightParentTC->dirty)
-			lightTC->position = glm::vec3(0, 100, 0) + lightParentTC->position;
+		//if (lightParentTC && lightParentTC->dirty)
+		//	lightTC->position = glm::vec3(0, 200, 0) + lightParentTC->position;
 	}
 }
 

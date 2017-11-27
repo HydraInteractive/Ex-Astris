@@ -40,6 +40,11 @@ layout(location = 9) uniform int nrOfPointLights;
 layout(location = 10) uniform DirLight dirLight;
 layout(location = 12) uniform PointLight pointLights[MAX_LIGHTS];
 
+float random(vec4 seed){
+	float value = dot(seed, vec4(12.9898, 78.233, 45.164, 94.673));
+	return fract(sin(value)) * 43758.5453;
+}
+
 vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec4 objectColor){
 	float distance = length(light.pos - pos);
 	float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
@@ -98,7 +103,7 @@ void main() {
 
 	// Lighting 
 	// 0.1f should be ambient coefficient
-	vec3 globalAmbient = dirLight.color * objectColor.rgb * 0.1f;
+	vec3 globalAmbient = dirLight.color * objectColor.rgb * 0.5f;
 	vec3 result = vec3(0);
 
 	// Directional light
@@ -117,28 +122,29 @@ void main() {
 	vec3 projCoords = lightPos.xyz / lightPos.w;
 	float closestDepth = texture(depthMap, projCoords.xy).r;
 	float currentDepth = projCoords.z;
-	float bias = 0.005 * dot(normal, -dirLight.dir);
-	bias = clamp(bias, 0, 0.1);
+	float bias = max(0.08 * (1.0 - dot(normal.xyz, -dirLight.dir)), 0.01);
 	float shadow = 0.0f;
 
+	// Poisson Filtering
 	//for(int i = 0; i < 4; i++){
-	//	if(texture(depthMap, projCoords.xy + poissonDisk[i] / 1000.0).r < currentDepth)
+	//int index = int(16.0 * random(vec4(gl_FragCoord.xyy, i))) % 16;
+	//	if(texture(depthMap, projCoords.xy + poissonDisk[index] / 200.0).r < currentDepth - bias)
 	//		shadow -= 0.2f;
 	//}
 
+	// PCF.
 	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
-	for(int x = -1; x <= 1; x++) {
-		for(int y = -1; y <= 1; y++) {
+	for(int y = -2; y <= 2; y++) {
+		for(int x = -2; x <= 2; x++) {
 			float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
-			shadow += currentDepth > pcfDepth ? 1 : 0;
+			shadow += currentDepth - bias > pcfDepth ? 1 : 0;
 		}
 	}
-	shadow /= 9;
+	shadow /= 25;
 	shadow = 1.0f - shadow;
-	shadow += 0.2f;
 
 	if(glowAmnt > 0)
-		brightOutput = result + globalAmbient;
+		brightOutput = objectColor.rgb;
 	else
 		brightOutput = vec3(0);
 

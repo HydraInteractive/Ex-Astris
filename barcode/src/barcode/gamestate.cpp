@@ -127,7 +127,7 @@ namespace Barcode {
 		_lightSystem.tick(delta);
 
 
-		static bool enableHitboxDebug = true;
+		static bool enableHitboxDebug = false;
 		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
 		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
 		ImGui::Checkbox("Enable SSAO", &MenuState::ssaoEnabled);
@@ -370,21 +370,19 @@ namespace Barcode {
 		{
 			for (int i = 0; i < 4; i++) {
 				for (int j = 0; j < 4; j++) {
-					for (int k = 0; k < 4; k++) {
-						{
-							auto pickUpEntity = world::newEntity("PickUp", world::root());
-							auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
-							t->position = glm::vec3((i * 5), k * 5, (j * 5) - 5);
-							pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Lock.mATTIC");
-							pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
-							auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-							rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
-							rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+					{
+						auto pickUpEntity = world::newEntity("PickUp", world::root());
+						auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
+						t->position = glm::vec3((i * 5), 5, (j * 5) - 5);
+						pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Lock.mATTIC");
+						pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
+						auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+						rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
+						rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 
-							auto pickupText = world::newEntity("Textpickup", world::root());
-							pickupText->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
-							pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
-						}
+						auto pickupText = world::newEntity("Textpickup", world::root());
+						pickupText->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
+						pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
 					}
 				}
 			}
@@ -437,15 +435,7 @@ namespace Barcode {
 				t2->ignoreParent = true;
 			}
 
-			auto lightEntity = world::newEntity("Bogdan: Light Source", playerEntity);
-			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
-			auto t3 = lightEntity->addComponent<Hydra::Component::TransformComponent>();
-			t3->setPosition(glm::vec3(0, 7, 0));
-			t3->setRotation(glm::quat(0, 0, 0.820f, 0.572f));
-		}
-
-		{
-			//auto lightEntity = world::newEntity("Bogdan: Light Source", world::root());
+			//auto lightEntity = world::newEntity("Bogdan: Light Source", playerEntity);
 			//auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
 			//auto t3 = lightEntity->addComponent<Hydra::Component::TransformComponent>();
 			//t3->setPosition(glm::vec3(0, 7, 0));
@@ -453,29 +443,36 @@ namespace Barcode {
 		}
 
 		{
-			auto alienEntity = world::newEntity("Alien1", world::root());
-			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
-			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
-			a->behaviour = std::make_shared<Hydra::Physics::Behaviour::AlienBehaviour>(alienEntity);
+			auto lightEntity = world::newEntity("Bogdan: Light Source", world::root());
+			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
+			auto t3 = lightEntity->addComponent<Hydra::Component::TransformComponent>();
+			t3->setPosition(glm::vec3(0, 7, 0));
+			//t3->setRotation(glm::quat(0, 0, 0.820f, 0.572f));
+		}
+
+		{
+			auto robotEntity = world::newEntity("Robot1", world::root());
+			robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+			auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
+			a->behaviour = std::make_shared<AlienBehaviour>(robotEntity);
 			a->behaviour->setPathMap(pathfindingMap);
-			a->damage = 4;
-			a->behaviour->originalRange = 5;
+			a->damage = 7;
+			a->behaviour->originalRange = 20;
 			a->radius = 1;
 
-			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
-			h->maxHP = 80;
-			h->health = 80;
-			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+			auto h = robotEntity->addComponent<Hydra::Component::LifeComponent>();
+			h->maxHP = 70;
+			h->health = 70;
+			auto m = robotEntity->addComponent<Hydra::Component::MovementComponent>();
 			m->movementSpeed = 0.0f;
-			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ -10, 0, -10 };
+			auto t = robotEntity->addComponent<Hydra::Component::TransformComponent>();
+			t->position = glm::vec3{ -1000, 0, -10 };
 			t->scale = glm::vec3{ 1,1,1 };
 			t->rotation = glm::vec3{ 0, 90, 0 };
-			auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 3, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+			auto rgbc = robotEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+			rgbc->createBox(glm::vec3(0.5f) * t->scale, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 				0, 0, 0.6f, 1.0f);
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-			rgbc->setAngularForce(glm::vec3(0));
 		}
 
 		{

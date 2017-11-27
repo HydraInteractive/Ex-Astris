@@ -15,9 +15,9 @@
 #include <hydra/component/roomcomponent.hpp>
 #include <hydra/component/textcomponent.hpp>
 #include <glm/gtc/type_ptr.hpp>
-using world = Hydra::World::World;
+using world = Hydra::World::World; 
 ComponentMenu::ComponentMenu()
-{
+{ 
 	glm::vec3 size = glm::vec3(1.0f, 1.0f, 1.0f);
 }
    

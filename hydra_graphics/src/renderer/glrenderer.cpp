@@ -199,7 +199,7 @@ public:
 		clearFlags |= (batch.clearFlags & ClearFlags::depth) == ClearFlags::depth ? GL_DEPTH_BUFFER_BIT : 0;
 		glClear(clearFlags);
 
-		glCullFace(GL_FRONT);
+		//glCullFace(GL_FRONT);
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
@@ -215,7 +215,7 @@ public:
 				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
 			}
 		}
-		glCullFace(GL_BACK);
+		//glCullFace(GL_BACK);
 	}
 
 	void render(ParticleBatch& batch) final { // For particles only.
