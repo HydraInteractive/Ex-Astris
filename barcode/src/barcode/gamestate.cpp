@@ -376,7 +376,7 @@ namespace Barcode {
 			auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
 			textStuff->setText("\x01Perk picked up\x02");
 			textStuff->isStatic = true;
-		} 
+		}   
 		{
 			//Remove this to gain frames like never before
 			tileGen = new TileGeneration("assets/room/PlantNTableRoom.room");

@@ -243,6 +243,8 @@ void AlienBehaviour::run(float dt)
 	if (!hasRequiredComponents)
 		if (!refreshRequiredComponents())
 			return;
+	if (thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>()->health <= 0)
+		return;
 	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
 	thisEnemy.ai->debugState = state;
 
@@ -319,6 +321,8 @@ void RobotBehaviour::run(float dt)
 	if (!hasRequiredComponents)
 		if (!RobotBehaviour::refreshRequiredComponents())
 			return;
+	if (thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>()->health <= 0)
+		return;
 	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
 	// Same as above.
 	//if (!thisEnemy.life->statusCheck())
