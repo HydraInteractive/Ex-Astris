@@ -60,7 +60,7 @@ namespace Hydra::System {
 		void enable(GhostObjectComponent* component);
 		void disable(GhostObjectComponent* component);
 
-		void* rayTestFromTo(const glm::vec3& from, const glm::vec3& to);
+		// void* rayTestFromTo(const glm::vec3& from, const glm::vec3& to);
 
 		void tick(float delta) final;
 
