@@ -134,7 +134,7 @@ void* Hydra::System::BulletPhysicsSystem::rayTestFromTo(const glm::vec3& from, c
 	btVector3 playerPos(cast(from));
 	btVector3 directionBoi(cast(to));
 	btCollisionWorld::ClosestRayResultCallback callback(playerPos, directionBoi);
-
+	
 	_data->dynamicsWorld->rayTest(playerPos, directionBoi, callback);
 	return &callback;
 }

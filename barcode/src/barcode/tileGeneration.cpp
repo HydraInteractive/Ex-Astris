@@ -92,7 +92,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			t->position.y += 3;
 			t->scale = glm::vec3(4);
 			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
-			rgbc->createBox(glm::vec3(3.2f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
+			rgbc->createBox(glm::vec3(0.8f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
 		}
 	}
 
@@ -140,7 +140,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			t->position.y += 3;
 			t->scale = glm::vec3(4);
 			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
-			rgbc->createBox(glm::vec3(3.2f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
+			rgbc->createBox(glm::vec3(0.8f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
 		}
 	}
 
@@ -188,7 +188,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			t->position.y += 3;
 			t->scale = glm::vec3(4);
 			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
-			rgbc->createBox(glm::vec3(3.2f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
+			rgbc->createBox(glm::vec3(0.8f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
 		}
 	}
 
@@ -236,7 +236,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			t->position.y += 3;
 			t->scale = glm::vec3(4);
 			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
-			rgbc->createBox(glm::vec3(3.2f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
+			rgbc->createBox(glm::vec3(0.8f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
 		}
 	}
 }
@@ -272,7 +272,7 @@ void TileGeneration::_obtainRoomFiles() {
 	//	_roomFileNames.push_back(p.path().string());
 	//}
 
-	_roomFileNames.push_back(path + "centralRoomBigScreen.room");
+	_roomFileNames.push_back(path + "centralRoomPipes.room");
 	_roomFileNames.push_back(path + "fourwayRoom.room");
 	_roomFileNames.push_back(path + "starterRoom.room");
 	_roomFileNames.push_back(path + "trashedComputerRoom.room");
@@ -479,7 +479,7 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 
 	glm::quat rotation;
 
-	int randomRotateChance = 100;//rand() % 100;
+	int randomRotateChance = rand() % 100;
 
 	//Rotate the room 90 degrees
 	if (randomRotateChance < 25) {
@@ -510,7 +510,7 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 			room->door[i] = tempRoom->door[i];
 			room->openWalls[i] = tempRoom->openWalls[i];
 		}
-		rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0, 1, 0));
+		rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
 
 	}
 	//Rotate the room 180 degrees
@@ -542,7 +542,7 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 			room->door[i] = tempRoom->door[i];
 			room->openWalls[i] = tempRoom->openWalls[i];
 		}
-		rotation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0, 1, 0));
+		rotation = glm::angleAxis(glm::radians(-180.0f), glm::vec3(0, 1, 0));
 
 	}
 	else if (randomRotateChance >= 50 && randomRotateChance < 75) {
@@ -573,7 +573,7 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 			room->door[i] = tempRoom->door[i];
 			room->openWalls[i] = tempRoom->openWalls[i];
 		}
-		rotation = glm::angleAxis(glm::radians(270.0f), glm::vec3(0, 1, 0));
+		rotation = glm::angleAxis(glm::radians(-270.0f), glm::vec3(0, 1, 0));
 
 	}
 	else
