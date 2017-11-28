@@ -2,6 +2,8 @@
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/particlecomponent.hpp>
 #include <hydra/component/textcomponent.hpp>
+#include <hydra/component/aicomponent.hpp>
+#include <hydra/component/perkcomponent.hpp>
 
 #include <hydra/ext/openmp.hpp>
 
@@ -22,8 +24,16 @@ void LifeSystem::tick(float delta) {
 	#pragma omp parallel for
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto lifeC = entities[i]->getComponent<Hydra::Component::LifeComponent>();
-		if (lifeC->health <= 0)
+		if (lifeC->health <= 0) {
 			entities[i]->dead = true;
+			if (auto enemy = entities[i]->getComponent<AIComponent>()){
+				auto activeAbilities = enemy->getPlayerEntity()->getComponent<PerkComponent>()->activeAbilities;
+				
+				for (size_t i = 0; i < activeAbilities.size(); i++){
+					activeAbilities[i]->cooldown--;
+				}
+			}
+		}
 
 		if (entities[i]->getComponent<Hydra::Component::ParticleComponent>() || entities[i]->getComponent<Hydra::Component::TextComponent>())
 			lifeC->health -= 1 * delta;
