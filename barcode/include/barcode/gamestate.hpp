@@ -100,8 +100,8 @@ namespace Barcode {
 		Hydra::Component::CameraComponent* _cc = nullptr;
 		Hydra::Component::TransformComponent* _playerTransform = nullptr;
 
-		float prevHP, hpTimeUp = 0;
-		bool** pathfindingMap = nullptr;
+		float _prevHP = 1;
+		float _hpTimeUp = 0;
 
 		void _initSystem();
 		void _initWorld();

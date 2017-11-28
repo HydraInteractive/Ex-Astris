@@ -1,7 +1,6 @@
 #include <server/gameserver.hpp>
 #include <server/packets.hpp>
 #include <hydra/component/transformcomponent.hpp>
-#include <server/tilegeneration.hpp>
 #include <iostream>
 #include <chrono>
 #include <thread>
@@ -276,8 +275,8 @@ void GameServer::quit() {
 bool GameServer::initialize(int port) {
 	if (!this->_server) {
 		this->_server = new Server();
-		this->lastTime = std::chrono::high_resolution_clock::now();
-		packetDelay = 0;
+		_lastTime = std::chrono::high_resolution_clock::now();
+		_packetDelay = 0;
 		if (this->_server->initialize(port)) {
 			printf("I am a scurb\n");
 			printf("Server started on port %d.\n", port);
@@ -316,8 +315,8 @@ static void removeRelations(EntityID id) {
 }*/
 
 void GameServer::start() {
-	TileGeneration* t = new TileGeneration("assets/room/starterRoom.room");
-	t->buildMap();
+	_tileGeneration = std::make_unique<TileGeneration>("assets/room/starterRoom.room");
+	_pathfindingMap = _tileGeneration->buildMap();
 	/* markDead(world::rootID, false);
 	{
 		FILE* fp = fopen("tree.dot", "w");
@@ -340,8 +339,8 @@ void GameServer::start() {
 void GameServer::run() {
 	//Check for new Clients
 	auto nowTime = std::chrono::high_resolution_clock::now();
-	float delta = std::chrono::duration<float, std::chrono::milliseconds::period>(nowTime - this->lastTime).count() / 1000.f;
-	lastTime = nowTime;
+	float delta = std::chrono::duration<float, std::chrono::milliseconds::period>(nowTime - _lastTime).count() / 1000.f;
+	_lastTime = nowTime;
 	{
 		this->_handleDisconnects();
 		this->_addPlayer(this->_server->checkForNewClients());
@@ -367,10 +366,10 @@ void GameServer::run() {
 
 	//Send updated world to clients
 	{
-		this->packetDelay += delta;
-		if (packetDelay >= 1.0f/30.0f) {
+		_packetDelay += delta;
+		if (_packetDelay >= 1.0f/30.0f) {
 			this->_sendWorld();
-			this->packetDelay = 0;
+			_packetDelay = 0;
 		}
 	}
 }

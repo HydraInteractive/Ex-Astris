@@ -489,7 +489,7 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 			room->door[i] = tempRoom->door[i];
 			room->openWalls[i] = tempRoom->openWalls[i];
 		}
-		rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0, 1, 0));
+		rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
 
 	}
 	//Rotate the room 180 degrees
@@ -521,7 +521,7 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 			room->door[i] = tempRoom->door[i];
 			room->openWalls[i] = tempRoom->openWalls[i];
 		}
-		rotation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0, 1, 0));
+		rotation = glm::angleAxis(glm::radians(-180.0f), glm::vec3(0, 1, 0));
 
 	}
 	else if (randomRotateChance >= 50 && randomRotateChance < 75) {
@@ -552,7 +552,7 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 			room->door[i] = tempRoom->door[i];
 			room->openWalls[i] = tempRoom->openWalls[i];
 		}
-		rotation = glm::angleAxis(glm::radians(270.0f), glm::vec3(0, 1, 0));
+		rotation = glm::angleAxis(glm::radians(-270.0f), glm::vec3(0, 1, 0));
 
 	}
 	else

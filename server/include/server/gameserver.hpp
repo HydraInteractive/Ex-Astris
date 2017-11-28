@@ -1,5 +1,6 @@
 #pragma once
 #include <server/server.hpp>
+#include <server/tilegeneration.hpp>
 #include <hydra/world/world.hpp>
 #include <chrono>
 #include <hydra/system/deadsystem.hpp>
@@ -32,11 +33,13 @@ namespace BarcodeServer {
 		void quit();
 
 	private:
-		std::chrono::time_point<std::chrono::high_resolution_clock> lastTime;
-		float packetDelay;
+		std::chrono::time_point<std::chrono::high_resolution_clock> _lastTime;
+		float _packetDelay;
 		Server* _server = nullptr;
 		std::vector<Hydra::World::EntityID> _networkEntities;
 		std::vector<Player*> _players;
+		std::unique_ptr<TileGeneration> _tileGeneration;
+		bool** _pathfindingMap = nullptr;
 
 		Hydra::System::DeadSystem _deadSystem;
 		Hydra::System::BulletPhysicsSystem _physicsSystem;

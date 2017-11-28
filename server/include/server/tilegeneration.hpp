@@ -41,12 +41,17 @@ namespace BarcodeServer {
 	public:
 		std::shared_ptr<Hydra::Component::RoomComponent> roomGrid[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
 		bool** pathfindingMap = nullptr;
-		bool** buildMap();
+		int maxRooms = 100;
+		int numberOfPlayers = 4;
+		int numberOfEnemies = 10; //Can be per room or for the whole map depending on if the _spawnEnemies function is run once per room or after the whole map is generated
+		std::vector<glm::vec3> playerSpawns;
+
 		TileGeneration(const std::string& middleRoomPath);
 		~TileGeneration();
 
-		int maxRooms = 100;
+		bool** buildMap();
 		std::shared_ptr<Hydra::World::Entity> mapentity;
+
 	private:
 		std::vector<std::string> _roomFileNames;
 		int _roomCounter = 0;

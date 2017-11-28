@@ -100,7 +100,7 @@ namespace Barcode {
 				ImGui::CloseCurrentPopup();
 			ImGui::EndPopup();
 		}
-
+		 
 		if (_paused != oldPaused) {
 			static bool oldMouseControl;
 			static bool oldNoClip;
@@ -220,24 +220,22 @@ namespace Barcode {
 
 			//git plz
 
-			if (prevHP > hpP) {
+			if (_prevHP > hpP) {
 				//prevHP = (1 - (delta*3)) * prevHP + (delta*3) * hpP; //LERP
-				if (hpTimeUp == 0) {
-					hpTimeUp = 1;
-				}
+				if (_hpTimeUp == 0)
+					_hpTimeUp = 1;
 
-				hpTimeUp -= delta;
+				_hpTimeUp -= delta;
 
-				if (hpTimeUp >= 0) {
+				if (_hpTimeUp >= 0) {
 					ImGui::SetNextWindowPos(ImVec2(0, 0));
 					ImGui::SetNextWindowSize(ImVec2(1920, 1080));
 					ImGui::Begin("DamageBleed", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoInputs);
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/blood.png")->getID()), ImVec2(1920, 1080), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1,1,1, hpTimeUp));
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/blood.png")->getID()), ImVec2(1920, 1080), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1,1,1, _hpTimeUp));
 					ImGui::End();
-				}
-				else {
-					prevHP = hpP;
-					hpTimeUp = 0;
+				}	else {
+					_prevHP = hpP;
+					_hpTimeUp = 0;
 				}
 			}
 			//Crosshair
@@ -419,7 +417,7 @@ namespace Barcode {
 			auto s = playerEntity->addComponent<Hydra::Component::SoundFxComponent>();
 			auto perks = playerEntity->addComponent<Hydra::Component::PerkComponent>();
 			h->health = h->maxHP = 100.0f * MenuState::playerHPMultiplier;
-			prevHP = h->health;
+			_prevHP = h->health;
 			m->movementSpeed = 300.0f;
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(-10, 0, -10);
@@ -432,14 +430,12 @@ namespace Barcode {
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
-				auto w = weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
-				w->userdata = static_cast<void*>(this);
-				w->onShoot = &GameState::_onPlayerShoot;
-				w->bulletSize /= 2;
-				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Gun.mATTIC");
+				weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
+				weaponEntity->getComponent<Hydra::Component::WeaponComponent>()->bulletSize /= 2;
+				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/FPSModel.mATTIC");
 				auto t2 = weaponEntity->addComponent<Hydra::Component::TransformComponent>();
 				t2->position = glm::vec3(2, -7, -2);
-				t2->scale = glm::vec3(0.1f, 0.1f, 0.1f);
+				t2->scale = glm::vec3(0.3f);
 				t2->rotation = glm::quat(0, 0, 1, 0);
 				t2->ignoreParent = true;
 			}

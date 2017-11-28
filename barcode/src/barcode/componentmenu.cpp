@@ -146,7 +146,7 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 		{
 			ImGui::Text("The entity selected already has this component");
 		}
-		else
+		else 
 		{
 			ImGui::BeginChild("RigidBody", ImVec2(ImGui::GetWindowContentRegionWidth() *0.3f, ImGui::GetWindowContentRegionMax().y - 160), true);
 			ImGui::DragFloat3("Size", glm::value_ptr(rigidBodyInput.size), 0.01f);
@@ -191,6 +191,7 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 				_selectedEntity->addComponent<Hydra::Component::DrawObjectComponent>();
 				auto goc = _selectedEntity->addComponent<Hydra::Component::GhostObjectComponent>();
 				goc->createBox(ghostObjectInput.size,Hydra::System::BulletPhysicsSystem::CollisionTypes(ghostObjectInput.collisionType+1));
+
 				physicsSystem.enable(goc.get());
 				rigidBodyInput = RBI();
 			}
