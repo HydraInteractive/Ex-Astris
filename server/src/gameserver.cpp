@@ -163,13 +163,20 @@ bool GameServer::_addPlayer(int id) {
 		this->_setEntityID(id, pi.entityid);
 		pi.h.len = sizeof(ServerInitializePacket);
 		pi.h.type = PacketType::ServerInitialize;
-		pi.ti.pos = { 0, 0, 0 };
+		pi.ti.pos = { 0, 3, 0 };
 		pi.ti.scale = { 1, 1, 1 };
-		pi.ti.rot = glm::quat();
-		
+		pi.ti.rot = glm::quat(1, 0, 0, 0);
+
+		if (_players.size() > 1) {
+			auto randomOther = world::getEntity(_players[rand() % (_players.size() - 1)]->entityid);
+			auto tc = randomOther->getComponent<TransformComponent>();
+			pi.ti.pos = tc->position;
+			pi.ti.rot = tc->rotation;
+			pi.ti.scale = tc->scale;
+		}
+
 		printf("sendDataToClient:\n\ttype: ServerInitialize\n\tlen: %d\n", pi.h.len);
 		int tmp = this->_server->sendDataToClient((char*)&pi, pi.h.len, id);
-		
 
 
 		//WORLD TEMP
@@ -185,7 +192,6 @@ bool GameServer::_addPlayer(int id) {
 		auto packet = createServerSpawnEntity(map);
 		_server->sendDataToClient((char*)packet, packet->h.len, id);
 		delete[] (char*)packet;
-
 		//END TEMP WORLD
 
 

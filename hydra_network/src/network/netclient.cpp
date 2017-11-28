@@ -101,10 +101,15 @@ void NetClient::_resolvePackets() {
 				}
 			}
 			_IDs[((ServerInitializePacket*)p)->entityid] = _myID;
-			tc = world::getEntity(_myID)->getComponent<Hydra::Component::TransformComponent>().get();
+			tc = ent->getComponent<Hydra::Component::TransformComponent>().get();
 			tc->setPosition(((ServerInitializePacket*)p)->ti.pos);
 			tc->setRotation(((ServerInitializePacket*)p)->ti.rot);
 			tc->setScale(((ServerInitializePacket*)p)->ti.scale);
+
+			if (auto rb = ent->getComponent<Hydra::Component::RigidBodyComponent>(); rb)
+				rb->refreshTransform();
+			if (auto go = ent->getComponent<Hydra::Component::GhostObjectComponent>(); go)
+				go->updateWorldTransform();
 			break;
 		case PacketType::ServerUpdate:
 			serverUpdate = p;

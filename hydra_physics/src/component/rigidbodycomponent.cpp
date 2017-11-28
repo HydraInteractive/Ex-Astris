@@ -283,9 +283,15 @@ void RigidBodyComponent::setActivationState(ActivationState newState) {
 	_data->getRigidBody()->setActivationState(lookup[static_cast<int>(newState)]);
 }
 
+
+void RigidBodyComponent::refreshTransform() {
+	btTransform t;
+	_data->motionState.getWorldTransform(t);
+	_data->getRigidBody()->setWorldTransform(t);
+}
+
 glm::vec3 RigidBodyComponent::getPosition() {
 	return _data->motionState.getPosition() + cast(_data->compoundShape->getChildTransform(0).getOrigin());
-	//return _data->motionState.getPosition() + cast(_data->compoundShape->getChildTransform(0).getOrigin());
 }
 
 glm::quat RigidBodyComponent::getRotation() {
