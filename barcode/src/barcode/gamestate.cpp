@@ -54,8 +54,6 @@ namespace Barcode {
 			return;
 		}
 
-		ImGui::Text("Loaded rooms: %zu", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size());
-
 		{
 			static std::vector<std::shared_ptr<Entity>> _enemies;
 			world::getEntitiesWithComponents<Hydra::Component::AIComponent, Hydra::Component::LifeComponent>(_enemies);
@@ -129,10 +127,10 @@ namespace Barcode {
 
 
 		static bool enableHitboxDebug = true;
-		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
+/*		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
 		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
 		ImGui::Checkbox("Enable SSAO", &MenuState::ssaoEnabled);
-		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);
+		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);*/
 
 		const glm::vec3& cameraPos = _playerTransform->position;
 		auto viewMatrix = _cc->getViewMatrix();
@@ -378,7 +376,7 @@ namespace Barcode {
 			auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
 			textStuff->setText("\x01Perk picked up\x02");
 			textStuff->isStatic = true;
-		}
+		} 
 		{
 			//Remove this to gain frames like never before
 
