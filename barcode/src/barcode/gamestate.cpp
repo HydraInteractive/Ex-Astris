@@ -54,6 +54,8 @@ namespace Barcode {
 			return;
 		}
 
+		ImGui::Text("Loaded rooms: %zu", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size());
+
 		{
 			static std::vector<std::shared_ptr<Entity>> _enemies;
 			world::getEntitiesWithComponents<Hydra::Component::AIComponent, Hydra::Component::LifeComponent>(_enemies);
