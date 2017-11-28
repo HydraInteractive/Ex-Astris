@@ -215,6 +215,7 @@ void Behaviour::executeTransforms()
 	}
 	else if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_PLAYER)
 	{
+		printf("YEAH BOI\n");
 		if (regainRange > 1.5)
 		{
 			range = originalRange;
@@ -227,7 +228,7 @@ void Behaviour::executeTransforms()
 	//if (movementForce.x = 0 && movementForce.y == 0 && movementForce.z == 0)
 	//	rigidBody->clearForces();
 	//else
-	rigidBody->setLinearVelocity(btVector3(movementForce.x, movementForce.y, movementForce.z));
+	rigidBody->setLinearVelocity(btVector3(movementForce.x, rigidBody->getLinearVelocity().y(), movementForce.z));
 	
 	thisEnemy.transform->setRotation(rotation);
 }
@@ -276,17 +277,17 @@ void AlienBehaviour::run(float dt)
 	attackTimer += dt;
 	newPathTimer += dt;
 	regainRange += dt;
-	if (targetPlayer.transform->position.y >= 4.6f && pathFinding->inWall(targetPlayer.transform->position))
-	{
-		playerUnreachable = true;
-		savedRange = originalRange;
-		originalRange = 10;
-	}
-	else if (targetPlayer.transform->position.y < 4.6f)
-	{
-		playerUnreachable = false;
-		originalRange = savedRange;
-	}
+	//if (targetPlayer.transform->position.y >= 4.6f && pathFinding->inWall(targetPlayer.transform->position))
+	//{
+	//	playerUnreachable = true;
+	//	savedRange = originalRange;
+	//	originalRange = 10;
+	//}
+	//else if (targetPlayer.transform->position.y < 4.6f)
+	//{
+	//	playerUnreachable = false;
+	//	originalRange = savedRange;
+	//}
 
 	//if (pathFinding->inWall(targetPlayer.transform->position))
 	//{
@@ -332,16 +333,16 @@ unsigned int AlienBehaviour::attackingState(float dt)
 
 		if (attackTimer > 2.5)
 		{
-			if (playerUnreachable)
+			/*if (playerUnreachable)
 			{
 				thisEnemy.weapon->shoot(thisEnemy.transform->position + glm::vec3{ 0, 1.5, 0 }, playerDir, glm::quat(), 5.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
 				attackTimer = 0;
 			}
 			else
-			{
+			{*/
 				targetPlayer.life->applyDamage(randDmg(rng));
 				attackTimer = 0;
-			}
+			/*}*/
 		}
 		rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
 	}
