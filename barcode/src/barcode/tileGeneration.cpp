@@ -48,12 +48,11 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 	//or we will go otuside the tile grid
 	
 	
-	if (roomGrid[pos.x][pos.y]->door[NORTH] && roomGrid[pos.x][pos.y + 1] == nullptr)
-	{
+	if (roomGrid[pos.x][pos.y]->door[NORTH] && roomGrid[pos.x][pos.y + 1] == nullptr) {
 		bool placed = false;
 		//Load all rooms and see if any of them fits
 		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
-
+			 
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
 			auto loadedRoom = world::newEntity("Room", world::root());
@@ -63,8 +62,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			glm::quat rotation = _rotateRoom(roomC);
 
 			if (roomC->door[SOUTH] == true) {
-				if (_checkAdjacents(pos.x, pos.y + 1, roomC))
-				{
+				if (_checkAdjacents(pos.x, pos.y + 1, roomC)) {
 					placed = true;
 					auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 					t->position = _gridToWorld(pos.x, pos.y + 1);
@@ -96,8 +94,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 		}
 	}
 
-	if (roomGrid[pos.x][pos.y]->door[WEST] && roomGrid[pos.x + 1][pos.y] == nullptr)
-	{
+	if (roomGrid[pos.x][pos.y]->door[WEST] && roomGrid[pos.x + 1][pos.y] == nullptr) {
 		bool placed = false;
 		//Load all rooms and see if any of them fits
 		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
@@ -111,8 +108,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			glm::quat rotation = _rotateRoom(roomC);
 
 			if (roomC->door[EAST] == true) {
-				if (_checkAdjacents(pos.x + 1, pos.y, roomC))
-				{
+				if (_checkAdjacents(pos.x + 1, pos.y, roomC)) {
 					placed = true;
 					auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 					t->position = _gridToWorld(pos.x + 1, pos.y);
@@ -144,8 +140,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 		}
 	}
 
-	if (roomGrid[pos.x][pos.y]->door[SOUTH] && roomGrid[pos.x][pos.y - 1] == nullptr)
-	{
+	if (roomGrid[pos.x][pos.y]->door[SOUTH] && roomGrid[pos.x][pos.y - 1] == nullptr) {
 		bool placed = false;
 		//Load all rooms and see if any of them fits
 		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
@@ -159,8 +154,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			glm::quat rotation = _rotateRoom(roomC);
 
 			if (roomC->door[NORTH] == true) {
-				if (_checkAdjacents(pos.x, pos.y - 1, roomC))
-				{
+				if (_checkAdjacents(pos.x, pos.y - 1, roomC)) {
 					placed = true;
 					auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 					t->position = _gridToWorld(pos.x, pos.y - 1);
@@ -192,8 +186,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 		}
 	}
 
-	if (roomGrid[pos.x][pos.y]->door[EAST] && roomGrid[pos.x - 1][pos.y] == nullptr)
-	{
+	if (roomGrid[pos.x][pos.y]->door[EAST] && roomGrid[pos.x - 1][pos.y] == nullptr) {
 		bool placed = false;
 		//Load all rooms and see if any of them fits
 		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
@@ -207,8 +200,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			glm::quat rotation = _rotateRoom(roomC);
 
 			if (roomC->door[WEST] == true) {
-				if (_checkAdjacents(pos.x - 1, pos.y, roomC))
-				{
+				if (_checkAdjacents(pos.x - 1, pos.y, roomC)) {
 					placed = true;
 					auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 					t->position = _gridToWorld(pos.x - 1, pos.y);
@@ -277,6 +269,13 @@ void TileGeneration::_obtainRoomFiles() {
 	_roomFileNames.push_back(path + "starterRoom.room");
 	_roomFileNames.push_back(path + "tryTree.room");
 	_roomFileNames.push_back(path + "tryTwo.room");
+	_roomFileNames.push_back(path + "PipeRoom.room");
+	_roomFileNames.push_back(path + "BlockedStairs.room");
+	_roomFileNames.push_back(path + "CozyRoom1.room");
+	_roomFileNames.push_back(path + "GeneratonInTheMiddle.room");
+	_roomFileNames.push_back(path + "PlantNTableRoom.room");
+
+
 
 	_randomizeRooms();
 
