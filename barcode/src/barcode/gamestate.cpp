@@ -353,9 +353,9 @@ namespace Barcode {
 			{
 				char buf[128];
 				snprintf(buf, sizeof(buf), "Perk%lu", i);
-				Hydra::Component::PerkComponent::PERK_DMGUPSIZEUP;
-				float xOffset = float((-10 * amountOfPerks) + (20 * i));
-				ImGui::SetNextWindowPos(/*pos +*/ ImVec2(pos.x + xOffset, pos.y));
+				//Hydra::Component::PerkComponent::PERK_DMGUPSIZEUP;
+				int xOffset = (-10 * amountOfPerks) + (10 * (i + 1));
+				ImGui::SetNextWindowPos(ImVec2(xOffset + pos.x, 240 + pos.y));
 				ImGui::SetNextWindowSize(ImVec2(20, 20));
 				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 				switch (perk->activePerks[i])
@@ -363,24 +363,24 @@ namespace Barcode {
 				default:
 					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/BulletVelocity.png")->getID()), ImVec2(20, 20));
 					break;
-				//case Hydra::Component::PerkComponent::PERK_DMGUPSIZEUP:
-				//	ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/BulletVelocity.png")->getID()), ImVec2(20, 20));
-				//	break;
-				//case Hydra::Component::PerkComponent::PERK_GRENADE:
-				//	ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/DamageUpgrade.png")->getID()), ImVec2(20, 20));
-				//	break;
-				//case Hydra::Component::PerkComponent::PERK_MINE:
-				//	ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Healing.png")->getID()), ImVec2(20, 20));
-				//	break;
-				//case Hydra::Component::PerkComponent::PERK_BULLETSPRAY:
-				//	ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
-				//	break;
-				//case Hydra::Component::PerkComponent::PERK_SPEEDUP:
-				//	ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
-				//	break;
-				//case Hydra::Component::PerkComponent::PERK_FASTSHOWLOWDMG:
-				//	ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
-				//	break;
+				case Hydra::Component::PerkComponent::PERK_DMGUPSIZEUP:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/BulletVelocity.png")->getID()), ImVec2(20, 20));
+					break;
+				case Hydra::Component::PerkComponent::PERK_GRENADE:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/DamageUpgrade.png")->getID()), ImVec2(20, 20));
+					break;
+				case Hydra::Component::PerkComponent::PERK_MINE:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Healing.png")->getID()), ImVec2(20, 20));
+					break;
+				case Hydra::Component::PerkComponent::PERK_BULLETSPRAY:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
+					break;
+				case Hydra::Component::PerkComponent::PERK_SPEEDUP:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
+					break;
+				case Hydra::Component::PerkComponent::PERK_FASTSHOWLOWDMG:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
+					break;
 				}
 
 				ImGui::End();
