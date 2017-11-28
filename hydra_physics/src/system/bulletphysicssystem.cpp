@@ -129,6 +129,8 @@ void Hydra::System::BulletPhysicsSystem::disable(GhostObjectComponent * componen
 	component->_handler = nullptr;
 }
 
+/*
+error: address of local variable ‘callback’ returned [-Werror=return-local-addr]
 void* Hydra::System::BulletPhysicsSystem::rayTestFromTo(const glm::vec3& from, const glm::vec3& to)
 {
 	btVector3 playerPos(cast(from));
@@ -137,9 +139,7 @@ void* Hydra::System::BulletPhysicsSystem::rayTestFromTo(const glm::vec3& from, c
 	
 	_data->dynamicsWorld->rayTest(playerPos, directionBoi, callback);
 	return &callback;
-}
-
-
+}*/
 
 void BulletPhysicsSystem::tick(float delta) {
 	_data->dynamicsWorld->stepSimulation(delta, 3);

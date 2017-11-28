@@ -180,7 +180,7 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 			ImGui::DragFloat3("Size", glm::value_ptr(ghostObjectInput.size), 0.01f);
 
 			if (ImGui::Combo("Collision Type", &ghostObjectInput.collisionType, "Nothing\0Wall\0Player\0Enemy\0Player Projectile\0Enemy Projectile\0Misc Object\0Pickup Object"))
-				printf("%s\n", std::to_string(ghostObjectInput.collisionType));
+				printf("%s\n", std::to_string(ghostObjectInput.collisionType).c_str());
 
 			//TODO: Selection box for picking collision type
 			ImGui::EndChild();
