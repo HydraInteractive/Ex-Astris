@@ -44,7 +44,7 @@ public:
 	bool playerUnreachable = false;
 
 	float range = 1.0f;
-	//float savedRange = 0.0f;
+	float savedRange = 4.0f;
 	float originalRange = 1.0f;
 	glm::quat rotation = glm::quat();
 

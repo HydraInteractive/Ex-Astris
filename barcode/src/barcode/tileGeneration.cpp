@@ -360,9 +360,9 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		w->bulletSpread = 0.2f;
 		w->bulletsPerShot = 1;
 		w->damage = 4;
-		w->maxmagammo = 100000000;
-		w->currmagammo = 100000000;
-		w->maxammo = 100000000;
+		w->maxmagammo = 1000000000;
+		w->currmagammo = 1000000000;
+		w->maxammo = 1000000000;
 
 		auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
 		m->movementSpeed = 10.0f;
