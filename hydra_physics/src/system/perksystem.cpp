@@ -62,7 +62,7 @@ void PerkSystem::tick(float delta) {
 			ImGui::SetNextWindowPos(ImVec2(50, 720-100-50));
 			ImGui::SetNextWindowSize(ImVec2(300, 100));
 			ImGui::Begin("Perk Description", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-			ImGui::TextWrapped(perkDescriptionText.c_str());
+			ImGui::TextWrapped("%s", perkDescriptionText.c_str());
 			ImGui::End();
 		}
 	}

@@ -133,12 +133,11 @@ void* Hydra::System::BulletPhysicsSystem::rayTestFromTo(const glm::vec3& from, c
 {
 	btVector3 playerPos(cast(from));
 	btVector3 directionBoi(cast(to));
-	btCollisionWorld::ClosestRayResultCallback callback(playerPos, directionBoi);
+	btCollisionWorld::ClosestRayResultCallback* callback = new btCollisionWorld::ClosestRayResultCallback(playerPos, directionBoi);
 	
-	_data->dynamicsWorld->rayTest(playerPos, directionBoi, callback);
-	return &callback;
+	_data->dynamicsWorld->rayTest(playerPos, directionBoi, *callback);
+	return callback;
 }
-
 
 void BulletPhysicsSystem::tick(float delta) {
 	_data->dynamicsWorld->stepSimulation(delta, 3);
