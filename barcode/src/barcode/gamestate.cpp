@@ -129,10 +129,10 @@ namespace Barcode {
 
 
 		static bool enableHitboxDebug = true;
-/*		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
+		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
 		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
 		ImGui::Checkbox("Enable SSAO", &MenuState::ssaoEnabled);
-		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);*/
+		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);
 
 		const glm::vec3& cameraPos = _playerTransform->position;
 		auto viewMatrix = _cc->getViewMatrix();
