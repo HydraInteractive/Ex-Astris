@@ -318,7 +318,7 @@ namespace Barcode {
 			int step = 0;
 			for each (auto usable in perk->activeAbilities)
 			{
-				coolDownList[step] = usable->cooldown;
+				coolDownList[step++] = usable->cooldown;
 			}
 			/*{ perk->activeAbilities[0]->cooldown ,5,5,5,5,5,5,5,5,5 };*/
 			float pForEatchDot = float(1) / float(amountOfActives);
@@ -356,8 +356,8 @@ namespace Barcode {
 				char buf[128];
 				snprintf(buf, sizeof(buf), "Perk%lu", i);
 				//Hydra::Component::PerkComponent::PERK_DMGUPSIZEUP;
-				int xOffset = (-10 * amountOfPerks) + (10 * (i + 1));
-				ImGui::SetNextWindowPos(ImVec2(xOffset + pos.x, 240 + pos.y));
+				int xOffset = (-10 * amountOfPerks) + (20 * (i + 1));
+				ImGui::SetNextWindowPos(ImVec2(5 + xOffset + pos.x, 240 + pos.y));
 				ImGui::SetNextWindowSize(ImVec2(20, 20));
 				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 				switch (perk->activePerks[i])
@@ -385,6 +385,24 @@ namespace Barcode {
 					break;
 				}
 
+				ImGui::End();
+			}
+
+			// Loading screen
+			if (showLoadingScreen == true)
+			{
+				ImGui::SetNextWindowPos(ImVec2(0, 0));
+				ImGui::SetNextWindowSize(ImVec2(windowSize.x, windowSize.y/*1280, 720*/));
+				ImGui::Begin("LoadingScreen", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+				switch (lCPicture)
+				{
+				default:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/lS1.png")->getID()), ImVec2(windowSize.x, windowSize.y/*1280, 720*/));
+					break;
+				case 1:
+					break;
+				}
+				
 				ImGui::End();
 			}
 
