@@ -207,15 +207,19 @@ void Behaviour::executeTransforms()
 	auto callback = static_cast<btCollisionWorld::ClosestRayResultCallback*>(static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->rayTestFromTo(glm::vec3(thisEnemy.transform->position.x, thisEnemy.transform->position.y+1.8, thisEnemy.transform->position.z), targetPlayer.transform->position));
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 50.0f)
 	{
-		if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_WALL)
+		if (targetPlayer.transform->position.y < 4.5f)
 		{
-			if (range > 3)
+			if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_WALL)
 			{
-				range -= 1;
+				if (range > 3)
+				{
+					range -= 1;
+				}
+				regainRange = 0;
 			}
-			regainRange = 0;
 		}
-		else if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_PLAYER)
+
+		if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_PLAYER)
 		{
 			if (regainRange > 1.5)
 			{
@@ -589,7 +593,7 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 					//a->behaviour = std::make_shared<AlienBehaviour>(alienSpawn);
 					a->damage = 4;
 					//a->behaviour->originalRange = 4;
-					a->radius = 2.0f;
+					a->radius = 1.0f;
 					
 					auto h = alienSpawn->addComponent<Hydra::Component::LifeComponent>();
 					h->maxHP = 80;
