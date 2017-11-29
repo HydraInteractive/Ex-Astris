@@ -321,8 +321,78 @@ static void removeRelations(EntityID id) {
 }*/
 
 void GameServer::start() {
-	_tileGeneration = std::make_unique<TileGeneration>("assets/room/starterRoom.room");
-	_pathfindingMap = _tileGeneration->buildMap();
+	size_t tries = 0;
+	while (true) {
+		tries++;
+		_tileGeneration.reset();
+		_tileGeneration = std::make_unique<TileGeneration>("assets/room/starterRoom.room");
+		_pathfindingMap = _tileGeneration->buildMap();
+		_deadSystem.tick(0);
+		printf("Room count: %zu\n", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size());
+		if (Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size() > 15)
+			break;
+		printf("\tTarget is >16, redoing generation\n");
+	}
+	printf ("\tTook %zu tries\n", tries);
+
+	SDL_Surface* map = SDL_CreateRGBSurface(0, WORLD_MAP_SIZE*2, WORLD_MAP_SIZE*2, 32, 0, 0, 0, 0);
+	
+	for (size_t x = 0; x < ROOM_GRID_SIZE; x++)
+		printf("|   %zu  ", x);
+	printf("|\n");
+
+	for (int y = 0; y < ROOM_GRID_SIZE; y++) {
+		for (int x = 0; x < ROOM_GRID_SIZE; x++) {
+			std::shared_ptr<Hydra::Component::RoomComponent> rc = _tileGeneration->roomGrid[x][y];
+			if (rc) {
+				printf("| %c%c%c%c ",
+							 rc->door[Hydra::Component::RoomComponent::NORTH] ? 'N' : ' ',
+							 rc->door[Hydra::Component::RoomComponent::EAST]  ? 'E' : ' ',
+							 rc->door[Hydra::Component::RoomComponent::SOUTH] ? 'S' : ' ',
+							 rc->door[Hydra::Component::RoomComponent::WEST]  ? 'W' : ' '
+					);
+
+				// Walls
+
+				auto pfm = _pathfindingMap;
+				auto drawWallPixel = [pfm, map](int x, int y) {
+					SDL_Rect rect{x*2, y*2, 2, 2};
+					auto color = SDL_MapRGB(map->format, 0, 0, 0);
+					if (pfm[x][y])
+						color = SDL_MapRGB(map->format, 0, 0xFF, 0xFF);
+					SDL_FillRect(map, &rect, color);
+				};
+
+				for (int i = 0; i < ROOM_MAP_SIZE; i++)
+					drawWallPixel(x * ROOM_MAP_SIZE + i, y * ROOM_MAP_SIZE);
+
+				for (int i = 0; i < ROOM_MAP_SIZE; i++)
+					drawWallPixel(x * ROOM_MAP_SIZE + i, (y + 1) * ROOM_MAP_SIZE -1);
+
+				for (int i = 0; i < ROOM_MAP_SIZE; i++)
+					drawWallPixel(x * ROOM_MAP_SIZE, y * ROOM_MAP_SIZE + i);
+
+				for (int i = 0; i < ROOM_MAP_SIZE; i++)
+					drawWallPixel((x + 1) * ROOM_MAP_SIZE - 1, y * ROOM_MAP_SIZE + i);
+
+				// Center of room
+				SDL_Rect rect = {x * ROOM_MAP_SIZE + 1, y * ROOM_MAP_SIZE + 1, ROOM_MAP_SIZE - 2, ROOM_MAP_SIZE - 2};
+				rect.x *= 2; rect.y *= 2; rect.w *= 2; rect.h *= 2;
+				SDL_FillRect(map, &rect, SDL_MapRGB(map->format, 0x3F, 0x3F, 0x3F));
+			} else {
+				printf("|      ");
+				SDL_Rect rect{x * ROOM_MAP_SIZE, y * ROOM_MAP_SIZE, ROOM_MAP_SIZE, ROOM_MAP_SIZE};
+				rect.x *= 2; rect.y *= 2; rect.w *= 2; rect.h *= 2;
+				SDL_FillRect(map, &rect, SDL_MapRGB(map->format, 0, 0, 0));
+			}
+		}
+		printf("|\n");
+	}
+
+
+	SDL_SaveBMP(map, "map.bmp");
+	SDL_FreeSurface(map);
+
 	/* markDead(world::rootID, false);
 	{
 		FILE* fp = fopen("tree.dot", "w");
@@ -337,9 +407,24 @@ void GameServer::start() {
 		fclose(fp);
 	}
 	removeRelations(world::rootID);*/
-	_deadSystem.tick(0);
 
-	printf("Room count: %zu\n", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size());
+}
+#ifdef __linux__
+#include <unistd.h>
+#elif defined(_WIN32)
+#include <windows.h>
+#else
+#error DERP;
+#endif
+
+static void mySleep(int sleepMs) {
+#ifdef __linux__
+    usleep(sleepMs * 1000);   // usleep takes sleep time in us (1 millionth of a second)
+#elif defined(_WIN32)
+    Sleep(sleepMs);
+#else
+#error DERP;
+#endif
 }
 
 void GameServer::run() {
@@ -373,10 +458,11 @@ void GameServer::run() {
 	//Send updated world to clients
 	{
 		_packetDelay += delta;
-		if (_packetDelay >= 1.0f/30.0f) {
+		/*if (_packetDelay >= 1.0f/30.0f)*/ {
 			this->_sendWorld();
 			_packetDelay = 0;
 		}
+		mySleep(1000/30);
 	}
 }
 

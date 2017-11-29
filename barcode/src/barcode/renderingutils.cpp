@@ -106,7 +106,7 @@ namespace Barcode {
 		_ssaoBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/ssao.vert", "", "assets/shaders/ssao.frag", size / 2);
 		_ssaoBatch.output->addTexture(0, Hydra::Renderer::TextureType::f16R).finalize();
 		_ssaoBlurBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/ssaoblur.vert", "", "assets/shaders/ssaoblur.frag", size/2);
-		_ssaoBatch.output->addTexture(0, Hydra::Renderer::TextureType::f16R).finalize();
+		_ssaoBlurBatch.output->addTexture(0, Hydra::Renderer::TextureType::f16R).finalize();
 
 		constexpr size_t kernelSize = 16;
 		constexpr size_t noiseSize = 4;
@@ -256,13 +256,15 @@ namespace Barcode {
 			_lightingBatch.pipeline->setValue(8, MenuState::ssaoEnabled);
 			auto& lights = Hydra::Component::PointLightComponent::componentHandler->getActiveComponents();
 
-			_lightingBatch.pipeline->setValue(9, (int)(lights.size()));
+			const int MAX_LIGHTS = 12;
+			_lightingBatch.pipeline->setValue(9, std::min((int)lights.size(), MAX_LIGHTS));
 			_lightingBatch.pipeline->setValue(10, dirLight.getDirVec());
 			_lightingBatch.pipeline->setValue(11, dirLight.color);
 
 
 			// good code lmao XD
 			int i = 12;
+			size_t lightCount = 0;
 			for (auto& p : lights) {
 				auto pc = static_cast<Hydra::Component::PointLightComponent*>(p.get());
 				_lightingBatch.pipeline->setValue(i++, pc->getTransformComponent()->position);
@@ -270,6 +272,8 @@ namespace Barcode {
 				_lightingBatch.pipeline->setValue(i++, pc->constant);
 				_lightingBatch.pipeline->setValue(i++, pc->linear);
 				_lightingBatch.pipeline->setValue(i++, pc->quadratic);
+				if (i++ >= MAX_LIGHTS)
+					break;
 			}
 
 			(*_geometryBatch.output)[0]->bind(0);

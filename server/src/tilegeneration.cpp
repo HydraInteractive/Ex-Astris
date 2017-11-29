@@ -22,15 +22,16 @@ TileGeneration::TileGeneration(const std::string& middleRoomPath) {
 }
 
 TileGeneration::~TileGeneration() {
-	for (int i = 0; i < WORLD_MAP_SIZE; i++)
-	{
+	for (size_t x = 0; x < ROOM_GRID_SIZE; x++)
+		for (size_t y = 0; y < ROOM_GRID_SIZE; y++)
+			roomGrid[x][y].reset();
+
+	for (size_t i = 0; i < WORLD_MAP_SIZE; i++)
 		delete[] pathfindingMap[i];
-	}
 	delete[] pathfindingMap;
 }
 
-bool** TileGeneration::buildMap()
-{
+bool** TileGeneration::buildMap() {
 	_createMapRecursivly(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2));
 	return pathfindingMap;
 }
