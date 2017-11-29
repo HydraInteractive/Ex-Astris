@@ -48,12 +48,11 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 	//or we will go otuside the tile grid
 	
 	
-	if (roomGrid[pos.x][pos.y]->door[NORTH] && roomGrid[pos.x][pos.y + 1] == nullptr)
-	{
+	if (roomGrid[pos.x][pos.y]->door[NORTH] && roomGrid[pos.x][pos.y + 1] == nullptr) {
 		bool placed = false;
 		//Load all rooms and see if any of them fits
 		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
-
+			 
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
 			auto loadedRoom = world::newEntity("Room", world::root());
@@ -63,8 +62,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			glm::quat rotation = _rotateRoom(roomC);
 
 			if (roomC->door[SOUTH] == true) {
-				if (_checkAdjacents(pos.x, pos.y + 1, roomC))
-				{
+				if (_checkAdjacents(pos.x, pos.y + 1, roomC)) {
 					placed = true;
 					auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 					t->position = _gridToWorld(pos.x, pos.y + 1);
@@ -96,8 +94,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 		}
 	}
 
-	if (roomGrid[pos.x][pos.y]->door[WEST] && roomGrid[pos.x + 1][pos.y] == nullptr)
-	{
+	if (roomGrid[pos.x][pos.y]->door[WEST] && roomGrid[pos.x + 1][pos.y] == nullptr) {
 		bool placed = false;
 		//Load all rooms and see if any of them fits
 		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
@@ -111,8 +108,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			glm::quat rotation = _rotateRoom(roomC);
 
 			if (roomC->door[EAST] == true) {
-				if (_checkAdjacents(pos.x + 1, pos.y, roomC))
-				{
+				if (_checkAdjacents(pos.x + 1, pos.y, roomC)) {
 					placed = true;
 					auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 					t->position = _gridToWorld(pos.x + 1, pos.y);
@@ -144,8 +140,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 		}
 	}
 
-	if (roomGrid[pos.x][pos.y]->door[SOUTH] && roomGrid[pos.x][pos.y - 1] == nullptr)
-	{
+	if (roomGrid[pos.x][pos.y]->door[SOUTH] && roomGrid[pos.x][pos.y - 1] == nullptr) {
 		bool placed = false;
 		//Load all rooms and see if any of them fits
 		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
@@ -159,8 +154,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			glm::quat rotation = _rotateRoom(roomC);
 
 			if (roomC->door[NORTH] == true) {
-				if (_checkAdjacents(pos.x, pos.y - 1, roomC))
-				{
+				if (_checkAdjacents(pos.x, pos.y - 1, roomC)) {
 					placed = true;
 					auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 					t->position = _gridToWorld(pos.x, pos.y - 1);
@@ -192,8 +186,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 		}
 	}
 
-	if (roomGrid[pos.x][pos.y]->door[EAST] && roomGrid[pos.x - 1][pos.y] == nullptr)
-	{
+	if (roomGrid[pos.x][pos.y]->door[EAST] && roomGrid[pos.x - 1][pos.y] == nullptr) {
 		bool placed = false;
 		//Load all rooms and see if any of them fits
 		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
@@ -207,8 +200,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			glm::quat rotation = _rotateRoom(roomC);
 
 			if (roomC->door[WEST] == true) {
-				if (_checkAdjacents(pos.x - 1, pos.y, roomC))
-				{
+				if (_checkAdjacents(pos.x - 1, pos.y, roomC)) {
 					placed = true;
 					auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 					t->position = _gridToWorld(pos.x - 1, pos.y);
@@ -275,8 +267,16 @@ void TileGeneration::_obtainRoomFiles() {
 	_roomFileNames.push_back(path + "centralRoomPipes.room");
 	_roomFileNames.push_back(path + "fourwayRoom.room");
 	_roomFileNames.push_back(path + "starterRoom.room");
+	_roomFileNames.push_back(path + "trashedComputerRoom.room");
 	_roomFileNames.push_back(path + "tryTree.room");
 	_roomFileNames.push_back(path + "tryTwo.room");
+	_roomFileNames.push_back(path + "PipeRoom.room");
+	_roomFileNames.push_back(path + "BlockedStairs.room");
+	_roomFileNames.push_back(path + "CozyRoom1.room");
+	_roomFileNames.push_back(path + "GeneratonInTheMiddle.room");
+	_roomFileNames.push_back(path + "PlantNTableRoom.room");
+
+
 
 	_randomizeRooms();
 
@@ -309,13 +309,21 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 		a->behaviour->setPathMap(pathfindingMap);
 		a->damage = 4;
-		a->behaviour->originalRange = 4;
+		a->behaviour->originalRange = 4.0f;
 		a->radius = 1;
+
 
 		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 		h->maxHP = 80;
-
 		h->health = 80;
+
+		auto w = alienEntity->addComponent<Hydra::Component::WeaponComponent>();
+		w->bulletSpread = 0.2f;
+		w->bulletsPerShot = 1;
+		w->damage = 4;
+		w->maxmagammo = 100000000;
+		w->currmagammo = 100000000;
+		w->maxammo = 100000000;
 
 		auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
 		m->movementSpeed = 5.0f;
@@ -327,9 +335,10 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		t->scale = glm::vec3{ 1,1,1 };
 
 		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.5, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+		rgbc->setAngularForce(glm::vec3(0));
 	}
 	
 	for (int i = 0; i < randomFastAliens; i++) {
@@ -337,10 +346,22 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienFastModel.mATTIC");
 		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+		a->behaviour->setPathMap(pathfindingMap);
+		a->damage = 4;
+		a->behaviour->originalRange = 4.0f;
+		a->radius = 1;
 
 		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 		h->maxHP = 60;
 		h->health = 60;
+
+		auto w = alienEntity->addComponent<Hydra::Component::WeaponComponent>();
+		w->bulletSpread = 0.2f;
+		w->bulletsPerShot = 1;
+		w->damage = 4;
+		w->maxmagammo = 1000000000;
+		w->currmagammo = 1000000000;
+		w->maxammo = 1000000000;
 
 		auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
 		m->movementSpeed = 10.0f;
@@ -352,7 +373,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		t->scale = glm::vec3{ 1,1,1 };
 
 		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.5, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
