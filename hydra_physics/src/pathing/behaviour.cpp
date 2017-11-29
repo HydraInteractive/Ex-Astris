@@ -204,9 +204,10 @@ void Behaviour::executeTransforms()
 {
 	//Line of sight check
 	//If AI dont have vision to shoot at player, move closer
-	auto callback = static_cast<btCollisionWorld::ClosestRayResultCallback*>(static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->rayTestFromTo(glm::vec3(thisEnemy.transform->position.x, thisEnemy.transform->position.y+1.8, thisEnemy.transform->position.z), targetPlayer.transform->position));
-	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 50.0f)
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 40.0f)
 	{
+		auto callback = static_cast<btCollisionWorld::ClosestRayResultCallback*>(static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->rayTestFromTo(glm::vec3(thisEnemy.transform->position.x, thisEnemy.transform->position.y + 1.8, thisEnemy.transform->position.z), targetPlayer.transform->position));
+
 		if (targetPlayer.transform->position.y < 4.5f)
 		{
 			if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_WALL)
@@ -226,6 +227,7 @@ void Behaviour::executeTransforms()
 				range = originalRange;
 			}
 		}
+		delete callback;
 	}
 	else
 	{
@@ -240,7 +242,6 @@ void Behaviour::executeTransforms()
 	rigidBody->setLinearVelocity(btVector3(movementForce.x, rigidBody->getLinearVelocity().y(), movementForce.z));
 	
 	thisEnemy.transform->setRotation(rotation);
-	delete callback;
 }
 
 void Behaviour::resetAnimationOnStart(int animationIndex) {
