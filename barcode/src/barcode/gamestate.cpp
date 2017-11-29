@@ -54,8 +54,6 @@ namespace Barcode {
 			return;
 		}
 
-		ImGui::Text("Loaded rooms: %zu", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size());
-
 		{
 			static std::vector<std::shared_ptr<Entity>> _enemies;
 			world::getEntitiesWithComponents<Hydra::Component::AIComponent, Hydra::Component::LifeComponent>(_enemies);
@@ -129,10 +127,10 @@ namespace Barcode {
 
 
 		static bool enableHitboxDebug = true;
-		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
+/*		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
 		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
 		ImGui::Checkbox("Enable SSAO", &MenuState::ssaoEnabled);
-		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);
+		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);*/
 
 		const glm::vec3& cameraPos = _playerTransform->position;
 		auto viewMatrix = _cc->getViewMatrix();
@@ -431,7 +429,7 @@ namespace Barcode {
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(0, 0, 0);
 			auto rgbc = floor->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL
+			rgbc->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_FLOOR
 				, 0, 0, 0, 0.6f, 0);
 			//floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 
@@ -453,9 +451,10 @@ namespace Barcode {
 			auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
 			textStuff->setText("\x01Perk picked up\x02");
 			textStuff->isStatic = true;
-		}
+		} 
 		{
 			//Remove this to gain frames like never before
+
 			tileGen = new TileGeneration("assets/room/PlantNTableRoom.room");
 			pathfindingMap = tileGen->buildMap();
 		}
@@ -470,7 +469,7 @@ namespace Barcode {
 			auto perks = playerEntity->addComponent<Hydra::Component::PerkComponent>();
 			h->health = h->maxHP = 100.0f * MenuState::playerHPMultiplier;
 			prevHP = h->health;
-			m->movementSpeed = 300.0f;
+			m->movementSpeed = 250.0f;
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(-10, 0, -10);
 			_playerTransform = t.get();

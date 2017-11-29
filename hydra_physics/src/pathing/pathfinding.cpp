@@ -28,7 +28,7 @@ PathFinding::~PathFinding() {
 	delete _endNode;
 }
 
-bool PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetPos)
+bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 {
 	if (map == nullptr)
 		return false;
@@ -37,11 +37,25 @@ bool PathFinding::findPath(const glm::vec3& currentPos, const glm::vec3& targetP
 	_visitedList.clear();
 	pathToEnd.clear();
 
+	if (targetPos.y < 4.6f)
+	{
+		if (inWall(targetPos))
+		{
+			targetPos = findViableTile(targetPos);
+		}
+	}
+
+	if (inWall(currentPos))
+	{
+		currentPos = findViableTile(currentPos);
+	}
+
 	MapVec mapCurrentPos = worldToMapCoords(currentPos);
 	MapVec mapTargetPos = worldToMapCoords(targetPos);
 	//If either position is out of bounds, abort
 	if (isOutOfBounds(mapCurrentPos.baseVec) || isOutOfBounds(mapTargetPos.baseVec))
 		return false;
+
 	//If the player is in line of sight don't path just go straight
 	//if (_inLineOfSight(mapCurrentPos,mapTargetPos))
 	//	pathToEnd.push_back(targetPos);
@@ -132,7 +146,69 @@ bool PathFinding::inLineOfSight(const glm::vec3& enemyPos, const glm::vec3& play
 	MapVec p = worldToMapCoords(playerPos);
 	return _inLineOfSight(e, p);
 }
-bool PathFinding::_inLineOfSight(const MapVec& enemyPos, const MapVec& playerPos) const
+
+bool PathFinding::lineOfSight3D(const glm::vec3 enemyPos, const glm::vec3 targetPos) const
+{
+
+	return false;
+}
+
+bool PathFinding::inWall(const glm::vec3 mapPos) const
+{
+	MapVec p = worldToMapCoords(mapPos);
+	glm::ivec2& vec = p.baseVec;
+	if (map[vec.x][vec.y] == 0)
+	{
+		return true;
+	}
+	return false;
+}
+
+glm::vec3 PathFinding::findViableTile(glm::vec3 mapPos) const
+{
+	MapVec p = worldToMapCoords(mapPos);
+	glm::ivec2& vec = p.baseVec;
+
+	for (int i = 0; i < 3; i++)
+	{
+		if (map[vec.x + i][vec.y] == 1)
+		{
+			return glm::vec3(mapPos.x + i, mapPos.y, mapPos.z);
+		}
+		else if (map[vec.x][vec.y + i] == 1)
+		{
+			return glm::vec3(mapPos.x, mapPos.y, mapPos.z + i);
+		}
+		else if (map[vec.x - i][vec.y] == 1)
+		{
+			return glm::vec3(mapPos.x - i, mapPos.y, mapPos.z);
+		}
+		else if (map[vec.x][vec.y - i] == 1)
+		{
+			return glm::vec3(mapPos.x + 1, mapPos.y, mapPos.z - i);
+		}
+		else if (map[vec.x + i][vec.y + i] == 1)
+		{
+			return glm::vec3(mapPos.x + i, mapPos.y, mapPos.z + i);
+		}
+		else if (map[vec.x - i][vec.y + i] == 1)
+		{
+			return glm::vec3(mapPos.x - i, mapPos.y, mapPos.z + i);
+		}
+		else if (map[vec.x - i][vec.y - i] == 1)
+		{
+			return glm::vec3(mapPos.x - i, mapPos.y, mapPos.z - i);
+		}
+		else if (map[vec.x + i][vec.y - i] == 1)
+		{
+			return glm::vec3(mapPos.x + i, mapPos.y, mapPos.z - i);
+		}
+	}
+
+	return mapPos;
+}
+
+bool PathFinding::_inLineOfSight(const MapVec enemyPos, const MapVec playerPos) const
 {
 	glm::vec2 dir = playerPos.baseVec - enemyPos.baseVec;
 	float distance = dir.length();
@@ -148,6 +224,13 @@ bool PathFinding::_inLineOfSight(const MapVec& enemyPos, const MapVec& playerPos
 	}
 	return true;
 }
+
+bool PathFinding::_lineOfSight3D(const MapVec enemyPos, const MapVec playerPos) const
+{
+
+	return false;
+}
+
 
 void PathFinding::_discoverNode(int x, int z, Node* lastNode)
 {

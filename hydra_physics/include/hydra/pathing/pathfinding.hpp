@@ -90,10 +90,14 @@ public:
 	PathFinding();
 	virtual ~PathFinding();
 
-	bool findPath(const glm::vec3& currentPos, const glm::vec3& targetPos);
+	bool findPath(glm::vec3 currentPos, glm::vec3 targetPos);
 	MapVec worldToMapCoords(const glm::vec3& worldPos) const;
 	glm::vec3 mapToWorldCoords(const MapVec& mapPos) const;
-	bool inLineOfSight(const glm::vec3& enemyPos, const glm::vec3& playerPos) const;
+	bool inLineOfSight(const glm::vec3& enemyPos, const glm::vec3& targetPos) const;
+	bool lineOfSight3D(const glm::vec3 enemyPos, const glm::vec3 targetPos) const;
+	bool inWall(const glm::vec3 mapPos) const;
+	glm::vec3 findViableTile(glm::vec3 mapPos) const;
+
 
 	struct {
 		bool operator()(const Node* _Left, const Node* _Right) const
@@ -117,6 +121,7 @@ private:
 	Node* _endNode = nullptr;
 
 	bool isOutOfBounds(const glm::ivec2& vec) const;
+	bool _inLineOfSight(const MapVec enemyPos, const MapVec playerPos) const;
+	bool _lineOfSight3D(const MapVec enemyPos, const MapVec playerPos) const;
 	void _discoverNode(int x, int z, Node* lastNode);
-	bool _inLineOfSight(const MapVec& enemyPos, const MapVec& playerPos) const;
 };
