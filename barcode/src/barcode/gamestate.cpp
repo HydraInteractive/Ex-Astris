@@ -400,6 +400,13 @@ namespace Barcode {
 					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/lS1.png")->getID()), ImVec2(windowSize.x, windowSize.y/*1280, 720*/));
 					break;
 				case 1:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/lS1.png")->getID()), ImVec2(windowSize.x, windowSize.y/*1280, 720*/));
+					break;
+				case 2:
+
+					break;
+				case 3:
+
 					break;
 				}
 				

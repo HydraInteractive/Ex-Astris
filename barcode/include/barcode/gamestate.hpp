@@ -100,6 +100,7 @@ namespace Barcode {
 		Hydra::Component::TransformComponent* _playerTransform = nullptr;
 
 		float prevHP, hpTimeUp = 0;
+		int  lCPicture = 0;
 		TileGeneration* tileGen;
 		bool** pathfindingMap = nullptr;
 
