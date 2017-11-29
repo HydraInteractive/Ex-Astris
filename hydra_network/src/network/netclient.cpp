@@ -177,9 +177,21 @@ void NetClient::_updateWorld(Packet * updatePacket) {
 		for (size_t i = 0; i < children.size(); i++) {
 			if (children[i] == _IDs[((ServerUpdatePacket::EntUpdate&)sup->data[k]).entityid]) {
 				tc = world::getEntity(children[i])->getComponent<Hydra::Component::TransformComponent>().get();
-				tc->position = { ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.x, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.y - 2, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.z };
-				tc->setRotation(((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.rot);
-				tc->setScale(((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.scale);
+				if (tc) {
+					tc->position = { ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.x, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.y - 2, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.z };
+					tc->setRotation(((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.rot);
+					tc->setScale(((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.scale);
+				}
+				else {
+					auto entity = world::newEntity("ERROR: NETWORK ENTITY UNKOWN", world::root());
+					auto mesh = entity->addComponent<Hydra::Component::MeshComponent>().get();
+					mesh->meshFile = "assets/objects/characters/AlienModel.mATTIC";
+					tc = entity->addComponent<Hydra::Component::TransformComponent>().get();
+					tc->position = { ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.x, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.y - 2, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.z };
+					tc->setRotation(((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.rot);
+					tc->setScale(((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.scale);
+
+				}
 				break;
 			}
 		}

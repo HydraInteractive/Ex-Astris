@@ -2,6 +2,7 @@
 #include <server/packets.hpp>
 #include <hydra/component/transformcomponent.hpp>
 #include <server/tilegeneration.hpp>
+#include <hydra/component/movementcomponent.hpp>
 #include <iostream>
 #include <chrono>
 #include <thread>
@@ -198,6 +199,9 @@ bool GameServer::_addPlayer(int id) {
 
 
 		Hydra::Component::TransformComponent* tc = enttmp->addComponent<Hydra::Component::TransformComponent>(/*pi.ti.pos, pi.ti.scale, pi.ti.rot*/).get();
+		auto life = enttmp->addComponent<Hydra::Component::LifeComponent>().get();
+		life->maxHP = 100;
+		life->health = 100;
 		tc->setPosition(pi.ti.pos);
 		tc->setScale(pi.ti.scale);
 		tc->setRotation(pi.ti.rot);
@@ -330,7 +334,10 @@ void GameServer::start() {
 	auto mesh = tmp->addComponent<Hydra::Component::MeshComponent>();
 	tmp->addComponent<Hydra::Component::TransformComponent>();
 	tmp->addComponent<Hydra::Component::LifeComponent>();
+	tmp->addComponent<Hydra::Component::MovementComponent>();
 	auto ai = tmp->addComponent<Hydra::Component::AIComponent>();
+	auto rgb = tmp->addComponent<Hydra::Component::RigidBodyComponent>();
+	rgb->createBox(glm::vec3(1,1,1), glm::vec3(0,0,0));
 	mesh->meshFile = "assets/models/Alien.MATTIC";
 	this->_networkEntities.push_back(tmp->id);
 
@@ -359,6 +366,24 @@ void GameServer::run() {
 	//Update World
 	{
 		this->_physicsSystem->tick(delta);
+		std::vector<std::shared_ptr<Entity>> ents;
+		world::getEntitiesWithComponents<Hydra::Component::AIComponent>(ents);
+		for (size_t k = 0; k < ents.size(); k++) {
+			TransformComponent* ptc = ents[k]->getComponent<TransformComponent>().get();
+			float distance = 2000000.f;
+			int target = -1;
+			for (size_t i = 0; i < this->_players.size(); i++) {
+				TransformComponent* tc = world::getEntity(this->_players[i]->entityid)->getComponent<TransformComponent>().get();
+				float f = glm::distance(ptc->position, tc->position);
+				if (f < distance) {
+					target = i;
+				}
+			}
+			auto ai = ents[k]->getComponent<AIComponent>().get();
+			if (target != -1) {
+				ai->behaviour->setTargetPlayer(world::getEntity(this->_players[target]->entityid));
+			}
+		}
 		_aiSystem->tick(delta);
 		_bulletSystem->tick(delta);
 		////_abilitySystem.tick(delta);
