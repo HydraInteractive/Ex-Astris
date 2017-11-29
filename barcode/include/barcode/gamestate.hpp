@@ -62,6 +62,7 @@ namespace Barcode {
 		void load() final;
 		int currentFrame = 0;
 		void runFrame(float delta) final;
+		bool showLoadingScreen = false;
 
 		inline Hydra::IO::ITextureLoader* getTextureLoader() final { return _textureLoader.get(); }
 		inline Hydra::IO::IMeshLoader* getMeshLoader() final { return _meshLoader.get(); }
@@ -102,6 +103,7 @@ namespace Barcode {
 
 		float _prevHP = 1;
 		float _hpTimeUp = 0;
+		int  lCPicture = 0;
 
 		void _initSystem();
 		void _initWorld();

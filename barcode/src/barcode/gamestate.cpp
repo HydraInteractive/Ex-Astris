@@ -52,7 +52,8 @@ namespace Barcode {
 		_initWorld();
 	}
 
-	GameState::~GameState() {}
+	GameState::~GameState() { }
+
 	void GameState::onMainMenu() { }
 
 	void GameState::runFrame(float delta) {
@@ -224,7 +225,7 @@ namespace Barcode {
 					ImGui::SetNextWindowPos(ImVec2(0, 0));
 					ImGui::SetNextWindowSize(ImVec2(1920, 1080));
 					ImGui::Begin("DamageBleed", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoInputs);
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/blood.png")->getID()), ImVec2(1920, 1080), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1,1,1, _hpTimeUp));
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/blood.png")->getID()), ImVec2(_engine->getView()->getSize().x, _engine->getView()->getSize().y), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1,1,1, _hpTimeUp));
 					ImGui::End();
 				}	else {
 					_prevHP = hpP;
@@ -317,8 +318,18 @@ namespace Barcode {
 			}
 
 			//Dynamic cooldown dots
-			size_t amountOfActives = 3;
-			int coolDownList[64] = { 5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5 };
+			auto perk = Hydra::World::World::getEntity(_playerID)->getComponent<PerkComponent>();
+
+			size_t amountOfActives = perk->activeAbilities.size();
+			
+			int *coolDownList = new int[perk->activeAbilities.size()];
+
+			int step = 0;
+			for each (auto usable in perk->activeAbilities)
+			{
+				coolDownList[step++] = usable->cooldown;
+			}
+			/*{ perk->activeAbilities[0]->cooldown ,5,5,5,5,5,5,5,5,5 };*/
 			float pForEatchDot = float(1) / float(amountOfActives);
 			float stepSize = float(70) * pForEatchDot;
 			for (size_t i = 0; i < amountOfActives; i++)
@@ -345,19 +356,77 @@ namespace Barcode {
 
 				ImGui::End();
 			}
+			delete [] coolDownList;
 
+			//Perk Icons
+			size_t amountOfPerks = perk->activePerks.size();
+			for (size_t i = 0; i < amountOfPerks; i++)
+			{
+				char buf[128];
+				snprintf(buf, sizeof(buf), "Perk%lu", i);
+				//Hydra::Component::PerkComponent::PERK_DMGUPSIZEUP;
+				int xOffset = (-10 * amountOfPerks) + (20 * (i + 1));
+				ImGui::SetNextWindowPos(ImVec2(5 + xOffset + pos.x, 240 + pos.y));
+				ImGui::SetNextWindowSize(ImVec2(20, 20));
+				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+				switch (perk->activePerks[i])
+				{
+				default:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/BulletVelocity.png")->getID()), ImVec2(20, 20));
+					break;
+				case Hydra::Component::PerkComponent::PERK_DMGUPSIZEUP:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/BulletVelocity.png")->getID()), ImVec2(20, 20));
+					break;
+				case Hydra::Component::PerkComponent::PERK_GRENADE:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/DamageUpgrade.png")->getID()), ImVec2(20, 20));
+					break;
+				case Hydra::Component::PerkComponent::PERK_MINE:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Healing.png")->getID()), ImVec2(20, 20));
+					break;
+				case Hydra::Component::PerkComponent::PERK_BULLETSPRAY:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
+					break;
+				case Hydra::Component::PerkComponent::PERK_SPEEDUP:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
+					break;
+				case Hydra::Component::PerkComponent::PERK_FASTSHOWLOWDMG:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
+					break;
+				}
+
+				ImGui::End();
+			}
+
+			// Loading screen
+			if (showLoadingScreen == true)
+			{
+				ImGui::SetNextWindowPos(ImVec2(0, 0));
+				ImGui::SetNextWindowSize(ImVec2(windowSize.x, windowSize.y/*1280, 720*/));
+				ImGui::Begin("LoadingScreen", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+				switch (lCPicture)
+				{
+				default:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/lS1.png")->getID()), ImVec2(windowSize.x, windowSize.y/*1280, 720*/));
+					break;
+				case 1:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/lS1.png")->getID()), ImVec2(windowSize.x, windowSize.y/*1280, 720*/));
+					break;
+				case 2:
+
+					break;
+				case 3:
+
+					break;
+				}
+				
+				ImGui::End();
+			}
 			ImGui::PopStyleColor();
 			ImGui::PopStyleVar();
 			ImGui::PopStyleVar();
 
-		}
-
-
-		{ // Sync with network
-
 			if (Hydra::Network::NetClient::running)
 				Hydra::Network::NetClient::run();
-		  // _world->tick(TickAction::network, delta);
 		}
 	}
 
@@ -373,9 +442,10 @@ namespace Barcode {
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(0, 0, 0);
 			auto rgbc = floor->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL
+			rgbc->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_FLOOR
 				, 0, 0, 0, 0.6f, 0);
 			//floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
+
 		}
 
 		{
@@ -387,14 +457,14 @@ namespace Barcode {
 			auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-
+			 
 			auto pickupText = world::newEntity("Textpickup", world::root());
 			pickupText->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
 			pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
 			auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
 			textStuff->setText("\x01Perk picked up\x02");
 			textStuff->isStatic = true;
-		}
+		} 
 
 		{
 			if (Hydra::Network::NetClient::initialize(addr, port)) {
@@ -411,7 +481,7 @@ namespace Barcode {
 			auto perks = playerEntity->addComponent<Hydra::Component::PerkComponent>();
 			h->health = h->maxHP = 100.0f * MenuState::playerHPMultiplier;
 			_prevHP = h->health;
-			m->movementSpeed = 300.0f;
+			m->movementSpeed = 250.0f;
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(-10, 0, -10);
 			_playerTransform = t.get();
