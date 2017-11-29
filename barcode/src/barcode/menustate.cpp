@@ -33,6 +33,8 @@ namespace Barcode {
 	static constexpr ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse;
 
 	void MenuState::runFrame(float delta) {
+		auto windowSize = _engine->getView()->getSize();
+
 		oneTenthX = _engine->getView()->getSize().x / 10;
 		oneThirdX = _engine->getView()->getSize().x / 3;
 		oneEightY = _engine->getView()->getSize().y / 8;
@@ -48,7 +50,7 @@ namespace Barcode {
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0));
 
 		ImGui::SetNextWindowPos(ImVec2(0, 0));
-		ImGui::SetNextWindowSize(ImVec2(1920, 1200)); //TODO: FIX
+		ImGui::SetNextWindowSize(ImVec2(windowSize.x, windowSize.y/*1920, 1200*/)); //TODO: FIX
 		ImGui::Begin("Background", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
 		ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/menuScreenBackgroundBig.png")->getID()), ImVec2(1920, 1200));
 		ImGui::End();
