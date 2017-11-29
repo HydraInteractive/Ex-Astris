@@ -263,7 +263,7 @@ void TileGeneration::_obtainRoomFiles() {
 	//for (auto & p : std::experimental::filesystem::directory_iterator(path)) {
 	//	_roomFileNames.push_back(p.path().string());
 	//}
-
+	
 	_roomFileNames.push_back(path + "centralRoomPipes.room");
 	_roomFileNames.push_back(path + "fourwayRoom.room");
 	_roomFileNames.push_back(path + "starterRoom.room");
@@ -275,8 +275,7 @@ void TileGeneration::_obtainRoomFiles() {
 	_roomFileNames.push_back(path + "GeneratonInTheMiddle.room");
 	_roomFileNames.push_back(path + "PlantNTableRoom.room");
 	_roomFileNames.push_back(path + "PipesInTheMiddle.room");
-
-
+	_roomFileNames.push_back(path + "SmallShelfRoom.room");
 
 	_randomizeRooms();
 
