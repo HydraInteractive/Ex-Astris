@@ -274,6 +274,7 @@ void TileGeneration::_obtainRoomFiles() {
 	_roomFileNames.push_back(path + "CozyRoom1.room");
 	_roomFileNames.push_back(path + "GeneratonInTheMiddle.room");
 	_roomFileNames.push_back(path + "PlantNTableRoom.room");
+	_roomFileNames.push_back(path + "PipesInTheMiddle.room");
 
 
 
