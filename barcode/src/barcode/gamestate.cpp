@@ -396,36 +396,44 @@ namespace Barcode {
 			}
 
 			// Loading screen
-			if (showLoadingScreen == true)
-			{
+			if (showLoadingScreen == true && timer > 0) {
+				timer -= delta;
+				 
 				ImGui::SetNextWindowPos(ImVec2(0, 0));
 				ImGui::SetNextWindowSize(ImVec2(windowSize.x, windowSize.y/*1280, 720*/));
 				ImGui::Begin("LoadingScreen", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 				switch (lCPicture)
-				{
-				default:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/lS1.png")->getID()), ImVec2(windowSize.x, windowSize.y/*1280, 720*/));
-					break;
-				case 1:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/lS1.png")->getID()), ImVec2(windowSize.x, windowSize.y/*1280, 720*/));
-					break;
-				case 2:
+					{
+					default:
+						ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/lS1.png")->getID()), ImVec2(windowSize.x, windowSize.y/*1280, 720*/));
+						break;
+					case 1:
+						ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/lS1.png")->getID()), ImVec2(windowSize.x, windowSize.y/*1280, 720*/));
+						break;
+					case 2:
 
-					break;
-				case 3:
+						break;
+					case 3:
 
-					break;
-				}
+						break;
+					}
 				
 				ImGui::End();
 			}
+
 			ImGui::PopStyleColor();
 			ImGui::PopStyleVar();
 			ImGui::PopStyleVar();
-
-			if (Hydra::Network::NetClient::running)
-				Hydra::Network::NetClient::run();
 		}
+
+		if (Hydra::Network::NetClient::running)
+			Hydra::Network::NetClient::run();
+	}
+
+	void GameState::setLC(bool state, float time)
+	{
+		showLoadingScreen = state;
+		timer = time;
 	}
 
 	void GameState::_initSystem() {
@@ -467,7 +475,7 @@ namespace Barcode {
 		{
 			if (Hydra::Network::NetClient::initialize(addr, port)) {
 				//show feedback?
-			}
+		}
 			auto playerEntity = world::newEntity("Player", world::root());
 			_playerID = playerEntity->id;
 			auto p = playerEntity->addComponent<Hydra::Component::PlayerComponent>();

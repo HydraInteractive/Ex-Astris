@@ -82,9 +82,10 @@ namespace Barcode {
 			.addTexture(1, Hydra::Renderer::TextureType::u8RGBA) // Diffuse
 			.addTexture(2, Hydra::Renderer::TextureType::f16RGB) // Normal
 			.addTexture(3, Hydra::Renderer::TextureType::f16RGBA) // Light pos
-			.addTexture(4, Hydra::Renderer::TextureType::u8RGB) // Position in view-space
-			.addTexture(5, Hydra::Renderer::TextureType::u8R) // Glow.
-			.addTexture(6, Hydra::Renderer::TextureType::f16Depth) // Depth
+			//.addTexture(4, Hydra::Renderer::TextureType::f16RGB) // Position in view-space
+			.addTexture(4, Hydra::Renderer::TextureType::u8R) // Glow.
+			//.addTexture(5, Hydra::Renderer::TextureType::f16RGB)
+			.addTexture(5, Hydra::Renderer::TextureType::f32Depth) // Depth
 			.finalize();
 		_geometryAnimationBatch = RenderBatch<Hydra::Renderer::AnimationBatch>("assets/shaders/animationGeometry.vert", "assets/shaders/animationGeometry.geom", "assets/shaders/animationGeometry.frag", _geometryBatch);
 		_geometryAnimationBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::none;
@@ -103,16 +104,21 @@ namespace Barcode {
 		_shadowAnimationBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::none;
 
 
-		_ssaoBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/ssao.vert", "", "assets/shaders/ssao.frag", size / 2);
+		_ssaoBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/ssao.vert", "", "assets/shaders/ssao.frag", size);
 		_ssaoBatch.output->addTexture(0, Hydra::Renderer::TextureType::f16R).finalize();
-		_ssaoBlurBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/ssaoblur.vert", "", "assets/shaders/ssaoblur.frag", size/2);
-		_ssaoBlurBatch.output->addTexture(0, Hydra::Renderer::TextureType::f16R).finalize();
+		_ssaoBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::color;
+		_ssaoBatch.batch.clearColor = glm::vec4(0, 0, 0, 1);
 
-		constexpr size_t kernelSize = 16;
+		_ssaoBlurBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/ssaoblur.vert", "", "assets/shaders/ssaoblur.frag", size);
+		_ssaoBlurBatch.output->addTexture(0, Hydra::Renderer::TextureType::f16R).finalize();
+		_ssaoBlurBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::color;
+		_ssaoBlurBatch.batch.clearColor = glm::vec4(0, 0, 0, 1);
+
+		constexpr size_t kernelSize = 4;
 		constexpr size_t noiseSize = 4;
 		auto ssaoKernel = _getSSAOKernel(kernelSize);
 		for (size_t i = 0; i < ssaoKernel.size(); i++)
-			_ssaoBatch.pipeline->setValue(4 + i, ssaoKernel[i]);
+			_ssaoBatch.pipeline->setValue(11 + i, ssaoKernel[i]);
 
 		_ssaoNoise = Hydra::Renderer::GLTexture::createFromData(noiseSize, noiseSize, Hydra::Renderer::TextureType::f32RGB, _getSSAONoise(noiseSize*noiseSize).data());
 
@@ -230,17 +236,33 @@ namespace Barcode {
 		}
 
 		if (MenuState::ssaoEnabled) {
-			_ssaoBatch.pipeline->setValue(0, 0);
+			//static float bias = 0.025f;
+			//static float radius = 0.5f;
+			//ImGui::DragFloat("Bias", &bias, 0.01f);
+			//ImGui::DragFloat("Radius", &radius, 0.01f);
+			//_ssaoBatch.pipeline->setValue(0, 0);
 			_ssaoBatch.pipeline->setValue(1, 1);
 			_ssaoBatch.pipeline->setValue(2, 2);
+			_ssaoBatch.pipeline->setValue(7, 7);
 
 			_ssaoBatch.pipeline->setValue(3, cc.getProjectionMatrix());
+			//_ssaoBatch.pipeline->setValue(4, bias);
+			//_ssaoBatch.pipeline->setValue(5, radius);
+			_ssaoBatch.pipeline->setValue(6, cc.getViewMatrix());
+			_ssaoBatch.pipeline->setValue(8, glm::vec2(_ssaoBatch.output->getSize()));
 
-			(*_geometryBatch.output)[4]->bind(0);
-			(*_geometryBatch.output)[2]->bind(1);
+			(*_geometryBatch.output)[0]->bind(0);
+			//(*_geometryBatch.output)[5]->bind(1);
+			//(*_geometryBatch.output)[7]->bind(7);
 			_ssaoNoise->bind(2);
-
+			_geometryBatch.output->getDepth()->bind(7);
 			_engine->getRenderer()->postProcessing(_ssaoBatch.batch);
+			//_blurUtil.blur((*_ssaoBatch.output)[0], 2, (*_ssaoBatch.output)[0]->getSize());
+
+			_ssaoBlurBatch.pipeline->setValue(0, 0);
+			(*_ssaoBatch.output)[0]->bind(0);
+			_engine->getRenderer()->postProcessing(_ssaoBlurBatch.batch);
+
 		}
 
 		{ // Lighting pass
@@ -260,10 +282,11 @@ namespace Barcode {
 			_lightingBatch.pipeline->setValue(9, std::min((int)lights.size(), MAX_LIGHTS));
 			_lightingBatch.pipeline->setValue(10, dirLight.getDirVec());
 			_lightingBatch.pipeline->setValue(11, dirLight.color);
+			_lightingBatch.pipeline->setValue(12, cc.getProjectionMatrix());
 
 
 			// good code lmao XD
-			int i = 12;
+			int i = 13;
 			size_t lightCount = 0;
 			for (auto& p : lights) {
 				auto pc = static_cast<Hydra::Component::PointLightComponent*>(p.get());
@@ -272,7 +295,7 @@ namespace Barcode {
 				_lightingBatch.pipeline->setValue(i++, pc->constant);
 				_lightingBatch.pipeline->setValue(i++, pc->linear);
 				_lightingBatch.pipeline->setValue(i++, pc->quadratic);
-				if (i++ >= MAX_LIGHTS)
+				if (lightCount++ >= MAX_LIGHTS)
 					break;
 			}
 
@@ -282,8 +305,10 @@ namespace Barcode {
 			(*_geometryBatch.output)[2]->bind(2);
 			(*_geometryBatch.output)[3]->bind(3);
 			_shadowBatch.output->getDepth()->bind(4);
-			(*_ssaoBatch.output)[0]->bind(5);
-			(*_geometryBatch.output)[5]->bind(6);
+			(*_ssaoBlurBatch.output)[0]->bind(5);
+			//(*_ssaoBatch.output)[0]->bind(5);
+			//_blurUtil.getOutput()->bind(5);
+			(*_geometryBatch.output)[4]->bind(6);
 
 			_engine->getRenderer()->postProcessing(_lightingBatch.batch);
 		}
@@ -398,12 +423,14 @@ namespace Barcode {
 		std::vector<glm::vec3> ssaoKernel;
 		ssaoKernel.resize(size);
 		for (size_t i = 0; i < size; i++) {
-			float scale = (float)i / size;
-			scale = 0.1 + (scale * scale) * (1.0 - 0.1);
 			float x = frand() * 2.0 - 1.0;
 			float y = frand() * 2.0 - 1.0;
 			float z = frand();
-			ssaoKernel[i] = glm::normalize(glm::vec3{x, y, z}) * frand() * scale;
+			
+			float scale = (float)i / size;
+			scale = 0.1 + (scale * scale) * (1.0 - 0.1);
+			ssaoKernel[i] = glm::normalize(glm::vec3{ x, y, z });
+			ssaoKernel[i] *= scale * frand();
 		}
 		return ssaoKernel;
 	}
