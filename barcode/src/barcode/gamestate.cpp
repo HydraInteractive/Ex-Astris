@@ -325,10 +325,8 @@ namespace Barcode {
 			int *coolDownList = new int[perk->activeAbilities.size()];
 
 			int step = 0;
-			for each (auto usable in perk->activeAbilities)
-			{
+			for (auto usable : perk->activeAbilities)
 				coolDownList[step++] = usable->cooldown;
-			}
 			/*{ perk->activeAbilities[0]->cooldown ,5,5,5,5,5,5,5,5,5 };*/
 			float pForEatchDot = float(1) / float(amountOfActives);
 			float stepSize = float(70) * pForEatchDot;

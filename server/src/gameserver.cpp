@@ -331,12 +331,13 @@ void GameServer::start() {
 		printf("Room count: %zu\n", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size());
 		if (Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size() > 15)
 			break;
-		printf("\tTarget is >16, redoing generation\n");
+		printf("\tTarget is >= 16, redoing generation\n");
 	}
 	printf ("\tTook %zu tries\n", tries);
 
-	SDL_Surface* map = SDL_CreateRGBSurface(0, WORLD_MAP_SIZE*2, WORLD_MAP_SIZE*2, 32, 0, 0, 0, 0);
-	
+	SDL_Surface* map = SDL_CreateRGBSurface(0, WORLD_MAP_SIZE, WORLD_MAP_SIZE, 32, 0, 0, 0, 0);
+	SDL_FillRect(map, nullptr, SDL_MapRGB(map->format, 0xFF, 0xFF, 0xFF));
+
 	for (size_t x = 0; x < ROOM_GRID_SIZE; x++)
 		printf("|   %zu  ", x);
 	printf("|\n");
@@ -356,9 +357,9 @@ void GameServer::start() {
 
 				auto pfm = _pathfindingMap;
 				auto drawWallPixel = [pfm, map](int x, int y) {
-					SDL_Rect rect{x*2, y*2, 2, 2};
+					SDL_Rect rect{x, y, 1, 1};
 					auto color = SDL_MapRGB(map->format, 0, 0, 0);
-					if (pfm[x][y])
+					if (pfm[x][y] && x > 0 && y > 0 && x < WORLD_MAP_SIZE-1 && y < WORLD_MAP_SIZE-1)
 						color = SDL_MapRGB(map->format, 0, 0xFF, 0xFF);
 					SDL_FillRect(map, &rect, color);
 				};
@@ -377,12 +378,14 @@ void GameServer::start() {
 
 				// Center of room
 				SDL_Rect rect = {x * ROOM_MAP_SIZE + 1, y * ROOM_MAP_SIZE + 1, ROOM_MAP_SIZE - 2, ROOM_MAP_SIZE - 2};
-				rect.x *= 2; rect.y *= 2; rect.w *= 2; rect.h *= 2;
 				SDL_FillRect(map, &rect, SDL_MapRGB(map->format, 0x3F, 0x3F, 0x3F));
+
+				/*for (int i = 0; i < ROOM_MAP_SIZE; i++)
+					for (int j = 0; j < ROOM_MAP_SIZE; j++)
+					drawWallPixel(x * ROOM_MAP_SIZE + i, y * ROOM_MAP_SIZE + j);*/
 			} else {
 				printf("|      ");
 				SDL_Rect rect{x * ROOM_MAP_SIZE, y * ROOM_MAP_SIZE, ROOM_MAP_SIZE, ROOM_MAP_SIZE};
-				rect.x *= 2; rect.y *= 2; rect.w *= 2; rect.h *= 2;
 				SDL_FillRect(map, &rect, SDL_MapRGB(map->format, 0, 0, 0));
 			}
 		}
