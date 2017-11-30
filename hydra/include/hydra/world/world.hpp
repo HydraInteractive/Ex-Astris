@@ -226,13 +226,15 @@ namespace Hydra::World {
 
 		void removeComponent(EntityID entityID) final {
 			const size_t pos = _map[entityID];
-			if (pos != _components.size() - 1) {
+			auto& c = _components[pos];
+			if (c.get() != _components.back().get()) {
 				_map[_components.back()->entityID] = pos;
-				std::swap(_components[pos], _components.back());
+				c.swap(_components.back());
 			}
-
-			_components.pop_back();
+			auto component = _components.back();
 			_map.erase(entityID);
+			_components.pop_back();
+			component.reset();
 		}
 	};
 

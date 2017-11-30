@@ -22,6 +22,7 @@ TileGeneration::TileGeneration(const std::string& middleRoomPath) {
 }
 
 TileGeneration::~TileGeneration() {
+	mapentity->dead = true;
 	for (size_t x = 0; x < ROOM_GRID_SIZE; x++)
 		for (size_t y = 0; y < ROOM_GRID_SIZE; y++)
 			roomGrid[x][y].reset();
@@ -37,12 +38,8 @@ bool** TileGeneration::buildMap() {
 }
 
 void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
-
-	
-	
 	//Random the rooms vector each time we're about to spawn a new room
 	_randomizeRooms();
-
 
 	//Go through all doors in the room of the tile, create a random room
 	//That fits with the door, go through that room and so on, until the next
@@ -50,20 +47,19 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 
 	//Check if yTilePos or xTilePos == 0. If this is true, limit the rooms it can create
 	//or we will go otuside the tile grid
-	
-	
+
 	if (roomGrid[pos.x][pos.y]->door[NORTH] && roomGrid[pos.x][pos.y + 1] == nullptr) {
 		bool placed = false;
 		//Load all rooms and see if any of them fits
-		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
-			 
+		for (size_t i = 0; i < _roomFileNames.size() && placed == false && roomCounter < maxRooms; i++) {
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
 			auto loadedRoom = world::newEntity("Room", mapentity);
 
 			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
-			glm::quat rotation = _rotateRoom(roomC);
+			uint8_t rot;
+			glm::quat rotation = _rotateRoom(roomC, rot);
 
 			if (roomC->door[SOUTH] == true) {
 				if (_checkAdjacents(pos.x, pos.y + 1, roomC)) {
@@ -73,15 +69,14 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 					t->scale = glm::vec3(1, 1, 1);
 					t->rotation = rotation;
 					roomGrid[pos.x][pos.y + 1] = roomC;
-					_insertPathFindingMap(glm::ivec2(pos.x, pos.y + 1));
+					_insertPathFindingMap(glm::ivec2(pos.x, pos.y + 1), rot);
 					//_spawnRandomizedEnemies(t);
-					_roomCounter++;
+					roomCounter++;
 					_createMapRecursivly(glm::ivec2(pos.x, pos.y + 1));
 				}
 				else
 					loadedRoom->dead = true;
-			}			
-			else
+			} else
 				loadedRoom->dead = true;
 		}
 		//If for some reason no room at all fits, spawn a door/rubble/something
@@ -102,7 +97,7 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 	if (roomGrid[pos.x][pos.y]->door[WEST] && roomGrid[pos.x + 1][pos.y] == nullptr) {
 		bool placed = false;
 		//Load all rooms and see if any of them fits
-		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
+		for (size_t i = 0; i < _roomFileNames.size() && placed == false && roomCounter < maxRooms; i++) {
 
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
@@ -110,7 +105,8 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 
 			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
-			glm::quat rotation = _rotateRoom(roomC);
+			uint8_t rot;
+			glm::quat rotation = _rotateRoom(roomC, rot);
 
 			if (roomC->door[EAST] == true) {
 				if (_checkAdjacents(pos.x + 1, pos.y, roomC)) {
@@ -120,9 +116,9 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 					t->scale = glm::vec3(1, 1, 1);
 					t->rotation = rotation;
 					roomGrid[pos.x + 1][pos.y] = roomC;
-					_insertPathFindingMap(glm::ivec2(pos.x + 1, pos.y));
+					_insertPathFindingMap(glm::ivec2(pos.x + 1, pos.y), rot);
 					//_spawnRandomizedEnemies(t);
-					_roomCounter++;
+					roomCounter++;
 					_createMapRecursivly(glm::ivec2(pos.x + 1, pos.y));
 				}
 				else
@@ -149,7 +145,7 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 	if (roomGrid[pos.x][pos.y]->door[SOUTH] && roomGrid[pos.x][pos.y - 1] == nullptr) {
 		bool placed = false;
 		//Load all rooms and see if any of them fits
-		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
+		for (size_t i = 0; i < _roomFileNames.size() && placed == false && roomCounter < maxRooms; i++) {
 
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
@@ -157,7 +153,8 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 
 			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
-			glm::quat rotation = _rotateRoom(roomC);
+			uint8_t rot;
+			glm::quat rotation = _rotateRoom(roomC, rot);
 
 			if (roomC->door[NORTH] == true) {
 				if (_checkAdjacents(pos.x, pos.y - 1, roomC)) {
@@ -167,9 +164,9 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 					t->scale = glm::vec3(1, 1, 1);
 					t->rotation = rotation;
 					roomGrid[pos.x][pos.y - 1] = roomC;
-					_insertPathFindingMap(glm::ivec2(pos.x, pos.y - 1));
+					_insertPathFindingMap(glm::ivec2(pos.x, pos.y - 1), rot);
 					//_spawnRandomizedEnemies(t);
-					_roomCounter++;
+					roomCounter++;
 					_createMapRecursivly(glm::ivec2(pos.x, pos.y - 1));
 				}
 				else
@@ -196,15 +193,15 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 	if (roomGrid[pos.x][pos.y]->door[EAST] && roomGrid[pos.x - 1][pos.y] == nullptr) {
 		bool placed = false;
 		//Load all rooms and see if any of them fits
-		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
-
+		for (size_t i = 0; i < _roomFileNames.size() && placed == false && roomCounter < maxRooms; i++) {
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
 			std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", mapentity);
 
 			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
 			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
-			glm::quat rotation = _rotateRoom(roomC);
+			uint8_t rot;
+			glm::quat rotation = _rotateRoom(roomC, rot);
 
 			if (roomC->door[WEST] == true) {
 				if (_checkAdjacents(pos.x - 1, pos.y, roomC)) {
@@ -214,9 +211,9 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 					t->scale = glm::vec3(1, 1, 1);
 					t->rotation = rotation;
 					roomGrid[pos.x - 1][pos.y] = roomC;
-					_insertPathFindingMap(glm::ivec2(pos.x - 1, pos.y));
+					_insertPathFindingMap(glm::ivec2(pos.x - 1, pos.y), rot);
 					//_spawnRandomizedEnemies(t);
-					_roomCounter++;
+					roomCounter++;
 					_createMapRecursivly(glm::ivec2(pos.x - 1, pos.y));
 				}
 				else
@@ -242,12 +239,11 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 }
 
 void TileGeneration::_setUpMiddleRoom(const std::string& middleRoomPath) {
-
 	auto room = world::newEntity("Middle Room", mapentity);
 	BlueprintLoader::load(middleRoomPath)->spawn(room); 
 	auto roomC = room->getComponent<Hydra::Component::RoomComponent>();
 	roomGrid[ROOM_GRID_SIZE / 2][ROOM_GRID_SIZE / 2] = roomC;
-	_insertPathFindingMap(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2));
+	_insertPathFindingMap(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2), 0 /* No rotation */);
 	auto t = room->addComponent<Hydra::Component::TransformComponent>();
 	t->position = _gridToWorld(2, 2);
 	t->scale = glm::vec3(1, 1, 1);
@@ -335,7 +331,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 	}
 	
 	for (int i = 0; i < randomFastAliens; i++) {
-		auto alienEntity = world::newEntity("FastAlien1", world::root());
+		auto alienEntity = world::newEntity("FastAlien1", mapentity);
 		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienFastModel.mATTIC");
 		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
@@ -417,17 +413,37 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 
 }
 
-void TileGeneration::_insertPathFindingMap(const glm::ivec2& room)
-{
+void TileGeneration::_insertPathFindingMap(const glm::ivec2& room, uint8_t rot) {
+	// rot = 0 -> 0
+	// rot = 1 -> 90
+	// rot = 2 -> 180
+	// rot = 3 -> 270
 	auto roomC = roomGrid[room.x][room.y];
-	int x = room.x * ROOM_MAP_SIZE;
-	for (int localX = 0; localX < ROOM_MAP_SIZE; x++, localX++)
-	{
-		int y = room.y * ROOM_MAP_SIZE;
-		for (int localY = 0; localY < ROOM_MAP_SIZE; y++, localY++)
-		{
-			pathfindingMap[x][y] = roomC->localMap[localX][localY];
-		}
+	const int x = room.x * ROOM_MAP_SIZE;
+	const int y = room.y * ROOM_MAP_SIZE;
+	switch (rot) {
+	case 0:
+		for (int localX = 0; localX < ROOM_MAP_SIZE; localX++)
+			for (int localY = 0; localY < ROOM_MAP_SIZE; localY++)
+				pathfindingMap[x + localX][y + localY] = roomC->localMap[localX][localY];
+		break;
+	case 1:
+		for (int localX = 0; localX < ROOM_MAP_SIZE; localX++)
+			for (int localY = 0; localY < ROOM_MAP_SIZE; localY++)
+				pathfindingMap[x + localX][y + localY] = roomC->localMap[ROOM_MAP_SIZE - 1 - localY][localX];
+		break;
+	case 2:
+		for (int localX = 0; localX < ROOM_MAP_SIZE; localX++)
+			for (int localY = 0; localY < ROOM_MAP_SIZE; localY++)
+				pathfindingMap[x + localX][y + localY] = roomC->localMap[ROOM_MAP_SIZE - 1 - localX][ROOM_MAP_SIZE - 1 - localY];
+		break;
+	case 3:
+		for (int localX = 0; localX < ROOM_MAP_SIZE; localX++)
+			for (int localY = 0; localY < ROOM_MAP_SIZE; localY++)
+				pathfindingMap[x + localX][y + localY] = roomC->localMap[localY][ROOM_MAP_SIZE - 1 - localX];
+		break;
+	default:
+		break;
 	}
 }
 
@@ -469,110 +485,67 @@ void TileGeneration::_spawnLight(std::shared_ptr<Hydra::Component::TransformComp
 
 }
 
-glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComponent>& room) {
+glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComponent>& room, uint8_t& rot) {
 	//glm::angleAxis(rotation, axis(y in your case));
 
 	glm::quat rotation;
 
-	int randomRotateChance = rand() % 100;
+	rot = 0; //rand() % 4;
 
-	//Rotate the room 90 degrees
-	if (randomRotateChance < 25) {
+	if (rot == 0)
+		rotation = glm::angleAxis(glm::radians(0.0f), glm::vec3(0, -1, 0));
+	else if (rot == 1) {
+		decltype(room->door) doors = {
+			room->door[EAST],
+			room->door[SOUTH],
+			room->door[WEST],
+			room->door[NORTH]
+		};
+		memcpy(room->door, doors, sizeof(doors));
+		decltype(room->openWalls) openWalls = {
+			room->openWalls[EAST],
+			room->openWalls[SOUTH],
+			room->openWalls[WEST],
+			room->openWalls[NORTH]
+		};
+		memcpy(room->openWalls, openWalls, sizeof(openWalls));
 
-		std::shared_ptr<Hydra::Component::RoomComponent> tempRoom = std::make_shared<Hydra::Component::RoomComponent>();
-		
-		//rotate doors
-		if (room->door[NORTH] == true)
-			tempRoom->door[EAST] = true;
-		if (room->door[EAST] == true)
-			tempRoom->door[SOUTH] = true;
-		if (room->door[SOUTH] == true)
-			tempRoom->door[WEST] = true;
-		if (room->door[WEST] == true)
-			tempRoom->door[NORTH] = true;
+		rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0, -1, 0));
+	} else if (rot == 2) {
+		decltype(room->door) doors = {
+			room->door[SOUTH],
+			room->door[WEST],
+			room->door[NORTH],
+			room->door[EAST]
+		};
+		memcpy(room->door, doors, sizeof(doors));
+		decltype(room->openWalls) openWalls = {
+			room->openWalls[SOUTH],
+			room->openWalls[WEST],
+			room->openWalls[NORTH],
+			room->openWalls[EAST]
+		};
+		memcpy(room->openWalls, openWalls, sizeof(openWalls));
 
-		//rotate open walls
-		if (room->openWalls[0] == true)
-			tempRoom->openWalls[1] = true;
-		if (room->openWalls[1] == true)
-			tempRoom->openWalls[2] = true;
-		if (room->openWalls[2] == true)
-			tempRoom->openWalls[3] = true;
-		if (room->openWalls[3] == true)
-			tempRoom->openWalls[0] = true;
+		rotation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0, -1, 0));
+	}	else if (rot == 3) {
+		decltype(room->door) doors = {
+			room->door[WEST],
+			room->door[NORTH],
+			room->door[EAST],
+			room->door[SOUTH]
+		};
+		memcpy(room->door, doors, sizeof(doors));
+		decltype(room->openWalls) openWalls = {
+			room->openWalls[WEST],
+			room->openWalls[NORTH],
+			room->openWalls[EAST],
+			room->openWalls[SOUTH]
+		};
+		memcpy(room->openWalls, openWalls, sizeof(openWalls));
 
-		for (int i = 0; i < 4; i++) {
-			room->door[i] = tempRoom->door[i];
-			room->openWalls[i] = tempRoom->openWalls[i];
-		}
-		rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
-
+		rotation = glm::angleAxis(glm::radians(270.0f), glm::vec3(0, -1, 0));
 	}
-	//Rotate the room 180 degrees
-	else if (randomRotateChance >= 25 && randomRotateChance < 50) {
-
-		std::shared_ptr<Hydra::Component::RoomComponent> tempRoom = std::make_shared<Hydra::Component::RoomComponent>();
-
-		//rotate doors
-		if (room->door[NORTH] == true)
-			tempRoom->door[SOUTH] = true;
-		if (room->door[EAST] == true)
-			tempRoom->door[WEST] = true;
-		if (room->door[SOUTH] == true)
-			tempRoom->door[NORTH] = true;
-		if (room->door[WEST] == true)
-			tempRoom->door[EAST] = true;
-
-		//rotate open walls
-		if (room->openWalls[0] == true)
-			tempRoom->openWalls[2] = true;
-		if (room->openWalls[1] == true)
-			tempRoom->openWalls[3] = true;
-		if (room->openWalls[2] == true)
-			tempRoom->openWalls[0] = true;
-		if (room->openWalls[3] == true)
-			tempRoom->openWalls[1] = true;
-
-		for (int i = 0; i < 4; i++) {
-			room->door[i] = tempRoom->door[i];
-			room->openWalls[i] = tempRoom->openWalls[i];
-		}
-		rotation = glm::angleAxis(glm::radians(-180.0f), glm::vec3(0, 1, 0));
-
-	}
-	else if (randomRotateChance >= 50 && randomRotateChance < 75) {
-
-		std::shared_ptr<Hydra::Component::RoomComponent> tempRoom = std::make_shared<Hydra::Component::RoomComponent>();
-
-		//rotate doors
-		if (room->door[NORTH] == true)
-			tempRoom->door[WEST] = true;
-		if (room->door[EAST] == true)
-			tempRoom->door[NORTH] = true;
-		if (room->door[SOUTH] == true)
-			tempRoom->door[EAST] = true;
-		if (room->door[WEST] == true)
-			tempRoom->door[SOUTH] = true;
-
-		//rotate open walls
-		if (room->openWalls[0] == true)
-			tempRoom->openWalls[3] = true;
-		if (room->openWalls[1] == true)
-			tempRoom->openWalls[0] = true;
-		if (room->openWalls[2] == true)
-			tempRoom->openWalls[1] = true;
-		if (room->openWalls[3] == true)
-			tempRoom->openWalls[2] = true;
-
-		for (int i = 0; i < 4; i++) {
-			room->door[i] = tempRoom->door[i];
-			room->openWalls[i] = tempRoom->openWalls[i];
-		}
-		rotation = glm::angleAxis(glm::radians(-270.0f), glm::vec3(0, 1, 0));
-
-	}
-	else
-		rotation = glm::angleAxis(glm::radians(0.0f), glm::vec3(0, 1, 0));
 
 	return rotation;
 }

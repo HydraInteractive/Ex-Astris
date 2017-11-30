@@ -32,7 +32,7 @@ static inline void setup() {
 
 #undef main
 int main(int argc, char** argv) {
-	srand(time(NULL));
+	srand(0/*time(NULL)*/);
 	(void)argc;
 	(void)argv;
 	setup();

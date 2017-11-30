@@ -324,14 +324,15 @@ void GameServer::start() {
 	size_t tries = 0;
 	while (true) {
 		tries++;
-		_tileGeneration.reset();
 		_tileGeneration = std::make_unique<TileGeneration>("assets/room/starterRoom.room");
 		_pathfindingMap = _tileGeneration->buildMap();
 		_deadSystem.tick(0);
-		printf("Room count: %zu\n", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size());
-		if (Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size() > 15)
+		printf("Room count: %zu\t(%d)\n", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size(), _tileGeneration->roomCounter);
+		if (Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size() >= 8)
 			break;
-		printf("\tTarget is >= 16, redoing generation\n");
+		printf("\tTarget is >= 8, redoing generation\n");
+		_tileGeneration.reset();
+		_deadSystem.tick(0);
 	}
 	printf ("\tTook %zu tries\n", tries);
 
@@ -380,9 +381,9 @@ void GameServer::start() {
 				SDL_Rect rect = {x * ROOM_MAP_SIZE + 1, y * ROOM_MAP_SIZE + 1, ROOM_MAP_SIZE - 2, ROOM_MAP_SIZE - 2};
 				SDL_FillRect(map, &rect, SDL_MapRGB(map->format, 0x3F, 0x3F, 0x3F));
 
-				/*for (int i = 0; i < ROOM_MAP_SIZE; i++)
+				for (int i = 0; i < ROOM_MAP_SIZE; i++)
 					for (int j = 0; j < ROOM_MAP_SIZE; j++)
-					drawWallPixel(x * ROOM_MAP_SIZE + i, y * ROOM_MAP_SIZE + j);*/
+					drawWallPixel(x * ROOM_MAP_SIZE + i, y * ROOM_MAP_SIZE + j);
 			} else {
 				printf("|      ");
 				SDL_Rect rect{x * ROOM_MAP_SIZE, y * ROOM_MAP_SIZE, ROOM_MAP_SIZE, ROOM_MAP_SIZE};
