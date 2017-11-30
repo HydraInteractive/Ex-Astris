@@ -82,10 +82,10 @@ namespace Barcode {
 			.addTexture(1, Hydra::Renderer::TextureType::u8RGBA) // Diffuse
 			.addTexture(2, Hydra::Renderer::TextureType::f16RGB) // Normal
 			.addTexture(3, Hydra::Renderer::TextureType::f16RGBA) // Light pos
-			.addTexture(4, Hydra::Renderer::TextureType::f16RGB) // Position in view-space
-			.addTexture(5, Hydra::Renderer::TextureType::u8R) // Glow.
-			.addTexture(6, Hydra::Renderer::TextureType::f16RGB)
-			.addTexture(7, Hydra::Renderer::TextureType::f16Depth) // Depth
+			//.addTexture(4, Hydra::Renderer::TextureType::f16RGB) // Position in view-space
+			.addTexture(4, Hydra::Renderer::TextureType::u8R) // Glow.
+			//.addTexture(5, Hydra::Renderer::TextureType::f16RGB)
+			.addTexture(5, Hydra::Renderer::TextureType::f32Depth) // Depth
 			.finalize();
 		_geometryAnimationBatch = RenderBatch<Hydra::Renderer::AnimationBatch>("assets/shaders/animationGeometry.vert", "assets/shaders/animationGeometry.geom", "assets/shaders/animationGeometry.frag", _geometryBatch);
 		_geometryAnimationBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::none;
@@ -114,11 +114,11 @@ namespace Barcode {
 		_ssaoBlurBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::color;
 		_ssaoBlurBatch.batch.clearColor = glm::vec4(0, 0, 0, 1);
 
-		constexpr size_t kernelSize = 16;
+		constexpr size_t kernelSize = 4;
 		constexpr size_t noiseSize = 4;
 		auto ssaoKernel = _getSSAOKernel(kernelSize);
 		for (size_t i = 0; i < ssaoKernel.size(); i++)
-			_ssaoBatch.pipeline->setValue(10 + i, ssaoKernel[i]);
+			_ssaoBatch.pipeline->setValue(11 + i, ssaoKernel[i]);
 
 		_ssaoNoise = Hydra::Renderer::GLTexture::createFromData(noiseSize, noiseSize, Hydra::Renderer::TextureType::f32RGB, _getSSAONoise(noiseSize*noiseSize).data());
 
@@ -236,24 +236,23 @@ namespace Barcode {
 		}
 
 		if (MenuState::ssaoEnabled) {
-			static float bias = 0.025f;
-			static float radius = 0.5f;
-			ImGui::DragFloat("Bias", &bias, 0.01f);
-			ImGui::DragFloat("Radius", &radius, 0.01f);
-			_ssaoBatch.pipeline->setValue(0, 0);
+			//static float bias = 0.025f;
+			//static float radius = 0.5f;
+			//ImGui::DragFloat("Bias", &bias, 0.01f);
+			//ImGui::DragFloat("Radius", &radius, 0.01f);
+			//_ssaoBatch.pipeline->setValue(0, 0);
 			_ssaoBatch.pipeline->setValue(1, 1);
 			_ssaoBatch.pipeline->setValue(2, 2);
 			_ssaoBatch.pipeline->setValue(7, 7);
 
 			_ssaoBatch.pipeline->setValue(3, cc.getProjectionMatrix());
-			_ssaoBatch.pipeline->setValue(4, bias);
-			_ssaoBatch.pipeline->setValue(5, radius);
+			//_ssaoBatch.pipeline->setValue(4, bias);
+			//_ssaoBatch.pipeline->setValue(5, radius);
 			_ssaoBatch.pipeline->setValue(6, cc.getViewMatrix());
 			_ssaoBatch.pipeline->setValue(8, glm::vec2(_ssaoBatch.output->getSize()));
 
-
 			(*_geometryBatch.output)[0]->bind(0);
-			(*_geometryBatch.output)[6]->bind(1);
+			//(*_geometryBatch.output)[5]->bind(1);
 			//(*_geometryBatch.output)[7]->bind(7);
 			_ssaoNoise->bind(2);
 			_geometryBatch.output->getDepth()->bind(7);
@@ -282,10 +281,11 @@ namespace Barcode {
 			_lightingBatch.pipeline->setValue(9, (int)(lights.size()));
 			_lightingBatch.pipeline->setValue(10, dirLight.getDirVec());
 			_lightingBatch.pipeline->setValue(11, dirLight.color);
+			_lightingBatch.pipeline->setValue(12, cc.getProjectionMatrix());
 
 
 			// good code lmao XD
-			int i = 12;
+			int i = 13;
 			for (auto& p : lights) {
 				auto pc = static_cast<Hydra::Component::PointLightComponent*>(p.get());
 				_lightingBatch.pipeline->setValue(i++, pc->getTransformComponent()->position);
@@ -304,7 +304,7 @@ namespace Barcode {
 			(*_ssaoBlurBatch.output)[0]->bind(5);
 			//(*_ssaoBatch.output)[0]->bind(5);
 			//_blurUtil.getOutput()->bind(5);
-			(*_geometryBatch.output)[5]->bind(6);
+			(*_geometryBatch.output)[4]->bind(6);
 
 			_engine->getRenderer()->postProcessing(_lightingBatch.batch);
 		}
