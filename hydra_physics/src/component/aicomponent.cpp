@@ -15,7 +15,7 @@ using namespace Hydra::World;
 using namespace Hydra::Component;
 
 AIComponent::~AIComponent() {
-	
+
 }
 
 void AIComponent::serialize(nlohmann::json& json) const {
@@ -27,6 +27,7 @@ void AIComponent::serialize(nlohmann::json& json) const {
 		json["pathState"] = behaviour->state;
 		json["range"] = behaviour->range;
 		json["originalRange"] = behaviour->originalRange;
+		json["originalRange"] = behaviour->savedRange;
 	}
 	else
 	{
@@ -34,7 +35,9 @@ void AIComponent::serialize(nlohmann::json& json) const {
 		json["pathState"] = 0;
 		json["range"] = 0;
 		json["originalRange"] = 0;
+		json["savedRange"] = 0;
 	}
+
 }
 
 void AIComponent::deserialize(nlohmann::json& json) {
@@ -76,4 +79,3 @@ std::shared_ptr<Hydra::World::Entity> AIComponent::getPlayerEntity()
 {
 	return Hydra::World::World::getEntity(PlayerComponent::componentHandler->getActiveComponents()[0]->entityID);
 }
-

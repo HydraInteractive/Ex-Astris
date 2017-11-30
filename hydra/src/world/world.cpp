@@ -37,12 +37,8 @@ bool World::_isResetting = false;
 namespace {
 	template <typename T>
 	inline void removeComponent(Entity& this_) {
-		if (this_.hasComponent<T>()) {
-			printf("\tRemoving compoent: %s\n", typeid(T).name());
+		if (this_.hasComponent<T>())
 			T::componentHandler->removeComponent(this_.id);
-
-			printf("\t\tDONE");
-		}
 	}
 
 	template <typename... Args>
@@ -63,9 +59,10 @@ namespace {
 		}
 	};
 
-
 	template <typename T>
 	inline void serializeComponent(const Entity& this_, nlohmann::json& json) {
+		if constexpr (std::is_same<T, Hydra::Component::DrawObjectComponent>::value)
+			return;
 		if (this_.hasComponent<T>()) {
 			auto component = this_.getComponent<T>();
 			component->serialize(json[component->type()]);
@@ -90,9 +87,9 @@ namespace {
 		}
 	};
 }
+
 Entity::~Entity() {
 	if (!World::_isResetting) {
-		printf("Removing: %zu\n", id);
 		if (parent != World::invalidID)
 			if (auto p = World::getEntity(parent); p)
 				p->children.erase(std::remove(p->children.begin(), p->children.end(), id), p->children.end());
@@ -135,6 +132,7 @@ void Entity::deserialize(nlohmann::json& json) {
 			}
 		}
 	}
+
 
 	{
 		auto& c = json["children"];
@@ -179,15 +177,17 @@ void World::removeEntity(EntityID entityID) {
 	} else
 		return;
 
-	const size_t pos = _map[entityID];
-	_entities[pos].reset();
-	if (pos != _entities.size() - 1) {
+	const size_t pos = _map.at(entityID);
+	auto& e = _entities.at(pos);
+	if (!e.get() || e->id != _entities.back()->id) {
 		_map[_entities.back()->id] = pos;
-		std::swap(_entities[pos], _entities.back());
+		e.swap(_entities.back());
 	}
-
-	_entities.pop_back();
+	auto entity = _entities.back();
 	_map.erase(entityID);
+	_entities.pop_back();
+
+	entity.reset();
 }
 
 void Blueprint::spawn(std::shared_ptr<Entity>& root) {

@@ -130,17 +130,11 @@ namespace Barcode {
 				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(glm::translate(translation) * glm::mat4_cast(rotation) * glm::scale(rgbc->getHalfExtentScale() * glm::vec3(2)));
 			}
 
-			world::getEntitiesWithComponents<Hydra::Component::GhostObjectComponent, Hydra::Component::DrawObjectComponent>(entities);
+			world::getEntitiesWithComponents<Hydra::Component::GhostObjectComponent, Hydra::Component::TransformComponent>(entities);
 			for (auto e : entities) {
-				auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
+				auto transform = e->getComponent<Hydra::Component::TransformComponent>();
 				auto goc = e->getComponent<Hydra::Component::GhostObjectComponent>();
-				glm::vec3 newScale;
-				glm::quat rotation;
-				glm::vec3 translation;
-				glm::vec3 skew;
-				glm::vec4 perspective;
-				glm::decompose(drawObj->modelMatrix, newScale, rotation, translation, skew, perspective);
-				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(glm::translate(translation) * glm::mat4_cast(goc->quatRotation) * glm::scale(goc->halfExtents * glm::vec3(2)));
+				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(goc->getMatrix() * glm::scale(glm::vec3(2)));
 			}
 
 			_hitboxBatch.pipeline->setValue(0, _cc->getViewMatrix());
@@ -228,6 +222,9 @@ namespace Barcode {
 			for (auto& rb : Hydra::Component::RigidBodyComponent::componentHandler->getActiveComponents()) {
 				_engine->log(Hydra::LogLevel::normal, "Enabling bullet for %s", world::getEntity(rb->entityID)->name.c_str());
 				_physicsSystem.enable(static_cast<Hydra::Component::RigidBodyComponent*>(rb.get()));
+			}
+			for (auto& goc : Hydra::Component::GhostObjectComponent::componentHandler->getActiveComponents()) {
+				_physicsSystem.enable(static_cast<Hydra::Component::GhostObjectComponent*>(goc.get()));
 			}
 		}
 	}

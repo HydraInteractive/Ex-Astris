@@ -2,7 +2,6 @@
 
 #include <hydra/world/world.hpp>
 #include <hydra/component/perkcomponent.hpp>
-#include <hydra/component/playercomponent.hpp>
 
 namespace Hydra::System {
 	class HYDRA_PHYSICS_API PerkSystem final : public Hydra::World::ISystem{
@@ -15,5 +14,8 @@ namespace Hydra::System {
 
 		inline const std::string type() const final { return "PerkSystem"; }
 		void registerUI() final;
+	private:
+		float perkDescriptionTimer = 0;
+		std::string perkDescriptionText = "";
 	};
 }

@@ -2,6 +2,15 @@
 
 #include <btBulletDynamicsCommon.h>
 
+#include <hydra/component/transformcomponent.hpp>
+#include <hydra/component/meshcomponent.hpp>
+#include <hydra/component/movementcomponent.hpp>
+#include <hydra/component/soundfxcomponent.hpp>
+#include <hydra/component/rigidbodycomponent.hpp>
+#include <hydra/component/bulletcomponent.hpp>
+#include <hydra/abilities/grenadecomponent.hpp>
+#include <hydra/abilities/minecomponent.hpp>
+
 void GrenadeAbility::useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity) {
 	auto playerMovement = playerEntity->getComponent<Hydra::Component::MovementComponent>();
 	auto playerTransform = playerEntity->getComponent<Hydra::Component::TransformComponent>();
@@ -46,24 +55,6 @@ void MineAbility::useAbility(const std::shared_ptr<Hydra::World::Entity>& player
 	bulletPhysWorld->enable(rbc.get());
 	rigidBody->applyCentralForce(btVector3(playerMovement->direction.x, playerMovement->direction.y, playerMovement->direction.z) * 200);
 	rigidBody->setFriction(1.0f);
-}
-
-void forcePushAbility::useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity) {
-	/*auto playerTransform = playerEntity->getComponent<Hydra::Component::TransformComponent>();
-
-	std::vector<std::shared_ptr<Hydra::World::Entity>> entities;
-	world::getEntitiesWithComponents<Hydra::Component::TransformComponent, Hydra::Component::RigidBodyComponent>(entities);
-
-	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
-		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
-		if (glm::distance(t->position, playerTransform->position) < 5.0f) {
-			auto rbc = entities[i]->getComponent<Hydra::Component::RigidBodyComponent>();
-			auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
-
-			glm::vec3 forcePush = glm::normalize(t->position - playerTransform->position)*1000.0f;
-			rigidBody->applyCentralForce(btVector3(forcePush.x, forcePush.y, forcePush.z));
-		}
-	}*/
 }
 
 void BulletSprayAbillity::useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity) {

@@ -21,6 +21,7 @@
 #include <hydra/component/perkcomponent.hpp>
 #include <hydra/component/textcomponent.hpp>
 #include <hydra/component/ghostobjectcomponent.hpp>
+#include <hydra/component/meshcomponent.hpp>
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 
@@ -80,6 +81,9 @@ void BulletPhysicsSystem::enable(RigidBodyComponent* component) {
 	case CollisionTypes::COLL_PICKUP_OBJECT:
 		_data->dynamicsWorld->addRigidBody(rigidBody, COLL_PICKUP_OBJECT, CollisionCondition::pickupObjectCollidesWith);
 		break;
+	case CollisionTypes::COLL_FLOOR:
+		_data->dynamicsWorld->addRigidBody(rigidBody, COLL_FLOOR, CollisionCondition::floorCollidesWith);
+		break;
 	default:
 		_data->dynamicsWorld->addRigidBody(rigidBody, COLL_NOTHING, COLL_NOTHING);
 		break;
@@ -117,6 +121,9 @@ void Hydra::System::BulletPhysicsSystem::enable(GhostObjectComponent * component
 	case CollisionTypes::COLL_PICKUP_OBJECT:
 		_data->dynamicsWorld->addCollisionObject(component->ghostObject, COLL_PICKUP_OBJECT, CollisionCondition::pickupObjectCollidesWith);
 		break;
+	case CollisionTypes::COLL_FLOOR:
+		_data->dynamicsWorld->addCollisionObject(component->ghostObject, COLL_FLOOR, CollisionCondition::floorCollidesWith);
+		break;
 	default:
 		_data->dynamicsWorld->addCollisionObject(component->ghostObject, COLL_NOTHING, COLL_NOTHING);
 		break;
@@ -128,7 +135,15 @@ void Hydra::System::BulletPhysicsSystem::disable(GhostObjectComponent * componen
 	component->_handler = nullptr;
 }
 
+void* Hydra::System::BulletPhysicsSystem::rayTestFromTo(const glm::vec3& from, const glm::vec3& to)
+{
+	btVector3 playerPos(cast(from));
+	btVector3 directionBoi(cast(to));
+	btCollisionWorld::ClosestRayResultCallback* callback = new btCollisionWorld::ClosestRayResultCallback(playerPos, directionBoi);
 
+	_data->dynamicsWorld->rayTest(playerPos, directionBoi, *callback);
+	return callback;
+}
 
 void BulletPhysicsSystem::tick(float delta) {
 	_data->dynamicsWorld->stepSimulation(delta, 3);
@@ -179,11 +194,14 @@ void BulletPhysicsSystem::tick(float delta) {
 
 			if (playerComponent && normalOnB.y() > 0.7){
 				playerComponent->onGround = true;
+				if (obA->getUserIndex2() == COLL_FLOOR || obB->getUserIndex2() == COLL_FLOOR)
+					playerComponent->onFloor = true;
+				else
+					playerComponent->onFloor = false;
 			}
 
 			if (lifeComponent) {
 				lifeComponent->applyDamage(bulletComponent->damage);
-
 				_spawnDamageText(cast(collPosB), std::to_string(bulletComponent->damage));
 			}
 

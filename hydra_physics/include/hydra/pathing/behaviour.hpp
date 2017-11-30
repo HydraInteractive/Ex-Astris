@@ -32,6 +32,7 @@ public:
 	float newPathDelay = 1.0f;
 	float spawnTimer = 0.0f;
 	float phaseTimer = 0.0f;
+	float regainRange = 0.0f;
 
 	std::random_device rd;
 	bool playerSeen = false;
@@ -40,8 +41,10 @@ public:
 	int oldMapPosZ = 0;
 
 	bool hasRequiredComponents = false;
+	bool playerUnreachable = false;
 
 	float range = 1.0f;
+	float savedRange = 4.0f;
 	float originalRange = 1.0f;
 	glm::quat rotation = glm::quat();
 
@@ -52,19 +55,19 @@ public:
 protected:
 	struct ComponentSet
 	{
-		Hydra::World::Entity* entity;
-		Hydra::Component::TransformComponent* transform;
-		Hydra::Component::MeshComponent* meshComp;
-		Hydra::Component::WeaponComponent* weapon;
-		Hydra::Component::LifeComponent* life;
-		Hydra::Component::MovementComponent* movement;
-		Hydra::Component::AIComponent* ai;
-		Hydra::Component::RigidBodyComponent* rigidBody;
+		Hydra::World::Entity* entity = nullptr;
+		Hydra::Component::TransformComponent* transform = nullptr;
+		Hydra::Component::MeshComponent* meshComp = nullptr;
+		Hydra::Component::WeaponComponent* weapon = nullptr;
+		Hydra::Component::LifeComponent* life = nullptr;
+		Hydra::Component::MovementComponent* movement = nullptr;
+		Hydra::Component::AIComponent* ai = nullptr;
+		Hydra::Component::RigidBodyComponent* rigidBody = nullptr;
 	};
-	ComponentSet thisEnemy;
-	ComponentSet targetPlayer;
+	ComponentSet thisEnemy = ComponentSet();
+	ComponentSet targetPlayer = ComponentSet();
 
-	std::shared_ptr<PathFinding> pathFinding = std::make_shared<PathFinding>();
+	PathFinding* pathFinding = nullptr;
 
 	glm::vec2 flatVector(glm::vec3 vec);
 	void move(glm::vec3 target);
@@ -109,7 +112,7 @@ public:
 	AlienBossBehaviour();
 	~AlienBossBehaviour();
 
-	float stunTimer = 0;
+	float stunTimer = 0.0f;
 	bool stunned = false;
 	int spawnAmount = 0;
 
