@@ -495,6 +495,7 @@ namespace Barcode {
 				w->userdata = static_cast<void*>(this);
 				w->onShoot = &GameState::_onPlayerShoot;
 				w->bulletSize /= 2;
+				w->maxammo = INT_MAX; // TODO: Fix
 				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/FPSModel.mATTIC");
 				auto t2 = weaponEntity->addComponent<Hydra::Component::TransformComponent>();
 				t2->position = glm::vec3(2, -7, -2);
