@@ -128,10 +128,10 @@ namespace Barcode {
 
 
 		static bool enableHitboxDebug = true;
-/*		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
+		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
 		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
 		ImGui::Checkbox("Enable SSAO", &MenuState::ssaoEnabled);
-		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);*/
+		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);
 
 		const glm::vec3& cameraPos = _playerTransform->position;
 		auto viewMatrix = _cc->getViewMatrix();
@@ -476,7 +476,16 @@ namespace Barcode {
 				t2->rotation = glm::quat(0, 0, 1, 0);
 				t2->ignoreParent = true;
 			}
+
 		}
+
+		{
+			auto lightEntity = world::newEntity("Light", world::root());
+			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
+			auto t3 = lightEntity->addComponent<Hydra::Component::TransformComponent>();
+			t3->position = glm::vec3(0, 7, 0);
+		}
+
 
 		/*{
 			auto alienEntity = world::newEntity("Alien1", world::root());
@@ -619,11 +628,6 @@ namespace Barcode {
 					auto t2 = child->addComponent<Hydra::Component::TransformComponent>();
 					t2->position = glm::vec3{ -1, 0, 0 };
 					//child->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SourceCode_Monitor.mATTIC");
-
-					auto lightEntity = world::newEntity("Light", world::root());
-					auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
-					auto t3 = lightEntity->addComponent<Hydra::Component::TransformComponent>();
-					t3->position = glm::vec3(8.0, 0, 3.5);
 				}
 
 				{

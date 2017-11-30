@@ -204,17 +204,19 @@ void BulletPhysicsSystem::tick(float delta) {
 			if (lifeComponent) {
 				lifeComponent->applyDamage(bulletComponent->damage);
 				_spawnText(cast(collPosB), std::to_string(bulletComponent->damage));
-				switch (Hydra::World::World::getEntity(lifeComponent->entityID)->getComponent<Hydra::Component::AIComponent>()->behaviour->type)
-				{
-				case Hydra::Physics::Behaviour::Behaviour::Type::ALIEN:
-					_spawnParticleEmitterAt(cast(collPosB), cast(normalOnB), Hydra::Component::ParticleComponent::ParticleTexture::AlienBlood);
-					break;
-				case Hydra::Physics::Behaviour::Behaviour::Type::ROBOT:
-					_spawnParticleEmitterAt(cast(collPosB), cast(normalOnB), Hydra::Component::ParticleComponent::ParticleTexture::Energy);
-					break;
-				default:
-					break;
-				}
+				auto targetEntity = Hydra::World::World::getEntity(lifeComponent->entityID);
+				if(!targetEntity->getComponent<Hydra::Component::PlayerComponent>())
+					switch (targetEntity->getComponent<Hydra::Component::AIComponent>()->behaviour->type)
+					{
+					case Hydra::Physics::Behaviour::Behaviour::Type::ALIEN:
+						_spawnParticleEmitterAt(cast(collPosB), cast(normalOnB), Hydra::Component::ParticleComponent::ParticleTexture::AlienBlood);
+						break;
+					case Hydra::Physics::Behaviour::Behaviour::Type::ROBOT:
+						_spawnParticleEmitterAt(cast(collPosB), cast(normalOnB), Hydra::Component::ParticleComponent::ParticleTexture::Energy);
+						break;
+					default:
+						break;
+					}
 			}
 
 			// Set the bullet entity to dead.
