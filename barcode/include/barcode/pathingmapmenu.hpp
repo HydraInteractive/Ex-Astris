@@ -8,5 +8,7 @@ public:
 	~PathingMapMenu();
 
 	void render(bool &closeBool, float delta, int sizeX, int sizeY);
+	
+	//bool selected[32][32] = {false};
 private:
 };
