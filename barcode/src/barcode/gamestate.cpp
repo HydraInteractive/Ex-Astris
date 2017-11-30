@@ -387,8 +387,13 @@ namespace Barcode {
 			}
 
 			// Loading screen
-			if (showLoadingScreen == true)
+			if ((showLoadingScreen == true &&  timerStarted == false)
 			{
+				timer = 
+			}
+			if (showLoadingScreen == true && timer > 0)
+			{
+
 				ImGui::SetNextWindowPos(ImVec2(0, 0));
 				ImGui::SetNextWindowSize(ImVec2(windowSize.x, windowSize.y/*1280, 720*/));
 				ImGui::Begin("LoadingScreen", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
