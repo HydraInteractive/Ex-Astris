@@ -48,12 +48,11 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 	//or we will go otuside the tile grid
 	
 	
-	if (roomGrid[pos.x][pos.y]->door[NORTH] && roomGrid[pos.x][pos.y + 1] == nullptr)
-	{
+	if (roomGrid[pos.x][pos.y]->door[NORTH] && roomGrid[pos.x][pos.y + 1] == nullptr) {
 		bool placed = false;
 		//Load all rooms and see if any of them fits
 		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
-
+			 
 			//Take a random room and read it. Don't spawn it until it fits
 			//NOTE:: Make a random list and go through it to prevent loading same room multible times
 			auto loadedRoom = world::newEntity("Room", world::root());
@@ -63,8 +62,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			glm::quat rotation = _rotateRoom(roomC);
 
 			if (roomC->door[SOUTH] == true) {
-				if (_checkAdjacents(pos.x, pos.y + 1, roomC))
-				{
+				if (_checkAdjacents(pos.x, pos.y + 1, roomC)) {
 					placed = true;
 					auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 					t->position = _gridToWorld(pos.x, pos.y + 1);
@@ -92,12 +90,11 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			t->position.y += 3;
 			t->scale = glm::vec3(4);
 			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
-			rgbc->createBox(glm::vec3(3.2f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
+			rgbc->createBox(glm::vec3(0.8f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
 		}
 	}
 
-	if (roomGrid[pos.x][pos.y]->door[WEST] && roomGrid[pos.x + 1][pos.y] == nullptr)
-	{
+	if (roomGrid[pos.x][pos.y]->door[WEST] && roomGrid[pos.x + 1][pos.y] == nullptr) {
 		bool placed = false;
 		//Load all rooms and see if any of them fits
 		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
@@ -111,8 +108,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			glm::quat rotation = _rotateRoom(roomC);
 
 			if (roomC->door[EAST] == true) {
-				if (_checkAdjacents(pos.x + 1, pos.y, roomC))
-				{
+				if (_checkAdjacents(pos.x + 1, pos.y, roomC)) {
 					placed = true;
 					auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 					t->position = _gridToWorld(pos.x + 1, pos.y);
@@ -140,12 +136,11 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			t->position.y += 3;
 			t->scale = glm::vec3(4);
 			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
-			rgbc->createBox(glm::vec3(3.2f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
+			rgbc->createBox(glm::vec3(0.8f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
 		}
 	}
 
-	if (roomGrid[pos.x][pos.y]->door[SOUTH] && roomGrid[pos.x][pos.y - 1] == nullptr)
-	{
+	if (roomGrid[pos.x][pos.y]->door[SOUTH] && roomGrid[pos.x][pos.y - 1] == nullptr) {
 		bool placed = false;
 		//Load all rooms and see if any of them fits
 		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
@@ -159,8 +154,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			glm::quat rotation = _rotateRoom(roomC);
 
 			if (roomC->door[NORTH] == true) {
-				if (_checkAdjacents(pos.x, pos.y - 1, roomC))
-				{
+				if (_checkAdjacents(pos.x, pos.y - 1, roomC)) {
 					placed = true;
 					auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 					t->position = _gridToWorld(pos.x, pos.y - 1);
@@ -188,12 +182,11 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			t->position.y += 3;
 			t->scale = glm::vec3(4);
 			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
-			rgbc->createBox(glm::vec3(3.2f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
+			rgbc->createBox(glm::vec3(0.8f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
 		}
 	}
 
-	if (roomGrid[pos.x][pos.y]->door[EAST] && roomGrid[pos.x - 1][pos.y] == nullptr)
-	{
+	if (roomGrid[pos.x][pos.y]->door[EAST] && roomGrid[pos.x - 1][pos.y] == nullptr) {
 		bool placed = false;
 		//Load all rooms and see if any of them fits
 		for (size_t i = 0; i < _roomFileNames.size() && placed == false && _roomCounter < maxRooms; i++) {
@@ -207,8 +200,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			glm::quat rotation = _rotateRoom(roomC);
 
 			if (roomC->door[WEST] == true) {
-				if (_checkAdjacents(pos.x - 1, pos.y, roomC))
-				{
+				if (_checkAdjacents(pos.x - 1, pos.y, roomC)) {
 					placed = true;
 					auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 					t->position = _gridToWorld(pos.x - 1, pos.y);
@@ -236,7 +228,7 @@ void TileGeneration::_createMapRecursivly(glm::ivec2 pos) {
 			t->position.y += 3;
 			t->scale = glm::vec3(4);
 			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
-			rgbc->createBox(glm::vec3(3.2f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
+			rgbc->createBox(glm::vec3(0.8f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
 		}
 	}
 }
@@ -272,13 +264,19 @@ void TileGeneration::_obtainRoomFiles() {
 	//	_roomFileNames.push_back(p.path().string());
 	//}
 
-	_roomFileNames.push_back(path + "centralRoomBigScreen.room");
+	_roomFileNames.push_back(path + "centralRoomPipes.room");
 	_roomFileNames.push_back(path + "fourwayRoom.room");
 	_roomFileNames.push_back(path + "starterRoom.room");
-	_roomFileNames.push_back(path + "threewayRoom.room");
 	_roomFileNames.push_back(path + "trashedComputerRoom.room");
 	_roomFileNames.push_back(path + "tryTree.room");
 	_roomFileNames.push_back(path + "tryTwo.room");
+	_roomFileNames.push_back(path + "PipeRoom.room");
+	_roomFileNames.push_back(path + "BlockedStairs.room");
+	_roomFileNames.push_back(path + "CozyRoom1.room");
+	_roomFileNames.push_back(path + "GeneratonInTheMiddle.room");
+	_roomFileNames.push_back(path + "PlantNTableRoom.room");
+
+
 
 	_randomizeRooms();
 
@@ -310,14 +308,24 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 		a->behaviour->setPathMap(pathfindingMap);
+
 		a->damage = 4;
-		a->behaviour->originalRange = 4;
 		a->behaviour->type = Hydra::Physics::Behaviour::Behaviour::Type::ALIEN;
+		a->behaviour->originalRange = 4.0f;
+		a->behaviour->savedRange = a->behaviour->originalRange;
 		a->radius = 1;
 
 		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 		h->maxHP = 80;
 		h->health = 80;
+
+		auto w = alienEntity->addComponent<Hydra::Component::WeaponComponent>();
+		w->bulletSpread = 0.2f;
+		w->bulletsPerShot = 1;
+		w->damage = 4;
+		w->maxmagammo = 100000000;
+		w->currmagammo = 100000000;
+		w->maxammo = 100000000;
 
 		auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
 		m->movementSpeed = 5.0f;
@@ -329,21 +337,38 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		t->scale = glm::vec3{ 1,1,1 };
 
 		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.5, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+		rgbc->setAngularForce(glm::vec3(0));
 	}
 	
 	for (int i = 0; i < randomFastAliens; i++) {
 		auto alienEntity = world::newEntity("FastAlien1", world::root());
 		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienFastModel.mATTIC");
 		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 		a->behaviour->type = Hydra::Physics::Behaviour::Behaviour::Type::ALIEN;
+
+		a->behaviour->setPathMap(pathfindingMap);
+		a->damage = 4;
+		a->behaviour->originalRange = 4.0f;
+		a->behaviour->savedRange = a->behaviour->originalRange;
+		a->radius = 1;
+
 
 		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
 		h->maxHP = 60;
 		h->health = 60;
+
+		auto w = alienEntity->addComponent<Hydra::Component::WeaponComponent>();
+		w->bulletSpread = 0.2f;
+		w->bulletsPerShot = 1;
+		w->damage = 4;
+		w->maxmagammo = 1000000000;
+		w->currmagammo = 1000000000;
+		w->maxammo = 1000000000;
 
 		auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
 		m->movementSpeed = 10.0f;
@@ -355,7 +380,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		t->scale = glm::vec3{ 1,1,1 };
 
 		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.5, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
@@ -371,7 +396,8 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		a->behaviour->setPathMap(pathfindingMap);
 		a->behaviour->type = Hydra::Physics::Behaviour::Behaviour::Type::ROBOT;
 		a->damage = 7;
-		a->behaviour->originalRange = 20;
+		a->behaviour->originalRange = 18;
+		a->behaviour->savedRange = a->behaviour->originalRange;
 		a->radius = 1;
 	
 		auto h = robotEntity->addComponent<Hydra::Component::LifeComponent>();
@@ -462,7 +488,7 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 
 	glm::quat rotation;
 
-	int randomRotateChance = 100;//rand() % 100;
+	int randomRotateChance = rand() % 100;
 
 	//Rotate the room 90 degrees
 	if (randomRotateChance < 25) {
@@ -493,7 +519,7 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 			room->door[i] = tempRoom->door[i];
 			room->openWalls[i] = tempRoom->openWalls[i];
 		}
-		rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0, 1, 0));
+		rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
 
 	}
 	//Rotate the room 180 degrees
@@ -525,7 +551,7 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 			room->door[i] = tempRoom->door[i];
 			room->openWalls[i] = tempRoom->openWalls[i];
 		}
-		rotation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0, 1, 0));
+		rotation = glm::angleAxis(glm::radians(-180.0f), glm::vec3(0, 1, 0));
 
 	}
 	else if (randomRotateChance >= 50 && randomRotateChance < 75) {
@@ -556,7 +582,7 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 			room->door[i] = tempRoom->door[i];
 			room->openWalls[i] = tempRoom->openWalls[i];
 		}
-		rotation = glm::angleAxis(glm::radians(270.0f), glm::vec3(0, 1, 0));
+		rotation = glm::angleAxis(glm::radians(-270.0f), glm::vec3(0, 1, 0));
 
 	}
 	else

@@ -31,24 +31,26 @@ namespace Hydra::System {
 		};
 
 		enum CollisionTypes : const int{
-			COLL_NOTHING = 0,
+			COLL_NOTHING = BIT(0),
 			COLL_WALL = BIT(1),
 			COLL_PLAYER = BIT(2),
 			COLL_ENEMY = BIT(3),
 			COLL_PLAYER_PROJECTILE = BIT(4),
 			COLL_ENEMY_PROJECTILE = BIT(5),
 			COLL_MISC_OBJECT = BIT(6),
-			COLL_PICKUP_OBJECT = BIT(7)
+			COLL_PICKUP_OBJECT = BIT(7),
+			COLL_FLOOR = BIT(8)
 		};
 
 		enum CollisionCondition : std::underlying_type<CollisionTypes>::type {
-			playerCollidesWith = COLL_WALL | COLL_ENEMY | COLL_MISC_OBJECT | COLL_ENEMY_PROJECTILE | COLL_PICKUP_OBJECT,
-			enemyCollidesWith = COLL_WALL | COLL_PLAYER | COLL_MISC_OBJECT | COLL_PLAYER_PROJECTILE | COLL_ENEMY,
-			wallCollidesWith = COLL_MISC_OBJECT | COLL_PLAYER | COLL_ENEMY | COLL_ENEMY_PROJECTILE | COLL_PLAYER_PROJECTILE,
-			enemyProjCollidesWith = COLL_PLAYER | COLL_WALL | COLL_MISC_OBJECT,
-			playerProjCollidesWith = COLL_ENEMY | COLL_WALL | COLL_MISC_OBJECT,
-			miscObjectCollidesWith = COLL_WALL | COLL_ENEMY | COLL_PLAYER | COLL_ENEMY_PROJECTILE | COLL_PLAYER_PROJECTILE,
-			pickupObjectCollidesWith = COLL_PLAYER
+			playerCollidesWith = COLL_WALL | COLL_ENEMY | COLL_MISC_OBJECT | COLL_ENEMY_PROJECTILE | COLL_PICKUP_OBJECT | COLL_NOTHING | COLL_FLOOR,
+			enemyCollidesWith = COLL_WALL | COLL_PLAYER | COLL_MISC_OBJECT | COLL_PLAYER_PROJECTILE | COLL_FLOOR,
+			wallCollidesWith = COLL_MISC_OBJECT | COLL_PLAYER | COLL_ENEMY | COLL_ENEMY_PROJECTILE | COLL_PLAYER_PROJECTILE | COLL_NOTHING,
+			enemyProjCollidesWith = COLL_PLAYER | COLL_WALL | COLL_MISC_OBJECT | COLL_FLOOR,
+			playerProjCollidesWith = COLL_ENEMY | COLL_WALL | COLL_MISC_OBJECT | COLL_FLOOR,
+			miscObjectCollidesWith = COLL_WALL | COLL_ENEMY | COLL_PLAYER | COLL_ENEMY_PROJECTILE | COLL_PLAYER_PROJECTILE | COLL_FLOOR,
+			pickupObjectCollidesWith = COLL_PLAYER,
+			floorCollidesWith = COLL_MISC_OBJECT | COLL_PLAYER | COLL_ENEMY | COLL_ENEMY_PROJECTILE | COLL_PLAYER_PROJECTILE | COLL_NOTHING
 		};
 
 		BulletPhysicsSystem();
@@ -60,6 +62,8 @@ namespace Hydra::System {
 
 		void enable(GhostObjectComponent* component);
 		void disable(GhostObjectComponent* component);
+
+		void* rayTestFromTo(const glm::vec3& from, const glm::vec3& to);
 
 		void tick(float delta) final;
 

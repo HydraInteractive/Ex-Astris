@@ -119,10 +119,10 @@ public:
 			static glm::mat4 jointTransformMX[2000];
 			unsigned int nrOfJoints = 0;
 			for (size_t i = 0; i < size; i += maxPerLoop) {
-				for (size_t instanceIdx = i; instanceIdx < i + maxPerLoop && instanceIdx < size; instanceIdx++) {
-					int frame = currentFrames[instanceIdx];
-					int animIdx = currAnimIndices[instanceIdx];
-					nrOfJoints = mesh->getNrOfJoints(currAnimIndices[instanceIdx]);
+				for (size_t instanceIdx = 0; instanceIdx < maxPerLoop && i + instanceIdx < size; instanceIdx++) {
+					int frame = currentFrames[i + instanceIdx];
+					int animIdx = currAnimIndices[i + instanceIdx];
+					nrOfJoints = mesh->getNrOfJoints(currAnimIndices[i + instanceIdx]);
 					for (size_t currJoint = 0; currJoint < nrOfJoints; currJoint++) {
 						jointTransformMX[instanceIdx * 100 + currJoint] = mesh->getTransformationMatrices(animIdx, currJoint, frame);
 					}

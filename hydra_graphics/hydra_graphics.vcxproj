@@ -62,8 +62,8 @@
     <ClCompile Include="src\system\camerasystem.cpp" />
     <ClCompile Include="src\system\particlesystem.cpp" />
     <ClCompile Include="src\system\renderersystem.cpp" />
-    <ClCompile Include="src\system\lightsystem.cpp" />
     <ClCompile Include="src\system\textsystem.cpp" />
+    <ClCompile Include="src\system\lightsystem.cpp" />
     <ClCompile Include="src\view\sdlview.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

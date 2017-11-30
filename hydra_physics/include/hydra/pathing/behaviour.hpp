@@ -32,6 +32,7 @@ namespace Hydra::Physics::Behaviour {
 		float newPathDelay = 1.0f;
 		float spawnTimer = 0.0f;
 		float phaseTimer = 0.0f;
+		float regainRange = 0.0f;
 
 		std::random_device rd;
 		bool playerSeen = false;
@@ -40,8 +41,10 @@ namespace Hydra::Physics::Behaviour {
 		int oldMapPosZ = 0;
 
 		bool hasRequiredComponents = false;
+		bool playerUnreachable = false;
 
 		float range = 1.0f;
+		float savedRange = 4.0f;
 		float originalRange = 1.0f;
 		glm::quat rotation = glm::quat();
 

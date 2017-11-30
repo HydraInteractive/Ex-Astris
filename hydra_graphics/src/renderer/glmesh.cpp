@@ -346,7 +346,7 @@ private:
 			_makeBuffers();
 
 			if (hasAnimation) {
-				
+
 				_meshHasAnimation = true;
 				int nrOfAnimationFiles;
 				in.read(reinterpret_cast<char*>(&nrOfAnimationFiles), sizeof(int));

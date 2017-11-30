@@ -27,6 +27,7 @@ void AIComponent::serialize(nlohmann::json& json) const {
 		json["pathState"] = behaviour->state;
 		json["range"] = behaviour->range;
 		json["originalRange"] = behaviour->originalRange;
+		json["originalRange"] = behaviour->savedRange;
 	}
 	else
 	{
@@ -34,6 +35,7 @@ void AIComponent::serialize(nlohmann::json& json) const {
 		json["pathState"] = 0;
 		json["range"] = 0;
 		json["originalRange"] = 0;
+		json["savedRange"] = 0;
 	}
 
 }

@@ -14,8 +14,6 @@
 
 #include <btBulletDynamicsCommon.h>
 
-using namespace Hydra::Physics::Behaviour;
-
 Behaviour::Behaviour(std::shared_ptr<Hydra::World::Entity> enemy)
 {
 
@@ -48,7 +46,7 @@ void Behaviour::setTargetPlayer(std::shared_ptr<Hydra::World::Entity> player)
 }
 glm::vec2 Behaviour::flatVector(glm::vec3 vec)
 {
-	return glm::vec2(vec.x, vec.z);
+	return glm::vec2(vec.x,vec.z);
 }
 void Behaviour::move(glm::vec3 target)
 {
@@ -66,13 +64,14 @@ bool Behaviour::refreshRequiredComponents()
 		(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>().get()) &&
 		(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>().get()) &&
 		(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>().get()) &&
+		(thisEnemy.weapon = thisEnemy.entity->getComponent<Hydra::Component::WeaponComponent>().get()) &&
 		(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
 		(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
 		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity().get()) &&
 		(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 		(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
-		);
+	 );
 	return hasRequiredComponents;
 }
 
@@ -80,10 +79,16 @@ unsigned int Behaviour::idleState(float dt)
 {
 	resetAnimationOnStart(0);
 	//If the player is close enough, activate
-	if (glm::distance(flatVector(thisEnemy.transform->position), flatVector(targetPlayer.transform->position)) < 50.0f)
-	{
-		return SEARCHING;
-	}
+
+	/*if (!pathFinding->inWall(targetPlayer.transform->position))
+	{*/
+		if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 50.0f)
+		{
+			return SEARCHING;
+		}
+	//}
+
+
 	return state;
 }
 
@@ -105,7 +110,7 @@ unsigned int Behaviour::searchingState(float dt)
 unsigned int Behaviour::movingState(float dt)
 {
 	resetAnimationOnStart(1);
-
+	
 	float distEnemyToPlayer = glm::length(thisEnemy.transform->position - targetPlayer.transform->position);
 	if (distEnemyToPlayer <= range)
 	{
@@ -120,12 +125,12 @@ unsigned int Behaviour::movingState(float dt)
 	}
 	//If there is nowhere to go, search (prob not needed, should always have a goal here)
 	if (!pathFinding->pathToEnd.empty())
-	{
+	{	
 		//Made these as the code got very hard to read otherwise
 		float distEnemyToNextPos = glm::distance(flatVector(thisEnemy.transform->position), flatVector(pathFinding->pathToEnd.back()));
 		float distEnemyToGoal = glm::distance(flatVector(thisEnemy.transform->position), flatVector(pathFinding->pathToEnd.front()));
 		float distPlayerToGoal = glm::distance(flatVector(targetPlayer.transform->position), flatVector(pathFinding->pathToEnd.front()));
-
+		
 		//Check that the goal is closer to the player than we are, otherwise the path is invalid
 		if (distPlayerToGoal < distEnemyToPlayer)
 		{
@@ -134,6 +139,7 @@ unsigned int Behaviour::movingState(float dt)
 			{
 				pathFinding->pathToEnd.pop_back();
 				//If there is nowhere to go, search
+
 				if (pathFinding->pathToEnd.empty())
 				{
 					move(targetPlayer.transform->position);
@@ -196,15 +202,44 @@ unsigned int Behaviour::attackingState(float dt)
 
 void Behaviour::executeTransforms()
 {
-	range = originalRange;
+	//Line of sight check
+	//If AI dont have vision to shoot at player, move closer
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 40.0f)
+	{
+		auto callback = static_cast<btCollisionWorld::ClosestRayResultCallback*>(static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->rayTestFromTo(glm::vec3(thisEnemy.transform->position.x, thisEnemy.transform->position.y + 1.8, thisEnemy.transform->position.z), targetPlayer.transform->position));
+		if (targetPlayer.transform->position.y < 4.5f)
+		{
+			if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_WALL)
+			{
+				if (range > 3)
+				{
+					range -= 1;
+				}
+				regainRange = 0;
+			}
+		}
+
+		if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_PLAYER)
+		{
+			if (regainRange > 1.5)
+			{
+				range = originalRange;
+			}
+		}
+		delete callback;
+	}
+	else
+	{
+		range = originalRange;
+	}
 
 	auto rigidBody = static_cast<btRigidBody*>(thisEnemy.rigidBody->getRigidBody());
 	glm::vec3 movementForce = thisEnemy.movement->velocity;
 	//if (movementForce.x = 0 && movementForce.y == 0 && movementForce.z == 0)
 	//	rigidBody->clearForces();
 	//else
-	rigidBody->setLinearVelocity(btVector3(movementForce.x, movementForce.y, movementForce.z));
-
+	rigidBody->setLinearVelocity(btVector3(movementForce.x, rigidBody->getLinearVelocity().y(), movementForce.z));
+	
 	thisEnemy.transform->setRotation(rotation);
 }
 
@@ -243,7 +278,7 @@ void AlienBehaviour::run(float dt)
 {
 	//If all components haven't been found, try to find them and abort if one or more do not exist
 	if (!hasRequiredComponents)
-		if (!refreshRequiredComponents())
+		if(!refreshRequiredComponents())
 			return;
 	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
 	thisEnemy.ai->debugState = state;
@@ -251,7 +286,23 @@ void AlienBehaviour::run(float dt)
 	idleTimer += dt;
 	attackTimer += dt;
 	newPathTimer += dt;
+	regainRange += dt;
+	auto pc = targetPlayer.entity->getComponent<Hydra::Component::PlayerComponent>();
+	if (!pc->onFloor && pc->onGround && pathFinding->inWall(targetPlayer.transform->position))
+	{
+		playerUnreachable = true;
+		originalRange = 15;
+	}
+	else if (pc->onFloor && pc->onGround)
+	{
+		playerUnreachable = false;
+		originalRange = savedRange;
+	}
 
+	//if (pathFinding->inWall(targetPlayer.transform->position))
+	//{
+	//	state = IDLE;
+	//}
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 50)
 	{
 		state = IDLE;
@@ -278,6 +329,7 @@ unsigned int AlienBehaviour::attackingState(float dt)
 {
 	//When the enemy attack, start the attack animation
 	resetAnimationOnStart(2);
+
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) >= range)
 	{
 		idleTimer = 0;
@@ -287,13 +339,21 @@ unsigned int AlienBehaviour::attackingState(float dt)
 	{
 		std::mt19937 rng(rd());
 		std::uniform_int_distribution<> randDmg(thisEnemy.ai->damage - 1, thisEnemy.ai->damage + 2);
+		glm::vec3 playerDir = glm::normalize(targetPlayer.transform->position - thisEnemy.transform->position);
+
 		if (attackTimer > 2.5)
 		{
-			targetPlayer.life->applyDamage(randDmg(rng));
-			attackTimer = 0;
+			if (playerUnreachable)
+			{
+				thisEnemy.weapon->shoot(thisEnemy.transform->position + glm::vec3{ 0, 2.0f, 0 }, playerDir, glm::quat(), 5.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
+				attackTimer = 0;
+			}
+			else
+			{
+				targetPlayer.life->applyDamage(randDmg(rng));
+				attackTimer = 0;
+			}
 		}
-
-		glm::vec3 playerDir = glm::normalize(targetPlayer.transform->position - thisEnemy.transform->position);
 		rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
 	}
 	return state;
@@ -333,6 +393,7 @@ void RobotBehaviour::run(float dt)
 	idleTimer += dt;
 	attackTimer += dt;
 	newPathTimer += dt;
+	regainRange += dt;
 
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 50)
 	{
@@ -373,8 +434,8 @@ unsigned int RobotBehaviour::idleState(float dt)
 				thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->currentFrame -= 2;
 			else
 				return SEARCHING;
+			}
 		}
-	}
 	return state;
 }
 
@@ -391,7 +452,7 @@ bool RobotBehaviour::refreshRequiredComponents()
 		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity().get()) &&
 		(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 		(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
-		);
+	);
 	return hasRequiredComponents;
 }
 
@@ -408,7 +469,7 @@ unsigned int RobotBehaviour::attackingState(float dt)
 	{
 		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
 		playerDir = glm::normalize(playerDir);
-		thisEnemy.weapon->shoot(thisEnemy.transform->position + glm::vec3{ 0, 1.5, 0 }, playerDir, glm::quat(), 8.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
+		thisEnemy.weapon->shoot(thisEnemy.transform->position + glm::vec3{0, 1.5, 0}, playerDir, glm::quat(), 6.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
 		rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
 	}
 	return state;
@@ -449,6 +510,7 @@ void AlienBossBehaviour::run(float dt)
 	newPathTimer += dt;
 	phaseTimer += dt;
 	spawnTimer += dt;
+	regainRange += dt;
 
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 50)
 	{
@@ -526,13 +588,13 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 				if (spawnTimer >= 2)
 				{
 					auto alienSpawn = world::newEntity("AlienSpawn", world::root());
-
+					
 					auto a = alienSpawn->addComponent <Hydra::Component::AIComponent>();
 					//a->behaviour = std::make_shared<AlienBehaviour>(alienSpawn);
 					a->damage = 4;
 					//a->behaviour->originalRange = 4;
-					a->radius = 2.0f;
-
+					a->radius = 1.0f;
+					
 					auto h = alienSpawn->addComponent<Hydra::Component::LifeComponent>();
 					h->maxHP = 80;
 					h->health = 80;
