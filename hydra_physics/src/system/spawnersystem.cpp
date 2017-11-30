@@ -80,8 +80,8 @@ void SpawnerSystem::tick(float delta)
 					auto robotSpawn = world::newEntity("RobotSpawn", world::root());
 					auto a = robotSpawn->addComponent<Hydra::Component::AIComponent>();
 					a->behaviour = std::make_shared<AlienBehaviour>(robotSpawn);
-					a->damage = 8;
-					a->behaviour->originalRange = 26;
+					a->damage = 7;
+					a->behaviour->originalRange = 18;
 					a->radius = 1.0f;
 
 					auto h = robotSpawn->addComponent<Hydra::Component::LifeComponent>();

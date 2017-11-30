@@ -204,24 +204,29 @@ void Behaviour::executeTransforms()
 {
 	//Line of sight check
 	//If AI dont have vision to shoot at player, move closer
-	auto callback = static_cast<btCollisionWorld::ClosestRayResultCallback*>(static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->rayTestFromTo(glm::vec3(thisEnemy.transform->position.x, thisEnemy.transform->position.y+1.8, thisEnemy.transform->position.z), targetPlayer.transform->position));
-	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 50.0f)
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 40.0f)
 	{
-		if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_WALL)
+		auto callback = static_cast<btCollisionWorld::ClosestRayResultCallback*>(static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->rayTestFromTo(glm::vec3(thisEnemy.transform->position.x, thisEnemy.transform->position.y + 1.8, thisEnemy.transform->position.z), targetPlayer.transform->position));
+		if (targetPlayer.transform->position.y < 4.5f)
 		{
-			if (range > 3)
+			if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_WALL)
 			{
-				range -= 1;
+				if (range > 3)
+				{
+					range -= 1;
+				}
+				regainRange = 0;
 			}
-			regainRange = 0;
 		}
-		else if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_PLAYER)
+
+		if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_PLAYER)
 		{
 			if (regainRange > 1.5)
 			{
 				range = originalRange;
 			}
 		}
+		delete callback;
 	}
 	else
 	{
@@ -236,7 +241,6 @@ void Behaviour::executeTransforms()
 	rigidBody->setLinearVelocity(btVector3(movementForce.x, rigidBody->getLinearVelocity().y(), movementForce.z));
 	
 	thisEnemy.transform->setRotation(rotation);
-	delete callback;
 }
 
 void Behaviour::resetAnimationOnStart(int animationIndex) {
@@ -589,7 +593,7 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 					//a->behaviour = std::make_shared<AlienBehaviour>(alienSpawn);
 					a->damage = 4;
 					//a->behaviour->originalRange = 4;
-					a->radius = 2.0f;
+					a->radius = 1.0f;
 					
 					auto h = alienSpawn->addComponent<Hydra::Component::LifeComponent>();
 					h->maxHP = 80;

@@ -458,6 +458,7 @@ namespace Barcode {
 			pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
 			auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
 			textStuff->setText("\x01Perk picked up\x02");
+
 			textStuff->isStatic = true;
 		} 
 		{
@@ -491,6 +492,7 @@ namespace Barcode {
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
 				weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
 				weaponEntity->getComponent<Hydra::Component::WeaponComponent>()->bulletSize /= 2;
+				weaponEntity->getComponent<Hydra::Component::WeaponComponent>()->maxammo = 1000000000000;
 				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/FPSModel.mATTIC");
 				auto t2 = weaponEntity->addComponent<Hydra::Component::TransformComponent>();
 				t2->position = glm::vec3(2, -7, -2);
