@@ -40,6 +40,7 @@ namespace BarcodeServer {
 		std::vector<Player*> _players;
 		std::unique_ptr<TileGeneration> _tileGeneration;
 		bool** _pathfindingMap = nullptr;
+		std::string _pvsData;
 
 		Hydra::System::DeadSystem _deadSystem;
 		Hydra::System::BulletPhysicsSystem _physicsSystem;

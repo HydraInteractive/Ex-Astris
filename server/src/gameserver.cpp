@@ -156,7 +156,15 @@ bool GameServer::_addPlayer(int id) {
 		p->serverid = id;
 		p->connected = true;
 		this->_players.push_back(p);
-	
+		{
+			ServerFreezePlayerPacket freeze;
+			freeze.h.type = PacketType::ServerFreezePlayer;
+			freeze.h.len = sizeof(ServerFreezePlayerPacket);
+			freeze.h.client = id;
+			freeze.action = ServerFreezePlayer::Action::freeze;
+			_server->sendDataToClient((char*)&freze, freeze.h.len, id);
+		}
+
 		//ADD COLLISION AND FUCK
 		ServerInitializePacket pi;
 		Entity* enttmp = World::newEntity("Player", World::root()).get();
@@ -178,6 +186,17 @@ bool GameServer::_addPlayer(int id) {
 
 		printf("sendDataToClient:\n\ttype: ServerInitialize\n\tlen: %zu\n", pi.h.len);
 		int tmp = this->_server->sendDataToClient((char*)&pi, pi.h.len, id);
+
+		{
+			auto size = sizeof(ServerInitializePVSPacket) + _pvsData.size();
+			ServerInitializePVSPacket* pvs = (ServerInitializePVSPacket*)new char[size];
+			pvs.h.type = PacketType::ServerInitializePVS;
+			pvs.h.len = size;
+			pvs.h.client = id;
+			pvs.size = _pvsData.size();
+			memcpy(pvs.data, _pvsData.data(), _pvsData.size());
+			_server->sendDataToClient((char*)&pvs, pvs.h.len, id);
+		}
 
 
 		//WORLD TEMP
@@ -230,7 +249,16 @@ bool GameServer::_addPlayer(int id) {
 		printf("sendDataToAllExcept:\n\ttype: SERVERPLAYERPACKET\n\tlen: %zu\n", spp->h.len);
 		this->_server->sendDataToAllExcept((char*)spp, spp->getSize(), p->serverid);
 		delete[] (char*)spp;
-		
+
+		{
+			ServerFreezePlayerPacket freeze;
+			freeze.h.type = PacketType::ServerFreezePlayer;
+			freeze.h.len = sizeof(ServerFreezePlayerPacket);
+			freeze.h.client = id;
+			freeze.action = ServerFreezePlayer::Action::unfreeze;
+			_server->sendDataToClient((char*)&freze, freeze.h.len, id);
+		}
+
 		return true;
 	}
 	return false;
@@ -346,9 +374,9 @@ void GameServer::start() {
 		_pathfindingMap = _tileGeneration->buildMap();
 		_deadSystem.tick(0);
 		printf("Room count: %zu\t(%d)\n", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size(), _tileGeneration->roomCounter);
-		if (Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size() >= 6)
+		if (Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size() >= 24)
 			break;
-		printf("\tTarget is >= 6, redoing generation\n");
+		printf("\tTarget is >= 24, redoing generation\n");
 		_tileGeneration.reset();
 		_deadSystem.tick(0);
 	}
@@ -425,6 +453,16 @@ void GameServer::start() {
 
 	SDL_SaveBMP(map, "map.bmp");
 	SDL_FreeSurface(map);
+	system("../PVSTest/bin/PVSTest -f map.bmp -s 32 -o map.pvs -v");
+
+	{
+		FILE* fp = fopen("map.pvs", "rb");
+		fseek(fp, 0, SEEK_END);
+		_pvsData.resize(ftell(fp));
+		fseek(fp, 0, SEEK_SET);
+		fread(_pvsData.data(), _pvsData.size(), 1, fp);
+		fclose(fp);
+	}
 
 	/* markDead(world::rootID, false);
 	{

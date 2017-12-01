@@ -10,6 +10,8 @@ namespace Hydra::Network {
 	typedef Hydra::World::EntityID ServerID;
 	enum PacketType {
 		ServerInitialize,
+		ServerInitializePVS,
+		ServerFreezePlayer,
 		ServerUpdate,
 		ServerPlayer,
 		ClientUpdate,
@@ -24,6 +26,8 @@ namespace Hydra::Network {
 	};
 	static constexpr const char* PacketTypeName[] = {
 		"ServerInitialize",
+		"ServerInitializePVS",
+		"ServerFreezePlayer",
 		"ServerUpdate",
 		"ServerPlayer",
 		"ClientUpdate",
@@ -90,7 +94,7 @@ namespace Hydra::Network {
 
 	struct ClientSpawnEntityPacket : public Packet {
 		size_t size;
-		char* data[0];
+		char data[0];
 		inline size_t getSize() { return sizeof(ClientSpawnEntityPacket) + sizeof(char) * size; }
 	};
 
@@ -105,6 +109,19 @@ namespace Hydra::Network {
 	struct ServerInitializePacket : public Packet {
 		ServerID entityid;
 		TransformInfo ti;
+	};
+
+	struct ServerInitializePVSPacket : public Packet {
+		size_t size;
+		char data[0];
+	};
+
+	struct ServerFreezePlayerPacket : public Packet {
+		enum class Action {
+			freeze = 0,
+			unfreeze
+		};
+		Action action;
 	};
 
 	struct ServerUpdatePacket : public Packet {
