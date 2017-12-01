@@ -23,7 +23,7 @@ void PathingMapMenu::render(bool & closeBool, float delta, int sizeX, int sizeY)
 		for (int j = 0; j < ROOM_MAP_SIZE; j++)
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_ChildWindowRounding, 10.0f);
-			ImGui::BeginChild(j+(i*ROOM_MAP_SIZE), ImVec2(((ImGui::GetWindowContentRegionMax().x) / ROOM_MAP_SIZE) - 10.0f, ((ImGui::GetWindowContentRegionMax().y) / ROOM_MAP_SIZE - 4.5f)), true);
+			ImGui::BeginChild(j+(i*ROOM_MAP_SIZE), ImVec2(((ImGui::GetWindowContentRegionMax().x) / ROOM_MAP_SIZE) - 10.0f, ((ImGui::GetWindowContentRegionMax().y) / ROOM_MAP_SIZE - 4.5f)), true, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 
 			ImGui::PushID(j);
 			

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <glm/glm.hpp>
 
 using namespace BarcodeServer;
 using namespace Hydra::Network;
@@ -320,6 +321,23 @@ static void removeRelations(EntityID id) {
 	std::remove_if(e->children.begin(), e->children.end(), [](EntityID c) { return world::getEntity(c)->dead; });
 }*/
 
+
+enum Tile {
+	Void,
+	Air,
+	RoomContent,
+	Wall,
+	Portal,
+	MAX_COUNT
+};
+static const glm::ivec3 colors[Tile::MAX_COUNT] {
+	{0xFF, 0xFF, 0xFF},
+	{0x3F, 0x3F, 0x3F},
+	{0xFF, 0xFF, 0x00},
+	{0x00, 0x00, 0x00},
+	{0x00, 0xFF, 0xFF}
+};
+
 void GameServer::start() {
 	size_t tries = 0;
 	while (true) {
@@ -328,16 +346,20 @@ void GameServer::start() {
 		_pathfindingMap = _tileGeneration->buildMap();
 		_deadSystem.tick(0);
 		printf("Room count: %zu\t(%d)\n", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size(), _tileGeneration->roomCounter);
-		if (Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size() >= 8)
+		if (Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size() >= 6)
 			break;
-		printf("\tTarget is >= 8, redoing generation\n");
+		printf("\tTarget is >= 6, redoing generation\n");
 		_tileGeneration.reset();
 		_deadSystem.tick(0);
 	}
 	printf ("\tTook %zu tries\n", tries);
 
+
 	SDL_Surface* map = SDL_CreateRGBSurface(0, WORLD_MAP_SIZE, WORLD_MAP_SIZE, 32, 0, 0, 0, 0);
-	SDL_FillRect(map, nullptr, SDL_MapRGB(map->format, 0xFF, 0xFF, 0xFF));
+	{
+		auto color = colors[Tile::Void];
+		SDL_FillRect(map, nullptr, SDL_MapRGB(map->format, color.x, color.y, color.z));
+	}
 
 	for (size_t x = 0; x < ROOM_GRID_SIZE; x++)
 		printf("|   %zu  ", x);
@@ -355,14 +377,20 @@ void GameServer::start() {
 					);
 
 				// Walls
-
 				auto pfm = _pathfindingMap;
 				auto drawWallPixel = [pfm, map](int x, int y) {
 					SDL_Rect rect{x, y, 1, 1};
-					auto color = SDL_MapRGB(map->format, 0, 0, 0);
-					if (pfm[x][y] && x > 0 && y > 0 && x < WORLD_MAP_SIZE-1 && y < WORLD_MAP_SIZE-1)
-						color = SDL_MapRGB(map->format, 0, 0xFF, 0xFF);
-					SDL_FillRect(map, &rect, color);
+					auto color = colors[Tile::Wall];
+					if (pfm[x][y] && x > 0 && y > 0 && x < WORLD_MAP_SIZE - 1 && y < WORLD_MAP_SIZE - 1)
+						color = colors[Tile::Portal];
+					SDL_FillRect(map, &rect, SDL_MapRGB(map->format, color.x, color.y, color.z));
+				};
+				auto drawRoomPixel = [pfm, map](int x, int y) {
+					SDL_Rect rect{x, y, 1, 1};
+					auto color = colors[Tile::Air];
+					if (pfm[x][y] && x > 0 && y > 0 && x < WORLD_MAP_SIZE - 1 && y < WORLD_MAP_SIZE - 1)
+						color = colors[Tile::RoomContent];
+					SDL_FillRect(map, &rect, SDL_MapRGB(map->format, color.x, color.y, color.z));
 				};
 
 				for (int i = 0; i < ROOM_MAP_SIZE; i++)
@@ -379,15 +407,16 @@ void GameServer::start() {
 
 				// Center of room
 				SDL_Rect rect = {x * ROOM_MAP_SIZE + 1, y * ROOM_MAP_SIZE + 1, ROOM_MAP_SIZE - 2, ROOM_MAP_SIZE - 2};
-				SDL_FillRect(map, &rect, SDL_MapRGB(map->format, 0x3F, 0x3F, 0x3F));
+				auto color = colors[Tile::Air];
+				SDL_FillRect(map, &rect, SDL_MapRGB(map->format, color.x, color.y, color.z));
 
-				for (int i = 0; i < ROOM_MAP_SIZE; i++)
-					for (int j = 0; j < ROOM_MAP_SIZE; j++)
-					drawWallPixel(x * ROOM_MAP_SIZE + i, y * ROOM_MAP_SIZE + j);
+				for (int i = 1; i < ROOM_MAP_SIZE - 1; i++)
+					for (int j = 1; j < ROOM_MAP_SIZE - 1; j++)
+					drawRoomPixel(x * ROOM_MAP_SIZE + i, y * ROOM_MAP_SIZE + j);
 			} else {
 				printf("|      ");
-				SDL_Rect rect{x * ROOM_MAP_SIZE, y * ROOM_MAP_SIZE, ROOM_MAP_SIZE, ROOM_MAP_SIZE};
-				SDL_FillRect(map, &rect, SDL_MapRGB(map->format, 0, 0, 0));
+				/*SDL_Rect rect{x * ROOM_MAP_SIZE, y * ROOM_MAP_SIZE, ROOM_MAP_SIZE, ROOM_MAP_SIZE};
+				SDL_FillRect(map, &rect, SDL_MapRGB(map->format, 0, 0, 0));*/
 			}
 		}
 		printf("|\n");

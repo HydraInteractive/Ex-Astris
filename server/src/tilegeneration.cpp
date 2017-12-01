@@ -48,192 +48,49 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 	//Check if yTilePos or xTilePos == 0. If this is true, limit the rooms it can create
 	//or we will go otuside the tile grid
 
-	if (roomGrid[pos.x][pos.y]->door[NORTH] && roomGrid[pos.x][pos.y + 1] == nullptr) {
-		bool placed = false;
-		//Load all rooms and see if any of them fits
-		for (size_t i = 0; i < _roomFileNames.size() && placed == false && roomCounter < maxRooms; i++) {
-			//Take a random room and read it. Don't spawn it until it fits
-			//NOTE:: Make a random list and go through it to prevent loading same room multible times
-			auto loadedRoom = world::newEntity("Room", mapentity);
 
-			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
-			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
-			uint8_t rot;
-			glm::quat rotation = _rotateRoom(roomC, rot);
+	const int      nesw[4] = { NORTH, EAST, SOUTH, WEST };
+	const glm::ivec2 offset[4] = { {0, -1}, {1, 0}, {0, 1}, {-1, 0} };
 
-			if (roomC->door[SOUTH] == true) {
-				if (_checkAdjacents(pos.x, pos.y + 1, roomC)) {
+	for (size_t direction = 0; direction < sizeof(nesw) / sizeof(nesw[0]); direction++) {
+		const int dir = nesw[direction];
+		const int negDir = nesw[(direction + 2) % 4];
+		if (roomGrid[pos.x][pos.y]->door[dir] && roomGrid[pos.x + offset[direction].x][pos.y + offset[direction].y] == nullptr) {
+			bool placed = false;
+			for (size_t i = 0; i < _roomFileNames.size()*2 && !placed && roomCounter < maxRooms; i++) {
+				auto loadedRoom = world::newEntity("Room", mapentity);
+
+				BlueprintLoader::load(_roomFileNames[i/2])->spawn(loadedRoom);
+				auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
+				uint8_t rot;
+				glm::quat rotation = _rotateRoom(roomC, rot);
+
+				if (roomC->door[negDir] && _checkAdjacents(pos.x + offset[direction].x, pos.y + offset[direction].y, roomC)) {
 					placed = true;
 					auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
-					t->position = _gridToWorld(pos.x, pos.y + 1);
+					t->position = _gridToWorld(pos.x + offset[direction].x, pos.y + offset[direction].y);
 					t->scale = glm::vec3(1, 1, 1);
 					t->rotation = rotation;
-					roomGrid[pos.x][pos.y + 1] = roomC;
-					_insertPathFindingMap(glm::ivec2(pos.x, pos.y + 1), rot);
+					roomGrid[pos.x + offset[direction].x][pos.y + offset[direction].y] = roomC;
+					_insertPathFindingMap(glm::ivec2(pos.x + offset[direction].x, pos.y + offset[direction].y), rot);
 					//_spawnRandomizedEnemies(t);
 					roomCounter++;
-					_createMapRecursivly(glm::ivec2(pos.x, pos.y + 1));
-				}
-				else
-					loadedRoom->dead = true;
-			} else
-				loadedRoom->dead = true;
-		}
-		//If for some reason no room at all fits, spawn a door/rubble/something
-		if (placed == false) {
-			//Place stuff to cover door
-			auto doorBlock = world::newEntity("DoorBlock", mapentity);
-			doorBlock->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BlockCube2.mATTIC");
-			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
-			t->position = _gridToWorld(pos.x, pos.y + 1);
-			t->position.z -= 17;
-			t->position.y += 3;
-			t->scale = glm::vec3(4);
-			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
-			rgbc->createBox(glm::vec3(0.8f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
-		}
-	}
-
-	if (roomGrid[pos.x][pos.y]->door[WEST] && roomGrid[pos.x + 1][pos.y] == nullptr) {
-		bool placed = false;
-		//Load all rooms and see if any of them fits
-		for (size_t i = 0; i < _roomFileNames.size() && placed == false && roomCounter < maxRooms; i++) {
-
-			//Take a random room and read it. Don't spawn it until it fits
-			//NOTE:: Make a random list and go through it to prevent loading same room multible times
-			std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", mapentity);
-
-			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
-			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
-			uint8_t rot;
-			glm::quat rotation = _rotateRoom(roomC, rot);
-
-			if (roomC->door[EAST] == true) {
-				if (_checkAdjacents(pos.x + 1, pos.y, roomC)) {
-					placed = true;
-					auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
-					t->position = _gridToWorld(pos.x + 1, pos.y);
-					t->scale = glm::vec3(1, 1, 1);
-					t->rotation = rotation;
-					roomGrid[pos.x + 1][pos.y] = roomC;
-					_insertPathFindingMap(glm::ivec2(pos.x + 1, pos.y), rot);
-					//_spawnRandomizedEnemies(t);
-					roomCounter++;
-					_createMapRecursivly(glm::ivec2(pos.x + 1, pos.y));
-				}
-				else
+					_createMapRecursivly(glm::ivec2(pos.x + offset[direction].x, pos.y + offset[direction].y));
+				} else
 					loadedRoom->dead = true;
 			}
-			else
-				loadedRoom->dead = true;
-		}
-		//If for some reason no room at all fits, spawn a door/rubble/something
-		if (placed == false) {
-			//Place stuff to cover door
-			auto doorBlock = world::newEntity("DoorBlock", mapentity);
-			doorBlock->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BlockCube2.mATTIC");
-			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
-			t->position = _gridToWorld(pos.x + 1, pos.y);
-			t->position.x -= 17;
-			t->position.y += 3;
-			t->scale = glm::vec3(4);
-			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
-			rgbc->createBox(glm::vec3(0.8f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
-		}
-	}
 
-	if (roomGrid[pos.x][pos.y]->door[SOUTH] && roomGrid[pos.x][pos.y - 1] == nullptr) {
-		bool placed = false;
-		//Load all rooms and see if any of them fits
-		for (size_t i = 0; i < _roomFileNames.size() && placed == false && roomCounter < maxRooms; i++) {
-
-			//Take a random room and read it. Don't spawn it until it fits
-			//NOTE:: Make a random list and go through it to prevent loading same room multible times
-			std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", mapentity);
-
-			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
-			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
-			uint8_t rot;
-			glm::quat rotation = _rotateRoom(roomC, rot);
-
-			if (roomC->door[NORTH] == true) {
-				if (_checkAdjacents(pos.x, pos.y - 1, roomC)) {
-					placed = true;
-					auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
-					t->position = _gridToWorld(pos.x, pos.y - 1);
-					t->scale = glm::vec3(1, 1, 1);
-					t->rotation = rotation;
-					roomGrid[pos.x][pos.y - 1] = roomC;
-					_insertPathFindingMap(glm::ivec2(pos.x, pos.y - 1), rot);
-					//_spawnRandomizedEnemies(t);
-					roomCounter++;
-					_createMapRecursivly(glm::ivec2(pos.x, pos.y - 1));
-				}
-				else
-					loadedRoom->dead = true;
-			}
-			else
-				loadedRoom->dead = true;
-		}
-		//If for some reason no room at all fits, spawn a door/rubble/something
-		if (placed == false) {
-			//Place stuff to cover door
-			auto doorBlock = world::newEntity("DoorBlock", mapentity);
-			doorBlock->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BlockCube2.mATTIC");
-			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
-			t->position = _gridToWorld(pos.x, pos.y - 1);
-			t->position.z += 17;
-			t->position.y += 3;
-			t->scale = glm::vec3(4);
-			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
-			rgbc->createBox(glm::vec3(0.8f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
-		}
-	}
-
-	if (roomGrid[pos.x][pos.y]->door[EAST] && roomGrid[pos.x - 1][pos.y] == nullptr) {
-		bool placed = false;
-		//Load all rooms and see if any of them fits
-		for (size_t i = 0; i < _roomFileNames.size() && placed == false && roomCounter < maxRooms; i++) {
-			//Take a random room and read it. Don't spawn it until it fits
-			//NOTE:: Make a random list and go through it to prevent loading same room multible times
-			std::shared_ptr<Hydra::World::Entity> loadedRoom = world::newEntity("Room", mapentity);
-
-			BlueprintLoader::load(_roomFileNames[i])->spawn(loadedRoom);
-			auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
-			uint8_t rot;
-			glm::quat rotation = _rotateRoom(roomC, rot);
-
-			if (roomC->door[WEST] == true) {
-				if (_checkAdjacents(pos.x - 1, pos.y, roomC)) {
-					placed = true;
-					auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
-					t->position = _gridToWorld(pos.x - 1, pos.y);
-					t->scale = glm::vec3(1, 1, 1);
-					t->rotation = rotation;
-					roomGrid[pos.x - 1][pos.y] = roomC;
-					_insertPathFindingMap(glm::ivec2(pos.x - 1, pos.y), rot);
-					//_spawnRandomizedEnemies(t);
-					roomCounter++;
-					_createMapRecursivly(glm::ivec2(pos.x - 1, pos.y));
-				}
-				else
-					loadedRoom->dead = true;
-			}
-			else
-				loadedRoom->dead = true;
-		}
-		//If for some reason no room at all fits, spawn a door/rubble/something
-		if (placed == false) {
-			//Place stuff to cover door
-			auto doorBlock = world::newEntity("DoorBlock", mapentity);
-			doorBlock->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BlockCube2.mATTIC");
-			auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
-			t->position = _gridToWorld(pos.x - 1, pos.y);
-			t->position.x += 17;
-			t->position.y += 3;
-			t->scale = glm::vec3(4);
-			auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
-			rgbc->createBox(glm::vec3(0.8f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
+			/*if (!placed) {
+				auto doorBlock = world::newEntity("DoorBlock", mapentity);
+				doorBlock->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BlockCube2.mATTIC");
+				auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
+				t->position = _gridToWorld(pos.x, pos.y + 1);
+				t->position.z += 17 * (direction <= 2 ? -1 : 1);
+				t->position.y += 3;
+				t->scale = glm::vec3(4);
+				auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
+				rgbc->createBox(glm::vec3(0.8f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
+				}*/
 		}
 	}
 }
@@ -245,7 +102,7 @@ void TileGeneration::_setUpMiddleRoom(const std::string& middleRoomPath) {
 	roomGrid[ROOM_GRID_SIZE / 2][ROOM_GRID_SIZE / 2] = roomC;
 	_insertPathFindingMap(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2), 0 /* No rotation */);
 	auto t = room->addComponent<Hydra::Component::TransformComponent>();
-	t->position = _gridToWorld(2, 2);
+	t->position = _gridToWorld(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2);
 	t->scale = glm::vec3(1, 1, 1);
 	localXY = glm::vec2(0, 0);
 	_spawnLight(t);
@@ -490,10 +347,10 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 
 	glm::quat rotation;
 
-	rot = 0; //rand() % 4;
+	rot = rand() % 4;
 
 	if (rot == 0)
-		rotation = glm::angleAxis(glm::radians(0.0f), glm::vec3(0, -1, 0));
+		rotation = glm::angleAxis(glm::radians(0.0f), glm::vec3(0, 1, 0));
 	else if (rot == 1) {
 		decltype(room->door) doors = {
 			room->door[EAST],
@@ -510,7 +367,7 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 		};
 		memcpy(room->openWalls, openWalls, sizeof(openWalls));
 
-		rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0, -1, 0));
+		rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0, 1, 0));
 	} else if (rot == 2) {
 		decltype(room->door) doors = {
 			room->door[SOUTH],
@@ -527,7 +384,7 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 		};
 		memcpy(room->openWalls, openWalls, sizeof(openWalls));
 
-		rotation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0, -1, 0));
+		rotation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0, 1, 0));
 	}	else if (rot == 3) {
 		decltype(room->door) doors = {
 			room->door[WEST],
@@ -544,7 +401,7 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 		};
 		memcpy(room->openWalls, openWalls, sizeof(openWalls));
 
-		rotation = glm::angleAxis(glm::radians(270.0f), glm::vec3(0, -1, 0));
+		rotation = glm::angleAxis(glm::radians(270.0f), glm::vec3(0, 1, 0));
 	}
 
 	return rotation;
@@ -561,38 +418,29 @@ glm::vec3 TileGeneration::_gridToWorld(int x, int y) {
 }
 
 bool TileGeneration::_checkAdjacents(int x, int y, std::shared_ptr<Hydra::Component::RoomComponent>& r) {
-	if (r->door[r->NORTH])
-	{
-		if (y >= ROOM_GRID_SIZE - 1)
+	if (r->door[NORTH]) {
+		if (y < 1)
 			return false;
-		if (roomGrid[x][y + 1] != nullptr)
-			if (roomGrid[x][y + 1]->door[r->SOUTH] == false)
-				return false;
-		
-	}
-	if (r->door[r->EAST])
-	{
-		if (x <= 0)
+		if (auto rr = roomGrid[x][y - 1]; rr && rr->door[SOUTH] == false)
 			return false;
-		if (roomGrid[x - 1][y] != nullptr)
-			if(roomGrid[x - 1][y]->door[r->WEST] == false)
-				return false;
 	}
-	if (r->door[r->SOUTH])
-	{
-		if (y <= 0)
-			return false;
-		if (roomGrid[x][y - 1] != nullptr)
-			if(roomGrid[x][y - 1]->door[r->NORTH] == false)
-				return false;
-	}
-	if (r->door[r->WEST])
-	{
+	if (r->door[EAST]) {
 		if (x >= ROOM_GRID_SIZE - 1)
 			return false;
-		if (roomGrid[x + 1][y] != nullptr)
-			if(roomGrid[x + 1][y]->door[r->EAST] == false)
+		if (auto rr = roomGrid[x + 1][y]; rr && rr->door[WEST] == false)
 				return false;
+	}
+	if (r->door[SOUTH]) {
+		if (y >= ROOM_GRID_SIZE - 1)
+			return false;
+		if (auto rr = roomGrid[x][y + 1]; rr && rr->door[NORTH] == false)
+			return false;
+	}
+	if (r->door[WEST]) {
+		if (x < 1)
+			return false;
+		if (auto rr = roomGrid[x - 1][y]; rr && rr->door[EAST] == false)
+			return false;
 	}
 	return true;
 }
