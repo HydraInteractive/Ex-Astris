@@ -207,7 +207,6 @@ void Behaviour::executeTransforms()
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 40.0f)
 	{
 		auto callback = static_cast<btCollisionWorld::ClosestRayResultCallback*>(static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->rayTestFromTo(glm::vec3(thisEnemy.transform->position.x, thisEnemy.transform->position.y + 1.8, thisEnemy.transform->position.z), targetPlayer.transform->position));
-
 		if (targetPlayer.transform->position.y < 4.5f)
 		{
 			if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_WALL)

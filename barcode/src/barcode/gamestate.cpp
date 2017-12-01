@@ -131,10 +131,10 @@ namespace Barcode {
 
 
 		static bool enableHitboxDebug = true;
-/*		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
+		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
 		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
 		ImGui::Checkbox("Enable SSAO", &MenuState::ssaoEnabled);
-		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);*/
+		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);
 
 		const glm::vec3& cameraPos = _playerTransform->position;
 		auto viewMatrix = _cc->getViewMatrix();
@@ -391,8 +391,10 @@ namespace Barcode {
 			}
 
 			// Loading screen
-			if (showLoadingScreen == true)
+			if (showLoadingScreen == true && timer > 0)
 			{
+				timer -= delta;
+				 
 				ImGui::SetNextWindowPos(ImVec2(0, 0));
 				ImGui::SetNextWindowSize(ImVec2(windowSize.x, windowSize.y/*1280, 720*/));
 				ImGui::Begin("LoadingScreen", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
@@ -419,6 +421,12 @@ namespace Barcode {
 			ImGui::PopStyleVar();
 			ImGui::PopStyleVar();
 		}
+	}
+
+	void GameState::setLC(bool state, float time)
+	{
+		showLoadingScreen = state;
+		timer = time;
 	}
 
 	void GameState::_initSystem() {
@@ -454,9 +462,9 @@ namespace Barcode {
 			pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
 			auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
 			textStuff->setText("\x01Perk picked up\x02");
-
 			textStuff->isStatic = true;
 		} 
+
 		{
 			//Remove this to gain frames like never before
 

@@ -58,7 +58,6 @@ public:
 
 	bool** buildMap();
 
-
 private:
 	std::vector<std::string> _roomFileNames;
 	int _roomCounter = 0;
