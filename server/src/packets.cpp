@@ -92,7 +92,7 @@ void BarcodeServer::createAndSendPlayerUpdateBulletPacket(Player * p, Server * s
 	memcpy(result, packet, sizeof(ServerUpdateBulletPacket));
 	memcpy(result + sizeof(ServerUpdateBulletPacket), vec.data(), vec.size() * sizeof(uint8_t));
 
-	printf("sendDataToAllExcept:\n\ttype: ServerUpdateBullet\n\tlen: %d\n", packet->h.len);
+	printf("sendDataToAllExcept:\n\ttype: ServerUpdateBullet\n\tlen: %zu\n", packet->h.len);
 	s->sendDataToAllExcept(result, sizeof(ServerUpdateBulletPacket) + vec.size() * sizeof(uint8_t), p->serverid);
 	//_tcp.send(packet, sizeof(ClientSpawnEntityPacket)); // DATA SNED
 	//_tcp.send(vec.data(), vec.size() * sizeof(uint8_t)); // DATA SKJICJIK
@@ -111,7 +111,7 @@ void BarcodeServer::createAndSendPlayerShootPacket(Player * p, ClientShootPacket
 	packet->ti = csp->ti;
 	packet->serverPlayerID = p->entityid;
 
-	printf("sendDataToAllExcept:\n\ttype: ServerShoot\n\tlen: %d\n", packet->h.len);
+	printf("sendDataToAllExcept:\n\ttype: ServerShoot\n\tlen: %zu\n", packet->h.len);
 	s->sendDataToAllExcept((char*)packet, sizeof(ServerShootPacket), p->serverid);
 
 	delete packet;
@@ -144,7 +144,7 @@ Hydra::World::Entity* BarcodeServer::resolveClientSpawnEntityPacket(ClientSpawnE
 	memcpy(result, packet, sizeof(ServerSpawnEntityPacket));
 	memcpy(result + sizeof(ServerSpawnEntityPacket), data.data(), data.size() * sizeof(uint8_t));
 
-	printf("sendDataToAll:\n\ttype: ServerShoot\n\tlen: %d\n", packet->h.len);
+	printf("sendDataToAll:\n\ttype: ServerShoot\n\tlen: %zu\n", packet->h.len);
 	s->sendDataToAll(result, sizeof(ServerSpawnEntityPacket) + data.size() * sizeof(uint8_t));
 
 	delete[] result;

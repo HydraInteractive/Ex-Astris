@@ -176,7 +176,7 @@ bool GameServer::_addPlayer(int id) {
 			pi.ti.scale = tc->scale;
 		}
 
-		printf("sendDataToClient:\n\ttype: ServerInitialize\n\tlen: %d\n", pi.h.len);
+		printf("sendDataToClient:\n\ttype: ServerInitialize\n\tlen: %zu\n", pi.h.len);
 		int tmp = this->_server->sendDataToClient((char*)&pi, pi.h.len, id);
 
 
@@ -227,7 +227,7 @@ bool GameServer::_addPlayer(int id) {
 		
 		ServerPlayerPacket* spp = createServerPlayerPacket("Fjant", pi.ti);
 		spp->entID = p->entityid;
-		printf("sendDataToAllExcept:\n\ttype: SERVERPLAYERPACKET\n\tlen: %d\n", spp->h.len);
+		printf("sendDataToAllExcept:\n\ttype: SERVERPLAYERPACKET\n\tlen: %zu\n", spp->h.len);
 		this->_server->sendDataToAllExcept((char*)spp, spp->getSize(), p->serverid);
 		delete[] (char*)spp;
 		

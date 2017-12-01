@@ -51,8 +51,8 @@ namespace Hydra::Network {
 
 	struct Header {
 		PacketType type;
-		int len; // Length of total packet
-		int client; // Set manually irrelevant when sending packets
+		size_t len; // Length of total packet
+		ServerID client; // Set manually irrelevant when sending packets
 	};
 
 	struct Packet {

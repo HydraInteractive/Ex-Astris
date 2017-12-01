@@ -66,7 +66,7 @@ namespace Barcode {
 
 		ImGui::Text("Loaded rooms: %zu", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size());
 
-		{
+		/*{
 			static std::vector<std::shared_ptr<Entity>> _enemies;
 			static std::vector<std::shared_ptr<Entity>> _spawners;
 			world::getEntitiesWithComponents<Hydra::Component::SpawnerComponent, Hydra::Component::LifeComponent>(_spawners);
@@ -79,7 +79,7 @@ namespace Barcode {
 			}
 			_enemies.clear();
 			_spawners.clear();
-		}
+		}*/
 
 		bool oldPaused = _paused;
 		if (ImGui::IsKeyPressed(SDLK_ESCAPE, false)) {
