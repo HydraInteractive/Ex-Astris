@@ -29,8 +29,8 @@ namespace Hydra::Component {
 		float _dyaw, _dpitch = 0.0f;
 		bool _isReloading = false;
 
-		/*unsigned short*/ int maxammo = 500;
-		/*unsigned short*/ int currammo = 500;
+		/*unsigned short*/ int maxammo = 100000000;
+		/*unsigned short*/ int currammo = 100000000;
 		/*unsigned short*/ int maxmagammo = 25;
 		/*unsigned short*/ int currmagammo = 25;
 		/*unsigned short*/ int ammoPerShot = 1;
