@@ -2,7 +2,7 @@
 
 in GeometryData {
 	vec3 position;
-	vec3 vPos;
+	//vec3 vPos;
 	vec3 normal;
 	vec3 vNormal;
 	vec3 color;
@@ -17,9 +17,9 @@ layout (location = 0) out vec3 position;
 layout (location = 1) out vec4 diffuse;
 layout (location = 2) out vec3 normal;
 layout (location = 3) out vec4 lightPos;
-layout (location = 4) out vec3 viewPos;
-layout (location = 5) out float glow;
-layout (location = 6) out vec3 viewNormal;
+//layout (location = 4) out vec3 viewPos;
+layout (location = 4) out float glow;
+layout (location = 5) out vec3 viewNormal;
 
 layout (location = 20) uniform sampler2D diffuseTexture;
 layout (location = 21) uniform sampler2D normalTexture;
@@ -40,5 +40,7 @@ void main() {
 
 	position = inData.position;
 	lightPos = inData.light;
-	viewPos = inData.vPos;
+	//viewPos = inData.vPos;
+
+	//gl_FragDepth = inData.vPos.z / 75.0;
 }

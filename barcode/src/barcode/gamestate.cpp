@@ -389,8 +389,10 @@ namespace Barcode {
 			}
 
 			// Loading screen
-			if (showLoadingScreen == true)
+			if (showLoadingScreen == true && timer > 0)
 			{
+				timer -= delta;
+				 
 				ImGui::SetNextWindowPos(ImVec2(0, 0));
 				ImGui::SetNextWindowSize(ImVec2(windowSize.x, windowSize.y/*1280, 720*/));
 				ImGui::Begin("LoadingScreen", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
@@ -419,6 +421,12 @@ namespace Barcode {
 		}
 	}
 
+	void GameState::setLC(bool state, float time)
+	{
+		showLoadingScreen = state;
+		timer = time;
+	}
+
 	void GameState::_initSystem() {
 		const std::vector<Hydra::World::ISystem*> systems = { _engine->getDeadSystem(), &_cameraSystem, &_particleSystem, &_abilitySystem, &_aiSystem, &_physicsSystem, &_bulletSystem, &_playerSystem, &_rendererSystem, &_spawnerSystem };
 		_engine->getUIRenderer()->registerSystems(systems);
@@ -436,6 +444,24 @@ namespace Barcode {
 			//floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 
 		}
+
+		{
+			auto pickUpEntity = world::newEntity("PickUp", world::root());
+			auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
+			t->position = glm::vec3(5, 5, 5);
+			pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Lock.mATTIC");
+			pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
+			auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+			rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
+			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+			 
+			auto pickupText = world::newEntity("Textpickup", world::root());
+			pickupText->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
+			pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
+			auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
+			textStuff->setText("\x01Perk picked up\x02");
+			textStuff->isStatic = true;
+		} 
 
 		{
 			//Remove this to gain frames like never before

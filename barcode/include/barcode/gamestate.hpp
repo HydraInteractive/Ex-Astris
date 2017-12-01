@@ -61,7 +61,7 @@ namespace Barcode {
 		void load() final;
 		int currentFrame = 0;
 		void runFrame(float delta) final;
-		bool showLoadingScreen = false;
+		void setLC(bool state, float time);
 
 		inline Hydra::IO::ITextureLoader* getTextureLoader() final { return _textureLoader.get(); }
 		inline Hydra::IO::IMeshLoader* getMeshLoader() final { return _meshLoader.get(); }
@@ -101,10 +101,11 @@ namespace Barcode {
 		Hydra::Component::CameraComponent* _cc = nullptr;
 		Hydra::Component::TransformComponent* _playerTransform = nullptr;
 
-		float prevHP, hpTimeUp = 0;
+		float prevHP, hpTimeUp, timer = 0;
 		int  lCPicture = 0;
 		TileGeneration* tileGen;
 		bool** pathfindingMap = nullptr;
+		bool showLoadingScreen = false;
 
 		void _initSystem();
 		void _initWorld();

@@ -38,7 +38,8 @@ layout(location = 7) uniform vec3 cameraPos;
 layout(location = 8) uniform bool enableSSAO = true;
 layout(location = 9) uniform int nrOfPointLights;
 layout(location = 10) uniform DirLight dirLight;
-layout(location = 12) uniform PointLight pointLights[MAX_LIGHTS];
+layout(location = 12) uniform mat4 projection;
+layout(location = 13) uniform PointLight pointLights[MAX_LIGHTS];
 
 float random(vec4 seed){
 	float value = dot(seed, vec4(12.9898, 78.233, 45.164, 94.673));
@@ -76,6 +77,16 @@ vec3 calcDirLight(DirLight light, vec3 pos, vec3 normal, vec4 objectColor){
 	return (diffuse + specular);
 }
 
+vec3 calcViewPos(vec2 uv, float depth) {
+	mat4 invProj = inverse(projection);
+	depth = depth * 2.0 - 1.0;
+	vec4 clipSpacePos = vec4(uv * 2.0 - 1.0, depth, 1.0);
+	vec4 viewPos = invProj * clipSpacePos;
+	viewPos = vec4(viewPos.xyz / viewPos.w, 1.0);
+
+	return viewPos.xyz;
+}
+
 void main() {
 	// MSAA
 	//ivec2 iTexCoords = ivec2(texCoords * textureSize(positions));
@@ -96,6 +107,7 @@ void main() {
 	//lightPos /= 4;
 
 	vec3 pos = texture(positions, texCoords).xyz;
+	//vec3 pos = calcViewPos(texCoords, texture(depthMap, texCoords).z);
 	vec4 objectColor = texture(colors, texCoords);
 	vec3 normal = normalize(texture(normals, texCoords).xyz);
 	vec4 lightPos = texture(lightPositions, texCoords);
