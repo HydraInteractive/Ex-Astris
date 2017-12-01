@@ -123,7 +123,7 @@ bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 			auto t = bullet->addComponent<Hydra::Component::TransformComponent>();
 			t->position = position;
 			t->scale = glm::vec3(bulletSize);
-			t->rotation = bulletOrientation;
+			t->setRotation(bulletOrientation);
 
 			auto bulletPhysWorld = static_cast<Hydra::System::BulletPhysicsSystem*>(IEngine::getInstance()->getState()->getPhysicsSystem());
 
