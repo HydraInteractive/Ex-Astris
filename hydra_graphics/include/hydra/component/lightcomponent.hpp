@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/transform2.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include <hydra/component/transformcomponent.hpp>
 
@@ -19,12 +20,12 @@ namespace Hydra::Component {
 	struct HYDRA_GRAPHICS_API LightComponent final : public IComponent<LightComponent, ComponentBits::Light> {
 		glm::vec3 color = glm::vec3(1, 1, 1);
 
-		float zNear = 30.0f;
-		float zFar = 230.0f;
-		float xNear = -20.0f;
-		float xFar = 20.0f;
-		float yNear = -20.0f;
-		float yFar = 20.0f;
+		float zNear = 0.0f;
+		float zFar = 14.0f;
+		float xNear = -140.0f;
+		float xFar = 140.0f;
+		float yNear = -140.0f;
+		float yFar = 140.0f;
 		~LightComponent() final;
 
 		void serialize(nlohmann::json& json) const;
@@ -36,7 +37,7 @@ namespace Hydra::Component {
 		inline glm::mat4 getProjectionMatrix() const { return glm::ortho(xNear, xFar, yNear, yFar, zNear, zFar); }
 		//inline glm::mat4 getProjectionMatrix() const { return glm::perspective<float>(fov, 1.0f, zNear, zFar); }
 		//inline glm::mat4 getViewMatrix() { return glm::translate(glm::mat4_cast(getTransformComponent()->rotation), -getTransformComponent()->position); }
-		inline glm::mat4 getViewMatrix() { return glm::lookAt(getTransformComponent()->position, normalize(getTransformComponent()->rotation * glm::vec3(0, 0, -1)), getTransformComponent()->rotation * glm::vec3(0, 1, 0)); }
+		inline glm::mat4 getViewMatrix() { return glm::lookAt(getTransformComponent()->position, normalize(getTransformComponent()->rotation * glm::vec3(0.1, -1, 0)), getTransformComponent()->rotation * glm::vec3(0, 1, 0)); }
 		inline std::shared_ptr<Hydra::Component::TransformComponent> getTransformComponent() {
 			if (auto e = Hydra::World::World::getEntity(entityID); e)
 				return e->getComponent<Hydra::Component::TransformComponent>();
@@ -44,7 +45,7 @@ namespace Hydra::Component {
 				return std::shared_ptr<Hydra::Component::TransformComponent>();
 		}
 		inline glm::vec3 getDirVec(){
-			return glm::normalize(getTransformComponent()->rotation * glm::vec3(0, -1, 0));
+			return glm::normalize(getTransformComponent()->rotation * glm::vec3(0.1, -1, 0));
 		}
 	};
 }

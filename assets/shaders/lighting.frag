@@ -107,7 +107,7 @@ void main() {
 	vec3 result = vec3(0);
 
 	// Directional light
-	result = calcDirLight(dirLight, pos, normal, objectColor);
+	//result = calcDirLight(dirLight, pos, normal, objectColor);
 	
 	// Point Lights
 	for(int i = 0 ; i < nrOfPointLights; i++){
@@ -122,7 +122,7 @@ void main() {
 	vec3 projCoords = lightPos.xyz / lightPos.w;
 	float closestDepth = texture(depthMap, projCoords.xy).r;
 	float currentDepth = projCoords.z;
-	float bias = max(0.08 * (1.0 - dot(normal.xyz, -dirLight.dir)), 0.01);
+	float bias = max(0.07 * (1.0 - dot(normal.xyz, -dirLight.dir)), 0.01);
 	float shadow = 0.0f;
 
 	// Poisson Filtering
@@ -134,13 +134,13 @@ void main() {
 
 	// PCF.
 	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
-	for(int y = -2; y <= 2; y++) {
-		for(int x = -2; x <= 2; x++) {
+	for(int y = -1; y <= 1; y++) {
+		for(int x = -1; x <= 1; x++) {
 			float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
 			shadow += currentDepth - bias > pcfDepth ? 1 : 0;
 		}
 	}
-	shadow /= 25;
+	shadow /= 9;
 	shadow = 1.0f - shadow;
 
 	if(glowAmnt > 0)
