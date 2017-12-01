@@ -31,7 +31,8 @@ layout(location = 7) uniform vec3 cameraPos;
 layout(location = 8) uniform bool enableSSAO = true;
 layout(location = 9) uniform int nrOfPointLights;
 layout(location = 10) uniform DirLight dirLight;
-layout(location = 12) uniform PointLight pointLights[MAX_LIGHTS];
+layout(location = 12) uniform mat4 projection;
+layout(location = 13) uniform PointLight pointLights[MAX_LIGHTS];
 
 vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec4 objectColor){
 	float distance = length(light.pos - pos);
@@ -64,6 +65,16 @@ vec3 calcDirLight(DirLight light, vec3 pos, vec3 normal, vec4 objectColor){
 	return (diffuse + specular);
 }
 
+vec3 calcViewPos(vec2 uv, float depth) {
+	mat4 invProj = inverse(projection);
+	depth = depth * 2.0 - 1.0;
+	vec4 clipSpacePos = vec4(uv * 2.0 - 1.0, depth, 1.0);
+	vec4 viewPos = invProj * clipSpacePos;
+	viewPos = vec4(viewPos.xyz / viewPos.w, 1.0);
+
+	return viewPos.xyz;
+}
+
 void main() {
 	// MSAA
 	//ivec2 iTexCoords = ivec2(texCoords * textureSize(positions));
@@ -84,6 +95,7 @@ void main() {
 	//lightPos /= 4;
 
 	vec3 pos = texture(positions, texCoords).xyz;
+	//vec3 pos = calcViewPos(texCoords, texture(depthMap, texCoords).z);
 	vec4 objectColor = texture(colors, texCoords);
 	vec3 normal = normalize(texture(normals, texCoords).xyz);
 	vec4 lightPos = texture(lightPositions, texCoords);
@@ -91,16 +103,17 @@ void main() {
 
 	// Lighting 
 	// 0.1f should be ambient coefficient
-	vec3 globalAmbient = dirLight.color * objectColor.rgb * 0.1f;
+	//vec3 globalAmbient = dirLight.color * objectColor.rgb * 0.1f;
+	vec3 globalAmbient = vec3(1, 1, 1) * objectColor.rgb * 0.5;
 	vec3 result = vec3(0);
 
 	// Directional light
-	result = calcDirLight(dirLight, pos, normal, objectColor);
+	//result = calcDirLight(dirLight, pos, normal, objectColor);
 	
 	// Point Lights
-	for(int i = 0 ; i < nrOfPointLights; i++){
-		result += calcPointLight(pointLights[i], pos, normal, objectColor);
-	}
+	//for(int i = 0 ; i < nrOfPointLights; i++){
+	//	result += calcPointLight(pointLights[i], pos, normal, objectColor);
+	//}
 
 	float ambientOcclusion = texture(ssao, texCoords).r;
 	if (enableSSAO)
@@ -108,25 +121,26 @@ void main() {
 
 	// Shadow
 	
-	if(lightPos.w > 1){
-		vec3 projCoords = lightPos.xyz / lightPos.w;
-		float closestDepth = texture(depthMap, projCoords.xy).r;
-		float currentDepth = projCoords.z;
-		float bias = max(0.05 * (1.0 - dot(normal, -dirLight.dir)), 0.005);
-		float shadow = 0.0f;
-		vec2 texelSize = 1.0 / textureSize(depthMap, 0);
-		for(int x = -1; x <= 1; x++) {
-			for(int y = -1; y <= 1; y++) {
-				float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
-				shadow += currentDepth - bias > pcfDepth ? 1 : 0;
-			}
-		}
-		shadow /= 9;
-		shadow = 1 - shadow;
-		result *= shadow;
-	}
+	//if(lightPos.w > 1){
+	//	vec3 projCoords = lightPos.xyz / lightPos.w;
+	//	float closestDepth = texture(depthMap, projCoords.xy).r;
+	//	float currentDepth = projCoords.z;
+	//	float bias = max(0.05 * (1.0 - dot(normal, -dirLight.dir)), 0.005);
+	//	float shadow = 0.0f;
+	//	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
+	//	for(int x = -1; x <= 1; x++) {
+	//		for(int y = -1; y <= 1; y++) {
+	//			float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
+	//			shadow += currentDepth - bias > pcfDepth ? 1 : 0;
+	//		}
+	//	}
+	//	shadow /= 9;
+	//	shadow = 1 - shadow;
+	//	result *= shadow;
+	//}
 
 	result += globalAmbient;
+	//result = vec3(ambientOcclusion);
 
 	fragOutput = result;
 

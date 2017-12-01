@@ -76,6 +76,7 @@ namespace Hydra::Component {
 
 		// TODO: Cache these?
 		inline glm::mat4 getViewMatrix() { return glm::translate(glm::mat4_cast(getTransformComponent()->rotation), -getTransformComponent()->position); }
+		//inline glm::mat4 getViewMatrix() { return glm::lookAt(getTransformComponent()->position, getTransformComponent()->position + getTransformComponent()->getDirection(), glm::vec3(0, 1, 0)); }
 		inline glm::mat4 getProjectionMatrix() const 
 		{ 
 			if (useOrtho)
