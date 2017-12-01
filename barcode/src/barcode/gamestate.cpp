@@ -57,7 +57,6 @@ namespace Barcode {
 	void GameState::onMainMenu() { }
 
 	void GameState::runFrame(float delta) {
-
 		auto windowSize = _engine->getView()->getSize();
 
 		if (!world::getEntity(_playerID)) {
@@ -67,16 +66,20 @@ namespace Barcode {
 
 		ImGui::Text("Loaded rooms: %zu", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size());
 
-		/*{
+		{
 			static std::vector<std::shared_ptr<Entity>> _enemies;
+			static std::vector<std::shared_ptr<Entity>> _spawners;
+			world::getEntitiesWithComponents<Hydra::Component::SpawnerComponent, Hydra::Component::LifeComponent>(_spawners);
 			world::getEntitiesWithComponents<Hydra::Component::AIComponent, Hydra::Component::LifeComponent>(_enemies);
-			if (!_enemies.size()) {
+			if (!_enemies.size() && !_spawners.size()) {
 				_enemies.clear();
+				_spawners.clear();
 				_engine->setState<WinState>();
 				return;
 			}
 			_enemies.clear();
-		}*/
+			_spawners.clear();
+		}
 
 		bool oldPaused = _paused;
 		if (ImGui::IsKeyPressed(SDLK_ESCAPE, false)) {
@@ -154,7 +157,7 @@ namespace Barcode {
 		_cameraSystem.setCamDef(_playerTransform->position, forwardVector, upVector, rightVector, *_cc);
 
 		_dgp->render(cameraPos, *_cc, *_playerTransform);
-		 
+
 		if (enableHitboxDebug) {
 			for (auto& kv : _hitboxBatch.batch.objects)
 				kv.second.clear();
@@ -327,6 +330,7 @@ namespace Barcode {
 			int step = 0;
 			for (auto usable : perk->activeAbilities)
 				coolDownList[step++] = usable->cooldown;
+
 			/*{ perk->activeAbilities[0]->cooldown ,5,5,5,5,5,5,5,5,5 };*/
 			float pForEatchDot = float(1) / float(amountOfActives);
 			float stepSize = float(70) * pForEatchDot;
