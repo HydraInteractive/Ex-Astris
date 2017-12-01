@@ -17,6 +17,7 @@ void PathingMapMenu::render(bool & closeBool, float delta, int sizeX, int sizeY)
 	ImGui::SetNextWindowPos(startPadding);
 	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
 	ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(1.0f, 0.0f, 0.0f, 0.5f));
+	ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(1.0f, 0.0f, 0.0f, 0.8f));
 	ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(1.0f, 0.0f, 0.0f, 0.2f));
 	ImGui::Begin("Pathing", &closeBool, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
 
@@ -26,21 +27,28 @@ void PathingMapMenu::render(bool & closeBool, float delta, int sizeX, int sizeY)
 	auto room = FileTree::getRoomEntity();
 	auto r = room->getComponent<Hydra::Component::RoomComponent>();
 
+	bool reversedPos;
+
 	for (int i = 0; i < ROOM_MAP_SIZE; i++){
 		for (int j = 0; j < ROOM_MAP_SIZE; j++){
 			ImGui::PushID(i);
-			ImGui::Selectable("", &r->localMap[i][j], 0, itemSize);
+			reversedPos = !r->localMap[i][j];
+			
+			if (ImGui::Selectable("", &reversedPos, 0, itemSize))
+				r->localMap[i][j] = !r->localMap[i][j];
+
 			if (ImGui::IsItemHovered() && ImGui::IsMouseDown(1))
-				if (!ImGui::GetIO().KeyShift)
+				if (ImGui::GetIO().KeyShift)
 					r->localMap[i][j] = true;
 				else
 					r->localMap[i][j] = false;
+
 			if (j != 31)ImGui::SameLine(0, 0);
 			ImGui::PopID();
 		}
 	}
 
-/*
+	/*
 	for (int i = 0; i < 32*32; i++)
 	{
 		ImGui::PushID(i);
@@ -103,8 +111,10 @@ void PathingMapMenu::render(bool & closeBool, float delta, int sizeX, int sizeY)
 		}
 		ImGui::NextColumn();
 	}*/
+
 	ImGui::GetStyle().ItemSpacing = oldSpacing;
 	ImGui::End();
+	ImGui::PopStyleColor();
 	ImGui::PopStyleColor();
 	ImGui::PopStyleColor();
 	ImGui::PopStyleColor();
