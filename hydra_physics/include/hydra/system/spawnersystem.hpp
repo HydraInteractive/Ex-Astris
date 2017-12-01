@@ -11,5 +11,7 @@ namespace Hydra::System {
 		void tick(float delta) final;
 		inline const std::string type() const final { return "SpawnerSystem"; }
 		void registerUI() final;
+
 	};
+
 }
