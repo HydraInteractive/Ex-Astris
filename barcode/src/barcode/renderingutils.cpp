@@ -86,9 +86,7 @@ namespace Barcode {
 			.addTexture(1, Hydra::Renderer::TextureType::u8RGBA) // Diffuse
 			.addTexture(2, Hydra::Renderer::TextureType::f16RGB) // Normal
 			.addTexture(3, Hydra::Renderer::TextureType::f16RGBA) // Light pos
-			//.addTexture(4, Hydra::Renderer::TextureType::f16RGB) // Position in view-space
 			.addTexture(4, Hydra::Renderer::TextureType::u8R) // Glow.
-			//.addTexture(5, Hydra::Renderer::TextureType::f16RGB)
 			.addTexture(5, Hydra::Renderer::TextureType::f32Depth) // Depth
 			.finalize();
 		_geometryAnimationBatch = RenderBatch<Hydra::Renderer::AnimationBatch>("assets/shaders/animationGeometry.vert", "assets/shaders/animationGeometry.geom", "assets/shaders/animationGeometry.frag", _geometryBatch);
@@ -105,8 +103,7 @@ namespace Barcode {
 		_shadowBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::depth;
 
 		_shadowAnimationBatch = RenderBatch<Hydra::Renderer::AnimationBatch>("assets/shaders/shadowAnimation.vert", "", "assets/shaders/shadow.frag", _shadowBatch);
-		_shadowAnimationBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::none;
-
+		_shadowAnimationBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::depth;
 
 		_ssaoBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/ssao.vert", "", "assets/shaders/ssao.frag", size);
 		_ssaoBatch.output->addTexture(0, Hydra::Renderer::TextureType::f16R).finalize();
@@ -244,22 +241,17 @@ namespace Barcode {
 			//static float radius = 0.5f;
 			//ImGui::DragFloat("Bias", &bias, 0.01f);
 			//ImGui::DragFloat("Radius", &radius, 0.01f);
-			//_ssaoBatch.pipeline->setValue(0, 0);
+			_ssaoBatch.pipeline->setValue(0, 0);
 			_ssaoBatch.pipeline->setValue(1, 1);
-			_ssaoBatch.pipeline->setValue(2, 2);
-			_ssaoBatch.pipeline->setValue(7, 7);
 
-			_ssaoBatch.pipeline->setValue(3, cc.getProjectionMatrix());
+			_ssaoBatch.pipeline->setValue(5, cc.getProjectionMatrix());
 			//_ssaoBatch.pipeline->setValue(4, bias);
 			//_ssaoBatch.pipeline->setValue(5, radius);
 			_ssaoBatch.pipeline->setValue(6, cc.getViewMatrix());
-			_ssaoBatch.pipeline->setValue(8, glm::vec2(_ssaoBatch.output->getSize()));
+			_ssaoBatch.pipeline->setValue(7, glm::vec2(_ssaoBatch.output->getSize()));
 
-			//(*_geometryBatch.output)[0]->bind(0);
-			//(*_geometryBatch.output)[5]->bind(1);
-			//(*_geometryBatch.output)[7]->bind(7);
-			_ssaoNoise->bind(2);
-			_geometryBatch.output->getDepth()->bind(7);
+			_geometryBatch.output->getDepth()->bind(0);
+			_ssaoNoise->bind(1);
 			_engine->getRenderer()->postProcessing(_ssaoBatch.batch);
 			//_blurUtil.blur((*_ssaoBatch.output)[0], 2, (*_ssaoBatch.output)[0]->getSize());
 

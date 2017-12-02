@@ -6,14 +6,14 @@ in vec2 texCoords;
 
 const int kernelSize = 4;
 
-layout(location = 2) uniform sampler2D texNoise;
+layout(location = 0) uniform sampler2D depthBuffer;
+layout(location = 1) uniform sampler2D texNoise;
 
-layout(location = 3) uniform mat4 projection;
+layout(location = 5) uniform mat4 projection;
 //layout(location = 4) uniform float bias;
 //layout(location = 5) uniform float kernelRadius;
 layout(location = 6) uniform mat4 view;
-layout(location = 7) uniform sampler2D depthBuffer;
-layout(location = 8) uniform vec2 screenSize;
+layout(location = 7) uniform vec2 screenSize;
 layout(location = 11) uniform vec3 samples[kernelSize];
 
 const vec2 noiseScale = vec2(screenSize.x / 4, screenSize.y / 4);
