@@ -64,7 +64,7 @@ std::vector<Packet*> TCPClient::receiveData() {
 			break;
 		}
 
-		printf("Reading packet:\n\ttype: %s\n\tlen: %zu\n\tclient: %zu\n", Hydra::Network::PacketTypeName[p->h.type], p->h.len, p->h.client);
+		//printf("Reading packet:\n\ttype: %s\n\tlen: %zu\n\tclient: %zu\n", Hydra::Network::PacketTypeName[p->h.type], p->h.len, p->h.client);
 		Packet* newPacket = (Packet*)(new char[p->h.len]);
 		memcpy(newPacket, p, p->h.len);
 		packets.push_back(newPacket);

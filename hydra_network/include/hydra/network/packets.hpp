@@ -21,8 +21,9 @@ namespace Hydra::Network {
 		ClientUpdateBullet,
 		ServerUpdateBullet,
 		ClientShoot,
-		ServerShoot
+		ServerShoot,
 		//..
+		MAX_COUNT
 	};
 	static constexpr const char* PacketTypeName[] = {
 		"ServerInitialize",

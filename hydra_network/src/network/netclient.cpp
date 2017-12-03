@@ -6,6 +6,7 @@
 #include <hydra/component/ghostobjectcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
+#include <hydra/component/playercomponent.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <hydra/engine.hpp>
 
@@ -143,7 +144,15 @@ void NetClient::_resolvePackets() {
 				static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->enable(r.get());
 			break;
 		}
+		case PacketType::ServerFreezePlayer: {
+			auto sfp = (ServerFreezePlayerPacket*)p;
+			for (auto p : Hydra::Component::PlayerComponent::componentHandler->getActiveComponents())
+				((Hydra::Component::PlayerComponent*)p.get())->frozen = sfp->action == ServerFreezePlayerPacket::Action::freeze;
+			//TODO Loading screen;
+			break;
+		}
 		default:
+			printf("UNKNOWN PACKET: %s\n", (p->h.type < PacketType::MAX_COUNT ? PacketTypeName[p->h.type] : "(unk)"));
 			break;
 		}
 	}

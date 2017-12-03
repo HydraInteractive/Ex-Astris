@@ -161,8 +161,8 @@ bool GameServer::_addPlayer(int id) {
 			freeze.h.type = PacketType::ServerFreezePlayer;
 			freeze.h.len = sizeof(ServerFreezePlayerPacket);
 			freeze.h.client = id;
-			freeze.action = ServerFreezePlayer::Action::freeze;
-			_server->sendDataToClient((char*)&freze, freeze.h.len, id);
+			freeze.action = ServerFreezePlayerPacket::Action::freeze;
+			_server->sendDataToClient((char*)&freeze, freeze.h.len, id);
 		}
 
 		//ADD COLLISION AND FUCK
@@ -190,12 +190,13 @@ bool GameServer::_addPlayer(int id) {
 		{
 			auto size = sizeof(ServerInitializePVSPacket) + _pvsData.size();
 			ServerInitializePVSPacket* pvs = (ServerInitializePVSPacket*)new char[size];
-			pvs.h.type = PacketType::ServerInitializePVS;
-			pvs.h.len = size;
-			pvs.h.client = id;
-			pvs.size = _pvsData.size();
-			memcpy(pvs.data, _pvsData.data(), _pvsData.size());
-			_server->sendDataToClient((char*)&pvs, pvs.h.len, id);
+			pvs->h.type = PacketType::ServerInitializePVS;
+			pvs->h.len = size;
+			pvs->h.client = id;
+			pvs->size = _pvsData.size();
+			memcpy(pvs->data, _pvsData.data(), _pvsData.size());
+			_server->sendDataToClient((char*)pvs, pvs->h.len, id);
+			delete[] (char*)pvs;
 		}
 
 
@@ -255,8 +256,8 @@ bool GameServer::_addPlayer(int id) {
 			freeze.h.type = PacketType::ServerFreezePlayer;
 			freeze.h.len = sizeof(ServerFreezePlayerPacket);
 			freeze.h.client = id;
-			freeze.action = ServerFreezePlayer::Action::unfreeze;
-			_server->sendDataToClient((char*)&freze, freeze.h.len, id);
+			freeze.action = ServerFreezePlayerPacket::Action::unfreeze;
+			_server->sendDataToClient((char*)&freeze, freeze.h.len, id);
 		}
 
 		return true;
