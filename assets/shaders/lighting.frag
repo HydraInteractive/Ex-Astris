@@ -115,7 +115,7 @@ void main() {
 
 	// Lighting 
 	// 0.1f should be ambient coefficient
-	vec3 globalAmbient = dirLight.color * objectColor.rgb * 0.5f;
+	vec3 globalAmbient = objectColor.rgb * 0.5f;
 	vec3 result = vec3(0);
 
 	// Directional light
@@ -144,16 +144,28 @@ void main() {
 	//		shadow -= 0.2f;
 	//}
 
-	// PCF.
-	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
-	for(int y = -1; y <= 1; y++) {
-		for(int x = -1; x <= 1; x++) {
-			float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
-			shadow += currentDepth - bias > pcfDepth ? 1 : 0;
-		}
+	// PCF - 16 Samples
+	//{
+	//	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
+	//	for(float y = -1.5; y <= 1.5; y++) {
+	//		for(float x = -1.5; x <= 1.5; x++) {
+	//			float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
+	//			shadow += currentDepth - bias > pcfDepth ? 1 : 0;
+	//		}
+	//	}
+	//	shadow /= 16;
+	//	shadow = 1.0f - shadow;
+	//}
+	
+	// PCF - 4 Samples
+	{
+		vec2 texelSize = 1.0 / textureSize(depthMap, 0);
+		shadow = texture(depthMap, projCoords.xy + vec2(-1.5f, 0.5f) * texelSize).r
+			+ texture(depthMap, projCoords.xy + vec2(0.5f, 0.5f) * texelSize).r
+			+ texture(depthMap, projCoords.xy + vec2(-1.5f, -1.5f) * texelSize).r
+			+ texture(depthMap, projCoords.xy + vec2(0.5f, -1.5f) * texelSize).r;
+		shadow /= 4;
 	}
-	shadow /= 9;
-	shadow = 1.0f - shadow;
 
 	if(glowAmnt > 0)
 		brightOutput = objectColor.rgb;

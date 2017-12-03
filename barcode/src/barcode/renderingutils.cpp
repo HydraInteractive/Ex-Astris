@@ -103,7 +103,7 @@ namespace Barcode {
 		_shadowBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::depth;
 
 		_shadowAnimationBatch = RenderBatch<Hydra::Renderer::AnimationBatch>("assets/shaders/shadowAnimation.vert", "", "assets/shaders/shadow.frag", _shadowBatch);
-		_shadowAnimationBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::depth;
+		_shadowAnimationBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::none;
 
 		_ssaoBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/ssao.vert", "", "assets/shaders/ssao.frag", size);
 		_ssaoBatch.output->addTexture(0, Hydra::Renderer::TextureType::f16R).finalize();
