@@ -92,7 +92,7 @@ bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 
 		auto rbc = bullet->addComponent<Hydra::Component::RigidBodyComponent>();
 
-		rbc->createBox(glm::vec3(0.2f), glm::vec3(0), collisionType, 0.0095f);
+		rbc->createBox(glm::vec3(1.0f) * bulletSize, glm::vec3(0), collisionType, 0.0095f);
 		auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
 		bulletPhysWorld->enable(rbc.get());
 		rigidBody->setActivationState(DISABLE_DEACTIVATION);
@@ -128,7 +128,7 @@ bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 			auto bulletPhysWorld = static_cast<Hydra::System::BulletPhysicsSystem*>(IEngine::getInstance()->getState()->getPhysicsSystem());
 
 			auto rbc = bullet->addComponent<Hydra::Component::RigidBodyComponent>();
-			rbc->createBox(glm::vec3(0.5f), glm::vec3(0), collisionType, 0.0095f);
+			rbc->createBox(glm::vec3(1.0f) * bulletSize, glm::vec3(0), collisionType, 0.0095f);
 			auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
 			bulletPhysWorld->enable(rbc.get());
 			rigidBody->setActivationState(DISABLE_DEACTIVATION);

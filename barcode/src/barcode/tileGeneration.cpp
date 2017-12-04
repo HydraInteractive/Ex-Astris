@@ -308,30 +308,30 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 
 	if(randomAlienSpawner >= 91)
 	{
-		/*auto alienSpawner = world::newEntity("SpawnerAlien1", world::root());
-		alienSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge1.mATTIC");
-		auto sa = alienSpawner->addComponent<Hydra::Component::SpawnerComponent>();
-		sa->map = pathfindingMap;
-		sa->spawnerID = Hydra::Component::SpawnerType::AlienSpawner;
+		//auto alienSpawner = world::newEntity("SpawnerAlien1", world::root());
+		//alienSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge1.mATTIC");
+		//auto sa = alienSpawner->addComponent<Hydra::Component::SpawnerComponent>();
+		//sa->map = pathfindingMap;
+		//sa->spawnerID = Hydra::Component::SpawnerType::AlienSpawner;
 
-		auto h = alienSpawner->addComponent<Hydra::Component::LifeComponent>();
-		h->maxHP = 50;
-		h->health = 50;
+		//auto h = alienSpawner->addComponent<Hydra::Component::LifeComponent>();
+		//h->maxHP = 50;
+		//h->health = 50;
 
-		auto t = alienSpawner->addComponent<Hydra::Component::TransformComponent>();
-		t->position.x = roomTransform->position.x + 2;
-		t->position.y = 5;
-		t->position.z = roomTransform->position.z + 2;
-		float randDirX = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
-		float randDirY = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
-		t->rotation = glm::angleAxis(atan2(randDirX, randDirY), glm::vec3(0, 1, 0));
-		t->scale = glm::vec3{ 1,1,1 };
+		//auto t = alienSpawner->addComponent<Hydra::Component::TransformComponent>();
+		//t->position.x = roomTransform->position.x + 2;
+		//t->position.y = 2;
+		//t->position.z = roomTransform->position.z + 2;
+		//float randDirX = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
+		//float randDirY = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
+		//t->rotation = glm::angleAxis(atan2(randDirX, randDirY), glm::vec3(0, 1, 0));
+		//t->scale = glm::vec3{ 1,1,1 };
 
-		auto rgbc = alienSpawner->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 1000.0f,
-			0, 0, 0.6f, 1.0f);
-		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-		rgbc->setAngularForce(glm::vec3(0));*/
+		//auto rgbc = alienSpawner->addComponent<Hydra::Component::RigidBodyComponent>();
+		//rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_SPAWNER, 0.0f,
+		//	0, 0, 0.6f, 1.0f);
+		//rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+		//rgbc->setAngularForce(glm::vec3(0));
 	}
 	else if (randomAlienSpawner < 91 && randomRobotSpawner >= 96)
 	{
@@ -347,7 +347,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 
 		auto t = robotSpawner->addComponent<Hydra::Component::TransformComponent>();
 		t->position.x = roomTransform->position.x + 2;
-		t->position.y = 5;
+		t->position.y = 2;
 		t->position.z = roomTransform->position.z + 2;
 		float randDirX = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
 		float randDirY = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
@@ -355,7 +355,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		t->scale = glm::vec3{ 1,1,1 };
 
 		auto rgbc = robotSpawner->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 1000.0f,
+		rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_SPAWNER, 0.0f,
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
@@ -383,9 +383,10 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 			w->bulletSpread = 0.2f;
 			w->bulletsPerShot = 1;
 			w->damage = 4;
-			w->maxmagammo = 100000000;
-			w->currmagammo = 100000000;
-			w->maxammo = 100000000;
+			w->bulletSize = 0.4;
+			w->maxmagammo = 0;
+			w->currmagammo = 0;
+			w->maxammo = 0;
 
 			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
 			m->movementSpeed = 5.0f;
@@ -422,9 +423,10 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 			w->bulletSpread = 0.2f;
 			w->bulletsPerShot = 1;
 			w->damage = 4;
-			w->maxmagammo = 1000000000;
-			w->currmagammo = 1000000000;
-			w->maxammo = 1000000000;
+			w->bulletSize = 0.4;
+			w->maxmagammo = 0;
+			w->currmagammo = 0;
+			w->maxammo = 0;
 
 			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
 			m->movementSpeed = 10.0f;
@@ -464,9 +466,10 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 			w->fireRateRPM = 70;
 			w->bulletsPerShot = 1;
 			w->damage = 7;
-			w->maxmagammo = 100000000;
-			w->currmagammo = 100000000;
-			w->maxammo = 100000000;
+			w->bulletSize = 0.4;
+			w->maxmagammo = 0;
+			w->currmagammo = 0;
+			w->maxammo = 0;
 
 			auto m = robotEntity->addComponent<Hydra::Component::MovementComponent>();
 			m->movementSpeed = 3.0f;
