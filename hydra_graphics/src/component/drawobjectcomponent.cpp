@@ -6,7 +6,7 @@
 using namespace Hydra::Component;
 
 DrawObjectComponent::DrawObjectComponent() {
-	if (Hydra::IEngine::getInstance()) { //Hax-Fix
+	if (Hydra::IEngine::getInstance()->getDeadSystem()) { //Hax-Fix
 		drawObject = Hydra::IEngine::getInstance()->getRenderer()->aquireDrawObject();
 		drawObject->refCounter = 1;
 	}

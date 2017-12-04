@@ -31,6 +31,7 @@ namespace BarcodeServer {
 		void start();
 		void run();
 		void quit();
+		Hydra::System::BulletPhysicsSystem _physicsSystem;
 
 	private:
 		std::chrono::time_point<std::chrono::high_resolution_clock> _lastTime;
@@ -43,7 +44,6 @@ namespace BarcodeServer {
 		std::string _pvsData;
 
 		Hydra::System::DeadSystem _deadSystem;
-		Hydra::System::BulletPhysicsSystem _physicsSystem;
 		Hydra::System::AISystem _aiSystem;
 		Hydra::System::BulletSystem _bulletSystem;
 		Hydra::System::SpawnerSystem _spawnerSystem;

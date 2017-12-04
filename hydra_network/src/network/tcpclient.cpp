@@ -42,7 +42,7 @@ std::vector<Packet*> TCPClient::receiveData() {
 		return packets;
 
 	// Delay before dc (depends on frames)
-	if (_waitingForData++ == 100) {
+	if (_waitingForData++ == 100000) {
 		close();
 		return packets;
 	}

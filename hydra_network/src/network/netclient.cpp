@@ -87,7 +87,7 @@ void NetClient::_resolvePackets() {
 	std::vector<Packet*> packets = _tcp.receiveData();
 	Hydra::Component::TransformComponent* tc;
 	std::vector<EntityID> children;
-	Entity* ent;
+	Entity* ent = nullptr;
 	Packet* serverUpdate = nullptr;
 	for (size_t i = 0; i < packets.size(); i++) {
 		auto& p = packets[i];
@@ -201,6 +201,14 @@ void NetClient::_updateWorld(Packet * updatePacket) {
 			continue;
 		else if (_IDs[sup->data[k].entityid] == 0) {
 			printf("Error updating entity: %zu\n", _IDs[sup->data[k].entityid]);
+
+			auto ent = world::newEntity("ERROR: UNKOWN ENTITY", world::root());
+			_IDs[sup->data[k].entityid] = ent->id;
+			auto mesh = ent->addComponent<MeshComponent>();
+			mesh->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
+			auto transform = ent->addComponent<TransformComponent>();
+			transform->position = { ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.x, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.y - 2, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.z };
+
 			continue;
 		}
 		for (size_t i = 0; i < children.size(); i++) {

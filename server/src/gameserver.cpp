@@ -382,22 +382,15 @@ void GameServer::start() {
 	//_deadSystem.tick(0);
 
 
-	auto tmp = world::newEntity("TESTAI", world::root());
-	auto mesh = tmp->addComponent<Hydra::Component::MeshComponent>();
-	tmp->addComponent<Hydra::Component::TransformComponent>();
-	tmp->addComponent<Hydra::Component::LifeComponent>();
-	tmp->addComponent<Hydra::Component::MovementComponent>();
-	auto ai = tmp->addComponent<Hydra::Component::AIComponent>();
-	auto rgb = tmp->addComponent<Hydra::Component::RigidBodyComponent>();
-	rgb->createBox(glm::vec3(1,1,1), glm::vec3(0,0,0));
-	mesh->meshFile = "assets/models/Alien.MATTIC";
-	this->_networkEntities.push_back(tmp->id);
+	auto floor = world::newEntity("Floor", world::root());
+	auto transf = floor->addComponent<Hydra::Component::TransformComponent>();
+	transf->position = glm::vec3(0, 0, 0);
+	auto rgbcf = floor->addComponent<Hydra::Component::RigidBodyComponent>();
+	rgbcf->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_FLOOR
+		, 0, 0, 0, 0.6f, 0);
+	floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 
-	ai->behaviour = std::make_shared<AlienBehaviour>(tmp);
-	//ai->behaviour->setPathMap(pathfindingMap);
-	ai->damage = 4;
-	ai->behaviour->originalRange = 5;
-	ai->radius = 1;
+	this->_physicsSystem.enable(rgbcf.get());
 
 	size_t tries = 0;
 	while (true) {
@@ -485,7 +478,7 @@ void GameServer::start() {
 
 	SDL_SaveBMP(map, "map.bmp");
 	SDL_FreeSurface(map);
-	system("../PVSTest/bin/PVSTest -f map.bmp -s 32 -o map.pvs -v");
+	/*system("../PVSTest/bin/PVSTest -f map.bmp -s 32 -o map.pvs -v");
 
 	{
 		FILE* fp = fopen("map.pvs", "rb");
@@ -494,7 +487,60 @@ void GameServer::start() {
 		fseek(fp, 0, SEEK_SET);
 		fread(_pvsData.data(), _pvsData.size(), 1, fp);
 		fclose(fp);
+	}*/
+
+	std::vector<std::shared_ptr<Entity>> entities;
+	world::getEntitiesWithComponents<RigidBodyComponent>(entities);
+	for (size_t i = 0; i < entities.size(); i++) {
+		_physicsSystem.enable(entities[i]->getComponent<RigidBodyComponent>().get());
 	}
+
+
+
+
+	auto alienEntity = world::newEntity("Test", world::root());
+	alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+	auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+	a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+	a->behaviour->setPathMap(_pathfindingMap);
+	a->damage = 4;
+	a->behaviour->originalRange = 4.0f;
+	a->behaviour->savedRange = a->behaviour->originalRange;
+	a->radius = 1;
+
+
+	auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+	h->maxHP = 80;
+	h->health = 80;
+
+	auto w = alienEntity->addComponent<Hydra::Component::WeaponComponent>();
+	w->bulletSpread = 0.2f;
+	w->bulletsPerShot = 1;
+	w->damage = 4;
+	w->maxmagammo = 100000000;
+	w->currmagammo = 100000000;
+	w->maxammo = 100000000;
+
+	auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+	m->movementSpeed = 5.0f;
+
+	auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+	t->position = glm::vec3(0, 4, 0);
+	//t->position.x = roomTransform->position.x + i;
+	//t->position.y = 5;
+	//t->position.z = roomTransform->position.z + i;
+	//t->scale = glm::vec3{ 1,1,1 };
+
+	auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+	rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		0, 0, 0.6f, 1.0f);
+	rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+	rgbc->setAngularForce(glm::vec3(0));
+	
+	this->_physicsSystem.enable(rgbc.get());
+
+	_networkEntities.push_back(alienEntity->id);
+
 
 	/* markDead(world::rootID, false);
 	{
