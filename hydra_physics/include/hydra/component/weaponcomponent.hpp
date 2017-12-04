@@ -17,7 +17,6 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API WeaponComponent final : public IComponent<WeaponComponent, ComponentBits::Weapon> {
-		BulletComponent::BulletType bulletType = BulletComponent::BulletType::normal;
 		float fireRateTimer = 0.0f;
 		float fireRateRPM = 600.0f;
 		float bulletSize = 0.5f;
