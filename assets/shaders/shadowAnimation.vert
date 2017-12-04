@@ -1,5 +1,6 @@
 #version 440 core
 layout (location = 0) in vec3 position;
+layout (location = 1) in vec3 normal;
 layout (location = 5) in mat4 m;
 layout (location = 9) in vec4 weight;
 layout (location = 10) in ivec4 jointIdx;
@@ -8,6 +9,8 @@ layout(location = 0) uniform mat4 view;
 layout(location = 1) uniform mat4 proj;
 
 layout(location = 20) uniform sampler2DRect animationTexture;
+
+out vec3 vertNormal;
 
 mat4 getMat(sampler2DRect tex, int joint) {
 	int x = joint * 4;
@@ -29,5 +32,6 @@ vec4 getFinal(vec4 beginningVec) {
 }
 
 void main() {
+	vertNormal = getFinal(vec4(normal, 1.0f)).xyz;
 	gl_Position = proj * view * m * getFinal(vec4(position, 1.0f));
 }

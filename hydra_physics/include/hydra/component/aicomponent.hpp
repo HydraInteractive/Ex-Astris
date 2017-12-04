@@ -19,6 +19,7 @@
 #include <SDL2/SDL.h>
 
 using namespace Hydra::World;
+using namespace Hydra::Physics::Behaviour;
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API AIComponent final : public IComponent<AIComponent, ComponentBits::AI>{
 		~AIComponent() final;

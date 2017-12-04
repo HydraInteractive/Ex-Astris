@@ -152,7 +152,6 @@ public:
 		glClear(clearFlags);
 
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
-
 		batch.pipeline->setValue(20, 0);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
@@ -201,7 +200,9 @@ public:
 		glClear(clearFlags);
 
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
-
+		//glPolygonOffset(1.1, 50);
+		//glEnable(GL_POLYGON_OFFSET_FILL);
+		//glCullFace(GL_FRONT);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
 
@@ -216,6 +217,8 @@ public:
 				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
 			}
 		}
+		//glCullFace(GL_BACK);
+		//glDisable(GL_POLYGON_OFFSET_FILL);
 	}
 
 	void render(ParticleBatch& batch) final { // For particles only.

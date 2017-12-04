@@ -9,6 +9,7 @@
 
 #include <hydra/world/world.hpp>
 #include <glm/glm.hpp>
+#include <hydra/component/particlecomponent.hpp>
 #define BIT(x) (1 << (x))
 
 using namespace Hydra::Component;
@@ -38,18 +39,20 @@ namespace Hydra::System {
 			COLL_ENEMY_PROJECTILE = BIT(5),
 			COLL_MISC_OBJECT = BIT(6),
 			COLL_PICKUP_OBJECT = BIT(7),
-			COLL_FLOOR = BIT(8)
+			COLL_FLOOR = BIT(8),
+			COLL_SPAWNER = BIT(9)
 		};
 
 		enum CollisionCondition : std::underlying_type<CollisionTypes>::type {
-			playerCollidesWith = COLL_WALL | COLL_ENEMY | COLL_MISC_OBJECT | COLL_ENEMY_PROJECTILE | COLL_PICKUP_OBJECT | COLL_NOTHING | COLL_FLOOR,
-			enemyCollidesWith = COLL_WALL | COLL_PLAYER | COLL_MISC_OBJECT | COLL_PLAYER_PROJECTILE | COLL_FLOOR,
-			wallCollidesWith = COLL_MISC_OBJECT | COLL_PLAYER | COLL_ENEMY | COLL_ENEMY_PROJECTILE | COLL_PLAYER_PROJECTILE | COLL_NOTHING,
+			playerCollidesWith = COLL_WALL | COLL_ENEMY | COLL_MISC_OBJECT | COLL_ENEMY_PROJECTILE | COLL_PICKUP_OBJECT | COLL_NOTHING | COLL_FLOOR | COLL_SPAWNER,
+			enemyCollidesWith = COLL_WALL | COLL_PLAYER | COLL_MISC_OBJECT | COLL_PLAYER_PROJECTILE | COLL_FLOOR | COLL_ENEMY,
+			wallCollidesWith = COLL_MISC_OBJECT | COLL_PLAYER | COLL_ENEMY | COLL_ENEMY_PROJECTILE | COLL_PLAYER_PROJECTILE | COLL_NOTHING | COLL_SPAWNER,
 			enemyProjCollidesWith = COLL_PLAYER | COLL_WALL | COLL_MISC_OBJECT | COLL_FLOOR,
-			playerProjCollidesWith = COLL_ENEMY | COLL_WALL | COLL_MISC_OBJECT | COLL_FLOOR,
-			miscObjectCollidesWith = COLL_WALL | COLL_ENEMY | COLL_PLAYER | COLL_ENEMY_PROJECTILE | COLL_PLAYER_PROJECTILE | COLL_FLOOR,
+			playerProjCollidesWith = COLL_ENEMY | COLL_WALL | COLL_MISC_OBJECT | COLL_FLOOR | COLL_SPAWNER,
+			miscObjectCollidesWith = COLL_WALL | COLL_ENEMY | COLL_PLAYER | COLL_ENEMY_PROJECTILE | COLL_PLAYER_PROJECTILE | COLL_FLOOR | COLL_SPAWNER,
 			pickupObjectCollidesWith = COLL_PLAYER,
-			floorCollidesWith = COLL_MISC_OBJECT | COLL_PLAYER | COLL_ENEMY | COLL_ENEMY_PROJECTILE | COLL_PLAYER_PROJECTILE | COLL_NOTHING
+			floorCollidesWith = COLL_MISC_OBJECT | COLL_PLAYER | COLL_ENEMY | COLL_ENEMY_PROJECTILE | COLL_PLAYER_PROJECTILE | COLL_NOTHING | COLL_SPAWNER,
+			spawnerCollidesWith = COLL_WALL | COLL_MISC_OBJECT | COLL_PLAYER | COLL_PLAYER_PROJECTILE | COLL_FLOOR
 		};
 
 		BulletPhysicsSystem();
@@ -70,8 +73,8 @@ namespace Hydra::System {
 		void registerUI() final;
 
 	private:
-		void _spawnParticleEmitterAt(const glm::vec3& pos, const glm::vec3& normal);
-		void _spawnDamageText(const glm::vec3& pos, const std::string& text);
+		void _spawnParticleEmitterAt(const glm::vec3& pos, const glm::vec3& normal, const Hydra::Component::ParticleComponent::ParticleTexture& effect);
+		void _spawnText(const glm::vec3& pos, const std::string& text);
 		void _addPickUp(PickUpComponent* puc, PerkComponent* pec);
 		struct Data;
 		Data* _data;

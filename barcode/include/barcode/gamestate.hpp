@@ -48,6 +48,7 @@
 #include <hydra/system/animationsystem.hpp>
 #include <hydra/system/pickupsystem.hpp>
 #include <hydra/system/textsystem.hpp>
+#include <hydra/system/lightsystem.hpp>
 #include <barcode/tileGeneration.hpp>
 
 namespace Barcode {
@@ -88,6 +89,7 @@ namespace Barcode {
 		Hydra::System::AnimationSystem _animationSystem;
 		Hydra::System::PickUpSystem _pickUpSystem;
 		Hydra::System::TextSystem _textSystem;
+		Hydra::System::LightSystem _lightSystem;
 
 		std::unique_ptr<DefaultGraphicsPipeline> _dgp;
 		RenderBatch<Hydra::Renderer::Batch> _hitboxBatch;
