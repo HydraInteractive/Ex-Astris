@@ -2,6 +2,7 @@
 #include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
+#include <hydra/component/spawnercomponent.hpp>
 using world = Hydra::World::World;
 
 TileGeneration::TileGeneration(std::string middleRoomPath) {
@@ -294,141 +295,195 @@ void TileGeneration::_randomizeRooms() {
 }
 
 void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform) {
-
 	_spawnPickUps(roomTransform);
 	_spawnLight(roomTransform);
 
 	int randomSlowAliens = rand() % int(MAX_ENEMIES);
 	int randomRobots = rand() % int(MAX_ENEMIES - randomSlowAliens);
 	int randomFastAliens = rand() % int(MAX_ENEMIES - randomRobots);
+	int randomAlienSpawner = rand() % 101;
+	int randomRobotSpawner = rand() % 101;
 
-	for (int i = 0; i < randomSlowAliens; i++) {
-		auto alienEntity = world::newEntity("SlowAlien1", world::root());
-		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
-		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
-		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
-		a->behaviour->setPathMap(pathfindingMap);
 
-		a->damage = 4;
-		a->behaviour->type = Hydra::Physics::Behaviour::Behaviour::Type::ALIEN;
-		a->behaviour->originalRange = 4.0f;
-		a->behaviour->savedRange = a->behaviour->originalRange;
-		a->radius = 1;
+	if (randomAlienSpawner >= 96)
+	{
+		auto alienSpawner = world::newEntity("SpawnerAlien1", world::root());
+		alienSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge1.mATTIC");
+		auto sa = alienSpawner->addComponent<Hydra::Component::SpawnerComponent>();
+		sa->map = pathfindingMap;
+		sa->spawnerID = Hydra::Component::SpawnerType::AlienSpawner;
 
-		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
-		h->maxHP = 80;
-		h->health = 80;
+		auto h = alienSpawner->addComponent<Hydra::Component::LifeComponent>();
+		h->maxHP = 50;
+		h->health = 50;
 
-		auto w = alienEntity->addComponent<Hydra::Component::WeaponComponent>();
-		w->bulletSpread = 0.2f;
-		w->bulletsPerShot = 1;
-		w->damage = 4;
-		w->maxmagammo = 100000000;
-		w->currmagammo = 100000000;
-		w->maxammo = 100000000;
-
-		auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
-		m->movementSpeed = 5.0f;
-
-		auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
-		t->position.x = roomTransform->position.x + i;
+		auto t = alienSpawner->addComponent<Hydra::Component::TransformComponent>();
+		t->position.x = roomTransform->position.x + 2;
 		t->position.y = 5;
-		t->position.z = roomTransform->position.z + i;
+		t->position.z = roomTransform->position.z + 2;
+		float randDirX = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
+		float randDirY = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
+		t->rotation = glm::angleAxis(atan2(randDirX, randDirY), glm::vec3(0, 1, 0));
 		t->scale = glm::vec3{ 1,1,1 };
 
-		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		auto rgbc = alienSpawner->addComponent<Hydra::Component::RigidBodyComponent>();
+		rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 1000.0f,
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
 	}
-	
-	for (int i = 0; i < randomFastAliens; i++) {
-		auto alienEntity = world::newEntity("FastAlien1", world::root());
-		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienFastModel.mATTIC");
-		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+	else if (randomAlienSpawner < 96 && randomRobotSpawner >= 98)
+	{
+		auto robotSpawner = world::newEntity("SpawnerAlien1", world::root());
+		robotSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge1.mATTIC");
+		auto sa = robotSpawner->addComponent<Hydra::Component::SpawnerComponent>();
+		sa->map = pathfindingMap;
+		sa->spawnerID = Hydra::Component::SpawnerType::RobotSpawner;
 
-		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
-		a->behaviour->type = Hydra::Physics::Behaviour::Behaviour::Type::ALIEN;
+		auto h = robotSpawner->addComponent<Hydra::Component::LifeComponent>();
+		h->maxHP = 50;
+		h->health = 50;
 
-		a->behaviour->setPathMap(pathfindingMap);
-		a->damage = 4;
-		a->behaviour->originalRange = 4.0f;
-		a->behaviour->savedRange = a->behaviour->originalRange;
-		a->radius = 1;
-
-
-		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
-		h->maxHP = 60;
-		h->health = 60;
-
-		auto w = alienEntity->addComponent<Hydra::Component::WeaponComponent>();
-		w->bulletSpread = 0.2f;
-		w->bulletsPerShot = 1;
-		w->damage = 4;
-		w->maxmagammo = 1000000000;
-		w->currmagammo = 1000000000;
-		w->maxammo = 1000000000;
-
-		auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
-		m->movementSpeed = 10.0f;
-
-		auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
-		t->position.x = roomTransform->position.x + i + 2;
+		auto t = robotSpawner->addComponent<Hydra::Component::TransformComponent>();
+		t->position.x = roomTransform->position.x + 2;
 		t->position.y = 5;
-		t->position.z = roomTransform->position.z + i + 2;
+		t->position.z = roomTransform->position.z + 2;
+		float randDirX = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
+		float randDirY = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
+		t->rotation = glm::angleAxis(atan2(randDirX, randDirY), glm::vec3(0, 1, 0));
 		t->scale = glm::vec3{ 1,1,1 };
 
-		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+		auto rgbc = robotSpawner->addComponent<Hydra::Component::RigidBodyComponent>();
+		rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 1000.0f,
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
-
 	}
 
+	if (randomAlienSpawner < 96 && randomRobotSpawner < 98)
+	{
+		for (int i = 0; i < randomSlowAliens; i++) {
+			auto alienEntity = world::newEntity("SlowAlien1", world::root());
+			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+			a->behaviour->setPathMap(pathfindingMap);
+			a->damage = 4;
+			a->behaviour->originalRange = 4.0f;
+			a->behaviour->savedRange = a->behaviour->originalRange;
+			a->radius = 1;
 
-	/*for (int i = 0; i < randomRobots; i++) {
-		auto robotEntity = world::newEntity("Robot1", world::root());
-		robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
-		auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
-		a->behaviour = std::make_shared<RobotBehaviour>(robotEntity);
-		a->behaviour->setPathMap(pathfindingMap);
-		a->behaviour->type = Hydra::Physics::Behaviour::Behaviour::Type::ROBOT;
-		a->damage = 7;
-		a->behaviour->originalRange = 18;
-		a->behaviour->savedRange = a->behaviour->originalRange;
-		a->radius = 1;
-	
-		auto h = robotEntity->addComponent<Hydra::Component::LifeComponent>();
-		h->maxHP = 70;
-		h->health = 70;
 
-		auto w = robotEntity->addComponent<Hydra::Component::WeaponComponent>();
-		w->bulletSpread = 0.3f;
-		w->fireRateRPM = 50;
-		w->bulletsPerShot = 1;
-		w->damage = 7;
-		w->maxmagammo = 100000000;
-		w->currmagammo = 100000000;
-		w->maxammo = 100000000;
-		
-		auto m = robotEntity->addComponent<Hydra::Component::MovementComponent>();
-		m->movementSpeed = 3.0f;
-		auto t = robotEntity->addComponent<Hydra::Component::TransformComponent>();
-		t->position.x = roomTransform->position.x + i + 2;
-		t->position.y = 5;
-		t->position.z = roomTransform->position.z + i + 2;
-		t->scale = glm::vec3{ 1,1,1 };
+			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+			h->maxHP = 80;
+			h->health = 80;
 
-		auto rgbc = robotEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.5, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
-			0, 0, 0.6f, 1.0f);
-		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-		rgbc->setAngularForce(glm::vec3(0));
+			auto w = alienEntity->addComponent<Hydra::Component::WeaponComponent>();
+			w->bulletSpread = 0.2f;
+			w->bulletsPerShot = 1;
+			w->damage = 4;
+			w->maxmagammo = 100000000;
+			w->currmagammo = 100000000;
+			w->maxammo = 100000000;
 
-	}*/
+			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+			m->movementSpeed = 5.0f;
 
+			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+			t->position.x = roomTransform->position.x + i;
+			t->position.y = 5;
+			t->position.z = roomTransform->position.z + i;
+			t->scale = glm::vec3{ 1,1,1 };
+
+			auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+			rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+				0, 0, 0.6f, 1.0f);
+			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+			rgbc->setAngularForce(glm::vec3(0));
+		}
+
+		for (int i = 0; i < randomFastAliens; i++) {
+			auto alienEntity = world::newEntity("FastAlien1", world::root());
+			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienFastModel.mATTIC");
+			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+			a->behaviour->setPathMap(pathfindingMap);
+			a->damage = 4;
+			a->behaviour->originalRange = 4.0f;
+			a->behaviour->savedRange = a->behaviour->originalRange;
+			a->radius = 1;
+
+			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+			h->maxHP = 60;
+			h->health = 60;
+
+			auto w = alienEntity->addComponent<Hydra::Component::WeaponComponent>();
+			w->bulletSpread = 0.2f;
+			w->bulletsPerShot = 1;
+			w->damage = 4;
+			w->maxmagammo = 1000000000;
+			w->currmagammo = 1000000000;
+			w->maxammo = 1000000000;
+
+			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+			m->movementSpeed = 10.0f;
+
+			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+			t->position.x = roomTransform->position.x + i + 2;
+			t->position.y = 5;
+			t->position.z = roomTransform->position.z + i + 2;
+			t->scale = glm::vec3{ 1,1,1 };
+
+			auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+			rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+				0, 0, 0.6f, 1.0f);
+			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+			rgbc->setAngularForce(glm::vec3(0));
+
+		}
+
+
+		for (int i = 0; i < randomRobots; i++) {
+			auto robotEntity = world::newEntity("Robot1", world::root());
+			robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
+			auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
+			a->behaviour = std::make_shared<RobotBehaviour>(robotEntity);
+			a->behaviour->setPathMap(pathfindingMap);
+			a->damage = 7;
+			a->behaviour->originalRange = 18;
+			a->behaviour->savedRange = a->behaviour->originalRange;
+			a->radius = 1;
+
+			auto h = robotEntity->addComponent<Hydra::Component::LifeComponent>();
+			h->maxHP = 70;
+			h->health = 70;
+
+			auto w = robotEntity->addComponent<Hydra::Component::WeaponComponent>();
+			w->bulletSpread = 0.3f;
+			w->fireRateRPM = 50;
+			w->bulletsPerShot = 1;
+			w->damage = 7;
+			w->maxmagammo = 100000000;
+			w->currmagammo = 100000000;
+			w->maxammo = 100000000;
+
+			auto m = robotEntity->addComponent<Hydra::Component::MovementComponent>();
+			m->movementSpeed = 3.0f;
+
+			auto t = robotEntity->addComponent<Hydra::Component::TransformComponent>();
+			t->position.x = roomTransform->position.x + i + 2;
+			t->position.y = 5;
+			t->position.z = roomTransform->position.z + i + 2;
+			t->scale = glm::vec3{ 1,1,1 };
+
+			auto rgbc = robotEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+			rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.5, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+				0, 0, 0.6f, 1.0f);
+			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+			rgbc->setAngularForce(glm::vec3(0));
+
+		}
+	}
 }
 
 void TileGeneration::_insertPathFindingMap(glm::ivec2 room)
@@ -465,7 +520,8 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::Component::TransformCo
 		auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
 		textStuff->setText("Perk picked up");
 		textStuff->isStatic = true;
-
+		auto lc = pickUpEntity->addComponent<Hydra::Component::LifeComponent>();
+		lc->health = lc->maxHP;
 	}
 }
 

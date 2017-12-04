@@ -56,13 +56,17 @@ namespace Barcode {
 
 		{
 			static std::vector<std::shared_ptr<Entity>> _enemies;
+			static std::vector<std::shared_ptr<Entity>> _spawners;
+			world::getEntitiesWithComponents<Hydra::Component::SpawnerComponent, Hydra::Component::LifeComponent>(_spawners);
 			world::getEntitiesWithComponents<Hydra::Component::AIComponent, Hydra::Component::LifeComponent>(_enemies);
-			if (!_enemies.size()) {
+			if (!_enemies.size() && !_spawners.size()) {
 				_enemies.clear();
+				_spawners.clear();
 				_engine->setState<WinState>();
 				return;
 			}
 			_enemies.clear();
+			_spawners.clear();
 		}
 
 		bool oldPaused = _paused;
@@ -448,7 +452,7 @@ namespace Barcode {
 		{
 			//Remove this to gain frames like never before
 
-			tileGen = new TileGeneration("assets/room/PlantNTableRoom.room");
+			tileGen = new TileGeneration("assets/room/tryTwo.room");
 			pathfindingMap = tileGen->buildMap();
 		}
 
