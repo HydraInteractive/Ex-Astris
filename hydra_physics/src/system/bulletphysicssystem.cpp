@@ -85,6 +85,9 @@ void BulletPhysicsSystem::enable(RigidBodyComponent* component) {
 	case CollisionTypes::COLL_FLOOR:
 		_data->dynamicsWorld->addRigidBody(rigidBody, COLL_FLOOR, CollisionCondition::floorCollidesWith);
 		break;
+	case CollisionTypes::COLL_SPAWNER:
+		_data->dynamicsWorld->addRigidBody(rigidBody, COLL_SPAWNER, CollisionCondition::spawnerCollidesWith);
+		break;
 	default:
 		_data->dynamicsWorld->addRigidBody(rigidBody, COLL_NOTHING, COLL_NOTHING);
 		break;
@@ -124,6 +127,9 @@ void Hydra::System::BulletPhysicsSystem::enable(GhostObjectComponent * component
 		break;
 	case CollisionTypes::COLL_FLOOR:
 		_data->dynamicsWorld->addCollisionObject(component->ghostObject, COLL_FLOOR, CollisionCondition::floorCollidesWith);
+		break;
+	case CollisionTypes::COLL_SPAWNER:
+		_data->dynamicsWorld->addCollisionObject(component->ghostObject, COLL_SPAWNER, CollisionCondition::spawnerCollidesWith);
 		break;
 	default:
 		_data->dynamicsWorld->addCollisionObject(component->ghostObject, COLL_NOTHING, COLL_NOTHING);
