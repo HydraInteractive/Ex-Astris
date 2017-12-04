@@ -29,6 +29,9 @@ public:
 	enum HandPhases { IDLEHAND, SMASH, SWIPE, HANDCANON, COVER, RETURN};
 	HandPhases handPhase = HandPhases::IDLEHAND;
 
+	//enum ArmPhases { SWEEP, SINGLE_BONK, MULTIPLE_BONK, CHILL};
+	//ArmPhases handPhase = ArmPhases::CHILL;
+
 
 	float idleTimer = 0.0f;
 	float attackTimer = 0.0f;
@@ -134,13 +137,17 @@ public:
 	glm::vec3 swipePosition = glm::vec3(25, 1, 25);
 	glm::vec3 canonPosition = glm::vec3(50, originalHeight, 10);
 	glm::vec3 coverPosition = glm::vec3(45, originalHeight, 5);
+	glm::vec3 smashPosition = glm::vec3(0);
+
 	float coverTimer = 0.0f;
 	float stunTimer = 0.0f;
+	float waitToSmashTimer = 0.0f;
 	bool stunned = false;
 	bool swiping = false;
 	bool smashing = false;
 	bool covering = false;
 	bool shooting = false;
+	bool hit = false;
 	bool inBasePosition = true;
 	int spawnAmount = 0;
 	int targetedPlayer = 0;
@@ -148,7 +155,7 @@ public:
 	int shotsFired = 0;
 
 	void run(float dt);
-	void move(glm::vec3 target, bool keepHeight);
+	void move(glm::vec3 target);
 
 	unsigned int idleState(float dt) final;
 	unsigned int smashState(float dt);
@@ -161,3 +168,47 @@ public:
 private:
 	bool refreshRequiredComponents() final;
 };
+
+/*class HYDRA_PHYSICS_API BossArm_Left final : public Behaviour
+{
+public:
+	BossArm_Left(std::shared_ptr<Hydra::World::Entity> enemy);
+	BossArm_Left();
+	~BossArm_Left();
+
+	const float originalHeight = 10.0f;
+	glm::vec3 basePosition = glm::vec3(55, originalHeight, 15);
+	glm::vec3 swipePosition = glm::vec3(25, 1, 25);
+	glm::vec3 canonPosition = glm::vec3(50, originalHeight, 10);
+	glm::vec3 coverPosition = glm::vec3(45, originalHeight, 5);
+	glm::vec3 smashPosition = glm::vec3(0);
+
+	float coverTimer = 0.0f;
+	float stunTimer = 0.0f;
+	float waitToSmashTimer = 0.0f;
+	bool stunned = false;
+	bool swiping = false;
+	bool smashing = false;
+	bool covering = false;
+	bool shooting = false;
+	bool inBasePosition = true;
+	int spawnAmount = 0;
+	int targetedPlayer = 0;
+	int randomNrOfShots = 0;
+	int shotsFired = 0;
+
+	void run(float dt);
+	void move(glm::vec3 target);
+
+	unsigned int idleState(float dt) final;
+	unsigned int smashState(float dt);
+	unsigned int swipeState(float dt);
+	unsigned int canonState(float dt);
+	unsigned int coverState(float dt);
+	unsigned int returnState(float dt);
+
+
+private:
+	bool refreshRequiredComponents() final;
+};
+*/

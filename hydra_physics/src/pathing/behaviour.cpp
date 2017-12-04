@@ -650,28 +650,21 @@ void BossHand_Left::run(float dt) {
 
 }
 
-void BossHand_Left::move(glm::vec3 target, bool keepHeight) {
+void BossHand_Left::move(glm::vec3 target) {
 	
-	
-	if (keepHeight){
-		glm::vec3 direction;
-		direction = glm::normalize(target - thisEnemy.transform->position);
-		
+	glm::vec3 direction = glm::normalize(target - thisEnemy.transform->position);
+
+	if (HandPhases::SMASH) {
+		thisEnemy.movement->velocity.x = ((thisEnemy.movement->movementSpeed / 2) * direction.x);
+		thisEnemy.movement->velocity.y = ((thisEnemy.movement->movementSpeed / 2) * direction.y);
+		thisEnemy.movement->velocity.z = ((thisEnemy.movement->movementSpeed / 2) * direction.z);
+	}
+	else {
 		thisEnemy.movement->velocity.x = (thisEnemy.movement->movementSpeed * direction.x);
 		thisEnemy.movement->velocity.y = (thisEnemy.movement->movementSpeed * direction.y);
 		thisEnemy.movement->velocity.z = (thisEnemy.movement->movementSpeed * direction.z);
-		
-		rotation = glm::angleAxis(atan2(direction.x, direction.y), glm::vec3(0, 1, 0));
-		}
-	else {
-		glm::vec2 direction;
-		direction = glm::normalize(flatVector(target) - flatVector(thisEnemy.transform->position));
-		
-		thisEnemy.movement->velocity.x = (thisEnemy.movement->movementSpeed * direction.x);
-		thisEnemy.movement->velocity.z = (thisEnemy.movement->movementSpeed * direction.y);
-		
-		rotation = glm::angleAxis(atan2(direction.x, direction.y), glm::vec3(0, 1, 0));
 	}
+	rotation = glm::angleAxis(atan2(direction.x, direction.y), glm::vec3(0, 1, 0));
 
 }
 
@@ -682,8 +675,6 @@ unsigned int BossHand_Left::idleState(float dt) {
 	//Wait 2 seconds before next move
 
 	int randomNextMove = rand() % 100;
-
-	return HandPhases::SMASH;
 
 	if (randomNextMove < 30) {
 		Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Smash");
@@ -711,16 +702,31 @@ unsigned int BossHand_Left::smashState(float dt) {
 
 	int state = HandPhases::SMASH;
 	if (smashing == false) {
-		move(targetPlayer.transform->position, true);
+		move(glm::vec3(targetPlayer.transform->position.x, originalHeight, targetPlayer.transform->position.z));
+		if (glm::distance(flatVector(thisEnemy.transform->position), flatVector(targetPlayer.transform->position)) < 1.0f) {
+			smashing = true;
+			smashPosition = glm::vec3(targetPlayer.transform->position.x, 0, targetPlayer.transform->position.z);
+		}
 	}
-	if (glm::distance(flatVector(thisEnemy.transform->position), flatVector(targetPlayer.transform->position)) < 1.0f) {
-		move(glm::vec3(thisEnemy.transform->position.x, 1, thisEnemy.transform->position.z), false);
-		smashing = true;
+
+	if (smashing == true) {
+		waitToSmashTimer += dt;
+		if (waitToSmashTimer >= 1.0f)
+			move(smashPosition);
+		if (hit == false) {
+			if (glm::distance(thisEnemy.transform->position, targetPlayer.transform->position) < 3.0f) {
+				targetPlayer.life->applyDamage(10);
+				hit = true;
+			}
+		}
 	}
+
 	if (thisEnemy.transform->position.y <= 3.0f) {
 		state = HandPhases::RETURN;
 		thisEnemy.transform->position.y = originalHeight;
 		smashing = false;
+		waitToSmashTimer = 0.0f;
+		hit = false;
 	}
 	return state;
 }
@@ -731,18 +737,24 @@ unsigned int BossHand_Left::swipeState(float dt) {
 	
 	if (swiping == false) {
 		swipePosition.x = targetPlayer.transform->position.x;
-		move(swipePosition, false);
+		move(swipePosition);
 	}
 	if (thisEnemy.transform->position.x >= targetPlayer.transform->position.x - 1 && thisEnemy.transform->position.x <= targetPlayer.transform->position.x + 1) {
 		swiping = true;
 	}
-
+	if (hit == false) {
+		if (glm::distance(thisEnemy.transform->position, targetPlayer.transform->position) < 3.0f) {
+			targetPlayer.life->applyDamage(10);
+			hit = true;
+		}
+	}
 	if (swiping == true) {
-		move(glm::vec3(swipePosition.x, swipePosition.y, -swipePosition.z), false);
+		move(glm::vec3(swipePosition.x, swipePosition.y, -swipePosition.z));
 		//thisEnemy.transform->position.z -= 0.1f;
 		if (glm::distance(flatVector(thisEnemy.transform->position), flatVector(glm::vec3(swipePosition.x, swipePosition.y, -swipePosition.z))) < 2.0f) {
 			state = HandPhases::RETURN;
 			swiping = false;
+			hit = false;			
 		}
 	}
 
@@ -754,11 +766,11 @@ unsigned int BossHand_Left::canonState(float dt) {
 	int state = HandPhases::HANDCANON;
 	if (!shooting) {
 		randomNrOfShots = rand() % 60 + 40;
-		move(canonPosition, false);
+		move(canonPosition);
 	}
 	//Get into shooting position
 
-	if (glm::distance(flatVector(thisEnemy.transform->position), flatVector(canonPosition)) < 2.0f) {
+	if (glm::distance(flatVector(thisEnemy.transform->position), flatVector(canonPosition)) < 1.0f) {
 		shooting = true;
 		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
 		playerDir = glm::normalize(playerDir);
@@ -790,7 +802,7 @@ unsigned int BossHand_Left::coverState(float dt) {
 		coverTimer += dt;
 	}
 	else
-		move(coverPosition, false);
+		move(coverPosition);
 
 	if (coverTimer >= 5){
 		coverTimer = 0;
@@ -804,7 +816,7 @@ unsigned int BossHand_Left::returnState(float dt)
 {
 	int state = HandPhases::RETURN;
 
-	move(basePosition, false);
+	move(basePosition);
 	
 	if (glm::distance(flatVector(thisEnemy.transform->position), flatVector(basePosition)) < 3.0f)
 		state = HandPhases::IDLEHAND;
