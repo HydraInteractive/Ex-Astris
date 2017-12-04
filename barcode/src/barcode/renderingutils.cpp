@@ -228,9 +228,11 @@ namespace Barcode {
 		{
 			_shadowBatch.pipeline->setValue(0, dirLight.getViewMatrix());
 			_shadowBatch.pipeline->setValue(1, dirLight.getProjectionMatrix());
+			_shadowBatch.pipeline->setValue(2, dirLight.getDirVec());
 
 			_shadowAnimationBatch.pipeline->setValue(0, dirLight.getViewMatrix());
 			_shadowAnimationBatch.pipeline->setValue(1, dirLight.getProjectionMatrix());
+			_shadowAnimationBatch.pipeline->setValue(2, dirLight.getDirVec());
 
 			_engine->getRenderer()->renderShadows(_shadowBatch.batch);
 			_engine->getRenderer()->renderShadows(_shadowAnimationBatch.batch);

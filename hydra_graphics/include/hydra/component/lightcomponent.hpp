@@ -18,7 +18,7 @@ using namespace Hydra::World;
 
 namespace Hydra::Component {
 	struct HYDRA_GRAPHICS_API LightComponent final : public IComponent<LightComponent, ComponentBits::Light> {
-		glm::vec3 color = glm::vec3(1, 1, 1);
+		glm::vec3 color = glm::vec3(0, 0, 0);
 
 		float zNear = -28.0f;
 		float zFar = 28.0f;
@@ -45,7 +45,7 @@ namespace Hydra::Component {
 				return std::shared_ptr<Hydra::Component::TransformComponent>();
 		}
 		inline glm::vec3 getDirVec(){
-			return glm::normalize(getTransformComponent()->position + glm::vec3(0.2, -0.8, 0));
+			return getTransformComponent()->position + glm::vec3(0.2, -0.8, 0);
 		}
 	};
 }

@@ -115,7 +115,7 @@ void main() {
 
 	// Lighting 
 	// 0.1f should be ambient coefficient
-	vec3 globalAmbient = objectColor.rgb * 0.5f;
+	vec3 globalAmbient = objectColor.rgb * 0.25f;
 	vec3 result = vec3(0);
 
 	// Directional light
@@ -143,7 +143,7 @@ void main() {
 		for(float y = -1; y <= 1; y++) {
 			for(float x = -1; x <= 1; x++) {
 				float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
-				shadow += currentDepth - bias > pcfDepth ? 1 : 0;
+				shadow += currentDepth > pcfDepth ? 1 : 0;
 			}
 		}
 		shadow /= 9;
