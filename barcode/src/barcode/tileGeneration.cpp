@@ -241,10 +241,11 @@ void TileGeneration::_setUpMiddleRoom(std::string middleRoomPath) {
 	roomGrid[ROOM_GRID_SIZE / 2][ROOM_GRID_SIZE / 2] = roomC;
 	_insertPathFindingMap(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2));
 	auto t = room->addComponent<Hydra::Component::TransformComponent>();
-	t->position = _gridToWorld(2, 2);
+	t->position = _gridToWorld((int)ROOM_GRID_SIZE / 2, (int)ROOM_GRID_SIZE / 2);
 	t->scale = glm::vec3(1, 1, 1);
 	localXY = glm::vec2(0, 0);
 	_spawnLight(t);
+
 	
 	//_spawnRandomizedEnemies(t);
 	//t->rotation = glm::quat(1, 0, 1, 0);
@@ -295,7 +296,7 @@ void TileGeneration::_randomizeRooms() {
 void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform) {
 
 	_spawnPickUps(roomTransform);
-	_spawnLight(roomTransform);
+	//_spawnLight(roomTransform);
 
 	int randomSlowAliens = rand() % int(MAX_ENEMIES);
 	int randomRobots = rand() % int(MAX_ENEMIES - randomSlowAliens);

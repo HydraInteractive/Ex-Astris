@@ -580,3 +580,239 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 		return state;
 	}
 }
+
+
+//BossHand_Left::BossHand_Left(std::shared_ptr<Hydra::World::Entity> enemy) :Behaviour(enemy)  {
+//
+//	this->type = Type::BOSS_LEFTHAND;
+//
+//}
+
+BossHand_Left::BossHand_Left(std::shared_ptr<Hydra::World::Entity> enemy) : Behaviour(enemy) {
+
+	this->type = Type::BOSS_LEFTHAND;
+
+}
+
+BossHand_Left::BossHand_Left() {
+
+	this->type = Type::BOSS_LEFTHAND;
+
+}
+
+BossHand_Left::~BossHand_Left() {
+
+}
+
+void BossHand_Left::run(float dt) {
+
+	if (!hasRequiredComponents)
+		if (!refreshRequiredComponents())
+			return;
+	if (thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>()->health <= 0)
+		return;
+
+	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
+	thisEnemy.ai->debugState = state;
+
+	idleTimer += dt;
+	attackTimer += dt;
+	newPathTimer += dt;
+
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 500)
+	{
+		state = HandPhases::IDLEHAND;
+	}
+
+	switch (state)
+	{
+	case HandPhases::IDLEHAND:
+		state = idleState(dt);
+		break;
+	case HandPhases::SWIPE:
+		state = swipeState(dt);
+		break;
+	case HandPhases::SMASH:
+		state = smashState(dt);
+		break;
+	case HandPhases::HANDCANON:
+		state = canonState(dt);
+		break;
+	case HandPhases::COVER:
+		state = coverState(dt);
+		break;
+	case HandPhases::RETURN:
+		state = returnState(dt);
+		break;
+	}
+
+	executeTransforms();
+
+}
+
+void BossHand_Left::move(glm::vec3 target) {
+	
+	glm::vec3 direction = glm::normalize(target - thisEnemy.transform->position);
+
+	thisEnemy.movement->velocity.x = (thisEnemy.movement->movementSpeed * direction.x);
+	thisEnemy.movement->velocity.y = (thisEnemy.movement->movementSpeed * direction.y);
+	thisEnemy.movement->velocity.z = (thisEnemy.movement->movementSpeed * direction.z);
+
+	rotation = glm::angleAxis(atan2(direction.x, direction.y), glm::vec3(0, 1, 0));
+
+}
+
+unsigned int BossHand_Left::idleState(float dt) {
+
+	int state = HandPhases::IDLEHAND;
+
+	//Wait 2 seconds before next move
+
+	int randomNextMove = rand() % 100;
+
+	return HandPhases::HANDCANON;
+
+	if (randomNextMove < 30) {
+		Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Smash");
+		return HandPhases::SMASH;
+	}
+	else if (randomNextMove < 60) {
+		Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Swipe");
+		return HandPhases::SWIPE;
+	}
+	else if (randomNextMove < 85) {
+		Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Canon");
+		return HandPhases::HANDCANON;
+	}
+	else if (randomNextMove < 100) {
+		Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Cover");
+		return HandPhases::COVER;
+	}
+	else
+		return HandPhases::IDLEHAND;
+
+	return state;
+}
+
+unsigned int BossHand_Left::smashState(float dt) {
+
+	int state = HandPhases::SMASH;
+	if (smashing == false) {
+		move(targetPlayer.transform->position);
+		thisEnemy.transform->position.y = originalHeight;
+	}
+	if (glm::distance(flatVector(thisEnemy.transform->position), flatVector(targetPlayer.transform->position)) < 1.0f) {
+		move(glm::vec3(thisEnemy.transform->position.x, 1, thisEnemy.transform->position.z));
+		smashing = true;
+	}
+	if (thisEnemy.transform->position.y <= 1.1f) {
+		state = HandPhases::RETURN;
+		thisEnemy.transform->position.y = originalHeight;
+		smashing = false;
+	}
+	return state;
+}
+
+unsigned int BossHand_Left::swipeState(float dt) {
+	
+	int state = HandPhases::SWIPE;
+	
+	if (swiping == false) {
+		swipePosition.x = targetPlayer.transform->position.x;
+		move(swipePosition);
+	}
+	if (thisEnemy.transform->position.x >= targetPlayer.transform->position.x - 1 && thisEnemy.transform->position.x <= targetPlayer.transform->position.x + 1) {
+		swiping = true;
+	}
+
+	if (swiping == true) {
+		move(glm::vec3(swipePosition.x, swipePosition.y, -swipePosition.z));
+		//thisEnemy.transform->position.z -= 0.1f;
+		if (glm::distance(flatVector(thisEnemy.transform->position), flatVector(glm::vec3(swipePosition.x, swipePosition.y, -swipePosition.z))) < 2.0f) {
+			state = HandPhases::RETURN;
+			swiping = false;
+		}
+	}
+
+	return state;
+}
+
+unsigned int BossHand_Left::canonState(float dt) {
+
+	int state = HandPhases::HANDCANON;
+	if (!shooting) {
+		randomNrOfShots = rand() % 60 + 40;
+		move(canonPosition);
+	}
+	//Get into shooting position
+
+	if (glm::distance(flatVector(thisEnemy.transform->position), flatVector(canonPosition)) < 2.0f) {
+		shooting = true;
+		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
+		playerDir = glm::normalize(playerDir);
+		glm::vec3 shootPosition = thisEnemy.transform->position + glm::vec3{ 0 , 1.5, 0 };
+
+		thisEnemy.weapon->shoot(shootPosition, playerDir, glm::quat(), 2.2,
+			Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
+		rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
+		shotsFired++;
+		if (shotsFired >= randomNrOfShots) {
+			shotsFired = 0;
+			shooting = false;
+			state = HandPhases::RETURN;
+		}
+	}
+
+
+	return state;
+}
+
+unsigned int BossHand_Left::coverState(float dt) {
+
+	int state = HandPhases::COVER;
+	bool covering = false;
+
+
+	if (glm::distance(flatVector(thisEnemy.transform->position), flatVector(coverPosition)) < 1.0f) {
+		covering = true;
+		coverTimer += dt;
+	}
+	else
+		move(coverPosition);
+
+	if (coverTimer >= 5){
+		coverTimer = 0;
+		state = HandPhases::RETURN;
+	}
+
+	return state;
+}
+
+unsigned int BossHand_Left::returnState(float dt)
+{
+	int state = HandPhases::RETURN;
+
+	move(basePosition);
+	
+	if (glm::distance(flatVector(thisEnemy.transform->position), flatVector(basePosition)) < 3.0f)
+		state = HandPhases::IDLEHAND;
+
+	return state;
+}
+
+bool BossHand_Left::refreshRequiredComponents()
+{
+	hasRequiredComponents = (
+		(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>().get()) &&
+		(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>().get()) &&
+		(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>().get()) &&
+		(thisEnemy.weapon = thisEnemy.entity->getComponent<Hydra::Component::WeaponComponent>().get()) &&
+		(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
+		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
+		(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
+		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity().get()) &&
+		(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
+		(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
+		);
+	return hasRequiredComponents;
+}

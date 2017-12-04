@@ -17,7 +17,7 @@ public:
 	Behaviour();
 	virtual ~Behaviour();
 
-	enum class Type { ALIEN, ROBOT, ALIENBOSS };
+	enum class Type { ALIEN, ROBOT, ALIENBOSS, BOSS_LEFTHAND, BOSS_RIGHTHAND, BOSS_ARMS};
 	Type type = Type::ALIEN;
 
 	enum { IDLE, SEARCHING, MOVING, ATTACKING };
@@ -25,6 +25,10 @@ public:
 
 	enum BossPhase { CLAWING, SPITTING, SPAWNING, CHILLING };
 	BossPhase bossPhase = BossPhase::CLAWING;
+
+	enum HandPhases { IDLEHAND, SMASH, SWIPE, HANDCANON, COVER, RETURN};
+	HandPhases handPhase = HandPhases::IDLEHAND;
+
 
 	float idleTimer = 0.0f;
 	float attackTimer = 0.0f;
@@ -116,4 +120,44 @@ public:
 	void run(float dt);
 	unsigned int attackingState(float dt) final;
 private:
+};
+
+class HYDRA_PHYSICS_API BossHand_Left final : public Behaviour
+{
+public:
+	BossHand_Left(std::shared_ptr<Hydra::World::Entity> enemy);
+	BossHand_Left();
+	~BossHand_Left();
+
+	const float originalHeight = 10.0f;
+	glm::vec3 basePosition = glm::vec3(0, originalHeight, 0);
+	glm::vec3 swipePosition = glm::vec3(0, 1, 10);
+	glm::vec3 canonPosition = glm::vec3(10, 3, 10);
+	glm::vec3 coverPosition = glm::vec3(-5, originalHeight, 0);
+	float coverTimer = 0.0f;
+	float stunTimer = 0.0f;
+	bool stunned = false;
+	bool swiping = false;
+	bool smashing = false;
+	bool covering = false;
+	bool shooting = false;
+	bool inBasePosition = true;
+	int spawnAmount = 0;
+	int targetedPlayer = 0;
+	int randomNrOfShots = 0;
+	int shotsFired = 0;
+
+	void run(float dt);
+	void move(glm::vec3 target);
+
+	unsigned int idleState(float dt) final;
+	unsigned int smashState(float dt);
+	unsigned int swipeState(float dt);
+	unsigned int canonState(float dt);
+	unsigned int coverState(float dt);
+	unsigned int returnState(float dt);
+
+
+private:
+	bool refreshRequiredComponents() final;
 };
