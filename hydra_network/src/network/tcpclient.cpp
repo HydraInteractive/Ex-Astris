@@ -23,7 +23,6 @@ bool TCPClient::initialize(char* ip, int port) {
 		const char* c = SDLNet_GetError();
 		return false;
 	}
-	this->_msg = new char[MAX_NETWORK_LENGTH];
 	this->_connected = true;
 	this->_sset = SDLNet_AllocSocketSet(1);
 	SDLNet_TCP_AddSocket(this->_sset, this->_tcp);
@@ -42,42 +41,37 @@ std::vector<Packet*> TCPClient::receiveData() {
 	if (!_connected)
 		return packets;
 
-	Packet* tmp;
-	Packet* tmp2;
-	size_t curr = 0;
-
-	size_t offset = 0;
-	while (SDLNet_CheckSockets(this->_sset, 0)) {
-		if (offset == MAX_NETWORK_LENGTH) {
-			close();
-			return packets;
-		}
-
-		ssize_t lenTmp = SDLNet_TCP_Recv(this->_tcp, this->_msg + offset, MAX_NETWORK_LENGTH - offset) + offset;
-		if (lenTmp > 0) {
-			size_t len = lenTmp;
-			while (curr < len && curr < MAX_NETWORK_LENGTH) {
-				tmp = (Packet*)(&(this->_msg[curr]));
-				printf("Reading packet: offset: %zu, curr: %zu\n\ttype: %s\n\tlen: %d\n\tclient: %d\n", offset, curr, Hydra::Network::PacketTypeName[tmp->h.type], tmp->h.len, tmp->h.client);
-				if (curr + tmp->h.len > len) {
-					memmove(_msg, _msg + curr, len - curr);
-					offset = len - curr;
-					curr = 0;
-					break;
-				}
-				curr += tmp->h.len;
-
-				tmp2 = (Packet*)(new char[tmp->h.len]);
-				memcpy(tmp2, tmp, tmp->h.len);
-				packets.push_back(tmp2);
-			}
-			if (curr == len)
-				offset = 0;
-		} else {
-			close();
-			return packets;
-		}
+	// Delay before dc (depends on frames)
+	if (_waitingForData++ == 100) {
+		close();
+		return packets;
 	}
+
+	static uint8_t tmpbuf[0x1000];
+	while (SDLNet_CheckSockets(this->_sset, 0) == 1) {
+		int64_t lenTmp = SDLNet_TCP_Recv(this->_tcp, tmpbuf, sizeof(tmpbuf));
+		if (lenTmp <= 0) {
+			close();
+			return packets;
+		}
+		_data.insert(_data.end(), &tmpbuf[0], &tmpbuf[lenTmp]);
+		_waitingForData = 0;
+	}
+
+	while (_data.size() >= sizeof(Packet)) {
+		Packet* p = (Packet*)_data.data();
+		if (_data.size() < p->h.len) {
+			fprintf(stderr, "PACKET NEEDED MORE DATA THAN AVAILABLE!");
+			break;
+		}
+
+		//printf("Reading packet:\n\ttype: %s\n\tlen: %zu\n\tclient: %zu\n", Hydra::Network::PacketTypeName[p->h.type], p->h.len, p->h.client);
+		Packet* newPacket = (Packet*)(new char[p->h.len]);
+		memcpy(newPacket, p, p->h.len);
+		packets.push_back(newPacket);
+		_data.erase(_data.begin(), _data.begin() + p->h.len);
+	}
+
 	return packets;
 }
 
@@ -92,5 +86,5 @@ void TCPClient::close() {
 	_sset = nullptr;
 	SDLNet_TCP_Close(_tcp);
 	_tcp = nullptr;
-	delete[] this->_msg;
+	_data.resize(0);
 }

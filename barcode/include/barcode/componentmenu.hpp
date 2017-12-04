@@ -49,5 +49,6 @@ private:
 	//GhostObject
 	struct GOI{
 		glm::vec3 size = glm::vec3(1.0f, 1.0f, 1.0f);
+		int collisionType = 1;
 	} ghostObjectInput;
 };

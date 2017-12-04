@@ -1,5 +1,6 @@
 #pragma once
 #include <server/server.hpp>
+#include <server/tilegeneration.hpp>
 #include <hydra/world/world.hpp>
 #include <chrono>
 #include <hydra/system/deadsystem.hpp>
@@ -32,19 +33,22 @@ namespace BarcodeServer {
 		void quit();
 
 	private:
-		std::chrono::time_point<std::chrono::high_resolution_clock> lastTime;
-		float packetDelay;
-		Server* _server;
+		std::chrono::time_point<std::chrono::high_resolution_clock> _lastTime;
+		float _packetDelay;
+		Server* _server = nullptr;
 		std::vector<Hydra::World::EntityID> _networkEntities;
 		std::vector<Player*> _players;
+		std::unique_ptr<TileGeneration> _tileGeneration;
+		bool** _pathfindingMap = nullptr;
+		std::string _pvsData;
 
 		Hydra::System::DeadSystem _deadSystem;
-		Hydra::System::BulletPhysicsSystem* _physicsSystem;
-		Hydra::System::AISystem* _aiSystem;
-		Hydra::System::BulletSystem* _bulletSystem;
-		Hydra::System::SpawnerSystem* _spawnerSystem;
-		Hydra::System::PerkSystem* _perkSystem;
-		Hydra::System::LifeSystem* _lifeSystem;
+		Hydra::System::BulletPhysicsSystem _physicsSystem;
+		Hydra::System::AISystem _aiSystem;
+		Hydra::System::BulletSystem _bulletSystem;
+		Hydra::System::SpawnerSystem _spawnerSystem;
+		Hydra::System::PerkSystem _perkSystem;
+		Hydra::System::LifeSystem _lifeSystem;
 		//Hydra::System::PlayerSystem _playerSystem;
 		//Hydra::System::RendererSystem _rendererSystem;
 		//Hydra::System::SoundFxSystem _soundFxSystem;

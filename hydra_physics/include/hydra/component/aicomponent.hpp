@@ -7,8 +7,16 @@
 */
 #pragma once
 #include <hydra/ext/api.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <hydra/world/world.hpp>
+#include <hydra/component/transformcomponent.hpp>
+#include <hydra/component/weaponcomponent.hpp>
+#include <hydra/pathing/pathfinding.hpp>
+#include <hydra/component/playercomponent.hpp>
 #include <hydra/pathing/behaviour.hpp>
+#include <math.h>
+#include <SDL2/SDL.h>
 
 using namespace Hydra::World;
 namespace Hydra::Component {
@@ -21,6 +29,7 @@ namespace Hydra::Component {
 		float radius = 1.0f;
 
 		inline const std::string type() const final { return "AIComponent"; }
+		std::shared_ptr<Hydra::World::Entity> getPlayerEntity();
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;

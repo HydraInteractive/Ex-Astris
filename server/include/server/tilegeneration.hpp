@@ -41,27 +41,32 @@ namespace BarcodeServer {
 	public:
 		std::shared_ptr<Hydra::Component::RoomComponent> roomGrid[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
 		bool** pathfindingMap = nullptr;
-		bool** buildMap();
+		int maxRooms = 100;
+		int roomCounter = 0;
+		int numberOfPlayers = 4;
+		int numberOfEnemies = 10; //Can be per room or for the whole map depending on if the _spawnEnemies function is run once per room or after the whole map is generated
+		std::vector<glm::vec3> playerSpawns;
+
 		TileGeneration(const std::string& middleRoomPath);
 		~TileGeneration();
 
-		int maxRooms = 3;
+		bool** buildMap();
 		std::shared_ptr<Hydra::World::Entity> mapentity;
+
 	private:
 		std::vector<std::string> _roomFileNames;
-		int _roomCounter = 0;
 
 		enum { NORTH, EAST, SOUTH, WEST };
 		glm::vec2 localXY;
 		void _setUpMiddleRoom(const std::string& middleRoomPath);
 		void _createMapRecursivly(const glm::ivec2& pos);
-		void _insertPathFindingMap(const glm::ivec2& room);
+		void _insertPathFindingMap(const glm::ivec2& room, uint8_t rotation);
 		void _obtainRoomFiles();
 		void _randomizeRooms();
 		void _spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
 		void _spawnPickUps(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
 		void _spawnLight(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
-		glm::quat _rotateRoom(std::shared_ptr<Hydra::Component::RoomComponent>& room);
+		glm::quat _rotateRoom(std::shared_ptr<Hydra::Component::RoomComponent>& room, uint8_t& rot);
 		glm::vec3 _gridToWorld(int x, int y);
 		bool _checkAdjacents(int x, int y, std::shared_ptr<Hydra::Component::RoomComponent>& r);
 	};

@@ -283,9 +283,15 @@ void RigidBodyComponent::setActivationState(ActivationState newState) {
 	_data->getRigidBody()->setActivationState(lookup[static_cast<int>(newState)]);
 }
 
+
+void RigidBodyComponent::refreshTransform() {
+	btTransform t;
+	_data->motionState.getWorldTransform(t);
+	_data->getRigidBody()->setWorldTransform(t);
+}
+
 glm::vec3 RigidBodyComponent::getPosition() {
 	return _data->motionState.getPosition() + cast(_data->compoundShape->getChildTransform(0).getOrigin());
-	//return _data->motionState.getPosition() + cast(_data->compoundShape->getChildTransform(0).getOrigin());
 }
 
 glm::quat RigidBodyComponent::getRotation() {
@@ -324,6 +330,10 @@ void RigidBodyComponent::deserialize(nlohmann::json& json) {
 	auto rollingFriction = json["rollingFriction"].get<float>();
 	auto collisionType = static_cast<Hydra::System::BulletPhysicsSystem::CollisionTypes>(json["collisionType"].get<int>());
 
+	btTransform localTrans;
+	localTrans.setIdentity();
+	localTrans.setOrigin(cast(glm::vec3(0,0,0)));
+	compound->addChildShape(localTrans, shape.get());
 	_data = new Data(entityID, collisionShape, serializeShape, std::move(shape), std::move(compound), collisionType, mass, linearDamping, angularDamping, friction, rollingFriction);
 }
 

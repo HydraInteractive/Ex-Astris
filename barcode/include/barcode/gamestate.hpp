@@ -100,10 +100,13 @@ namespace Barcode {
 		Hydra::Component::CameraComponent* _cc = nullptr;
 		Hydra::Component::TransformComponent* _playerTransform = nullptr;
 
-		float prevHP, hpTimeUp = 0;
-		bool** pathfindingMap = nullptr;
+		float _prevHP = 1;
+		float _hpTimeUp = 0;
+		int  _loadingScreenPicture = 0;
+		float _loadingScreenTimer = 1;
 
 		void _initSystem();
 		void _initWorld();
+		static void _onPlayerShoot(Hydra::Component::WeaponComponent& weapon, Hydra::World::Entity* bullet, void* userdata);
 	};
 }

@@ -4,17 +4,21 @@
 #include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/system/bulletphysicssystem.hpp>
 #include <hydra/component/ghostobjectcomponent.hpp>
+#include <hydra/component/cameracomponent.hpp>
+#include <hydra/component/bulletcomponent.hpp>
+#include <hydra/component/playercomponent.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <hydra/engine.hpp>
 
 using namespace Hydra::Network;
 using world = Hydra::World::World;
 
+bool NetClient::running = false;
+
 TCPClient NetClient::_tcp;
 EntityID NetClient::_myID;
 std::map<ServerID, EntityID> NetClient::_IDs;
-bool NetClient::running = false;
-
+std::map<ServerID, nlohmann::json> NetClient::_bullets;
 
 void enableEntity(Entity* ent) {
 	if (!ent)
@@ -30,22 +34,12 @@ void enableEntity(Entity* ent) {
 	if (tc) {
 		auto ghostobject = ent->getComponent<GhostObjectComponent>();
 		if (ghostobject) {
-			glm::vec3 newScale;
-			glm::quat rotation;
-			glm::vec3 translation;
-			glm::vec3 skew;
-			glm::vec4 perspective;
-			glm::decompose(tc->getMatrix(), newScale, rotation, translation, skew, perspective);
-
-			ghostobject->ghostObject->setWorldTransform(btTransform(btQuaternion(ghostobject->quatRotation.x, ghostobject->quatRotation.y, ghostobject->quatRotation.z, ghostobject->quatRotation.w), btVector3(translation.x, translation.y, translation.z)));
-			
+			ghostobject->updateWorldTransform();
 			bulletsystem->enable(static_cast<Hydra::Component::GhostObjectComponent*>(ghostobject.get()));
 		}
-
 	}
 	std::vector<EntityID> children = ent->children;
 	for (size_t i = 0; i < children.size(); i++) {
-		
 		enableEntity(world::getEntity(children[i]).get());
 	}
 }
@@ -54,10 +48,12 @@ void NetClient::_sendUpdatePacket() {
 	Entity* tmp = world::getEntity(_myID).get();
 	if (tmp) {
 		ClientUpdatePacket cpup;
-		Hydra::Component::TransformComponent* tc = tmp->getComponent<Hydra::Component::TransformComponent>().get();
+		auto tc = tmp->getComponent<Hydra::Component::TransformComponent>();
+		auto cc = tmp->getComponent<Hydra::Component::CameraComponent>();
 		cpup.ti.pos = tc->position;
 		cpup.ti.scale = tc->scale;
-		cpup.ti.rot = tc->rotation;
+		//cpup.ti.rot = tc->rotation;
+		cpup.ti.rot = glm::angleAxis(cc->cameraYaw - 1.6f /* Player model fix */, glm::vec3(0, -1, 0));
 		cpup.h.type = PacketType::ClientUpdate;
 		cpup.h.len = sizeof(ClientUpdatePacket);
 
@@ -94,7 +90,8 @@ void NetClient::_resolvePackets() {
 	Entity* ent;
 	Packet* serverUpdate = nullptr;
 	for (size_t i = 0; i < packets.size(); i++) {
-		switch (packets[i]->h.type) {
+		auto& p = packets[i];
+		switch (p->h.type) {
 		case PacketType::ServerInitialize:
 			children = world::root()->children;
 			for (size_t i = 0; i < children.size(); i++) {
@@ -104,25 +101,58 @@ void NetClient::_resolvePackets() {
 					break;
 				}
 			}
-			_IDs[((ServerInitializePacket*)packets[i])->entityid] = _myID;
-			tc = world::getEntity(_myID)->getComponent<Hydra::Component::TransformComponent>().get();
-			tc->setPosition(((ServerInitializePacket*)packets[i])->ti.pos);
-			tc->setRotation(((ServerInitializePacket*)packets[i])->ti.rot);
-			tc->setScale(((ServerInitializePacket*)packets[i])->ti.scale);
+			_IDs[((ServerInitializePacket*)p)->entityid] = _myID;
+			tc = ent->getComponent<Hydra::Component::TransformComponent>().get();
+			tc->setPosition(((ServerInitializePacket*)p)->ti.pos);
+			tc->setRotation(((ServerInitializePacket*)p)->ti.rot);
+			tc->setScale(((ServerInitializePacket*)p)->ti.scale);
+
+			if (auto rb = ent->getComponent<Hydra::Component::RigidBodyComponent>(); rb)
+				rb->refreshTransform();
+			if (auto go = ent->getComponent<Hydra::Component::GhostObjectComponent>(); go)
+				go->updateWorldTransform();
 			break;
-		case PacketType::ServerUpdate: 
-			serverUpdate = packets[i];
+		case PacketType::ServerUpdate:
+			serverUpdate = p;
 			break;
-	case PacketType::ServerPlayer:
-			_addPlayer(packets[i]);
+		case PacketType::ServerPlayer:
+			_addPlayer(p);
 			break;
 		case PacketType::ServerSpawnEntity:
-			_resolveServerSpawnEntityPacket((ServerSpawnEntityPacket*)packets[i]);
+			_resolveServerSpawnEntityPacket((ServerSpawnEntityPacket*)p);
 			break;
 		case PacketType::ServerDeleteEntity:
-			_resolveServerDeletePacket((ServerDeletePacket*)packets[i]);
+			_resolveServerDeletePacket((ServerDeletePacket*)p);
 			break;
+		case PacketType::ServerUpdateBullet: {
+			auto ubp = (ServerUpdateBulletPacket*)p;
+			_bullets[ubp->serverPlayerID] = nlohmann::json::from_msgpack(std::vector<uint8_t>(&ubp->data[0], &ubp->data[ubp->size]));
+			break;
+		}
+		case PacketType::ServerShoot: {
+			auto ss = (ServerShootPacket*)p;
+			auto b = world::newEntity("EXTERNAL BULLET", world::root());
+			b->deserialize(_bullets[ss->serverPlayerID]);
+			auto bc = b->getComponent<Hydra::Component::BulletComponent>();
+			bc->direction = ss->direction;
+			auto tc = b->getComponent<Hydra::Component::TransformComponent>();
+			tc->position = ss->ti.pos;
+			tc->scale = ss->ti.scale;
+			tc->rotation = ss->ti.rot;
+			auto r = b->getComponent<Hydra::Component::RigidBodyComponent>();
+			if (r)
+				static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->enable(r.get());
+			break;
+		}
+		case PacketType::ServerFreezePlayer: {
+			auto sfp = (ServerFreezePlayerPacket*)p;
+			for (auto p : Hydra::Component::PlayerComponent::componentHandler->getActiveComponents())
+				((Hydra::Component::PlayerComponent*)p.get())->frozen = sfp->action == ServerFreezePlayerPacket::Action::freeze;
+			//TODO Loading screen;
+			break;
+		}
 		default:
+			printf("UNKNOWN PACKET: %s\n", (p->h.type < PacketType::MAX_COUNT ? PacketTypeName[p->h.type] : "(unk)"));
 			break;
 		}
 	}
@@ -130,9 +160,8 @@ void NetClient::_resolvePackets() {
 	if (serverUpdate)
 		_updateWorld(serverUpdate);
 
-	for (size_t i = 0; i < packets.size(); i++) {
+	for (size_t i = 0; i < packets.size(); i++)
 		delete packets[i];
-	}
 }
 
 
@@ -209,7 +238,7 @@ void NetClient::_addPlayer(Packet * playerPacket) {
 	_IDs[spp->entID] = ent->id;
 	Hydra::Component::TransformComponent* tc = ent->addComponent<Hydra::Component::TransformComponent>().get();
 	auto mesh = ent->addComponent<Hydra::Component::MeshComponent>();
-	mesh->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+	mesh->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
 	tc->setPosition(spp->ti.pos);
 	tc->setRotation(spp->ti.rot);
 	tc->setScale(spp->ti.scale);
@@ -233,7 +262,7 @@ void NetClient::shoot(Hydra::Component::TransformComponent * tc, const glm::vec3
 		ClientShootPacket* csp = new ClientShootPacket();
 
 		csp->h.len = sizeof(ClientShootPacket);
-		csp->h.type = PacketType::ClientUpdateBullet;
+		csp->h.type = PacketType::ClientShoot;
 		csp->direction = direction;
 		csp->ti.pos = tc->position;
 		csp->ti.scale = tc->scale;
@@ -255,16 +284,14 @@ void NetClient::updateBullet(EntityID newBulletID) {
 	packet->size = vec.size();
 	packet->h.len = packet->getSize();
 
-	char* result = new char[sizeof(ClientUpdateBulletPacket) + vec.size() * sizeof(uint8_t)];
+	char* result = new char[sizeof(ClientUpdateBulletPacket) + vec.size()];
 
 	memcpy(result, packet, sizeof(ClientUpdateBulletPacket));
-	memcpy(result + sizeof(ClientUpdateBulletPacket), vec.data(), vec.size() * sizeof(uint8_t));
+	memcpy(result + sizeof(ClientUpdateBulletPacket), vec.data(), vec.size());
 
-	_tcp.send(result, sizeof(ClientUpdateBulletPacket) + vec.size() * sizeof(uint8_t));
+	_tcp.send(result, sizeof(ClientUpdateBulletPacket) + vec.size());
 	//_tcp.send(packet, sizeof(ClientSpawnEntityPacket)); // DATA SNED
 	//_tcp.send(vec.data(), vec.size() * sizeof(uint8_t)); // DATA SKJICJIK
-
-	entptr->deserialize(json);
 
 	delete[] result;
 	delete packet;

@@ -14,8 +14,9 @@ in VertexData {
 
 out GeometryData {
 	vec3 position;
-	vec3 vPos;
+	//vec3 vPos;
 	vec3 normal;
+	vec3 vNormal;
 	vec3 color;
 	vec2 uv;
 	mat3 tbn;
@@ -50,10 +51,14 @@ void main() {
 	for (i = 0; i < 3; i++) {
 		vec4 pos = inData[i].m * vec4(inData[i].position, 1.0f);
 		outData.position = pos.xyz;
-		outData.vPos = vec3(v * pos).xyz;
+		//outData.vPos = vec3(v * pos).xyz;
 
-		mat3 normalMatrix = transpose(inverse(mat3(inData[i].m)));
-		outData.normal = normalize(normalMatrix * inData[i].normal);
+		mat3 normalMatrix = transpose(inverse(mat3(v * inData[i].m)));
+		//outData.normal = normalize(normalMatrix * inData[i].normal);
+		outData.normal = normalize(vec3(inData[i].m * vec4(inData[i].normal, 1.0f)).xyz);
+		outData.vNormal = normalize(normalMatrix * inData[i].normal.xyz);// * 0.5 + 0.5;
+		
+		//outData.vNormal = normalize(inData[i].normal).xyz;
 
 		outData.color = inData[i].color;
 		outData.uv = vec2(inData[i].uv.x, 1 - inData[i].uv.y);

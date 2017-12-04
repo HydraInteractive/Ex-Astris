@@ -45,15 +45,16 @@ std::vector<Hydra::Network::Packet*> ClientHandler::getReceivedData(int pending)
 	std::vector<Hydra::Network::Packet*> packets;
 	Hydra::Network::Packet* tmp;
 	Hydra::Network::Packet* tmp2;
-	int curr = 0;
+	size_t curr = 0;
 	size_t offset = 0;
 	std::vector<int> tmpvec;
 	for (size_t i = 0; i < this->_clients.size(); i++) {
 		curr = 0;
 		offset = 0;
 		while (SDLNet_SocketReady(this->_clients[i]->socket)) {
-			int len = SDLNet_TCP_Recv(this->_clients[i]->socket, this->_msg + offset, MAX_NETWORK_LENGTH - offset) + offset;
-			if (len > 0) {
+			long lenTmp = SDLNet_TCP_Recv(this->_clients[i]->socket, this->_msg + offset, MAX_NETWORK_LENGTH - offset) + offset;
+			if (lenTmp > 0) {
+				size_t len = lenTmp;
 				while (curr < len && curr < MAX_NETWORK_LENGTH) {
 					tmp = (Hydra::Network::Packet*)(&this->_msg[curr]);
 					if (curr + tmp->h.len > len) {
@@ -69,10 +70,8 @@ std::vector<Hydra::Network::Packet*> ClientHandler::getReceivedData(int pending)
 				}
 				if (curr == len)
 					offset = 0;
-			}
-			else if (len < 0) {
+			} else
 				tmpvec.push_back(this->_clients[i]->id);
-			}
 		}
 	}
 	for (size_t i = 0; i < tmpvec.size(); i++) {

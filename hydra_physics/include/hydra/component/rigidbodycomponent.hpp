@@ -48,6 +48,9 @@ namespace Hydra::Component {
 		void setActivationState(ActivationState newState);
 		void setAngularForce(glm::vec3 angularForce);
 		void* getRigidBody();
+
+		void refreshTransform();
+
 		glm::vec3 getPosition();
 		glm::vec3 getHalfExtentScale() { return _halfExtents; }
 		glm::quat getRotation();

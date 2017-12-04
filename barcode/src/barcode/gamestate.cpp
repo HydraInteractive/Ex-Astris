@@ -52,27 +52,42 @@ namespace Barcode {
 		_initWorld();
 	}
 
-	GameState::~GameState() {}
+	GameState::~GameState() { }
+
 	void GameState::onMainMenu() { }
 
 	void GameState::runFrame(float delta) {
-
 		auto windowSize = _engine->getView()->getSize();
 
-		if (!world::getEntity(_playerID)) {
+		auto player = world::getEntity(_playerID);
+		if (!player) {
 			_engine->setState<LoseState>();
 			return;
 		}
 
+		if (player->getComponent<Hydra::Component::PlayerComponent>()->frozen)
+			_loadingScreenTimer = 1;
+		{
+			static bool didConnect = false;
+			if (!didConnect && Hydra::Network::NetClient::initialize(addr, port))
+				didConnect = true;
+		}
+
+		ImGui::Text("Loaded rooms: %zu", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size());
+
 		/*{
 			static std::vector<std::shared_ptr<Entity>> _enemies;
+			static std::vector<std::shared_ptr<Entity>> _spawners;
+			world::getEntitiesWithComponents<Hydra::Component::SpawnerComponent, Hydra::Component::LifeComponent>(_spawners);
 			world::getEntitiesWithComponents<Hydra::Component::AIComponent, Hydra::Component::LifeComponent>(_enemies);
-			if (!_enemies.size()) {
+			if (!_enemies.size() && !_spawners.size()) {
 				_enemies.clear();
+				_spawners.clear();
 				_engine->setState<WinState>();
 				return;
 			}
 			_enemies.clear();
+			_spawners.clear();
 		}*/
 
 		bool oldPaused = _paused;
@@ -100,7 +115,7 @@ namespace Barcode {
 				ImGui::CloseCurrentPopup();
 			ImGui::EndPopup();
 		}
-
+		 
 		if (_paused != oldPaused) {
 			static bool oldMouseControl;
 			static bool oldNoClip;
@@ -119,15 +134,6 @@ namespace Barcode {
 		if (_paused)
 			delta = 0;
 
-		//{ // Update physics
-		//	_world->tick(TickAction::physics, delta);
-		//	_physicsManager->tick(delta);
-		//	if (player->newBullet != nullptr && net != nullptr){
-		//		net->sendEntity(player->newBullet);
-		//		player->newBullet->markDead();
-		//		player->newBullet = nullptr;
-		//	}
-		//}
 		_physicsSystem.tick(delta);
 		_cameraSystem.tick(delta);
 		_aiSystem.tick(delta);
@@ -160,7 +166,7 @@ namespace Barcode {
 		_cameraSystem.setCamDef(_playerTransform->position, forwardVector, upVector, rightVector, *_cc);
 
 		_dgp->render(cameraPos, *_cc, *_playerTransform);
-		 
+
 		if (enableHitboxDebug) {
 			for (auto& kv : _hitboxBatch.batch.objects)
 				kv.second.clear();
@@ -184,14 +190,7 @@ namespace Barcode {
 			for (auto e : entities) {
 				auto transform = e->getComponent<Hydra::Component::TransformComponent>();
 				auto goc = e->getComponent<Hydra::Component::GhostObjectComponent>();
-				//_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(goc->getMatrix() * glm::scale(glm::vec3(2)));
-				glm::vec3 newScale;
-				glm::quat rotation;
-				glm::vec3 translation;
-				glm::vec3 skew;
-				glm::vec4 perspective;
-				glm::decompose(transform->getMatrix(), newScale, rotation, translation, skew, perspective);
-				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(glm::translate(translation) * glm::mat4_cast(goc->quatRotation) * glm::scale(goc->halfExtents * glm::vec3(2)));
+				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(goc->getMatrix() * glm::scale(glm::vec3(2)));
 			}
 
 			_hitboxBatch.pipeline->setValue(0, _cc->getViewMatrix());
@@ -225,24 +224,24 @@ namespace Barcode {
 			const int x = _engine->getView()->getSize().x / 2;
 			const ImVec2 pos = ImVec2(x, _engine->getView()->getSize().y / 2);
 
-			if (prevHP > hpP) {
+			//git plz
+
+			if (_prevHP > hpP) {
 				//prevHP = (1 - (delta*3)) * prevHP + (delta*3) * hpP; //LERP
-				if (hpTimeUp == 0) {
-					hpTimeUp = 1;
-				}
+				if (_hpTimeUp == 0)
+					_hpTimeUp = 1;
 
-				hpTimeUp -= delta;
+				_hpTimeUp -= delta;
 
-				if (hpTimeUp >= 0) {
+				if (_hpTimeUp >= 0) {
 					ImGui::SetNextWindowPos(ImVec2(0, 0));
 					ImGui::SetNextWindowSize(ImVec2(1920, 1080));
 					ImGui::Begin("DamageBleed", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoInputs);
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/blood.png")->getID()), ImVec2(1920, 1080), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1,1,1, hpTimeUp));
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/blood.png")->getID()), ImVec2(_engine->getView()->getSize().x, _engine->getView()->getSize().y), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1,1,1, _hpTimeUp));
 					ImGui::End();
-				}
-				else {
-					prevHP = hpP;
-					hpTimeUp = 0;
+				}	else {
+					_prevHP = hpP;
+					_hpTimeUp = 0;
 				}
 			}
 			//Crosshair
@@ -331,8 +330,17 @@ namespace Barcode {
 			}
 
 			//Dynamic cooldown dots
-			size_t amountOfActives = 3;
-			int coolDownList[64] = { 5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5 };
+			auto perk = Hydra::World::World::getEntity(_playerID)->getComponent<PerkComponent>();
+
+			size_t amountOfActives = perk->activeAbilities.size();
+			
+			int *coolDownList = new int[perk->activeAbilities.size()];
+
+			int step = 0;
+			for (auto usable : perk->activeAbilities)
+				coolDownList[step++] = usable->cooldown;
+
+			/*{ perk->activeAbilities[0]->cooldown ,5,5,5,5,5,5,5,5,5 };*/
 			float pForEatchDot = float(1) / float(amountOfActives);
 			float stepSize = float(70) * pForEatchDot;
 			for (size_t i = 0; i < amountOfActives; i++)
@@ -359,20 +367,71 @@ namespace Barcode {
 
 				ImGui::End();
 			}
+			delete [] coolDownList;
+
+			//Perk Icons
+			size_t amountOfPerks = perk->activePerks.size();
+			for (size_t i = 0; i < amountOfPerks; i++)
+			{
+				char buf[128];
+				snprintf(buf, sizeof(buf), "Perk%lu", i);
+				//Hydra::Component::PerkComponent::PERK_DMGUPSIZEUP;
+				int xOffset = (-10 * amountOfPerks) + (20 * (i + 1));
+				ImGui::SetNextWindowPos(ImVec2(5 + xOffset + pos.x, 240 + pos.y));
+				ImGui::SetNextWindowSize(ImVec2(20, 20));
+				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+				switch (perk->activePerks[i])
+				{
+				default:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/BulletVelocity.png")->getID()), ImVec2(20, 20));
+					break;
+				case Hydra::Component::PerkComponent::PERK_DMGUPSIZEUP:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/BulletVelocity.png")->getID()), ImVec2(20, 20));
+					break;
+				case Hydra::Component::PerkComponent::PERK_GRENADE:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/DamageUpgrade.png")->getID()), ImVec2(20, 20));
+					break;
+				case Hydra::Component::PerkComponent::PERK_MINE:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Healing.png")->getID()), ImVec2(20, 20));
+					break;
+				case Hydra::Component::PerkComponent::PERK_BULLETSPRAY:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
+					break;
+				case Hydra::Component::PerkComponent::PERK_SPEEDUP:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
+					break;
+				case Hydra::Component::PerkComponent::PERK_FASTSHOWLOWDMG:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
+					break;
+				}
+
+				ImGui::End();
+			}
+
+			// Loading screen
+			if (_loadingScreenTimer > 0) {
+				_loadingScreenTimer -= delta;
+				ImGui::SetNextWindowPos(ImVec2(0, 0));
+				ImGui::SetNextWindowSize(ImVec2(windowSize.x, windowSize.y/*1280, 720*/));
+				ImGui::Begin("LoadingScreen", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+				switch (_loadingScreenPicture) {
+				default:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/lS1.png")->getID()), ImVec2(windowSize.x, windowSize.y/*1280, 720*/));
+					break;
+				case 1:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/lS1.png")->getID()), ImVec2(windowSize.x, windowSize.y/*1280, 720*/));
+					break;
+				}
+				ImGui::End();
+			}
 
 			ImGui::PopStyleColor();
 			ImGui::PopStyleVar();
 			ImGui::PopStyleVar();
-
 		}
 
-
-		{ // Sync with network
-
-			if (Hydra::Network::NetClient::running)
-				Hydra::Network::NetClient::run();
-		  // _world->tick(TickAction::network, delta);
-		}
+		if (Hydra::Network::NetClient::running)
+			Hydra::Network::NetClient::run();
 	}
 
 	void GameState::_initSystem() {
@@ -387,7 +446,7 @@ namespace Barcode {
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(0, 0, 0);
 			auto rgbc = floor->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL
+			rgbc->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_FLOOR
 				, 0, 0, 0, 0.6f, 0);
 			//floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 
@@ -402,46 +461,28 @@ namespace Barcode {
 			auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-
+			 
 			auto pickupText = world::newEntity("Textpickup", world::root());
 			pickupText->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
 			pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
 			auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
 			textStuff->setText("\x01Perk picked up\x02");
 			textStuff->isStatic = true;
-		}
-		{
-			//Remove this to gain frames like never before
-			//tileGen = new TileGeneration("assets/room/starterRoom.room");
-			//pathfindingMap = tileGen->buildMap();
-		}
-
-		/*for (size_t i = 0; i < 1; i++) {
-			auto pickUpEntity = world::newEntity("PickUp", world::root());
-			auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3(-5, -5.0f, -4.0f);
-			pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/GreenCargoBox.mATTIC");
-			pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
-			auto goc = pickUpEntity->addComponent<Hydra::Component::GhostObjectComponent>();
-			goc->createBox(glm::vec3(3,3,3),Hydra::System::BulletPhysicsSystem::COLL_WALL);
-		}*/
+		} 
 
 		{
-			if (Hydra::Network::NetClient::initialize(addr, port)) {
-				//show feedback?
-			}
-
-
 			auto playerEntity = world::newEntity("Player", world::root());
+			_playerID = playerEntity->id;
 			auto p = playerEntity->addComponent<Hydra::Component::PlayerComponent>();
 			auto c = playerEntity->addComponent<Hydra::Component::CameraComponent>();
+			_cc = c.get();
 			auto h = playerEntity->addComponent<Hydra::Component::LifeComponent>();
 			auto m = playerEntity->addComponent<Hydra::Component::MovementComponent>();
 			auto s = playerEntity->addComponent<Hydra::Component::SoundFxComponent>();
 			auto perks = playerEntity->addComponent<Hydra::Component::PerkComponent>();
 			h->health = h->maxHP = 100.0f * MenuState::playerHPMultiplier;
-			prevHP = h->health;
-			m->movementSpeed = 300.0f;
+			_prevHP = h->health;
+			m->movementSpeed = 250.0f;
 			auto t = playerEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(-10, 0, -10);
 			_playerTransform = t.get();
@@ -453,190 +494,50 @@ namespace Barcode {
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
-				weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
-				weaponEntity->getComponent<Hydra::Component::WeaponComponent>()->bulletSize /= 2;
-				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Gun.mATTIC");
+				auto w = weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
+				w->userdata = static_cast<void*>(this);
+				w->onShoot = &GameState::_onPlayerShoot;
+				w->bulletSize /= 2;
+				w->maxammo = INT_MAX; // TODO: Fix
+				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/FPSModel.mATTIC");
 				auto t2 = weaponEntity->addComponent<Hydra::Component::TransformComponent>();
 				t2->position = glm::vec3(2, -7, -2);
-				t2->scale = glm::vec3(0.1f, 0.1f, 0.1f);
+				t2->scale = glm::vec3(0.3f);
 				t2->rotation = glm::quat(0, 0, 1, 0);
 				t2->ignoreParent = true;
 			}
 		}
 
-		/*{
-			auto alienEntity = world::newEntity("Alien1", world::root());
-			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
-			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
-			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
-			a->behaviour->setPathMap(pathfindingMap);
-			a->damage = 4;
-			a->behaviour->originalRange = 5;
-			a->radius = 1;
+		{
+			auto particleEmitter = world::newEntity("ParticleEmitter", world::root());
+			particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("PARTICLEQUAD");
+			auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
+			p->delay = 1.0f / 1.0f;
+			auto t1 = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
+			t1->position = glm::vec3{ 4, 0, 4 };
 
-			auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
-			h->maxHP = 80;
-			h->health = 80;
-			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
-			m->movementSpeed = 8.0f;
-			auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ -10, 0, -10 };
-			t->scale = glm::vec3{ 1,1,1 };
-			t->rotation = glm::vec3{ 0, 90, 0 };
-			auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 3, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
-				0, 0, 0.6f, 1.0f);
-			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-			rgbc->setAngularForce(glm::vec3(0));
+			auto lightEntity = world::newEntity("Light", world::root());
+			auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
+			auto t3 = lightEntity->addComponent<Hydra::Component::TransformComponent>();
+			t3->position = glm::vec3(8.0, 0, 3.5);
 		}
 
 		{
-			auto robotEntity = world::newEntity("Robot1", world::root());
-			robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
-			auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
-			a->behaviour = std::make_shared<RobotBehaviour>(robotEntity);
-			a->behaviour->setPathMap(pathfindingMap);
-			a->damage = 7;
-			a->behaviour->originalRange = 20;
-			a->radius = 1;
-			auto w = robotEntity->addComponent<Hydra::Component::WeaponComponent>();
-			w->bulletSpread = 0.3f;
-			w->fireRateRPM = 50;
-			w->bulletsPerShot = 1;
-			w->damage = 5;
-			w->maxmagammo = 100000000;
-			w->currmagammo = 100000000;
-			w->maxammo = 100000000;
-
-			auto h = robotEntity->addComponent<Hydra::Component::LifeComponent>();
-			h->maxHP = 70;
-			h->health = 70;
-			auto m = robotEntity->addComponent<Hydra::Component::MovementComponent>();
-			m->movementSpeed = 5.0f;
-			auto t = robotEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3{ -10, 0, -10 };
-			t->scale = glm::vec3{ 1,1,1 };
-			t->rotation = glm::vec3{ 0, 90, 0 };
-			auto rgbc = robotEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(0.5f) * t->scale, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
-				0, 0, 0.6f, 1.0f);
-			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-		}*/
-
-		//{
-		//	auto textEntity = world::newEntity("Bogdan", world::root());
-		//	textEntity->addComponent<Hydra::Component::TransformComponent>()->setScale(glm::vec3(10));
-		//	textEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
-
-		//	auto textC = textEntity->addComponent<Hydra::Component::TextComponent>();
-		//	textC->setText("Bogdan Here");
-		//}
-
-		//{
-		//	auto pointLight1 = world::newEntity("Pointlight1", world::root());
-		//	pointLight1->addComponent<Hydra::Component::TransformComponent>();
-		//	//pointLight1->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/EscapePodDoor.mATTIC");
-		//	auto p1LC = pointLight1->addComponent<Hydra::Component::PointLightComponent>();
-		//	p1LC->color = glm::vec3(1, 1, 1);
-		//} {
-		//	auto pointLight2 = world::newEntity("Pointlight2", world::root());
-		//	auto t = pointLight2->addComponent<Hydra::Component::TransformComponent>();
-		//	t->position = glm::vec3(45, 0, 0);
-		//	//pointLight2->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
-		//	auto p2LC = pointLight2->addComponent<Hydra::Component::PointLightComponent>();
-		//	p2LC->color = glm::vec3(1, 1, 1);
-		//} {
-		//	auto pointLight3 = world::newEntity("Pointlight3", world::root());
-		//	auto t = pointLight3->addComponent<Hydra::Component::TransformComponent>();
-		//	t->position = glm::vec3(45, 0, 0);
-		//	//pointLight3->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
-		//	auto p3LC = pointLight3->addComponent<Hydra::Component::PointLightComponent>();
-		//	p3LC->color = glm::vec3(1, 1, 1);
-		//}
-		//{
-		//	auto pointLight4 = world::newEntity("Pointlight4", world::root());
-		//	auto t = pointLight4->addComponent<Hydra::Component::TransformComponent>();
-		//	t->position = glm::vec3(45, 0, 0);
-		//	//pointLight4->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/CylinderContainer.mATTIC");
-		//	auto p4LC = pointLight4->addComponent<Hydra::Component::PointLightComponent>();
-		//	p4LC->color = glm::vec3(1, 1, 1);
-		//}
-
-		{
-			auto parent = world::newEntity("Parent", world::root());
-			auto tp = parent->addComponent<Hydra::Component::TransformComponent>();
-			tp->position = glm::vec3{ 0, 0, 10 };
-			//parent->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BigMonitor.mATTIC");
-
-			{
-				auto child = world::newEntity("child", parent);
-				auto t = child->addComponent<Hydra::Component::TransformComponent>();
-				t->position = glm::vec3{ 1, 0, 0 };
-				//child->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SourceCode_Monitor.mATTIC");
-				{
-					auto parent = world::newEntity("Parent", world::root());
-					auto tp = parent->addComponent<Hydra::Component::TransformComponent>();
-					tp->position = glm::vec3{ 0, 0, 10 };
-					//parent->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BigMonitor.mATTIC");
-
-					{
-						auto child = world::newEntity("child", parent);
-						auto t = child->addComponent<Hydra::Component::TransformComponent>();
-						t->position = glm::vec3{ 1, 0, 0 };
-						//child->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SourceCode_Monitor.mATTIC");
-					}
-					{
-						auto child = world::newEntity("child", parent);
-						auto t = child->addComponent<Hydra::Component::TransformComponent>();
-						t->position = glm::vec3{ -1, 0, 0 };
-						//child->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SourceCode_Monitor.mATTIC");
-					}
-				}
-
-				{
-					auto particleEmitter = world::newEntity("ParticleEmitter", world::root());
-					particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("PARTICLEQUAD");
-					auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
-					p->delay = 1.0f / 1.0f;
-					auto t1 = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
-					t1->position = glm::vec3{ 4, 0, 4 };
-
-					auto child = world::newEntity("child", parent);
-					auto t2 = child->addComponent<Hydra::Component::TransformComponent>();
-					t2->position = glm::vec3{ -1, 0, 0 };
-					//child->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SourceCode_Monitor.mATTIC");
-
-					auto lightEntity = world::newEntity("Light", world::root());
-					auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
-					auto t3 = lightEntity->addComponent<Hydra::Component::TransformComponent>();
-					t3->position = glm::vec3(8.0, 0, 3.5);
-				}
-
-				{
-					_cc = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get());
-					_playerID = _cc->entityID;
-
-					for (auto& rb : Hydra::Component::RigidBodyComponent::componentHandler->getActiveComponents()) {
-						_engine->log(Hydra::LogLevel::normal, "Enabling bullet for %s", world::getEntity(rb->entityID)->name.c_str());
-						_physicsSystem.enable(static_cast<Hydra::Component::RigidBodyComponent*>(rb.get()));
-					}
-					for (auto& goc : Hydra::Component::GhostObjectComponent::componentHandler->getActiveComponents()) {
-						auto tc = Hydra::World::World::getEntity(goc->entityID)->getComponent<TransformComponent>();
-						auto ghostobject = Hydra::World::World::getEntity(goc->entityID)->getComponent<GhostObjectComponent>();
-						glm::vec3 newScale;
-						glm::quat rotation;
-						glm::vec3 translation;
-						glm::vec3 skew;
-						glm::vec4 perspective;
-						glm::decompose(tc->getMatrix(), newScale, rotation, translation, skew, perspective);
-						
-						ghostobject->ghostObject->setWorldTransform(btTransform(btQuaternion(ghostobject->quatRotation.x, ghostobject->quatRotation.y, ghostobject->quatRotation.z, ghostobject->quatRotation.w), btVector3(translation.x, translation.y, translation.z)));
-
-						_physicsSystem.enable(static_cast<Hydra::Component::GhostObjectComponent*>(goc.get()));
-					}
-				}
+			for (auto& rb : Hydra::Component::RigidBodyComponent::componentHandler->getActiveComponents()) {
+				_engine->log(Hydra::LogLevel::normal, "Enabling BulletPhysicsSystem for %s", world::getEntity(rb->entityID)->name.c_str());
+				_physicsSystem.enable(static_cast<Hydra::Component::RigidBodyComponent*>(rb.get()));
+			}
+			for (auto& goc : Hydra::Component::GhostObjectComponent::componentHandler->getActiveComponents()) {
+				_engine->log(Hydra::LogLevel::normal, "Enabling BulletPhysicsSystem for %s", world::getEntity(goc->entityID)->name.c_str());
+				static_cast<Hydra::Component::GhostObjectComponent*>(goc.get())->updateWorldTransform();
+				_physicsSystem.enable(static_cast<Hydra::Component::GhostObjectComponent*>(goc.get()));
 			}
 		}
 	}
 
+	void GameState::_onPlayerShoot(Hydra::Component::WeaponComponent& weapon, Hydra::World::Entity* bullet, void* userdata) {
+		GameState* this_ = static_cast<GameState*>(userdata);
+		Hydra::Network::NetClient::updateBullet(bullet->id);
+		Hydra::Network::NetClient::shoot(bullet->getComponent<Hydra::Component::TransformComponent>().get(), bullet->getComponent<Hydra::Component::BulletComponent>()->direction);
+	}
 }

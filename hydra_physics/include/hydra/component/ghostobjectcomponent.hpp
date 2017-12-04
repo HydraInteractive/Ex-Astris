@@ -28,8 +28,8 @@ namespace Hydra::Component {
 
 		void _recalculateMatrix();
 
-		//void createSphere(float radius);
 		void createBox(const glm::vec3& halfExtents, Hydra::System::BulletPhysicsSystem::CollisionTypes collType, const glm::quat& quatRotation = glm::quat(0,0,0,1));
+		void updateWorldTransform();
 
 		~GhostObjectComponent() final;
 

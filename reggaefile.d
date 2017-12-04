@@ -5,7 +5,7 @@ import std.conv;
 import std.string;
 
 //-fopenmp
-enum optimization = "-Og -pg -ggdb -Wno-error=unknown-pragmas -ffat-lto-objects -Wno-error=maybe-uninitialized -Wno-error=null-dereference";
+enum optimization = "-O0 -pg -ggdb -Wno-error=unknown-pragmas -ffat-lto-objects -Wno-error=maybe-uninitialized -Wno-error=null-dereference";
 //enum optimization = "-O3 -Wl,-O1 -march=native -ggdb -fopenmp -flto -ffat-lto-objects -Wno-error=maybe-uninitialized -Wno-error=null-dereference";
 
 enum string[] SubProjects = ["hydra", "hydra_graphics", "hydra_network", "hydra_physics", "hydra_sound"];
@@ -34,7 +34,7 @@ enum LFlagsHydraNetworkLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rp
 enum LFlagsHydraPhysicsLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodeproject.objs -Lobjs/barcodeproject.objs -fdiagnostics-color=always -lhydra -lhydra_graphics -lSDL2 -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath -lSDL2_mixer";
 enum LFlagsHydraSoundLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodeproject.objs -Lobjs/barcodeproject.objs -fdiagnostics-color=always -lhydra -lhydra_graphics -lSDL2 -lSDL2_mixer";
 enum LFlagsBarcodeExec = optimization ~ " -rdynamic -Wl,--no-undefined -Wl,-rpath,. -Wl,-rpath,objs/barcodeproject.objs -Lobjs/barcodeproject.objs -fdiagnostics-color=always -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath -lSDL2_mixer " ~ SubProjectsLink;
-enum LFlagsServerExec = optimization ~ " -rdynamic -Wl,--no-undefined -Wl,-rpath,. -Wl,-rpath,objs/barcodeproject.objs -Lobjs/barcodeproject.objs -fdiagnostics-color=always -lSDL2_net -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath " ~ SubProjectsServerLink;
+enum LFlagsServerExec = optimization ~ " -rdynamic -Wl,--no-undefined -Wl,-rpath,. -Wl,-rpath,objs/barcodeproject.objs -Lobjs/barcodeproject.objs -fdiagnostics-color=always -lSDL2 -lSDL2_net -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath " ~ SubProjectsServerLink;
 
 enum CC = "g++";
 //enum CC = "distcc g++";

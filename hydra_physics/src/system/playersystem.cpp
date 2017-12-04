@@ -47,6 +47,8 @@ void PlayerSystem::tick(float delta) {
 		auto soundFx = entities[i]->getComponent<SoundFxComponent>();
 		auto perks = entities[i]->getComponent<PerkComponent>();
 		auto rbc = static_cast<btRigidBody*>(entities[i]->getComponent<RigidBodyComponent>()->getRigidBody());
+		if (player->frozen)
+			continue;
 
 		glm::mat4 rotation = glm::mat4_cast(transform->rotation);
 		movement->direction = -glm::vec3(glm::vec4{ 0, 0, 1, 0 } *rotation);
@@ -83,9 +85,10 @@ void PlayerSystem::tick(float delta) {
 				weaponMesh->animationIndex = 0;
 
 			if (camera->mouseControl && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+				
 				//TODO: Make pretty?
 				glm::quat bulletOrientation = glm::angleAxis(-camera->cameraYaw, glm::vec3(0, 1, 0)) * (glm::angleAxis(-camera->cameraPitch, glm::vec3(1, 0, 0)));
-
+				
 				//Changed to see if modell is correct, original bulletVelocity was 300 (A little too fast imo, das me tho)
 				float bulletVelocity = 20;
 				if (!weapon->_isReloading)

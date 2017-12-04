@@ -49,3 +49,5 @@ Debug
 .\#*
 .gdb_history
 callgrind*
+map.bmp
+map.pvs

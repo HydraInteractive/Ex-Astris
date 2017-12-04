@@ -7,8 +7,11 @@
 #include <hydra/component/transformcomponent.hpp>
 
 namespace Hydra::Network {
+	typedef Hydra::World::EntityID ServerID;
 	enum PacketType {
 		ServerInitialize,
+		ServerInitializePVS,
+		ServerFreezePlayer,
 		ServerUpdate,
 		ServerPlayer,
 		ClientUpdate,
@@ -18,11 +21,14 @@ namespace Hydra::Network {
 		ClientUpdateBullet,
 		ServerUpdateBullet,
 		ClientShoot,
-		ServerShoot
+		ServerShoot,
 		//..
+		MAX_COUNT
 	};
 	static constexpr const char* PacketTypeName[] = {
 		"ServerInitialize",
+		"ServerInitializePVS",
+		"ServerFreezePlayer",
 		"ServerUpdate",
 		"ServerPlayer",
 		"ClientUpdate",
@@ -50,8 +56,8 @@ namespace Hydra::Network {
 
 	struct Header {
 		PacketType type;
-		int len; // Length of total packet
-		int client; // Set manually irrelevant when sending packets
+		size_t len; // Length of total packet
+		ServerID client; // Set manually irrelevant when sending packets
 	};
 
 	struct Packet {
@@ -59,18 +65,18 @@ namespace Hydra::Network {
 	};
 
 	struct ServerDeletePacket : public Packet {
-		EntityID id;
+		ServerID id;
 	};
 
 	struct ClientUpdateBulletPacket : public Packet {
 		size_t size;
-		char* data[0];
+		char data[0];
 		inline size_t getSize() { return sizeof(ClientUpdateBulletPacket) + sizeof(char) * size; }
 	};
 	struct ServerUpdateBulletPacket : public Packet {
-		EntityID serverPlayerID;
+		ServerID serverPlayerID;
 		size_t size;
-		char* data[0];
+		char data[0];
 		inline size_t getSize() { return sizeof(ServerUpdateBulletPacket) + sizeof(char) * size; }
 	};
 
@@ -80,7 +86,7 @@ namespace Hydra::Network {
 		glm::vec3 direction;
 	};
 	struct ServerShootPacket : public Packet {
-		EntityID serverPlayerID;
+		ServerID serverPlayerID;
 		TransformInfo ti;
 		glm::vec3 direction;
 	};
@@ -89,26 +95,39 @@ namespace Hydra::Network {
 
 	struct ClientSpawnEntityPacket : public Packet {
 		size_t size;
-		char* data[0];
+		char data[0];
 		inline size_t getSize() { return sizeof(ClientSpawnEntityPacket) + sizeof(char) * size; }
 	};
 
 	struct ServerSpawnEntityPacket : public Packet {
-		EntityID id;
+		ServerID id;
 		size_t size;
-		char* data[0];
+		char data[0];
 		inline size_t getSize() { return sizeof(ServerSpawnEntityPacket) + sizeof(char) * size; }
 	};
 
 
 	struct ServerInitializePacket : public Packet {
-		EntityID entityid;
+		ServerID entityid;
 		TransformInfo ti;
+	};
+
+	struct ServerInitializePVSPacket : public Packet {
+		size_t size;
+		char data[0];
+	};
+
+	struct ServerFreezePlayerPacket : public Packet {
+		enum class Action {
+			freeze = 0,
+			unfreeze
+		};
+		Action action;
 	};
 
 	struct ServerUpdatePacket : public Packet {
 		struct EntUpdate {
-			EntityID entityid;
+			ServerID entityid;
 			TransformInfo ti;
 		};
 		size_t nrOfEntUpdates;
@@ -117,7 +136,7 @@ namespace Hydra::Network {
 
 	struct ServerPlayerPacket : public Packet {
 		TransformInfo ti;
-		EntityID entID;
+		ServerID entID;
 		int nameLength;
 		char name[0];
 
