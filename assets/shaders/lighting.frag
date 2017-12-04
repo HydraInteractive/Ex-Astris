@@ -119,7 +119,7 @@ void main() {
 	vec3 result = vec3(0);
 
 	// Directional light
-	//result = calcDirLight(dirLight, pos, normal, objectColor);
+	result = calcDirLight(dirLight, pos, normal, objectColor);
 	
 	// Point Lights
 	for(int i = 0 ; i < nrOfPointLights; i++){
@@ -134,38 +134,31 @@ void main() {
 	vec3 projCoords = lightPos.xyz / lightPos.w;
 	float closestDepth = texture(depthMap, projCoords.xy).r;
 	float currentDepth = projCoords.z;
-	float bias = max(0.07 * (1.0 - dot(normal.xyz, -dirLight.dir)), 0.01);
+	float bias = max(0.005 * (1.0 - dot(normal.xyz, -dirLight.dir)), 0.01);
 	float shadow = 0.0f;
 
-	// Poisson Filtering
-	//for(int i = 0; i < 4; i++){
-	//int index = int(16.0 * random(vec4(gl_FragCoord.xyy, i))) % 16;
-	//	if(texture(depthMap, projCoords.xy + poissonDisk[index] / 200.0).r < currentDepth - bias)
-	//		shadow -= 0.2f;
-	//}
-
 	// PCF - 16 Samples
-	//{
-	//	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
-	//	for(float y = -1.5; y <= 1.5; y++) {
-	//		for(float x = -1.5; x <= 1.5; x++) {
-	//			float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
-	//			shadow += currentDepth - bias > pcfDepth ? 1 : 0;
-	//		}
-	//	}
-	//	shadow /= 16;
-	//	shadow = 1.0f - shadow;
-	//}
-	
-	// PCF - 4 Samples
 	{
 		vec2 texelSize = 1.0 / textureSize(depthMap, 0);
-		shadow = texture(depthMap, projCoords.xy + vec2(-1.5f, 0.5f) * texelSize).r
-			+ texture(depthMap, projCoords.xy + vec2(0.5f, 0.5f) * texelSize).r
-			+ texture(depthMap, projCoords.xy + vec2(-1.5f, -1.5f) * texelSize).r
-			+ texture(depthMap, projCoords.xy + vec2(0.5f, -1.5f) * texelSize).r;
-		shadow /= 4;
+		for(float y = -1; y <= 1; y++) {
+			for(float x = -1; x <= 1; x++) {
+				float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
+				shadow += currentDepth - bias > pcfDepth ? 1 : 0;
+			}
+		}
+		shadow /= 9;
+		shadow = 1.0f - shadow;
 	}
+	
+	// PCF - 4 Samples
+	//{
+	//	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
+	//	shadow = texture(depthMap, projCoords.xy + vec2(-1.5f, 0.5f) * texelSize).r
+	//		+ texture(depthMap, projCoords.xy + vec2(0.5f, 0.5f) * texelSize).r
+	//		+ texture(depthMap, projCoords.xy + vec2(-1.5f, -1.5f) * texelSize).r
+	//		+ texture(depthMap, projCoords.xy + vec2(0.5f, -1.5f) * texelSize).r;
+	//	shadow /= 4;
+	//}
 
 	if(glowAmnt > 0)
 		brightOutput = objectColor.rgb;

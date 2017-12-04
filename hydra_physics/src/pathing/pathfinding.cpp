@@ -125,7 +125,7 @@ glm::vec3 PathFinding::mapToWorldCoords(const MapVec& mapPos) const
 
 bool PathFinding::isOutOfBounds(const glm::ivec2& vec) const
 {
-	if (vec.x > WORLD_MAP_SIZE || vec.y > WORLD_MAP_SIZE || vec.x < 0 || vec.y < 0)
+	if (vec.x > WORLD_MAP_SIZE-1 || vec.y > WORLD_MAP_SIZE-1 || vec.x < 0 || vec.y < 0)
 	{
 		return true;
 	}

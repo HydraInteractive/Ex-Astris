@@ -63,6 +63,7 @@ public:
 			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border);
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texture->getID(), 0);
 			glDrawBuffer(GL_NONE);
+			
 			_depth = texture;
 		} else {
 			glFramebufferTexture(GL_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + id), texture->getID(), 0);

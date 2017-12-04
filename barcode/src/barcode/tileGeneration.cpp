@@ -471,7 +471,7 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::Component::TransformCo
 
 void TileGeneration::_spawnLight(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform) {
 
-	auto pointLight1 = world::newEntity("Pointlight1", world::root());
+	auto pointLight1 = world::newEntity("Pointlight1", roomTransform->entityID);
 	pointLight1->addComponent<Hydra::Component::TransformComponent>();
 	auto t = pointLight1->getComponent<Hydra::Component::TransformComponent>();
 	t->position.x = roomTransform->position.x;

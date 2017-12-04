@@ -446,24 +446,6 @@ namespace Barcode {
 		}
 
 		{
-			auto pickUpEntity = world::newEntity("PickUp", world::root());
-			auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3(5, 5, 5);
-			pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Lock.mATTIC");
-			pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
-			auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
-			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-			 
-			auto pickupText = world::newEntity("Textpickup", world::root());
-			pickupText->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
-			pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
-			auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
-			textStuff->setText("\x01Perk picked up\x02");
-			textStuff->isStatic = true;
-		} 
-
-		{
 			//Remove this to gain frames like never before
 
 			tileGen = new TileGeneration("assets/room/PlantNTableRoom.room");
