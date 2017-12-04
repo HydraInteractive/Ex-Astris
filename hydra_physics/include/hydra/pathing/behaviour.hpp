@@ -130,10 +130,10 @@ public:
 	~BossHand_Left();
 
 	const float originalHeight = 10.0f;
-	glm::vec3 basePosition = glm::vec3(0, originalHeight, 0);
-	glm::vec3 swipePosition = glm::vec3(0, 1, 10);
-	glm::vec3 canonPosition = glm::vec3(10, 3, 10);
-	glm::vec3 coverPosition = glm::vec3(-5, originalHeight, 0);
+	glm::vec3 basePosition = glm::vec3(55, originalHeight, 15);
+	glm::vec3 swipePosition = glm::vec3(25, 1, 25);
+	glm::vec3 canonPosition = glm::vec3(50, originalHeight, 10);
+	glm::vec3 coverPosition = glm::vec3(45, originalHeight, 5);
 	float coverTimer = 0.0f;
 	float stunTimer = 0.0f;
 	bool stunned = false;
@@ -148,7 +148,7 @@ public:
 	int shotsFired = 0;
 
 	void run(float dt);
-	void move(glm::vec3 target);
+	void move(glm::vec3 target, bool keepHeight);
 
 	unsigned int idleState(float dt) final;
 	unsigned int smashState(float dt);
