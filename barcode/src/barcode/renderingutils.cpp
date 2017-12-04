@@ -383,6 +383,7 @@ namespace Barcode {
 			_textBatch.batch.textInfo.clear();
 			_textBatch.batch.textSizes.clear();
 			_textBatch.batch.lifeFade.clear();
+			_textBatch.batch.colors.clear();
 
 			std::vector<std::shared_ptr<Entity>> entities;
 			world::getEntitiesWithComponents<Hydra::Component::TextComponent, Hydra::Component::DrawObjectComponent>(entities);
@@ -402,6 +403,7 @@ namespace Barcode {
 
 				_textBatch.batch.textSizes.push_back(textData.size());
 				_textBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+				_textBatch.batch.colors.push_back(textC->color);
 			}
 			_textBatch.pipeline->setValue(0, cc.getProjectionMatrix() * cc.getViewMatrix());
 			_textBatch.pipeline->setValue(1, 0);

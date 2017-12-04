@@ -468,8 +468,8 @@ namespace Barcode {
 		{
 			//Remove this to gain frames like never before
 
-			//tileGen = new TileGeneration("assets/room/tryTwo.room");
-			//pathfindingMap = tileGen->buildMap();
+			tileGen = new TileGeneration("assets/room/tryTwo.room");
+			pathfindingMap = tileGen->buildMap();
 		}
 
 		{
@@ -515,7 +515,7 @@ namespace Barcode {
 		}
 
 
-		{
+		/*{
 			auto alienEntity = world::newEntity("Alien1", world::root());
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
 			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
@@ -535,17 +535,15 @@ namespace Barcode {
 			t->scale = glm::vec3{ 1,1,1 };
 			t->rotation = glm::vec3{ 0, 90, 0 };
 			auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(0.5f, 1.0f, 0.5f) * t->scale, glm::vec3(0, 0.9, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+			rgbc->createBox(glm::vec3(0.5f, 1.0f, 0.5f) * t->scale, glm::vec3(0, 1.1, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 				0, 0, 0.6f, 1.0f);
-			rgbc->createCapsuleY(0.5f, 1.0f * t->scale.y, glm::vec3(0, 2.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 10000,
+			rgbc->createCapsuleY(0.5f, 1.0f * t->scale.y, glm::vec3(0, 2.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_HEAD, 10000,
 				0, 0, 0.0f, 0);
-			//rgbc->createCapsuleY(0.5f, 1.0f * t->scale.y, glm::vec3(0, 3.0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 10000,
-			//	0, 0, 0.0f, 0);
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 			rgbc->setAngularForce(glm::vec3(0));
 		}
 
-		/*{
+		{
 			auto robotEntity = world::newEntity("Robot1", world::root());
 			robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
 			auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();

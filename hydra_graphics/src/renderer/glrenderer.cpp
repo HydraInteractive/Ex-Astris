@@ -371,6 +371,7 @@ public:
 			for (size_t textSize : batch.textSizes) {
 				batch.pipeline->setValue(2, kv.second[currModelMX]);
 				batch.pipeline->setValue(5, batch.lifeFade[currModelMX]);
+				batch.pipeline->setValue(6, batch.colors[currModelMX]);
 				for (size_t i = 0; i < textSize; i += maxPerLoop) {
 					size_t amount = std::min(textSize - i, maxPerLoop);
 

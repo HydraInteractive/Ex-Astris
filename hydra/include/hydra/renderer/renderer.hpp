@@ -194,6 +194,7 @@ namespace Hydra::Renderer {
 		std::vector<CharRenderInfo> textInfo;
 		std::vector<size_t> textSizes;
 		std::vector<float> lifeFade;
+		std::vector<glm::vec3> colors;
 	};
 
 	class HYDRA_BASE_API IRenderer {

@@ -39,7 +39,8 @@ namespace Hydra::System {
 			COLL_ENEMY_PROJECTILE = BIT(5),
 			COLL_MISC_OBJECT = BIT(6),
 			COLL_PICKUP_OBJECT = BIT(7),
-			COLL_FLOOR = BIT(8)
+			COLL_FLOOR = BIT(8),
+			COLL_HEAD = BIT(9)
 		};
 
 		enum CollisionCondition : std::underlying_type<CollisionTypes>::type {
@@ -72,7 +73,7 @@ namespace Hydra::System {
 
 	private:
 		void _spawnParticleEmitterAt(const glm::vec3& pos, const glm::vec3& normal, const Hydra::Component::ParticleComponent::ParticleTexture& effect);
-		void _spawnText(const glm::vec3& pos, const std::string& text);
+		void _spawnText(const glm::vec3& pos, const std::string& text, const glm::vec3& color = { 1,1,1 }, const glm::vec3& scale = {1,1,1});
 		void _addPickUp(PickUpComponent* puc, PerkComponent* pec);
 		struct Data;
 		Data* _data;
