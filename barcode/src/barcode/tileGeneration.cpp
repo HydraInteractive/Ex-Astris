@@ -295,6 +295,7 @@ void TileGeneration::_randomizeRooms() {
 }
 
 void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform) {
+
 	_spawnPickUps(roomTransform);
 	_spawnLight(roomTransform);
 
@@ -305,7 +306,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 	int randomRobotSpawner = rand() % 101;
 
 
-	if (randomAlienSpawner >= 96)
+	if(randomAlienSpawner >= 91)
 	{
 		auto alienSpawner = world::newEntity("SpawnerAlien1", world::root());
 		alienSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge1.mATTIC");
@@ -319,7 +320,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 
 		auto t = alienSpawner->addComponent<Hydra::Component::TransformComponent>();
 		t->position.x = roomTransform->position.x + 2;
-		t->position.y = 5;
+		t->position.y = 2;
 		t->position.z = roomTransform->position.z + 2;
 		float randDirX = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
 		float randDirY = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
@@ -327,12 +328,12 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		t->scale = glm::vec3{ 1,1,1 };
 
 		auto rgbc = alienSpawner->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 1000.0f,
+		rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_SPAWNER, 0.0f,
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
 	}
-	else if (randomAlienSpawner < 96 && randomRobotSpawner >= 98)
+	else if (randomAlienSpawner < 91 && randomRobotSpawner >= 96)
 	{
 		auto robotSpawner = world::newEntity("SpawnerAlien1", world::root());
 		robotSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge1.mATTIC");
@@ -346,7 +347,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 
 		auto t = robotSpawner->addComponent<Hydra::Component::TransformComponent>();
 		t->position.x = roomTransform->position.x + 2;
-		t->position.y = 5;
+		t->position.y = 2;
 		t->position.z = roomTransform->position.z + 2;
 		float randDirX = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
 		float randDirY = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
@@ -354,13 +355,13 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 		t->scale = glm::vec3{ 1,1,1 };
 
 		auto rgbc = robotSpawner->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 1000.0f,
+		rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_SPAWNER, 0.0f,
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
 	}
 
-	if (randomAlienSpawner < 96 && randomRobotSpawner < 98)
+	if (randomAlienSpawner < 91 && randomRobotSpawner < 96)
 	{
 		for (int i = 0; i < randomSlowAliens; i++) {
 			auto alienEntity = world::newEntity("SlowAlien1", world::root());
@@ -382,9 +383,10 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 			w->bulletSpread = 0.2f;
 			w->bulletsPerShot = 1;
 			w->damage = 4;
-			w->maxmagammo = 100000000;
-			w->currmagammo = 100000000;
-			w->maxammo = 100000000;
+			w->bulletSize = 0.4;
+			w->maxmagammo = 0;
+			w->currmagammo = 0;
+			w->maxammo = 0;
 
 			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
 			m->movementSpeed = 5.0f;
@@ -421,9 +423,10 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 			w->bulletSpread = 0.2f;
 			w->bulletsPerShot = 1;
 			w->damage = 4;
-			w->maxmagammo = 1000000000;
-			w->currmagammo = 1000000000;
-			w->maxammo = 1000000000;
+			w->bulletSize = 0.4;
+			w->maxmagammo = 0;
+			w->currmagammo = 0;
+			w->maxammo = 0;
 
 			auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
 			m->movementSpeed = 10.0f;
@@ -439,9 +442,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 				0, 0, 0.6f, 1.0f);
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 			rgbc->setAngularForce(glm::vec3(0));
-
 		}
-
 
 		for (int i = 0; i < randomRobots; i++) {
 			auto robotEntity = world::newEntity("Robot1", world::root());
@@ -449,6 +450,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 			auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
 			a->behaviour = std::make_shared<RobotBehaviour>(robotEntity);
 			a->behaviour->setPathMap(pathfindingMap);
+
 			a->damage = 7;
 			a->behaviour->originalRange = 18;
 			a->behaviour->savedRange = a->behaviour->originalRange;
@@ -460,12 +462,13 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 
 			auto w = robotEntity->addComponent<Hydra::Component::WeaponComponent>();
 			w->bulletSpread = 0.3f;
-			w->fireRateRPM = 50;
+			w->fireRateRPM = 70;
 			w->bulletsPerShot = 1;
 			w->damage = 7;
-			w->maxmagammo = 100000000;
-			w->currmagammo = 100000000;
-			w->maxammo = 100000000;
+			w->bulletSize = 0.4;
+			w->maxmagammo = 0;
+			w->currmagammo = 0;
+			w->maxammo = 0;
 
 			auto m = robotEntity->addComponent<Hydra::Component::MovementComponent>();
 			m->movementSpeed = 3.0f;
@@ -477,11 +480,10 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 			t->scale = glm::vec3{ 1,1,1 };
 
 			auto rgbc = robotEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.5, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+			rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 				0, 0, 0.6f, 1.0f);
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 			rgbc->setAngularForce(glm::vec3(0));
-
 		}
 	}
 }
