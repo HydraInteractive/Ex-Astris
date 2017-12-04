@@ -128,6 +128,7 @@ namespace Barcode {
 		_lifeSystem.tick(delta);
 		_pickUpSystem.tick(delta);
 		_textSystem.tick(delta);
+		_lightSystem.tick(delta);
 
 
 		static bool enableHitboxDebug = true;
@@ -169,6 +170,7 @@ namespace Barcode {
 			for (auto e : entities) {
 				auto transform = e->getComponent<Hydra::Component::TransformComponent>();
 				auto goc = e->getComponent<Hydra::Component::GhostObjectComponent>();
+
 				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(goc->getMatrix() * glm::scale(glm::vec3(2)));
 			}
 
@@ -448,24 +450,6 @@ namespace Barcode {
 		}
 
 		{
-			auto pickUpEntity = world::newEntity("PickUp", world::root());
-			auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3(5, 5, 5);
-			pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Lock.mATTIC");
-			pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
-			auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
-			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-			 
-			auto pickupText = world::newEntity("Textpickup", world::root());
-			pickupText->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
-			pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
-			auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
-			textStuff->setText("\x01Perk picked up\x02");
-			textStuff->isStatic = true;
-		} 
-
-		{
 			//Remove this to gain frames like never before
 
 			tileGen = new TileGeneration("assets/room/fourwayRoom.room");
@@ -504,7 +488,16 @@ namespace Barcode {
 				t2->rotation = glm::quat(0, 0, 1, 0);
 				t2->ignoreParent = true;
 			}
+
+			{
+				auto lightEntity = world::newEntity("Light: I cast Shadows", playerEntity->id);
+				auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
+				auto t3 = lightEntity->addComponent<Hydra::Component::TransformComponent>();
+				t3->position = glm::vec3(0, 7, 0);
+			}
+
 		}
+
 
 		/*{
 			auto alienEntity = world::newEntity("Alien1", world::root());
@@ -647,11 +640,6 @@ namespace Barcode {
 					auto t2 = child->addComponent<Hydra::Component::TransformComponent>();
 					t2->position = glm::vec3{ -1, 0, 0 };
 					//child->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SourceCode_Monitor.mATTIC");
-
-					auto lightEntity = world::newEntity("Light", world::root());
-					auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
-					auto t3 = lightEntity->addComponent<Hydra::Component::TransformComponent>();
-					t3->position = glm::vec3(8.0, 0, 3.5);
 				}
 
 				{

@@ -63,7 +63,7 @@ private:
 
 
 	std::shared_ptr<ITexture> _loadErrorTexture() {
-		return GLTexture::createFromFile("assets/textures/error.png");
+		return GLTexture::createFromFile("assets/textures/Floor_specular.png");
 	}
 };
 

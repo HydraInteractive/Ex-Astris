@@ -9,6 +9,7 @@
 
 #include <hydra/world/world.hpp>
 #include <glm/glm.hpp>
+#include <hydra/component/particlecomponent.hpp>
 #define BIT(x) (1 << (x))
 
 using namespace Hydra::Component;
@@ -72,8 +73,8 @@ namespace Hydra::System {
 		void registerUI() final;
 
 	private:
-		void _spawnParticleEmitterAt(const glm::vec3& pos, const glm::vec3& normal);
-		void _spawnDamageText(const glm::vec3& pos, const std::string& text);
+		void _spawnParticleEmitterAt(const glm::vec3& pos, const glm::vec3& normal, const Hydra::Component::ParticleComponent::ParticleTexture& effect);
+		void _spawnText(const glm::vec3& pos, const std::string& text);
 		void _addPickUp(PickUpComponent* puc, PerkComponent* pec);
 		struct Data;
 		Data* _data;
