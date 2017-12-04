@@ -172,7 +172,7 @@ bool GameServer::_addPlayer(int id) {
 		this->_setEntityID(id, pi.entityid);
 		pi.h.len = sizeof(ServerInitializePacket);
 		pi.h.type = PacketType::ServerInitialize;
-		pi.ti.pos = { 0, 3, 0 };
+		pi.ti.pos = { (ROOM_GRID_SIZE / 2 + 0.5f) * ROOM_SIZE, 3, (ROOM_GRID_SIZE / 2 + 0.5f) * ROOM_SIZE};
 		pi.ti.scale = { 1, 1, 1 };
 		pi.ti.rot = glm::quat(1, 0, 0, 0);
 
@@ -186,19 +186,6 @@ bool GameServer::_addPlayer(int id) {
 
 		printf("sendDataToClient:\n\ttype: ServerInitialize\n\tlen: %zu\n", pi.h.len);
 		int tmp = this->_server->sendDataToClient((char*)&pi, pi.h.len, id);
-
-		{
-			auto size = sizeof(ServerInitializePVSPacket) + _pvsData.size();
-			ServerInitializePVSPacket* pvs = (ServerInitializePVSPacket*)new char[size];
-			pvs->h.type = PacketType::ServerInitializePVS;
-			pvs->h.len = size;
-			pvs->h.client = id;
-			pvs->size = _pvsData.size();
-			memcpy(pvs->data, _pvsData.data(), _pvsData.size());
-			_server->sendDataToClient((char*)pvs, pvs->h.len, id);
-			delete[] (char*)pvs;
-		}
-
 
 		//WORLD TEMP
 		Entity* map = nullptr;
@@ -215,10 +202,17 @@ bool GameServer::_addPlayer(int id) {
 		delete[] (char*)packet;
 		//END TEMP WORLD
 
-
-
-
-
+		{
+			auto size = sizeof(ServerInitializePVSPacket) + _pvsData.size();
+			ServerInitializePVSPacket* pvs = (ServerInitializePVSPacket*)new char[size];
+			pvs->h.type = PacketType::ServerInitializePVS;
+			pvs->h.len = size;
+			pvs->h.client = id;
+			pvs->size = _pvsData.size();
+			memcpy(pvs->data, _pvsData.data(), _pvsData.size());
+			_server->sendDataToClient((char*)pvs, pvs->h.len, id);
+			delete[] (char*)pvs;
+		}
 
 
 
@@ -454,7 +448,7 @@ void GameServer::start() {
 
 	SDL_SaveBMP(map, "map.bmp");
 	SDL_FreeSurface(map);
-	system("../PVSTest/bin/PVSTest -f map.bmp -s 32 -o map.pvs -v");
+	system("../PVSTest/bin/PVSTest -f map.bmp -s 32 -o map.pvs");
 
 	{
 		FILE* fp = fopen("map.pvs", "rb");

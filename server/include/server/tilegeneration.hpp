@@ -57,7 +57,6 @@ namespace BarcodeServer {
 		std::vector<std::string> _roomFileNames;
 
 		enum { NORTH, EAST, SOUTH, WEST };
-		glm::vec2 localXY;
 		void _setUpMiddleRoom(const std::string& middleRoomPath);
 		void _createMapRecursivly(const glm::ivec2& pos);
 		void _insertPathFindingMap(const glm::ivec2& room, uint8_t rotation);

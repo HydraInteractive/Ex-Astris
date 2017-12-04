@@ -14,6 +14,8 @@ using namespace Hydra::Network;
 using world = Hydra::World::World;
 
 bool NetClient::running = false;
+NetClient::updatePVS_f NetClient::updatePVS = nullptr;
+void* NetClient::userdata = nullptr;
 
 TCPClient NetClient::_tcp;
 EntityID NetClient::_myID;
@@ -148,7 +150,14 @@ void NetClient::_resolvePackets() {
 			auto sfp = (ServerFreezePlayerPacket*)p;
 			for (auto p : Hydra::Component::PlayerComponent::componentHandler->getActiveComponents())
 				((Hydra::Component::PlayerComponent*)p.get())->frozen = sfp->action == ServerFreezePlayerPacket::Action::freeze;
-			//TODO Loading screen;
+			break;
+		}
+		case PacketType::ServerInitializePVS: {
+			if (!updatePVS)
+				break;
+			auto sipp = (ServerInitializePVSPacket*)p;
+			nlohmann::json json = nlohmann::json::parse(sipp->data, sipp->data + sipp->size);
+			updatePVS(std::move(json), userdata);
 			break;
 		}
 		default:

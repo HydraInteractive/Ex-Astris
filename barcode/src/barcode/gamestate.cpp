@@ -69,11 +69,12 @@ namespace Barcode {
 			_loadingScreenTimer = 1;
 		{
 			static bool didConnect = false;
-			if (!didConnect && Hydra::Network::NetClient::initialize(addr, port))
-				didConnect = true;
+			if (!didConnect) {
+				Hydra::Network::NetClient::updatePVS = &GameState::_onUpdatePVS;
+				Hydra::Network::NetClient::userdata = static_cast<void*>(this);
+				didConnect = Hydra::Network::NetClient::initialize(addr, port);
+			}
 		}
-
-		ImGui::Text("Loaded rooms: %zu", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size());
 
 		/*{
 			static std::vector<std::shared_ptr<Entity>> _enemies;
@@ -539,5 +540,11 @@ namespace Barcode {
 		GameState* this_ = static_cast<GameState*>(userdata);
 		Hydra::Network::NetClient::updateBullet(bullet->id);
 		Hydra::Network::NetClient::shoot(bullet->getComponent<Hydra::Component::TransformComponent>().get(), bullet->getComponent<Hydra::Component::BulletComponent>()->direction);
+	}
+
+	void GameState::_onUpdatePVS(nlohmann::json&& json, void* userdata) {
+		GameState* this_ = static_cast<GameState*>(userdata);
+		this_->_engine->log(Hydra::LogLevel::error, "Have PVS: %zu", json.size());
+		this_->_dgp->updatePVS(std::move(json));
 	}
 }

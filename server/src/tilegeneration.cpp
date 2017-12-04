@@ -73,6 +73,7 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 					t->scale = glm::vec3(1, 1, 1);
 					t->rotation = rotation;
 					roomGrid[pos.x + offset[direction].x][pos.y + offset[direction].y] = roomC;
+					roomC->gridPosition = {pos.x + offset[direction].x, pos.y + offset[direction].y};
 					_insertPathFindingMap(glm::ivec2(pos.x + offset[direction].x, pos.y + offset[direction].y), rot);
 					//_spawnRandomizedEnemies(t);
 					roomCounter++;
@@ -86,7 +87,7 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 				doorBlock->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BlockCube2.mATTIC");
 				auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
 				t->position = _gridToWorld(pos.x, pos.y + 1);
-				t->position.z += 17 * (direction <= 2 ? -1 : 1);
+				t->position.z += ROOM_SIZE / 2 * (direction <= 2 ? -1 : 1);
 				t->position.y += 3;
 				t->scale = glm::vec3(4);
 				auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
@@ -99,13 +100,13 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 void TileGeneration::_setUpMiddleRoom(const std::string& middleRoomPath) {
 	auto room = world::newEntity("Middle Room", mapentity);
 	BlueprintLoader::load(middleRoomPath)->spawn(room); 
-	auto roomC = room->getComponent<Hydra::Component::RoomComponent>();
-	roomGrid[ROOM_GRID_SIZE / 2][ROOM_GRID_SIZE / 2] = roomC;
-	_insertPathFindingMap(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2), 0 /* No rotation */);
 	auto t = room->addComponent<Hydra::Component::TransformComponent>();
 	t->position = _gridToWorld(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2);
 	t->scale = glm::vec3(1, 1, 1);
-	localXY = glm::vec2(0, 0);
+	auto roomC = room->getComponent<Hydra::Component::RoomComponent>();
+	roomGrid[ROOM_GRID_SIZE / 2][ROOM_GRID_SIZE / 2] = roomC;
+	roomC->gridPosition = {ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2};
+	_insertPathFindingMap(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2), 0 /* No rotation */);
 	_spawnLight(t);
 	
 	////_spawnRandomizedEnemies(t);
@@ -471,13 +472,10 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 }
 
 glm::vec3 TileGeneration::_gridToWorld(int x, int y) {
+	float xPos = (x + 0.5f) * ROOM_SIZE;
+	float yPos = (y + 0.5f) * ROOM_SIZE;
 
-	float xPos = (ROOM_SIZE * x) - ((ROOM_GRID_SIZE * ROOM_SIZE) / 2) + 17;
-	float yPos = (ROOM_SIZE * y) - ((ROOM_GRID_SIZE * ROOM_SIZE) / 2) + 17;
-	 
-	glm::vec3 finalPos = glm::vec3(xPos, 0, yPos);
-	return finalPos;
-
+	return glm::vec3(xPos, 0, yPos);
 }
 
 bool TileGeneration::_checkAdjacents(int x, int y, std::shared_ptr<Hydra::Component::RoomComponent>& r) {
