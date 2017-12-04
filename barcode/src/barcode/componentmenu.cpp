@@ -8,8 +8,8 @@
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
-#include <hydra/component/pointlightcomponent.hpp>
-#include <hydra/component/movementcomponent.hpp>
+#include <hydra/component/pointlightcomponent.hpp> 
+#include <hydra/component/movementcomponent.hpp> 
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/ghostobjectcomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
