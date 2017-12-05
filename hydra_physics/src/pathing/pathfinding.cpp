@@ -33,6 +33,15 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 	if (map == nullptr)
 		return false;
 
+	for (auto&& node : _openList)
+	{
+		delete node;
+	}
+	for (auto&& node : _visitedList)
+	{
+		delete node;
+	}
+
 	_openList.clear();
 	_visitedList.clear();
 	pathToEnd.clear();
