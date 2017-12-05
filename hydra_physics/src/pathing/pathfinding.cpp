@@ -43,18 +43,18 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 	if (isOutsideMap(mapCurrentPos.baseVec) || isOutsideMap(mapTargetPos.baseVec))
 		return false;
 
-	if (targetPos.y < 4.6f)
-	{
-		if (inWall(targetPos))
-		{
-			//printf("PLAYER IN WALL!\n");
-			targetPos = findViableTile(targetPos);
-		}
-	}
 
 	if (inWall(currentPos))
 	{
 		currentPos = findViableTile(currentPos);
+	}
+
+	if (targetPos.y < 4.5f) {
+		if (inWall(targetPos))
+		{
+			printf("PLAYER IN WALL!\n");
+			targetPos = findViableTile(targetPos);
+		}
 	}
 
 	mapCurrentPos = worldToMapCoords(currentPos);
@@ -162,17 +162,15 @@ bool PathFinding::inLineOfSight(const glm::vec3& enemyPos, const glm::vec3& play
 	return _inLineOfSight(e, p);
 }
 
-bool PathFinding::lineOfSight3D(const glm::vec3 enemyPos, const glm::vec3 targetPos) const
-{
-
-	return false;
-}
-
 bool PathFinding::inWall(const glm::vec3 mapPos) const
 {
 	MapVec p = worldToMapCoords(mapPos);
 	glm::ivec2& vec = p.baseVec;
 
+	if (vec.x >= WORLD_MAP_SIZE || vec.y >= WORLD_MAP_SIZE || vec.x < 0 || vec.y < 0)
+	{
+		return false;
+	}
 	if (map[vec.x][vec.y] == 0)
 	{
 		return true;
@@ -185,7 +183,7 @@ glm::vec3 PathFinding::findViableTile(glm::vec3 mapPos) const
 	MapVec p = worldToMapCoords(mapPos);
 	glm::ivec2& vec = p.baseVec;
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 1; i < 6; i++)
 	{
 		if (map[vec.x + i][vec.y] == 1 && vec.x + i < WORLD_MAP_SIZE || vec.y < WORLD_MAP_SIZE || vec.x + i >= 0 || vec.y >= 0)
 		{
@@ -240,13 +238,6 @@ bool PathFinding::_inLineOfSight(const MapVec enemyPos, const MapVec playerPos) 
 	}
 	return true;
 }
-
-bool PathFinding::_lineOfSight3D(const MapVec enemyPos, const MapVec playerPos) const
-{
-
-	return false;
-}
-
 
 void PathFinding::_discoverNode(int x, int z, Node* lastNode)
 {
