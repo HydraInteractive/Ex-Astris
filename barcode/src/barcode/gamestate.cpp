@@ -15,6 +15,7 @@
 #include <imgui/imgui.h>
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
+#include <btBulletDynamicsCommon.h>
 #include <hydra/component/lightcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
 #include <hydra/component/textcomponent.hpp>
@@ -163,7 +164,21 @@ namespace Barcode {
 				glm::vec3 skew;
 				glm::vec4 perspective;
 				glm::decompose(drawObj->modelMatrix, newScale, rotation, translation, skew, perspective);
-				_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(glm::translate(rgbc->getPosition()) * glm::mat4_cast(rgbc->getRotation()) * glm::scale(rgbc->getHalfExtentScale() * glm::vec3(2)));
+				for (int i = 0; i < rgbc->getNumberOfChildren(); i++) {
+					auto rigidBody = static_cast<btRigidBody*>(rgbc->getRigidBody());
+					if (rgbc->getShapeString(i) == "CAPSULE_SHAPE_PROXYTYPE") {
+						auto capsule = static_cast<btCapsuleShape*>(static_cast<btCompoundShape*>(static_cast<btRigidBody*>(rgbc->getRigidBody())->getCollisionShape())->getChildShape(i));
+						float halfHeight = capsule->getHalfHeight();
+						float radius = capsule->getRadius();
+						_hitboxBatch.batch.objects[_hitboxCapsule.get()].push_back(glm::translate(rgbc->getPosition(i)) *
+							glm::mat4_cast(rgbc->getRotation()) *
+							glm::scale(glm::vec3(radius, radius * halfHeight * 2, radius)));
+					}
+					else
+						_hitboxBatch.batch.objects[_hitboxCube.get()].push_back(glm::translate(rgbc->getPosition(i)) *
+							glm::mat4_cast(rgbc->getRotation()) *
+							glm::scale(rgbc->getHalfExtentScale() * glm::vec3(2)));
+				}
 			}
 
 			world::getEntitiesWithComponents<Hydra::Component::GhostObjectComponent, Hydra::Component::TransformComponent>(entities);
@@ -367,25 +382,25 @@ namespace Barcode {
 				switch (perk->activePerks[i])
 				{
 				default:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/BulletVelocity.png")->getID()), ImVec2(20, 20));
-					break;
-				case Hydra::Component::PerkComponent::PERK_DMGUPSIZEUP:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/BulletVelocity.png")->getID()), ImVec2(20, 20));
-					break;
-				case Hydra::Component::PerkComponent::PERK_GRENADE:
 					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/DamageUpgrade.png")->getID()), ImVec2(20, 20));
 					break;
+				case Hydra::Component::PerkComponent::PERK_DMGUPSIZEUP:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/DamageUpgrade.png")->getID()), ImVec2(20, 20));
+					break;
+				case Hydra::Component::PerkComponent::PERK_GRENADE:
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Grenade.png")->getID()), ImVec2(20, 20));
+					break;
 				case Hydra::Component::PerkComponent::PERK_MINE:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Healing.png")->getID()), ImVec2(20, 20));
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Mine.png")->getID()), ImVec2(20, 20));
 					break;
 				case Hydra::Component::PerkComponent::PERK_BULLETSPRAY:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Spred.png")->getID()), ImVec2(20, 20));
 					break;
 				case Hydra::Component::PerkComponent::PERK_SPEEDUP:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/ExtraJump.png")->getID()), ImVec2(20, 20));
 					break;
 				case Hydra::Component::PerkComponent::PERK_FASTSHOWLOWDMG:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/HealthUpgrade.png")->getID()), ImVec2(20, 20));
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/BulletVelocity.png")->getID()), ImVec2(20, 20));
 					break;
 				}
 
@@ -438,6 +453,7 @@ namespace Barcode {
 
 	void GameState::_initWorld() {
 		_hitboxCube = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh("assets/objects/HitBox.mATTIC");
+		_hitboxCapsule = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh("assets/objects/HitCapsule.mATTIC");
 		{
 			auto floor = world::newEntity("Floor", world::root());
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
@@ -519,8 +535,10 @@ namespace Barcode {
 			t->scale = glm::vec3{ 1,1,1 };
 			t->rotation = glm::vec3{ 0, 90, 0 };
 			auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 3, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+			rgbc->createBox(glm::vec3(0.5f, 1.0f, 0.5f) * t->scale, glm::vec3(0, 1.1, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 				0, 0, 0.6f, 1.0f);
+			rgbc->createCapsuleY(0.5f, 1.0f * t->scale.y, glm::vec3(0, 2.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_HEAD, 10000,
+				0, 0, 0.0f, 0);
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 			rgbc->setAngularForce(glm::vec3(0));
 		}

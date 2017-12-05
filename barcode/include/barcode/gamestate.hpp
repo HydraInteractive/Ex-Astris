@@ -95,6 +95,7 @@ namespace Barcode {
 		RenderBatch<Hydra::Renderer::Batch> _hitboxBatch;
 
 		std::shared_ptr<Hydra::Renderer::IMesh> _hitboxCube;
+		std::shared_ptr<Hydra::Renderer::IMesh> _hitboxCapsule;
 
 		bool _paused = false;
 		Hydra::World::EntityID _playerID;

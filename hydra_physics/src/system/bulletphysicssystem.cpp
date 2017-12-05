@@ -208,18 +208,48 @@ void BulletPhysicsSystem::tick(float delta) {
 			}
 
 			if (lifeComponent) {
-				lifeComponent->applyDamage(bulletComponent->damage);
-				_spawnText(cast(collPosB), std::to_string(bulletComponent->damage));
+				// Terrible HeadShot code.
+				auto rgbcA = eA->getComponent<Hydra::Component::RigidBodyComponent>();
+				bool headshot = false;
+				float accumulatedDamage = bulletComponent->damage;
+				glm::vec3 textColor = { 1.0,1.0,1.0 };
+				glm::vec3 textScale = { 10,10,10 };
+				Hydra::Component::ParticleComponent::ParticleTexture particleTexture;
+				auto compound = static_cast<btCompoundShape*>(static_cast<btRigidBody*>(rgbcA->getRigidBody())->getCollisionShape());
+				if (compound->getNumChildShapes() > 1) {
+					glm::vec3 child1Pos = rgbcA->getPosition(0);
+					glm::vec3 child2Pos = rgbcA->getPosition(1);
+					float distance1 = glm::distance(child1Pos, cast(collPosB));
+					float distance2 = glm::distance(child2Pos, cast(collPosB));
+					if (distance2 < distance1) {
+						accumulatedDamage *= 2.0f; // 2.0 multiplier on HS.
+						textColor = glm::vec3(4, 0.5, 0.5);
+						textScale = glm::vec3(15, 15, 15);
+						headshot = true;
+					}
+				}
+				lifeComponent->applyDamage(accumulatedDamage);
+				_spawnText(cast(collPosB), std::to_string(accumulatedDamage), textColor, textScale);
 				auto targetEntity = Hydra::World::World::getEntity(lifeComponent->entityID);
 				if(!targetEntity->getComponent<Hydra::Component::PlayerComponent>())
 					switch (targetEntity->getComponent<Hydra::Component::AIComponent>()->behaviour->type)
 					{
-					case Hydra::Physics::Behaviour::Behaviour::Type::ALIEN:
-						_spawnParticleEmitterAt(cast(collPosB), cast(normalOnB), Hydra::Component::ParticleComponent::ParticleTexture::AlienBlood);
+					case Hydra::Physics::Behaviour::Behaviour::Type::ALIEN: {
+						if (headshot)
+							particleTexture = Hydra::Component::ParticleComponent::ParticleTexture::MAX_COUNT;
+						else
+							particleTexture = Hydra::Component::ParticleComponent::ParticleTexture::AlienBlood;
+						_spawnParticleEmitterAt(cast(collPosB), cast(normalOnB), particleTexture);
 						break;
-					case Hydra::Physics::Behaviour::Behaviour::Type::ROBOT:
-						_spawnParticleEmitterAt(cast(collPosB), cast(normalOnB), Hydra::Component::ParticleComponent::ParticleTexture::Energy);
+					}
+					case Hydra::Physics::Behaviour::Behaviour::Type::ROBOT: {
+						if (headshot)
+							particleTexture = Hydra::Component::ParticleComponent::ParticleTexture::AlienHS;
+						else
+							particleTexture = Hydra::Component::ParticleComponent::ParticleTexture::Energy;
+						_spawnParticleEmitterAt(cast(collPosB), cast(normalOnB), particleTexture);
 						break;
+					}
 					default:
 						break;
 					}
@@ -258,11 +288,11 @@ void BulletPhysicsSystem::_spawnParticleEmitterAt(const glm::vec3& pos, const gl
 	pELC->health = 0.9f;
 }
 
-void BulletPhysicsSystem::_spawnText(const glm::vec3& pos, const std::string& text) {
+void BulletPhysicsSystem::_spawnText(const glm::vec3& pos, const std::string& text, const glm::vec3& color, const glm::vec3& scale) {
 	auto textEntity = world::newEntity("Damage", world::root());
 	auto transC = textEntity->addComponent<TransformComponent>();
 	transC->setPosition(pos);
-	transC->setScale(glm::vec3(10));
+	transC->setScale(scale);
 	textEntity->addComponent<MeshComponent>()->loadMesh("TEXTQUAD");
 	auto lifeC = textEntity->addComponent<LifeComponent>();
 	lifeC->health = lifeC->maxHP = 2;
@@ -271,6 +301,7 @@ void BulletPhysicsSystem::_spawnText(const glm::vec3& pos, const std::string& te
 	//snprintf(buff, sizeof(buff), "%.0f\x01\x02", text);
 	textC->setText(text.substr(0, 2));
 	textC->isStatic = false;
+	textC->color = color;
 }
 
 

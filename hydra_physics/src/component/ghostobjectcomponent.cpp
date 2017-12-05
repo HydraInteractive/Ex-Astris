@@ -66,7 +66,7 @@ void GhostObjectComponent::serialize(nlohmann::json& json) const {
 	json["quatRotationZ"] = quatRotation.z;
 	json["quatRotationW"] = quatRotation.w;
 
-	json["collisionType"] = collisionType;
+	json["collisionType"] = Hydra::System::BulletPhysicsSystem::COLL_WALL;
 }
 
 void GhostObjectComponent::deserialize(nlohmann::json& json) {

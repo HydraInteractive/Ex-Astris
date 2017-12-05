@@ -26,6 +26,7 @@ void LightSystem::tick(float delta) {
 		if (lightParentTC && lightParentTC->dirty)
 			lightTC->setPosition(glm::vec3(0, 7, 0) + lightParentTC->position);
 	}
+	entities.clear();
 }
 
 void LightSystem::registerUI() {
