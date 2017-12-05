@@ -468,7 +468,7 @@ namespace Barcode {
 		{
 			//Remove this to gain frames like never before
 
-			tileGen = new TileGeneration("assets/room/fourwayRoom.room");
+			tileGen = new TileGeneration("assets/room/BlockedStairs.room");
 			pathfindingMap = tileGen->buildMap();
 		}
 

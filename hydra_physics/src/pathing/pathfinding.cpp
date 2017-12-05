@@ -41,6 +41,7 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 	{
 		if (inWall(targetPos))
 		{
+			printf("PLAYER IN WALL!\n");
 			targetPos = findViableTile(targetPos);
 		}
 	}
@@ -169,37 +170,37 @@ glm::vec3 PathFinding::findViableTile(glm::vec3 mapPos) const
 	MapVec p = worldToMapCoords(mapPos);
 	glm::ivec2& vec = p.baseVec;
 
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 4; i++)
 	{
-		if (map[vec.x + i][vec.y] == 1)
+		if (map[vec.x + i][vec.y] == 1 && vec.x + i < WORLD_MAP_SIZE || vec.y < WORLD_MAP_SIZE || vec.x + i >= 0 || vec.y >= 0)
 		{
 			return glm::vec3(mapPos.x + i, mapPos.y, mapPos.z);
 		}
-		else if (map[vec.x][vec.y + i] == 1)
+		else if (map[vec.x][vec.y + i] == 1 && vec.x < WORLD_MAP_SIZE || vec.y + i < WORLD_MAP_SIZE || vec.x >= 0 || vec.y + i >= 0)
 		{
 			return glm::vec3(mapPos.x, mapPos.y, mapPos.z + i);
 		}
-		else if (map[vec.x - i][vec.y] == 1)
+		else if (map[vec.x - i][vec.y] == 1 && vec.x - i < WORLD_MAP_SIZE || vec.y < WORLD_MAP_SIZE || vec.x - i >= 0 || vec.y >= 0)
 		{
 			return glm::vec3(mapPos.x - i, mapPos.y, mapPos.z);
 		}
-		else if (map[vec.x][vec.y - i] == 1)
+		else if (map[vec.x][vec.y - i] == 1 && vec.x < WORLD_MAP_SIZE || vec.y - i < WORLD_MAP_SIZE || vec.x >= 0 || vec.y - i >= 0)
 		{
 			return glm::vec3(mapPos.x + 1, mapPos.y, mapPos.z - i);
 		}
-		else if (map[vec.x + i][vec.y + i] == 1)
+		else if (map[vec.x + i][vec.y + i] == 1 && vec.x + i < WORLD_MAP_SIZE || vec.y + i < WORLD_MAP_SIZE || vec.x + i >= 0 || vec.y + i >= 0)
 		{
 			return glm::vec3(mapPos.x + i, mapPos.y, mapPos.z + i);
 		}
-		else if (map[vec.x - i][vec.y + i] == 1)
+		else if (map[vec.x - i][vec.y + i] == 1 && vec.x - i < WORLD_MAP_SIZE || vec.y + i < WORLD_MAP_SIZE || vec.x - i >= 0 || vec.y + i >= 0)
 		{
 			return glm::vec3(mapPos.x - i, mapPos.y, mapPos.z + i);
 		}
-		else if (map[vec.x - i][vec.y - i] == 1)
+		else if (map[vec.x - i][vec.y - i] == 1 && vec.x - i < WORLD_MAP_SIZE || vec.y - i < WORLD_MAP_SIZE || vec.x - i >= 0 || vec.y - i >= 0)
 		{
 			return glm::vec3(mapPos.x - i, mapPos.y, mapPos.z - i);
 		}
-		else if (map[vec.x + i][vec.y - i] == 1)
+		else if (map[vec.x + i][vec.y - i] == 1 && vec.x + i < WORLD_MAP_SIZE || vec.y - i < WORLD_MAP_SIZE || vec.x + i >= 0 || vec.y - i >= 0)
 		{
 			return glm::vec3(mapPos.x + i, mapPos.y, mapPos.z - i);
 		}
