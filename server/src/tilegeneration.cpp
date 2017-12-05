@@ -75,6 +75,8 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 					roomGrid[pos.x + offset[direction].x][pos.y + offset[direction].y] = roomC;
 					roomC->gridPosition = {pos.x + offset[direction].x, pos.y + offset[direction].y};
 					_insertPathFindingMap(glm::ivec2(pos.x + offset[direction].x, pos.y + offset[direction].y), rot);
+					_spawnPickUps(t);
+					_spawnLight(t);
 					//_spawnRandomizedEnemies(t);
 					roomCounter++;
 					_createMapRecursivly(glm::ivec2(pos.x + offset[direction].x, pos.y + offset[direction].y));
@@ -108,7 +110,9 @@ void TileGeneration::_setUpMiddleRoom(const std::string& middleRoomPath) {
 	roomC->gridPosition = {ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2};
 	_insertPathFindingMap(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2), 0 /* No rotation */);
 	_spawnLight(t);
-	
+
+	_spawnPickUps(t);
+	_spawnLight(t);
 	////_spawnRandomizedEnemies(t);
 	//t->rotation = glm::quat(1, 0, 1, 0);
 	//auto loadedRoom = world->getWorldRoot()->spawn(BlueprintLoader::load(middleRoomPath.c_str())->spawn(world));
@@ -141,10 +145,6 @@ void TileGeneration::_randomizeRooms() {
 }
 
 void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform) {
-
-	_spawnPickUps(roomTransform);
-	_spawnLight(roomTransform);
-
 	int randomSlowAliens = rand() % int(MAX_ENEMIES);
 	int randomRobots = rand() % int(MAX_ENEMIES - randomSlowAliens);
 	int randomFastAliens = rand() % int(MAX_ENEMIES - randomRobots);
