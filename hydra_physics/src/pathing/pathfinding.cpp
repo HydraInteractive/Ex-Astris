@@ -225,6 +225,11 @@ bool PathFinding::_lineOfSight3D(const MapVec enemyPos, const MapVec playerPos) 
 	return false;
 }
 
+static int sortFunc(void const* aPtr, void const* bPtr) {
+	const std::shared_ptr<PathFinding::Node>& a = *static_cast<const std::shared_ptr<PathFinding::Node>*>(aPtr);
+	const std::shared_ptr<PathFinding::Node>& b = *static_cast<const std::shared_ptr<PathFinding::Node>*>(bPtr);
+	return a->getF() > b->getF();
+}
 
 void PathFinding::_discoverNode(int x, int z, Node* lastNode)
 {
@@ -270,5 +275,5 @@ void PathFinding::_discoverNode(int x, int z, Node* lastNode)
 		thisNode->H = thisNode->hDistanceTo(_endNode);
 		thisNode->lastNode = lastNode;
 	}
-	std::sort(_openList.begin(), _openList.end(), comparisonFunctor);
+	std::qsort(_openList.data(), _openList.size(), sizeof(_openList.data()[0]), sortFunc);
 }

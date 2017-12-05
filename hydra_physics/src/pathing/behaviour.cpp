@@ -105,8 +105,8 @@ unsigned int Behaviour::searchingState(float dt)
 		return ATTACKING;
 	}
 
-	pathFinding->findPath(thisEnemy.transform->position, targetPlayer.transform->position);
-	newPathTimer = 0;
+	//pathFinding->findPath(thisEnemy.transform->position, targetPlayer.transform->position);
+	//newPathTimer = 0;
 	return MOVING;
 }
 
@@ -122,53 +122,53 @@ unsigned int Behaviour::movingState(float dt)
 	}
 
 	//If enemy can see the player, move toward them
-	if (pathFinding->inLineOfSight(thisEnemy.transform->position, targetPlayer.transform->position))
+	if (/*pathFinding->inLineOfSight(thisEnemy.transform->position, targetPlayer.transform->position)*/ true)
 	{
 		move(targetPlayer.transform->position);
 	}
 	//If there is nowhere to go, search (prob not needed, should always have a goal here)
-	if (!pathFinding->pathToEnd.empty())
-	{	
-		//Made these as the code got very hard to read otherwise
-		float distEnemyToNextPos = glm::distance(flatVector(thisEnemy.transform->position), flatVector(pathFinding->pathToEnd.back()));
-		float distEnemyToGoal = glm::distance(flatVector(thisEnemy.transform->position), flatVector(pathFinding->pathToEnd.front()));
-		float distPlayerToGoal = glm::distance(flatVector(targetPlayer.transform->position), flatVector(pathFinding->pathToEnd.front()));
-		
-		//Check that the goal is closer to the player than we are, otherwise the path is invalid
-		if (distPlayerToGoal < distEnemyToPlayer)
-		{
-			//If the next pos is reached move on
-			if (distEnemyToNextPos <= 1.0f)
-			{
-				pathFinding->pathToEnd.pop_back();
-				//If there is nowhere to go, search
+	//if (!pathFinding->pathToEnd.empty())
+	//{	
+	//	//Made these as the code got very hard to read otherwise
+	//	float distEnemyToNextPos = glm::distance(flatVector(thisEnemy.transform->position), flatVector(pathFinding->pathToEnd.back()));
+	//	float distEnemyToGoal = glm::distance(flatVector(thisEnemy.transform->position), flatVector(pathFinding->pathToEnd.front()));
+	//	float distPlayerToGoal = glm::distance(flatVector(targetPlayer.transform->position), flatVector(pathFinding->pathToEnd.front()));
+	//	
+	//	//Check that the goal is closer to the player than we are, otherwise the path is invalid
+	//	if (distPlayerToGoal < distEnemyToPlayer)
+	//	{
+	//		//If the next pos is reached move on
+	//		if (distEnemyToNextPos <= 1.0f)
+	//		{
+	//			pathFinding->pathToEnd.pop_back();
+	//			//If there is nowhere to go, search
 
-				if (pathFinding->pathToEnd.empty())
-				{
-					move(targetPlayer.transform->position);
-					return SEARCHING;
-				}
-				else
-				{
-					move(pathFinding->pathToEnd.back());
-				}
-			}
-			else
-			{
-				move(pathFinding->pathToEnd.back());
-			}
-		}
-		else
-		{
-			move(targetPlayer.transform->position);
-			return SEARCHING;
-		}
-	}
-	else
-	{
-		move(targetPlayer.transform->position);
-		return SEARCHING;
-	}
+	//			if (pathFinding->pathToEnd.empty())
+	//			{
+	//				move(targetPlayer.transform->position);
+	//				return SEARCHING;
+	//			}
+	//			else
+	//			{
+	//				move(pathFinding->pathToEnd.back());
+	//			}
+	//		}
+	//		else
+	//		{
+	//			move(pathFinding->pathToEnd.back());
+	//		}
+	//	}
+	//	else
+	//	{
+	//		move(targetPlayer.transform->position);
+	//		return SEARCHING;
+	//	}
+	//}
+	//else
+	//{
+	//	move(targetPlayer.transform->position);
+	//	return SEARCHING;
+	//}
 
 	if (newPathTimer >= newPathDelay)
 	{

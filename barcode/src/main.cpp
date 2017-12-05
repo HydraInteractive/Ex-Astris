@@ -169,7 +169,7 @@ int main(int argc, char** argv) {
 		reportMemoryLeaks();
 		srand(time(NULL));
 		Barcode::Engine engine;
-		engine.setState<Barcode::GameState>();
+		engine.setState<Barcode::MenuState>();
 		engine.run();
 		return 0;
 	} catch (const char * msg) {

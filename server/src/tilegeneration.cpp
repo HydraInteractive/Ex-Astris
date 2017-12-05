@@ -39,6 +39,7 @@ bool** TileGeneration::buildMap() {
 }
 
 void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
+	printf("\tpos: %d, %d\n", pos.x, pos.y);
 	//Random the rooms vector each time we're about to spawn a new room
 	_randomizeRooms();
 
@@ -56,7 +57,9 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 	for (size_t direction = 0; direction < sizeof(nesw) / sizeof(nesw[0]); direction++) {
 		const int dir = nesw[direction];
 		const int negDir = nesw[(direction + 2) % 4];
+		printf("\t\tdir: %d\n", dir);
 		if (roomGrid[pos.x][pos.y]->door[dir] && roomGrid[pos.x + offset[direction].x][pos.y + offset[direction].y] == nullptr) {
+			printf("\t\t\tTrying to place\n");
 			bool placed = false;
 			for (size_t i = 0; i < _roomFileNames.size()*2 && !placed && roomCounter < maxRooms; i++) {
 				auto loadedRoom = world::newEntity("Room", mapentity);
@@ -67,6 +70,7 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 				glm::quat rotation = _rotateRoom(roomC, rot);
 
 				if (roomC->door[negDir] && _checkAdjacents(pos.x + offset[direction].x, pos.y + offset[direction].y, roomC)) {
+					printf("\t\t\t\tPlaced: %s\n", _roomFileNames[i/2].c_str());
 					placed = true;
 					auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 					t->position = _gridToWorld(pos.x + offset[direction].x, pos.y + offset[direction].y);

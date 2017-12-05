@@ -70,7 +70,9 @@ void GameServer::_deleteEntity(EntityID ent) {
 			break;
 		}
 	}
-	world::getEntity(ent).get()->dead = true;
+	
+	if (auto e = world::getEntity(ent); e)
+		e->dead = true;
 }
 
 void GameServer::_handleDisconnects() {
@@ -384,18 +386,19 @@ void GameServer::start() {
 		, 0, 0, 0, 0.6f, 0);
 	floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 
-	this->_physicsSystem.enable(rgbcf.get());
+	//this->_physicsSystem.enable(rgbcf.get());
 
 	size_t tries = 0;
 	while (true) {
 		tries++;
+		printf("Room generation try: \n", tries);
 		_tileGeneration = std::make_unique<TileGeneration>("assets/room/starterRoom.room");
 		_pathfindingMap = _tileGeneration->buildMap();
 		_deadSystem.tick(0);
 		printf("Room count: %zu\t(%d)\n", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size(), _tileGeneration->roomCounter);
-		if (Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size() >= 24)
+		if (Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size() >= 20)
 			break;
-		printf("\tTarget is >= 24, redoing generation\n");
+		printf("\tTarget is >= 20, redoing generation\n");
 		_tileGeneration.reset();
 		_deadSystem.tick(0);
 	}
@@ -473,7 +476,7 @@ void GameServer::start() {
 	SDL_SaveBMP(map, "map.bmp");
 	SDL_FreeSurface(map);
 #ifdef _WIN32
-	system("bin/PVSTest.exe -f map.bmp -s 32 -o map.pvs");
+	system("PVSTest.exe -f map.bmp -s 32 -o map.pvs");
 #else
 	system("bin/PVSTest -f map.bmp -s 32 -o map.pvs");
 #endif
@@ -487,12 +490,17 @@ void GameServer::start() {
 		fclose(fp);
 	}
 
-	std::vector<std::shared_ptr<Entity>> entities;
-	world::getEntitiesWithComponents<RigidBodyComponent>(entities);
-	for (size_t i = 0; i < entities.size(); i++) {
-		_physicsSystem.enable(entities[i]->getComponent<RigidBodyComponent>().get());
+	for (auto& rb : Hydra::Component::RigidBodyComponent::componentHandler->getActiveComponents()) {
+		//_engine->log(Hydra::LogLevel::normal, "Enabling BulletPhysicsSystem for %s", world::getEntity(rb->entityID)->name.c_str());
+		_physicsSystem.enable(static_cast<Hydra::Component::RigidBodyComponent*>(rb.get()));
+	}
+	for (auto& goc : Hydra::Component::GhostObjectComponent::componentHandler->getActiveComponents()) {
+		//_engine->log(Hydra::LogLevel::normal, "Enabling BulletPhysicsSystem for %s", world::getEntity(goc->entityID)->name.c_str());
+		static_cast<Hydra::Component::GhostObjectComponent*>(goc.get())->updateWorldTransform();
+		_physicsSystem.enable(static_cast<Hydra::Component::GhostObjectComponent*>(goc.get()));
 	}
 
+	std::vector<std::shared_ptr<Entity>> entities;
 	world::getEntitiesWithComponents<AIComponent>(entities);
 	for (size_t i = 0; i < entities.size(); i++) {
 		_networkEntities.push_back(entities[i]->id);
@@ -585,6 +593,9 @@ void GameServer::run() {
 		//_perkSystem.tick(delta);
 		_lifeSystem.tick(delta);
 		//this->_updateWorld();
+
+		for (Hydra::World::EntityID e : _lifeSystem.isKilled())
+			_deleteEntity(e);
 	}
 
 	//Send updated world to clients
