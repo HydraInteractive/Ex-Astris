@@ -69,7 +69,7 @@ void BulletSprayAbillity::tick(float delta, const std::shared_ptr<Hydra::World::
 
 	for (size_t i = 0; i < 6; i++){
 		auto bullet = world::newEntity("Bullet", world::rootID);
-		bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/SmallCargo.mATTIC");
+		bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Bullet.mATTIC");
 
 		float phi = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
 		float distance = ((float)rand() / (float)(RAND_MAX)) * 0.4f;
@@ -83,6 +83,7 @@ void BulletSprayAbillity::tick(float delta, const std::shared_ptr<Hydra::World::
 
 		auto b = bullet->addComponent<Hydra::Component::BulletComponent>();
 		b->direction = bulletDirection;
+		b->damage = 3;
 
 		auto t = bullet->addComponent<Hydra::Component::TransformComponent>();
 		t->position = playerTransform->position;
@@ -95,7 +96,7 @@ void BulletSprayAbillity::tick(float delta, const std::shared_ptr<Hydra::World::
 		auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
 		bulletPhysWorld->enable(rbc.get());
 		rigidBody->setActivationState(DISABLE_DEACTIVATION);
-		rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 300);
+		rigidBody->applyCentralImpulse(btVector3(b->direction.x, b->direction.y, b->direction.z) * 0.4);
 		rigidBody->setGravity(btVector3(0, 0, 0));
 	}
 }
