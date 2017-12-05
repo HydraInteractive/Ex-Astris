@@ -350,7 +350,11 @@ unsigned int AlienBehaviour::attackingState(float dt)
 		{
 			if (playerUnreachable)
 			{
-				thisEnemy.weapon->shoot(thisEnemy.transform->position + glm::vec3{ 0, 2.0f, 0 }, playerDir, glm::quat(), 5.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
+				glm::vec3 forward = playerDir;
+				glm::vec3 right(forward.z, forward.y, -forward.x);
+
+				glm::vec3 bulletPos = thisEnemy.transform->position + glm::vec3(0, 2.0, 0) + (forward* 2.0f) - (right * 1.0f);
+				thisEnemy.weapon->shoot(bulletPos, playerDir, rotation, 5.5f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
 				attackTimer = 0;
 			}
 			else
@@ -475,8 +479,13 @@ unsigned int RobotBehaviour::attackingState(float dt)
 	{
 		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
 		playerDir = glm::normalize(playerDir);
-		thisEnemy.weapon->shoot(thisEnemy.transform->position + glm::vec3{0, 1.5, 0}, playerDir, glm::quat(), 6.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
 		rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
+		
+		glm::vec3 forward = playerDir;
+		glm::vec3 right(forward.z, forward.y, -forward.x);
+
+		glm::vec3 bulletPos = thisEnemy.transform->position + glm::vec3(0, 2.0, 0) + (forward* 2.0f) - (right * 1.0f);
+		thisEnemy.weapon->shoot(bulletPos, playerDir, rotation, 5.5f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
 	}
 	return state;
 }

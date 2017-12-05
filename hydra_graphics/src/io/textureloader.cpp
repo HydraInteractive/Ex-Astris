@@ -40,14 +40,12 @@ public:
 			try {
 				IEngine::getInstance()->log(LogLevel::verbose, "Loading texture: %s", file.c_str());
 				texture = _storage[file] = GLTexture::createFromFile(file);
-			}
-			catch (const std::exception& e) {
+			} catch (const std::exception& e) {
 				IEngine::getInstance()->log(LogLevel::error, "FAILED TO LOAD TEXTURE: %s", e.what());
-				return _errorTexture;
-			}
-			catch (const char* e) {
+				texture = _storage[file] = _errorTexture;
+			} catch (const char* e) {
 				IEngine::getInstance()->log(LogLevel::error, "FAILED TO LOAD TEXTURE: %s", e);
-				return _errorTexture;
+				texture = _storage[file] = _errorTexture;
 			}
 		}
 		return texture;
@@ -63,7 +61,7 @@ private:
 
 
 	std::shared_ptr<ITexture> _loadErrorTexture() {
-		return GLTexture::createFromFile("assets/textures/error.png");
+		return GLTexture::createFromFile("assets/textures/Floor_specular.png");
 	}
 };
 

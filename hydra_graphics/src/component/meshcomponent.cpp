@@ -22,15 +22,19 @@ MeshComponent::~MeshComponent() {}
 
 void MeshComponent::loadMesh(const std::string meshFile) {
 	this->meshFile = meshFile;
-	if (Hydra::IEngine::getInstance()->getState()->getMeshLoader()) {
-		drawObject = Hydra::World::World::getEntity(entityID)->addComponent<DrawObjectComponent>();
-		mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(meshFile);
-		drawObject->drawObject->mesh = mesh.get();
+	if (!Hydra::IEngine::getInstance()->getState()->getMeshLoader())
+		return;
+	drawObject = Hydra::World::World::getEntity(entityID)->addComponent<DrawObjectComponent>();
+	mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(meshFile);
+	auto newMesh = drawObject->drawObject->mesh = mesh.get();
 
 	if (meshFile == "PARTICLEQUAD" || meshFile == "TEXTQUAD" || meshFile == "QUAD")
 		drawObject->drawObject->disable = true;
-	
-	}
+
+	if (meshFile.find("Wall") != std::string::npos || meshFile.find("Tunnel") != std::string::npos
+		 || meshFile.find("Roof") != std::string::npos || meshFile.find("Floor_v") != std::string::npos
+		|| meshFile.find("HangingCable") != std::string::npos || meshFile.find("Monitor") != std::string::npos)
+		drawObject->drawObject->hasShadow = false;
 }
 
 void MeshComponent::serialize(nlohmann::json& json) const {

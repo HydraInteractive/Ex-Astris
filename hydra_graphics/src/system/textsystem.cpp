@@ -25,6 +25,7 @@ void Hydra::System::TextSystem::tick(float delta){
 			transC->setPosition(transC->position);
 		}
 	}
+	entities.clear();
 }
 
 void Hydra::System::TextSystem::registerUI(){

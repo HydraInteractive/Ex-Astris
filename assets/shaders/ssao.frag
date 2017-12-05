@@ -6,16 +6,14 @@ in vec2 texCoords;
 
 const int kernelSize = 4;
 
-layout(location = 0) uniform sampler2D positions;
-//layout(location = 1) uniform sampler2D normals;
-layout(location = 2) uniform sampler2D texNoise;
+layout(location = 0) uniform sampler2D depthBuffer;
+layout(location = 1) uniform sampler2D texNoise;
 
-layout(location = 3) uniform mat4 projection;
+layout(location = 5) uniform mat4 projection;
 //layout(location = 4) uniform float bias;
 //layout(location = 5) uniform float kernelRadius;
 layout(location = 6) uniform mat4 view;
-layout(location = 7) uniform sampler2D depthBuffer;
-layout(location = 8) uniform vec2 screenSize;
+layout(location = 7) uniform vec2 screenSize;
 layout(location = 11) uniform vec3 samples[kernelSize];
 
 const vec2 noiseScale = vec2(screenSize.x / 4, screenSize.y / 4);
@@ -31,16 +29,11 @@ vec3 calcViewPos(vec2 uv, float depth) {
 }
 
 void main() {
-	//vec3 fragPos = vec3(view * texture(positions, texCoords)).xyz;
-	//vec3 normal = normalize(texture(normals, texCoords).xyz);
 	vec3 fragPos = calcViewPos(texCoords, texture(depthBuffer, texCoords).r); // reconstructed from depth
 	vec3 normal = normalize(cross(dFdx(fragPos), dFdy(fragPos))); // reconstruct view nornal
 
-	
-
 	float bias = 0.025f;
 	float kernelRadius = 0.5f;
-	
 	
 	vec3 randomVec = normalize(texture(texNoise, texCoords * noiseScale).xyz);
 
@@ -58,7 +51,6 @@ void main() {
 		offset.xy /= offset.w;
 		offset.xy = offset.xy * 0.5 + 0.5;	
 		
-		//float sampleDepth = (view * vec4(texture(positions, offset.xy))).z; 
 		float sampleDepth = vec3(calcViewPos(offset.xy, texture(depthBuffer, offset.xy).r)).z; // reconstructed from depth
 
 		float rangeCheck = smoothstep(0.0, 1.0, kernelRadius / abs(fragPos.z - sampleDepth));

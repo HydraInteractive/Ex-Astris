@@ -8,8 +8,8 @@
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
-#include <hydra/component/pointlightcomponent.hpp>
-#include <hydra/component/movementcomponent.hpp>
+#include <hydra/component/pointlightcomponent.hpp> 
+#include <hydra/component/movementcomponent.hpp> 
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/ghostobjectcomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
@@ -29,7 +29,6 @@ ComponentMenu::~ComponentMenu()
 void ComponentMenu::render(bool &openBool, Hydra::System::BulletPhysicsSystem& physicsSystem)
 {
 	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiCond_Once);
-	ImGui::Begin("Add component", &openBool, ImGuiWindowFlags_MenuBar);
 	_menuBar();
 	
 	ImGui::Columns(3, "Columns");
@@ -190,7 +189,7 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 				_selectedEntity->addComponent<Hydra::Component::TransformComponent>();
 				_selectedEntity->addComponent<Hydra::Component::DrawObjectComponent>();
 				auto goc = _selectedEntity->addComponent<Hydra::Component::GhostObjectComponent>();
-				goc->createBox(ghostObjectInput.size,Hydra::System::BulletPhysicsSystem::CollisionTypes(ghostObjectInput.collisionType+1));
+				goc->createBox(ghostObjectInput.size,Hydra::System::BulletPhysicsSystem::COLL_WALL);
 
 				physicsSystem.enable(goc.get());
 				rigidBodyInput = RBI();

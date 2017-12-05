@@ -29,6 +29,7 @@ namespace Hydra::Component {
 		bool door[4] = { 0 };
 		bool localMap[ROOM_MAP_SIZE][ROOM_MAP_SIZE] = { 1 };
 		bool change = 0;
+		glm::ivec2 gridPosition;
 
 		~RoomComponent() final;
 

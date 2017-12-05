@@ -105,6 +105,8 @@ public:
 		batch.pipeline->setValue(11, 4);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
+			if (!mesh)
+				continue;
 			mesh->getMaterial().diffuse->bind(0);
 			mesh->getMaterial().normal->bind(1);
 			mesh->getMaterial().specular->bind(2);
@@ -152,10 +154,11 @@ public:
 		glClear(clearFlags);
 
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
-
 		batch.pipeline->setValue(20, 0);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
+			if (!mesh)
+				continue;
 
 			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
 			glBindVertexArray(mesh->getID());
@@ -201,9 +204,13 @@ public:
 		glClear(clearFlags);
 
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
-
+		//glPolygonOffset(1.1, 50);
+		//glEnable(GL_POLYGON_OFFSET_FILL);
+		//glCullFace(GL_FRONT);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
+			if (!mesh)
+				continue;
 
 			glBindVertexArray(mesh->getID());
 			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
@@ -216,6 +223,8 @@ public:
 				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
 			}
 		}
+		//glCullFace(GL_BACK);
+		//glDisable(GL_POLYGON_OFFSET_FILL);
 	}
 
 	void render(ParticleBatch& batch) final { // For particles only.
@@ -239,6 +248,8 @@ public:
 		size_t sizeParticles = particles.size() / 3;
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
+			if (!mesh)
+				continue;
 			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
 			glBindVertexArray(mesh->getID());
 			for (size_t i = 0; i < sizeParticles; i+= maxPerLoop) {
@@ -277,6 +288,8 @@ public:
 		batch.pipeline->setValue(23, 3);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
+			if (!mesh)
+				continue;
 			mesh->getMaterial().diffuse->bind(0);
 			mesh->getMaterial().normal->bind(1);
 			mesh->getMaterial().specular->bind(2);
@@ -330,6 +343,8 @@ public:
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
+			if (!mesh)
+				continue;
 			size_t size = kv.second.size();
 			const size_t maxPerLoop = _modelMatrixSize / sizeof(glm::mat4);
 			for (size_t i = 0; i < size; i += maxPerLoop) {
@@ -360,6 +375,8 @@ public:
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
+			if (!mesh)
+				continue;
 			size_t nrOfChars = batch.textInfo.size();
 
 			int currModelMX = 0;
@@ -368,6 +385,7 @@ public:
 			for (size_t textSize : batch.textSizes) {
 				batch.pipeline->setValue(2, kv.second[currModelMX]);
 				batch.pipeline->setValue(5, batch.lifeFade[currModelMX]);
+				batch.pipeline->setValue(6, batch.colors[currModelMX]);
 				for (size_t i = 0; i < textSize; i += maxPerLoop) {
 					size_t amount = std::min(textSize - i, maxPerLoop);
 

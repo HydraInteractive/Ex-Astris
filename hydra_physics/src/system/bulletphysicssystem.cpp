@@ -21,6 +21,7 @@
 #include <hydra/component/perkcomponent.hpp>
 #include <hydra/component/textcomponent.hpp>
 #include <hydra/component/ghostobjectcomponent.hpp>
+#include <hydra/component/aicomponent.hpp>
 #include <hydra/component/meshcomponent.hpp>
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
@@ -84,6 +85,9 @@ void BulletPhysicsSystem::enable(RigidBodyComponent* component) {
 	case CollisionTypes::COLL_FLOOR:
 		_data->dynamicsWorld->addRigidBody(rigidBody, COLL_FLOOR, CollisionCondition::floorCollidesWith);
 		break;
+	case CollisionTypes::COLL_SPAWNER:
+		_data->dynamicsWorld->addRigidBody(rigidBody, COLL_SPAWNER, CollisionCondition::spawnerCollidesWith);
+		break;
 	default:
 		_data->dynamicsWorld->addRigidBody(rigidBody, COLL_NOTHING, COLL_NOTHING);
 		break;
@@ -123,6 +127,9 @@ void Hydra::System::BulletPhysicsSystem::enable(GhostObjectComponent * component
 		break;
 	case CollisionTypes::COLL_FLOOR:
 		_data->dynamicsWorld->addCollisionObject(component->ghostObject, COLL_FLOOR, CollisionCondition::floorCollidesWith);
+		break;
+	case CollisionTypes::COLL_SPAWNER:
+		_data->dynamicsWorld->addCollisionObject(component->ghostObject, COLL_SPAWNER, CollisionCondition::spawnerCollidesWith);
 		break;
 	default:
 		_data->dynamicsWorld->addCollisionObject(component->ghostObject, COLL_NOTHING, COLL_NOTHING);
@@ -182,7 +189,7 @@ void BulletPhysicsSystem::tick(float delta) {
 
 		if (pickupComponent && perkComponent) {
 			_addPickUp(pickupComponent, perkComponent);
-			_spawnDamageText(Hydra::World::World::getEntity(playerComponent->entityID)->getComponent<Hydra::Component::TransformComponent>()->position, "eyyy\n");
+			_spawnText(Hydra::World::World::getEntity(playerComponent->entityID)->getComponent<Hydra::Component::TransformComponent>()->position, "eyyy\n");
 		}
 
 		// Gets the contact points
@@ -201,15 +208,56 @@ void BulletPhysicsSystem::tick(float delta) {
 			}
 
 			if (lifeComponent) {
-				lifeComponent->applyDamage(bulletComponent->damage);
-				_spawnDamageText(cast(collPosB), std::to_string(bulletComponent->damage));
+				// Terrible HeadShot code.
+				auto rgbcA = eA->getComponent<Hydra::Component::RigidBodyComponent>();
+				bool headshot = false;
+				float accumulatedDamage = bulletComponent->damage;
+				glm::vec3 textColor = { 1.0,1.0,1.0 };
+				glm::vec3 textScale = { 10,10,10 };
+				Hydra::Component::ParticleComponent::ParticleTexture particleTexture;
+				auto compound = static_cast<btCompoundShape*>(static_cast<btRigidBody*>(rgbcA->getRigidBody())->getCollisionShape());
+				if (compound->getNumChildShapes() > 1) {
+					glm::vec3 child1Pos = rgbcA->getPosition(0);
+					glm::vec3 child2Pos = rgbcA->getPosition(1);
+					float distance1 = glm::distance(child1Pos, cast(collPosB));
+					float distance2 = glm::distance(child2Pos, cast(collPosB));
+					if (distance2 < distance1) {
+						accumulatedDamage *= 2.0f; // 2.0 multiplier on HS.
+						textColor = glm::vec3(4, 0.5, 0.5);
+						textScale = glm::vec3(15, 15, 15);
+						headshot = true;
+					}
+				}
+				lifeComponent->applyDamage(accumulatedDamage);
+				_spawnText(cast(collPosB), std::to_string(accumulatedDamage), textColor, textScale);
+				auto targetEntity = Hydra::World::World::getEntity(lifeComponent->entityID);
+				if(!targetEntity->getComponent<Hydra::Component::PlayerComponent>())
+					switch (targetEntity->getComponent<Hydra::Component::AIComponent>()->behaviour->type)
+					{
+					case Hydra::Physics::Behaviour::Behaviour::Type::ALIEN: {
+						if (headshot)
+							particleTexture = Hydra::Component::ParticleComponent::ParticleTexture::MAX_COUNT;
+						else
+							particleTexture = Hydra::Component::ParticleComponent::ParticleTexture::AlienBlood;
+						_spawnParticleEmitterAt(cast(collPosB), cast(normalOnB), particleTexture);
+						break;
+					}
+					case Hydra::Physics::Behaviour::Behaviour::Type::ROBOT: {
+						if (headshot)
+							particleTexture = Hydra::Component::ParticleComponent::ParticleTexture::AlienHS;
+						else
+							particleTexture = Hydra::Component::ParticleComponent::ParticleTexture::Energy;
+						_spawnParticleEmitterAt(cast(collPosB), cast(normalOnB), particleTexture);
+						break;
+					}
+					default:
+						break;
+					}
 			}
 
 			// Set the bullet entity to dead.
-			if (bulletComponent) {
+			if (bulletComponent)
 				World::World::World::getEntity(bulletComponent->entityID)->dead = true;
-				_spawnParticleEmitterAt(cast(collPosB), cast(normalOnB));
-			}
 
 			// Breaks because just wanna check the first collision.
 			break;
@@ -219,7 +267,7 @@ void BulletPhysicsSystem::tick(float delta) {
 	entities.clear();
 }
 
-void BulletPhysicsSystem::_spawnParticleEmitterAt(const glm::vec3& pos, const glm::vec3& normal) {
+void BulletPhysicsSystem::_spawnParticleEmitterAt(const glm::vec3& pos, const glm::vec3& normal, const Hydra::Component::ParticleComponent::ParticleTexture& effect) {
 	auto pE = Hydra::World::World::newEntity("Collision Particle Spawner", Hydra::World::World::rootID);
 
 	pE->addComponent<MeshComponent>()->loadMesh("PARTICLEQUAD");
@@ -232,7 +280,7 @@ void BulletPhysicsSystem::_spawnParticleEmitterAt(const glm::vec3& pos, const gl
 	pEPC->accumulator = 2 * 5.0f;
 	pEPC->tempVelocity = glm::vec3(6.0f, 6.0f, 6.0f);
 	pEPC->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::Explosion;
-	pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::Blood;
+	pEPC->texture = effect;
 	pEPC->optionalNormal = normal;
 
 	auto pELC = pE->addComponent<LifeComponent>();
@@ -240,11 +288,11 @@ void BulletPhysicsSystem::_spawnParticleEmitterAt(const glm::vec3& pos, const gl
 	pELC->health = 0.9f;
 }
 
-void BulletPhysicsSystem::_spawnDamageText(const glm::vec3& pos, const std::string& text) {
+void BulletPhysicsSystem::_spawnText(const glm::vec3& pos, const std::string& text, const glm::vec3& color, const glm::vec3& scale) {
 	auto textEntity = world::newEntity("Damage", world::root());
 	auto transC = textEntity->addComponent<TransformComponent>();
 	transC->setPosition(pos);
-	transC->setScale(glm::vec3(10));
+	transC->setScale(scale);
 	textEntity->addComponent<MeshComponent>()->loadMesh("TEXTQUAD");
 	auto lifeC = textEntity->addComponent<LifeComponent>();
 	lifeC->health = lifeC->maxHP = 2;
@@ -253,6 +301,7 @@ void BulletPhysicsSystem::_spawnDamageText(const glm::vec3& pos, const std::stri
 	//snprintf(buff, sizeof(buff), "%.0f\x01\x02", text);
 	textC->setText(text.substr(0, 2));
 	textC->isStatic = false;
+	textC->color = color;
 }
 
 

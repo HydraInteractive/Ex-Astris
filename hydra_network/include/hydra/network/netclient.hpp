@@ -8,6 +8,10 @@
 namespace Hydra::Network {
 	struct HYDRA_NETWORK_API NetClient final {
 	public:
+		typedef void (*updatePVS_f)(nlohmann::json&& json, void* userdata);
+
+		static updatePVS_f updatePVS;
+		static void* userdata;
 		static bool running;
 
 		static void sendEntity(Hydra::World::EntityID ent);
