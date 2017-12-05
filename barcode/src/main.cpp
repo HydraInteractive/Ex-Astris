@@ -43,23 +43,18 @@ namespace Barcode {
 	public:
 		Engine() {
 			IEngine::getInstance() = this;
-
 			_view = View::SDLView::create("Ex Astris");
 			_renderer = Renderer::GLRenderer::create(*_view);
 			_uiRenderer = Renderer::UIRenderer::create(*_view);
-
 			_setupComponents();
 		}
-
 		~Engine() final {
 			_state.reset();
-
-			// Mirror Hydra::World::World::reset, but without create a new world root
+			// Mirror Hydra::World::World::reset, but without creating a new world root
 			Hydra::World::World::_isResetting = true;
 			Hydra::World::World::_entities.clear();
 			Hydra::World::World::_map.clear();
 		}
-
 		void run() final {
 			auto lastTime = std::chrono::high_resolution_clock::now();
 			_state = std::move(_newState);
@@ -174,7 +169,7 @@ int main(int argc, char** argv) {
 		reportMemoryLeaks();
 		srand(time(NULL));
 		Barcode::Engine engine;
-		engine.setState<Barcode::MenuState>();
+		engine.setState<Barcode::GameState>();
 		engine.run();
 		return 0;
 	} catch (const char * msg) {

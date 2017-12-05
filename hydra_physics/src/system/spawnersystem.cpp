@@ -33,7 +33,7 @@ void SpawnerSystem::tick(float delta)
 		spawner->spawnTimer += delta;
 		auto playerTrans = spawner->getPlayerEntity()->getComponent<Component::TransformComponent>();
 
-		for (int i = 0; i < spawner->spawnGroup.size(); i++)
+		for (size_t i = 0; i < spawner->spawnGroup.size(); i++)
 		{
 			if (Hydra::World::World::getEntity(spawner->spawnGroup[i]) == NULL)
 			{
@@ -70,7 +70,7 @@ void SpawnerSystem::tick(float delta)
 						ws->bulletSpread = 0.2f;
 						ws->bulletsPerShot = 1;
 						ws->damage = 4;
-						ws->bulletSize = 0.4;
+						ws->bulletSize = 0.3;
 						ws->maxmagammo = 0;
 						ws->currmagammo = 0;
 						ws->maxammo = 0;
@@ -122,7 +122,7 @@ void SpawnerSystem::tick(float delta)
 						ws->fireRateRPM = 50;
 						ws->bulletsPerShot = 1;
 						ws->damage = 7;
-						ws->bulletSize = 0.4;
+						ws->bulletSize = 0.3;
 						ws->maxmagammo = 0;
 						ws->currmagammo = 0;
 						ws->maxammo = 0;

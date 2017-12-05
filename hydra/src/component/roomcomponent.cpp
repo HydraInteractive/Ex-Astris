@@ -25,6 +25,8 @@ void Hydra::Component::RoomComponent::serialize(nlohmann::json & json) const
 			json["map"][i][j] = localMap[i][j];
 		}
 	}
+
+	json["gridPosition"] = { gridPosition.x, gridPosition.y };
 }
 
 void Hydra::Component::RoomComponent::deserialize(nlohmann::json & json)
@@ -59,10 +61,16 @@ void Hydra::Component::RoomComponent::deserialize(nlohmann::json & json)
 			}
 		}
 	}
+	try {
+		auto gp = json.at("gridPosition");
+		gridPosition = { gp[0].get<int>(), gp[1].get<int>() };
+	} catch (std::exception& e) {}
 }
 
-void Hydra::Component::RoomComponent::registerUI()
-{
+void Hydra::Component::RoomComponent::registerUI() {
+	ImGui::Text("GridPosition: %d, %d", gridPosition.x, gridPosition.y);
+	ImGui::Separator();
+
 	ImGui::Text("Doors:");
 	ImGui::Checkbox("North", &door[NORTH]);
 	ImGui::SameLine();

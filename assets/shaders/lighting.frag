@@ -61,7 +61,7 @@ vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec4 objectColor){
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128);
 	vec3 specular = spec * objectColor.a * light.color;
 
-	return (specular + diffuse) * attenuation;
+	return max(vec3(0, 0, 0), (specular + diffuse) * attenuation);
 }
 
 vec3 calcDirLight(DirLight light, vec3 pos, vec3 normal, vec4 objectColor){

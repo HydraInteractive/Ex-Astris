@@ -23,6 +23,7 @@
 #include <hydra/component/ghostobjectcomponent.hpp>
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/meshcomponent.hpp>
+#include <hydra/component/spawnercomponent.hpp>
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 
@@ -231,8 +232,10 @@ void BulletPhysicsSystem::tick(float delta) {
 				lifeComponent->applyDamage(accumulatedDamage);
 				_spawnText(cast(collPosB), std::to_string(accumulatedDamage), textColor, textScale);
 				auto targetEntity = Hydra::World::World::getEntity(lifeComponent->entityID);
-				if(!targetEntity->getComponent<Hydra::Component::PlayerComponent>())
-					switch (targetEntity->getComponent<Hydra::Component::AIComponent>()->behaviour->type)
+				auto aiComponent = targetEntity->getComponent<Hydra::Component::AIComponent>();
+				if (!targetEntity->getComponent<Hydra::Component::PlayerComponent>() && aiComponent)
+				{
+					switch (aiComponent->behaviour->type)
 					{
 					case Hydra::Physics::Behaviour::Behaviour::Type::ALIEN: {
 						if (headshot)
@@ -253,6 +256,11 @@ void BulletPhysicsSystem::tick(float delta) {
 					default:
 						break;
 					}
+				}
+				else if (targetEntity->getComponent<SpawnerComponent>()) {
+					particleTexture = Hydra::Component::ParticleComponent::ParticleTexture::Energy;
+					_spawnParticleEmitterAt(cast(collPosB), cast(normalOnB), particleTexture);
+				}
 			}
 
 			// Set the bullet entity to dead.

@@ -199,9 +199,6 @@ namespace Hydra::World {
 	public:
 		virtual const std::vector<std::shared_ptr<IComponentBase>>& getActiveComponents() = 0;
 
-		//virtual std::unordered_map<EntityID, size_t> _map;
-		//virtual std::vector<std::shared_ptr<IComponent<T, bit>>> _components;
-
 		virtual std::shared_ptr<IComponentBase> getComponent(EntityID entityID) = 0;
 		virtual std::shared_ptr<IComponentBase> addComponent(EntityID entityID) = 0;
 		virtual void removeComponent(EntityID entityID) = 0;
@@ -229,13 +226,15 @@ namespace Hydra::World {
 
 		void removeComponent(EntityID entityID) final {
 			const size_t pos = _map[entityID];
-			if (pos != _components.size() - 1) {
+			auto& c = _components[pos];
+			if (c.get() != _components.back().get()) {
 				_map[_components.back()->entityID] = pos;
-				std::swap(_components[pos], _components.back());
+				c.swap(_components.back());
 			}
-
-			_components.pop_back();
+			auto component = _components.back();
 			_map.erase(entityID);
+			_components.pop_back();
+			component.reset();
 		}
 	};
 
@@ -320,6 +319,7 @@ namespace Hydra::World {
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::PickUpComponent, Hydra::Component::ComponentBits::PickUp>;
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::TextComponent, Hydra::Component::ComponentBits::Text>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::GhostObjectComponent, Hydra::Component::ComponentBits::GhostObject>;
+
 
 	struct HYDRA_BASE_API World final {
 		inline static std::shared_ptr<Entity>& root() {

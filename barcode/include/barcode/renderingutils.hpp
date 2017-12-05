@@ -6,6 +6,7 @@
 #include <hydra/renderer/glshader.hpp>
 
 #include <hydra/system/camerasystem.hpp>
+#include <hydra/component/roomcomponent.hpp>
 
 #include <glm/glm.hpp>
 
@@ -107,6 +108,8 @@ namespace Barcode {
 		~DefaultGraphicsPipeline();
 		void render(const glm::vec3& cameraPos, Hydra::Component::CameraComponent& cc, Hydra::Component::TransformComponent& playerTransform) final;
 
+		void updatePVS(nlohmann::json&& json);
+
 	private:
 		Hydra::System::CameraSystem& _cameraSystem;
 		BlurUtil _blurUtil;
@@ -131,6 +134,15 @@ namespace Barcode {
 
 		RenderBatch<Hydra::Renderer::TextBatch> _textBatch;
 
+		struct RenderSet {
+			std::shared_ptr<Hydra::Component::RoomComponent> room;
+			glm::vec4 worldBox;
+			size_t roomCount;
+			std::vector<Hydra::Component::DrawObjectComponent*> objects;
+		};
+		RenderSet _renderSets[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
+
+		static void _collectObjects(std::vector<Hydra::Component::DrawObjectComponent*>& objects, Hydra::World::Entity* e);
 		std::vector<glm::vec3> _getSSAOKernel(size_t size);
 		std::vector<glm::vec3> _getSSAONoise(size_t size);
 	};

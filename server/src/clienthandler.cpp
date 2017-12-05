@@ -1,6 +1,8 @@
 #include <server/clienthandler.hpp>
 #define SocketSetSize 4
 
+using namespace BarcodeServer;
+
 int ClientHandler::_generateClientID() {
 	return this->_currID++;
 }
@@ -39,21 +41,22 @@ int ClientHandler::getActivity() {
 	return pending;
 }
 
-std::vector<Packet*> ClientHandler::getReceivedData(int pending) {
-	std::vector<Packet*> packets;
-	Packet* tmp;
-	Packet* tmp2;
-	int curr = 0;
+std::vector<Hydra::Network::Packet*> ClientHandler::getReceivedData(int pending) {
+	std::vector<Hydra::Network::Packet*> packets;
+	Hydra::Network::Packet* tmp;
+	Hydra::Network::Packet* tmp2;
+	size_t curr = 0;
 	size_t offset = 0;
 	std::vector<int> tmpvec;
 	for (size_t i = 0; i < this->_clients.size(); i++) {
 		curr = 0;
 		offset = 0;
 		while (SDLNet_SocketReady(this->_clients[i]->socket)) {
-			int len = SDLNet_TCP_Recv(this->_clients[i]->socket, this->_msg + offset, MAX_NETWORK_LENGTH - offset) + offset;
-			if (len > 0) {
+			long lenTmp = SDLNet_TCP_Recv(this->_clients[i]->socket, this->_msg + offset, MAX_NETWORK_LENGTH - offset) + offset;
+			if (lenTmp > 0) {
+				size_t len = lenTmp;
 				while (curr < len && curr < MAX_NETWORK_LENGTH) {
-					tmp = (Packet*)(&this->_msg[curr]);
+					tmp = (Hydra::Network::Packet*)(&this->_msg[curr]);
 					if (curr + tmp->h.len > len) {
 						memmove(_msg, _msg + curr, len - curr);
 						offset = len - curr;
@@ -61,16 +64,14 @@ std::vector<Packet*> ClientHandler::getReceivedData(int pending) {
 					}
 					curr += tmp->h.len;
 					tmp->h.client = this->_clients[i]->id;
-					tmp2 = (Packet*)(new char[tmp->h.len]);
+					tmp2 = (Hydra::Network::Packet*)(new char[tmp->h.len]);
 					memcpy(tmp2, tmp, tmp->h.len);
 					packets.push_back(tmp2);
 				}
 				if (curr == len)
 					offset = 0;
-			}
-			else if (len < 0) {
+			} else
 				tmpvec.push_back(this->_clients[i]->id);
-			}
 		}
 	}
 	for (size_t i = 0; i < tmpvec.size(); i++) {
@@ -109,9 +110,9 @@ int ClientHandler::addNewConnection(TCPsocket sock) {
 
 int ClientHandler::sendData(char * data, int len, int clientID) {
 	int k = SDLNet_TCP_Send(this->getSocketFromID(clientID), data, len);
-	if (k >= 0) {
+	if (k > 0)
 		return k;
-	}	else {
+	else {
 		this->_disconnectedClients.push_back(clientID);
 		this->disconnectClient(clientID);
 		return -1;

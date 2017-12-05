@@ -85,7 +85,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)/lib;$(SolutionDir)/x64/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hydra.lib;hydra_network.lib;hydra_physics.lib;hydra_graphics.lib;SDL2_net.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>hydra.lib;hydra_network.lib;hydra_physics.lib;hydra_graphics.lib;SDL2.lib;SDL2_net.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -126,21 +126,23 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)/lib;$(SolutionDir)/x64/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hydra.lib;hydra_network.lib;hydra_physics.lib;hydra_graphics.lib;SDL2_net.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>hydra.lib;hydra_network.lib;hydra_physics.lib;hydra_graphics.lib;SDL2.lib;SDL2_net.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\ClientHandler.h" />
-    <ClInclude Include="include\GameServer.h" />
-    <ClInclude Include="include\Packets.h" />
-    <ClInclude Include="include\Server.h" />
+    <ClInclude Include="include\server\clienthandler.hpp" />
+    <ClInclude Include="include\server\gameserver.hpp" />
+    <ClInclude Include="include\server\packets.hpp" />
+    <ClInclude Include="include\server\server.hpp" />
+    <ClInclude Include="include\server\tilegeneration.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\GameServer.cpp" />
-    <ClCompile Include="src\ClientHandler.cpp" />
+    <ClCompile Include="src\gameserver.cpp" />
+    <ClCompile Include="src\clienthandler.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Packets.cpp" />
-    <ClCompile Include="src\Server.cpp" />
+    <ClCompile Include="src\packets.cpp" />
+    <ClCompile Include="src\server.cpp" />
+    <ClCompile Include="src\tilegeneration.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

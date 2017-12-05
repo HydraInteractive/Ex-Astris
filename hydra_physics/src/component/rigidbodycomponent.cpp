@@ -223,7 +223,8 @@ private:
 RigidBodyComponent::~RigidBodyComponent() {
 	if (_handler)
 		_handler->disable(this);
-	delete _data;
+	if (_data)
+		delete _data;
 }
 
 #define DEFAULT_PARAMS Hydra::System::BulletPhysicsSystem::CollisionTypes collType, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction
@@ -306,6 +307,12 @@ void RigidBodyComponent::setActivationState(ActivationState newState) {
 	_data->getRigidBody()->setActivationState(lookup[static_cast<int>(newState)]);
 }
 
+void RigidBodyComponent::refreshTransform() {
+	btTransform t;
+	_data->motionState.getWorldTransform(t);
+	_data->getRigidBody()->setWorldTransform(t);
+}
+
 glm::vec3 RigidBodyComponent::getPosition(int childIndex) {
 	return _data->motionState.getPosition() + cast(_data->compoundShape->getChildTransform(childIndex).getOrigin());
 	//return _data->motionState.getPosition() + cast(_data->compoundShape->getChildTransform(0).getOrigin());
@@ -320,11 +327,11 @@ void Hydra::Component::RigidBodyComponent::setAngularForce(glm::vec3 angularForc
 	_data->getRigidBody()->setAngularFactor(btVector3(angularForce.x,angularForce.y,angularForce.z));
 }
 
-const std::string& RigidBodyComponent::getShapeString(int childIndex) {
+std::string RigidBodyComponent::getShapeString(int childIndex) {
 	return ShapeTypesStr[_data->compoundShape->getChildShape(childIndex)->getShapeType()];
 }
 
-const int RigidBodyComponent::getNumberOfChildren() {
+int RigidBodyComponent::getNumberOfChildren() {
 	return _data->compoundShape->getNumChildShapes();
 }
 
@@ -355,6 +362,10 @@ void RigidBodyComponent::deserialize(nlohmann::json& json) {
 	auto rollingFriction = json["rollingFriction"].get<float>();
 	auto collisionType = static_cast<Hydra::System::BulletPhysicsSystem::CollisionTypes>(json["collisionType"].get<int>());
 
+	btTransform localTrans;
+	localTrans.setIdentity();
+	localTrans.setOrigin(cast(glm::vec3(0,0,0)));
+	compound->addChildShape(localTrans, shape.get());
 	_data = new Data(entityID, collisionShape, serializeShape, std::move(shape), std::move(compound), collisionType, mass, linearDamping, angularDamping, friction, rollingFriction);
 }
 

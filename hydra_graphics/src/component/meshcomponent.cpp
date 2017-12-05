@@ -22,6 +22,8 @@ MeshComponent::~MeshComponent() {}
 
 void MeshComponent::loadMesh(const std::string meshFile) {
 	this->meshFile = meshFile;
+	if (!Hydra::IEngine::getInstance()->getState()->getMeshLoader())
+		return;
 	drawObject = Hydra::World::World::getEntity(entityID)->addComponent<DrawObjectComponent>();
 	mesh = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh(meshFile);
 	auto newMesh = drawObject->drawObject->mesh = mesh.get();
