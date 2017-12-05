@@ -380,23 +380,24 @@ namespace Barcode {
 		{
 			//Remove this to gain frames like never before
 			tileGen = new TileGeneration("assets/BossRoom/Bossroom.room");
+			//tileGen = new TileGeneration("assets/room/GeneratonInTheMiddle.room");
 			pathfindingMap = tileGen->buildMap();
-		}
+		} 
 		{
-			auto robotEntity = world::newEntity("Boss", world::root());
-			robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Barrel1.mATTIC");
-			auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
-			a->behaviour = std::make_shared<BossHand_Left>(robotEntity);
+			auto bossEntity = world::newEntity("Boss", world::root());
+			bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossHandModel.mATTIC");
+			auto a = bossEntity->addComponent<Hydra::Component::AIComponent>();
+			a->behaviour = std::make_shared<BossHand_Left>(bossEntity);
 			a->behaviour->setPathMap(pathfindingMap);
 			a->damage = 7;
 			a->behaviour->originalRange = 20;
 			a->radius = 1;
 
-			auto h = robotEntity->addComponent<Hydra::Component::LifeComponent>();
+			auto h = bossEntity->addComponent<Hydra::Component::LifeComponent>();
 			h->maxHP = 70;
 			h->health = 70;
 
-			auto w = robotEntity->addComponent<Hydra::Component::WeaponComponent>();
+			auto w = bossEntity->addComponent<Hydra::Component::WeaponComponent>();
 			w->bulletSpread = 1.0f;
 			w->fireRateRPM = 5000000;
 			w->fireRateTimer = 0.001f;
@@ -407,14 +408,15 @@ namespace Barcode {
 			w->currmagammo = 100000000;
 			w->maxammo = 100000000;
 
-			auto m = robotEntity->addComponent<Hydra::Component::MovementComponent>();
+			auto m = bossEntity->addComponent<Hydra::Component::MovementComponent>();
 			m->movementSpeed = 25.0f;
-			auto t = robotEntity->addComponent<Hydra::Component::TransformComponent>();
+			auto t = bossEntity->addComponent<Hydra::Component::TransformComponent>();
 			t->position.y = 10;
 			t->scale = glm::vec3{ 1,1,1 };
+			
 
-			auto rgbc = robotEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(1.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+			auto rgbc = bossEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+			rgbc->createBox(glm::vec3(8.0f, 2.5f, 8.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 				0, 0, 0.6f, 1.0f);
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 			rgbc->setAngularForce(glm::vec3(0));
@@ -516,11 +518,11 @@ namespace Barcode {
 		//	auto textEntity = world::newEntity("Bogdan", world::root());
 		//	textEntity->addComponent<Hydra::Component::TransformComponent>()->setScale(glm::vec3(10));
 		//	textEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
-
+		//
 		//	auto textC = textEntity->addComponent<Hydra::Component::TextComponent>();
 		//	textC->setText("Bogdan Here");
 		//}
-
+		//
 		//{
 		//	auto pointLight1 = world::newEntity("Pointlight1", world::root());
 		//	pointLight1->addComponent<Hydra::Component::TransformComponent>();

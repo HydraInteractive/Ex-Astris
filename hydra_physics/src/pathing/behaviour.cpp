@@ -664,7 +664,12 @@ void BossHand_Left::move(glm::vec3 target) {
 		thisEnemy.movement->velocity.y = (thisEnemy.movement->movementSpeed * direction.y);
 		thisEnemy.movement->velocity.z = (thisEnemy.movement->movementSpeed * direction.z);
 	}
-	rotation = glm::angleAxis(atan2(direction.x, direction.y), glm::vec3(0, 1, 0));
+	//rotation = glm::angleAxis(atan2(direction.x, direction.y), glm::vec3(0, 1, 0));
+
+}
+void BossArm_Left::rotate(float newRotation, glm::vec3(direction)) {
+
+	rotation = glm::angleAxis(glm::radians(newRotation), direction);
 
 }
 
@@ -719,15 +724,15 @@ unsigned int BossHand_Left::smashState(float dt) {
 				hit = true;
 			}
 		}
+		if (thisEnemy.transform->position.y <= 3.0f) {
+			state = HandPhases::RETURN;
+			thisEnemy.transform->position.y = originalHeight;
+			smashing = false;
+			waitToSmashTimer = 0.0f;
+			hit = false;
+		}
 	}
 
-	if (thisEnemy.transform->position.y <= 3.0f) {
-		state = HandPhases::RETURN;
-		thisEnemy.transform->position.y = originalHeight;
-		smashing = false;
-		waitToSmashTimer = 0.0f;
-		hit = false;
-	}
 	return state;
 }
 
@@ -840,3 +845,5 @@ bool BossHand_Left::refreshRequiredComponents()
 		);
 	return hasRequiredComponents;
 }
+
+

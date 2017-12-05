@@ -169,7 +169,7 @@ private:
 	bool refreshRequiredComponents() final;
 };
 
-/*class HYDRA_PHYSICS_API BossArm_Left final : public Behaviour
+class HYDRA_PHYSICS_API BossArm_Left final : public Behaviour
 {
 public:
 	BossArm_Left(std::shared_ptr<Hydra::World::Entity> enemy);
@@ -199,6 +199,7 @@ public:
 
 	void run(float dt);
 	void move(glm::vec3 target);
+	void rotate(float newRotation, glm::vec3(direction));
 
 	unsigned int idleState(float dt) final;
 	unsigned int smashState(float dt);
@@ -211,4 +212,3 @@ public:
 private:
 	bool refreshRequiredComponents() final;
 };
-*/
