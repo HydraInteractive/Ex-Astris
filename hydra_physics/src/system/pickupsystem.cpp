@@ -24,6 +24,7 @@ void PickUpSystem::tick(float delta) {
 		rbc->setLinearVelocity(btVector3(0, 0, 0));
 		rbc->setAngularVelocity(btVector3(0, 2, 0));
 	}
+	entities.clear();
 }
 
 void PickUpSystem::registerUI() {}

@@ -559,7 +559,7 @@ private:
 	const size_t _textBufferSize = sizeof(Hydra::Renderer::CharRenderInfo) * 128; // 1 vec4 and 1 vec3
 	GLuint _textBuffer;
 
-	const int _maxInstancedAnimatedModels = 20;
+	const int _maxInstancedAnimatedModels = 10;
 
 	static void _loadGLAD() {
 		static bool initialized = false;

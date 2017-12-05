@@ -20,7 +20,6 @@
 #include <hydra/component/bulletcomponent.hpp>
 #include <hydra/component/pickupcomponent.hpp>
 
-
 #define frand() (float(rand())/RAND_MAX)
 
 using world = Hydra::World::World;
@@ -85,9 +84,8 @@ namespace Barcode {
 			->addTexture(0, Hydra::Renderer::TextureType::f16RGB) // Position
 			.addTexture(1, Hydra::Renderer::TextureType::u8RGBA) // Diffuse
 			.addTexture(2, Hydra::Renderer::TextureType::f16RGB) // Normal
-			.addTexture(3, Hydra::Renderer::TextureType::f16RGBA) // Light pos
-			.addTexture(4, Hydra::Renderer::TextureType::u8R) // Glow.
-			.addTexture(5, Hydra::Renderer::TextureType::f32Depth) // Depth
+			.addTexture(3, Hydra::Renderer::TextureType::u8R) // Glow.
+			.addTexture(4, Hydra::Renderer::TextureType::f24Depth) // Depth
 			.finalize();
 		_geometryAnimationBatch = RenderBatch<Hydra::Renderer::AnimationBatch>("assets/shaders/animationGeometry.vert", "assets/shaders/animationGeometry.geom", "assets/shaders/animationGeometry.frag", _geometryBatch);
 		_geometryAnimationBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::none;
@@ -99,7 +97,7 @@ namespace Barcode {
 			.finalize();
 
 		_shadowBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/shadow.vert", "", "assets/shaders/shadow.frag", glm::vec2(512));
-		_shadowBatch.output->addTexture(0, Hydra::Renderer::TextureType::f16Depth).finalize();
+		_shadowBatch.output->addTexture(0, Hydra::Renderer::TextureType::f24Depth).finalize();
 		_shadowBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::depth;
 
 		_shadowAnimationBatch = RenderBatch<Hydra::Renderer::AnimationBatch>("assets/shaders/shadowAnimation.vert", "", "assets/shaders/shadow.frag", _shadowBatch);
@@ -267,7 +265,7 @@ namespace Barcode {
 			_lightingBatch.pipeline->setValue(0, 0);
 			_lightingBatch.pipeline->setValue(1, 1);
 			_lightingBatch.pipeline->setValue(2, 2);
-			_lightingBatch.pipeline->setValue(3, 3);
+
 			_lightingBatch.pipeline->setValue(4, 4);
 			_lightingBatch.pipeline->setValue(5, 5);
 			_lightingBatch.pipeline->setValue(6, 6);
@@ -280,10 +278,10 @@ namespace Barcode {
 			_lightingBatch.pipeline->setValue(10, dirLight.getDirVec());
 			_lightingBatch.pipeline->setValue(11, dirLight.color);
 			_lightingBatch.pipeline->setValue(12, cc.getProjectionMatrix());
-
+			_lightingBatch.pipeline->setValue(13, lightS);
 
 			// good code lmao XD
-			int i = 13;
+			int i = 14;
 			for (auto& p : lights) {
 				auto pc = static_cast<Hydra::Component::PointLightComponent*>(p.get());
 				_lightingBatch.pipeline->setValue(i++, pc->getTransformComponent()->position);
@@ -297,12 +295,11 @@ namespace Barcode {
 			(*_geometryBatch.output)[1]->bind(1);
 
 			(*_geometryBatch.output)[2]->bind(2);
-			(*_geometryBatch.output)[3]->bind(3);
 			_shadowBatch.output->getDepth()->bind(4);
 			(*_ssaoBlurBatch.output)[0]->bind(5);
 			//(*_ssaoBatch.output)[0]->bind(5);
 			//_blurUtil.getOutput()->bind(5);
-			(*_geometryBatch.output)[4]->bind(6);
+			(*_geometryBatch.output)[3]->bind(6);
 
 			_engine->getRenderer()->postProcessing(_lightingBatch.batch);
 		}
