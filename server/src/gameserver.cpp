@@ -472,7 +472,11 @@ void GameServer::start() {
 
 	SDL_SaveBMP(map, "map.bmp");
 	SDL_FreeSurface(map);
-	system("../PVSTest/bin/PVSTest -f map.bmp -s 32 -o map.pvs");
+#ifdef _WIN32
+	system("bin/PVSTest.exe -f map.bmp -s 32 -o map.pvs");
+#else
+	system("bin/PVSTest -f map.bmp -s 32 -o map.pvs");
+#endif
 
 	{
 		FILE* fp = fopen("map.pvs", "rb");
