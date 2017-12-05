@@ -70,9 +70,10 @@ void SpawnerSystem::tick(float delta)
 						ws->bulletSpread = 0.2f;
 						ws->bulletsPerShot = 1;
 						ws->damage = 4;
-						ws->maxmagammo = 100000000;
-						ws->currmagammo = 100000000;
-						ws->maxammo = 100000000;
+						ws->bulletSize = 0.4;
+						ws->maxmagammo = 0;
+						ws->currmagammo = 0;
+						ws->maxammo = 0;
 
 						auto ms = alienSpawn->addComponent<Hydra::Component::MovementComponent>();
 						ms->movementSpeed = 5.0f;
@@ -121,9 +122,10 @@ void SpawnerSystem::tick(float delta)
 						ws->fireRateRPM = 50;
 						ws->bulletsPerShot = 1;
 						ws->damage = 7;
-						ws->maxmagammo = 100000000;
-						ws->currmagammo = 100000000;
-						ws->maxammo = 100000000;
+						ws->bulletSize = 0.4;
+						ws->maxmagammo = 0;
+						ws->currmagammo = 0;
+						ws->maxammo = 0;
 
 						auto ms = robotSpawn->addComponent<Hydra::Component::MovementComponent>();
 						ms->movementSpeed = 3.0f;

@@ -48,6 +48,7 @@
 #include <hydra/system/animationsystem.hpp>
 #include <hydra/system/pickupsystem.hpp>
 #include <hydra/system/textsystem.hpp>
+#include <hydra/system/lightsystem.hpp>
 
 namespace Barcode {
 	class GameState final : public Hydra::IState {
@@ -89,11 +90,13 @@ namespace Barcode {
 		Hydra::System::AnimationSystem _animationSystem;
 		Hydra::System::PickUpSystem _pickUpSystem;
 		Hydra::System::TextSystem _textSystem;
+		Hydra::System::LightSystem _lightSystem;
 
 		std::unique_ptr<DefaultGraphicsPipeline> _dgp;
 		RenderBatch<Hydra::Renderer::Batch> _hitboxBatch;
 
 		std::shared_ptr<Hydra::Renderer::IMesh> _hitboxCube;
+		std::shared_ptr<Hydra::Renderer::IMesh> _hitboxCapsule;
 
 		bool _paused = false;
 		Hydra::World::EntityID _playerID;

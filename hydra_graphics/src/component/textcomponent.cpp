@@ -8,11 +8,14 @@ Hydra::Component::TextComponent::~TextComponent(){
 void Hydra::Component::TextComponent::serialize(nlohmann::json & json) const{
 	json["text"] = text;
 	json["maxLength"] = maxLength;
+	json["color"] = {color.x, color.y, color.z};
 }
 
 void Hydra::Component::TextComponent::deserialize(nlohmann::json & json){
 	text = json.value<std::string>("text", "BigBoi");
 	maxLength = json.value<size_t>("maxLength", 24);
+	auto& jColor = json["color"];
+	color = glm::vec3(jColor[0].get<float>(), jColor[1].get<float>(), jColor[2].get<float>());
 }
 
 void Hydra::Component::TextComponent::registerUI(){

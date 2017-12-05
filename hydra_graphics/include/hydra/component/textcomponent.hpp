@@ -20,6 +20,7 @@ namespace Hydra::Component {
 	std::string text = "";
 	size_t maxLength = 24;
 	bool isStatic = true;
+	glm::vec3 color = {1,1,1};
 
 	void rebuild();
 	void setText(const std::string& inText);

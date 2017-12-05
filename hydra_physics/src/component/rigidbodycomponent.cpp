@@ -192,7 +192,7 @@ struct RigidBodyComponent::Data {
 			info.m_angularDamping = angularDamping;
 			info.m_friction = friction;
 			info.m_rollingFriction = rollingFriction;
-			shape->calculateLocalInertia(mass, info.m_localInertia);
+			//shape->calculateLocalInertia(mass, info.m_localInertia);
 			compoundShape->calculateLocalInertia(mass, info.m_localInertia);
 			rigidBody = std::make_unique<btRigidBody>(info);
 			rigidBody->setUserIndex(eID);
@@ -233,22 +233,34 @@ RigidBodyComponent::~RigidBodyComponent() {
 void RigidBodyComponent::createBox(const glm::vec3& halfExtents, const glm::vec3& offset, DEFAULT_PARAMS) {
 	_halfExtents = halfExtents;
 	btCollisionShape* boxShape = new btBoxShape(cast(halfExtents));
-	btCompoundShape* compound = new btCompoundShape();
 	btTransform localTrans;
 	localTrans.setIdentity();
 	localTrans.setOrigin(cast(offset));
-	compound->addChildShape(localTrans, boxShape);
-	MAKE_DATA(Box, boxShape, compound);
+	if (!_data) {
+		btCompoundShape* compound = new btCompoundShape();
+		compound->addChildShape(localTrans, boxShape);
+		MAKE_DATA(Box, boxShape, compound);
+	}
+	else {
+		boxShape->setUserIndex(collType);
+		_data->compoundShape->addChildShape(localTrans, boxShape);
+	}
 }
 
 void RigidBodyComponent::createStaticPlane(const glm::vec3& planeNormal, float planeConstant, DEFAULT_PARAMS) {
 	btStaticPlaneShape* plane = new btStaticPlaneShape(cast(planeNormal), planeConstant);
-	btCompoundShape* compound = new btCompoundShape();
 	btTransform localTrans;
 	localTrans.setIdentity();
 	localTrans.setOrigin(btVector3(0, 0, 0));
-	compound->addChildShape(localTrans, plane);
-	MAKE_DATA(StaticPlane, plane, compound);
+	if (!_data) {
+		btCompoundShape* compound = new btCompoundShape();
+		compound->addChildShape(localTrans, plane);
+		MAKE_DATA(StaticPlane, plane, compound);
+	}
+	else {
+		plane->setUserIndex(collType);
+		_data->compoundShape->addChildShape(localTrans, plane);
+	}
 }
 
 void RigidBodyComponent::createSphere(float radius, DEFAULT_PARAMS) {
@@ -258,8 +270,20 @@ void RigidBodyComponent::createSphere(float radius, DEFAULT_PARAMS) {
 void RigidBodyComponent::createCapsuleX(float radius, float height, DEFAULT_PARAMS) {
 	MAKE_DATA(CapsuleX, new btCapsuleShapeX(radius, height), new btCompoundShape());
 }
-void RigidBodyComponent::createCapsuleY(float radius, float height, DEFAULT_PARAMS) {
-	MAKE_DATA(CapsuleY, new btCapsuleShape(radius, height), new btCompoundShape());
+void RigidBodyComponent::createCapsuleY(float radius, float height, const glm::vec3& offset, DEFAULT_PARAMS) {
+	btTransform localTrans;
+	localTrans.setIdentity();
+	localTrans.setOrigin(cast(offset));
+	btCollisionShape* capsuleShape = new btCapsuleShape(radius, height);
+	if (!_data) {
+		btCompoundShape* compound = new btCompoundShape();
+		compound->addChildShape(localTrans, capsuleShape);
+		MAKE_DATA(CapsuleY, capsuleShape, compound);
+	}
+	else {
+		capsuleShape->setUserIndex(collType);
+		_data->compoundShape->addChildShape(localTrans, capsuleShape);
+	}
 }
 void RigidBodyComponent::createCapsuleZ(float radius, float height, DEFAULT_PARAMS) {
 	MAKE_DATA(CapsuleZ, new btCapsuleShapeZ(radius, height), new btCompoundShape());
@@ -283,15 +307,15 @@ void RigidBodyComponent::setActivationState(ActivationState newState) {
 	_data->getRigidBody()->setActivationState(lookup[static_cast<int>(newState)]);
 }
 
-
 void RigidBodyComponent::refreshTransform() {
 	btTransform t;
 	_data->motionState.getWorldTransform(t);
 	_data->getRigidBody()->setWorldTransform(t);
 }
 
-glm::vec3 RigidBodyComponent::getPosition() {
-	return _data->motionState.getPosition() + cast(_data->compoundShape->getChildTransform(0).getOrigin());
+glm::vec3 RigidBodyComponent::getPosition(int childIndex) {
+	return _data->motionState.getPosition() + cast(_data->compoundShape->getChildTransform(childIndex).getOrigin());
+	//return _data->motionState.getPosition() + cast(_data->compoundShape->getChildTransform(0).getOrigin());
 }
 
 glm::quat RigidBodyComponent::getRotation() {
@@ -301,6 +325,14 @@ glm::quat RigidBodyComponent::getRotation() {
 
 void Hydra::Component::RigidBodyComponent::setAngularForce(glm::vec3 angularForce){
 	_data->getRigidBody()->setAngularFactor(btVector3(angularForce.x,angularForce.y,angularForce.z));
+}
+
+std::string RigidBodyComponent::getShapeString(int childIndex) {
+	return ShapeTypesStr[_data->compoundShape->getChildShape(childIndex)->getShapeType()];
+}
+
+int RigidBodyComponent::getNumberOfChildren() {
+	return _data->compoundShape->getNumChildShapes();
 }
 
 void* RigidBodyComponent::getRigidBody() { return static_cast<void*>(_data->getRigidBody()); }

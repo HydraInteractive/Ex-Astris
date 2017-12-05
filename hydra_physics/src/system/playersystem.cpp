@@ -92,7 +92,7 @@ void PlayerSystem::tick(float delta) {
 				//Changed to see if modell is correct, original bulletVelocity was 300 (A little too fast imo, das me tho)
 				float bulletVelocity = 20;
 				if (!weapon->_isReloading)
-					if (weapon->shoot(glm::vec3(transform->position + movement->direction * glm::vec3(5)) , movement->direction, bulletOrientation, bulletVelocity, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE)) {
+					if (weapon->shoot(glm::vec3(transform->position - glm::vec3(0, 0.2f, 0) + movement->direction * 2.f) , movement->direction, bulletOrientation, bulletVelocity, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE)) {
 						float rn = 500;//rand() % 1000;
 						rn /= 10000;
 
