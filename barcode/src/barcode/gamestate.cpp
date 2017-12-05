@@ -394,7 +394,7 @@ namespace Barcode {
 					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Mine.png")->getID()), ImVec2(20, 20));
 					break;
 				case Hydra::Component::PerkComponent::PERK_BULLETSPRAY:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Spred.png")->getID()), ImVec2(20, 20));
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Spread.png")->getID()), ImVec2(20, 20));
 					break;
 				case Hydra::Component::PerkComponent::PERK_SPEEDUP:
 					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/ExtraJump.png")->getID()), ImVec2(20, 20));
