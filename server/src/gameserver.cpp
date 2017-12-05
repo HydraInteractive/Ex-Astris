@@ -391,7 +391,7 @@ void GameServer::start() {
 	size_t tries = 0;
 	while (true) {
 		tries++;
-		printf("Room generation try: \n", tries);
+		printf("Room generation try: %zu\n", tries);
 		_tileGeneration = std::make_unique<TileGeneration>("assets/room/starterRoom.room");
 		_pathfindingMap = _tileGeneration->buildMap();
 		_deadSystem.tick(0);
