@@ -4,15 +4,15 @@ out float fragColor;
 
 in vec2 texCoords;
 
-const int kernelSize = 4;
+const int kernelSize = 16;
 
 layout(location = 0) uniform sampler2D positions;
 //layout(location = 1) uniform sampler2D normals;
 layout(location = 2) uniform sampler2D texNoise;
 
 layout(location = 3) uniform mat4 projection;
-//layout(location = 4) uniform float bias;
-//layout(location = 5) uniform float kernelRadius;
+layout(location = 4) uniform float bias;
+layout(location = 5) uniform float kernelRadius;
 layout(location = 6) uniform mat4 view;
 layout(location = 7) uniform sampler2D depthBuffer;
 layout(location = 8) uniform vec2 screenSize;
@@ -30,17 +30,21 @@ vec3 calcViewPos(vec2 uv, float depth) {
 	return viewPos.xyz;
 }
 
+const float near = 0.1; // projection matrix's near plane
+const float far = 90.0; // projection matrix's far plane
+float LinearizeDepth(float depth) {
+    float z = depth * 2.0 - 1.0; // back to NDC 
+    return (2.0 * near * far) / (far + near - z * (far - near));    
+}
+
 void main() {
 	//vec3 fragPos = vec3(view * texture(positions, texCoords)).xyz;
 	//vec3 normal = normalize(texture(normals, texCoords).xyz);
 	vec3 fragPos = calcViewPos(texCoords, texture(depthBuffer, texCoords).r); // reconstructed from depth
-	vec3 normal = normalize(cross(dFdx(fragPos), dFdy(fragPos))); // reconstruct view nornal
-
+	vec3 normal = normalize(cross(normalize(dFdx(fragPos)), normalize(dFdy(fragPos)))); // reconstruct view normal
 	
-
-	float bias = 0.025f;
-	float kernelRadius = 0.5f;
-	
+	//float bias = 0.025f;
+	//float kernelRadius = 0.5f;
 	
 	vec3 randomVec = normalize(texture(texNoise, texCoords * noiseScale).xyz);
 
@@ -63,9 +67,11 @@ void main() {
 
 		float rangeCheck = smoothstep(0.0, 1.0, kernelRadius / abs(fragPos.z - sampleDepth));
 		occlusion += (sampleDepth >= samplePoint.z + bias ? 1.0 : 0.0) * rangeCheck; 	
+		
 	}
 	
+	
 	occlusion = 1.0 - (occlusion / kernelSize);
-	fragColor = pow(occlusion, 4);
-	//fragColor = occlusion;
+	//fragColor = pow(occlusion, 4);
+	fragColor = occlusion;
 }

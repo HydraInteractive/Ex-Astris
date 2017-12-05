@@ -114,7 +114,7 @@ namespace Barcode {
 		_ssaoBlurBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::color;
 		_ssaoBlurBatch.batch.clearColor = glm::vec4(0, 0, 0, 1);
 
-		constexpr size_t kernelSize = 4;
+		constexpr size_t kernelSize = 14;
 		constexpr size_t noiseSize = 4;
 		auto ssaoKernel = _getSSAOKernel(kernelSize);
 		for (size_t i = 0; i < ssaoKernel.size(); i++)
@@ -236,18 +236,18 @@ namespace Barcode {
 		}
 
 		if (MenuState::ssaoEnabled) {
-			//static float bias = 0.025f;
-			//static float radius = 0.5f;
-			//ImGui::DragFloat("Bias", &bias, 0.01f);
-			//ImGui::DragFloat("Radius", &radius, 0.01f);
+			static float bias = 0.025f;
+			static float radius = 0.5f;
+			ImGui::DragFloat("Bias", &bias, 0.01f);
+			ImGui::DragFloat("Radius", &radius, 0.01f);
 			//_ssaoBatch.pipeline->setValue(0, 0);
 			_ssaoBatch.pipeline->setValue(1, 1);
 			_ssaoBatch.pipeline->setValue(2, 2);
 			_ssaoBatch.pipeline->setValue(7, 7);
 
 			_ssaoBatch.pipeline->setValue(3, cc.getProjectionMatrix());
-			//_ssaoBatch.pipeline->setValue(4, bias);
-			//_ssaoBatch.pipeline->setValue(5, radius);
+			_ssaoBatch.pipeline->setValue(4, bias);
+			_ssaoBatch.pipeline->setValue(5, radius);
 			_ssaoBatch.pipeline->setValue(6, cc.getViewMatrix());
 			_ssaoBatch.pipeline->setValue(8, glm::vec2(_ssaoBatch.output->getSize()));
 
@@ -262,7 +262,6 @@ namespace Barcode {
 			_ssaoBlurBatch.pipeline->setValue(0, 0);
 			(*_ssaoBatch.output)[0]->bind(0);
 			_engine->getRenderer()->postProcessing(_ssaoBlurBatch.batch);
-
 		}
 
 		{ // Lighting pass
@@ -321,6 +320,7 @@ namespace Barcode {
 			_blurUtil.getOutput()->bind(2);
 			_glowBatch.batch.pipeline->setValue(4, 4);
 			_geometryBatch.output->getDepth()->bind(4);
+			_glowBatch.pipeline->setValue(5, glm::vec2(_ssaoBatch.output->getSize()));
 
 			_engine->getRenderer()->postProcessing(_glowBatch.batch);
 		} else {
