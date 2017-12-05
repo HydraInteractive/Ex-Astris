@@ -17,7 +17,7 @@ namespace Hydra::Component {
 	struct HYDRA_GRAPHICS_API ParticleComponent final : public IComponent<ParticleComponent, ComponentBits::Particle> {
 		enum class EmitterBehaviour : int { PerSecond = 0, Explosion, MAX_COUNT };
 		static constexpr const char* EmitterBehaviourStr[] = { "PerSecond", "Explosion" };
-		enum class ParticleTexture : int { Energy = 0, AlienBlood, Blood, AlienHS, MAX_COUNT };
+		enum class ParticleTexture : int { Energy = 0, AlienBlood, Blood, BloodierBlood, AlienHS, MAX_COUNT };
 		static constexpr const char* ParticleTextureStr[] = { "Energy", "AlienBlood", "Blood", "AlienHS" };
 
 		struct HYDRA_GRAPHICS_API Particle {

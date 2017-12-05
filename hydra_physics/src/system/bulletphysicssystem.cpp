@@ -236,7 +236,7 @@ void BulletPhysicsSystem::tick(float delta) {
 					{
 					case Hydra::Physics::Behaviour::Behaviour::Type::ALIEN: {
 						if (headshot)
-							particleTexture = Hydra::Component::ParticleComponent::ParticleTexture::MAX_COUNT;
+							particleTexture = Hydra::Component::ParticleComponent::ParticleTexture::AlienHS;
 						else
 							particleTexture = Hydra::Component::ParticleComponent::ParticleTexture::AlienBlood;
 						_spawnParticleEmitterAt(cast(collPosB), cast(normalOnB), particleTexture);
@@ -284,8 +284,7 @@ void BulletPhysicsSystem::_spawnParticleEmitterAt(const glm::vec3& pos, const gl
 	pEPC->optionalNormal = normal;
 
 	auto pELC = pE->addComponent<LifeComponent>();
-	pELC->maxHP = 0.9f;
-	pELC->health = 0.9f;
+	pELC->maxHP = pELC->health = 0.9f;
 }
 
 void BulletPhysicsSystem::_spawnText(const glm::vec3& pos, const std::string& text, const glm::vec3& color, const glm::vec3& scale) {
