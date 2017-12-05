@@ -243,7 +243,7 @@ void Behaviour::executeTransforms()
 	//else
 	btVector3 vel = btVector3(movementForce.x, rigidBody->getLinearVelocity().y(), movementForce.z);
 	rigidBody->setLinearVelocity(vel);
-	printf("vel: %.2f, %.2f, %.2f\n", vel.x(), vel.y(), vel.z());
+	//printf("vel: %.2f, %.2f, %.2f\n", vel.x(), vel.y(), vel.z());
 	
 	thisEnemy.transform->setRotation(rotation);
 }
@@ -446,18 +446,19 @@ unsigned int RobotBehaviour::idleState(float dt)
 
 bool RobotBehaviour::refreshRequiredComponents()
 {
-	hasRequiredComponents = (
-		(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>().get()) &&
-		(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>().get()) &&
-		(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>().get()) &&
-		(thisEnemy.weapon = thisEnemy.entity->getComponent<Hydra::Component::WeaponComponent>().get()) &&
-		(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
-		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
-		(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
-		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity().get()) &&
-		(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
-		(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
-	);
+	if(targetPlayer.entity)
+		hasRequiredComponents = (
+			(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>().get()) &&
+			(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>().get()) &&
+			(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>().get()) &&
+			(thisEnemy.weapon = thisEnemy.entity->getComponent<Hydra::Component::WeaponComponent>().get()) &&
+			(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
+			(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
+			(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
+			//(targetPlayer.entity = thisEnemy.ai->getPlayerEntity().get()) &&
+			(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
+			(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
+		);
 	return hasRequiredComponents;
 }
 

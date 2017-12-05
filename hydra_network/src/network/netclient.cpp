@@ -51,6 +51,7 @@ void NetClient::_sendUpdatePacket() {
 		auto tc = tmp->getComponent<Hydra::Component::TransformComponent>();
 		auto cc = tmp->getComponent<Hydra::Component::CameraComponent>();
 		cpup.ti.pos = tc->position;
+		cpup.ti.pos.y -= 2;
 		cpup.ti.scale = tc->scale;
 		//cpup.ti.rot = tc->rotation;
 		cpup.ti.rot = glm::angleAxis(cc->cameraYaw - 1.6f /* Player model fix */, glm::vec3(0, -1, 0));
@@ -205,9 +206,9 @@ void NetClient::_updateWorld(Packet * updatePacket) {
 			auto ent = world::newEntity("ERROR: UNKOWN ENTITY", world::root());
 			_IDs[sup->data[k].entityid] = ent->id;
 			auto mesh = ent->addComponent<MeshComponent>();
-			mesh->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
+			mesh->loadMesh("assets/objects/characters/AlienModel.mATTIC");
 			auto transform = ent->addComponent<TransformComponent>();
-			transform->position = { ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.x, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.y - 2, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.z };
+			transform->position = { ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.x, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.y, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.z };
 
 			continue;
 		}
@@ -215,19 +216,9 @@ void NetClient::_updateWorld(Packet * updatePacket) {
 			if (children[i] == _IDs[((ServerUpdatePacket::EntUpdate&)sup->data[k]).entityid]) {
 				tc = world::getEntity(children[i])->getComponent<Hydra::Component::TransformComponent>().get();
 				if (tc) {
-					tc->position = { ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.x, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.y - 2, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.z };
+					tc->position = { ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.x, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.y, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.z };
 					tc->setRotation(((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.rot);
 					tc->setScale(((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.scale);
-				}
-				else {
-					auto entity = world::newEntity("ERROR: NETWORK ENTITY UNKOWN", world::root());
-					auto mesh = entity->addComponent<Hydra::Component::MeshComponent>().get();
-					mesh->meshFile = "assets/objects/characters/AlienModel.mATTIC";
-					tc = entity->addComponent<Hydra::Component::TransformComponent>().get();
-					tc->position = { ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.x, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.y - 2, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.z };
-					tc->setRotation(((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.rot);
-					tc->setScale(((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.scale);
-
 				}
 				break;
 			}

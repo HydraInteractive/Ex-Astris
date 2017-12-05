@@ -495,51 +495,17 @@ void GameServer::start() {
 		_physicsSystem.enable(entities[i]->getComponent<RigidBodyComponent>().get());
 	}
 
+	world::getEntitiesWithComponents<AIComponent>(entities);
+	for (size_t i = 0; i < entities.size(); i++) {
+		_networkEntities.push_back(entities[i]->id);
+	}
 
 
 
-	auto alienEntity = world::newEntity("Test", world::root());
-	alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
-	auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
-	a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
-	a->behaviour->setPathMap(_pathfindingMap);
-	a->damage = 4;
-	a->behaviour->originalRange = 4.0f;
-	a->behaviour->savedRange = a->behaviour->originalRange;
-	a->radius = 1;
-
-
-	auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
-	h->maxHP = 80;
-	h->health = 80;
-
-	auto w = alienEntity->addComponent<Hydra::Component::WeaponComponent>();
-	w->bulletSpread = 0.2f;
-	w->bulletsPerShot = 1;
-	w->damage = 4;
-	w->maxmagammo = 100000000;
-	w->currmagammo = 100000000;
-	w->maxammo = 100000000;
-
-	auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
-	m->movementSpeed = 5.0f;
-
-	auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
-	t->position = glm::vec3(0, 4, 0);
-	//t->position.x = roomTransform->position.x + i;
-	//t->position.y = 5;
-	//t->position.z = roomTransform->position.z + i;
-	//t->scale = glm::vec3{ 1,1,1 };
-
-	auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-	rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
-		0, 0, 0.6f, 1.0f);
-	rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-	rgbc->setAngularForce(glm::vec3(0));
 	
-	this->_physicsSystem.enable(rgbc.get());
-
-	_networkEntities.push_back(alienEntity->id);
+	//this->_physicsSystem.enable(rgbc.get());
+	//
+	//_networkEntities.push_back(alienEntity->id);
 
 
 	/* markDead(world::rootID, false);
