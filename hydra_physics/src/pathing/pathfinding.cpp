@@ -157,7 +157,11 @@ bool PathFinding::inWall(const glm::vec3 mapPos) const
 {
 	MapVec p = worldToMapCoords(mapPos);
 	glm::ivec2& vec = p.baseVec;
-	if (map[vec.x][vec.y] == 0)
+	if (vec.x >= WORLD_MAP_SIZE || vec.y >= WORLD_MAP_SIZE || vec.x < 0 || vec.y < 0)
+	{
+
+	}
+	else if (map[vec.x][vec.y] == 0)
 	{
 		return true;
 	}
