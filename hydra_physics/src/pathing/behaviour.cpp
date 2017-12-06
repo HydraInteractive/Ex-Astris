@@ -590,13 +590,13 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 
 BossHand_Left::BossHand_Left(std::shared_ptr<Hydra::World::Entity> enemy) : Behaviour(enemy) {
 
-	this->type = Type::BOSS_LEFTHAND;
+	this->type = Type::BOSS_HAND;
 
 }
 
 BossHand_Left::BossHand_Left() {
 
-	this->type = Type::BOSS_LEFTHAND;
+	this->type = Type::BOSS_HAND;
 
 }
 
@@ -667,7 +667,7 @@ void BossHand_Left::move(glm::vec3 target) {
 	//rotation = glm::angleAxis(atan2(direction.x, direction.y), glm::vec3(0, 1, 0));
 
 }
-void BossArm_Left::rotate(float newRotation, glm::vec3(direction)) {
+void BossHand_Left::rotateAroundAxis(float newRotation, glm::vec3(direction)) {
 
 	rotation = glm::angleAxis(glm::radians(newRotation), direction);
 
@@ -822,7 +822,8 @@ unsigned int BossHand_Left::returnState(float dt)
 	int state = HandPhases::RETURN;
 
 	move(basePosition);
-	
+	//rotateAroundAxis(-90, glm::vec3(1, 0, 0));
+
 	if (glm::distance(flatVector(thisEnemy.transform->position), flatVector(basePosition)) < 3.0f)
 		state = HandPhases::IDLEHAND;
 

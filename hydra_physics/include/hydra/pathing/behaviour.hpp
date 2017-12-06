@@ -17,7 +17,7 @@ public:
 	Behaviour();
 	virtual ~Behaviour();
 
-	enum class Type { ALIEN, ROBOT, ALIENBOSS, BOSS_LEFTHAND, BOSS_RIGHTHAND, BOSS_ARMS};
+	enum class Type { ALIEN, ROBOT, ALIENBOSS, BOSS_HAND, BOSS_ARMS};
 	Type type = Type::ALIEN;
 
 	enum { IDLE, SEARCHING, MOVING, ATTACKING };
@@ -164,6 +164,7 @@ public:
 	unsigned int coverState(float dt);
 	unsigned int returnState(float dt);
 
+	void rotateAroundAxis(float newRotation, glm::vec3(direction));
 
 private:
 	bool refreshRequiredComponents() final;
@@ -199,7 +200,6 @@ public:
 
 	void run(float dt);
 	void move(glm::vec3 target);
-	void rotate(float newRotation, glm::vec3(direction));
 
 	unsigned int idleState(float dt) final;
 	unsigned int smashState(float dt);
@@ -207,7 +207,6 @@ public:
 	unsigned int canonState(float dt);
 	unsigned int coverState(float dt);
 	unsigned int returnState(float dt);
-
 
 private:
 	bool refreshRequiredComponents() final;
