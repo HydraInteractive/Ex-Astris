@@ -27,11 +27,7 @@
 using world = Hydra::World::World;
 
 namespace Barcode {
-#ifdef _WIN32
-	char GameState::addr[256] = "192.168.1.24";
-#else
 	char GameState::addr[256] = "127.0.0.1";
-#endif
 	int GameState::port = 4545;
 
 	GameState::GameState() : _engine(Hydra::IEngine::getInstance()) {}
