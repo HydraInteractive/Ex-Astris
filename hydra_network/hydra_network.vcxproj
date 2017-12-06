@@ -12,12 +12,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\hydra\component\componentmanager_network.hpp" />
+    <ClInclude Include="include\hydra\component\networksynccomponent.hpp" />
     <ClInclude Include="include\hydra\network\netclient.hpp" />
     <ClInclude Include="include\hydra\network\packets.hpp" />
     <ClInclude Include="include\hydra\network\tcpclient.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\component\componentmanager_network.cpp" />
+    <ClCompile Include="src\component\networksynccomponent.cpp" />
     <ClCompile Include="src\network\netclient.cpp" />
     <ClCompile Include="src\network\tcpclient.cpp" />
   </ItemGroup>
