@@ -203,7 +203,8 @@ void Behaviour::executeTransforms()
 	//else
 	rigidBody->setLinearVelocity(btVector3(movementForce.x, movementForce.y, movementForce.z));
 
-	thisEnemy.transform->setRotation(rotation);
+	if(type != Type::BOSS_HAND)
+		thisEnemy.transform->setRotation(rotation);
 }
 
 void Behaviour::resetAnimationOnStart(int animationIndex) {
@@ -679,7 +680,7 @@ unsigned int BossHand_Left::idleState(float dt) {
 
 	//Wait 2 seconds before next move
 
-	int randomNextMove = rand() % 100;
+	int randomNextMove = rand() % 125;
 
 	if (randomNextMove < 30) {
 		Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Smash");
@@ -719,12 +720,12 @@ unsigned int BossHand_Left::smashState(float dt) {
 		if (waitToSmashTimer >= 1.0f)
 			move(smashPosition);
 		if (hit == false) {
-			if (glm::distance(thisEnemy.transform->position, targetPlayer.transform->position) < 3.0f) {
+			if (glm::distance(thisEnemy.transform->position, targetPlayer.transform->position) < 5.1f) {
 				targetPlayer.life->applyDamage(10);
 				hit = true;
 			}
 		}
-		if (thisEnemy.transform->position.y <= 3.0f) {
+		if (thisEnemy.transform->position.y <= 3.5f) {
 			state = HandPhases::RETURN;
 			thisEnemy.transform->position.y = originalHeight;
 			smashing = false;
@@ -769,6 +770,7 @@ unsigned int BossHand_Left::swipeState(float dt) {
 unsigned int BossHand_Left::canonState(float dt) {
 
 	int state = HandPhases::HANDCANON;
+	resetAnimationOnStart(2);
 	if (!shooting) {
 		randomNrOfShots = rand() % 60 + 40;
 		move(canonPosition);
@@ -800,7 +802,7 @@ unsigned int BossHand_Left::coverState(float dt) {
 
 	int state = HandPhases::COVER;
 	bool covering = false;
-
+	resetAnimationOnStart(1);
 
 	if (glm::distance(flatVector(thisEnemy.transform->position), flatVector(coverPosition)) < 1.0f) {
 		covering = true;
@@ -820,6 +822,7 @@ unsigned int BossHand_Left::coverState(float dt) {
 unsigned int BossHand_Left::returnState(float dt)
 {
 	int state = HandPhases::RETURN;
+	resetAnimationOnStart(0);
 
 	move(basePosition);
 	//rotateAroundAxis(-90, glm::vec3(1, 0, 0));
@@ -846,5 +849,16 @@ bool BossHand_Left::refreshRequiredComponents()
 		);
 	return hasRequiredComponents;
 }
+
+//BossArm::BossArm(std::shared_ptr<Hydra::World::Entity> enemy) {
+//	this->type = Type::BOSS_ARMS;
+//}
+//
+//BossArm::BossArm() {
+//	this->type = Type::BOSS_ARMS;
+//}
+//
+//BossArm::~BossArm() {
+//}
 
 
