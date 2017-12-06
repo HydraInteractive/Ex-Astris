@@ -11,7 +11,7 @@
 
 using namespace Hydra::World;
 
-namespace Hydra::Component::ComponentManager { 
+namespace Hydra::Component::ComponentManager {
 	void registerComponents_graphics(std::map<std::string, createOrGetComponent_f>& creators) {
 		CameraComponent::componentHandler = new ComponentHandler<CameraComponent>();
 		creators["CameraComponent"] = &createOrGetComponentHelper<CameraComponent>;

@@ -383,5 +383,8 @@ void RigidBodyComponent::registerUI() {
 	if (ImGui::DragFloat("Rolling Friction", &_data->rollingFriction))
 		_data->getRigidBody()->setRollingFriction(_data->rollingFriction);
 
+	if (ImGui::Button("Refresh from Transform"))
+		refreshTransform();
+
 	//_data->shape->registerUI();
 }

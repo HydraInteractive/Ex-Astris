@@ -49,7 +49,8 @@ namespace Hydra::Component {
 		PickUp = BIT(20),
 		Text = BIT(21),
 		GhostObject = BIT(22),
-		SpawnPoint = BIT(23)
+		SpawnPoint = BIT(23),
+		NetworkSync = BIT(24)
 	};
 #undef BIT
 
@@ -90,8 +91,9 @@ namespace Hydra::Component {
 	struct HYDRA_GRAPHICS_API TextComponent;
 	struct HYDRA_PHYSICS_API GhostObjectComponent;
 	struct HYDRA_PHYSICS_API SpawnPointComponent;
+	struct HYDRA_NETWORK_API NetworkSyncComponent;
 
-	using ComponentTypes = Hydra::Ext::TypeTuple<
+	using ComponentTypes = Hydra::Ext::TypeTuple <
 		Hydra::World::IComponent<TransformComponent, ComponentBits::Transform>,
 		Hydra::World::IComponent<CameraComponent, ComponentBits::Camera>,
 		Hydra::World::IComponent<LightComponent, ComponentBits::Light>,
@@ -115,8 +117,9 @@ namespace Hydra::Component {
 		Hydra::World::IComponent<PickUpComponent, ComponentBits::PickUp>,
 		Hydra::World::IComponent<TextComponent, ComponentBits::Text>,
 		Hydra::World::IComponent<GhostObjectComponent, ComponentBits::GhostObject>,
-		Hydra::World::IComponent<SpawnPointComponent, ComponentBits::SpawnPoint>
-	>;
+		Hydra::World::IComponent<SpawnPointComponent, ComponentBits::SpawnPoint>,
+		Hydra::World::IComponent<NetworkSyncComponent, ComponentBits::NetworkSync>
+	> ;
 };
 
 namespace Hydra::World {
@@ -299,6 +302,8 @@ namespace Hydra::World {
 	IComponentHandler* IComponent<Hydra::Component::GhostObjectComponent, Hydra::Component::ComponentBits::GhostObject>::componentHandler;
 	template <>
 	IComponentHandler* IComponent<Hydra::Component::SpawnPointComponent, Hydra::Component::ComponentBits::SpawnPoint>::componentHandler;
+	template <>
+	IComponentHandler* IComponent<Hydra::Component::NetworkSyncComponent, Hydra::Component::ComponentBits::NetworkSync>::componentHandler;
 #endif
 
 	template HYDRA_BASE_API struct IComponent<Hydra::Component::TransformComponent, Hydra::Component::ComponentBits::Transform>;
@@ -325,7 +330,7 @@ namespace Hydra::World {
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::TextComponent, Hydra::Component::ComponentBits::Text>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::GhostObjectComponent, Hydra::Component::ComponentBits::GhostObject>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::SpawnPointComponent, Hydra::Component::ComponentBits::SpawnPoint>;
-
+	template HYDRA_NETWORK_API struct IComponent<Hydra::Component::NetworkSyncComponent, Hydra::Component::ComponentBits::NetworkSync>;
 
 	struct HYDRA_BASE_API World final {
 		inline static std::shared_ptr<Entity>& root() {

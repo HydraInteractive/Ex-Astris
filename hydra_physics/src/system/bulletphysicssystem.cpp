@@ -229,14 +229,13 @@ void BulletPhysicsSystem::tick(float delta) {
 						headshot = true;
 					}
 				}
-				lifeComponent->applyDamage(accumulatedDamage);
+				if (!Hydra::IEngine::getInstance()->getDeadSystem())
+					lifeComponent->applyDamage(accumulatedDamage);
 				_spawnText(cast(collPosB), std::to_string(accumulatedDamage), textColor, textScale);
 				auto targetEntity = Hydra::World::World::getEntity(lifeComponent->entityID);
 				auto aiComponent = targetEntity->getComponent<Hydra::Component::AIComponent>();
-				if (!targetEntity->getComponent<Hydra::Component::PlayerComponent>() && aiComponent)
-				{
-					switch (aiComponent->behaviour->type)
-					{
+				if (!targetEntity->getComponent<Hydra::Component::PlayerComponent>() && aiComponent) {
+					switch (aiComponent->behaviour->type) {
 					case Hydra::Physics::Behaviour::Behaviour::Type::ALIEN: {
 						if (headshot)
 							particleTexture = Hydra::Component::ParticleComponent::ParticleTexture::AlienHS;
@@ -256,8 +255,7 @@ void BulletPhysicsSystem::tick(float delta) {
 					default:
 						break;
 					}
-				}
-				else if (targetEntity->getComponent<SpawnerComponent>()) {
+				} else if (targetEntity->getComponent<SpawnerComponent>()) {
 					particleTexture = Hydra::Component::ParticleComponent::ParticleTexture::Energy;
 					_spawnParticleEmitterAt(cast(collPosB), cast(normalOnB), particleTexture);
 				}

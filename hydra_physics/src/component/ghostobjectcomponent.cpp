@@ -99,7 +99,6 @@ void GhostObjectComponent::registerUI() {
 	}
 	ImGui::Combo("Collision Type", reinterpret_cast<int*>(&collisionType), "test\0Nothing\0Wall\0Player\0Enemy\0Player Projectile\0Enemy Projectile\0Misc Object\0Pickup Object\0\0");
 
-	if (ImGui::Button("BOG")){
+	if (ImGui::Button("Refresh from Transform"))
 		updateWorldTransform();
-	}
 }

@@ -49,43 +49,41 @@ namespace Hydra::Network {
 		//INTERPOLATION INFO TEX VELOCITY
 	};
 
-	struct InterpolationInfo {
-		// fill with shit
-	};
-
-
-	struct Header {
-		PacketType type;
-		size_t len; // Length of total packet
-		ServerID client; // Set manually irrelevant when sending packets
-	};
-
 	struct Packet {
-		Header h;
+		PacketType type;
+		size_t len;
+		ServerID client;
+
+		inline Packet(PacketType type, size_t len) : type(type), len(len) {}
 	};
 
-	struct ServerDeletePacket : public Packet {
+	struct ServerDeleteEntityPacket : public Packet {
+		ServerDeleteEntityPacket() : Packet(PacketType::ServerDeleteEntity, sizeof(ServerDeleteEntityPacket)) {}
 		ServerID id;
 	};
 
 	struct ClientUpdateBulletPacket : public Packet {
-		size_t size;
+		ClientUpdateBulletPacket(size_t size) : Packet(PacketType::ClientUpdateBullet, sizeof(ClientUpdateBulletPacket) + size) {}
+
+		size_t size() const { return len - sizeof(ClientUpdateBulletPacket); }
 		char data[0];
-		inline size_t getSize() { return sizeof(ClientUpdateBulletPacket) + sizeof(char) * size; }
 	};
 	struct ServerUpdateBulletPacket : public Packet {
+		ServerUpdateBulletPacket(size_t size) : Packet(PacketType::ServerUpdateBullet, sizeof(ServerUpdateBulletPacket) + size) {}
 		ServerID serverPlayerID;
-		size_t size;
+
+		size_t size() const { return len - sizeof(ServerUpdateBulletPacket); }
 		char data[0];
-		inline size_t getSize() { return sizeof(ServerUpdateBulletPacket) + sizeof(char) * size; }
 	};
 
 
 	struct ClientShootPacket : public Packet {
+		ClientShootPacket() : Packet(PacketType::ClientShoot, sizeof(ClientShootPacket)) {}
 		TransformInfo ti;
 		glm::vec3 direction;
 	};
 	struct ServerShootPacket : public Packet {
+		ServerShootPacket() : Packet(PacketType::ServerShoot, sizeof(ServerShootPacket)) {}
 		ServerID serverPlayerID;
 		TransformInfo ti;
 		glm::vec3 direction;
@@ -94,30 +92,36 @@ namespace Hydra::Network {
 
 
 	struct ClientSpawnEntityPacket : public Packet {
-		size_t size;
+		ClientSpawnEntityPacket(size_t size) : Packet(PacketType::ClientSpawnEntity, sizeof(ClientSpawnEntityPacket) + size) {}
+
+		size_t size() const { return len - sizeof(ClientSpawnEntityPacket); }
 		char data[0];
-		inline size_t getSize() { return sizeof(ClientSpawnEntityPacket) + sizeof(char) * size; }
 	};
 
 	struct ServerSpawnEntityPacket : public Packet {
-		ServerID id;
-		size_t size;
+		ServerSpawnEntityPacket(size_t size) : Packet(PacketType::ServerSpawnEntity, sizeof(ServerSpawnEntityPacket) + size) {}
+		Hydra::World::EntityID id;
+
+		size_t size() const { return len - sizeof(ServerSpawnEntityPacket); }
 		char data[0];
-		inline size_t getSize() { return sizeof(ServerSpawnEntityPacket) + sizeof(char) * size; }
 	};
 
 
 	struct ServerInitializePacket : public Packet {
+		ServerInitializePacket() : Packet(PacketType::ServerInitialize, sizeof(ServerInitializePacket)) {}
 		ServerID entityid;
 		TransformInfo ti;
 	};
 
 	struct ServerInitializePVSPacket : public Packet {
-		size_t size;
+		ServerInitializePVSPacket(size_t size) : Packet(PacketType::ServerInitializePVS, sizeof(ServerInitializePVSPacket) + size) {}
+
+		size_t size() const { return len - sizeof(ServerInitializePVSPacket); }
 		char data[0];
 	};
 
 	struct ServerFreezePlayerPacket : public Packet {
+		ServerFreezePlayerPacket() : Packet(PacketType::ServerFreezePlayer, sizeof(ServerFreezePlayerPacket)) {}
 		enum class Action {
 			freeze = 0,
 			unfreeze
@@ -126,28 +130,30 @@ namespace Hydra::Network {
 	};
 
 	struct ServerUpdatePacket : public Packet {
+		ServerUpdatePacket(size_t nrOfEntUpdates) : Packet(PacketType::ServerUpdate, sizeof(ServerUpdatePacket) + nrOfEntUpdates * sizeof(EntUpdate)) {}
 		struct EntUpdate {
 			ServerID entityid;
 			TransformInfo ti;
+			int life = 0;
+			int animationIndex = 0;
 		};
-		size_t nrOfEntUpdates;
+
+		size_t nrOfEntUpdates() const { return (len - sizeof(ServerUpdatePacket)) / sizeof(EntUpdate); }
 		EntUpdate data[0];
 	};
 
 	struct ServerPlayerPacket : public Packet {
+		ServerPlayerPacket(size_t nameLength) : Packet(PacketType::ServerPlayer, sizeof(ServerPlayerPacket) + nameLength) {}
 		TransformInfo ti;
 		ServerID entID;
-		int nameLength;
-		char name[0];
 
-		int getSize() {
-			return (sizeof(ServerPlayerPacket) + sizeof(char) * nameLength);
-		}
+		size_t nameLength() const { return len - sizeof(ServerPlayerPacket); }
+		char name[0];
 	};
 
 	struct ClientUpdatePacket : public Packet {
+		ClientUpdatePacket() : Packet(PacketType::ClientUpdate, sizeof(ClientUpdatePacket)) {}
 		TransformInfo ti;
-		InterpolationInfo ipi;
 	};
 
 	ClientUpdatePacket* createClientUpdatePacket(Entity* player);
