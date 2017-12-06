@@ -41,7 +41,7 @@ void ParticleSystem::tick(float delta) {
 			{
 				const float lifeFactor = 1 - (particle.life / particle.startLife);
 				const int innerID = innerCount * lifeFactor;
-				const int nextInnerID = (innerID + 1) % ParticleComponent::TextureInnerGrid;
+				const int nextInnerID = (innerID + 1);// % ParticleComponent::TextureInnerGrid;
 
 				particle.texOffset1 = outerOffset + glm::vec2(innerID %  ParticleComponent::TextureInnerGrid, innerID /  ParticleComponent::TextureInnerGrid) * smallImageSize;
 				particle.texOffset2 = outerOffset + glm::vec2(nextInnerID %  ParticleComponent::TextureInnerGrid, nextInnerID /  ParticleComponent::TextureInnerGrid) * smallImageSize;

@@ -336,11 +336,11 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 			pETC->position.y = 1.0;
 
 			auto pEPC = pE->addComponent<Hydra::Component::ParticleComponent>();
-			pEPC->delay = 1.0f / 2.0f;
+			pEPC->delay = 1.0f / 10.0f;
 			pEPC->accumulator = 2 * 5.0f;
 			pEPC->tempVelocity = glm::vec3(6.0f, 6.0f, 6.0f);
-			pEPC->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::PerSecond;
-			pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::AlienHS;
+			pEPC->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::SpawnerBeam;
+			pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::Spawner;
 		}
 
 		auto rgbc = alienSpawner->addComponent<Hydra::Component::RigidBodyComponent>();
@@ -379,11 +379,11 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 			pETC->position.y = 1.0;
 
 			auto pEPC = pE->addComponent<Hydra::Component::ParticleComponent>();
-			pEPC->delay = 1.0f / 2.0f;
+			pEPC->delay = 1.0f / 10.0f;
 			pEPC->accumulator = 2 * 5.0f;
 			pEPC->tempVelocity = glm::vec3(6.0f, 6.0f, 6.0f);
-			pEPC->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::PerSecond;
-			pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::AlienHS;
+			pEPC->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::SpawnerBeam;
+			pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::Spawner;
 		}
 
 		auto rgbc = robotSpawner->addComponent<Hydra::Component::RigidBodyComponent>();

@@ -239,7 +239,7 @@ void BulletPhysicsSystem::tick(float delta) {
 					{
 					case Hydra::Physics::Behaviour::Behaviour::Type::ALIEN: {
 						if (headshot)
-							particleTexture = Hydra::Component::ParticleComponent::ParticleTexture::MAX_COUNT;
+							particleTexture = Hydra::Component::ParticleComponent::ParticleTexture::AlienHS;
 						else
 							particleTexture = Hydra::Component::ParticleComponent::ParticleTexture::AlienBlood;
 						_spawnParticleEmitterAt(cast(collPosB), cast(normalOnB), particleTexture);
