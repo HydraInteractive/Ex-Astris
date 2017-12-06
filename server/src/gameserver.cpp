@@ -583,6 +583,7 @@ void GameServer::run() {
 				ai->behaviour->setTargetPlayer(world::getEntity(this->_players[target]->entityid));
 			}
 		}
+		ents.clear();
 		_deadSystem.tick(delta);
 		_physicsSystem.tick(delta);
 		_aiSystem.tick(delta);
@@ -596,7 +597,7 @@ void GameServer::run() {
 		for (Hydra::World::EntityID e : _lifeSystem.isKilled()) {
 			_deleteEntity(e);
 
-			std::remove_if(_players.begin(), _players.end(), [e](const auto& p) { return p->entityid == e; });
+			_players.erase(std::remove_if(_players.begin(), _players.end(), [e](const auto& p) { return p->entityid == e; }));
 		}
 	}
 
