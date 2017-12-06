@@ -405,7 +405,7 @@ void TileGeneration::_spawnLight(std::shared_ptr<Hydra::Component::TransformComp
 	t->position.y = 7;
 	t->position.z = 0;
 	auto p1LC = pointLight1->addComponent<Hydra::Component::PointLightComponent>();
-	p1LC->color = glm::vec3(frand() * 0.5f + 0.5f, frand() * 0.5f + 0.5f, frand() * 0.5f + 0.5f);
+	p1LC->color = glm::vec3(frand(), frand(), frand());
 #undef frand
 }
 

@@ -106,6 +106,7 @@ namespace Barcode {
 		_shadowBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/shadow.vert", "", "assets/shaders/shadow.frag", glm::vec2(512));
 		_shadowBatch.output->addTexture(0, Hydra::Renderer::TextureType::f24Depth).finalize();
 		_shadowBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::depth;
+		_shadowBatch.batch.clearColor = glm::vec4(1, 1, 1, 1);
 
 		_shadowAnimationBatch = RenderBatch<Hydra::Renderer::AnimationBatch>("assets/shaders/shadowAnimation.vert", "", "assets/shaders/shadow.frag", _shadowBatch);
 		_shadowAnimationBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::none;
@@ -164,6 +165,8 @@ namespace Barcode {
 			0.5, 0.5, 0.5, 1.0
 		);
 		glm::mat4 lightS = biasMatrix * lightPMX * lightViewMX;
+
+		_lightingBatch.pipeline->setValue(94, MenuState::shadowEnabled);
 
 		_geometryBatch.pipeline->setValue(0, cc.getViewMatrix());
 		_geometryBatch.pipeline->setValue(1, cc.getProjectionMatrix());

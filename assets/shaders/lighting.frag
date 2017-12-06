@@ -41,6 +41,9 @@ layout(location = 12) uniform mat4 projection;
 layout(location = 13) uniform mat4 lightS;
 layout(location = 14) uniform PointLight pointLights[MAX_LIGHTS];
 
+// 14 + 5*MAX_LIGHT
+layout(location = 94) uniform bool enableShadows;
+
 float random(vec4 seed){
 	float value = dot(seed, vec4(12.9898, 78.233, 45.164, 94.673));
 	return fract(sin(value)) * 43758.5453;
@@ -94,14 +97,14 @@ void main() {
 	vec4 lightPos = lightS * vec4(pos, 1.0f);
 	float glowAmnt = texture(glow, texCoords).r;
 
-	// Lighting 
+	// Lighting
 	// 0.1f should be ambient coefficient
-	vec3 globalAmbient = objectColor.rgb * 0.25f;
+	vec3 globalAmbient = objectColor.rgb * 0.1f;
 	vec3 result = vec3(0);
 
 	// Directional light
 	//result = calcDirLight(dirLight, pos, normal, objectColor);
-	
+
 	// Point Lights
 	for(int i = 0 ; i < nrOfPointLights; i++){
 		result += calcPointLight(pointLights[i], pos, normal, objectColor);
@@ -119,7 +122,7 @@ void main() {
 	float shadow = 0.0f;
 
 	// PCF - 16 Samples
-	{
+	if (enableShadows) {
 		vec2 texelSize = 1.0 / textureSize(depthMap, 0);
 		for(float y = -1; y <= 1; y++) {
 			for(float x = -1; x <= 1; x++) {
@@ -128,8 +131,8 @@ void main() {
 			}
 		}
 		shadow /= 9;
-		shadow = 1.0f - shadow;
 	}
+	shadow = 1.0f - shadow;
 
 	if (glowAmnt > 0)
 		brightOutput = objectColor.rgb;

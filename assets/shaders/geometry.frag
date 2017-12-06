@@ -5,7 +5,6 @@ in GeometryData {
 	vec3 normal;
 	vec3 color;
 	vec2 uv;
-	mat3 tbn;
 	vec4 light;
 } inData;
 
@@ -26,9 +25,7 @@ void main() {
 	float specular = texture(specularTexture, inData.uv).r;
 	diffuse = vec4(materialDiffuse, specular);
 
-	//vec3 tempNormal = texture(normalTexture, inData.uv).rgb * 2 - 1;
-	//normal = normalize(inData.tbn * tempNormal);
-	normal = normalize(inData.normal);
+	normal = inData.normal;
 
 	glow = texture(glowTexture, inData.uv).r;
 
