@@ -134,6 +134,8 @@ namespace Hydra::Network {
 		struct EntUpdate {
 			ServerID entityid;
 			TransformInfo ti;
+			int life = 0;
+			int animationIndex = 0;
 		};
 
 		size_t nrOfEntUpdates() const { return (len - sizeof(ServerUpdatePacket)) / sizeof(EntUpdate); }

@@ -210,7 +210,7 @@ void GameServer::run() {
 
 	//Update World
 	{
-		std::vector<std::shared_ptr<Entity>> ents;
+		static std::vector<std::shared_ptr<Entity>> ents;
 		world::getEntitiesWithComponents<Hydra::Component::AIComponent>(ents);
 		for (size_t k = 0; k < ents.size(); k++) {
 			TransformComponent* ptc = ents[k]->getComponent<TransformComponent>().get();
@@ -229,6 +229,7 @@ void GameServer::run() {
 				ai->behaviour->setTargetPlayer(world::getEntity(this->_players[target]->entityid));
 			}
 		}
+		ents.clear();
 		_deadSystem.tick(delta);
 		_physicsSystem.tick(delta);
 		_aiSystem.tick(delta);
@@ -241,7 +242,7 @@ void GameServer::run() {
 		for (Hydra::World::EntityID e : _lifeSystem.isKilled()) {
 			_deleteEntity(e);
 
-			std::remove_if(_players.begin(), _players.end(), [e](const auto& p) { return p->entityid == e; });
+			_players.erase(std::remove_if(_players.begin(), _players.end(), [e](const auto& p) { return p->entityid == e; }), _players.end());
 		}
 	}
 
@@ -275,8 +276,19 @@ void GameServer::syncEntity(Hydra::World::Entity* entity) {
 void GameServer::_sendWorld() {
 	ServerUpdatePacket* packet = (ServerUpdatePacket*)new char[(sizeof(ServerUpdatePacket) + (sizeof(ServerUpdatePacket::EntUpdate) * this->_networkEntities.size()))];
 	*packet = ServerUpdatePacket(_networkEntities.size());
-	for (size_t i = 0; i < this->_networkEntities.size(); i++)
+	for (size_t i = 0; i < this->_networkEntities.size(); i++) {
+		ServerUpdatePacket::EntUpdate& entupdate = packet->data[i];
+		Entity* entity = world::getEntity(this->_networkEntities[i]).get();
 		this->_convertEntityToTransform(packet->data[i], this->_networkEntities[i]);
+
+		auto life = entity->getComponent<LifeComponent>();
+		if (life)
+			entupdate.life = life->health;
+
+		auto mesh = entity->getComponent<MeshComponent>();
+		if (mesh)
+			entupdate.animationIndex = mesh->animationIndex;
+	}
 
 	this->_server->sendDataToAll((char*)packet, packet->len);
 	delete[] packet;
