@@ -4,7 +4,7 @@
 #include <memory>
 FileTree::FileTree()
 {
-	this->executableDir = _getExecutableDir();
+	this->workingDir = _getExecutableDir();
 	this->_root = nullptr;
 }
 
@@ -19,7 +19,7 @@ void FileTree::refresh(std::string relativePath)
 	{
 		delete _root;
 	}
-	_root = new Node(executableDir + relativePath, _extWhitelist);
+	_root = new Node(workingDir + relativePath, _extWhitelist);
 }
 std::shared_ptr<Hydra::World::Entity> FileTree::getRoomEntity()
 {
@@ -52,6 +52,12 @@ std::string FileTree::_getExecutableDir()
 	std::replace(path.begin(), path.end(), '\\', '/');
 	int index = path.find_last_of('/');
 	path.erase(path.begin() + index, path.end());
+#ifdef _WIN32 ///Windows
+	index = path.find_last_of('/');
+	path.erase(path.begin() + index, path.end());
+	index = path.find_last_of('/');
+	path.erase(path.begin() + index, path.end());
+#endif
 	return path;
 }
 FileTree::Node::Node()
