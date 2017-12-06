@@ -2,7 +2,7 @@
 
 in vec2 texCoords;
 
-const int MAX_LIGHTS = 12;
+const int MAX_LIGHTS = 16;
 
 struct DirLight{
 	vec3 dir;
@@ -88,29 +88,9 @@ vec3 calcViewPos(vec2 uv, float depth) {
 }
 
 void main() {
-	// MSAA
-	//ivec2 iTexCoords = ivec2(texCoords * textureSize(positions));
-	//ivec2 iTexCoords2 = ivec2(texCoords * textureSize(normals));
-	//vec3 pos = vec3(0);
-	//vec3 objectColor = vec3(0);
-	//vec3 normal = vec3(0);
-	//vec4 lightPos = vec4(0);
-	//for(int i = 0; i < 4; i++){
-	//	pos += texelFetch(positions, iTexCoords, i).xyz;
-	//	objectColor += texelFetch(colors, iTexCoords, i).rgb;
-	//	normal += texelFetch(normals, iTexCoords, i).xyz;
-	//	lightPos += texelFetch(lightPositions, iTexCoords, i);
-	//}
-	//pos /= 4;
-	//objectColor /= 4;
-	//normal /= 4;
-	//lightPos /= 4;
-
 	vec3 pos = texture(positions, texCoords).xyz;
-	//vec3 pos = calcViewPos(texCoords, texture(depthMap, texCoords).z);
 	vec4 objectColor = texture(colors, texCoords);
 	vec3 normal = normalize(texture(normals, texCoords).xyz);
-	//vec4 lightPos = texture(lightPositions, texCoords);
 	vec4 lightPos = lightS * vec4(pos, 1.0f);
 	float glowAmnt = texture(glow, texCoords).r;
 
@@ -120,7 +100,7 @@ void main() {
 	vec3 result = vec3(0);
 
 	// Directional light
-	result = calcDirLight(dirLight, pos, normal, objectColor);
+	//result = calcDirLight(dirLight, pos, normal, objectColor);
 	
 	// Point Lights
 	for(int i = 0 ; i < nrOfPointLights; i++){
@@ -150,18 +130,8 @@ void main() {
 		shadow /= 9;
 		shadow = 1.0f - shadow;
 	}
-	
-	// PCF - 4 Samples
-	//{
-	//	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
-	//	shadow = texture(depthMap, projCoords.xy + vec2(-1.5f, 0.5f) * texelSize).r
-	//		+ texture(depthMap, projCoords.xy + vec2(0.5f, 0.5f) * texelSize).r
-	//		+ texture(depthMap, projCoords.xy + vec2(-1.5f, -1.5f) * texelSize).r
-	//		+ texture(depthMap, projCoords.xy + vec2(0.5f, -1.5f) * texelSize).r;
-	//	shadow /= 4;
-	//}
 
-	if(glowAmnt > 0)
+	if (glowAmnt > 0)
 		brightOutput = objectColor.rgb;
 	else
 		brightOutput = vec3(0);

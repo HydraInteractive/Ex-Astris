@@ -111,7 +111,6 @@ void TileGeneration::_setUpMiddleRoom(const std::string& middleRoomPath) {
 	roomGrid[ROOM_GRID_SIZE / 2][ROOM_GRID_SIZE / 2] = roomC;
 	roomC->gridPosition = {ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2};
 	_insertPathFindingMap(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2), 0 /* No rotation */);
-	_spawnLight(t);
 
 	_spawnPickUps(t);
 	_spawnLight(t);
@@ -397,17 +396,17 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::Component::TransformCo
 }
 
 void TileGeneration::_spawnLight(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform) {
-
-	auto pointLight1 = world::newEntity("Pointlight1", roomTransform->entityID);
+#define frand() (float(rand()) / RAND_MAX)
+	auto pointLight1 = world::newEntity("Pointlight-GENERATED", roomTransform->entityID);
+	pointLight1->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Cup.mATTIC");
 	pointLight1->addComponent<Hydra::Component::TransformComponent>();
 	auto t = pointLight1->getComponent<Hydra::Component::TransformComponent>();
-	t->position.x = roomTransform->position.x;
-	t->position.y = roomTransform->position.y + 7;
-	t->position.z = roomTransform->position.z;
+	t->position.x = 0;
+	t->position.y = 7;
+	t->position.z = 0;
 	auto p1LC = pointLight1->addComponent<Hydra::Component::PointLightComponent>();
-
-	p1LC->color = glm::vec3(1);
-
+	p1LC->color = glm::vec3(frand() * 0.5f + 0.5f, frand() * 0.5f + 0.5f, frand() * 0.5f + 0.5f);
+#undef frand
 }
 
 glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComponent>& room, uint8_t& rot) {

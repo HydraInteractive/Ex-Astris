@@ -309,9 +309,14 @@ namespace Barcode {
 			_lightingBatch.pipeline->setValue(6, 6);
 			_lightingBatch.pipeline->setValue(7, playerTransform.position);
 			_lightingBatch.pipeline->setValue(8, MenuState::ssaoEnabled);
-			auto& lights = Hydra::Component::PointLightComponent::componentHandler->getActiveComponents();
+			auto lights = Hydra::Component::PointLightComponent::componentHandler->getActiveComponents();
+			std::sort(lights.begin(), lights.end(), [cameraPos](const auto& aPtr, const auto& bPtr) {
+				auto a = static_cast<Hydra::Component::PointLightComponent*>(aPtr.get());
+				auto b = static_cast<Hydra::Component::PointLightComponent*>(bPtr.get());
+        return glm::distance(glm::vec3(a->getTransformComponent()->getMatrix()[3]), cameraPos) < glm::distance(glm::vec3(b->getTransformComponent()->getMatrix()[3]), cameraPos);
+			});
 
-			const int MAX_LIGHTS = 12;
+			const int MAX_LIGHTS = 16;
 			_lightingBatch.pipeline->setValue(9, std::min((int)lights.size(), MAX_LIGHTS));
 			_lightingBatch.pipeline->setValue(10, dirLight.getDirVec());
 			_lightingBatch.pipeline->setValue(11, dirLight.color);
@@ -321,15 +326,13 @@ namespace Barcode {
 			// good code lmao XD
 			int i = 14;
 			size_t lightCount = 0;
-			for (auto& p : lights) {
-				auto pc = static_cast<Hydra::Component::PointLightComponent*>(p.get());
-				_lightingBatch.pipeline->setValue(i++, pc->getTransformComponent()->position);
+			for (size_t lightCount = 0; lightCount < std::min(lights.size(), (size_t)MAX_LIGHTS); lightCount++) {
+				auto pc = static_cast<Hydra::Component::PointLightComponent*>(lights[lightCount].get());
+				_lightingBatch.pipeline->setValue(i++, glm::vec3(pc->getTransformComponent()->getMatrix()[3]));
 				_lightingBatch.pipeline->setValue(i++, pc->color);
 				_lightingBatch.pipeline->setValue(i++, pc->constant);
 				_lightingBatch.pipeline->setValue(i++, pc->linear);
 				_lightingBatch.pipeline->setValue(i++, pc->quadratic);
-				if (lightCount++ >= MAX_LIGHTS)
-					break;
 			}
 
 			(*_geometryBatch.output)[0]->bind(0);
