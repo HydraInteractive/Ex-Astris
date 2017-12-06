@@ -25,10 +25,11 @@ void SpawnerSystem::tick(float delta)
 	using world = Hydra::World::World;
 
 	//Process SystemComponent
-	world::getEntitiesWithComponents<Component::SpawnerComponent, Component::TransformComponent>(entities);
+	world::getEntitiesWithComponents<Component::SpawnerComponent, Component::TransformComponent, Component::LifeComponent>(entities);
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto transform = entities[i]->getComponent<Component::TransformComponent>();
 		auto spawner = entities[i]->getComponent<Component::SpawnerComponent>();
+		auto life = entities[i]->getComponent<Component::LifeComponent>();
 
 		spawner->spawnTimer += delta;
 		auto playerTrans = spawner->getPlayerEntity()->getComponent<Component::TransformComponent>();
@@ -38,7 +39,13 @@ void SpawnerSystem::tick(float delta)
 			if (Hydra::World::World::getEntity(spawner->spawnGroup[i]) == NULL)
 			{
 				spawner->spawnGroup.erase(spawner->spawnGroup.begin() + i);
+				spawner->spawnCounter++;
 			}
+		}
+
+		if (spawner->spawnCounter >= 9)
+		{
+			life->health = 0;
 		}
 
 		if (glm::length(transform->position - playerTrans->position) < 50.0f)
@@ -47,7 +54,7 @@ void SpawnerSystem::tick(float delta)
 			{
 			case Component::SpawnerType::AlienSpawner:
 			{
-				if (spawner->spawnGroup.size() <= 3)
+				if (spawner->spawnGroup.size() <= 2)
 				{
 					if (spawner->spawnTimer >= 10)
 					{
@@ -79,10 +86,9 @@ void SpawnerSystem::tick(float delta)
 						ms->movementSpeed = 5.0f;
 
 						auto ts = alienSpawn->addComponent<Hydra::Component::TransformComponent>();
-						glm::vec3 spawnPos = glm::vec3(transform->position + (-glm::vec3(glm::vec4{ 0, 0, 1, 0 } *transform->rotation)) * glm::vec3(4));
-						ts->position.x = spawnPos.x;
-						ts->position.y = 1;
-						ts->position.z = spawnPos.z;
+						ts->position.x = transform->position.x;
+						ts->position.y = 1.0;
+						ts->position.z = transform->position.z;
 						ts->scale = glm::vec3{ 1,1,1 };
 
 						auto rgbcs = alienSpawn->addComponent<Hydra::Component::RigidBodyComponent>();
@@ -101,7 +107,7 @@ void SpawnerSystem::tick(float delta)
 			}break;
 			case Component::SpawnerType::RobotSpawner:
 			{
-				if (spawner->spawnGroup.size() <= 3)
+				if (spawner->spawnGroup.size() <= 2)
 				{
 					if (spawner->spawnTimer >= 10)
 					{
@@ -132,10 +138,9 @@ void SpawnerSystem::tick(float delta)
 						auto ms = robotSpawn->addComponent<Hydra::Component::MovementComponent>();
 						ms->movementSpeed = 3.0f;
 						auto ts = robotSpawn->addComponent<Hydra::Component::TransformComponent>();
-						glm::vec3 spawnPos = glm::vec3(transform->position + (-glm::vec3(glm::vec4{ 0, 0, 1, 0 } *transform->rotation)) * glm::vec3(4));
-						ts->position.x = spawnPos.x;
-						ts->position.y = 1;
-						ts->position.z = spawnPos.z;
+						ts->position.x = transform->position.x;
+						ts->position.y = 1.0;
+						ts->position.z = transform->position.z;
 						ts->scale = glm::vec3{ 1,1,1 };
 
 						auto rgbcs = robotSpawn->addComponent<Hydra::Component::RigidBodyComponent>();

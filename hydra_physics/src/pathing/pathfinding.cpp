@@ -43,7 +43,6 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 	if (isOutsideMap(mapCurrentPos.baseVec) || isOutsideMap(mapTargetPos.baseVec))
 		return false;
 
-
 	if (inWall(currentPos))
 	{
 		currentPos = findViableTile(currentPos);
