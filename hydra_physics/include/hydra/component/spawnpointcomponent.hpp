@@ -10,6 +10,8 @@ namespace Hydra::Component {
 
 		bool playerSpawn = false;
 		bool enemySpawn = false;
+		bool perkSpawn = false;
+		bool spawnerSpawn = false;
 
 		inline const std::string type() const final { return "SpawnPointComponent"; }
 
