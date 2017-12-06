@@ -215,7 +215,7 @@ void NetClient::_updateWorld(Packet * updatePacket) {
 			auto ent = world::newEntity("ERROR: UNKOWN ENTITY", world::root());
 			_IDs[sup->data[k].entityid] = ent->id;
 			auto mesh = ent->addComponent<MeshComponent>();
-			mesh->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+			mesh->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
 			auto transform = ent->addComponent<TransformComponent>();
 			transform->position = { ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.x, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.y, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.z };
 

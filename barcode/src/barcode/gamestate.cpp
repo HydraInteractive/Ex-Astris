@@ -513,15 +513,6 @@ namespace Barcode {
 		}
 
 		{
-			auto particleEmitter = world::newEntity("ParticleEmitter", world::root());
-			particleEmitter->addComponent<Hydra::Component::MeshComponent>()->loadMesh("PARTICLEQUAD");
-			auto p = particleEmitter->addComponent<Hydra::Component::ParticleComponent>();
-			p->delay = 1.0f / 1.0f;
-			auto t1 = particleEmitter->addComponent<Hydra::Component::TransformComponent>();
-			t1->position = glm::vec3{ 4, 0, 4 };
-		}
-
-		{
 			for (auto& rb : Hydra::Component::RigidBodyComponent::componentHandler->getActiveComponents()) {
 				_engine->log(Hydra::LogLevel::normal, "Enabling BulletPhysicsSystem for %s", world::getEntity(rb->entityID)->name.c_str());
 				_physicsSystem.enable(static_cast<Hydra::Component::RigidBodyComponent*>(rb.get()));

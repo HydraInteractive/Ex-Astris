@@ -111,8 +111,6 @@ public:
 			mesh->getMaterial().normal->bind(1);
 			mesh->getMaterial().specular->bind(2);
 			mesh->getMaterial().glow->bind(3);
-			glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
-			glBindVertexArray(mesh->getID());
 
 			auto& currentFrames = batch.currentFrames[mesh];
 			auto& currAnimIndices = batch.currAnimIndices[mesh];
@@ -134,9 +132,10 @@ public:
 
 				_animationTransTexture->setData(glm::ivec2(0, 0), glm::ivec2(100 * 4, amount), jointTransformMX);
 				_animationTransTexture->bind(4);
-
+				glBindBuffer(GL_ARRAY_BUFFER, _modelMatrixBuffer);
 				glBufferData(GL_ARRAY_BUFFER, _modelMatrixSize, nullptr, GL_STREAM_DRAW);
 				glBufferSubData(GL_ARRAY_BUFFER, 0, amount * sizeof(glm::mat4), &kv.second[i]);
+				glBindVertexArray(mesh->getID());
 				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
 			}
 		}
@@ -573,7 +572,7 @@ private:
 	const size_t _textBufferSize = sizeof(Hydra::Renderer::CharRenderInfo) * 128; // 1 vec4 and 1 vec3
 	GLuint _textBuffer;
 
-	const int _maxInstancedAnimatedModels = 10;
+	const int _maxInstancedAnimatedModels = 2;
 
 	static void _loadGLAD() {
 		static bool initialized = false;

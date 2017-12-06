@@ -18,7 +18,6 @@ out GeometryData {
 	vec3 color;
 	vec2 uv;
 	mat3 tbn;
-	vec4 light;
 } outData;
 
 out gl_PerVertex {
@@ -52,14 +51,14 @@ void main() {
 		outData.position = pos.xyz;
 
 		mat3 normalMatrix = transpose(inverse(mat3(inData[i].m)));
+		outData.tbn = calcTBN(normalMatrix, inData[i].normal, i);
 		outData.normal = normalize(normalMatrix * inData[i].normal);
 
 		outData.color = inData[i].color;
+		//outData.uv = vec2(inData[i].uv.x + 0.5f, 1 - inData[i].uv.y);
 		outData.uv = vec2(inData[i].uv.x, 1 - inData[i].uv.y);
-		outData.tbn = calcTBN(normalMatrix, inData[i].normal, i);
 
 		gl_Position = p * v * pos;
-		outData.light = lightS * pos;
 		EmitVertex();
 	}
 	EndPrimitive();

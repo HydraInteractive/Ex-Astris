@@ -13,7 +13,7 @@
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/ghostobjectcomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
-#include <hydra/component/textcomponent.hpp>
+#include <hydra/component/textcomponent.hpp> 
 #include <glm/gtc/type_ptr.hpp>
 using world = Hydra::World::World; 
 ComponentMenu::ComponentMenu()
@@ -21,7 +21,7 @@ ComponentMenu::ComponentMenu()
 	glm::vec3 size = glm::vec3(1.0f, 1.0f, 1.0f);
 }
   
-ComponentMenu::~ComponentMenu()
+ComponentMenu::~ComponentMenu() 
 {
 
 }  

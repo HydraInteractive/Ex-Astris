@@ -150,10 +150,6 @@ private:
 		glEnableVertexAttribArray(VertexLocation::color);
 		glEnableVertexAttribArray(VertexLocation::uv);
 		glEnableVertexAttribArray(VertexLocation::tangent);
-		if (animation) {
-			glEnableVertexAttribArray(VertexLocation::influences);
-			glEnableVertexAttribArray(VertexLocation::controllers);
-		}
 
 		glVertexAttribPointer(VertexLocation::position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, position));
 		glVertexAttribPointer(VertexLocation::normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, normal));
@@ -161,6 +157,8 @@ private:
 		glVertexAttribPointer(VertexLocation::uv, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, uv));
 		glVertexAttribPointer(VertexLocation::tangent, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, tangent));
 		if (animation) {
+			glEnableVertexAttribArray(VertexLocation::influences);
+			glEnableVertexAttribArray(VertexLocation::controllers);
 			glVertexAttribPointer(VertexLocation::influences, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, influences));
 			glVertexAttribPointer(VertexLocation::controllers, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, controllers));
 		}

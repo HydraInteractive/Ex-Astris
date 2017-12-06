@@ -245,7 +245,7 @@ void Behaviour::executeTransforms()
 	rigidBody->setLinearVelocity(vel);
 	//printf("vel: %.2f, %.2f, %.2f\n", vel.x(), vel.y(), vel.z());
 	
-	thisEnemy.transform->setRotation(rotation);
+	//thisEnemy.transform->setRotation(rotation);
 }
 
 void Behaviour::resetAnimationOnStart(int animationIndex) {

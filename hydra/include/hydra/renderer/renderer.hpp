@@ -54,8 +54,8 @@ namespace Hydra::Renderer {
 		glm::vec3 color;
 		glm::vec2 uv;
 		glm::vec3 tangent;
-		glm::vec4 influences{};
-		glm::ivec4 controllers{};
+		glm::vec4 influences;
+		glm::ivec4 controllers;
 	};
 
 	class HYDRA_BASE_API ITexture {
