@@ -53,6 +53,7 @@ std::string FileTree::_getExecutableDir()
 	int index = path.find_last_of('/');
 	path.erase(path.begin() + index, path.end());
 #ifdef _WIN32 ///Windows
+	//Moves the workingDir up to use the project dir instead
 	index = path.find_last_of('/');
 	path.erase(path.begin() + index, path.end());
 	index = path.find_last_of('/');

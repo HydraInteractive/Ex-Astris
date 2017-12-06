@@ -26,8 +26,7 @@
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
 
-#define MAX_ENEMIES 4
-#define PICKUP_CHANCE 40
+#define PICKUP_CHANCE 100
 
 namespace BarcodeServer {
 	class TileGeneration {
@@ -58,8 +57,9 @@ namespace BarcodeServer {
 		bool _generatePlayerSpawnPoints();
 		void _spawnEnemies();
 		void _spawnRandomEnemy(glm::vec3 pos);
+		void _createSpawner(glm::vec3 pos);
 		void _clearSpawnPoints();
-		void _spawnPickUps(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
+		void _spawnPickUps(std::shared_ptr<Hydra::World::Entity>& room);
 		void _spawnLight(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
 		glm::quat _rotateRoom(std::shared_ptr<Hydra::Component::RoomComponent>& room, uint8_t& rot);
 		glm::vec3 _gridToWorld(int x, int y);
