@@ -1,8 +1,13 @@
 #include <server/gameserver.hpp>
 #include <server/packets.hpp>
-#include <hydra/component/transformcomponent.hpp>
 #include <server/tilegeneration.hpp>
+#include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/movementcomponent.hpp>
+#include <hydra/component/rigidbodycomponent.hpp>
+#include <hydra/component/meshcomponent.hpp>
+#include <hydra/component/lifecomponent.hpp>
+#include <hydra/component/ghostobjectcomponent.hpp>
+#include <hydra/component/aicomponent.hpp>
 #include <iostream>
 #include <chrono>
 #include <thread>
@@ -38,7 +43,6 @@ void GameServer::_sendNewEntity(EntityID ent, int serverIDexception = -1) {
 	World::getEntity(ent)->serialize(json);
 	data = json.to_msgpack(json);
 
-
 	ServerSpawnEntityPacket* ssep = new ServerSpawnEntityPacket();
 	ssep->h.type = PacketType::ServerSpawnEntity;
 	ssep->id = ent;
@@ -56,7 +60,6 @@ void GameServer::_sendNewEntity(EntityID ent, int serverIDexception = -1) {
 }
 
 void GameServer::_deleteEntity(EntityID ent) {
-
 	ServerDeletePacket* sdp = createServerDeletePacket(ent);
 
 	this->_server->sendDataToAll((char*)sdp, sdp->h.len);
@@ -70,7 +73,7 @@ void GameServer::_deleteEntity(EntityID ent) {
 			break;
 		}
 	}
-	
+
 	if (auto e = world::getEntity(ent); e)
 		e->dead = true;
 }
@@ -107,7 +110,7 @@ Entity* GameServer::_createEntity(const std::string& name, EntityID parentID, bo
 
 		auto p = createServerSpawnEntity(ent);
 		_server->sendDataToAll((char*)p, p->h.len);
-		delete[] (char*)p;
+		delete[](char*)p;
 		return ent;
 	}
 	else
@@ -122,7 +125,6 @@ Player* GameServer::getPlayer(EntityID id) {
 	}
 	return nullptr;
 }
-
 
 void GameServer::_convertEntityToTransform(ServerUpdatePacket::EntUpdate& dest, EntityID ent) {
 	Hydra::Component::TransformComponent* tc = World::getEntity(ent)->getComponent<Hydra::Component::TransformComponent>().get();
@@ -142,15 +144,13 @@ void GameServer::_sendWorld() {
 		this->_convertEntityToTransform(*(ServerUpdatePacket::EntUpdate*)((char*)result + sizeof(ServerUpdatePacket) + sizeof(ServerUpdatePacket::EntUpdate) * i), this->_networkEntities[i]);
 	}
 
-/*	if (_players.size())
-		printf("sendDataToAll:\n\ttype: ServerUpdate\n\tlen: %d\n", packet->h.len);*/
+	/*	if (_players.size())
+			printf("sendDataToAll:\n\ttype: ServerUpdate\n\tlen: %d\n", packet->h.len);*/
 	this->_server->sendDataToAll(result, packet->h.len);
 	delete[] result;
 }
 
-
 void GameServer::_updateWorld() {
-	
 }
 
 bool GameServer::_addPlayer(int id) {
@@ -176,7 +176,7 @@ bool GameServer::_addPlayer(int id) {
 		this->_setEntityID(id, pi.entityid);
 		pi.h.len = sizeof(ServerInitializePacket);
 		pi.h.type = PacketType::ServerInitialize;
-		pi.ti.pos = { (ROOM_GRID_SIZE / 2 + 0.5f) * ROOM_SIZE, 3, (ROOM_GRID_SIZE / 2 + 0.5f) * ROOM_SIZE};
+		pi.ti.pos = { (ROOM_GRID_SIZE / 2 + 0.5f) * ROOM_SIZE, 3, (ROOM_GRID_SIZE / 2 + 0.5f) * ROOM_SIZE };
 		pi.ti.scale = { 1, 1, 1 };
 		pi.ti.rot = glm::quat(1, 0, 0, 0);
 
@@ -203,7 +203,7 @@ bool GameServer::_addPlayer(int id) {
 
 		auto packet = createServerSpawnEntity(map);
 		_server->sendDataToClient((char*)packet, packet->h.len, id);
-		delete[] (char*)packet;
+		delete[](char*)packet;
 		//END TEMP WORLD
 
 		{
@@ -215,13 +215,8 @@ bool GameServer::_addPlayer(int id) {
 			pvs->size = _pvsData.size();
 			memcpy(pvs->data, _pvsData.data(), _pvsData.size());
 			_server->sendDataToClient((char*)pvs, pvs->h.len, id);
-			delete[] (char*)pvs;
+			delete[](char*)pvs;
 		}
-
-
-
-
-
 
 		Hydra::Component::TransformComponent* tc = enttmp->addComponent<Hydra::Component::TransformComponent>(/*pi.ti.pos, pi.ti.scale, pi.ti.rot*/).get();
 		auto life = enttmp->addComponent<Hydra::Component::LifeComponent>().get();
@@ -232,7 +227,6 @@ bool GameServer::_addPlayer(int id) {
 		tc->setRotation(pi.ti.rot);
 		this->_networkEntities.push_back(p->entityid);
 		printf("Player connected with entity id: %zu\n", pi.entityid);
-
 
 		//SEND A PACKET TO ALL OTHER CLIENTS
 		ServerPlayerPacket* sppacket;
@@ -245,12 +239,11 @@ bool GameServer::_addPlayer(int id) {
 			}
 		}
 
-		
 		ServerPlayerPacket* spp = createServerPlayerPacket("Fjant", pi.ti);
 		spp->entID = p->entityid;
 		printf("sendDataToAllExcept:\n\ttype: SERVERPLAYERPACKET\n\tlen: %zu\n", spp->h.len);
 		this->_server->sendDataToAllExcept((char*)spp, spp->getSize(), p->serverid);
-		delete[] (char*)spp;
+		delete[](char*)spp;
 
 		{
 			ServerFreezePlayerPacket freeze;
@@ -296,7 +289,6 @@ void GameServer::_resolvePackets(std::vector<Hydra::Network::Packet*> packets) {
 	for (size_t i = 0; i < packets.size(); i++)
 		delete packets[i];
 }
-
 
 GameServer::GameServer() {}
 
@@ -351,7 +343,6 @@ static void removeRelations(EntityID id) {
 	std::remove_if(e->children.begin(), e->children.end(), [](EntityID c) { return world::getEntity(c)->dead; });
 }*/
 
-
 enum Tile {
 	Void,
 	Air,
@@ -360,7 +351,7 @@ enum Tile {
 	Portal,
 	MAX_COUNT
 };
-static const glm::ivec3 colors[Tile::MAX_COUNT] {
+static const glm::ivec3 colors[Tile::MAX_COUNT]{
 	{0xFF, 0xFF, 0xFF},
 	{0x3F, 0x3F, 0x3F},
 	{0xFF, 0xFF, 0x00},
@@ -369,14 +360,12 @@ static const glm::ivec3 colors[Tile::MAX_COUNT] {
 };
 
 void GameServer::start() {
-
 	//TileGeneration* t;
 	////t = new TileGeneration("C:/Users/Dennis Persson/Documents/Hydra/x64/Debug/assets/room/starterRoom.room");
 	//t = new TileGeneration("assets/room/starterRoom.room");
 	//t->maxRooms = 3;
 	//t->buildMap();
 	//_deadSystem.tick(0);
-
 
 	auto floor = world::newEntity("Floor", world::root());
 	auto transf = floor->addComponent<Hydra::Component::TransformComponent>();
@@ -401,8 +390,7 @@ void GameServer::start() {
 		_tileGeneration.reset();
 		_deadSystem.tick(0);
 	}
-	printf ("\tTook %zu tries\n", tries);
-
+	printf("\tTook %zu tries\n", tries);
 
 	SDL_Surface* map = SDL_CreateRGBSurface(0, WORLD_MAP_SIZE, WORLD_MAP_SIZE, 32, 0, 0, 0, 0);
 	{
@@ -419,23 +407,23 @@ void GameServer::start() {
 			std::shared_ptr<Hydra::Component::RoomComponent> rc = _tileGeneration->roomGrid[x][y];
 			if (rc) {
 				printf("| %c%c%c%c ",
-							 rc->door[Hydra::Component::RoomComponent::NORTH] ? 'N' : ' ',
-							 rc->door[Hydra::Component::RoomComponent::EAST]  ? 'E' : ' ',
-							 rc->door[Hydra::Component::RoomComponent::SOUTH] ? 'S' : ' ',
-							 rc->door[Hydra::Component::RoomComponent::WEST]  ? 'W' : ' '
-					);
+					rc->door[Hydra::Component::RoomComponent::NORTH] ? 'N' : ' ',
+					rc->door[Hydra::Component::RoomComponent::EAST] ? 'E' : ' ',
+					rc->door[Hydra::Component::RoomComponent::SOUTH] ? 'S' : ' ',
+					rc->door[Hydra::Component::RoomComponent::WEST] ? 'W' : ' '
+				);
 
 				// Walls
 				auto pfm = _pathfindingMap;
 				auto drawWallPixel = [pfm, map](int x, int y) {
-					SDL_Rect rect{x, y, 1, 1};
+					SDL_Rect rect{ x, y, 1, 1 };
 					auto color = colors[Tile::Wall];
 					if (pfm[x][y] && x > 0 && y > 0 && x < WORLD_MAP_SIZE - 1 && y < WORLD_MAP_SIZE - 1)
 						color = colors[Tile::Portal];
 					SDL_FillRect(map, &rect, SDL_MapRGB(map->format, color.x, color.y, color.z));
 				};
 				auto drawRoomPixel = [pfm, map](int x, int y) {
-					SDL_Rect rect{x, y, 1, 1};
+					SDL_Rect rect{ x, y, 1, 1 };
 					auto color = colors[Tile::Air];
 					if (pfm[x][y] && x > 0 && y > 0 && x < WORLD_MAP_SIZE - 1 && y < WORLD_MAP_SIZE - 1)
 						color = colors[Tile::RoomContent];
@@ -446,7 +434,7 @@ void GameServer::start() {
 					drawWallPixel(x * ROOM_MAP_SIZE + i, y * ROOM_MAP_SIZE);
 
 				for (int i = 0; i < ROOM_MAP_SIZE; i++)
-					drawWallPixel(x * ROOM_MAP_SIZE + i, (y + 1) * ROOM_MAP_SIZE -1);
+					drawWallPixel(x * ROOM_MAP_SIZE + i, (y + 1) * ROOM_MAP_SIZE - 1);
 
 				for (int i = 0; i < ROOM_MAP_SIZE; i++)
 					drawWallPixel(x * ROOM_MAP_SIZE, y * ROOM_MAP_SIZE + i);
@@ -455,14 +443,15 @@ void GameServer::start() {
 					drawWallPixel((x + 1) * ROOM_MAP_SIZE - 1, y * ROOM_MAP_SIZE + i);
 
 				// Center of room
-				SDL_Rect rect = {x * ROOM_MAP_SIZE + 1, y * ROOM_MAP_SIZE + 1, ROOM_MAP_SIZE - 2, ROOM_MAP_SIZE - 2};
+				SDL_Rect rect = { x * ROOM_MAP_SIZE + 1, y * ROOM_MAP_SIZE + 1, ROOM_MAP_SIZE - 2, ROOM_MAP_SIZE - 2 };
 				auto color = colors[Tile::Air];
 				SDL_FillRect(map, &rect, SDL_MapRGB(map->format, color.x, color.y, color.z));
 
 				for (int i = 1; i < ROOM_MAP_SIZE - 1; i++)
 					for (int j = 1; j < ROOM_MAP_SIZE - 1; j++)
-					drawRoomPixel(x * ROOM_MAP_SIZE + i, y * ROOM_MAP_SIZE + j);
-			} else {
+						drawRoomPixel(x * ROOM_MAP_SIZE + i, y * ROOM_MAP_SIZE + j);
+			}
+			else {
 				printf("|      ");
 				/*SDL_Rect rect{x * ROOM_MAP_SIZE, y * ROOM_MAP_SIZE, ROOM_MAP_SIZE, ROOM_MAP_SIZE};
 				SDL_FillRect(map, &rect, SDL_MapRGB(map->format, 0, 0, 0));*/
@@ -470,7 +459,6 @@ void GameServer::start() {
 		}
 		printf("|\n");
 	}
-
 
 	SDL_SaveBMP(map, "map.bmp");
 	SDL_FreeSurface(map);
@@ -505,13 +493,9 @@ void GameServer::start() {
 		_networkEntities.push_back(entities[i]->id);
 	}
 
-
-
-	
 	//this->_physicsSystem.enable(rgbc.get());
 	//
 	//_networkEntities.push_back(alienEntity->id);
-
 
 	/* markDead(world::rootID, false);
 	{
@@ -527,7 +511,6 @@ void GameServer::start() {
 		fclose(fp);
 	}
 	removeRelations(world::rootID);*/
-
 }
 #ifdef __linux__
 #include <unistd.h>
@@ -539,9 +522,9 @@ void GameServer::start() {
 
 static void mySleep(int sleepMs) {
 #ifdef __linux__
-    usleep(sleepMs * 1000);   // usleep takes sleep time in us (1 millionth of a second)
+	usleep(sleepMs * 1000);   // usleep takes sleep time in us (1 millionth of a second)
 #elif defined(_WIN32)
-    Sleep(sleepMs);
+	Sleep(sleepMs);
 #else
 #error DERP;
 #endif
@@ -608,7 +591,6 @@ void GameServer::run() {
 			this->_sendWorld();
 			_packetDelay = 0;
 		}
-		mySleep(1000/30);
+		mySleep(1000 / 30);
 	}
 }
-

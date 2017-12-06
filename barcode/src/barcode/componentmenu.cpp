@@ -14,6 +14,7 @@
 #include <hydra/component/ghostobjectcomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
 #include <hydra/component/textcomponent.hpp>
+#include <hydra/component/spawnpointcomponent.hpp>
 #include <glm/gtc/type_ptr.hpp>
 using world = Hydra::World::World; 
 ComponentMenu::ComponentMenu()
@@ -198,6 +199,25 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 		}
 		
 	}
+	else if (componentType == "SpawnPoint") {
+		if (_selectedEntity->hasComponent<Hydra::Component::SpawnPointComponent>())
+			ImGui::Text("The entity selected already has this component");
+		else {
+			ImGui::BeginChild("SpawnPoint", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.3f, ImGui::GetWindowContentRegionMax().y - 160), true);
+			ImGui::Checkbox("Spawn Players", &spawnPointInput.playerSpawn);
+			ImGui::Checkbox("Spawn Enemies", &spawnPointInput.enemySpawn);
+			ImGui::EndChild();
+
+			ImGui::BeginChild("Confirm", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.3f, 25));
+			if (ImGui::Button("Finish"))
+			{
+				auto sp = _selectedEntity->addComponent<Hydra::Component::SpawnPointComponent>();
+				sp->playerSpawn = spawnPointInput.playerSpawn;
+				sp->enemySpawn = spawnPointInput.enemySpawn;
+			}
+			ImGui::EndChild();
+		}
+	}
 }
 
 void ComponentMenu::_menuBar()
@@ -224,10 +244,9 @@ void ComponentMenu::_renderEntity(Hydra::World::Entity* entity)
 		_selectedString = "";
 	}
 	ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
-	auto entityIDs = entity->children;
-	for (size_t i = 0; i < entityIDs.size(); i++)
+	for (auto e : entity->children)
 	{
-		auto child = world::getEntity(entityIDs[i]);
+		auto child = world::getEntity(e);
 		if (ImGui::TreeNodeEx(child.get(), nodeFlags | ((_selectedEntity == child.get()) ? ImGuiTreeNodeFlags_Selected : 0), "%s", child->name.c_str()))
 		{
 			_renderEntity(child.get());

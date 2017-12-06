@@ -65,9 +65,9 @@ void ExporterMenu::render(bool &openBool, Hydra::Renderer::Batch* previewBatch, 
 	ImGui::InputText("", _selectedFileName, 128);
 	ImGui::SameLine();
 	ImGui::PushItemWidth(100);
-	ImGui::Combo("", &_fileType, _exportTypes, IM_ARRAYSIZE(_exportTypes));
+	ImGui::Combo(" ", &_fileType, _exportTypes, nrOfTypes);
 	ImGui::PopItemWidth();
-	if (_fileType == 1) //Entity selector
+	if (_fileType == 1) //Entity selector for prefabs
 	{
 		_renderEntitySelector();
 	}
