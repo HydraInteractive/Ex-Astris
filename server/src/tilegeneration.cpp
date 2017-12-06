@@ -253,6 +253,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 
 		for (int i = 0; i < randomFastAliens; i++) {
 			auto alienEntity = world::newEntity("FastAlien1", world::root());
+			alienEntity->addComponent<Hydra::Component::NetworkSyncComponent>();
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienFastModel.mATTIC");
 			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
