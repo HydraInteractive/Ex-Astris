@@ -179,46 +179,48 @@ bool PathFinding::inWall(const glm::vec3 mapPos) const
 
 glm::vec3 PathFinding::findViableTile(glm::vec3 mapPos) const
 {
+	// This might crash because of no out of bounds check
+	// Does not work with an out of bounds check
 	MapVec p = worldToMapCoords(mapPos);
 	glm::ivec2& vec = p.baseVec;
-
-	for (int i = 1; i < 6; i++)
+	glm::vec3 newPos = mapPos;
+	for (int i = 1; i < 3; i++)
 	{
-		if (map[vec.x + i][vec.y] == 1 && vec.x + i < WORLD_MAP_SIZE || vec.y < WORLD_MAP_SIZE || vec.x + i >= 0 || vec.y >= 0)
+		if (map[vec.x + i][vec.y] == 1)
 		{
-			return glm::vec3(mapPos.x + i, mapPos.y, mapPos.z);
+			newPos = glm::vec3(mapPos.x + i, mapPos.y, mapPos.z);
 		}
-		else if (map[vec.x][vec.y + i] == 1 && vec.x < WORLD_MAP_SIZE || vec.y + i < WORLD_MAP_SIZE || vec.x >= 0 || vec.y + i >= 0)
+		else if (map[vec.x][vec.y + i] == 1)
 		{
-			return glm::vec3(mapPos.x, mapPos.y, mapPos.z + i);
+			newPos = glm::vec3(mapPos.x, mapPos.y, mapPos.z + i);
 		}
-		else if (map[vec.x - i][vec.y] == 1 && vec.x - i < WORLD_MAP_SIZE || vec.y < WORLD_MAP_SIZE || vec.x - i >= 0 || vec.y >= 0)
+		else if (map[vec.x - i][vec.y] == 1)
 		{
-			return glm::vec3(mapPos.x - i, mapPos.y, mapPos.z);
+			newPos = glm::vec3(mapPos.x - i, mapPos.y, mapPos.z);
 		}
-		else if (map[vec.x][vec.y - i] == 1 && vec.x < WORLD_MAP_SIZE || vec.y - i < WORLD_MAP_SIZE || vec.x >= 0 || vec.y - i >= 0)
+		else if (map[vec.x][vec.y - i] == 1)
 		{
-			return glm::vec3(mapPos.x + 1, mapPos.y, mapPos.z - i);
+			newPos = glm::vec3(mapPos.x + 1, mapPos.y, mapPos.z - i);
 		}
-		else if (map[vec.x + i][vec.y + i] == 1 && vec.x + i < WORLD_MAP_SIZE || vec.y + i < WORLD_MAP_SIZE || vec.x + i >= 0 || vec.y + i >= 0)
+		else if (map[vec.x + i][vec.y + i] == 1)
 		{
-			return glm::vec3(mapPos.x + i, mapPos.y, mapPos.z + i);
+			newPos = glm::vec3(mapPos.x + i, mapPos.y, mapPos.z + i);
 		}
-		else if (map[vec.x - i][vec.y + i] == 1 && vec.x - i < WORLD_MAP_SIZE || vec.y + i < WORLD_MAP_SIZE || vec.x - i >= 0 || vec.y + i >= 0)
+		else if (map[vec.x - i][vec.y + i])
 		{
-			return glm::vec3(mapPos.x - i, mapPos.y, mapPos.z + i);
+			newPos = glm::vec3(mapPos.x - i, mapPos.y, mapPos.z + i);
 		}
-		else if (map[vec.x - i][vec.y - i] == 1 && vec.x - i < WORLD_MAP_SIZE || vec.y - i < WORLD_MAP_SIZE || vec.x - i >= 0 || vec.y - i >= 0)
+		else if (map[vec.x - i][vec.y - i])
 		{
-			return glm::vec3(mapPos.x - i, mapPos.y, mapPos.z - i);
+			newPos = glm::vec3(mapPos.x - i, mapPos.y, mapPos.z - i);
 		}
-		else if (map[vec.x + i][vec.y - i] == 1 && vec.x + i < WORLD_MAP_SIZE || vec.y - i < WORLD_MAP_SIZE || vec.x + i >= 0 || vec.y - i >= 0)
+		else if (map[vec.x + i][vec.y - i])
 		{
-			return glm::vec3(mapPos.x + i, mapPos.y, mapPos.z - i);
+			newPos = glm::vec3(mapPos.x + i, mapPos.y, mapPos.z - i);
 		}
 	}
 
-	return mapPos;
+	return newPos;
 }
 
 bool PathFinding::_inLineOfSight(const MapVec enemyPos, const MapVec playerPos) const

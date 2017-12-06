@@ -80,8 +80,8 @@ unsigned int Behaviour::idleState(float dt)
 	resetAnimationOnStart(0);
 	//If the player is close enough, activate
 
-	/*if (!pathFinding->inWall(targetPlayer.transform->position))
-	{*/
+	//if (!pathFinding->inWall(targetPlayer.transform->position))
+	//{
 		if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 50.0f)
 		{
 			return SEARCHING;
@@ -347,7 +347,7 @@ unsigned int AlienBehaviour::attackingState(float dt)
 		std::uniform_int_distribution<> randDmg(thisEnemy.ai->damage - 1, thisEnemy.ai->damage + 2);
 		glm::vec3 playerDir = glm::normalize(targetPlayer.transform->position - thisEnemy.transform->position);
 
-		if (attackTimer > 2.5)
+		if (attackTimer > 2.8)
 		{
 			if (playerUnreachable)
 			{
