@@ -139,7 +139,19 @@ void GameServer::_sendWorld() {
 	packet->h.len = (sizeof(ServerUpdatePacket) + (sizeof(ServerUpdatePacket::EntUpdate) * this->_networkEntities.size()));
 	packet->nrOfEntUpdates = this->_networkEntities.size();
 	for (size_t i = 0; i < this->_networkEntities.size(); i++) {
-		this->_convertEntityToTransform(*(ServerUpdatePacket::EntUpdate*)((char*)result + sizeof(ServerUpdatePacket) + sizeof(ServerUpdatePacket::EntUpdate) * i), this->_networkEntities[i]);
+		Entity* entity = world::getEntity(this->_networkEntities[i]).get();
+		ServerUpdatePacket::EntUpdate* entupdate = ((ServerUpdatePacket::EntUpdate*)((char*)result + sizeof(ServerUpdatePacket) + sizeof(ServerUpdatePacket::EntUpdate) * i));
+		this->_convertEntityToTransform(*entupdate, this->_networkEntities[i]);
+		
+		auto life = entity->getComponent<LifeComponent>();
+		if (life) {
+			entupdate->life = life->health;
+		}
+
+		auto mesh = entity->getComponent<MeshComponent>();
+		if (mesh) {
+			entupdate->animationIndex = mesh->animationIndex;
+		}
 	}
 
 /*	if (_players.size())

@@ -213,20 +213,15 @@ namespace Barcode {
 		}
 
 		{ // Hud windows
-		  //static float f = 0.0f;
-		  //static bool b = false;
-		  //static float invisF[3] = { 0, 0, 0 };
 			float hpP = 100;
 			float ammoP = 100;
 			float degrees = 0;
-			//std::vector<Buffs> perksList;
 			for (auto& p : Hydra::Component::PlayerComponent::componentHandler->getActiveComponents()) {
 				auto player = static_cast<Hydra::Component::PlayerComponent*>(p.get());
 				auto weaponc = ((Hydra::Component::WeaponComponent*)player->getWeapon()->getComponent<Hydra::Component::WeaponComponent>().get());
 				auto lifeC = ((Hydra::Component::LifeComponent*)Hydra::World::World::getEntity(player->entityID)->getComponent<Hydra::Component::LifeComponent>().get());
 				hpP = 100 * ((float)lifeC->health / (float)lifeC->maxHP);
 				ammoP = 100 * ((float)weaponc->currmagammo / (float)weaponc->maxmagammo);
-				//perksList = player->activeBuffs.getActiveBuffs();
 			}
 			for (auto& camera : Hydra::Component::CameraComponent::componentHandler->getActiveComponents())
 				degrees = glm::degrees(static_cast<Hydra::Component::CameraComponent*>(camera.get())->cameraYaw);
@@ -237,8 +232,6 @@ namespace Barcode {
 
 			const int x = _engine->getView()->getSize().x / 2;
 			const ImVec2 pos = ImVec2(x, _engine->getView()->getSize().y / 2);
-
-			//git plz
 
 			if (_prevHP > hpP) {
 				//prevHP = (1 - (delta*3)) * prevHP + (delta*3) * hpP; //LERP
@@ -409,7 +402,7 @@ namespace Barcode {
 					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Mine.png")->getID()), ImVec2(20, 20));
 					break;
 				case Hydra::Component::PerkComponent::PERK_BULLETSPRAY:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Spred.png")->getID()), ImVec2(20, 20));
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Spread.png")->getID()), ImVec2(20, 20));
 					break;
 				case Hydra::Component::PerkComponent::PERK_SPEEDUP:
 					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/ExtraJump.png")->getID()), ImVec2(20, 20));

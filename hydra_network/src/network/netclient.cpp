@@ -7,6 +7,7 @@
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
 #include <hydra/component/playercomponent.hpp>
+#include <hydra/component/lifecomponent.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <hydra/engine.hpp>
 
@@ -207,8 +208,14 @@ void NetClient::_updateWorld(Packet * updatePacket) {
 	ServerUpdatePacket* sup = (ServerUpdatePacket*)updatePacket;
 	Hydra::Component::TransformComponent* tc;
 	for (size_t k = 0; k < sup->nrOfEntUpdates; k++) {
-		if (_IDs[sup->data[k].entityid] == _myID)
+		if (_IDs[sup->data[k].entityid] == _myID) {
+			ServerUpdatePacket::EntUpdate entupdate = ((ServerUpdatePacket::EntUpdate&)sup->data[k]);
+			LifeComponent* life = world::getEntity(_myID)->getComponent<LifeComponent>().get();
+			if (life) {
+				life->health = entupdate.life;
+			}
 			continue;
+		}
 		else if (_IDs[sup->data[k].entityid] == 0) {
 			printf("Error updating entity: %zu\n", _IDs[sup->data[k].entityid]);
 
@@ -223,12 +230,25 @@ void NetClient::_updateWorld(Packet * updatePacket) {
 		}
 		for (size_t i = 0; i < children.size(); i++) {
 			if (children[i] == _IDs[((ServerUpdatePacket::EntUpdate&)sup->data[k]).entityid]) {
+				ServerUpdatePacket::EntUpdate entupdate = ((ServerUpdatePacket::EntUpdate&)sup->data[k]);
 				tc = world::getEntity(children[i])->getComponent<Hydra::Component::TransformComponent>().get();
 				if (tc) {
-					tc->position = { ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.x, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.y, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.z };
-					tc->setRotation(((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.rot);
-					tc->setScale(((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.scale);
+					tc->position = { entupdate.ti.pos.x,entupdate.ti.pos.y,entupdate.ti.pos.z };
+					tc->setRotation(entupdate.ti.rot);
+					tc->setScale(entupdate.ti.scale);
 				}
+
+				LifeComponent* life = world::getEntity(children[i])->getComponent<LifeComponent>().get();
+				if (life) {
+					life->health = entupdate.life;
+				}
+
+				auto mesh = world::getEntity(children[i])->getComponent<MeshComponent>();
+				if (mesh) {
+					mesh->animationIndex = entupdate.animationIndex;
+				}
+
+
 				break;
 			}
 		}
