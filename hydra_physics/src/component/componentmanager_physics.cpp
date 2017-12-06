@@ -13,7 +13,7 @@
 #include <hydra/component/perkcomponent.hpp>
 #include <hydra/component/pickupcomponent.hpp>
 #include <hydra/component/ghostobjectcomponent.hpp>
-
+#include <hydra/component/spawnpointcomponent.hpp>
 using namespace Hydra::World;
 
 namespace Hydra::Component::ComponentManager {
@@ -44,5 +44,7 @@ namespace Hydra::Component::ComponentManager {
 		creators["PickUpComponent"] = &createOrGetComponentHelper<PickUpComponent>;
 		GhostObjectComponent::componentHandler = new ComponentHandler<GhostObjectComponent>();
 		creators["GhostObjectComponent"] = &createOrGetComponentHelper<GhostObjectComponent>;
+		SpawnPointComponent::componentHandler = new ComponentHandler<SpawnPointComponent>();
+		creators["SpawnPointComponent"] = &createOrGetComponentHelper<SpawnPointComponent>;
 	}
 }

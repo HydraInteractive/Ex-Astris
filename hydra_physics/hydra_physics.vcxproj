@@ -93,6 +93,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\component\ghostobjectcomponent.cpp" />
+    <ClCompile Include="src\component\spawnpointcomponent.cpp" />
     <ClCompile Include="src\system\pickupsystem.cpp" />
     <ClCompile Include="src\abilities\abilities.cpp" />
     <ClCompile Include="src\abilities\grenadecomponent.cpp" />
@@ -133,6 +134,7 @@
     <ClInclude Include="include\hydra\component\playercomponent.hpp" />
     <ClInclude Include="include\hydra\component\rigidbodycomponent.hpp" />
     <ClInclude Include="include\hydra\component\spawnercomponent.hpp" />
+    <ClInclude Include="include\hydra\component\spawnpointcomponent.hpp" />
     <ClInclude Include="include\hydra\component\weaponcomponent.hpp" />
     <ClInclude Include="include\hydra\pathing\behaviour.hpp" />
     <ClInclude Include="include\hydra\pathing\pathfinding.hpp" />
