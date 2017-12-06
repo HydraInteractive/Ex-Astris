@@ -49,7 +49,8 @@ namespace Barcode {
 		_initWorld();
 	}
 
-	GameState::~GameState() { }
+	GameState::~GameState() {
+	}
 
 	void GameState::onMainMenu() { }
 
@@ -64,13 +65,10 @@ namespace Barcode {
 
 		if (player->getComponent<Hydra::Component::PlayerComponent>()->frozen)
 			_loadingScreenTimer = 1;
-		{
-			static bool didConnect = false;
-			if (!didConnect) {
-				Hydra::Network::NetClient::updatePVS = &GameState::_onUpdatePVS;
-				Hydra::Network::NetClient::userdata = static_cast<void*>(this);
-				didConnect = Hydra::Network::NetClient::initialize(addr, port);
-			}
+		if (!_didConnect) {
+			Hydra::Network::NetClient::updatePVS = &GameState::_onUpdatePVS;
+			Hydra::Network::NetClient::userdata = static_cast<void*>(this);
+			_didConnect = Hydra::Network::NetClient::initialize(addr, port);
 		}
 
 		/*{
@@ -134,7 +132,7 @@ namespace Barcode {
 
 		_physicsSystem.tick(delta);
 		_cameraSystem.tick(delta);
-		_aiSystem.tick(delta);
+		//_aiSystem.tick(delta);
 		_bulletSystem.tick(delta);
 		_playerSystem.tick(delta);
 		_abilitySystem.tick(delta);

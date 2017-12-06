@@ -3,6 +3,8 @@
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/spawnercomponent.hpp>
+#include <hydra/component/networksynccomponent.hpp>
+
 using world = Hydra::World::World;
 
 using namespace BarcodeServer;
@@ -209,6 +211,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 	{
 		for (int i = 0; i < randomSlowAliens; i++) {
 			auto alienEntity = world::newEntity("SlowAlien1", world::root());
+			alienEntity->addComponent<Hydra::Component::NetworkSyncComponent>();
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
 			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
@@ -248,7 +251,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 			rgbc->setAngularForce(glm::vec3(0));
 		}
 
-		/*	for (int i = 0; i < randomFastAliens; i++) {
+		for (int i = 0; i < randomFastAliens; i++) {
 			auto alienEntity = world::newEntity("FastAlien1", world::root());
 			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienFastModel.mATTIC");
 			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
@@ -288,7 +291,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 			rgbc->setAngularForce(glm::vec3(0));
 		}
 
-		for (int i = 0; i < randomRobots; i++) {
+		/*for (int i = 0; i < randomRobots; i++) {
 			auto robotEntity = world::newEntity("Robot1", world::root());
 			robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
 			auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();

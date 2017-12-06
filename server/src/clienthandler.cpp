@@ -57,15 +57,15 @@ std::vector<Hydra::Network::Packet*> ClientHandler::getReceivedData(int pending)
 				size_t len = lenTmp;
 				while (curr < len && curr < MAX_NETWORK_LENGTH) {
 					tmp = (Hydra::Network::Packet*)(&this->_msg[curr]);
-					if (curr + tmp->h.len > len) {
+					if (curr + tmp->len > len) {
 						memmove(_msg, _msg + curr, len - curr);
 						offset = len - curr;
 						curr = 0;
 					}
-					curr += tmp->h.len;
-					tmp->h.client = this->_clients[i]->id;
-					tmp2 = (Hydra::Network::Packet*)(new char[tmp->h.len]);
-					memcpy(tmp2, tmp, tmp->h.len);
+					curr += tmp->len;
+					tmp->client = this->_clients[i]->id;
+					tmp2 = (Hydra::Network::Packet*)(new char[tmp->len]);
+					memcpy(tmp2, tmp, tmp->len);
 					packets.push_back(tmp2);
 				}
 				if (curr == len)

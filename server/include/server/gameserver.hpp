@@ -33,6 +33,8 @@ namespace BarcodeServer {
 		void quit();
 		Hydra::System::BulletPhysicsSystem _physicsSystem;
 
+		void syncEntity(Hydra::World::Entity* entity);
+
 	private:
 		std::chrono::time_point<std::chrono::high_resolution_clock> _lastTime;
 		float _packetDelay;
@@ -49,27 +51,17 @@ namespace BarcodeServer {
 		Hydra::System::SpawnerSystem _spawnerSystem;
 		Hydra::System::PerkSystem _perkSystem;
 		Hydra::System::LifeSystem _lifeSystem;
-		//Hydra::System::PlayerSystem _playerSystem;
-		//Hydra::System::RendererSystem _rendererSystem;
-		//Hydra::System::SoundFxSystem _soundFxSystem;
-		//Hydra::System::CameraSystem _cameraSystem;
-		//Hydra::System::LightSystem _lightSystem;
-		//Hydra::System::ParticleSystem _particleSystem;
-		//Hydra::System::AbilitySystem _abilitySystem;
 
 		void _sendWorld();
 		void _convertEntityToTransform(Hydra::Network::ServerUpdatePacket::EntUpdate& dest, Hydra::World::EntityID ent);
-		void _updateWorld();
-		bool _addPlayer(int id);
 		void _resolvePackets(std::vector<Hydra::Network::Packet*> packets);
 		int64_t _getEntityID(int serverid);
 		void _setEntityID(int serverID, int64_t entityID);
-		void _sendNewEntity(Hydra::World::EntityID ent, int serverIDexception);
 		void _deleteEntity(Hydra::World::EntityID ent);
 		void _handleDisconnects();
-		Entity* _createEntity(const std::string& name, Hydra::World::EntityID parentID, bool serverSynced);
-		Player* getPlayer(Hydra::World::EntityID id);
-
+		Hydra::World::Entity* _createEntity(const std::string& name, Hydra::World::EntityID parentID, bool serverSynced);
+		Player* _getPlayer(Hydra::World::EntityID id);
+		bool _addPlayer(int id);
 	};
 
 }

@@ -107,6 +107,7 @@ namespace Barcode {
 		float _hpTimeUp = 0;
 		int  _loadingScreenPicture = 0;
 		float _loadingScreenTimer = 1;
+		bool _didConnect = false;
 
 		void _initSystem();
 		void _initWorld();

@@ -32,7 +32,7 @@ bool TCPClient::initialize(char* ip, int port) {
 int TCPClient::send(void* data, int length) {
 	if (!_connected)
 		return -1;
-	((Packet*)data)->h.client = -7;
+	((Packet*)data)->client = -7;
 	return SDLNet_TCP_Send(this->_tcp, data, length);
 }
 
@@ -60,16 +60,16 @@ std::vector<Packet*> TCPClient::receiveData() {
 
 	while (_data.size() >= sizeof(Packet)) {
 		Packet* p = (Packet*)_data.data();
-		if (_data.size() < p->h.len) {
+		if (_data.size() < p->len) {
 			fprintf(stderr, "PACKET NEEDED MORE DATA THAN AVAILABLE!");
 			break;
 		}
 
-		//printf("Reading packet:\n\ttype: %s\n\tlen: %zu\n\tclient: %zu\n", Hydra::Network::PacketTypeName[p->h.type], p->h.len, p->h.client);
-		Packet* newPacket = (Packet*)(new char[p->h.len]);
-		memcpy(newPacket, p, p->h.len);
+		//printf("Reading packet:\n\ttype: %s\n\tlen: %zu\n\tclient: %zu\n", Hydra::Network::PacketTypeName[p->type], p->len, p->client);
+		Packet* newPacket = (Packet*)(new char[p->len]);
+		memcpy(newPacket, p, p->len);
 		packets.push_back(newPacket);
-		_data.erase(_data.begin(), _data.begin() + p->h.len);
+		_data.erase(_data.begin(), _data.begin() + p->len);
 	}
 
 	return packets;
