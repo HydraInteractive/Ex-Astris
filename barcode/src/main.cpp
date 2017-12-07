@@ -18,7 +18,7 @@
 #include <barcode/editorstate.hpp>
 #include <barcode/losestate.hpp>
 #include <barcode/winstate.hpp>
-
+#include <barcode\perkEditor.hpp>
 #include <cstdio>
 #include <chrono>
 #include <imgui/imgui.h>
@@ -108,6 +108,9 @@ namespace Barcode {
 					setState<EditorState>();
 				if (ImGui::MenuItem("LoseState", NULL, typeid(*_state) == typeid(LoseState)))
 					setState<LoseState>();
+				if (ImGui::MenuItem("PerkEditor", NULL, typeid(*_state) == typeid(PerkEditorState)))
+					setState<PerkEditorState>();
+
 				if (ImGui::MenuItem("WinState", NULL, typeid(*_state) == typeid(WinState)))
 					setState<WinState>();
 				ImGui::EndMenu();

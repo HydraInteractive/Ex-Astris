@@ -20,6 +20,7 @@
 #include <hydra/component/bulletcomponent.hpp>
 #include <hydra/component/pickupcomponent.hpp>
 
+#include <barcode\perkEditor.hpp>
 
 #define frand() (float(rand())/RAND_MAX)
 
@@ -150,11 +151,14 @@ namespace Barcode {
 			0.5, 0.5, 0.5, 1.0
 		);
 		glm::mat4 lightS = biasMatrix * lightPMX * lightViewMX;
-
+		
+	
+		
 		_geometryBatch.pipeline->setValue(0, cc.getViewMatrix());
 		_geometryBatch.pipeline->setValue(1, cc.getProjectionMatrix());
 		_geometryBatch.pipeline->setValue(2, cameraPos);
 		_geometryBatch.pipeline->setValue(3, lightS);
+
 
 		_geometryAnimationBatch.pipeline->setValue(0, cc.getViewMatrix());
 		_geometryAnimationBatch.pipeline->setValue(1, cc.getProjectionMatrix());
