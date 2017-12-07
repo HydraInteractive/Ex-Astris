@@ -316,7 +316,7 @@ namespace Barcode {
 			std::sort(lights.begin(), lights.end(), [cameraPos](const auto& aPtr, const auto& bPtr) {
 				auto a = static_cast<Hydra::Component::PointLightComponent*>(aPtr.get());
 				auto b = static_cast<Hydra::Component::PointLightComponent*>(bPtr.get());
-        return glm::distance(glm::vec3(a->getTransformComponent()->getMatrix()[3]), cameraPos) < glm::distance(glm::vec3(b->getTransformComponent()->getMatrix()[3]), cameraPos);
+				return glm::distance(glm::vec3(a->getTransformComponent()->getMatrix()[3]), cameraPos) < glm::distance(glm::vec3(b->getTransformComponent()->getMatrix()[3]), cameraPos);
 			});
 
 			const int MAX_LIGHTS = 16;

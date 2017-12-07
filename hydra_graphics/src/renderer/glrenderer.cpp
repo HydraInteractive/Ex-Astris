@@ -286,10 +286,13 @@ public:
 		batch.pipeline->setValue(21, 1);
 		batch.pipeline->setValue(22, 2);
 		batch.pipeline->setValue(23, 3);
+		volatile size_t counter = 0;
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
-			if (!mesh)
+			if (!mesh) {
+				counter++;
 				continue;
+			}
 			mesh->getMaterial().diffuse->bind(0);
 			mesh->getMaterial().normal->bind(1);
 			mesh->getMaterial().specular->bind(2);
@@ -304,6 +307,7 @@ public:
 				glBindVertexArray(mesh->getID());
 				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
 			}
+			counter++;
 		}
 	}
 

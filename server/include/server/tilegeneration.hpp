@@ -1,5 +1,8 @@
 #pragma once
 
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/transform.hpp>
+
 #include <hydra/engine.hpp>
 #include <hydra/world/world.hpp>
 #include <hydra/renderer/renderer.hpp>
@@ -7,63 +10,56 @@
 #include <hydra/io/meshloader.hpp>
 #include <hydra/io/textureloader.hpp>
 #include <hydra/world/blueprintloader.hpp>
-
+#include <hydra/renderer/glrenderer.hpp>
+#include <hydra/renderer/glshader.hpp>
+#include <hydra/io/gltextureloader.hpp>
+#include <hydra/io/glmeshloader.hpp>
 
 #include <memory>
-#include <imgui/imgui.h>
+
 #ifdef _WIN32
 #include <filesystem>
 #else
 #include <experimental/filesystem>
 #endif
 
-#include <hydra/component/roomcomponent.hpp>
-#include <hydra/component/lifecomponent.hpp>
-#include <hydra/component/pickupcomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
-#include <hydra/component/meshcomponent.hpp>
-#include <hydra/component/aicomponent.hpp>
-#include <hydra/component/ghostobjectcomponent.hpp>
-#include <hydra/component/pointlightcomponent.hpp>
-#include <hydra/component/textcomponent.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/transform.hpp>
-#include <hydra/world/blueprintloader.hpp>
+#include <hydra/component/roomcomponent.hpp>
 
-#include <fstream>
-#include <json.hpp>
-
-#define MAX_ENEMIES 4
-#define PICKUP_CHANCE 40
+#define PICKUP_CHANCE 100
 
 namespace BarcodeServer {
 	class TileGeneration {
 	public:
 		std::shared_ptr<Hydra::Component::RoomComponent> roomGrid[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
 		bool** pathfindingMap = nullptr;
-		int maxRooms = 100;
-		int roomCounter = 0;
-		int numberOfPlayers = 4;
-		int numberOfEnemies = 10; //Can be per room or for the whole map depending on if the _spawnEnemies function is run once per room or after the whole map is generated
-		std::vector<glm::vec3> playerSpawns;
+		size_t maxRooms = 100;
+		size_t roomCounter = 0;
+		size_t numberOfPlayers = 4;
+		size_t numberOfEnemies = 50; //Can be per room or for the whole map depending on if the _spawnEnemies function is run once per room or after the whole map is generated
+		std::vector<glm::vec3> playerSpawns = std::vector<glm::vec3>();
 
 		TileGeneration(const std::string& middleRoomPath);
 		~TileGeneration();
 
 		bool** buildMap();
-		std::shared_ptr<Hydra::World::Entity> mapentity;
+		std::shared_ptr<Hydra::World::Entity> mapentity = nullptr;
 
 	private:
+		enum { NORTH, EAST, SOUTH, WEST };
 		std::vector<std::string> _roomFileNames;
 
-		enum { NORTH, EAST, SOUTH, WEST };
 		void _setUpMiddleRoom(const std::string& middleRoomPath);
 		void _createMapRecursivly(const glm::ivec2& pos);
 		void _insertPathFindingMap(const glm::ivec2& room, uint8_t rotation);
 		void _obtainRoomFiles();
 		void _randomizeRooms();
-		void _spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
-		void _spawnPickUps(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
+		bool _generatePlayerSpawnPoints();
+		void _spawnEnemies();
+		void _spawnRandomEnemy(glm::vec3 pos);
+		void _createSpawner(glm::vec3 pos);
+		void _clearSpawnPoints();
+		void _spawnPickUps(std::shared_ptr<Hydra::World::Entity>& room);
 		void _spawnLight(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
 		glm::quat _rotateRoom(std::shared_ptr<Hydra::Component::RoomComponent>& room, uint8_t& rot);
 		glm::vec3 _gridToWorld(int x, int y);
