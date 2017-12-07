@@ -334,6 +334,53 @@ namespace Barcode {
 				i++;
 			}
 
+			//Allied on compass
+			i = 0;
+			//glm::mat4 viewMat = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get())->getViewMatrix();
+			std::vector<std::shared_ptr<Entity>> playerEntities;
+			world::getEntitiesWithComponents<Hydra::Component::PlayerComponent>(playerEntities);
+			for (auto& allies : playerEntities) {
+				char buf[128];
+				snprintf(buf, sizeof(buf), "PlayerID: %d", i);
+				auto playerP = _playerTransform->position;
+				auto alliesP = allies->getComponent<Hydra::Component::TransformComponent>()->position;
+
+				if (alliesP == playerP)
+				{
+					auto alliesDir = glm::normalize(alliesP - playerP);
+
+					glm::vec3 forward(-viewMat[0][2], -viewMat[1][2], -viewMat[2][2]);
+					glm::vec3 right = glm::normalize(glm::cross(glm::vec3(0, 1, 0), forward));
+
+					glm::vec2 forward2D = glm::normalize(glm::vec2(forward.x, forward.z));
+					glm::vec2 right2D = glm::normalize(glm::vec2(right.x, right.z));
+					glm::vec2 allies2D = glm::normalize(glm::vec2(alliesDir.x, alliesDir.z));
+
+					float dotPlacment = glm::dot(forward2D, allies2D); // -1 - +1
+					float leftRight = glm::dot(right2D, allies2D);
+					if (leftRight < 0)
+					{
+						leftRight = 1;
+					}
+					else
+					{
+						leftRight = -1;
+					}
+					if (dotPlacment < 0)
+					{
+						dotPlacment = 0;
+					}
+					dotPlacment = dotPlacment;
+					dotPlacment = leftRight * (1 - dotPlacment) * 275;
+					ImGui::SetNextWindowPos(ImVec2(x + dotPlacment, 75)); //- 275
+					ImGui::SetNextWindowSize(ImVec2(20, 20));
+					ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Blue.png")->getID()), ImVec2(10, 10));
+					ImGui::End();
+				}
+				i++;
+			}
+
 			//Dynamic cooldown dots
 			auto perk = Hydra::World::World::getEntity(_playerID)->getComponent<PerkComponent>();
 
