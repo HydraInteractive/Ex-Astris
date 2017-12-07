@@ -164,7 +164,7 @@ bool TileGeneration::_generatePlayerSpawnPoints()
 	//Randomize order
 	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
 	shuffle(entities.begin(), entities.end(), std::default_random_engine(seed));
-	for (int i = 0; i < entities.size() && playerSpawns.size() < numberOfPlayers; i++)
+	for (size_t i = 0; i < entities.size() && playerSpawns.size() < numberOfPlayers; i++)
 	{
 		auto sp = entities[i]->getComponent<Hydra::Component::SpawnPointComponent>();
 		if (sp->playerSpawn && !entities[i]->dead)
@@ -190,8 +190,8 @@ void TileGeneration::_spawnEnemies() {
 	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
 	shuffle(entities.begin(), entities.end(), std::default_random_engine(seed));
 
-	int spawned = 0;
-	for (int i = 0; i < entities.size() && spawned < numberOfEnemies; i++)
+	size_t spawned = 0;
+	for (size_t i = 0; i < entities.size() && spawned < numberOfEnemies; i++)
 	{
 		auto sp = entities[i]->getComponent<Hydra::Component::SpawnPointComponent>();
 		if (sp->enemySpawn && !entities[i]->dead)
