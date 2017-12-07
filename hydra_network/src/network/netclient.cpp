@@ -137,6 +137,10 @@ void NetClient::_resolvePackets() {
 		}
 		case PacketType::ServerFreezePlayer: {
 			auto sfp = (ServerFreezePlayerPacket*)p;
+			if (sfp->action == ServerFreezePlayerPacket::win) {
+				if (onWin)
+					onWin(userdata);
+			}else
 			for (auto p : Hydra::Component::PlayerComponent::componentHandler->getActiveComponents())
 				((Hydra::Component::PlayerComponent*)p.get())->frozen = sfp->action == ServerFreezePlayerPacket::Action::freeze;
 			break;
