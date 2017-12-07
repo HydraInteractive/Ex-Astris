@@ -16,6 +16,8 @@
 
 #include <imgui/imgui.h>
 #include <glm/gtc/type_ptr.hpp>
+#include <random>
+//#include <hydra/network/netclient.hpp>
 
 using namespace Hydra::World;
 using namespace Hydra::Component;
@@ -99,6 +101,11 @@ bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 		rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * velocity);
 		rigidBody->setGravity(btVector3(0, 0, 0));
 		rbc->setAngularForce(glm::vec3(0));
+
+		//Network shoot
+		if (onShoot)
+			onShoot(*this, bullet.get(), userdata);
+		//end Network shoot
 	} else {
 		for (int i = 0; i < bulletsPerShot; i++) {
 			auto bullet = world::newEntity("Bullet", world::rootID);
@@ -135,6 +142,11 @@ bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 			rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * velocity);
 			rbc->setAngularForce(glm::vec3(0));
 			rigidBody->setGravity(btVector3(0,0,0));
+
+			//Network shoot
+			if (onShoot)
+				onShoot(*this, bullet.get(), userdata);
+			//end Network shoot
 		}
 	}
 	fireRateTimer = 1.0f/(fireRateRPM / 60.0f);

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.10
+VisualStudioVersion = 15.0.27004.2008
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hydra", "hydra\hydra.vcxproj", "{DC6ED591-6DFA-429F-A1E9-CBCB849C94F3}"
 EndProject
@@ -23,6 +23,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hydra_network", "hydra_netw
 	ProjectSection(ProjectDependencies) = postProject
 		{FBFF7642-0C09-41C4-93CF-3BDD52891010} = {FBFF7642-0C09-41C4-93CF-3BDD52891010}
 		{DC6ED591-6DFA-429F-A1E9-CBCB849C94F3} = {DC6ED591-6DFA-429F-A1E9-CBCB849C94F3}
+		{B7CE4AD1-7A40-44C6-B3B2-87072101411A} = {B7CE4AD1-7A40-44C6-B3B2-87072101411A}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hydra_physics", "hydra_physics\hydra_physics.vcxproj", "{B7CE4AD1-7A40-44C6-B3B2-87072101411A}"
@@ -95,5 +96,8 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DC2DA852-36D0-4C8B-B31B-CDB2A121A4B4}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal

@@ -30,7 +30,6 @@ layout(location = 1) out vec3 brightOutput;
 layout(location = 0) uniform sampler2D positions;
 layout(location = 1) uniform sampler2D colors;
 layout(location = 2) uniform sampler2D normals;
-layout(location = 3) uniform sampler2D lightPositions;
 layout(location = 4) uniform sampler2D depthMap;
 layout(location = 5) uniform sampler2D ssao;
 layout(location = 6) uniform sampler2D glow;
@@ -39,7 +38,8 @@ layout(location = 8) uniform bool enableSSAO = true;
 layout(location = 9) uniform int nrOfPointLights;
 layout(location = 10) uniform DirLight dirLight;
 layout(location = 12) uniform mat4 projection;
-layout(location = 13) uniform PointLight pointLights[MAX_LIGHTS];
+layout(location = 13) uniform mat4 lightS;
+layout(location = 14) uniform PointLight pointLights[MAX_LIGHTS];
 
 float random(vec4 seed){
 	float value = dot(seed, vec4(12.9898, 78.233, 45.164, 94.673));
@@ -61,7 +61,7 @@ vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec4 objectColor){
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128);
 	vec3 specular = spec * objectColor.a * light.color;
 
-	return (specular + diffuse) * attenuation;
+	return max(vec3(0, 0, 0), (specular + diffuse) * attenuation);
 }
 
 vec3 calcDirLight(DirLight light, vec3 pos, vec3 normal, vec4 objectColor){
@@ -110,7 +110,8 @@ void main() {
 	//vec3 pos = calcViewPos(texCoords, texture(depthMap, texCoords).z);
 	vec4 objectColor = texture(colors, texCoords);
 	vec3 normal = normalize(texture(normals, texCoords).xyz);
-	vec4 lightPos = texture(lightPositions, texCoords);
+	//vec4 lightPos = texture(lightPositions, texCoords);
+	vec4 lightPos = lightS * vec4(pos, 1.0f);
 	float glowAmnt = texture(glow, texCoords).r;
 
 	// Lighting 

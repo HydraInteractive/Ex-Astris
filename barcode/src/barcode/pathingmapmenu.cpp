@@ -29,21 +29,23 @@ void PathingMapMenu::render(bool & closeBool, float delta, int sizeX, int sizeY)
 
 	bool reversedPos;
 
-	for (int i = 0; i < ROOM_MAP_SIZE; i++){
-		for (int j = 0; j < ROOM_MAP_SIZE; j++){
+	for (size_t i = 0; i < ROOM_MAP_SIZE; i++){
+		for (size_t j = 0; j < ROOM_MAP_SIZE; j++){
 			ImGui::PushID(i*ROOM_MAP_SIZE+j);
 			reversedPos = !r->localMap[j][i];
-			
+
 			if (ImGui::Selectable("", &reversedPos, 0, itemSize))
 				r->localMap[j][i] = !r->localMap[j][i];
 
-			if (ImGui::IsItemHovered() && ImGui::IsMouseDown(1))
+			if (ImGui::IsItemHovered() && ImGui::IsMouseDown(1)) {
 				if (ImGui::GetIO().KeyShift)
 					r->localMap[j][i] = true;
 				else
 					r->localMap[j][i] = false;
+			}
 
-			if (j != 31)ImGui::SameLine(0, 0);
+			if (j != 31)
+				ImGui::SameLine(0, 0);
 			ImGui::PopID();
 		}
 	}

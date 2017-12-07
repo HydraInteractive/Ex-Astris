@@ -34,7 +34,7 @@ void SpawnerSystem::tick(float delta)
 		spawner->spawnTimer += delta;
 		auto playerTrans = spawner->getPlayerEntity()->getComponent<Component::TransformComponent>();
 
-		for (int i = 0; i < spawner->spawnGroup.size(); i++)
+		for (size_t i = 0; i < spawner->spawnGroup.size(); i++)
 		{
 			if (Hydra::World::World::getEntity(spawner->spawnGroup[i]) == NULL)
 			{

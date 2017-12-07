@@ -15,6 +15,7 @@ using namespace Hydra::World;
 // TODO: Implement LOD
 namespace Hydra::Component {
 	struct HYDRA_GRAPHICS_API ParticleComponent final : public IComponent<ParticleComponent, ComponentBits::Particle> {
+
 		enum class EmitterBehaviour : int { PerSecond = 0, Explosion, SpawnerBeam, MAX_COUNT };
 		static constexpr const char* EmitterBehaviourStr[] = { "PerSecond", "Explosion", "SpawnerBeam" };
 		enum class ParticleTexture : int { Energy = 0, AlienBlood, Blood, BloodierBlood, AlienHS, Spawner, MAX_COUNT };

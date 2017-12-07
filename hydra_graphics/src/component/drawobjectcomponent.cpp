@@ -6,12 +6,15 @@
 using namespace Hydra::Component;
 
 DrawObjectComponent::DrawObjectComponent() {
-	drawObject = Hydra::IEngine::getInstance()->getRenderer()->aquireDrawObject();
-	drawObject->refCounter = 1;
+	if (Hydra::IEngine::getInstance()->getDeadSystem()) { //Hax-Fix
+		drawObject = Hydra::IEngine::getInstance()->getRenderer()->aquireDrawObject();
+		drawObject->refCounter = 1;
+	}
 }
 
 DrawObjectComponent::~DrawObjectComponent() {
-	drawObject->refCounter = 0;
+	if (drawObject)
+		drawObject->refCounter = 0;
 }
 
 void DrawObjectComponent::serialize(nlohmann::json& json) const {}

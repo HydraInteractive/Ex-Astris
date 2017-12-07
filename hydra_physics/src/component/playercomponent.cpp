@@ -18,6 +18,7 @@ using namespace Hydra::Component;
 
 PlayerComponent::~PlayerComponent() {}
 
+
 std::shared_ptr<Hydra::World::Entity> PlayerComponent::getWeapon() {
 	auto& children = Hydra::World::World::getEntity(entityID)->children;
 

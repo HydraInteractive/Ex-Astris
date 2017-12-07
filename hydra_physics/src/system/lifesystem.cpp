@@ -19,6 +19,7 @@ LifeSystem::~LifeSystem() {
 
 void LifeSystem::tick(float delta) {
 	using world = Hydra::World::World;
+	_isKilled.clear();
 
 	world::getEntitiesWithComponents<Hydra::Component::LifeComponent>(entities);
 	#pragma omp parallel for
@@ -26,13 +27,14 @@ void LifeSystem::tick(float delta) {
 		auto lifeC = entities[i]->getComponent<Hydra::Component::LifeComponent>();
 		if (lifeC->health <= 0) {
 			entities[i]->dead = true;
-			if (auto enemy = entities[i]->getComponent<AIComponent>()){
-				auto activeAbilities = enemy->getPlayerEntity()->getComponent<PerkComponent>()->activeAbilities;
-				
-				for (size_t i = 0; i < activeAbilities.size(); i++){
-					activeAbilities[i]->cooldown--;
-				}
-			}
+			_isKilled.push_back(lifeC->entityID);
+			//if (auto enemy = entities[i]->getComponent<AIComponent>()){
+			//	auto activeAbilities = enemy->getPlayerEntity()->getComponent<PerkComponent>()->activeAbilities;
+			//	
+			//	for (size_t i = 0; i < activeAbilities.size(); i++){
+			//		activeAbilities[i]->cooldown--;
+			//	}
+			//}
 		}
 
 		if (entities[i]->getComponent<Hydra::Component::ParticleComponent>() || entities[i]->getComponent<Hydra::Component::TextComponent>())

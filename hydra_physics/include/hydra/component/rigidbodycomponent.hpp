@@ -87,11 +87,14 @@ namespace Hydra::Component {
 		void setActivationState(ActivationState newState);
 		void setAngularForce(glm::vec3 angularForce);
 		void* getRigidBody();
+
+		void refreshTransform();
+
 		glm::vec3 getPosition(int childIndex = 0);
 		glm::vec3 getHalfExtentScale() { return _halfExtents; }
 		glm::quat getRotation();
-		const std::string& getShapeString(int childIndex = 0);
-		const int getNumberOfChildren();
+		std::string getShapeString(int childIndex = 0);
+		int getNumberOfChildren();
 
 		inline const std::string type() const final { return "RigidBodyComponent"; }
 
@@ -102,7 +105,7 @@ namespace Hydra::Component {
 	private:
 		Hydra::System::BulletPhysicsSystem::CollisionTypes doa = Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_NOTHING;
 		struct Data;
-		Data* _data;
+		Data* _data = nullptr;
 		glm::vec3 _halfExtents = glm::vec3(0.5f,0.5f,0.5f);
 		Hydra::System::BulletPhysicsSystem* _handler = nullptr;
 	};
