@@ -1,13 +1,12 @@
 #include <barcode/exportermenu.hpp>
 #include <hydra/component/roomcomponent.hpp>
-using world = Hydra::World::World; 
+using world = Hydra::World::World;
 ExporterMenu::ExporterMenu() : FileTree()
 {
 	refresh();
 }
 ExporterMenu::~ExporterMenu()
 {
-	
 }
 void ExporterMenu::render(bool &openBool, Hydra::Renderer::Batch* previewBatch, float delta)
 {
@@ -65,9 +64,9 @@ void ExporterMenu::render(bool &openBool, Hydra::Renderer::Batch* previewBatch, 
 	ImGui::InputText("", _selectedFileName, 128);
 	ImGui::SameLine();
 	ImGui::PushItemWidth(100);
-	ImGui::Combo("", &_fileType, _exportTypes, IM_ARRAYSIZE(_exportTypes));
+	ImGui::Combo(" ", &_fileType, _exportTypes, nrOfTypes);
 	ImGui::PopItemWidth();
-	if (_fileType == 1) //Entity selector
+	if (_fileType == 1) //Entity selector for prefabs
 	{
 		_renderEntitySelector();
 	}
@@ -78,6 +77,7 @@ void ExporterMenu::render(bool &openBool, Hydra::Renderer::Batch* previewBatch, 
 	if (_prepExporting)
 	{
 		std::string fileToSave = "";
+		fileToSave.append(workingDir + "/");
 		fileToSave.append(_selectedPath);
 		fileToSave.append(_selectedFileName);
 		fileToSave.append(_exportTypes[_fileType]);
@@ -138,13 +138,13 @@ void ExporterMenu::_renderEntitySelector()
 		return;
 	}
 
-	auto& e =room->children;
+	auto& e = room->children;
 	for (size_t i = 0; i < e.size(); i++)
 	{
 		auto entity = world::getEntity(e[i]);
 		title = entity->name + " [" + std::to_string(entity->id) + "]";
 		selected = (entity.get() == selectedEntity);
-		ImGui::MenuItem(title.c_str(),"",selected);
+		ImGui::MenuItem(title.c_str(), "", selected);
 		if (ImGui::IsItemClicked())
 		{
 			selectedEntity = entity.get();
