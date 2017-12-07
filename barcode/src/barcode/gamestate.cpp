@@ -505,6 +505,10 @@ namespace Barcode {
 
 		}
 
+		{ // Music
+			_soundFxSystem.startMusic("assets/sounds/flesh-edit-n-baws.mp3");
+		}
+
 		{
 			auto playerEntity = world::newEntity("Player", world::root());
 			_playerID = playerEntity->id;

@@ -14,7 +14,9 @@ namespace Hydra::System {
 		void registerUI() final;
 		
 		static void removeChannelFromComponent(int channel);
+		void startMusic(std::string songPath);
 	private:
+		Mix_Music* music;
 		std::vector<std::string> soundPath = std::vector<std::string>();
 		std::vector<Mix_Chunk*> soundChunk = std::vector<Mix_Chunk*>();
 		float removeTimer = 5;
