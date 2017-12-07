@@ -103,6 +103,11 @@ public:
 	int getCurrentAnimationIndex() final { return _currentAnimationIndex; }
 	void setCurrentKeyframe(int frame) { _currentFrame = frame; }
 	void setAnimationIndex(int index) { _currentAnimationIndex = index; }
+	glm::vec3 getCurrentPositionJoint(int jointIndex) {
+		return glm::vec3(_finishedMatrices[_currentAnimationIndex][jointIndex]->finishedTransformMat[_currentFrame][3][0],
+			_finishedMatrices[_currentAnimationIndex][jointIndex]->finishedTransformMat[_currentFrame][3][1],
+			_finishedMatrices[_currentAnimationIndex][jointIndex]->finishedTransformMat[_currentFrame][3][2]);
+	}
 
 	GLuint getID() const final { return _vao; }
 	size_t getIndicesCount() const final { return _indicesCount; }

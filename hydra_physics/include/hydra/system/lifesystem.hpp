@@ -9,6 +9,8 @@ namespace Hydra::System {
 
 		void tick(float delta) final;
 
+		float ressurectTimer = 0.0f;
+
 		inline const std::string type() const final { return "LifeSystem"; }
 		void registerUI() final;
 

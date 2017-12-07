@@ -48,6 +48,13 @@ void LifeSystem::tick(float delta) {
 				else if (a->behaviour->type == Behaviour::Type::ALIENBOSS) {
 					entities[i]->dead = true;
 				}
+				else if (a->behaviour->type == Behaviour::Type::BOSS_HAND) {
+					ressurectTimer += delta;
+					if (ressurectTimer >= 5.0f) {
+						lifeC->health = lifeC->maxHP;
+						ressurectTimer = 0;
+					}
+				}
 			}
 			else
 				entities[i]->dead = true;

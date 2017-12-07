@@ -677,30 +677,31 @@ void BossHand_Left::rotateAroundAxis(float newRotation, glm::vec3(direction)) {
 unsigned int BossHand_Left::idleState(float dt) {
 
 	int state = HandPhases::IDLEHAND;
-
+	idleTimer += dt;
 	//Wait 2 seconds before next move
+	if (idleTimer >= 5.0f) {
+		int randomNextMove = rand() % 125;
 
-	int randomNextMove = rand() % 125;
-
-	if (randomNextMove < 30) {
-		Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Smash");
-		return HandPhases::SMASH;
+		if (randomNextMove < 30) {
+			Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Smash");
+			return HandPhases::SMASH;
+		}
+		else if (randomNextMove < 60) {
+			Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Swipe");
+			return HandPhases::SWIPE;
+		}
+		else if (randomNextMove < 85) {
+			Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Canon");
+			return HandPhases::HANDCANON;
+		}
+		else if (randomNextMove < 100) {
+			Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Cover");
+			return HandPhases::COVER;
+		}
+		else
+			return HandPhases::IDLEHAND;
+		idleTimer = 0.0f;
 	}
-	else if (randomNextMove < 60) {
-		Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Swipe");
-		return HandPhases::SWIPE;
-	}
-	else if (randomNextMove < 85) {
-		Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Canon");
-		return HandPhases::HANDCANON;
-	}
-	else if (randomNextMove < 100) {
-		Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Cover");
-		return HandPhases::COVER;
-	}
-	else
-		return HandPhases::IDLEHAND;
-
 	return state;
 }
 
@@ -850,15 +851,107 @@ bool BossHand_Left::refreshRequiredComponents()
 	return hasRequiredComponents;
 }
 
-//BossArm::BossArm(std::shared_ptr<Hydra::World::Entity> enemy) {
-//	this->type = Type::BOSS_ARMS;
-//}
-//
-//BossArm::BossArm() {
-//	this->type = Type::BOSS_ARMS;
-//}
-//
-//BossArm::~BossArm() {
-//}
+BossArm::BossArm(std::shared_ptr<Hydra::World::Entity> enemy) {
+	this->type = Type::BOSS_ARMS;
+}
+
+BossArm::BossArm() {
+	this->type = Type::BOSS_ARMS;
+}
+
+BossArm::~BossArm() {
+}
+
+void BossArm::run(float dt) {
+
+	if (!hasRequiredComponents)
+		if (!refreshRequiredComponents())
+			return;
+	if (thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>()->health <= 0)
+		return;
+
+	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
+	thisEnemy.ai->debugState = state;
+
+	idleTimer += dt;
+	attackTimer += dt;
+	newPathTimer += dt;
+
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 500)
+	{
+		state = ArmPhases::CHILL;
+	}
+
+	thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->mesh->getAnimationCounter();
+
+	switch (state)
+	{
+	case ArmPhases::CHILL:
+		state = idleState(dt);
+		break;
+	case  ArmPhases::SINGLE_BONK:
+		state = bonkState(dt);
+		break;
+	case  ArmPhases::MULTIPLE_BONK:
+		state = multipleBonkState(dt);
+		break;
+	case  ArmPhases::SWEEP:
+		state = sweepState(dt);
+		break;
+
+	}
+	updateJointPosition();
+	executeTransforms();
+
+}
+
+unsigned int BossArm::idleState(float dt) {
+	int state = ArmPhases::CHILL;
+
+
+	return state;
+}
+
+unsigned int BossArm::bonkState(float dt) {
+	int state = ArmPhases::SINGLE_BONK;
+
+
+	return state;
+}
+
+unsigned int BossArm::multipleBonkState(float dt) {
+	int state = ArmPhases::MULTIPLE_BONK;
+
+
+	return state;
+}
+
+unsigned int BossArm::sweepState(float dt)
+{
+	int state = ArmPhases::SWEEP;
+
+
+	return state;
+}
+
+void BossArm::updateJointPosition() {
+
+	//thisEnemy.rigidBody->
+
+}
+
+bool BossArm::refreshRequiredComponents() {
+	hasRequiredComponents = (
+		(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>().get()) &&
+		(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>().get()) &&
+		(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>().get()) &&
+		(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
+		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
+		(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
+		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity().get()) &&
+		(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
+		(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
+		);
+}
 
 
