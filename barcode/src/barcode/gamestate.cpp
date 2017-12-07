@@ -23,7 +23,6 @@
 
 #include <hydra/network/netclient.hpp>
 
-
 using world = Hydra::World::World;
 
 namespace Barcode {
@@ -111,7 +110,7 @@ namespace Barcode {
 				ImGui::CloseCurrentPopup();
 			ImGui::EndPopup();
 		}
-		 
+
 		if (_paused != oldPaused) {
 			static bool oldMouseControl;
 			static bool oldNoClip;
@@ -121,7 +120,8 @@ namespace Barcode {
 				oldNoClip = _cc->noClip;
 				_cc->mouseControl = false;
 				_cc->noClip = false;
-			} else {
+			}
+			else {
 				_cc->mouseControl = oldMouseControl;
 				_cc->noClip = oldNoClip;
 			}
@@ -147,7 +147,6 @@ namespace Barcode {
 		_textSystem.tick(delta);
 		_lightSystem.tick(delta);
 
-
 		static bool enableHitboxDebug = true;
 		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
 		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
@@ -163,7 +162,7 @@ namespace Barcode {
 		_cameraSystem.setCamDef(_playerTransform->position, forwardVector, upVector, rightVector, *_cc);
 
 		_dgp->render(cameraPos, *_cc, *_playerTransform);
-		 
+
 		if (enableHitboxDebug) {
 			for (auto& kv : _hitboxBatch.batch.objects)
 				kv.second.clear();
@@ -242,9 +241,10 @@ namespace Barcode {
 					ImGui::SetNextWindowPos(ImVec2(0, 0));
 					ImGui::SetNextWindowSize(ImVec2(1920, 1080));
 					ImGui::Begin("DamageBleed", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoInputs);
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/blood.png")->getID()), ImVec2(_engine->getView()->getSize().x, _engine->getView()->getSize().y), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1,1,1, _hpTimeUp));
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/blood.png")->getID()), ImVec2(_engine->getView()->getSize().x, _engine->getView()->getSize().y), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1, 1, 1, _hpTimeUp));
 					ImGui::End();
-				}	else {
+				}
+				else {
 					_prevHP = hpP;
 					_hpTimeUp = 0;
 				}
@@ -338,7 +338,7 @@ namespace Barcode {
 			auto perk = Hydra::World::World::getEntity(_playerID)->getComponent<PerkComponent>();
 
 			size_t amountOfActives = perk->activeAbilities.size();
-			
+
 			int *coolDownList = new int[perk->activeAbilities.size()];
 
 			int step = 0;
@@ -372,7 +372,7 @@ namespace Barcode {
 
 				ImGui::End();
 			}
-			delete [] coolDownList;
+			delete[] coolDownList;
 
 			//Perk Icons
 			size_t amountOfPerks = perk->activePerks.size();
@@ -455,7 +455,6 @@ namespace Barcode {
 			rgbc->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_FLOOR
 				, 0, 0, 0, 0.6f, 0);
 			//floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
-
 		}
 
 		{
