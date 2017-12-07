@@ -25,7 +25,7 @@
 
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
-
+#include <hydra/system/deadsystem.hpp>
 #define PICKUP_CHANCE 100
 
 namespace BarcodeServer {
@@ -48,6 +48,7 @@ namespace BarcodeServer {
 	private:
 		enum { NORTH, EAST, SOUTH, WEST };
 		std::vector<std::string> _roomFileNames;
+		Hydra::System::DeadSystem deadSystem;
 
 		void _setUpMiddleRoom(const std::string& middleRoomPath);
 		void _createMapRecursivly(const glm::ivec2& pos);
