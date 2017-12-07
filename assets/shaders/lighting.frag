@@ -39,10 +39,9 @@ layout(location = 9) uniform int nrOfPointLights;
 layout(location = 10) uniform DirLight dirLight;
 layout(location = 12) uniform mat4 projection;
 layout(location = 13) uniform mat4 lightS;
-layout(location = 14) uniform PointLight pointLights[MAX_LIGHTS];
+layout(location = 14) uniform bool enableShadows;
+layout(location = 15) uniform PointLight pointLights[MAX_LIGHTS];
 
-// 14 + 5*MAX_LIGHT
-layout(location = 94) uniform bool enableShadows;
 
 float random(vec4 seed){
 	float value = dot(seed, vec4(12.9898, 78.233, 45.164, 94.673));
@@ -64,7 +63,9 @@ vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec4 objectColor){
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128);
 	vec3 specular = spec * objectColor.a * light.color;
 
-	return max(vec3(0, 0, 0), (specular + diffuse) * attenuation);
+	float fadeout = min(1, max(0, 2*2 - pow(length(light.pos - cameraPos) / 34, 2) + 1));
+
+	return max(vec3(0, 0, 0), (specular + diffuse) * attenuation) * fadeout;
 }
 
 vec3 calcDirLight(DirLight light, vec3 pos, vec3 normal, vec4 objectColor){
