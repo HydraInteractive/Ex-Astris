@@ -277,7 +277,7 @@ public:
 		batch.pipeline->setValue(23, 3);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
-			mesh->getMaterial().diffuse->bind(0);
+				mesh->getMaterial().diffuse->bind(0);
 			mesh->getMaterial().normal->bind(1);
 			mesh->getMaterial().specular->bind(2);
 			mesh->getMaterial().glow->bind(3);
