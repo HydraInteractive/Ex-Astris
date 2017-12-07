@@ -83,6 +83,7 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 				glm::quat rotation = _rotateRoom(roomC, rot);
 
 				if (roomC->door[negDir] && _checkAdjacents(pos.x + offset[direction].x, pos.y + offset[direction].y, roomC)) {
+					deadSystem.tick(0);
 					placed = true;
 					auto t = loadedRoom->getComponent<Hydra::Component::TransformComponent>();
 					t->position = _gridToWorld(pos.x + offset[direction].x, pos.y + offset[direction].y);
@@ -113,6 +114,7 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 				}*/
 		}
 	}
+	deadSystem.tick(0);
 }
 
 void TileGeneration::_setUpMiddleRoom(const std::string& middleRoomPath) {
@@ -171,6 +173,7 @@ bool TileGeneration::_generatePlayerSpawnPoints() {
 		std::cout << "Tried to get " << numberOfPlayers << " player spawnpoints but could only find " << playerSpawns.size() << "." << std::endl;
 		return false;
 	}
+	deadSystem.tick(0);
 	return true;
 }
 
@@ -194,6 +197,7 @@ void TileGeneration::_spawnEnemies() {
 	}
 	if (spawned < numberOfEnemies)
 		std::cout << "Tried to spawn " << numberOfEnemies << " enemies but could only find " << spawned << " spawnpoints." << std::endl;
+	deadSystem.tick(0);
 }
 
 void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
@@ -373,6 +377,7 @@ void TileGeneration::_clearSpawnPoints() {
 
 	for (auto e : entities)
 		e->dead = true;
+	deadSystem.tick(0);
 }
 
 void TileGeneration::_insertPathFindingMap(const glm::ivec2& room, uint8_t rot) {
@@ -439,6 +444,7 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::World::Entity>& room) 
 		}
 	}
 	//}
+	deadSystem.tick(0);
 }
 
 void TileGeneration::_spawnLight(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform) {

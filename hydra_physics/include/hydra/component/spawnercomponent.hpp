@@ -26,6 +26,7 @@ namespace Hydra::Component {
 	std::vector<int> spawnGroup = std::vector<int>();
 	float spawnTimer = 0.0f;
 	bool** map = nullptr;
+	int spawnCounter = 0;
 
 	~SpawnerComponent() final;
 

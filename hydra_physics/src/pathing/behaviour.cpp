@@ -83,8 +83,8 @@ unsigned int Behaviour::idleState(float dt)
 	resetAnimationOnStart(0);
 	//If the player is close enough, activate
 
-	/*if (!pathFinding->inWall(targetPlayer.transform->position))
-	{*/
+	//if (!pathFinding->inWall(targetPlayer.transform->position))
+	//{
 		if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 50.0f)
 		{
 			return SEARCHING;
@@ -99,7 +99,9 @@ unsigned int Behaviour::searchingState(float dt)
 {
 	//While the enemy is searching, play the walking animation
 	resetAnimationOnStart(1);
-	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) <= range)
+	float distEnemyToPlayer = glm::length(thisEnemy.transform->position - targetPlayer.transform->position);
+	
+	if (distEnemyToPlayer <= range)
 	{
 		pathFinding->foundGoal = true;
 		return ATTACKING;
@@ -115,6 +117,7 @@ unsigned int Behaviour::movingState(float dt)
 	resetAnimationOnStart(1);
 	
 	float distEnemyToPlayer = glm::length(thisEnemy.transform->position - targetPlayer.transform->position);
+	
 	if (distEnemyToPlayer <= range)
 	{
 		isAtGoal = true;
@@ -182,7 +185,9 @@ unsigned int Behaviour::attackingState(float dt)
 {
 	//When the enemy attack, start the attack animation
 	resetAnimationOnStart(2);
-	if (glm::distance(thisEnemy.transform->position, targetPlayer.transform->position) >= range)
+	float distEnemyToPlayer = glm::length(thisEnemy.transform->position - targetPlayer.transform->position);
+	
+	if (distEnemyToPlayer > range)
 	{
 		idleTimer = 0.0f;
 		return SEARCHING;
@@ -334,8 +339,9 @@ unsigned int AlienBehaviour::attackingState(float dt)
 {
 	//When the enemy attack, start the attack animation
 	resetAnimationOnStart(2);
-
-	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) >= range)
+	float distEnemyToPlayer = glm::length(thisEnemy.transform->position - targetPlayer.transform->position);
+	
+	if (distEnemyToPlayer > range)
 	{
 		idleTimer = 0;
 		return SEARCHING;
@@ -346,7 +352,7 @@ unsigned int AlienBehaviour::attackingState(float dt)
 		std::uniform_int_distribution<> randDmg(thisEnemy.ai->damage - 1, thisEnemy.ai->damage + 2);
 		glm::vec3 playerDir = glm::normalize(targetPlayer.transform->position - thisEnemy.transform->position);
 
-		if (attackTimer > 2.5)
+		if (attackTimer > 2.8)
 		{
 			if (playerUnreachable)
 			{

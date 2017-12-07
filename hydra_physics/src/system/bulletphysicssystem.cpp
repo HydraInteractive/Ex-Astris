@@ -234,6 +234,7 @@ void BulletPhysicsSystem::tick(float delta) {
 				_spawnText(cast(collPosB), std::to_string(accumulatedDamage), textColor, textScale);
 				auto targetEntity = Hydra::World::World::getEntity(lifeComponent->entityID);
 				auto aiComponent = targetEntity->getComponent<Hydra::Component::AIComponent>();
+
 				if (!targetEntity->getComponent<Hydra::Component::PlayerComponent>() && aiComponent) {
 					switch (aiComponent->behaviour->type) {
 					case Hydra::Physics::Behaviour::Behaviour::Type::ALIEN: {
