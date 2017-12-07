@@ -171,12 +171,10 @@ namespace Barcode {
 		_geometryBatch.pipeline->setValue(0, cc.getViewMatrix());
 		_geometryBatch.pipeline->setValue(1, cc.getProjectionMatrix());
 		_geometryBatch.pipeline->setValue(2, cameraPos);
-		_geometryBatch.pipeline->setValue(3, lightS);
 
 		_geometryAnimationBatch.pipeline->setValue(0, cc.getViewMatrix());
 		_geometryAnimationBatch.pipeline->setValue(1, cc.getProjectionMatrix());
 		_geometryAnimationBatch.pipeline->setValue(2, cameraPos);
-		_geometryAnimationBatch.pipeline->setValue(4, lightS);
 
 		for (auto& kv : _geometryBatch.batch.objects)
 			kv.second.clear();

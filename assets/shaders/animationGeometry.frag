@@ -6,7 +6,6 @@ in GeometryData {
 	vec3 color;
 	vec2 uv;
 	mat3 tbn;
-	vec4 light;
 } inData;
 
 layout (early_fragment_tests) in;
