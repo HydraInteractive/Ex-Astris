@@ -48,7 +48,8 @@ namespace Hydra::Component {
 		Perk = BIT(19),
 		PickUp = BIT(20),
 		Text = BIT(21),
-		GhostObject = BIT(22)
+		GhostObject = BIT(22),
+		NetworkSync = BIT(23)
 	};
 #undef BIT
 
@@ -88,6 +89,7 @@ namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API PickUpComponent;
 	struct HYDRA_GRAPHICS_API TextComponent;
 	struct HYDRA_PHYSICS_API GhostObjectComponent;
+	struct HYDRA_NETWORK_API NetworkSyncComponent;
 
 	using ComponentTypes = Hydra::Ext::TypeTuple<
 		Hydra::World::IComponent<TransformComponent, ComponentBits::Transform>,
@@ -112,7 +114,8 @@ namespace Hydra::Component {
 		Hydra::World::IComponent<PerkComponent, ComponentBits::Perk>,
 		Hydra::World::IComponent<PickUpComponent, ComponentBits::PickUp>,
 		Hydra::World::IComponent<TextComponent, ComponentBits::Text>,
-		Hydra::World::IComponent<GhostObjectComponent, ComponentBits::GhostObject>
+		Hydra::World::IComponent<GhostObjectComponent, ComponentBits::GhostObject>,
+		Hydra::World::IComponent<NetworkSyncComponent, ComponentBits::NetworkSync>
 	>;
 };
 
@@ -199,9 +202,6 @@ namespace Hydra::World {
 	public:
 		virtual const std::vector<std::shared_ptr<IComponentBase>>& getActiveComponents() = 0;
 
-		//virtual std::unordered_map<EntityID, size_t> _map;
-		//virtual std::vector<std::shared_ptr<IComponent<T, bit>>> _components;
-
 		virtual std::shared_ptr<IComponentBase> getComponent(EntityID entityID) = 0;
 		virtual std::shared_ptr<IComponentBase> addComponent(EntityID entityID) = 0;
 		virtual void removeComponent(EntityID entityID) = 0;
@@ -229,13 +229,15 @@ namespace Hydra::World {
 
 		void removeComponent(EntityID entityID) final {
 			const size_t pos = _map[entityID];
-			if (pos != _components.size() - 1) {
+			auto& c = _components[pos];
+			if (c.get() != _components.back().get()) {
 				_map[_components.back()->entityID] = pos;
-				std::swap(_components[pos], _components.back());
+				c.swap(_components.back());
 			}
-
-			_components.pop_back();
+			auto component = _components.back();
 			_map.erase(entityID);
+			_components.pop_back();
+			component.reset();
 		}
 	};
 
@@ -295,6 +297,8 @@ namespace Hydra::World {
 	IComponentHandler* IComponent<Hydra::Component::TextComponent, Hydra::Component::ComponentBits::Text>::componentHandler;
 	template <>
 	IComponentHandler* IComponent<Hydra::Component::GhostObjectComponent, Hydra::Component::ComponentBits::GhostObject>::componentHandler;
+	template <>
+	IComponentHandler* IComponent<Hydra::Component::NetworkSyncComponent, Hydra::Component::ComponentBits::NetworkSync>::componentHandler;
 #endif
 
 	template HYDRA_BASE_API struct IComponent<Hydra::Component::TransformComponent, Hydra::Component::ComponentBits::Transform>;
@@ -320,6 +324,8 @@ namespace Hydra::World {
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::PickUpComponent, Hydra::Component::ComponentBits::PickUp>;
 	template HYDRA_GRAPHICS_API struct IComponent<Hydra::Component::TextComponent, Hydra::Component::ComponentBits::Text>;
 	template HYDRA_PHYSICS_API struct IComponent<Hydra::Component::GhostObjectComponent, Hydra::Component::ComponentBits::GhostObject>;
+	template HYDRA_NETWORK_API struct IComponent<Hydra::Component::NetworkSyncComponent, Hydra::Component::ComponentBits::NetworkSync>;
+
 
 	struct HYDRA_BASE_API World final {
 		inline static std::shared_ptr<Entity>& root() {

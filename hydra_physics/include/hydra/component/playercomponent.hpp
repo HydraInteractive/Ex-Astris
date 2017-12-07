@@ -27,6 +27,7 @@ namespace Hydra::Component {
 		bool onFloor = false;
 		bool firstPerson = true;
 		bool isDead = false;
+		bool frozen = false;
 		~PlayerComponent() final;
 
 		std::shared_ptr<Hydra::World::Entity> getWeapon();
@@ -36,5 +37,6 @@ namespace Hydra::Component {
 		void serialize(nlohmann::json& json) const final;
 		void deserialize(nlohmann::json& json) final;
 		void registerUI() final;
+
 	};
 };

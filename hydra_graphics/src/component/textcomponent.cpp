@@ -27,8 +27,12 @@ void Hydra::Component::TextComponent::registerUI(){
 }
 
 void Hydra::Component::TextComponent::rebuild() {
+	if (!IEngine::getInstance())
+		return;
 	renderingData.resize(text.size());
 	auto factory = IEngine::getInstance()->getState()->getTextFactory();
+	if (!factory)
+		return;
 	glm::vec3 pos{ 0 };
 	for (size_t i = 0; i < text.size(); i++) {
 		const Hydra::IO::ITextFactory::CharInfo& info = factory->getChar(text[i]);

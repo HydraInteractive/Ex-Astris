@@ -12,7 +12,8 @@ namespace Hydra::System {
 		inline const std::string type() const final { return "LifeSystem"; }
 		void registerUI() final;
 
+		inline const std::vector<Hydra::World::EntityID>& isKilled() { return _isKilled; }
 	private:
-
+		std::vector<Hydra::World::EntityID> _isKilled;
 	};
 }

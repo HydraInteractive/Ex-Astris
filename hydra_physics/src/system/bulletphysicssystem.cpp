@@ -23,6 +23,7 @@
 #include <hydra/component/ghostobjectcomponent.hpp>
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/meshcomponent.hpp>
+#include <hydra/component/spawnercomponent.hpp>
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 
@@ -228,15 +229,16 @@ void BulletPhysicsSystem::tick(float delta) {
 						headshot = true;
 					}
 				}
-				lifeComponent->applyDamage(accumulatedDamage);
+				if (!Hydra::IEngine::getInstance()->getDeadSystem())
+					lifeComponent->applyDamage(accumulatedDamage);
 				_spawnText(cast(collPosB), std::to_string(accumulatedDamage), textColor, textScale);
 				auto targetEntity = Hydra::World::World::getEntity(lifeComponent->entityID);
-				if(!targetEntity->getComponent<Hydra::Component::PlayerComponent>())
-					switch (targetEntity->getComponent<Hydra::Component::AIComponent>()->behaviour->type)
-					{
+				auto aiComponent = targetEntity->getComponent<Hydra::Component::AIComponent>();
+				if (!targetEntity->getComponent<Hydra::Component::PlayerComponent>() && aiComponent) {
+					switch (aiComponent->behaviour->type) {
 					case Hydra::Physics::Behaviour::Behaviour::Type::ALIEN: {
 						if (headshot)
-							particleTexture = Hydra::Component::ParticleComponent::ParticleTexture::MAX_COUNT;
+							particleTexture = Hydra::Component::ParticleComponent::ParticleTexture::AlienHS;
 						else
 							particleTexture = Hydra::Component::ParticleComponent::ParticleTexture::AlienBlood;
 						_spawnParticleEmitterAt(cast(collPosB), cast(normalOnB), particleTexture);
@@ -253,6 +255,10 @@ void BulletPhysicsSystem::tick(float delta) {
 					default:
 						break;
 					}
+				} else if (targetEntity->getComponent<SpawnerComponent>()) {
+					particleTexture = Hydra::Component::ParticleComponent::ParticleTexture::Energy;
+					_spawnParticleEmitterAt(cast(collPosB), cast(normalOnB), particleTexture);
+				}
 			}
 
 			// Set the bullet entity to dead.
@@ -284,8 +290,7 @@ void BulletPhysicsSystem::_spawnParticleEmitterAt(const glm::vec3& pos, const gl
 	pEPC->optionalNormal = normal;
 
 	auto pELC = pE->addComponent<LifeComponent>();
-	pELC->maxHP = 0.9f;
-	pELC->health = 0.9f;
+	pELC->maxHP = pELC->health = 0.9f;
 }
 
 void BulletPhysicsSystem::_spawnText(const glm::vec3& pos, const std::string& text, const glm::vec3& color, const glm::vec3& scale) {

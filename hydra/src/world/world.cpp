@@ -61,7 +61,7 @@ namespace {
 
 	template <typename T>
 	inline void serializeComponent(const Entity& this_, nlohmann::json& json) {
-		if constexpr (std::is_same<T, Hydra::Component::DrawObjectComponent>::value)
+		if constexpr (std::is_same_v<T, Hydra::Component::DrawObjectComponent>)
 			return;
 		if (this_.hasComponent<T>()) {
 			auto component = this_.getComponent<T>();
@@ -115,6 +115,7 @@ void Entity::serialize(nlohmann::json& json) const {
 			world::getEntity(children[i])->serialize(c[i]);
 	}
 }
+
 
 void Entity::deserialize(nlohmann::json& json) {
 	name = json["name"].get<std::string>();
@@ -177,8 +178,8 @@ void World::removeEntity(EntityID entityID) {
 	} else
 		return;
 
-	const size_t pos = _map.at(entityID);
-	auto& e = _entities.at(pos);
+	const size_t pos = _map[entityID];
+	auto& e = _entities[pos];
 	if (!e.get() || e->id != _entities.back()->id) {
 		_map[_entities.back()->id] = pos;
 		e.swap(_entities.back());
