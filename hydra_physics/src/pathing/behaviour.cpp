@@ -795,7 +795,6 @@ unsigned int BossHand_Left::canonState(float dt) {
 		}
 	}
 
-
 	return state;
 }
 
@@ -851,7 +850,9 @@ bool BossHand_Left::refreshRequiredComponents()
 	return hasRequiredComponents;
 }
 
-BossArm::BossArm(std::shared_ptr<Hydra::World::Entity> enemy) {
+
+
+BossArm::BossArm(std::shared_ptr<Hydra::World::Entity> enemy) : Behaviour(enemy) {
 	this->type = Type::BOSS_ARMS;
 }
 
@@ -867,8 +868,6 @@ void BossArm::run(float dt) {
 	if (!hasRequiredComponents)
 		if (!refreshRequiredComponents())
 			return;
-	if (thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>()->health <= 0)
-		return;
 
 	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
 	thisEnemy.ai->debugState = state;
@@ -900,7 +899,7 @@ void BossArm::run(float dt) {
 		break;
 
 	}
-	updateJointPosition();
+	updateRigidBodyPosition();
 	executeTransforms();
 
 }
@@ -934,7 +933,7 @@ unsigned int BossArm::sweepState(float dt)
 	return state;
 }
 
-void BossArm::updateJointPosition() {
+void BossArm::updateRigidBodyPosition() {
 
 	//thisEnemy.rigidBody->
 
@@ -945,13 +944,82 @@ bool BossArm::refreshRequiredComponents() {
 		(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>().get()) &&
 		(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>().get()) &&
 		(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>().get()) &&
-		(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
 		(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
 		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity().get()) &&
 		(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 		(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
 		);
+	return hasRequiredComponents;
 }
 
+StationaryBoss::StationaryBoss(std::shared_ptr<Hydra::World::Entity> enemy) :Behaviour(enemy){
+	this->type = Type::STATINARY_BOSS;
+}
 
+StationaryBoss::StationaryBoss() {
+	this->type = Type::STATINARY_BOSS;
+}
+
+StationaryBoss::~StationaryBoss() {
+}
+
+void StationaryBoss::run(float dt) {
+	
+	if (!hasRequiredComponents)
+		if (!refreshRequiredComponents())
+			return;
+	if (thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>()->health <= 0)
+		return;
+
+	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
+	thisEnemy.ai->debugState = state;
+
+	idleTimer += dt;
+	attackTimer += dt;
+	newPathTimer += dt;
+
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 500)
+	{
+		state = HandPhases::IDLEHAND;
+	}
+
+	switch (state)
+	{
+	case StatinoaryBossPhases::NOTHING:
+		state = idleState(dt);
+		break;
+	}
+
+	executeTransforms();
+}
+
+unsigned int StationaryBoss::idleState(float dt) {
+
+	int state = StatinoaryBossPhases::NOTHING;
+
+	return state;
+	
+}
+
+//unsigned int StationaryBoss::shootingState(float dt) {
+//
+//
+//	
+//}
+
+bool StationaryBoss::refreshRequiredComponents()
+{
+	hasRequiredComponents = (
+		(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>().get()) &&
+		(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>().get()) &&
+		(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>().get()) &&
+		(thisEnemy.weapon = thisEnemy.entity->getComponent<Hydra::Component::WeaponComponent>().get()) &&
+		(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
+		(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
+		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity().get()) &&
+		(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
+		(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
+		);
+	return hasRequiredComponents;
+}

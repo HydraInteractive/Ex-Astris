@@ -17,7 +17,7 @@ public:
 	Behaviour();
 	virtual ~Behaviour();
 
-	enum class Type { ALIEN, ROBOT, ALIENBOSS, BOSS_HAND, BOSS_ARMS};
+	enum class Type { ALIEN, ROBOT, ALIENBOSS, BOSS_HAND, BOSS_ARMS, STATINARY_BOSS};
 	Type type = Type::ALIEN;
 
 	enum { IDLE, SEARCHING, MOVING, ATTACKING };
@@ -31,6 +31,9 @@ public:
 
 	enum ArmPhases { SWEEP, SINGLE_BONK, MULTIPLE_BONK, CHILL};
 	ArmPhases armPhase = ArmPhases::CHILL;
+
+	enum StatinoaryBossPhases { NOTHING, CANON};
+	StatinoaryBossPhases stationaryPhase = StatinoaryBossPhases::NOTHING;
 
 
 	float idleTimer = 0.0f;
@@ -181,9 +184,7 @@ public:
 	const float originalHeight = 10.0f;
 	glm::vec3 basePosition = glm::vec3(55, originalHeight, 15);
 	glm::vec3 swipePosition = glm::vec3(25, 1, 25);
-	glm::vec3 canonPosition = glm::vec3(50, originalHeight, 10);
-	glm::vec3 coverPosition = glm::vec3(45, originalHeight, 5);
-	glm::vec3 smashPosition = glm::vec3(0);
+	glm::vec3 bonkPosition = glm::vec3(45, originalHeight, 5);
 
 	float coverTimer = 0.0f;
 	float stunTimer = 0.0f;
@@ -193,14 +194,30 @@ public:
 	bool smashing = false;
 
 	void run(float dt);
-	//void move(glm::vec3 target);
 
 	unsigned int idleState(float dt) final;
 	unsigned int bonkState(float dt);
 	unsigned int multipleBonkState(float dt);
 	unsigned int sweepState(float dt);
 
-	void updateJointPosition();
+	void updateRigidBodyPosition();
+
+private:
+	bool refreshRequiredComponents() final;
+};
+
+class HYDRA_PHYSICS_API StationaryBoss final : public Behaviour
+{
+public:
+	StationaryBoss(std::shared_ptr<Hydra::World::Entity> enemy);
+	StationaryBoss();
+	~StationaryBoss();
+
+	void run(float dt);
+
+	float idleTimer = 0.0f;
+	unsigned int idleState(float dt) final;
+	//unsigned int shootingState(float dt) final;
 
 private:
 	bool refreshRequiredComponents() final;

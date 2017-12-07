@@ -379,7 +379,7 @@ namespace Barcode {
 		}   
 		{
 			//Remove this to gain frames like never before
-			tileGen = new TileGeneration("assets/BossRoom/Bossroom.room");
+			tileGen = new TileGeneration("assets/BossRoom/Bossroom.room"); 
 			//tileGen = new TileGeneration("assets/room/GeneratonInTheMiddle.room");
 			pathfindingMap = tileGen->buildMap();
 		} 
@@ -400,38 +400,21 @@ namespace Barcode {
 					bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossArmModel.mATTIC");
 					auto a = bossEntity->addComponent<Hydra::Component::AIComponent>();
 					a->behaviour = std::make_shared<BossArm>(bossEntity);
-					a->behaviour->setPathMap(pathfindingMap);
 					a->damage = 7;
 					a->behaviour->originalRange = 20;
 					a->radius = 1;
 
-					//Set different positions for other hand
+					//Set different positions for other arm
 					if (i == 1) {
 
 					}
-
-					auto h = bossEntity->addComponent<Hydra::Component::LifeComponent>();
-					h->maxHP = 70;
-					h->health = 70;
-
-					auto w = bossEntity->addComponent<Hydra::Component::WeaponComponent>();
-					w->bulletSpread = 1.0f;
-					w->fireRateRPM = 5000000;
-					w->fireRateTimer = 0.001f;
-					w->bulletsPerShot = 1;
-
-					w->damage = 7;
-					w->maxmagammo = 100000000;
-					w->currmagammo = 100000000;
-					w->maxammo = 100000000;
 
 					auto m = bossEntity->addComponent<Hydra::Component::MovementComponent>();
 					m->movementSpeed = 25.0f;
 					auto t = bossEntity->addComponent<Hydra::Component::TransformComponent>();
 					t->position.y = 10;
 					t->scale = glm::vec3{ 1,1,1 };
-
-
+					
 					auto rgbc = bossEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 					rgbc->createBox(glm::vec3(8.0f, 2.5f, 8.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 						0, 0, 0.6f, 1.0f);
