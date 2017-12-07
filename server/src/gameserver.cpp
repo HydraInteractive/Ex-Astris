@@ -91,7 +91,7 @@ void GameServer::start() {
 		_tileGeneration = std::make_unique<TileGeneration>("assets/room/starterRoom.room");
 		_pathfindingMap = _tileGeneration->buildMap();
 		_deadSystem.tick(0);
-		printf("Room count: %zu\t(%d)\n", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size(), _tileGeneration->roomCounter);
+		printf("Room count: %zu\t(%zu)\n", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size(), _tileGeneration->roomCounter);
 		if (Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size() >= 20)
 			break;
 		printf("\tTarget is >= 20, redoing generation\n");
