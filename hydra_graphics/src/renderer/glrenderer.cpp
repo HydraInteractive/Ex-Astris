@@ -103,6 +103,7 @@ public:
 		batch.pipeline->setValue(9, 2);
 		batch.pipeline->setValue(10, 3);
 		batch.pipeline->setValue(11, 4);
+		glDisable(GL_CULL_FACE);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
 			if (!mesh)
@@ -139,6 +140,7 @@ public:
 				glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndicesCount()), GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(amount));
 			}
 		}
+		glEnable(GL_CULL_FACE);
 	}
 
 	void renderShadows(AnimationBatch& batch) final {

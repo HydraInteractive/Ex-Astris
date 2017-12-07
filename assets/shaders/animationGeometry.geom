@@ -14,10 +14,10 @@ in VertexData {
 
 out GeometryData {
 	vec3 position;
+	mat3 tbn;
 	vec3 normal;
 	vec3 color;
 	vec2 uv;
-	mat3 tbn;
 } outData;
 
 out gl_PerVertex {
@@ -47,7 +47,7 @@ void main() {
 	int i;
 
 	for (i = 0; i < 3; i++) {
-		vec4 pos = inData[i].m * vec4(inData[i].position, 1.0f);
+		vec4 pos = vec4(inData[i].position, 1.0f);
 		outData.position = pos.xyz;
 
 		mat3 normalMatrix = transpose(inverse(mat3(inData[i].m)));
@@ -55,7 +55,6 @@ void main() {
 		outData.normal = normalize(normalMatrix * inData[i].normal);
 
 		outData.color = inData[i].color;
-		//outData.uv = vec2(inData[i].uv.x + 0.5f, 1 - inData[i].uv.y);
 		outData.uv = vec2(inData[i].uv.x, 1 - inData[i].uv.y);
 
 		gl_Position = p * v * pos;

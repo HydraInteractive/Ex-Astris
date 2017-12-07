@@ -2,10 +2,10 @@
 
 in GeometryData {
 	vec3 position;
+	mat3 tbn;
 	vec3 normal;
 	vec3 color;
 	vec2 uv;
-	mat3 tbn;
 } inData;
 
 layout (early_fragment_tests) in;
@@ -23,7 +23,7 @@ layout (location = 10) uniform sampler2D glowTexture;
 void main() {
 	vec3 materialDiffuse = texture(diffuseTexture, inData.uv).rgb;
 	float specular = texture(specularTexture, inData.uv).r;
-	diffuse = vec4(vec3(0), specular);
+	diffuse = vec4(materialDiffuse, specular);
 
 	vec3 tempNormal = texture(normalTexture, inData.uv).rgb;
 	normal = normalize(inData.tbn * tempNormal);
