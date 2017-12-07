@@ -35,8 +35,8 @@ namespace Hydra::Component {
 	struct HYDRA_GRAPHICS_API PointLightComponent final : public IComponent<PointLightComponent, ComponentBits::PointLight> {
 		glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
 		float constant = 1.0f;
-		float linear = 0.045f;
-		float quadratic = 0.0075f;
+		float linear = 0.14f;
+		float quadratic = 0.07f;
 
 		~PointLightComponent() final;
 

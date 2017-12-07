@@ -289,10 +289,14 @@ void GameServer::_sendWorld() {
 		auto life = entity->getComponent<LifeComponent>();
 		if (life)
 			entupdate.life = life->health;
+		else
+			entupdate.life = INT32_MAX;
 
 		auto mesh = entity->getComponent<MeshComponent>();
 		if (mesh)
 			entupdate.animationIndex = mesh->animationIndex;
+		else
+			entupdate.animationIndex = 0;
 	}
 
 	this->_server->sendDataToAll((char*)packet, packet->len);
@@ -310,24 +314,30 @@ void GameServer::_convertEntityToTransform(ServerUpdatePacket::EntUpdate& dest, 
 void GameServer::_resolvePackets(std::vector<Hydra::Network::Packet*> packets) {
 	for (size_t i = 0; i < packets.size(); i++) {
 		auto& p = packets[i];
+		auto entity = this->_getEntityID(p->client);
+		if (!entity)
+			continue;
+		auto player = this->_getPlayer(entity);
+		if (!player)
+			continue;
 		//printf("Resolving:\n\ttype: %s\n\tlen: %d\n", PacketTypeName[p->type], p->len);
 		switch (p->type) {
 		case PacketType::ClientUpdate:
-			resolveClientUpdatePacket((ClientUpdatePacket*)p, this->_getEntityID(p->client));
+			resolveClientUpdatePacket((ClientUpdatePacket*)p, entity);
 			break;
 
 		case PacketType::ClientSpawnEntity:
-			resolveClientSpawnEntityPacket((ClientSpawnEntityPacket*)p, this->_getEntityID(p->client), this->_server);
+			resolveClientSpawnEntityPacket((ClientSpawnEntityPacket*)p, entity, this->_server);
 			break;
 
 		case PacketType::ClientUpdateBullet:
-			resolveClientUpdateBulletPacket((ClientUpdateBulletPacket*)p, this->_getPlayer(this->_getEntityID(p->client))->bullet); // SUPER INEFFICIENT
-			createAndSendPlayerUpdateBulletPacket(this->_getPlayer(this->_getEntityID(p->client)), this->_server);
+			resolveClientUpdateBulletPacket((ClientUpdateBulletPacket*)p, player->bullet); // SUPER INEFFICIENT
+			createAndSendPlayerUpdateBulletPacket(player, this->_server);
 			break;
 
 		case PacketType::ClientShoot:
-			resolveClientShootPacket((ClientShootPacket*)p, this->_getPlayer(this->_getEntityID(p->client)), &_physicsSystem); //SUPER INEFFICIENT
-			createAndSendPlayerShootPacket(this->_getPlayer(this->_getEntityID(p->client)), (ClientShootPacket*)p, this->_server);
+			resolveClientShootPacket((ClientShootPacket*)p, player, &_physicsSystem); //SUPER INEFFICIENT
+			createAndSendPlayerShootPacket(player, (ClientShootPacket*)p, this->_server);
 			break;
 		default:
 			break;

@@ -30,7 +30,7 @@ namespace Hydra::Component {
 		
 		float fov = 90.0f;
 		float zNear = 0.1f;
-		float zFar = 75.0f;
+		float zFar = 250.0f;
 		float aspect = 1920.0f/1080.0f;
 
 		float sensitivity = 0.003f;
