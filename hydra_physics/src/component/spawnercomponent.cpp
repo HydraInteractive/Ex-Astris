@@ -24,6 +24,7 @@ void Hydra::Component::SpawnerComponent::serialize(nlohmann::json & json) const
 	//json["spawnerID"] = spawnerID;
 	json = {
 		{ "spawnerID", (int)spawnerID },
+		{ "spawnCounter", (int)spawnCounter },
 	};
 
 	json["mapSize"] = (unsigned int)ROOM_MAP_SIZE;
@@ -40,6 +41,7 @@ void Hydra::Component::SpawnerComponent::deserialize(nlohmann::json & json)
 {
 	//spawnerID = json.value<int>("spawnerID", 0);
 	spawnerID = (SpawnerType)json["spawnerID"].get<int>();
+	spawnCounter = json["spawnCounter"].get<int>();
 
 	if (json.value<unsigned int>("mapSize", 0) == ROOM_MAP_SIZE)
 	{
