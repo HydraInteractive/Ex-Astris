@@ -336,7 +336,7 @@ namespace Barcode {
 
 			//Allied on compass
 			i = 0;
-			glm::mat4 viewMat = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get())->getViewMatrix();
+			//glm::mat4 viewMat = static_cast<Hydra::Component::CameraComponent*>(Hydra::Component::CameraComponent::componentHandler->getActiveComponents()[0].get())->getViewMatrix();
 			std::vector<std::shared_ptr<Entity>> playerEntities;
 			world::getEntitiesWithComponents<Hydra::Component::PlayerComponent>(playerEntities);
 			for (auto& allies : playerEntities) {
