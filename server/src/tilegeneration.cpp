@@ -32,9 +32,7 @@ TileGeneration::TileGeneration(const std::string& middleRoomPath) {
 	{
 		pathfindingMap[i] = new bool[WORLD_MAP_SIZE];
 		for (int j = 0; j < WORLD_MAP_SIZE; j++)
-		{
 			pathfindingMap[i][j] = false;
-		}
 	}
 	_setUpMiddleRoom(middleRoomPath);
 }
@@ -131,6 +129,7 @@ void TileGeneration::_setUpMiddleRoom(const std::string& middleRoomPath) {
 	_insertPathFindingMap(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2), 0 /* No rotation */);
 	_generatePlayerSpawnPoints();
 	_clearSpawnPoints();
+	_spawnPickUps(room);
 	_spawnLight(t);
 }
 
@@ -145,18 +144,16 @@ void TileGeneration::_obtainRoomFiles() {
 
 void TileGeneration::_randomizeRooms() {
 	//Randomize the list 2 times for extra randomness
-	for (size_t k = 0; k < 2; k++) {
+	for (size_t k = 0; k < 2; k++)
 		for (size_t i = 0; i < _roomFileNames.size(); i++) {
 			int randomPos = rand() % _roomFileNames.size();
 			std::swap(_roomFileNames[i], _roomFileNames[randomPos]);
 		}
-	}
 }
 
 //Call after creating the first room to spawn players in the same room, call after creating the whole map to randomly spawn players across the whole map
 //Returns false if not enough player spawn points were found
-bool TileGeneration::_generatePlayerSpawnPoints()
-{
+bool TileGeneration::_generatePlayerSpawnPoints() {
 	//Get all spawnpoints
 	std::vector<std::shared_ptr<Hydra::World::Entity>> entities = std::vector<std::shared_ptr<Hydra::World::Entity>>();
 	world::getEntitiesWithComponents<Hydra::Component::SpawnPointComponent, Hydra::Component::TransformComponent>(entities);
@@ -164,18 +161,15 @@ bool TileGeneration::_generatePlayerSpawnPoints()
 	//Randomize order
 	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
 	shuffle(entities.begin(), entities.end(), std::default_random_engine(seed));
-	for (size_t i = 0; i < entities.size() && playerSpawns.size() < numberOfPlayers; i++)
-	{
+	for (size_t i = 0; i < entities.size() && playerSpawns.size() < numberOfPlayers; i++) {
 		auto sp = entities[i]->getComponent<Hydra::Component::SpawnPointComponent>();
-		if (sp->playerSpawn && !entities[i]->dead)
-		{
+		if (sp->playerSpawn && !entities[i]->dead) {
 			auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 			playerSpawns.push_back(t->getMatrix()[3]);
 			entities[i]->dead = true;
 		}
 	}
-	if (playerSpawns.size() < numberOfPlayers)
-	{
+	if (playerSpawns.size() < numberOfPlayers) {
 		std::cout << "Tried to get " << numberOfPlayers << " player spawnpoints but could only find " << playerSpawns.size() << "." << std::endl;
 		return false;
 	}
@@ -191,33 +185,28 @@ void TileGeneration::_spawnEnemies() {
 	shuffle(entities.begin(), entities.end(), std::default_random_engine(seed));
 
 	size_t spawned = 0;
-	for (size_t i = 0; i < entities.size() && spawned < numberOfEnemies; i++)
-	{
+	for (size_t i = 0; i < entities.size() && spawned < numberOfEnemies; i++)	{
 		auto sp = entities[i]->getComponent<Hydra::Component::SpawnPointComponent>();
-		if (sp->enemySpawn && !entities[i]->dead)
-		{
+		if (sp->enemySpawn && !entities[i]->dead)	{
 			auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
+			t->dirty = true;
 			_spawnRandomEnemy(t->getMatrix()[3]);
 			entities[i]->dead = true;
 			spawned++;
 		}
 	}
 	if (spawned < numberOfEnemies)
-	{
 		std::cout << "Tried to spawn " << numberOfEnemies << " enemies but could only find " << spawned << " spawnpoints." << std::endl;
-	}
 	deadSystem.tick(0);
 }
 
-void TileGeneration::_spawnRandomEnemy(glm::vec3 pos)
-{
+void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 	pos.y = pos.y + 2;
 	int randNr = rand() % 3;
+	printf("Spawning at (%.2f, %.2f, %.2f), AI: %d\n", pos.x, pos.y, pos.z, randNr);
 
-	switch (randNr)
-	{
-	case 1:
-	{
+	switch (randNr) {
+	case 1: {
 		auto alienEntity = world::newEntity("FastAlien1", world::root());
 		alienEntity->addComponent<Hydra::Component::NetworkSyncComponent>();
 		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienFastModel.mATTIC");
@@ -259,6 +248,7 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos)
 	//case 2:
 	//{
 	//	auto robotEntity = world::newEntity("Robot1", world::root());
+	//	robotEntity->addComponent<Hydra::Component::NetworkSyncComponent>();
 	//	robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
 	//	auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
 	//	a->behaviour = std::make_shared<RobotBehaviour>(robotEntity);
@@ -291,8 +281,7 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos)
 	//	rgbc->setAngularForce(glm::vec3(0));
 	//}
 	//break;
-	default:
-	{
+	default: {
 		auto alienEntity = world::newEntity("SlowAlien1", world::root());
 		alienEntity->addComponent<Hydra::Component::NetworkSyncComponent>();
 		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
@@ -336,10 +325,10 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos)
 }
 
 //TODO: Randomize spawners
-void BarcodeServer::TileGeneration::_createSpawner(glm::vec3 pos)
-{
+void BarcodeServer::TileGeneration::_createSpawner(glm::vec3 pos) {
 	//{
 	//	auto alienSpawner = world::newEntity("SpawnerAlien1", world::root());
+	//	alienSpawner->addComponent<Hydra::Component::NetworkSyncComponent>();
 	//	alienSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge1.mATTIC");
 	//	auto sa = alienSpawner->addComponent<Hydra::Component::SpawnerComponent>();
 	//	sa->map = pathfindingMap;
@@ -361,6 +350,7 @@ void BarcodeServer::TileGeneration::_createSpawner(glm::vec3 pos)
 
 	//{
 	//	auto robotSpawner = world::newEntity("SpawnerAlien1", world::root());
+	//	robotSpawner->addComponent<Hydra::Component::NetworkSyncComponent>();
 	//	robotSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge1.mATTIC");
 	//	auto sa = robotSpawner->addComponent<Hydra::Component::SpawnerComponent>();
 	//	sa->map = pathfindingMap;
@@ -381,16 +371,13 @@ void BarcodeServer::TileGeneration::_createSpawner(glm::vec3 pos)
 	//}
 }
 
-void TileGeneration::_clearSpawnPoints()
-{
+void TileGeneration::_clearSpawnPoints() {
 	//Get all spawnpoints
 	std::vector<std::shared_ptr<Hydra::World::Entity>> entities = std::vector<std::shared_ptr<Hydra::World::Entity>>();
 	world::getEntitiesWithComponents<Hydra::Component::SpawnPointComponent, Hydra::Component::TransformComponent>(entities);
 
 	for (auto e : entities)
-	{
 		e->dead = true;
-	}
 	deadSystem.tick(0);
 }
 
@@ -439,11 +426,10 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::World::Entity>& room)
 			{
 				auto pos = world::getEntity(id)->getComponent<Hydra::Component::TransformComponent>();
 
-				auto pickUpEntity = world::newEntity("PickUp", world::root());
+				auto pickUpEntity = world::newEntity("PickUp", room->id);
 
 				auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
-				t->position = pos->getMatrix()[3];
-				t->position.y = t->position.y + 3;
+				t->position = {0, 3, 0};
 
 				pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Lock.mATTIC");
 
@@ -452,14 +438,6 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::World::Entity>& room)
 				auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 				rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
 				rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-
-				auto pickupText = world::newEntity("Textpickup", world::root());
-				pickupText->addComponent<Hydra::Component::MeshComponent>()->loadMesh("TEXTQUAD");
-				pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
-
-				auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
-				textStuff->setText("Perk picked up");
-				textStuff->isStatic = true;
 
 				auto lc = pickUpEntity->addComponent<Hydra::Component::LifeComponent>();
 				lc->health = lc->maxHP;
@@ -471,15 +449,17 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::World::Entity>& room)
 }
 
 void TileGeneration::_spawnLight(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform) {
-	auto pointLight1 = world::newEntity("Pointlight1", roomTransform->entityID);
-	pointLight1->addComponent<Hydra::Component::TransformComponent>();
-	auto t = pointLight1->getComponent<Hydra::Component::TransformComponent>();
-	t->position.x = roomTransform->position.x;
-	t->position.y = roomTransform->position.y + 7;
-	t->position.z = roomTransform->position.z;
-	auto p1LC = pointLight1->addComponent<Hydra::Component::PointLightComponent>();
-
-	p1LC->color = glm::vec3(1);
+#define frand() (float(rand()) / RAND_MAX)
+	auto pl = world::newEntity("Pointlight-GENERATED", roomTransform->entityID);
+	pl->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Cup.mATTIC");
+	pl->addComponent<Hydra::Component::TransformComponent>();
+	auto t = pl->getComponent<Hydra::Component::TransformComponent>();
+	t->position.x = 0;
+	t->position.y = 7;
+	t->position.z = 0;
+	auto lc = pl->addComponent<Hydra::Component::PointLightComponent>();
+	lc->color = glm::vec3(frand()*2, frand()*2, frand()*2);
+#undef frand
 }
 
 glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComponent>& room, uint8_t& rot) {
@@ -508,8 +488,7 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 		memcpy(room->openWalls, openWalls, sizeof(openWalls));
 
 		rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0, 1, 0));
-	}
-	else if (rot == 2) {
+	}	else if (rot == 2) {
 		decltype(room->door) doors = {
 			room->door[SOUTH],
 			room->door[WEST],
@@ -526,8 +505,7 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 		memcpy(room->openWalls, openWalls, sizeof(openWalls));
 
 		rotation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0, 1, 0));
-	}
-	else if (rot == 3) {
+	}	else if (rot == 3) {
 		decltype(room->door) doors = {
 			room->door[WEST],
 			room->door[NORTH],

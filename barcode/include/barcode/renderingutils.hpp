@@ -139,10 +139,11 @@ namespace Barcode {
 			glm::vec4 worldBox;
 			size_t roomCount;
 			std::vector<Hydra::Component::DrawObjectComponent*> objects;
+			std::vector<Hydra::Component::PointLightComponent*> lights;
 		};
 		RenderSet _renderSets[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
 
-		static void _collectObjects(std::vector<Hydra::Component::DrawObjectComponent*>& objects, Hydra::World::Entity* e);
+		static void _collectObjects(RenderSet& rs, Hydra::World::Entity* e);
 		std::vector<glm::vec3> _getSSAOKernel(size_t size);
 		std::vector<glm::vec3> _getSSAONoise(size_t size);
 	};
