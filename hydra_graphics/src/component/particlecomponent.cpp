@@ -140,6 +140,28 @@ void ParticleComponent::spawnParticles() {
 			p->respawn(*t, vel, acc, life);
 		}
 		break;
+	case EmitterBehaviour::SpawnerBeam:
+		while (accumulator >= delay) {
+			Particle* p = findFree();
+			if (!p)
+				break;
+
+			const float posX = frand() * 2.8f - 1.4f;
+			const float posZ = frand() * 2.8f - 1.4f;
+
+			t->position = glm::vec3(posX, 0, posZ);
+
+			accumulator -= delay;
+			const float velY = frand() * 4 - 1;
+			const float accY = frand() * 3.5f;
+
+			const float life = frand() + 1.f;
+
+			const glm::vec3 vel = glm::normalize(glm::vec3(0, velY, 0));
+			const glm::vec3 acc = glm::vec3(0, accY, 0);
+			p->respawn(*t, vel, acc, life);
+		}
+		break;
 	default:
 		break;
 	}
