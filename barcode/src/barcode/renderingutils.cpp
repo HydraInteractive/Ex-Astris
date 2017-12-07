@@ -260,7 +260,7 @@ namespace Barcode {
 			if (MenuState::shadowEnabled)
 				_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 		}
-		const int MAX_LIGHTS = 16;
+		const int MAX_LIGHTS = 24;
 
 		size_t lightCount = 0;
 		{

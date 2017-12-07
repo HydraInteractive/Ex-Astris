@@ -2,7 +2,7 @@
 
 in vec2 texCoords;
 
-const int MAX_LIGHTS = 16;
+const int MAX_LIGHTS = 24;
 
 struct DirLight{
 	vec3 dir;
@@ -100,7 +100,7 @@ void main() {
 
 	// Lighting
 	// 0.1f should be ambient coefficient
-	vec3 globalAmbient = objectColor.rgb * 0.1f;
+	vec3 globalAmbient = objectColor.rgb * 0.05f;
 	vec3 result = vec3(0);
 
 	// Directional light
@@ -110,10 +110,6 @@ void main() {
 	for(int i = 0 ; i < nrOfPointLights; i++){
 		result += calcPointLight(pointLights[i], pos, normal, objectColor);
 	}
-
-	float ambientOcclusion = texture(ssao, texCoords).r;
-	if (enableSSAO)
-		globalAmbient *= ambientOcclusion;
 
 	// Shadow
 	vec3 projCoords = lightPos.xyz / lightPos.w;
@@ -139,6 +135,12 @@ void main() {
 		brightOutput = objectColor.rgb;
 	else
 		brightOutput = vec3(0);
+
+	float ambientOcclusion = texture(ssao, texCoords).r;
+	if (enableSSAO) {
+		globalAmbient *= ambientOcclusion;
+		result *= ambientOcclusion;
+	}
 
 	result *= shadow;
 
