@@ -55,10 +55,10 @@ public:
 
 		//Manhattan Distance - do not use, gives invalid values
 		//Distance to side nodes is 1, diagonal is 2
-		//int hDistanceTo(Node* nodeEnd)
-		//{
-		//	return abs(this->pos.x() - nodeEnd->pos.x() + abs(this->pos.z() - nodeEnd->pos.z();
-		//}
+		int hDistanceTo(Node* nodeEnd)
+		{
+			return abs(this->pos.x() - nodeEnd->pos.x() + abs(this->pos.z() - nodeEnd->pos.z()));
+		}
 
 		//Chebychev Distance - inaccurate but safe
 		//Distance to all adjacent nodes is 1
@@ -68,10 +68,10 @@ public:
 		//}
 
 		//Actual Distance - probably the best maybe, float inaccuracies may break it
-		float hDistanceTo(Node* nodeEnd)
-		{
-			return std::sqrt(std::pow(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::pow(this->pos.z() - nodeEnd->pos.z(), 2.0f));
-		}
+		//float hDistanceTo(Node* nodeEnd)
+		//{
+		//	return std::sqrt(std::pow(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::pow(this->pos.z() - nodeEnd->pos.z(), 2.0f));
+		//}
 
 		//Must always be used to calculate G distance
 		float gDistanceTo(Node* nodeEnd)

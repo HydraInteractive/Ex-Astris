@@ -71,7 +71,6 @@ bool Behaviour::refreshRequiredComponents()
 			(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 			(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
 			(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
-			//(targetPlayer.entity = thisEnemy.ai->getPlayerEntity().get()) &&
 			(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 			(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
 		 );
@@ -107,8 +106,8 @@ unsigned int Behaviour::searchingState(float dt)
 		return ATTACKING;
 	}
 
-	//pathFinding->findPath(thisEnemy.transform->position, targetPlayer.transform->position);
-	//newPathTimer = 0;
+	pathFinding->findPath(thisEnemy.transform->position, targetPlayer.transform->position);
+	newPathTimer = 0;
 	return MOVING;
 }
 
@@ -125,53 +124,53 @@ unsigned int Behaviour::movingState(float dt)
 	}
 
 	//If enemy can see the player, move toward them
-	if (/*pathFinding->inLineOfSight(thisEnemy.transform->position, targetPlayer.transform->position)*/ true)
+	if (pathFinding->inLineOfSight(thisEnemy.transform->position, targetPlayer.transform->position))
 	{
 		move(targetPlayer.transform->position);
 	}
 	//If there is nowhere to go, search (prob not needed, should always have a goal here)
-	//if (!pathFinding->pathToEnd.empty())
-	//{	
-	//	//Made these as the code got very hard to read otherwise
-	//	float distEnemyToNextPos = glm::distance(flatVector(thisEnemy.transform->position), flatVector(pathFinding->pathToEnd.back()));
-	//	float distEnemyToGoal = glm::distance(flatVector(thisEnemy.transform->position), flatVector(pathFinding->pathToEnd.front()));
-	//	float distPlayerToGoal = glm::distance(flatVector(targetPlayer.transform->position), flatVector(pathFinding->pathToEnd.front()));
-	//	
-	//	//Check that the goal is closer to the player than we are, otherwise the path is invalid
-	//	if (distPlayerToGoal < distEnemyToPlayer)
-	//	{
-	//		//If the next pos is reached move on
-	//		if (distEnemyToNextPos <= 1.0f)
-	//		{
-	//			pathFinding->pathToEnd.pop_back();
-	//			//If there is nowhere to go, search
+	if (!pathFinding->pathToEnd.empty())
+	{	
+		//Made these as the code got very hard to read otherwise
+		float distEnemyToNextPos = glm::distance(flatVector(thisEnemy.transform->position), flatVector(pathFinding->pathToEnd.back()));
+		float distEnemyToGoal = glm::distance(flatVector(thisEnemy.transform->position), flatVector(pathFinding->pathToEnd.front()));
+		float distPlayerToGoal = glm::distance(flatVector(targetPlayer.transform->position), flatVector(pathFinding->pathToEnd.front()));
+		
+		//Check that the goal is closer to the player than we are, otherwise the path is invalid
+		if (distPlayerToGoal < distEnemyToPlayer)
+		{
+			//If the next pos is reached move on
+			if (distEnemyToNextPos <= 1.0f)
+			{
+				pathFinding->pathToEnd.pop_back();
+				//If there is nowhere to go, search
 
-	//			if (pathFinding->pathToEnd.empty())
-	//			{
-	//				move(targetPlayer.transform->position);
-	//				return SEARCHING;
-	//			}
-	//			else
-	//			{
-	//				move(pathFinding->pathToEnd.back());
-	//			}
-	//		}
-	//		else
-	//		{
-	//			move(pathFinding->pathToEnd.back());
-	//		}
-	//	}
-	//	else
-	//	{
-	//		move(targetPlayer.transform->position);
-	//		return SEARCHING;
-	//	}
-	//}
-	//else
-	//{
-	//	move(targetPlayer.transform->position);
-	//	return SEARCHING;
-	//}
+				if (pathFinding->pathToEnd.empty())
+				{
+					move(targetPlayer.transform->position);
+					return SEARCHING;
+				}
+				else
+				{
+					move(pathFinding->pathToEnd.back());
+				}
+			}
+			else
+			{
+				move(pathFinding->pathToEnd.back());
+			}
+		}
+		else
+		{
+			move(targetPlayer.transform->position);
+			return SEARCHING;
+		}
+	}
+	else
+	{
+		move(targetPlayer.transform->position);
+		return SEARCHING;
+	}
 
 	if (newPathTimer >= newPathDelay)
 	{
@@ -297,17 +296,21 @@ void AlienBehaviour::run(float dt)
 	attackTimer += dt;
 	newPathTimer += dt;
 	regainRange += dt;
-	//auto pc = targetPlayer.entity->getComponent<Hydra::Component::PlayerComponent>();
-	//if (!pc->onFloor && pc->onGround && pathFinding->inWall(targetPlayer.transform->position))
-	//{
-	//	playerUnreachable = true;
-	//	originalRange = 15;
-	//}
-	//else if (pc->onFloor && pc->onGround)
-	//{
-	//	playerUnreachable = false;
-	//	originalRange = savedRange;
-	//}
+
+	if (targetPlayer.entity->getComponent<Hydra::Component::PlayerComponent>() != nullptr)
+	{
+		auto pc = targetPlayer.entity->getComponent<Hydra::Component::PlayerComponent>();
+		if (!pc->onFloor && pc->onGround && pathFinding->inWall(targetPlayer.transform->position))
+		{
+			playerUnreachable = true;
+			originalRange = 15;
+		}
+		else if (pc->onFloor && pc->onGround)
+		{
+			playerUnreachable = false;
+			originalRange = savedRange;
+		}
+	}
 
 	//if (pathFinding->inWall(targetPlayer.transform->position))
 	//{
@@ -465,7 +468,6 @@ bool RobotBehaviour::refreshRequiredComponents()
 			(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 			(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
 			(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
-			//(targetPlayer.entity = thisEnemy.ai->getPlayerEntity().get()) &&
 			(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 			(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
 		);
