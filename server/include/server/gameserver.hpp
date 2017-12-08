@@ -62,6 +62,8 @@ namespace BarcodeServer {
 		Hydra::World::Entity* _createEntity(const std::string& name, Hydra::World::EntityID parentID, bool serverSynced);
 		Player* _getPlayer(Hydra::World::EntityID id);
 		bool _addPlayer(int id);
+
+		static void _onRobotShoot(WeaponComponent& weapon, Entity* bullet, void* userdata);
 	};
 
 }

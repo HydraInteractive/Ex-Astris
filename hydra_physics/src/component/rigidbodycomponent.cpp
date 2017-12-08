@@ -81,7 +81,6 @@ static std::unique_ptr<btCollisionShape> createShape(CollisionShape collisionSha
 	switch (collisionShape) {
 	case CollisionShape::Box: {
 		auto halfExtents = json["halfExtents"];
-		printf("halfExtents: %.2f, %.2f, %.2f\n", halfExtents[0].get<float>(), halfExtents[1].get<float>(), halfExtents[2].get<float>());
 		return std::unique_ptr<btCollisionShape>(new btBoxShape(btVector3(halfExtents[0].get<float>(), halfExtents[1].get<float>(), halfExtents[2].get<float>())));
 	}
 	case CollisionShape::StaticPlane: {

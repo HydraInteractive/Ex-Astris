@@ -88,7 +88,7 @@ void GameServer::start() {
 	size_t tries = 0;
 	while (true) {
 		tries++;
-		_tileGeneration = std::make_unique<TileGeneration>("assets/room/starterRoom.room");
+		_tileGeneration = std::make_unique<TileGeneration>("assets/room/starterRoom.room", &GameServer::_onRobotShoot, static_cast<void*>(this));
 		_pathfindingMap = _tileGeneration->buildMap();
 		_deadSystem.tick(0);
 		printf("Room count: %zu\t(%zu)\n", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size(), _tileGeneration->roomCounter);
@@ -534,4 +534,39 @@ bool GameServer::_addPlayer(int id) {
 		return true;
 	}
 	return false;
+}
+
+
+void GameServer::_onRobotShoot(WeaponComponent& weapon, Entity* bullet, void* userdata) {
+	GameServer* this_ = static_cast<GameServer*>(userdata);
+
+	printf("Robot shoot");
+
+	{
+		nlohmann::json json;
+		bullet->serialize(json);
+		std::vector<uint8_t> vec = nlohmann::json::to_msgpack(json);
+		ServerUpdateBulletPacket* packet = (ServerUpdateBulletPacket*)new char[sizeof(ServerUpdateBulletPacket) + vec.size()];
+		*packet = ServerUpdateBulletPacket(vec.size());
+		packet->serverPlayerID = bullet->id; //TODO: FIX!
+		memcpy(packet->data, vec.data(), vec.size());
+		this_->_server->sendDataToAll((char*)packet, packet->len);
+		delete[] packet;
+	}
+
+	{
+		ServerShootPacket* packet = new ServerShootPacket();
+		auto tc = bullet->getComponent<Hydra::Component::TransformComponent>().get();
+		auto direction = bullet->getComponent<Hydra::Component::BulletComponent>()->direction;
+
+		packet->direction = direction;
+		packet->ti.pos = tc->position;
+		packet->ti.scale = tc->scale;
+		packet->ti.rot = tc->rotation;
+		packet->serverPlayerID = bullet->id;
+
+		this_->_server->sendDataToAll((char*)packet, sizeof(ServerShootPacket));
+
+		delete packet;
+	}
 }

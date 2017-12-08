@@ -183,6 +183,9 @@ void NetClient::_resolveServerDeleteEntityPacket(ServerDeleteEntityPacket* delPa
 	for (size_t i = 0; i < children.size(); i++)
 		if (children[i] == _IDs[delPacket->id]) {
 			world::getEntity(children[i])->dead = true;
+
+			_bullets.erase(delPacket->id);
+			_IDs.erase(delPacket->id);
 			break;
 		}
 }
