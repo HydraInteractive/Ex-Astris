@@ -383,12 +383,12 @@ namespace Barcode {
 			pickupText->addComponent<Hydra::Component::TransformComponent>()->setPosition(t->position);
 			auto textStuff = pickupText->addComponent<Hydra::Component::TextComponent>();
 			textStuff->setText("\x01Perk picked up\x02");
-			textStuff->isStatic = true;
+			textStuff->isStatic = true; 
 		}   
 		{
 			//Remove this to gain frames like never before
-			tileGen = new TileGeneration("assets/BossRoom/Bossroom.room");  
-			//tileGen = new TileGeneration("assets/room/GeneratonInTheMiddle.room");
+			//tileGen = new TileGeneration("assets/BossRoom/Bossroom.room");  
+			tileGen = new TileGeneration("assets/room/GeneratonInTheMiddle.room");
 			pathfindingMap = tileGen->buildMap();
 		} 
 		//Boss
@@ -534,7 +534,7 @@ namespace Barcode {
 
 		/*{
 			auto alienEntity = world::newEntity("Alien1", world::root());
-			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+			alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel2.mATTIC");
 			auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 			a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 			a->behaviour->setPathMap(pathfindingMap);
@@ -558,9 +558,9 @@ namespace Barcode {
 			rgbc->setAngularForce(glm::vec3(0));
 		}
 
-		{
+		{ 
 			auto robotEntity = world::newEntity("Robot1", world::root());
-			robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
+			robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel2.mATTIC");
 			auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
 			a->behaviour = std::make_shared<RobotBehaviour>(robotEntity);
 			a->behaviour->setPathMap(pathfindingMap);

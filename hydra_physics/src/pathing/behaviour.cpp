@@ -547,7 +547,7 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 					t->position = thisEnemy.transform->position + glm::vec3(3, thisEnemy.transform->position.y, 3);
 					t->scale = glm::vec3{ 2,2,2 };
 
-					alienSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+					alienSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel2.mATTIC");
 					spawnAmount++;
 					spawnTimer = 0;
 				}
@@ -1038,11 +1038,11 @@ unsigned int StationaryBoss::spawnState(float dt) {
 		t->position = spawnPositions[rand() % spawnPositions.size()];
 		t->scale = glm::vec3{ 2,2,2 };
 
-		alienSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+		alienSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel2.mATTIC");
 	}
 	for (int i = 0; i < randomAliens; i++) {
 		auto alienEntity = world::newEntity("FastAlien1", world::root());
-		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienFastModel.mATTIC");
+		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienFastModel2.mATTIC");
 		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 

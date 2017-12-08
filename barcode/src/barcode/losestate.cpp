@@ -128,7 +128,7 @@ namespace Barcode {
 			t->position = glm::vec3{5.048f, -0.611f, -1.495f};
 			t->rotation = glm::quat{0.939f, 0.0f, -0.343f, 0.0f};
 			auto m = p->addComponent<Hydra::Component::MeshComponent>();
-			m->loadMesh("assets/objects/characters/RobotModel.mATTIC");
+			m->loadMesh("assets/objects/characters/RobotModel2.mATTIC");
 			m->animationIndex = 1;
 		}
 
@@ -138,7 +138,7 @@ namespace Barcode {
 			t->position = glm::vec3{1.237f, -0.076f, -0.871f};
 			t->rotation = glm::quat{-0.908f, -0.318f, -0.243f, 0.122f};
 			auto m = p->addComponent<Hydra::Component::MeshComponent>();
-			m->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+			m->loadMesh("assets/objects/characters/AlienModel2.mATTIC");
 			m->animationIndex = 2;
 		}
 

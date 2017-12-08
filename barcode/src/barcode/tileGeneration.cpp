@@ -304,7 +304,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 
 	for (int i = 0; i < randomSlowAliens; i++) {
 		auto alienEntity = world::newEntity("SlowAlien1", world::root());
-		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel2.mATTIC");
 		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 		a->behaviour->setPathMap(pathfindingMap);
@@ -334,7 +334,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 	
 	for (int i = 0; i < randomFastAliens; i++) {
 		auto alienEntity = world::newEntity("FastAlien1", world::root());
-		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienFastModel.mATTIC");
+		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienFastModel2.mATTIC");
 		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 
@@ -362,7 +362,7 @@ void TileGeneration::_spawnRandomizedEnemies(std::shared_ptr<Hydra::Component::T
 
 	for (int i = 0; i < randomRobots; i++) {
 		auto robotEntity = world::newEntity("Robot1", world::root());
-		robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
+		robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel2.mATTIC");
 		auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<RobotBehaviour>(robotEntity);
 		a->behaviour->setPathMap(pathfindingMap);
