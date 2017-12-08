@@ -2,7 +2,7 @@
 
 in vec2 texCoords;
 
-const int MAX_LIGHTS = 16;
+const int MAX_LIGHTS = 24;
 
 struct DirLight{
 	vec3 dir;
@@ -111,10 +111,6 @@ void main() {
 		result += calcPointLight(pointLights[i], pos, normal, objectColor);
 	}
 
-	float ambientOcclusion = texture(ssao, texCoords).r;
-	if (enableSSAO)
-		globalAmbient *= ambientOcclusion;
-
 	// Shadow
 	vec3 projCoords = lightPos.xyz / lightPos.w;
 	float closestDepth = texture(depthMap, projCoords.xy).r;
@@ -139,6 +135,12 @@ void main() {
 		brightOutput = objectColor.rgb;
 	else
 		brightOutput = vec3(0);
+
+	float ambientOcclusion = texture(ssao, texCoords).r;
+	if (enableSSAO) {
+		globalAmbient *= ambientOcclusion;
+		result *= ambientOcclusion;
+	}
 
 	result *= shadow;
 

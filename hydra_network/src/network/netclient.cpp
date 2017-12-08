@@ -16,6 +16,7 @@ using world = Hydra::World::World;
 
 bool NetClient::running = false;
 NetClient::updatePVS_f NetClient::updatePVS = nullptr;
+NetClient::onWin_f NetClient::onWin = nullptr;
 void* NetClient::userdata = nullptr;
 
 TCPClient NetClient::_tcp;
@@ -137,6 +138,10 @@ void NetClient::_resolvePackets() {
 		}
 		case PacketType::ServerFreezePlayer: {
 			auto sfp = (ServerFreezePlayerPacket*)p;
+			if (sfp->action == ServerFreezePlayerPacket::Action::win) {
+				if (onWin)
+					onWin(userdata);
+			}else
 			for (auto p : Hydra::Component::PlayerComponent::componentHandler->getActiveComponents())
 				((Hydra::Component::PlayerComponent*)p.get())->frozen = sfp->action == ServerFreezePlayerPacket::Action::freeze;
 			break;
