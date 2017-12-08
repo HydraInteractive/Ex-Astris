@@ -35,7 +35,11 @@ void PerkAttribMenu::render(bool & thing, Hydra::Renderer::Batch * renderBatch, 
 	//ImGui::RadioButton("Multiplier", &Bullet.multi); ImGui::SameLine(); ImGui::RadioButton("Adder", &Bullet.add);
 	ImGui::Checkbox("Multiplier", &Bullet.Multiplier), ImGui::SameLine(); ImGui::Checkbox("Adder", &Bullet.Adder);
 	ImGui::Separator();
-	
+	ImGui::Checkbox("Glow on/off", &Bullet.glow);
+	if (Bullet.glow)
+	{
+		//FIX GLOW FOR EDITOR
+	}
 	if (ImGui::Button("Export", ImVec2(200, 75)))
 	{
 		openPopup = true;
@@ -90,8 +94,8 @@ void PerkAttribMenu::writeToFile(const char* fileName)
 	
 	std::string name = fileName;
 	std::string filepath = "C:/Users/destroyer/Documents/GitHub/Hydra/assets/perks/" + name + ".PERK";
-	std::ofstream file (filepath, std::ios::binary);
-	file.open(filepath);
+	std::ofstream file;
+	file.open(filepath, std::ios::binary);
 	
 	file.write(reinterpret_cast<char *>(&Bullet.bulletSize), sizeof(float));
 	file.write(reinterpret_cast<char *>(&Bullet.dmg), sizeof(float));
@@ -104,6 +108,7 @@ void PerkAttribMenu::writeToFile(const char* fileName)
 	file.write(reinterpret_cast<char *>(&Bullet.bulletColor[2]), sizeof(float));
 	file.write(reinterpret_cast<char *>(&Bullet.Adder), sizeof(bool));
 	file.write(reinterpret_cast<char *>(&Bullet.Multiplier), sizeof(bool));
+	file.write(reinterpret_cast<char *>(&Bullet.glow), sizeof(bool));
 
 	std::string description = Bullet.perkDescription;
 	int size = description.size();
@@ -114,36 +119,6 @@ void PerkAttribMenu::writeToFile(const char* fileName)
 	file.close();
 }
 
-void PerkAttribMenu::readFromFile(const char* fileName, ReadBullet &readBullet)
-{
 
-	std::string name = fileName;
-	std::ifstream file(name, std::ios::binary);
-	file.open("C:/Users/destroyer/Documents/GitHub/Hydra/assets/perks/" + name + ".PERK");
-
-	file.read(reinterpret_cast<char*>(&readBullet.bulletSize), sizeof(float));
-	file.read(reinterpret_cast<char*>(&readBullet.dmg), sizeof(float));
-	file.read(reinterpret_cast<char*>(&readBullet.recoil), sizeof(float));
-	file.read(reinterpret_cast<char*>(&readBullet.currentMagAmmo), sizeof(int));
-	file.read(reinterpret_cast<char*>(&readBullet.bulletSpread), sizeof(float));
-	file.read(reinterpret_cast<char*>(&readBullet.roundsPerMinute), sizeof(float));
-	file.read(reinterpret_cast<char*>(&readBullet.bulletColor[0]), sizeof(float));
-	file.read(reinterpret_cast<char*>(&readBullet.bulletColor[1]), sizeof(float));
-	file.read(reinterpret_cast<char*>(&readBullet.bulletColor[2]), sizeof(float));
-	file.read(reinterpret_cast<char*>(&readBullet.Adder), sizeof(bool));
-	file.read(reinterpret_cast<char*>(&readBullet.Multiplier), sizeof(bool));
-
-	int nrOfChars = 0;
-	file.read(reinterpret_cast<char*>(&nrOfChars), sizeof(int));
-	char *tempName;
-	tempName = new char[nrOfChars];
-	file.read(tempName, nrOfChars);
-	readBullet.perkDescription.append(tempName, nrOfChars);
-	delete[] tempName;
-
-
-	file.close();
-
-}
 
 

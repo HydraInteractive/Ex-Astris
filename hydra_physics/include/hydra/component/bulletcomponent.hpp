@@ -26,6 +26,8 @@ namespace Hydra::Component {
 		float velocity = 0.0f;
 		float deleteTimer = 10.0f;
 		float damage = 30.0f;
+		bool glow = false;
+		float colour[4] = { 0.0f };
 
 		~BulletComponent() final;
 
