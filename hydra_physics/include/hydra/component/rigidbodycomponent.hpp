@@ -74,14 +74,7 @@ namespace Hydra::Component {
 #define DEFAULT_PARAMS Hydra::System::BulletPhysicsSystem::CollisionTypes collType = Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_NOTHING, float mass = 0, float linearDamping = 0, float angularDamping = 0, float friction = 0, float rollingFriction = 0
 		void createBox(const glm::vec3& halfExtents, const glm::vec3& offset, DEFAULT_PARAMS);
 		void createStaticPlane(const glm::vec3& planeNormal, float planeConstant, DEFAULT_PARAMS);
-		void createSphere(float radius, DEFAULT_PARAMS);
-		//void createTriangleMesh(btStridingMeshInterface *meshInterface, bool useQuantizedAabbCompression, bool buildBvh=true, DEFAULT_PARAMS);
-		void createCapsuleX(float radius, float height, DEFAULT_PARAMS);
 		void createCapsuleY(float radius, float height, const glm::vec3& offset, DEFAULT_PARAMS);
-		void createCapsuleZ(float radius, float height, DEFAULT_PARAMS);
-		void createCylinderX(const glm::vec3& halfExtents, DEFAULT_PARAMS);
-		void createCylinderY(const glm::vec3& halfExtents, DEFAULT_PARAMS);
-		void createCylinderZ(const glm::vec3& halfExtents, DEFAULT_PARAMS);
 #undef DEFAULT_PARAMS
 
 		void setActivationState(ActivationState newState);
@@ -91,7 +84,7 @@ namespace Hydra::Component {
 		void refreshTransform();
 
 		glm::vec3 getPosition(int childIndex = 0);
-		glm::vec3 getHalfExtentScale() { return _halfExtents; }
+		glm::vec3 getHalfExtentScale();
 		glm::quat getRotation();
 		std::string getShapeString(int childIndex = 0);
 		int getNumberOfChildren();
@@ -106,7 +99,6 @@ namespace Hydra::Component {
 		Hydra::System::BulletPhysicsSystem::CollisionTypes doa = Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_NOTHING;
 		struct Data;
 		Data* _data = nullptr;
-		glm::vec3 _halfExtents = glm::vec3(0.5f,0.5f,0.5f);
 		Hydra::System::BulletPhysicsSystem* _handler = nullptr;
 	};
 };

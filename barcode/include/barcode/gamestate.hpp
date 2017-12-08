@@ -117,5 +117,6 @@ namespace Barcode {
 		void _initWorld();
 		static void _onPlayerShoot(Hydra::Component::WeaponComponent& weapon, Hydra::World::Entity* bullet, void* userdata);
 		static void _onUpdatePVS(nlohmann::json&& json, void* userdata);
+		static void _onWin(void* userdata);
 	};
 }

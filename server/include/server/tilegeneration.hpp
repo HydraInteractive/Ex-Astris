@@ -25,6 +25,7 @@
 
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
+#include <hydra/component/weaponcomponent.hpp>
 #include <hydra/system/deadsystem.hpp>
 #define PICKUP_CHANCE 100
 
@@ -39,7 +40,7 @@ namespace BarcodeServer {
 		size_t numberOfEnemies = 50; //Can be per room or for the whole map depending on if the _spawnEnemies function is run once per room or after the whole map is generated
 		std::vector<glm::vec3> playerSpawns = std::vector<glm::vec3>();
 
-		TileGeneration(const std::string& middleRoomPath);
+		TileGeneration(const std::string& middleRoomPath, Hydra::Component::WeaponComponent::onShoot_f onRobotShoot, void* userdata);
 		~TileGeneration();
 
 		bool** buildMap();
@@ -47,6 +48,9 @@ namespace BarcodeServer {
 
 	private:
 		enum { NORTH, EAST, SOUTH, WEST };
+		Hydra::Component::WeaponComponent::onShoot_f _onRobotShoot;
+		void* _userdata;
+
 		std::vector<std::string> _roomFileNames;
 		Hydra::System::DeadSystem deadSystem;
 
