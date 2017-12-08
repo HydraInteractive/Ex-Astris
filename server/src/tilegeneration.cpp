@@ -19,6 +19,7 @@
 #include <hydra/component/spawnpointcomponent.hpp>
 #include <hydra/component/spawnercomponent.hpp>
 #include <hydra/component/networksynccomponent.hpp>
+#include <hydra/component/lightcomponent.hpp>
 using world = Hydra::World::World;
 
 using namespace BarcodeServer;
@@ -130,6 +131,18 @@ void TileGeneration::_setUpMiddleRoom(const std::string& middleRoomPath) {
 	_clearSpawnPoints();
 	_spawnPickUps(room);
 	_spawnLight(t);
+
+	auto lightEntity = world::newEntity("Light: I cast Shadows :-)", world::root());
+	auto tc = lightEntity->addComponent<Hydra::Component::TransformComponent>();
+	tc->position = glm::vec3(t->position.x, 7, t->position.z);
+	auto lc = lightEntity->addComponent<Hydra::Component::LightComponent>();
+	lc->color = { 1,1,1 };
+	lc->xNear = -32 * ROOM_GRID_SIZE;
+	lc->xFar = 32 * ROOM_GRID_SIZE;
+	lc->yNear = -32 * ROOM_GRID_SIZE;
+	lc->yFar = 32 * ROOM_GRID_SIZE;
+	lc->zNear = -14;
+	lc->zFar = 32;
 }
 
 void TileGeneration::_obtainRoomFiles() {

@@ -39,7 +39,7 @@ layout(location = 9) uniform int nrOfPointLights;
 layout(location = 10) uniform DirLight dirLight;
 layout(location = 12) uniform mat4 projection;
 layout(location = 13) uniform mat4 lightS;
-layout(location = 14) uniform bool enableShadows;
+layout(location = 14) uniform bool enableShadows = true;
 layout(location = 15) uniform PointLight pointLights[MAX_LIGHTS];
 
 

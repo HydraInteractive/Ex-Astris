@@ -546,13 +546,6 @@ namespace Barcode {
 				t2->rotation = glm::quat(0, 0, 1, 0);
 				t2->ignoreParent = true;
 			}
-
-			{
-				auto lightEntity = world::newEntity("Light: I cast Shadows", playerEntity->id);
-				auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
-				auto t3 = lightEntity->addComponent<Hydra::Component::TransformComponent>();
-				t3->position = glm::vec3(0, 7, 0);
-			}
 		}
 
 		{
