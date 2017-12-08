@@ -529,7 +529,7 @@ namespace Barcode {
 				t2->scale = glm::vec3(0.3f);
 				t2->rotation = glm::quat(0, 0, 1, 0);
 				t2->ignoreParent = true;
-			}
+			} 
 		}
 
 		/*{
