@@ -103,7 +103,6 @@ static SerializeShape getShapeSerializer(CollisionShape collisionShape) {
 			btBoxShape* box = static_cast<btBoxShape*>(shape);
 
 			auto halfExtents = box->getHalfExtentsWithMargin();
-			printf("halfExtents: %.2f, %.2f, %.2f\n", halfExtents.x(), halfExtents.y(), halfExtents.z());
 			json["halfExtents"] = {halfExtents.x(), halfExtents.y(), halfExtents.z()};
 		};
 	case CollisionShape::StaticPlane:
