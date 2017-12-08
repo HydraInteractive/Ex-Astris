@@ -149,7 +149,7 @@ namespace Barcode {
 		_lightSystem.tick(delta);
 
 
-		static bool enableHitboxDebug = true;
+		static bool enableHitboxDebug = false;
 		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
 		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
 		ImGui::Checkbox("Enable SSAO", &MenuState::ssaoEnabled);

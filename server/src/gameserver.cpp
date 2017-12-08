@@ -85,6 +85,22 @@ void GameServer::start() {
 		, 0, 0, 0, 0.6f, 0);
 	floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 
+	_makeWorld();
+}
+void GameServer::_makeWorld() {
+	{
+		ServerFreezePlayerPacket freeze;
+		freeze.action = ServerFreezePlayerPacket::Action::freeze;
+		_server->sendDataToAll((char*)&freeze, freeze.len);
+	}
+	_tileGeneration.reset();
+	for (auto c : Hydra::Component::NetworkSyncComponent::componentHandler->getActiveComponents())
+		world::getEntity(c->entityID)->dead = true;
+	for (auto c : Hydra::Component::AIComponent::componentHandler->getActiveComponents())
+		world::getEntity(c->entityID)->dead = true;
+
+	_networkEntities.erase(std::remove_if(_networkEntities.begin(), _networkEntities.end(), [](const auto& e) { return world::getEntity(e)->dead; }), _networkEntities.end());
+	_deadSystem.tick(0);
 	size_t tries = 0;
 	while (true) {
 		tries++;
@@ -181,7 +197,7 @@ void GameServer::start() {
 		fseek(fp, 0, SEEK_SET);
 		fread(_pvsData.data(), _pvsData.size(), 1, fp);
 		fclose(fp);
-}
+	}
 
 	for (auto& rb : Hydra::Component::RigidBodyComponent::componentHandler->getActiveComponents()) {
 		//_engine->log(Hydra::LogLevel::normal, "Enabling BulletPhysicsSystem for %s", world::getEntity(rb->entityID)->name.c_str());
@@ -197,6 +213,12 @@ void GameServer::start() {
 	world::getEntitiesWithComponents<NetworkSyncComponent>(entities);
 	for (size_t i = 0; i < entities.size(); i++)
 		_networkEntities.push_back(entities[i]->id);
+
+	{
+		ServerFreezePlayerPacket freeze;
+		freeze.action = ServerFreezePlayerPacket::Action::unfreeze;
+		_server->sendDataToAll((char*)&freeze, freeze.len);
+	}
 }
 
 void GameServer::run() {
@@ -252,9 +274,13 @@ void GameServer::run() {
 		}
 
 		if (!Hydra::Component::AIComponent::componentHandler->getActiveComponents().size()) {
-			ServerFreezePlayerPacket freeze;
-			freeze.action = ServerFreezePlayerPacket::Action::win;
-			_server->sendDataToAll((char*)&freeze, freeze.len);
+			level++;
+			if (level == 2) {
+				ServerFreezePlayerPacket freeze;
+				freeze.action = ServerFreezePlayerPacket::Action::win;
+				_server->sendDataToAll((char*)&freeze, freeze.len);
+			} else
+				_makeWorld();
 		}
 	}
 

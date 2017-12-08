@@ -44,6 +44,7 @@ namespace BarcodeServer {
 		std::unique_ptr<TileGeneration> _tileGeneration;
 		bool** _pathfindingMap = nullptr;
 		std::string _pvsData;
+		size_t level = 0;
 
 		Hydra::System::DeadSystem _deadSystem;
 		Hydra::System::AISystem _aiSystem;
@@ -52,6 +53,7 @@ namespace BarcodeServer {
 		Hydra::System::PerkSystem _perkSystem;
 		Hydra::System::LifeSystem _lifeSystem;
 
+		void _makeWorld();
 		void _sendWorld();
 		void _convertEntityToTransform(Hydra::Network::ServerUpdatePacket::EntUpdate& dest, Hydra::World::EntityID ent);
 		void _resolvePackets(std::vector<Hydra::Network::Packet*> packets);
