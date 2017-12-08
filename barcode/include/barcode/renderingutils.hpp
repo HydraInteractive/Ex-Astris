@@ -136,8 +136,7 @@ namespace Barcode {
 
 		struct RenderSet {
 			std::shared_ptr<Hydra::Component::RoomComponent> room;
-			glm::vec4 worldBox;
-			size_t roomCount;
+			std::vector<glm::vec4> worldBox; // Contains room as [0]
 			std::vector<Hydra::Component::DrawObjectComponent*> objects;
 			std::vector<Hydra::Component::PointLightComponent*> lights;
 		};
