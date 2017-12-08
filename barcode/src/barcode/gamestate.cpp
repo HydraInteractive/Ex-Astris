@@ -46,12 +46,20 @@ namespace Barcode {
 		}
 
 		_initWorld();
+		aiInspector = new AIInspector();
 	}
 
 	GameState::~GameState() {
 	}
 
-	void GameState::onMainMenu() { }
+	void GameState::onMainMenu() {
+		if (ImGui::BeginMenu("AI")) {
+			if (ImGui::MenuItem("Inspector...")) {
+				aiInspectorOpen = !aiInspectorOpen;
+			}
+			ImGui::EndMenu();
+		}
+	}
 
 	void GameState::runFrame(float delta) {
 		auto windowSize = _engine->getView()->getSize();
@@ -481,6 +489,9 @@ namespace Barcode {
 			ImGui::PopStyleVar();
 			ImGui::PopStyleVar();
 		}
+
+		if (aiInspectorOpen)
+			aiInspector->render(aiInspectorOpen);
 
 		if (Hydra::Network::NetClient::running)
 			Hydra::Network::NetClient::run();

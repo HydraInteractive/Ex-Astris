@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\barcode\aiinspector.hpp" />
     <ClInclude Include="include\barcode\editorstate.hpp" />
     <ClInclude Include="include\barcode\exportermenu.hpp" />
     <ClInclude Include="include\barcode\filetree.hpp" />
@@ -24,6 +25,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="include\barcode\componentmenu.hpp" />
+    <ClCompile Include="src\barcode\aiinspector.cpp" />
     <ClCompile Include="src\barcode\componentmenu.cpp" />
     <ClCompile Include="src\barcode\editorstate.cpp" />
     <ClCompile Include="src\barcode\exportermenu.cpp" />

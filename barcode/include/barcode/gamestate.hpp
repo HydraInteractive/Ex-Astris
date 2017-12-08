@@ -50,6 +50,7 @@
 #include <hydra/system/textsystem.hpp>
 #include <hydra/system/lightsystem.hpp>
 
+#include<barcode/aiinspector.hpp>
 namespace Barcode {
 	class GameState final : public Hydra::IState {
 	public:
@@ -97,6 +98,9 @@ namespace Barcode {
 
 		std::shared_ptr<Hydra::Renderer::IMesh> _hitboxCube;
 		std::shared_ptr<Hydra::Renderer::IMesh> _hitboxCapsule;
+
+		AIInspector* aiInspector = nullptr;
+		bool aiInspectorOpen = false;
 
 		bool _paused = false;
 		Hydra::World::EntityID _playerID;
