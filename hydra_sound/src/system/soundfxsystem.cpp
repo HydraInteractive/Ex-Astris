@@ -175,6 +175,7 @@ void Hydra::System::SoundFxSystem::removeChannelFromComponent(int channel){
 void Hydra::System::SoundFxSystem::startMusic(std::string songPath){
 	music = Mix_LoadMUS(songPath.c_str());
 	Mix_PlayMusic(music, -1);
+	Mix_VolumeMusic(MIX_MAX_VOLUME/4);
 }
 
 void SoundFxSystem::registerUI() {}
