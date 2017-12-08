@@ -32,7 +32,7 @@ public:
 	enum ArmPhases { SWEEP, SINGLE_BONK, MULTIPLE_BONK, CHILL};
 	ArmPhases armPhase = ArmPhases::CHILL;
 
-	enum StatinoaryBossPhases { NOTHING, CANON};
+	enum StatinoaryBossPhases { NOTHING, SPAWN};
 	StatinoaryBossPhases stationaryPhase = StatinoaryBossPhases::NOTHING;
 
 
@@ -215,10 +215,19 @@ public:
 
 	void run(float dt);
 
+	int randomAliens, randomRobots;
+	int maxSpawn = 4;
+
+	std::vector<glm::vec3> spawnPositions;
+
+	float spawnEnemiesAtPercentage[3] = { 600.0f, 300.0f, 150.0f };
+	int spawnIndex = 0;
 	float idleTimer = 0.0f;
 	unsigned int idleState(float dt) final;
 	//unsigned int shootingState(float dt) final;
+	unsigned int spawnState(float dt);
 
+	void applySpawnPositions();
 private:
 	bool refreshRequiredComponents() final;
 };

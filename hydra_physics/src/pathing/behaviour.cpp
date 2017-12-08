@@ -858,6 +858,7 @@ BossArm::BossArm(std::shared_ptr<Hydra::World::Entity> enemy) : Behaviour(enemy)
 
 BossArm::BossArm() {
 	this->type = Type::BOSS_ARMS;
+	
 }
 
 BossArm::~BossArm() {
@@ -955,10 +956,12 @@ bool BossArm::refreshRequiredComponents() {
 
 StationaryBoss::StationaryBoss(std::shared_ptr<Hydra::World::Entity> enemy) :Behaviour(enemy){
 	this->type = Type::STATINARY_BOSS;
+	applySpawnPositions();
 }
 
 StationaryBoss::StationaryBoss() {
 	this->type = Type::STATINARY_BOSS;
+	applySpawnPositions();
 }
 
 StationaryBoss::~StationaryBoss() {
@@ -972,7 +975,7 @@ void StationaryBoss::run(float dt) {
 	if (thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>()->health <= 0)
 		return;
 
-	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
+	//thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
 	thisEnemy.ai->debugState = state;
 
 	idleTimer += dt;
@@ -981,7 +984,7 @@ void StationaryBoss::run(float dt) {
 
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 500)
 	{
-		state = HandPhases::IDLEHAND;
+		state = StatinoaryBossPhases::NOTHING;
 	}
 
 	switch (state)
@@ -989,17 +992,80 @@ void StationaryBoss::run(float dt) {
 	case StatinoaryBossPhases::NOTHING:
 		state = idleState(dt);
 		break;
+	case StatinoaryBossPhases::SPAWN:
+		state = spawnState(dt);
+		break;
 	}
 
-	executeTransforms();
+	//executeTransforms();
 }
 
 unsigned int StationaryBoss::idleState(float dt) {
 
 	int state = StatinoaryBossPhases::NOTHING;
 
+	if (thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>()->health <= spawnEnemiesAtPercentage[spawnIndex]) {
+		state = StatinoaryBossPhases::SPAWN;
+		spawnIndex++;
+	}
+
 	return state;
 	
+}
+unsigned int StationaryBoss::spawnState(float dt) {
+
+	int state = StatinoaryBossPhases::NOTHING;
+	
+	randomAliens = rand() % maxSpawn;
+	randomRobots = maxSpawn - randomAliens;
+	for (int i = 0; i < randomAliens; i++) {
+		auto alienSpawn = world::newEntity("AlienSpawn", world::root());
+
+		auto a = alienSpawn->addComponent <Hydra::Component::AIComponent>();
+		a->behaviour = std::make_shared<AlienBehaviour>(alienSpawn);
+		a->damage = 4;
+		a->behaviour->originalRange = 4;
+		a->radius = 2.0f;
+
+		auto h = alienSpawn->addComponent<Hydra::Component::LifeComponent>();
+		h->maxHP = 80;
+		h->health = 80;
+
+		auto m = alienSpawn->addComponent<Hydra::Component::MovementComponent>();
+		m->movementSpeed = 8.0f;
+
+		auto t = alienSpawn->addComponent<Hydra::Component::TransformComponent>();
+		t->position = spawnPositions[rand() % spawnPositions.size()];
+		t->scale = glm::vec3{ 2,2,2 };
+
+		alienSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+	}
+	for (int i = 0; i < randomAliens; i++) {
+		auto alienEntity = world::newEntity("FastAlien1", world::root());
+		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienFastModel.mATTIC");
+		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
+		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
+
+		auto h = alienEntity->addComponent<Hydra::Component::LifeComponent>();
+		h->maxHP = 60;
+		h->health = 60;
+
+		auto m = alienEntity->addComponent<Hydra::Component::MovementComponent>();
+		m->movementSpeed = 10.0f;
+
+		auto t = alienEntity->addComponent<Hydra::Component::TransformComponent>();
+		t->position = spawnPositions[rand() % spawnPositions.size()];
+		t->scale = glm::vec3{ 1,1,1 };
+
+		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+		rgbc->createBox(glm::vec3(0.5f, 1.5f, 0.5f) * t->scale, glm::vec3(0, 1.5, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+			0, 0, 0.6f, 1.0f);
+		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+		rgbc->setAngularForce(glm::vec3(0));
+	}
+	maxSpawn *= 2;
+	return state;
+
 }
 
 //unsigned int StationaryBoss::shootingState(float dt) {
@@ -1008,13 +1074,29 @@ unsigned int StationaryBoss::idleState(float dt) {
 //	
 //}
 
+void StationaryBoss::applySpawnPositions() {
+
+	for (int i = -18; i < 60; i += 5) {
+		spawnPositions.push_back(glm::vec3(-34 , 3, i));
+	}
+	for (int i = -30; i < 30; i +=3) {
+		spawnPositions.push_back(glm::vec3(i, 3, -20));
+	}
+	for (int i = -12; i < 60; i += 5) {
+		spawnPositions.push_back(glm::vec3(34, 3, i));
+	}
+	//for (int i = -55; i < 60; i += 5) {
+	//	spawnPositions.push_back(glm::vec3(i, 3, -40 - (i - 4)));
+	//}
+}
+
 bool StationaryBoss::refreshRequiredComponents()
 {
 	hasRequiredComponents = (
 		(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>().get()) &&
 		(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>().get()) &&
 		(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>().get()) &&
-		(thisEnemy.weapon = thisEnemy.entity->getComponent<Hydra::Component::WeaponComponent>().get()) &&
+		//(thisEnemy.weapon = thisEnemy.entity->getComponent<Hydra::Component::WeaponComponent>().get()) &&
 		(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 		(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
 		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity().get()) &&

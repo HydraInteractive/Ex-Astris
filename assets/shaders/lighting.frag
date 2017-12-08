@@ -91,20 +91,20 @@ void main() {
 
 	// Lighting 
 	// 0.1f should be ambient coefficient
-	vec3 globalAmbient = dirLight.color * objectColor.rgb * 0.1f;
+	vec3 globalAmbient = dirLight.color * objectColor.rgb * 1.0f;
 	vec3 result = vec3(0);
 
 	// Directional light
-	result = calcDirLight(dirLight, pos, normal, objectColor);
+	//result = calcDirLight(dirLight, pos, normal, objectColor);
 	
 	// Point Lights
-	for(int i = 0 ; i < nrOfPointLights; i++){
-		result += calcPointLight(pointLights[i], pos, normal, objectColor);
-	}
+	//for(int i = 0 ; i < nrOfPointLights; i++){
+	//	result += calcPointLight(pointLights[i], pos, normal, objectColor);
+	//}
 
 	float ambientOcclusion = texture(ssao, texCoords).r;
-	if (enableSSAO)
-		globalAmbient *= ambientOcclusion;
+	//if (enableSSAO)
+	//	globalAmbient *= ambientOcclusion;
 
 	// Shadow
 	
