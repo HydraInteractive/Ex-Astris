@@ -20,6 +20,7 @@
 #include <hydra/component/pointlightcomponent.hpp>
 #include <hydra/component/textcomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
+#include <hydra/component/roomcomponent.hpp>
 
 #include <hydra/network/netclient.hpp>
 
@@ -546,6 +547,21 @@ namespace Barcode {
 				t2->rotation = glm::quat(0, 0, 1, 0);
 				t2->ignoreParent = true;
 			}
+		}
+
+		{
+			auto lightEntity = world::newEntity("Light: I cast Shadows :-)", world::root());
+			auto tc = lightEntity->addComponent<Hydra::Component::TransformComponent>();
+			float xzPos = ROOM_GRID_SIZE * ROOM_GRID_SIZE / 2;
+			tc->position = glm::vec3(xzPos, 7, xzPos);
+			auto lc = lightEntity->addComponent<Hydra::Component::LightComponent>();
+			lc->color = { 1,1,1 };
+			lc->xNear = -32 * ROOM_GRID_SIZE;
+			lc->xFar = 32 * ROOM_GRID_SIZE;
+			lc->yNear = -32 * ROOM_GRID_SIZE;
+			lc->yFar = 32 * ROOM_GRID_SIZE;
+			lc->zNear = -14;
+			lc->zFar = 32;
 		}
 
 		{
