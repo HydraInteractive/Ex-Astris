@@ -84,7 +84,7 @@ namespace Hydra::Component {
 		void refreshTransform();
 
 		glm::vec3 getPosition(int childIndex = 0);
-		glm::vec3 getHalfExtentScale() { return _halfExtents; }
+		glm::vec3 getHalfExtentScale();
 		glm::quat getRotation();
 		std::string getShapeString(int childIndex = 0);
 		int getNumberOfChildren();
@@ -99,7 +99,6 @@ namespace Hydra::Component {
 		Hydra::System::BulletPhysicsSystem::CollisionTypes doa = Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_NOTHING;
 		struct Data;
 		Data* _data = nullptr;
-		glm::vec3 _halfExtents = glm::vec3(0.5f,0.5f,0.5f);
 		Hydra::System::BulletPhysicsSystem* _handler = nullptr;
 	};
 };

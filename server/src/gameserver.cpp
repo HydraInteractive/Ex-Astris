@@ -92,9 +92,9 @@ void GameServer::start() {
 		_pathfindingMap = _tileGeneration->buildMap();
 		_deadSystem.tick(0);
 		printf("Room count: %zu\t(%zu)\n", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size(), _tileGeneration->roomCounter);
-		if (Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size() >= 20)
+		if (Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size() >= 32)
 			break;
-		printf("\tTarget is >= 20, redoing generation\n");
+		printf("\tTarget is >= 32, redoing generation\n");
 		_tileGeneration.reset();
 		_deadSystem.tick(0);
 	}
@@ -249,6 +249,12 @@ void GameServer::run() {
 			_deleteEntity(e);
 
 			_players.erase(std::remove_if(_players.begin(), _players.end(), [e](const auto& p) { return p->entityid == e; }), _players.end());
+		}
+
+		if (!Hydra::Component::AIComponent::componentHandler->getActiveComponents().size()) {
+			ServerFreezePlayerPacket freeze;
+			freeze.action = ServerFreezePlayerPacket::Action::win;
+			_server->sendDataToAll((char*)&freeze, freeze.len);
 		}
 	}
 

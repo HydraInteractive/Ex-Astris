@@ -593,7 +593,7 @@ std::unique_ptr<IRenderer> GLRenderer::create(Hydra::View::IView& view) {
 }
 
 void glDebugLog(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei /*length*/, const GLchar* message, const void* /*userParam*/) {
-	if(id == 4 || id == 8 || id == 20 || id == 36 || id == 37 || id == 48|| id == 1282 || id == 131169 || id == 131185 || id == 131218 || id == 131204)
+	if(id == 4 || id == 8 || id == 11 || id == 20 || id == 36 || id == 37 || id == 48|| id == 1282 || id == 131169 || id == 131185 || id == 131218 || id == 131204)
 		return;
 
 	if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)

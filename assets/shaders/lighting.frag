@@ -100,7 +100,7 @@ void main() {
 
 	// Lighting
 	// 0.1f should be ambient coefficient
-	vec3 globalAmbient = objectColor.rgb * 0.05f;
+	vec3 globalAmbient = objectColor.rgb * 0.1f;
 	vec3 result = vec3(0);
 
 	// Directional light
