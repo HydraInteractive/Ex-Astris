@@ -45,7 +45,7 @@ namespace Hydra::Component {
 				return std::shared_ptr<Hydra::Component::TransformComponent>();
 		}
 		inline glm::vec3 getDirVec(){
-			return getTransformComponent()->position + glm::vec3(0.2, -0.8, 0);
+			return glm::normalize(getTransformComponent()->position + glm::vec3(0.2, -0.8, 0));
 		}
 	};
 }

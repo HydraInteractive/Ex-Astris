@@ -103,7 +103,7 @@ namespace Barcode {
 		_lightingBatch.pipeline->setValue(5, 5);
 		_lightingBatch.pipeline->setValue(6, 6);
 
-		_shadowBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/shadow.vert", "", "assets/shaders/shadow.frag", glm::vec2(512));
+		_shadowBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/shadow.vert", "", "assets/shaders/shadow.frag", glm::vec2(2048));
 		_shadowBatch.output->addTexture(0, Hydra::Renderer::TextureType::f24Depth).finalize();
 		_shadowBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::depth;
 		_shadowBatch.batch.clearColor = glm::vec4(1, 1, 1, 1);
@@ -232,8 +232,9 @@ namespace Barcode {
 				if (renderNormal)
 					_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 
-				if (MenuState::shadowEnabled && drawObj->hasShadow)
+				if (MenuState::shadowEnabled && drawObj->hasShadow) {
 					_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+				}
 			}
 		}
 
@@ -255,7 +256,7 @@ namespace Barcode {
 			_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 			objectCounter++;
 
-			if (MenuState::shadowEnabled)
+			if (MenuState::shadowEnabled && drawObj->hasShadow)
 				_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 		}
 		const int MAX_LIGHTS = 24;
