@@ -116,17 +116,6 @@ void main() {
 	float currentDepth = projCoords.z;
 	float shadow = 0.0f;
 
-	//{
-	//	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
-	//	shadow += currentDepth > texture(depthMap, projCoords.xy * texelSize).r ? 1 : 0;
-	//	shadow += currentDepth > texture(depthMap, projCoords.xy + vec2(-1, 0) * texelSize).r ? 1 : 0;
-	//	shadow += currentDepth > texture(depthMap, projCoords.xy + vec2(1, 0) * texelSize).r ? 1 : 0;
-	//	shadow += currentDepth > texture(depthMap, projCoords.xy + vec2(0, -1) * texelSize).r ? 1 : 0;
-	//	shadow += currentDepth > texture(depthMap, projCoords.xy + vec2(0, 1) * texelSize).r ? 1 : 0;
-	//	shadow /= 5;
-	//	shadow = 1.0f - shadow;
-	//}
-
 	// PCF - 16 Samples
 	if (enableShadows) {
 		vec2 texelSize = 1.0 / textureSize(depthMap, 0);
@@ -141,7 +130,7 @@ void main() {
 	shadow = 1.0f - shadow;
 
 	if (glowAmnt > 0)
-		brightOutput = objectColor.rgb + shadow;
+		brightOutput = objectColor.rgb;
 	else
 		brightOutput = vec3(0);
 

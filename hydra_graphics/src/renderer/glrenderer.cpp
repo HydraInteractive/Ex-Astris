@@ -204,8 +204,8 @@ public:
 		glClear(clearFlags);
 
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
-		//glPolygonOffset(1, 2);
 		//glEnable(GL_POLYGON_OFFSET_FILL);
+		//glPolygonOffset(1, 1);
 		glCullFace(GL_FRONT);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
