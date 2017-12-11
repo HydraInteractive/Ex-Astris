@@ -22,6 +22,7 @@ namespace Hydra::Network {
 		ServerUpdateBullet,
 		ClientShoot,
 		ServerShoot,
+		ServerSendPathMap,
 		//..
 		MAX_COUNT
 	};
@@ -38,9 +39,9 @@ namespace Hydra::Network {
 		"ClientUpdateBullet",
 		"ServerUpdateBullet",
 		"ClientShoot",
-		"ServerShoot"
+		"ServerShoot",
+		"ServerSendPathMap"
 	};
-
 
 	struct TransformInfo {
 		glm::vec3 pos;
@@ -76,6 +77,12 @@ namespace Hydra::Network {
 		char data[0];
 	};
 
+	struct ServerSendPathMapPacket : public Packet
+	{
+		ServerSendPathMapPacket(size_t length) : Packet(PacketType::ServerSendPathMap, sizeof(ServerSendPathMapPacket) + (sizeof(bool)*length)) { this->length = length; }
+		bool* pathMap;
+		size_t length;
+	};
 
 	struct ClientShootPacket : public Packet {
 		ClientShootPacket() : Packet(PacketType::ClientShoot, sizeof(ClientShootPacket)) {}
@@ -88,8 +95,6 @@ namespace Hydra::Network {
 		TransformInfo ti;
 		glm::vec3 direction;
 	};
-
-
 
 	struct ClientSpawnEntityPacket : public Packet {
 		ClientSpawnEntityPacket(size_t size) : Packet(PacketType::ClientSpawnEntity, sizeof(ClientSpawnEntityPacket) + size) {}
@@ -105,7 +110,6 @@ namespace Hydra::Network {
 		size_t size() const { return len - sizeof(ServerSpawnEntityPacket); }
 		char data[0];
 	};
-
 
 	struct ServerInitializePacket : public Packet {
 		ServerInitializePacket() : Packet(PacketType::ServerInitialize, sizeof(ServerInitializePacket)) {}

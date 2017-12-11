@@ -4,17 +4,16 @@
 
 AIInspector::AIInspector()
 {
-	testArray = new ImColor*[sizeX];
+	testArray = new RGB[sizeX * sizeY];
 	for (int x = 0; x < sizeX; x++)
 	{
-		testArray[x] = new ImColor[sizeY];
 		for (int y = 0; y < sizeY; y++)
 		{
 			//Paint an X for testing on the map
 			if (x == y || y == sizeY - x - 1)
-				testArray[x][y] = ImColor(255,255,255);
+				testArray[x + (y*sizeX)] = RGB{ 255, 255, 255 };
 			else
-				testArray[x][y] = ImColor(0,0,0);
+				testArray[x + (y*sizeX)] = RGB{ 0, 0, 0 };
 		}
 	}
 }
@@ -44,28 +43,11 @@ void AIInspector::render(bool &openBool)
 		ImGui::EndChild();
 		ImGui::SameLine();
 
-		ImGui::BeginChild("Pathing Map", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetWindowContentRegionMax().y - 60), true);
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0,0));
-		for (int y = 0; y < sizeY; y++)
-		{
-			for (int x = 0; x < sizeX; x++)
-			{
-				std::string id = std::to_string(x) + " " + std::to_string(y);
-				ImGui::PushID(id.c_str());
-				ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)testArray[x][y]);
-				
-				ImGui::Button("",ImVec2(10,10));
-				ImGui::PopStyleColor();
-				
-				ImGui::PopID();
-				if (x != sizeX - 1)
-				{
-					ImGui::SameLine();
-				}
-			}
-			
-		}
-		ImGui::PopStyleVar();
+		ImGui::BeginChild("Pathing Map", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.7f, ImGui::GetWindowContentRegionMax().y - 60), true);
+		//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+		image = Hydra::Renderer::GLTexture::createFromData(sizeX, sizeY, Hydra::Renderer::TextureType::u8RGB, testArray);
+		ImGui::Image((ImTextureID)image->getID(), ImVec2(sizeX * 2, sizeY * 2));
+		//ImGui::PopStyleVar();
 		ImGui::EndChild();
 	}
 	else
