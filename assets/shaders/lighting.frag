@@ -115,7 +115,6 @@ void main() {
 	vec3 projCoords = lightPos.xyz / lightPos.w;
 	float closestDepth = texture(depthMap, projCoords.xy).r;
 	float currentDepth = projCoords.z;
-	float bias = max(0.005 * (1.0 - dot(normal.xyz, -dirLight.dir)), 0.01);
 	float shadow = 0.0f;
 
 	// PCF - 16 Samples

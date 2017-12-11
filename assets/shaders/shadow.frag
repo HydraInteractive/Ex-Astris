@@ -7,6 +7,7 @@ layout(location = 2) uniform vec3 direction;
 in vec3 vertNormal;
 
 void main() {
-	float bias = 0.005 * (1 - dot(normalize(vertNormal), -normalize(direction)));
+	float bias = 0.7 * (1 - dot(normalize(vertNormal), -normalize(direction)));
+	bias = clamp(bias, 0, 0.01);
 	gl_FragDepth = gl_FragCoord.z + bias;
 }
