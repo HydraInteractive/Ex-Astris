@@ -136,13 +136,13 @@ namespace Barcode {
 
 		struct RenderSet {
 			std::shared_ptr<Hydra::Component::RoomComponent> room;
-			glm::vec4 worldBox;
-			size_t roomCount;
+			std::vector<glm::vec4> worldBox; // Contains room as [0]
 			std::vector<Hydra::Component::DrawObjectComponent*> objects;
+			std::vector<Hydra::Component::PointLightComponent*> lights;
 		};
 		RenderSet _renderSets[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
 
-		static void _collectObjects(std::vector<Hydra::Component::DrawObjectComponent*>& objects, Hydra::World::Entity* e);
+		static void _collectObjects(RenderSet& rs, Hydra::World::Entity* e);
 		std::vector<glm::vec3> _getSSAOKernel(size_t size);
 		std::vector<glm::vec3> _getSSAONoise(size_t size);
 	};

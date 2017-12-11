@@ -9,8 +9,10 @@ namespace Hydra::Network {
 	struct HYDRA_NETWORK_API NetClient final {
 	public:
 		typedef void (*updatePVS_f)(nlohmann::json&& json, void* userdata);
+		typedef void (*onWin_f)(void* userdata);
 
 		static updatePVS_f updatePVS;
+		static onWin_f onWin;
 		static void* userdata;
 		static bool running;
 

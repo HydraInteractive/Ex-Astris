@@ -26,13 +26,13 @@ namespace Hydra::Physics::Behaviour {
 		enum BossPhase { CLAWING, SPITTING, SPAWNING, CHILLING };
 		BossPhase bossPhase = BossPhase::CLAWING;
 
-		float idleTimer = 0.0f;
-		float attackTimer = 0.0f;
-		float newPathTimer = 0.0f;
-		float newPathDelay = 1.0f;
-		float spawnTimer = 0.0f;
-		float phaseTimer = 0.0f;
-		float regainRange = 0.0f;
+		float idleTimer = 0.0;
+		float attackTimer = 0.0;
+		float newPathTimer = 0.0;
+		float newPathDelay = 1.0;
+		float spawnTimer = 0.0;
+		float phaseTimer = 0.0;
+		float regainRange = 0.0;
 
 		std::random_device rd;
 		bool playerSeen = false;

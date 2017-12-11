@@ -124,7 +124,8 @@ namespace Hydra::Network {
 		ServerFreezePlayerPacket() : Packet(PacketType::ServerFreezePlayer, sizeof(ServerFreezePlayerPacket)) {}
 		enum class Action {
 			freeze = 0,
-			unfreeze
+			unfreeze,
+			win
 		};
 		Action action;
 	};

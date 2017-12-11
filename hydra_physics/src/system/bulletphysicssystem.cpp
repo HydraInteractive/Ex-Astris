@@ -202,10 +202,12 @@ void BulletPhysicsSystem::tick(float delta) {
 
 			if (playerComponent && normalOnB.y() > 0.7){
 				playerComponent->onGround = true;
-				if (obA->getUserIndex2() == COLL_FLOOR || obB->getUserIndex2() == COLL_FLOOR)
+				if (obA->getUserIndex2() == COLL_FLOOR || obB->getUserIndex2() == COLL_FLOOR) {
 					playerComponent->onFloor = true;
-				else
+				}
+				else {
 					playerComponent->onFloor = false;
+				}
 			}
 
 			if (lifeComponent) {

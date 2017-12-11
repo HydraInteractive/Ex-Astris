@@ -85,16 +85,32 @@ void GameServer::start() {
 		, 0, 0, 0, 0.6f, 0);
 	floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 
+	_makeWorld();
+}
+void GameServer::_makeWorld() {
+	{
+		ServerFreezePlayerPacket freeze;
+		freeze.action = ServerFreezePlayerPacket::Action::freeze;
+		_server->sendDataToAll((char*)&freeze, freeze.len);
+	}
+	_tileGeneration.reset();
+	for (auto c : Hydra::Component::NetworkSyncComponent::componentHandler->getActiveComponents())
+		world::getEntity(c->entityID)->dead = true;
+	for (auto c : Hydra::Component::AIComponent::componentHandler->getActiveComponents())
+		world::getEntity(c->entityID)->dead = true;
+
+	_networkEntities.erase(std::remove_if(_networkEntities.begin(), _networkEntities.end(), [](const auto& e) { return world::getEntity(e)->dead; }), _networkEntities.end());
+	_deadSystem.tick(0);
 	size_t tries = 0;
 	while (true) {
 		tries++;
-		_tileGeneration = std::make_unique<TileGeneration>("assets/room/starterRoom.room");
+		_tileGeneration = std::make_unique<TileGeneration>("assets/room/starterRoom.room", &GameServer::_onRobotShoot, static_cast<void*>(this));
 		_pathfindingMap = _tileGeneration->buildMap();
 		_deadSystem.tick(0);
 		printf("Room count: %zu\t(%zu)\n", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size(), _tileGeneration->roomCounter);
-		if (Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size() >= 20)
+		if (Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size() >= 15)
 			break;
-		printf("\tTarget is >= 20, redoing generation\n");
+		printf("\tTarget is >= 25, redoing generation\n");
 		_tileGeneration.reset();
 		_deadSystem.tick(0);
 	}
@@ -181,7 +197,7 @@ void GameServer::start() {
 		fseek(fp, 0, SEEK_SET);
 		fread(_pvsData.data(), _pvsData.size(), 1, fp);
 		fclose(fp);
-}
+	}
 
 	for (auto& rb : Hydra::Component::RigidBodyComponent::componentHandler->getActiveComponents()) {
 		//_engine->log(Hydra::LogLevel::normal, "Enabling BulletPhysicsSystem for %s", world::getEntity(rb->entityID)->name.c_str());
@@ -197,6 +213,12 @@ void GameServer::start() {
 	world::getEntitiesWithComponents<NetworkSyncComponent>(entities);
 	for (size_t i = 0; i < entities.size(); i++)
 		_networkEntities.push_back(entities[i]->id);
+
+	{
+		ServerFreezePlayerPacket freeze;
+		freeze.action = ServerFreezePlayerPacket::Action::unfreeze;
+		_server->sendDataToAll((char*)&freeze, freeze.len);
+	}
 }
 
 void GameServer::run() {
@@ -250,6 +272,16 @@ void GameServer::run() {
 
 			_players.erase(std::remove_if(_players.begin(), _players.end(), [e](const auto& p) { return p->entityid == e; }), _players.end());
 		}
+
+		if (!Hydra::Component::AIComponent::componentHandler->getActiveComponents().size()) {
+			level++;
+			if (level == 2) {
+				ServerFreezePlayerPacket freeze;
+				freeze.action = ServerFreezePlayerPacket::Action::win;
+				_server->sendDataToAll((char*)&freeze, freeze.len);
+			} else
+				_makeWorld();
+		}
 	}
 
 	//Send updated world to clients
@@ -289,10 +321,14 @@ void GameServer::_sendWorld() {
 		auto life = entity->getComponent<LifeComponent>();
 		if (life)
 			entupdate.life = life->health;
+		else
+			entupdate.life = INT32_MAX;
 
 		auto mesh = entity->getComponent<MeshComponent>();
 		if (mesh)
 			entupdate.animationIndex = mesh->animationIndex;
+		else
+			entupdate.animationIndex = 0;
 	}
 
 	this->_server->sendDataToAll((char*)packet, packet->len);
@@ -310,24 +346,30 @@ void GameServer::_convertEntityToTransform(ServerUpdatePacket::EntUpdate& dest, 
 void GameServer::_resolvePackets(std::vector<Hydra::Network::Packet*> packets) {
 	for (size_t i = 0; i < packets.size(); i++) {
 		auto& p = packets[i];
+		auto entity = this->_getEntityID(p->client);
+		if (!entity)
+			continue;
+		auto player = this->_getPlayer(entity);
+		if (!player)
+			continue;
 		//printf("Resolving:\n\ttype: %s\n\tlen: %d\n", PacketTypeName[p->type], p->len);
 		switch (p->type) {
 		case PacketType::ClientUpdate:
-			resolveClientUpdatePacket((ClientUpdatePacket*)p, this->_getEntityID(p->client));
+			resolveClientUpdatePacket((ClientUpdatePacket*)p, entity);
 			break;
 
 		case PacketType::ClientSpawnEntity:
-			resolveClientSpawnEntityPacket((ClientSpawnEntityPacket*)p, this->_getEntityID(p->client), this->_server);
+			resolveClientSpawnEntityPacket((ClientSpawnEntityPacket*)p, entity, this->_server);
 			break;
 
 		case PacketType::ClientUpdateBullet:
-			resolveClientUpdateBulletPacket((ClientUpdateBulletPacket*)p, this->_getPlayer(this->_getEntityID(p->client))->bullet); // SUPER INEFFICIENT
-			createAndSendPlayerUpdateBulletPacket(this->_getPlayer(this->_getEntityID(p->client)), this->_server);
+			resolveClientUpdateBulletPacket((ClientUpdateBulletPacket*)p, player->bullet); // SUPER INEFFICIENT
+			createAndSendPlayerUpdateBulletPacket(player, this->_server);
 			break;
 
 		case PacketType::ClientShoot:
-			resolveClientShootPacket((ClientShootPacket*)p, this->_getPlayer(this->_getEntityID(p->client)), &_physicsSystem); //SUPER INEFFICIENT
-			createAndSendPlayerShootPacket(this->_getPlayer(this->_getEntityID(p->client)), (ClientShootPacket*)p, this->_server);
+			resolveClientShootPacket((ClientShootPacket*)p, player, &_physicsSystem); //SUPER INEFFICIENT
+			createAndSendPlayerShootPacket(player, (ClientShootPacket*)p, this->_server);
 			break;
 		default:
 			break;
@@ -435,14 +477,30 @@ bool GameServer::_addPlayer(int id) {
 			pi.ti.scale = { 1, 1, 1 };
 			pi.ti.rot = glm::quat(1, 0, 0, 0);
 
+			auto rb = enttmp->addComponent<Hydra::Component::RigidBodyComponent>();
+			rb->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * glm::vec3{ 1, 1, 1 }, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
+				0, 0, 0.0f, 0);
+			rb->setAngularForce(glm::vec3(0, 0, 0));
+
+			rb->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
+
+
 			if (_players.size() > 1) {
 				auto randomOther = world::getEntity(_players[rand() % (_players.size() - 1)]->entityid);
 				auto tc = randomOther->getComponent<TransformComponent>();
 				pi.ti.pos = tc->position;
 				pi.ti.rot = tc->rotation;
 				pi.ti.scale = tc->scale;
-			}
 
+				auto rb = randomOther->addComponent<Hydra::Component::RigidBodyComponent>();
+				rb->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * glm::vec3{ 1, 1, 1 }, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
+					0, 0, 0.0f, 0);
+				rb->setAngularForce(glm::vec3(0, 0, 0));
+
+				rb->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
+				_physicsSystem.enable(static_cast<Hydra::Component::RigidBodyComponent*>(rb.get()));
+			}
+			_physicsSystem.enable(static_cast<Hydra::Component::RigidBodyComponent*>(rb.get()));
 			printf("sendDataToClient:\n\ttype: ServerInitialize\n\tlen: %zu\n", pi.len);
 			int tmp = this->_server->sendDataToClient((char*)&pi, pi.len, id);
 		}
@@ -518,4 +576,39 @@ bool GameServer::_addPlayer(int id) {
 		return true;
 	}
 	return false;
+}
+
+
+void GameServer::_onRobotShoot(WeaponComponent& weapon, Entity* bullet, void* userdata) {
+	GameServer* this_ = static_cast<GameServer*>(userdata);
+
+	printf("Robot shoot");
+
+	{
+		nlohmann::json json;
+		bullet->serialize(json);
+		std::vector<uint8_t> vec = nlohmann::json::to_msgpack(json);
+		ServerUpdateBulletPacket* packet = (ServerUpdateBulletPacket*)new char[sizeof(ServerUpdateBulletPacket) + vec.size()];
+		*packet = ServerUpdateBulletPacket(vec.size());
+		packet->serverPlayerID = bullet->id; //TODO: FIX!
+		memcpy(packet->data, vec.data(), vec.size());
+		this_->_server->sendDataToAll((char*)packet, packet->len);
+		delete[] packet;
+	}
+
+	{
+		ServerShootPacket* packet = new ServerShootPacket();
+		auto tc = bullet->getComponent<Hydra::Component::TransformComponent>().get();
+		auto direction = bullet->getComponent<Hydra::Component::BulletComponent>()->direction;
+
+		packet->direction = direction;
+		packet->ti.pos = tc->position;
+		packet->ti.scale = tc->scale;
+		packet->ti.rot = tc->rotation;
+		packet->serverPlayerID = bullet->id;
+
+		this_->_server->sendDataToAll((char*)packet, sizeof(ServerShootPacket));
+
+		delete packet;
+	}
 }

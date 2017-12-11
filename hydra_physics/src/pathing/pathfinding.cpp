@@ -51,7 +51,7 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 	if (targetPos.y < 4.5f) {
 		if (inWall(targetPos))
 		{
-			printf("PLAYER IN WALL!\n");
+			//printf("PLAYER IN WALL!\n");
 			targetPos = findViableTile(targetPos);
 		}
 	}

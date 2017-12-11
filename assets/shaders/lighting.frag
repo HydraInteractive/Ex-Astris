@@ -2,7 +2,7 @@
 
 in vec2 texCoords;
 
-const int MAX_LIGHTS = 12;
+const int MAX_LIGHTS = 24;
 
 struct DirLight{
 	vec3 dir;
@@ -39,7 +39,9 @@ layout(location = 9) uniform int nrOfPointLights;
 layout(location = 10) uniform DirLight dirLight;
 layout(location = 12) uniform mat4 projection;
 layout(location = 13) uniform mat4 lightS;
-layout(location = 14) uniform PointLight pointLights[MAX_LIGHTS];
+layout(location = 14) uniform bool enableShadows;
+layout(location = 15) uniform PointLight pointLights[MAX_LIGHTS];
+
 
 float random(vec4 seed){
 	float value = dot(seed, vec4(12.9898, 78.233, 45.164, 94.673));
@@ -61,7 +63,9 @@ vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec4 objectColor){
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128);
 	vec3 specular = spec * objectColor.a * light.color;
 
-	return max(vec3(0, 0, 0), (specular + diffuse) * attenuation);
+	float fadeout = min(1, max(0, 2*2 - pow(length(light.pos - cameraPos) / 34, 2) + 1));
+
+	return max(vec3(0, 0, 0), (specular + diffuse) * attenuation) * fadeout;
 }
 
 vec3 calcDirLight(DirLight light, vec3 pos, vec3 normal, vec4 objectColor){
@@ -88,48 +92,24 @@ vec3 calcViewPos(vec2 uv, float depth) {
 }
 
 void main() {
-	// MSAA
-	//ivec2 iTexCoords = ivec2(texCoords * textureSize(positions));
-	//ivec2 iTexCoords2 = ivec2(texCoords * textureSize(normals));
-	//vec3 pos = vec3(0);
-	//vec3 objectColor = vec3(0);
-	//vec3 normal = vec3(0);
-	//vec4 lightPos = vec4(0);
-	//for(int i = 0; i < 4; i++){
-	//	pos += texelFetch(positions, iTexCoords, i).xyz;
-	//	objectColor += texelFetch(colors, iTexCoords, i).rgb;
-	//	normal += texelFetch(normals, iTexCoords, i).xyz;
-	//	lightPos += texelFetch(lightPositions, iTexCoords, i);
-	//}
-	//pos /= 4;
-	//objectColor /= 4;
-	//normal /= 4;
-	//lightPos /= 4;
-
 	vec3 pos = texture(positions, texCoords).xyz;
-	//vec3 pos = calcViewPos(texCoords, texture(depthMap, texCoords).z);
 	vec4 objectColor = texture(colors, texCoords);
 	vec3 normal = normalize(texture(normals, texCoords).xyz);
-	//vec4 lightPos = texture(lightPositions, texCoords);
 	vec4 lightPos = lightS * vec4(pos, 1.0f);
 	float glowAmnt = texture(glow, texCoords).r;
 
-	// Lighting 
+	// Lighting
 	// 0.1f should be ambient coefficient
-	vec3 globalAmbient = objectColor.rgb * 0.25f;
+	vec3 globalAmbient = objectColor.rgb * 0.1f;
 	vec3 result = vec3(0);
 
 	// Directional light
-	result = calcDirLight(dirLight, pos, normal, objectColor);
-	
+	//result = calcDirLight(dirLight, pos, normal, objectColor);
+
 	// Point Lights
 	for(int i = 0 ; i < nrOfPointLights; i++){
 		result += calcPointLight(pointLights[i], pos, normal, objectColor);
 	}
-
-	float ambientOcclusion = texture(ssao, texCoords).r;
-	if (enableSSAO)
-		globalAmbient *= ambientOcclusion;
 
 	// Shadow
 	vec3 projCoords = lightPos.xyz / lightPos.w;
@@ -139,7 +119,7 @@ void main() {
 	float shadow = 0.0f;
 
 	// PCF - 16 Samples
-	{
+	if (enableShadows) {
 		vec2 texelSize = 1.0 / textureSize(depthMap, 0);
 		for(float y = -1; y <= 1; y++) {
 			for(float x = -1; x <= 1; x++) {
@@ -148,23 +128,19 @@ void main() {
 			}
 		}
 		shadow /= 9;
-		shadow = 1.0f - shadow;
 	}
-	
-	// PCF - 4 Samples
-	//{
-	//	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
-	//	shadow = texture(depthMap, projCoords.xy + vec2(-1.5f, 0.5f) * texelSize).r
-	//		+ texture(depthMap, projCoords.xy + vec2(0.5f, 0.5f) * texelSize).r
-	//		+ texture(depthMap, projCoords.xy + vec2(-1.5f, -1.5f) * texelSize).r
-	//		+ texture(depthMap, projCoords.xy + vec2(0.5f, -1.5f) * texelSize).r;
-	//	shadow /= 4;
-	//}
+	shadow = 1.0f - shadow;
 
-	if(glowAmnt > 0)
+	if (glowAmnt > 0)
 		brightOutput = objectColor.rgb;
 	else
 		brightOutput = vec3(0);
+
+	float ambientOcclusion = texture(ssao, texCoords).r;
+	if (enableSSAO) {
+		globalAmbient *= ambientOcclusion;
+		result *= ambientOcclusion;
+	}
 
 	result *= shadow;
 

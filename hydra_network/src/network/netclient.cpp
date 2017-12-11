@@ -16,6 +16,7 @@ using world = Hydra::World::World;
 
 bool NetClient::running = false;
 NetClient::updatePVS_f NetClient::updatePVS = nullptr;
+NetClient::onWin_f NetClient::onWin = nullptr;
 void* NetClient::userdata = nullptr;
 
 TCPClient NetClient::_tcp;
@@ -137,6 +138,10 @@ void NetClient::_resolvePackets() {
 		}
 		case PacketType::ServerFreezePlayer: {
 			auto sfp = (ServerFreezePlayerPacket*)p;
+			if (sfp->action == ServerFreezePlayerPacket::Action::win) {
+				if (onWin)
+					onWin(userdata);
+			}else
 			for (auto p : Hydra::Component::PlayerComponent::componentHandler->getActiveComponents())
 				((Hydra::Component::PlayerComponent*)p.get())->frozen = sfp->action == ServerFreezePlayerPacket::Action::freeze;
 			break;
@@ -178,6 +183,9 @@ void NetClient::_resolveServerDeleteEntityPacket(ServerDeleteEntityPacket* delPa
 	for (size_t i = 0; i < children.size(); i++)
 		if (children[i] == _IDs[delPacket->id]) {
 			world::getEntity(children[i])->dead = true;
+
+			_bullets.erase(delPacket->id);
+			_IDs.erase(delPacket->id);
 			break;
 		}
 }
@@ -253,6 +261,7 @@ void NetClient::_addPlayer(Packet * playerPacket) {
 	tc->setPosition(spp->ti.pos);
 	tc->setRotation(spp->ti.rot);
 	tc->setScale(spp->ti.scale);
+
 	delete[] c;
 }
 

@@ -23,6 +23,7 @@ using namespace Hydra::Renderer;
 class GLMeshImpl final : public IMesh {
 public:
 	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices) {
+		_file = "(internal data)";
 		_makeBuffers();
 		_uploadData(vertices, indices, false, 0, 0, 0);
 	}
@@ -37,6 +38,7 @@ public:
 	}
 
 	GLMeshImpl(std::vector<Vertex> vertices, std::vector<GLuint> indices, bool animation, GLuint modelMatrixBuffer, GLuint particleExtraBuffer, GLuint textExtraBuffer) {
+		_file = "(internal data, animation, modelMatrixBuffer, ParticleExtraBuffer)";
 		_makeBuffers();
 		_uploadData(vertices, indices, animation, modelMatrixBuffer, particleExtraBuffer, textExtraBuffer);
 	}
