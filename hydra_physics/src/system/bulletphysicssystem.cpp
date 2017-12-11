@@ -57,6 +57,8 @@ BulletPhysicsSystem::BulletPhysicsSystem() {
 BulletPhysicsSystem::~BulletPhysicsSystem() { delete _data; }
 
 void BulletPhysicsSystem::enable(RigidBodyComponent* component) {
+	if (component->_handler)
+		return;
 	component->_handler = this;
 	// Make so addRigidbody takes in collision filter group and what that group collides with.
 	btRigidBody* rigidBody = static_cast<btRigidBody*>(component->getRigidBody());
@@ -96,6 +98,8 @@ void BulletPhysicsSystem::enable(RigidBodyComponent* component) {
 }
 
 void BulletPhysicsSystem::disable(RigidBodyComponent* component) {
+	if (!component->_handler)
+		return;
 	_data->dynamicsWorld->removeRigidBody(static_cast<btRigidBody*>(component->getRigidBody()));
 	component->_handler = nullptr;
 }
