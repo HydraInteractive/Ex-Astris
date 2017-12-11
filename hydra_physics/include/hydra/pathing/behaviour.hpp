@@ -139,7 +139,7 @@ public:
 	glm::vec3 basePosition = glm::vec3(30, originalHeight, 40);
 	glm::vec3 swipePosition = glm::vec3(25, 1, 25);
 	glm::vec3 canonPosition = glm::vec3(30, originalHeight, 25);
-	glm::vec3 coverPosition = glm::vec3(45, originalHeight, 5);
+	glm::vec3 coverPosition = glm::vec3(40, originalHeight, 5);
 	glm::vec3 smashPosition = glm::vec3(0);
 
 	float idleTimer = 0.0f;
@@ -151,6 +151,7 @@ public:
 	bool smashing = false;
 	bool covering = false;
 	bool shooting = false;
+	bool rotateToCover = false;
 	bool hit = false;
 	bool inBasePosition = true;
 	int spawnAmount = 0;

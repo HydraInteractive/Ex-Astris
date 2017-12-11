@@ -392,17 +392,15 @@ namespace Barcode {
 			pathfindingMap = tileGen->buildMap();
 		} 
 		//Boss
-		{
+		{   
 			//Alien
 			{
 				auto BossMech = world::newEntity("Boss Alien", world::root());
-				BossMech->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossStationaryMechModel.mATTIC");
+				BossMech->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossAlienModel.mATTIC");
 				
 				auto t = BossMech->addComponent<Hydra::Component::TransformComponent>();
-				t->position = glm::vec3(51, 18, 0);
+				t->position = glm::vec3(43, 8, 0);
 				t->rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
-
-
 			}
 				//Stationary Mech
 			{
@@ -427,8 +425,8 @@ namespace Barcode {
 				m->movementSpeed = 0.0f;
 
 				auto rgbc = BossMech->addComponent<Hydra::Component::RigidBodyComponent>();
-				rgbc->createBox(glm::vec3(10.0f, 16.0f, 10.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
-					0, 0, 0.6f, 1.0f);
+				rgbc->createBox(glm::vec3(10.0f, 16.0f, 10.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 1000000.0f,
+					100, 1000, 0.6f, 1.0f);
 				rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 				rgbc->setAngularForce(glm::vec3(0));
 			}
@@ -499,6 +497,7 @@ namespace Barcode {
 					auto t = bossEntity->addComponent<Hydra::Component::TransformComponent>();
 					t->position.y = 10;
 					t->scale = glm::vec3{ 1,1,1 };
+					//t->rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(1, 0, 0));
 
 
 					auto rgbc = bossEntity->addComponent<Hydra::Component::RigidBodyComponent>();

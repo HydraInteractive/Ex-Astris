@@ -203,8 +203,8 @@ void Behaviour::executeTransforms()
 	//else
 	rigidBody->setLinearVelocity(btVector3(movementForce.x, movementForce.y, movementForce.z));
 
-	if(type != Type::BOSS_HAND)
-		thisEnemy.transform->setRotation(rotation);
+	//if(type != Type::BOSS_HAND)
+	thisEnemy.transform->setRotation(rotation);
 }
 
 void Behaviour::resetAnimationOnStart(int animationIndex) {
@@ -681,7 +681,7 @@ unsigned int BossHand_Left::idleState(float dt) {
 	//Wait 2 seconds before next move
 	if (idleTimer >= 5.0f) {
 		int randomNextMove = rand() % 125;
-
+		return HandPhases::COVER;
 		if (randomNextMove < 30) {
 			Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Smash");
 			return HandPhases::SMASH;
@@ -803,6 +803,11 @@ unsigned int BossHand_Left::coverState(float dt) {
 	int state = HandPhases::COVER;
 	bool covering = false;
 	resetAnimationOnStart(1);
+	
+	if (!rotateToCover) {
+		rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0, 0, 1));
+		rotateToCover = true;
+	}
 
 	if (glm::distance(flatVector(thisEnemy.transform->position), flatVector(coverPosition)) < 1.0f) {
 		covering = true;
@@ -813,6 +818,8 @@ unsigned int BossHand_Left::coverState(float dt) {
 
 	if (coverTimer >= 5){
 		coverTimer = 0;
+		rotateToCover = false;
+		rotation = glm::angleAxis(glm::radians(0.0f), glm::vec3(0, 0, 1));
 		state = HandPhases::RETURN;
 	}
 
