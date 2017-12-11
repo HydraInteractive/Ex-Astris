@@ -23,7 +23,7 @@ using world = Hydra::World::World;
 
 using namespace BarcodeServer;
 
-TileGeneration::TileGeneration(const std::string& middleRoomPath, Hydra::Component::WeaponComponent::onShoot_f onRobotShoot, void* userdata) : _onRobotShoot(onRobotShoot), _userdata(userdata) {
+TileGeneration::TileGeneration(size_t maxRooms, const std::string& middleRoomPath, Hydra::Component::WeaponComponent::onShoot_f onRobotShoot, void* userdata) : maxRooms(maxRooms), _onRobotShoot(onRobotShoot), _userdata(userdata) {
 	mapentity = world::newEntity("Map", world::root());
 	_obtainRoomFiles();
 	pathfindingMap = new bool*[WORLD_MAP_SIZE];
