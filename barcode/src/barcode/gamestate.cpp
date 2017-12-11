@@ -647,7 +647,7 @@ namespace Barcode {
 				w->onShoot = &GameState::_onPlayerShoot;
 				w->bulletSize /= 2;
 				w->maxammo = 0;
-				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/FPSModel.mATTIC");
+				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/FPSModel3.mATTIC");
 				auto t2 = weaponEntity->addComponent<Hydra::Component::TransformComponent>();
 				t2->position = glm::vec3(2, -7, -2);
 				t2->scale = glm::vec3(0.3f);

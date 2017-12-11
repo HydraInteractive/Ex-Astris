@@ -229,7 +229,7 @@ namespace Hydra::Physics::Behaviour {
 		//unsigned int shootingState(float dt) final;
 		unsigned int spawnState(float dt);
 
-		void applySpawnPositions();
+		//void applySpawnPositions();
 	private:
 		bool refreshRequiredComponents() final;
 	};

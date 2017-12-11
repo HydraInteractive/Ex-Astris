@@ -627,7 +627,7 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 					t->position = thisEnemy.transform->position + glm::vec3(3, thisEnemy.transform->position.y, 3);
 					t->scale = glm::vec3{ 2,2,2 };
 
-					alienSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+					alienSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel2.mATTIC");
 					spawnAmount++;
 					spawnTimer = 0;
 				}
@@ -1029,12 +1029,12 @@ bool BossArm::refreshRequiredComponents() {
 
 StationaryBoss::StationaryBoss(std::shared_ptr<Hydra::World::Entity> enemy) :Behaviour(enemy) {
 	this->type = Type::STATINARY_BOSS;
-	applySpawnPositions();
+	//applySpawnPositions();
 }
 
 StationaryBoss::StationaryBoss() {
 	this->type = Type::STATINARY_BOSS;
-	applySpawnPositions();
+	//applySpawnPositions();
 }
 
 StationaryBoss::~StationaryBoss() {
@@ -1138,5 +1138,20 @@ unsigned int StationaryBoss::spawnState(float dt) {
 	}
 	maxSpawn *= 2;
 	return state;
+
+}
+
+bool StationaryBoss::refreshRequiredComponents() {
+
+	hasRequiredComponents = (
+		(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>().get()) &&
+		(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>().get()) &&
+		(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>().get()) &&
+		(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
+		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity().get()) &&
+		(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
+		(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
+		);
+	return hasRequiredComponents;
 
 }
