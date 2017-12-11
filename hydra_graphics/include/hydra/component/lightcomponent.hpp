@@ -37,7 +37,7 @@ namespace Hydra::Component {
 		inline glm::mat4 getProjectionMatrix() const { return glm::ortho(xNear, xFar, yNear, yFar, zNear, zFar); }
 		//inline glm::mat4 getProjectionMatrix() const { return glm::perspective<float>(fov, 1.0f, zNear, zFar); }
 		//inline glm::mat4 getViewMatrix() { return glm::translate(glm::mat4_cast(getTransformComponent()->rotation), -getTransformComponent()->position); }
-		inline glm::mat4 getViewMatrix() { return glm::lookAt(getTransformComponent()->position, getTransformComponent()->position + glm::vec3(0.2, -0.8, 0), getTransformComponent()->rotation * glm::vec3(0, 1, 0)); }
+		inline glm::mat4 getViewMatrix() { return glm::lookAt(getTransformComponent()->position, getTransformComponent()->position + glm::vec3(0.05, -0.95, 0), getTransformComponent()->rotation * glm::vec3(0, 1, 0)); }
 		inline std::shared_ptr<Hydra::Component::TransformComponent> getTransformComponent() {
 			if (auto e = Hydra::World::World::getEntity(entityID); e)
 				return e->getComponent<Hydra::Component::TransformComponent>();
@@ -45,7 +45,7 @@ namespace Hydra::Component {
 				return std::shared_ptr<Hydra::Component::TransformComponent>();
 		}
 		inline glm::vec3 getDirVec(){
-			return glm::normalize(getTransformComponent()->position + glm::vec3(0.2, -0.8, 0));
+			return glm::normalize(getTransformComponent()->position + glm::vec3(0.05, -0.95, 0));
 		}
 	};
 }
