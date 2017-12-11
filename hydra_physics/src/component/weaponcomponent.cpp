@@ -86,6 +86,7 @@ bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 		b->colour[1] = color[1];
 		b->colour[2] = color[2];
 		b->glow = glow;
+		b->glowIntensity = glowIntensity;
 		auto t = bullet->addComponent<Hydra::Component::TransformComponent>();
 		t->position = position;
 		t->scale = glm::vec3(bulletSize);

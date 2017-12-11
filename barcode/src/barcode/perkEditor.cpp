@@ -9,6 +9,7 @@ namespace Barcode
 
 	PerkEditorState::~PerkEditorState()
 	{
+		delete _blurUtil;
 	}
 
 	void Barcode::PerkEditorState::onMainMenu()
@@ -49,6 +50,8 @@ namespace Barcode
 		std::vector<std::shared_ptr<Entity>> entities;
 		world::getEntitiesWithComponents<Hydra::Component::MeshComponent>(entities);
 		glm::vec3 colour(1.0f);
+		bool hasGlow = bullet.glow;
+		float glowIntensity = bullet.glowIntensity;
 
 		for (int i = 0; i < 3; i++)
 		{
@@ -60,6 +63,10 @@ namespace Barcode
 			auto t = e->getComponent<Hydra::Component::TransformComponent>();
 			auto mc = e->getComponent<Hydra::Component::MeshComponent>();
 			auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
+			/*auto bc = e->getComponent<Hydra::Component::BulletComponent>();
+			if (bc)
+				hasGlow = bc->glow;*/
+
 			t->dirty = true;
 			t->scale = glm::vec3(bullet.bulletSize);
 			for (int i = 0; i < 3; i++)
@@ -72,8 +79,17 @@ namespace Barcode
 		entities.clear();
 		_bulletRender.pipeline->setValue(0, _cc->getViewMatrix());
 		_bulletRender.pipeline->setValue(1, _cc->getProjectionMatrix());
-		_bulletRender.pipeline->setValue(4, colour); //THIS IS IMPORTANT LINE REMEMBER THIS LINE PLZ
+		_bulletRender.pipeline->setValue(5, colour); //THIS IS IMPORTANT LINE REMEMBER THIS LINE PLZ
+		_bulletRender.pipeline->setValue(6, hasGlow);
+		_bulletRender.pipeline->setValue(7, glowIntensity);
 		_engine->getRenderer()->render(_bulletRender.batch);
+
+		_blurUtil->blur((*_bulletRender.output)[1], 10, _bulletRender.output->getSize());
+		_glowBatch.pipeline->setValue(1, 0);
+		_glowBatch.pipeline->setValue(2, 1);
+		(*_bulletRender.output)[0]->bind(0);
+		_blurUtil->getOutput()->bind(1);
+		_engine->getRenderer()->postProcessing(_glowBatch.batch);
 		if (_showPerkAttributeMenu)
 		{
 			_attribMenu.render(_showPerkAttributeMenu, &_bulletRender.batch, delta);
@@ -89,8 +105,14 @@ namespace Barcode
 		//_dgp = std::make_unique<DefaultGraphicsPipeline>(_cameraSystem, windwSize);
 
 		{
-			_bulletRender = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/perkVert.vert","", "assets/shaders/perkFrag.frag", _engine->getView());
+			_bulletRender = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/perkVert.vert","", "assets/shaders/perkFrag.frag", windwSize);
+			_bulletRender.output->addTexture(0, Hydra::Renderer::TextureType::u8RGB) // Colors (Orignal image for glow)
+				.addTexture(1, Hydra::Renderer::TextureType::u8RGB)
+				.finalize(); // Highlighted glow parts.
 			_bulletRender.batch.clearFlags = Hydra::Renderer::ClearFlags::color | Hydra::Renderer::ClearFlags::depth;
+			_blurUtil = new Barcode::BlurUtil(_engine->getRenderer(), _bulletRender.output->getSize(), Hydra::Renderer::TextureType::u8RGB);
+			_glowBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/glow.vert", "", "assets/shaders/glow.frag", _engine->getView());
+			//_glowBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::color | Hydra::Renderer::ClearFlags::depth;
 		}
 
 		_initWorld();

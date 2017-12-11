@@ -25,6 +25,7 @@ namespace Hydra::Component {
 		float damage = 5.0f;
 		int bulletsPerShot = 14;
 		float recoil = 0.7f;
+		float glowIntensity = 0.0f;
 		float color[4] = { 0.0f };
 		float _dyaw, _dpitch = 0.0f;
 		bool _isReloading = false;

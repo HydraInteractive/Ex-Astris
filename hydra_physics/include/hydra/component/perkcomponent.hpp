@@ -23,6 +23,7 @@ namespace Hydra::Component {
 			PERK_SPEEDUP,
 			PERK_FASTSHOWLOWDMG,
 			PERK_RED,
+			PERK_GREEN,
 			AMOUNTOFPERKS
 		};
 		std::vector<Perk> newPerks = std::vector<Perk>();

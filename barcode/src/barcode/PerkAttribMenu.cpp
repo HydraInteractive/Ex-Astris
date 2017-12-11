@@ -15,6 +15,10 @@ void PerkAttribMenu::render(bool & thing, Hydra::Renderer::Batch * renderBatch, 
 
 	//Whatever you choose in the editor will be added/multiplied by
 	//whatever values the player already has
+	ImGui::Checkbox("Glow on/off", &Bullet.glow);
+	ImGui::Separator();
+	ImGui::Text("Glow Intensity:"); ImGui::SameLine(); ImGui::DragFloat("                             ", &Bullet.glowIntensity);
+	ImGui::Separator();
 	ImGui::Text("Bullet Size:"); ImGui::SameLine(); ImGui::DragFloat("", &Bullet.bulletSize);
 	ImGui::Separator();
 	ImGui::Text("Bullet Damage:"); ImGui::SameLine(); ImGui::DragFloat("  ",&Bullet.dmg);
@@ -34,12 +38,7 @@ void PerkAttribMenu::render(bool & thing, Hydra::Renderer::Batch * renderBatch, 
 	ImGui::Separator();
 	//ImGui::RadioButton("Multiplier", &Bullet.multi); ImGui::SameLine(); ImGui::RadioButton("Adder", &Bullet.add);
 	ImGui::Checkbox("Multiplier", &Bullet.Multiplier), ImGui::SameLine(); ImGui::Checkbox("Adder", &Bullet.Adder);
-	ImGui::Separator();
-	ImGui::Checkbox("Glow on/off", &Bullet.glow);
-	if (Bullet.glow)
-	{
-		//FIX GLOW FOR EDITOR
-	}
+
 	if (ImGui::Button("Export", ImVec2(200, 75)))
 	{
 		openPopup = true;
@@ -109,6 +108,7 @@ void PerkAttribMenu::writeToFile(const char* fileName)
 	file.write(reinterpret_cast<char *>(&Bullet.Adder), sizeof(bool));
 	file.write(reinterpret_cast<char *>(&Bullet.Multiplier), sizeof(bool));
 	file.write(reinterpret_cast<char *>(&Bullet.glow), sizeof(bool));
+	file.write(reinterpret_cast<char *>(&Bullet.glowIntensity), sizeof(float));
 
 	std::string description = Bullet.perkDescription;
 	int size = description.size();

@@ -70,6 +70,80 @@ void PerkSystem::tick(float delta) {
 	entities.clear();
 }
 
+void PerkSystem::PerkChange(ReadBullet& b, const std::shared_ptr<Hydra::World::Entity>& playerEntity)
+{
+	auto w = playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>();
+
+	glm::vec3 newColour = glm::vec3(b.bulletColor[0], b.bulletColor[1], b.bulletColor[2]);
+	glm::vec3 oldColour = glm::vec3(w->color[0], w->color[1], w->color[2]);
+	glm::vec3 mixedColour = glm::clamp(glm::normalize((newColour + oldColour)), glm::vec3(0), glm::vec3(1));
+
+	if (b.Adder)
+	{
+
+		w->damage += b.dmg;
+		w->bulletSize += b.bulletSize;
+		w->bulletsPerShot = b.bulletPerShot;
+		w->maxammo = b.ammoCap;
+		w->maxmagammo += b.currentMagAmmo;
+		w->ammoPerShot += b.ammoPerShot;
+		w->bulletSpread += b.bulletSpread;
+
+		w->color[0] = mixedColour[0];
+		w->color[1] = mixedColour[1];
+		w->color[2] = mixedColour[2];
+		w->glow = b.glow;
+		w->glowIntensity = b.glowIntensity;
+		perkDescriptionText = b.perkDescription;
+	}
+	if (b.Multiplier)
+	{
+		if (b.dmg > 0.0f)
+		{
+			w->damage *= b.dmg;
+		}
+		else
+			w->damage * 1.0;
+		if (b.bulletSize > 0.0f)
+		{
+			w->bulletSize *= b.bulletSize;
+		}
+		else
+			w->bulletSize * 1.0f;
+
+
+		w->bulletsPerShot = b.bulletPerShot;
+		w->maxammo = b.ammoCap;
+		if (b.currentMagAmmo > 0.0f)
+		{
+			w->maxmagammo *= b.currentMagAmmo;
+		}
+		else
+			w->maxmagammo * 1.0f;
+
+		if (b.ammoPerShot > 0.0f)
+		{
+			w->ammoPerShot *= b.ammoPerShot;
+		}
+		else
+			w->ammoPerShot * 1.0f;
+		if (b.bulletSpread > 0.0f)
+		{
+			w->bulletSpread *= b.bulletSpread;
+		}
+		else
+			w->bulletSpread * 1.0f;
+
+
+
+		w->color[0] = mixedColour[0];
+		w->color[1] = mixedColour[1];
+		w->color[2] = mixedColour[2];
+		w->glow = b.glow;
+		w->glowIntensity = b.glowIntensity;
+		perkDescriptionText = b.perkDescription;
+	}
+}
 
 void PerkSystem::readFromFile(const char* fileName, ReadBullet &readBullet)
 {
@@ -90,6 +164,7 @@ void PerkSystem::readFromFile(const char* fileName, ReadBullet &readBullet)
 	file.read(reinterpret_cast<char*>(&readBullet.Adder), sizeof(bool));
 	file.read(reinterpret_cast<char*>(&readBullet.Multiplier), sizeof(bool));
 	file.read(reinterpret_cast<char*>(&readBullet.glow), sizeof(bool));
+	file.read(reinterpret_cast<char*>(&readBullet.glowIntensity), sizeof(float));
 
 	int nrOfChars = 0;
 	file.read(reinterpret_cast<char*>(&nrOfChars), sizeof(int));
@@ -142,72 +217,27 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 	}
 	case Hydra::Component::PerkComponent::PERK_RED: {
 		ReadBullet b;
-		readFromFile("RedSpooks", b);
-		if (b.Adder)
-		{
-			auto w = playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>();
-			w->damage += b.dmg;
-			w->bulletSize += b.bulletSize;
-			w->bulletsPerShot = b.bulletPerShot;
-			w->maxammo = b.ammoCap;
-			w->maxmagammo += b.currentMagAmmo;
-			w->ammoPerShot += b.ammoPerShot;
-			w->bulletSpread += b.bulletSpread;
-			w->color[0] = b.bulletColor[0];
-			w->color[1] = b.bulletColor[1];
-			w->color[2] = b.bulletColor[2];
-			w->glow = b.glow;
-
-			perkDescriptionText = b.perkDescription;
-		}
-		if (b.Multiplier)
-		{
-			auto w = playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>();
-			if (b.dmg > 0.0f)
-			{
-				w->damage *= b.dmg;
-			}
-			else
-				w->damage * 1.0;
-			if (b.bulletSize > 0.0f)
-			{
-				w->bulletSize *= b.bulletSize;
-			}
-			else
-				w->bulletSize * 1.0f;
-
-			
-			w->bulletsPerShot = b.bulletPerShot;
-			w->maxammo = b.ammoCap;
-			if (b.currentMagAmmo > 0.0f)
-			{
-				w->maxmagammo *= b.currentMagAmmo;
-			}
-			else
-				w->maxmagammo * 1.0f;
-
-			if (b.ammoPerShot > 0.0f)
-			{
-				w->ammoPerShot *= b.ammoPerShot;
-			}
-			else
-				w->ammoPerShot * 1.0f;
-			if (b.bulletSpread > 0.0f)
-			{
-				w->bulletSpread *= b.bulletSpread;
-			}
-			else
-				w->bulletSpread * 1.0f;
-
-
-			
-			w->color[0] = b.bulletColor[0];
-			w->color[1] = b.bulletColor[1];
-			w->color[2] = b.bulletColor[2];
-			perkDescriptionText = b.perkDescription;
-		}
+		readFromFile("Poorple", b);
+		PerkChange(b, playerEntity);
+	
 		break;
 	}
+
+
+
+
+
+	case Hydra::Component::PerkComponent::PERK_GREEN: {
+		ReadBullet b;
+		readFromFile("Green", b);
+		PerkChange(b, playerEntity);
+		break;
+	}
+
+
+
+
+
 
 	default:
 		break;

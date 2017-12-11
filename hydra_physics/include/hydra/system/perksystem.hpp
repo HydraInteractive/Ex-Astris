@@ -9,9 +9,10 @@ namespace Hydra::System {
 	public:
 		PerkSystem();
 		~PerkSystem() final;
-
+		 
 		void tick(float delta) final;
 		void onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const std::shared_ptr<Hydra::World::Entity>& playerEntity);
+
 
 		inline const std::string type() const final { return "PerkSystem"; }
 		void registerUI() final;
@@ -26,6 +27,7 @@ namespace Hydra::System {
 			float bulletSize = 0.5f;
 			float roundsPerMinute = 0.0f;
 			float reloadTime = 0.0f;
+			float glowIntensity = 0.0f;
 
 			float bulletColor[4] = { 1.0f };
 			int currentMagAmmo = 0;
@@ -40,7 +42,7 @@ namespace Hydra::System {
 
 		};
 		void readFromFile(const char* fileName, ReadBullet &readBullet);
-		
+		void PerkChange(ReadBullet& b, const std::shared_ptr<Hydra::World::Entity>& playerEntity);
 
 
 

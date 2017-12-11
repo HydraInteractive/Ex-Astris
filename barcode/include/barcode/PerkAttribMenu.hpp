@@ -20,6 +20,7 @@ public:
 		float bulletSize = 0.5f;
 		float roundsPerMinute = 0.0f;
 		float reloadTime = 0.0f;
+		float glowIntensity = 0.0f;
 
 		float bulletColor[4] = { 1.0f };
 		int currentMagAmmo = 0;

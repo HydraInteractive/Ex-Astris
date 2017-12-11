@@ -161,7 +161,7 @@ void main() {
 	//}
 
 	if(glowAmnt > 0)
-		brightOutput = objectColor.rgb;
+		brightOutput = objectColor.rgb * glowAmnt;
 	else
 		brightOutput = vec3(0);
 

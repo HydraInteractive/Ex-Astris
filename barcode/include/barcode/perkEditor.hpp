@@ -89,6 +89,8 @@ namespace Barcode {
 
 		std::unique_ptr<DefaultGraphicsPipeline> _dgp;
 		RenderBatch<Hydra::Renderer::Batch> _bulletRender;
+		RenderBatch<Hydra::Renderer::Batch> _glowBatch;
+		BlurUtil* _blurUtil;
 
 		Hydra::Component::TransformComponent* _playTrans = nullptr;
 		Hydra::Component::CameraComponent* _cc = nullptr;

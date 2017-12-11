@@ -236,23 +236,28 @@ namespace Barcode {
 		{ // Bullet thingie
 			for (auto& kv : _bulletBatch.batch.objects)
 				kv.second.clear();
-
+			glm::vec3 colour;
+			bool glow = false;
+			float glowIntensity = 0.0f;
 			for (auto& bc : Hydra::Component::BulletComponent::componentHandler->getActiveComponents()) {
 				auto bulletComponent = Hydra::World::World::getEntity(bc->entityID)->getComponent<Hydra::Component::BulletComponent>();
-				//bulletComponent->
+				colour = glm::vec3(bulletComponent->colour[0], bulletComponent->colour[1], bulletComponent->colour[2]);
+				glow = bulletComponent->glow;
+				glowIntensity = bulletComponent->glowIntensity;
 				auto drawObj = Hydra::World::World::getEntity(bc->entityID)->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
 				_bulletBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 			}
-			auto wp = Hydra::Component::WeaponComponent();
-			glm::vec3 colour(wp.color[0], wp.color[1], wp.color[2]);
+			//auto wp = Hydra::Component::WeaponComponent();
+			//glm::vec3 colour(wp.color[0], wp.color[1], wp.color[2]);
 
-
+			
 
 			_bulletBatch.pipeline->setValue(0, cc.getViewMatrix());
 			_bulletBatch.pipeline->setValue(1, cc.getProjectionMatrix());
 			_bulletBatch.pipeline->setValue(4, glm::vec3(1, 0, 0));
-			_bulletBatch.pipeline->setValue(5,colour);
-			_bulletBatch.pipeline->setValue(6, wp.glow);
+			_bulletBatch.pipeline->setValue(5, colour);
+			_bulletBatch.pipeline->setValue(6, glow);
+			_bulletBatch.pipeline->setValue(7, glowIntensity);
 			_engine->getRenderer()->render(_bulletBatch.batch);
 		}
 		
