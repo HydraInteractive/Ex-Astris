@@ -387,12 +387,23 @@ namespace Barcode {
 		}   
 		{
 			//Remove this to gain frames like never before
-			//tileGen = new TileGeneration("assets/BossRoom/Bossroom.room");  
-			tileGen = new TileGeneration("assets/room/GeneratonInTheMiddle.room");
+			tileGen = new TileGeneration("assets/BossRoom/Bossroom.room");  
+			//tileGen = new TileGeneration("assets/room/GeneratonInTheMiddle.room");
 			pathfindingMap = tileGen->buildMap();
 		} 
 		//Boss
 		{
+			//Alien
+			{
+				auto BossMech = world::newEntity("Boss Alien", world::root());
+				BossMech->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossStationaryMechModel.mATTIC");
+				
+				auto t = BossMech->addComponent<Hydra::Component::TransformComponent>();
+				t->position = glm::vec3(51, 18, 0);
+				t->rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
+
+
+			}
 				//Stationary Mech
 			{
 				auto BossMech = world::newEntity("BossMech", world::root());
@@ -425,11 +436,11 @@ namespace Barcode {
 			{
 				for (int i = 0; i < 1; i++) {
 					auto bossEntity = world::newEntity("BossArm", world::root());
-					bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossArmModel.mATTIC");
+					bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossArmModel2.mATTIC");
 					auto a = bossEntity->addComponent<Hydra::Component::AIComponent>();
 					a->behaviour = std::make_shared<BossArm>(bossEntity);
 					a->damage = 7;
-					a->behaviour->originalRange = 20;
+					a->behaviour->originalRange = 20;  
 					a->radius = 1;
 
 					//Set different positions for other arm
@@ -449,13 +460,13 @@ namespace Barcode {
 					rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 					rgbc->setAngularForce(glm::vec3(0));
 				}
-			}
+			} 
 
 			{
 				//Hands
 				for (int i = 0; i < 1; i++) {
 					auto bossEntity = world::newEntity("BossHand1", world::root());
-					bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossHandModel.mATTIC");
+					bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossHandModel2.mATTIC");
 					auto a = bossEntity->addComponent<Hydra::Component::AIComponent>();
 					a->behaviour = std::make_shared<BossHand_Left>(bossEntity);
 					a->behaviour->setPathMap(pathfindingMap);
