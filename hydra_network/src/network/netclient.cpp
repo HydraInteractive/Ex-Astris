@@ -208,7 +208,7 @@ void NetClient::_updateWorld(Packet * updatePacket) {
 			auto ent = world::newEntity("ERROR: UNKOWN ENTITY", world::root());
 			_IDs[sup->data[k].entityid] = ent->id;
 			auto mesh = ent->addComponent<MeshComponent>();
-			mesh->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+			mesh->loadMesh("assets/objects/characters/AlienModel2.mATTIC");
 			auto transform = ent->addComponent<TransformComponent>();
 			transform->position = { ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.x, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.y, ((ServerUpdatePacket::EntUpdate&)sup->data[k]).ti.pos.z };
 
@@ -257,7 +257,7 @@ void NetClient::_addPlayer(Packet * playerPacket) {
 	_IDs[spp->entID] = ent->id;
 	Hydra::Component::TransformComponent* tc = ent->addComponent<Hydra::Component::TransformComponent>().get();
 	auto mesh = ent->addComponent<Hydra::Component::MeshComponent>();
-	mesh->loadMesh("assets/objects/characters/PlayerModel.mATTIC");
+	mesh->loadMesh("assets/objects/characters/PlayerModel2.mATTIC");
 	tc->setPosition(spp->ti.pos);
 	tc->setRotation(spp->ti.rot);
 	tc->setScale(spp->ti.scale);

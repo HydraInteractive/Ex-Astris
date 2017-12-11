@@ -17,7 +17,7 @@ namespace Hydra::Physics::Behaviour {
 		Behaviour();
 		virtual ~Behaviour();
 
-		enum class Type { ALIEN, ROBOT, ALIENBOSS };
+		enum class Type { ALIEN, ROBOT, ALIENBOSS, BOSS_HAND, BOSS_ARMS, STATINARY_BOSS };
 		Type type = Type::ALIEN;
 
 		enum { IDLE, SEARCHING, MOVING, ATTACKING };
@@ -26,6 +26,15 @@ namespace Hydra::Physics::Behaviour {
 		enum BossPhase { CLAWING, SPITTING, SPAWNING, CHILLING };
 		BossPhase bossPhase = BossPhase::CLAWING;
 
+		enum HandPhases { IDLEHAND, SMASH, SWIPE, HANDCANON, COVER, RETURN };
+		HandPhases handPhase = HandPhases::IDLEHAND;
+
+		enum ArmPhases { SWEEP, SINGLE_BONK, MULTIPLE_BONK, CHILL };
+		ArmPhases armPhase = ArmPhases::CHILL;
+
+		enum StatinoaryBossPhases { NOTHING, SPAWN };
+		StatinoaryBossPhases stationaryPhase = StatinoaryBossPhases::NOTHING;
+
 		float idleTimer = 0.0;
 		float attackTimer = 0.0;
 		float newPathTimer = 0.0;
@@ -33,6 +42,7 @@ namespace Hydra::Physics::Behaviour {
 		float spawnTimer = 0.0;
 		float phaseTimer = 0.0;
 		float regainRange = 0.0;
+
 
 		std::random_device rd;
 		bool playerSeen = false;
@@ -120,4 +130,109 @@ namespace Hydra::Physics::Behaviour {
 		unsigned int attackingState(float dt) final;
 	private:
 	};
+
+	class HYDRA_PHYSICS_API BossHand_Left final : public Behaviour
+	{
+	public:
+		BossHand_Left(std::shared_ptr<Hydra::World::Entity> enemy);
+		BossHand_Left();
+		~BossHand_Left();
+
+		const float originalHeight = 10.0f;
+		glm::vec3 basePosition = glm::vec3(30, originalHeight, 40);
+		glm::vec3 swipePosition = glm::vec3(25, 1, 25);
+		glm::vec3 canonPosition = glm::vec3(30, originalHeight, 25);
+		glm::vec3 coverPosition = glm::vec3(45, originalHeight, 5);
+		glm::vec3 smashPosition = glm::vec3(0);
+
+		float idleTimer = 0.0f;
+		float coverTimer = 0.0f;
+		float stunTimer = 0.0f;
+		float waitToSmashTimer = 0.0f;
+		bool stunned = false;
+		bool swiping = false;
+		bool smashing = false;
+		bool covering = false;
+		bool shooting = false;
+		bool hit = false;
+		bool inBasePosition = true;
+		int spawnAmount = 0;
+		int targetedPlayer = 0;
+		int randomNrOfShots = 0;
+		int shotsFired = 0;
+
+		void run(float dt);
+		void move(glm::vec3 target);
+
+		unsigned int idleState(float dt) final;
+		unsigned int smashState(float dt);
+		unsigned int swipeState(float dt);
+		unsigned int canonState(float dt);
+		unsigned int coverState(float dt);
+		unsigned int returnState(float dt);
+
+		void rotateAroundAxis(float newRotation, glm::vec3(direction));
+
+	private:
+		bool refreshRequiredComponents() final;
+	};
+
+	class HYDRA_PHYSICS_API BossArm final : public Behaviour
+	{
+	public:
+		BossArm(std::shared_ptr<Hydra::World::Entity> enemy);
+		BossArm();
+		~BossArm();
+
+		const float originalHeight = 10.0f;
+		glm::vec3 basePosition = glm::vec3(55, originalHeight, 15);
+		glm::vec3 swipePosition = glm::vec3(25, 1, 25);
+		glm::vec3 bonkPosition = glm::vec3(45, originalHeight, 5);
+
+		float coverTimer = 0.0f;
+		float stunTimer = 0.0f;
+		float waitToSmashTimer = 0.0f;
+		bool stunned = false;
+		bool swiping = false;
+		bool smashing = false;
+
+		void run(float dt);
+
+		unsigned int idleState(float dt) final;
+		unsigned int bonkState(float dt);
+		unsigned int multipleBonkState(float dt);
+		unsigned int sweepState(float dt);
+
+		void updateRigidBodyPosition();
+
+	private:
+		bool refreshRequiredComponents() final;
+	};
+
+	class HYDRA_PHYSICS_API StationaryBoss final : public Behaviour
+	{
+	public:
+		StationaryBoss(std::shared_ptr<Hydra::World::Entity> enemy);
+		StationaryBoss();
+		~StationaryBoss();
+
+		void run(float dt);
+
+		int randomAliens, randomRobots;
+		int maxSpawn = 4;
+
+		std::vector<glm::vec3> spawnPositions;
+
+		float spawnEnemiesAtPercentage[3] = { 600.0f, 300.0f, 150.0f };
+		int spawnIndex = 0;
+		float idleTimer = 0.0f;
+		unsigned int idleState(float dt) final;
+		//unsigned int shootingState(float dt) final;
+		unsigned int spawnState(float dt);
+
+		//void applySpawnPositions();
+	private:
+		bool refreshRequiredComponents() final;
+	};
+
 }

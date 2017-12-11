@@ -23,7 +23,7 @@ using world = Hydra::World::World;
 
 using namespace BarcodeServer;
 
-TileGeneration::TileGeneration(const std::string& middleRoomPath, Hydra::Component::WeaponComponent::onShoot_f onRobotShoot, void* userdata) : _onRobotShoot(onRobotShoot), _userdata(userdata) {
+TileGeneration::TileGeneration(size_t maxRooms, const std::string& middleRoomPath, Hydra::Component::WeaponComponent::onShoot_f onRobotShoot, void* userdata) : maxRooms(maxRooms), _onRobotShoot(onRobotShoot), _userdata(userdata) {
 	mapentity = world::newEntity("Map", world::root());
 	_obtainRoomFiles();
 	pathfindingMap = new bool*[WORLD_MAP_SIZE];
@@ -208,7 +208,7 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 	case 1: {
 		auto alienEntity = world::newEntity("FastAlien1", world::root());
 		alienEntity->addComponent<Hydra::Component::NetworkSyncComponent>();
-		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienFastModel.mATTIC");
+		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienFastModel2.mATTIC");
 		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 		a->behaviour->setPathMap(pathfindingMap);
@@ -247,7 +247,7 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 	case 2: {
 		auto robotEntity = world::newEntity("Robot1", world::root());
 		robotEntity->addComponent<Hydra::Component::NetworkSyncComponent>();
-		robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
+		robotEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel2.mATTIC");
 		auto a = robotEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<RobotBehaviour>(robotEntity);
 		a->behaviour->setPathMap(pathfindingMap);
@@ -290,7 +290,7 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 	default: {
 		auto alienEntity = world::newEntity("SlowAlien1", world::root());
 		alienEntity->addComponent<Hydra::Component::NetworkSyncComponent>();
-		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+		alienEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel2.mATTIC");
 		auto a = alienEntity->addComponent<Hydra::Component::AIComponent>();
 		a->behaviour = std::make_shared<AlienBehaviour>(alienEntity);
 		a->behaviour->setPathMap(pathfindingMap);
