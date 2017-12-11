@@ -49,6 +49,7 @@ TileGeneration::~TileGeneration() {
 
 bool** TileGeneration::buildMap() {
 	_createMapRecursivly(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2));
+	_spawnDoors();
 	_spawnEnemies();
 	_clearSpawnPoints();
 	return pathfindingMap;
@@ -80,6 +81,7 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 				auto roomC = loadedRoom->getComponent<Hydra::Component::RoomComponent>();
 				uint8_t rot;
 				glm::quat rotation = _rotateRoom(roomC, rot);
+				roomC->rot = rot;
 
 				if (roomC->door[negDir] && _checkAdjacents(pos.x + offset[direction].x, pos.y + offset[direction].y, roomC)) {
 					deadSystem.tick(0);
@@ -99,21 +101,49 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 				else
 					loadedRoom->dead = true;
 			}
-
-			/*if (!placed) {
-				auto doorBlock = world::newEntity("DoorBlock", mapentity);
-				doorBlock->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/BlockCube2.mATTIC");
-				auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
-				t->position = _gridToWorld(pos.x, pos.y + 1);
-				t->position.z += ROOM_SIZE / 2 * (direction <= 2 ? -1 : 1);
-				t->position.y += 3;
-				t->scale = glm::vec3(4);
-				auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
-				rgbc->createBox(glm::vec3(0.8f), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
-				}*/
 		}
 	}
 	deadSystem.tick(0);
+}
+
+void TileGeneration::_spawnDoors() {
+	const int        nesw[4]    = { NORTH, EAST, SOUTH, WEST };
+	const char*      strNESW[4] = { "NORTH", "EAST", "SOUTH", "WEST" };
+	const glm::ivec2 offset[4]  = { {0, -1}, {1, 0}, {0, 1}, {-1, 0} };
+
+	for (int y = 0; y < ROOM_GRID_SIZE; y++)
+		for (int x = 0; x < ROOM_GRID_SIZE; x++) {
+			auto room = roomGrid[x][y];
+			if (!room)
+				continue;
+			for (size_t direction = 0; direction < sizeof(nesw) / sizeof(nesw[0]); direction++) {
+				auto dir = (direction + room->rot) % 4;
+				if (!room->door[direction])
+					continue;
+				auto roomOff = offset[dir];
+				auto gridOff = offset[direction];
+
+				{
+					size_t nextDoorX = x + gridOff.x;
+					size_t nextDoorY = y + gridOff.y;
+					if (nextDoorX > 0 && nextDoorX < ROOM_GRID_SIZE && nextDoorY > 0 && nextDoorY < ROOM_GRID_SIZE && roomGrid[nextDoorX][nextDoorY] && roomGrid[nextDoorX][nextDoorY]->door[(direction + 2) % 4])
+						continue;
+				}
+
+				char tmp[64] = {0};
+				snprintf(tmp, sizeof(tmp), "Door-%s", strNESW[direction]);
+
+				auto doorBlock = world::newEntity(tmp, room->entityID);
+				doorBlock->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Door.mATTIC");
+
+				auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
+				t->position = {(ROOM_SIZE / 2) * roomOff.x, 3, (ROOM_SIZE / 2) * roomOff.y};
+				t->scale = glm::vec3(1, 6, 8);
+				t->rotation = glm::angleAxis(glm::radians((dir + 1) * 90.0f), glm::vec3(0, 1, 0));
+				auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
+				rgbc->createBox(glm::vec3(1), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
+			}
+		}
 }
 
 void TileGeneration::_setUpMiddleRoom(const std::string& middleRoomPath) {
@@ -191,7 +221,7 @@ void TileGeneration::_spawnEnemies() {
 			t->dirty = true;
 			_spawnRandomEnemy(t->getMatrix()[3]);
 			entities[i]->dead = true;
-			spawned++;
+ 			spawned++;
 		}
 	}
 	if (spawned < numberOfEnemies)

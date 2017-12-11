@@ -22,11 +22,11 @@
 using namespace Hydra::World;
 
 namespace Hydra::Component {
-	struct HYDRA_BASE_API RoomComponent final : public IComponent<RoomComponent, ComponentBits::Room>
-	{
+	struct HYDRA_BASE_API RoomComponent final : public IComponent<RoomComponent, ComponentBits::Room> {
 		enum { NORTH, EAST, SOUTH, WEST };
 		bool openWalls[4] = { 0 };
 		bool door[4] = { 0 };
+		uint8_t rot;
 		bool localMap[ROOM_MAP_SIZE][ROOM_MAP_SIZE] = { 1 };
 		bool change = 0;
 		glm::ivec2 gridPosition;
