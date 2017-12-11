@@ -531,6 +531,114 @@ namespace Barcode {
 				0, 0, 0.0f, 0);
 			rgbc->setAngularForce(glm::vec3(0, 0, 0));
 
+			//Boss
+			//{
+			//	//Stationary Mech
+			//	{
+			//		auto BossMech = world::newEntity("BossMech", world::root());
+			//		BossMech->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossStationaryMechModel.mATTIC");
+			//
+			//		auto a = BossMech->addComponent<Hydra::Component::AIComponent>();
+			//		a->behaviour = std::make_shared<StationaryBoss>(BossMech);
+			//		a->damage = 7;
+			//		a->behaviour->originalRange = 20;
+			//		a->radius = 1;
+			//
+			//		auto t = BossMech->addComponent<Hydra::Component::TransformComponent>();
+			//		t->position = glm::vec3(51, 18, 0);
+			//		t->rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
+			//
+			//		auto l = BossMech->addComponent<Hydra::Component::LifeComponent>();
+			//		l->maxHP = 1000.0f;
+			//		l->health = 1000.0f;
+			//
+			//		auto m = BossMech->addComponent<Hydra::Component::MovementComponent>();
+			//		m->movementSpeed = 0.0f;
+			//
+			//		auto rgbc = BossMech->addComponent<Hydra::Component::RigidBodyComponent>();
+			//		rgbc->createBox(glm::vec3(10.0f, 16.0f, 10.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+			//			0, 0, 0.6f, 1.0f);
+			//		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+			//		rgbc->setAngularForce(glm::vec3(0));
+			//	}
+			//	//Arms
+			//	{
+			//		for (int i = 0; i < 1; i++) {
+			//			auto bossEntity = world::newEntity("BossArm", world::root());
+			//			bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossArmModel.mATTIC");
+			//			auto a = bossEntity->addComponent<Hydra::Component::AIComponent>();
+			//			a->behaviour = std::make_shared<BossArm>(bossEntity);
+			//			a->damage = 7;
+			//			a->behaviour->originalRange = 20;
+			//			a->radius = 1;
+			//
+			//			//Set different positions for other arm
+			//			if (i == 1) {
+			//
+			//			}
+			//
+			//			auto m = bossEntity->addComponent<Hydra::Component::MovementComponent>();
+			//			m->movementSpeed = 25.0f;
+			//			auto t = bossEntity->addComponent<Hydra::Component::TransformComponent>();
+			//			t->position.y = 10;
+			//			t->scale = glm::vec3{ 1,1,1 };
+			//
+			//			auto rgbc = bossEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+			//			rgbc->createBox(glm::vec3(8.0f, 2.5f, 8.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+			//				0, 0, 0.6f, 1.0f);
+			//			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+			//			rgbc->setAngularForce(glm::vec3(0));
+			//		}
+			//	}
+			//
+			//	{
+			//		//Hands
+			//		for (int i = 0; i < 1; i++) {
+			//			auto bossEntity = world::newEntity("BossHand1", world::root());
+			//			bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossHandModel.mATTIC");
+			//			auto a = bossEntity->addComponent<Hydra::Component::AIComponent>();
+			//			a->behaviour = std::make_shared<BossHand_Left>(bossEntity);
+			//			a->behaviour->setPathMap(pathfindingMap);
+			//			a->damage = 7;
+			//			a->behaviour->originalRange = 20;
+			//			a->radius = 1;
+			//
+			//			//Set different positions for other hand
+			//			if (i == 1) {
+			//
+			//			}
+			//
+			//			auto h = bossEntity->addComponent<Hydra::Component::LifeComponent>();
+			//			h->maxHP = 70;
+			//			h->health = 70;
+			//
+			//			auto w = bossEntity->addComponent<Hydra::Component::WeaponComponent>();
+			//			w->bulletSpread = 1.0f;
+			//			w->fireRateRPM = 5000000;
+			//			w->fireRateTimer = 0.001f;
+			//			w->bulletsPerShot = 1;
+			//
+			//			w->damage = 7;
+			//			w->maxmagammo = 100000000;
+			//			w->currmagammo = 100000000;
+			//			w->maxammo = 100000000;
+			//
+			//			auto m = bossEntity->addComponent<Hydra::Component::MovementComponent>();
+			//			m->movementSpeed = 25.0f;
+			//			auto t = bossEntity->addComponent<Hydra::Component::TransformComponent>();
+			//			t->position.y = 10;
+			//			t->scale = glm::vec3{ 1,1,1 };
+			//
+			//
+			//			auto rgbc = bossEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+			//			rgbc->createBox(glm::vec3(8.0f, 2.5f, 8.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+			//				0, 0, 0.6f, 1.0f);
+			//			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+			//			rgbc->setAngularForce(glm::vec3(0));
+			//		}
+			//	}
+			//}
+
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
