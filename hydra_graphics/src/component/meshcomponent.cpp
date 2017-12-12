@@ -35,7 +35,8 @@ void MeshComponent::loadMesh(const std::string meshFile) {
 		 || meshFile.find("Roof") != std::string::npos || meshFile.find("Floor_v") != std::string::npos
 		|| meshFile.find("HangingCable") != std::string::npos || meshFile.find("Monitor") != std::string::npos
 		|| meshFile.find("BookShelf") != std::string::npos || meshFile.find("Pillar") != std::string::npos || meshFile.find("Locker") != std::string::npos
-		|| meshFile.find("WaterContainer") != std::string::npos || meshFile.find("EnglishWordForHyllla") != std::string::npos){
+		|| meshFile.find("WaterContainer") != std::string::npos || meshFile.find("EnglishWordForHyllla") != std::string::npos
+		|| meshFile.find("Fridge") != std::string::npos){
 		drawObject->drawObject->hasShadow = false;
 	}
 }

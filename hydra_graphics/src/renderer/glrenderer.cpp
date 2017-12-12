@@ -204,8 +204,8 @@ public:
 		glClear(clearFlags);
 
 		glUseProgram(*static_cast<GLuint*>(batch.pipeline->getHandler()));
-		//glEnable(GL_POLYGON_OFFSET_FILL);
-		//glPolygonOffset(1, 1);
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(1, 1);
 		glCullFace(GL_FRONT);
 		for (auto& kv : batch.objects) {
 			auto& mesh = kv.first;
@@ -224,7 +224,7 @@ public:
 			}
 		}
 		glCullFace(GL_BACK);
-		//glDisable(GL_POLYGON_OFFSET_FILL);
+		glDisable(GL_POLYGON_OFFSET_FILL);
 	}
 
 	void render(ParticleBatch& batch) final { // For particles only.
