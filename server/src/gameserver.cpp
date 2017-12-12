@@ -136,7 +136,7 @@ void GameServer::_makeWorld() {
 	while (true) {
 		tries++;
 		_tileGeneration = std::make_unique<TileGeneration>(maxRoomCount, "assets/room/starterRoom.room", &GameServer::_onRobotShoot, static_cast<void*>(this));
-		_pathfindingMap = _tileGeneration->buildMap();
+		_tileGeneration->buildMap();
 		_deadSystem.tick(0);
 		printf("Room count: %zu\t(%zu)\n", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size(), _tileGeneration->roomCounter);
 		if (Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size() >= minRoomCount)
@@ -146,6 +146,10 @@ void GameServer::_makeWorld() {
 		_deadSystem.tick(0);
 	}
 	printf("\tTook %zu tries\n", tries);
+	_tileGeneration->spawnDoors();
+	_tileGeneration->spawnEnemies();
+	_tileGeneration->finalize();
+	_pathfindingMap = _tileGeneration->pathfindingMap;
 
 	{
 		auto packet = createServerSpawnEntity(_tileGeneration->mapentity.get());
