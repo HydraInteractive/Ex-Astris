@@ -56,6 +56,7 @@ namespace BarcodeServer {
 
 		void _setUpMiddleRoom(const std::string& middleRoomPath);
 		void _createMapRecursivly(const glm::ivec2& pos);
+		void _spawnDoors();
 		void _insertPathFindingMap(const glm::ivec2& room, uint8_t rotation);
 		void _obtainRoomFiles();
 		void _randomizeRooms();
