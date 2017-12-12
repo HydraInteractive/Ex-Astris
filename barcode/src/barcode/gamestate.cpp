@@ -364,7 +364,7 @@ namespace Barcode {
 		auto t = RainbowCube->addComponent<Hydra::Component::TransformComponent>();           
 		t->position = glm::vec3(0, 3, 0);
 		auto m = RainbowCube->addComponent<Hydra::Component::MeshComponent>();
-		m->loadMesh("assets/objects/characters/PlayerReload.mATTIC");
+		m->loadMesh("assets/objects/characters/polySurface1.mATTIC2");
 		m->animationIndex = 1;
 
 		}
@@ -433,30 +433,54 @@ namespace Barcode {
 				//Arms
 			{
 				for (int i = 0; i < 1; i++) {
-					auto bossEntity = world::newEntity("BossArm", world::root());
-					bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossArmModel2.mATTIC");
+					{
+						auto bossEntity = world::newEntity("Upper BossArm", world::root());
+						bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossUpperArmModel.mATTIC");
+
+						auto t = bossEntity->addComponent<Hydra::Component::TransformComponent>();
+						t->position = glm::vec3(45, 20, 24);
+						t->scale = glm::vec3{ 1,1,1 };
+						t->rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
+						auto rgbc = bossEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+						rgbc->createBox(glm::vec3(8.0f, 2.5f, 8.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+							0, 0, 0.6f, 1.0f);
+						rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
+						rgbc->setAngularForce(glm::vec3(0));
+					}
+					auto bossEntity = world::newEntity("Lower BossArm", world::root());
+					bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossLowerArmModel.mATTIC");
+					
+					auto w = bossEntity->addComponent<Hydra::Component::WeaponComponent>();
+					w->ammoPerShot = 1;
+					w->bulletSize = 3.0f;
+					w->damage = 15;
+					w->currammo = 500000;
+					w->fireRateTimer = 1;
+
+					auto l = bossEntity->addComponent<Hydra::Component::LifeComponent>();
+					l->maxHP = 150;
+					l->health = 150;
+
+					auto t = bossEntity->addComponent<Hydra::Component::TransformComponent>();
+					t->position = glm::vec3(40, 20, 40);
+					t->scale = glm::vec3{ 1,1,1 };
+					t->rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
+
 					auto a = bossEntity->addComponent<Hydra::Component::AIComponent>();
-					a->behaviour = std::make_shared<BossArm>(bossEntity);
-					a->damage = 7;
+					a->behaviour = std::make_shared<BossArm>(bossEntity); 
+					a->damage = 7; 
 					a->behaviour->originalRange = 20;  
 					a->radius = 1;
 
-					//Set different positions for other arm
-					if (i == 1) {
-
-					}
-
-					auto m = bossEntity->addComponent<Hydra::Component::MovementComponent>();
-					m->movementSpeed = 25.0f;
-					auto t = bossEntity->addComponent<Hydra::Component::TransformComponent>();
-					t->position.y = 10;
-					t->scale = glm::vec3{ 1,1,1 };
-					
 					auto rgbc = bossEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 					rgbc->createBox(glm::vec3(8.0f, 2.5f, 8.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 						0, 0, 0.6f, 1.0f);
-					rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+					rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
 					rgbc->setAngularForce(glm::vec3(0));
+
+					auto m = bossEntity->addComponent<Hydra::Component::MovementComponent>();
+					m->movementSpeed = 25.0f;
+					
 				}
 			} 
 
@@ -495,7 +519,7 @@ namespace Barcode {
 					auto m = bossEntity->addComponent<Hydra::Component::MovementComponent>();
 					m->movementSpeed = 25.0f;
 					auto t = bossEntity->addComponent<Hydra::Component::TransformComponent>();
-					t->position.y = 10;
+					t->position.y = 20;
 					t->scale = glm::vec3{ 1,1,1 };
 					//t->rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(1, 0, 0));
 
@@ -526,12 +550,12 @@ namespace Barcode {
 			auto rgbc = playerEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
 				0, 0, 0.0f, 0);
-			rgbc->setAngularForce(glm::vec3(0, 0, 0));
+			rgbc->setAngularForce(glm::vec3(0, 0, 0)); 
 			 
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
-				weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
+				weaponEntity->addComponent<Hydra::Component::WeaponComponent>()->damage;
 				weaponEntity->getComponent<Hydra::Component::WeaponComponent>()->bulletSize /= 2;
 				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/FPSModel3.mATTIC");
 				auto t2 = weaponEntity->addComponent<Hydra::Component::TransformComponent>();

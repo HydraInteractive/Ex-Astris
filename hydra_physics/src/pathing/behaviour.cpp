@@ -11,8 +11,10 @@
 #include <hydra/component/lightcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
 #include <glm/gtx/transform.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include <btBulletDynamicsCommon.h>
+
 
 Behaviour::Behaviour(std::shared_ptr<Hydra::World::Entity> enemy)
 {
@@ -195,7 +197,6 @@ unsigned int Behaviour::attackingState(float dt)
 void Behaviour::executeTransforms()
 {
 	range = originalRange;
-
 	auto rigidBody = static_cast<btRigidBody*>(thisEnemy.rigidBody->getRigidBody());
 	glm::vec3 movementForce = thisEnemy.movement->velocity;
 	//if (movementForce.x = 0 && movementForce.y == 0 && movementForce.z == 0)
@@ -771,7 +772,7 @@ unsigned int BossHand_Left::swipeState(float dt) {
 unsigned int BossHand_Left::canonState(float dt) {
 
 	int state = HandPhases::HANDCANON;
-	resetAnimationOnStart(2);
+	//resetAnimationOnStart(1);
 	if (!shooting) {
 		randomNrOfShots = rand() % 60 + 40;
 		move(canonPosition);
@@ -802,10 +803,11 @@ unsigned int BossHand_Left::coverState(float dt) {
 
 	int state = HandPhases::COVER;
 	bool covering = false;
-	resetAnimationOnStart(1);
+	resetAnimationOnStart(2);
 	
 	if (!rotateToCover) {
 		rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0, 0, 1));
+		rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0, 1, 0));
 		rotateToCover = true;
 	}
 
@@ -877,17 +879,29 @@ void BossArm::run(float dt) {
 		if (!refreshRequiredComponents())
 			return;
 
-	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
+	//thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
 	thisEnemy.ai->debugState = state;
 
-	idleTimer += dt;
-	attackTimer += dt;
-	newPathTimer += dt;
+	//attackTimer += dt;
+	//newPathTimer += dt;
 
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 500)
 	{
 		state = ArmPhases::CHILL;
 	}
+
+	playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
+	playerDir = glm::normalize(playerDir);
+	//rotation = atan2(playerDir.y, sqrt(playerDir.x * playerDir.x + playerDir.z * playerDir.z));
+	//rotation = glm::quat(playerDir);
+	//glm::mat4 direction = glm::lookAt(thisEnemy.transform->position, playerDir, glm::vec3(0, 1, 0));
+	//rotation = glm::toQuat(glm::inverse(direction));
+	//glm::look
+
+	glm::mat4 lookAt = glm::lookAtLH(thisEnemy.transform->position, 
+		targetPlayer.transform->position + playerDir, glm::vec3(0, 1, 0));
+	rotation = glm::toQuat(lookAt);
+
 
 	thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->mesh->getAnimationCounter();
 
@@ -896,16 +910,12 @@ void BossArm::run(float dt) {
 	case ArmPhases::CHILL:
 		state = idleState(dt);
 		break;
-	case  ArmPhases::SINGLE_BONK:
-		state = bonkState(dt);
+	case  ArmPhases::AIM:
+		state = aimState(dt);
 		break;
-	case  ArmPhases::MULTIPLE_BONK:
-		state = multipleBonkState(dt);
+	case ArmPhases::SHOOT:
+		state = shootState(dt);
 		break;
-	case  ArmPhases::SWEEP:
-		state = sweepState(dt);
-		break;
-
 	}
 	updateRigidBodyPosition();
 	executeTransforms();
@@ -915,28 +925,31 @@ void BossArm::run(float dt) {
 unsigned int BossArm::idleState(float dt) {
 	int state = ArmPhases::CHILL;
 
+	idleTimer += dt;
+	if (idleTimer >= 1.0f) {
+		state = ArmPhases::AIM;
+		idleTimer = 0.0f;
+	}
 
 	return state;
 }
 
-unsigned int BossArm::bonkState(float dt) {
-	int state = ArmPhases::SINGLE_BONK;
+unsigned int BossArm::aimState(float dt) {
+	int state = ArmPhases::AIM;
+	aimTimer += dt;
 
-
+	if (aimTimer >= 5.0f) {
+		state = ArmPhases::SHOOT;
+		aimTimer = 0.0f;
+	}
 	return state;
 }
 
-unsigned int BossArm::multipleBonkState(float dt) {
-	int state = ArmPhases::MULTIPLE_BONK;
+unsigned int BossArm::shootState(float dt) {
+	int state = ArmPhases::CHILL;
 
-
-	return state;
-}
-
-unsigned int BossArm::sweepState(float dt)
-{
-	int state = ArmPhases::SWEEP;
-
+	thisEnemy.weapon->shoot(thisEnemy.transform->position, playerDir, glm::quat(), 2.2, 
+		Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
 
 	return state;
 }
@@ -952,6 +965,7 @@ bool BossArm::refreshRequiredComponents() {
 		(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>().get()) &&
 		(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>().get()) &&
 		(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>().get()) &&
+		(thisEnemy.weapon = thisEnemy.entity->getComponent<Hydra::Component::WeaponComponent>().get()) &&
 		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
 		(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
 		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity().get()) &&

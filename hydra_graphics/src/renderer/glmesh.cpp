@@ -262,8 +262,12 @@ private:
 				//Read the indices
 				for (int q = 0; q < 3; q++) {
 					int indexData = 0;
+					glm::vec3 testNormal;
+					if(filePath[strlen(filePath) - 1] == '2')
+						in.read(reinterpret_cast<char*>(&testNormal), sizeof(testNormal));
 					in.read(reinterpret_cast<char*>(&indexData), sizeof(int));
 					//info->indices.push_back(indexData);
+					//vertices[w].normal = testNormal;
 					indices.push_back(indexData);
 				}
 			}
