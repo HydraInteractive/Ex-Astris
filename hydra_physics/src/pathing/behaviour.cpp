@@ -139,7 +139,7 @@ unsigned int Behaviour::movingState(float dt)
 		if (distPlayerToGoal < distEnemyToPlayer)
 		{
 			//If the next pos is reached move on
-			if (distEnemyToNextPos <= 0.5f)
+			if (distEnemyToNextPos <= 1.0f)
 			{
 				pathFinding->pathToEnd.pop_back();
 				//If there is nowhere to go, search
