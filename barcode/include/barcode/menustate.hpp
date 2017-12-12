@@ -23,6 +23,7 @@ namespace Barcode {
 		static bool glowEnabled;
 		static bool ssaoEnabled;
 		static bool shadowEnabled;
+		static bool soundEnabled;
 		static int difficulty;
 		static float playerHPMultiplier;
 
