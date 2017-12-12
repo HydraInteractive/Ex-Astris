@@ -19,6 +19,8 @@
     <ClInclude Include="include\barcode\losestate.hpp" />
     <ClInclude Include="include\barcode\menustate.hpp" />
     <ClInclude Include="include\barcode\pathingmapmenu.hpp" />
+    <ClInclude Include="include\barcode\PerkAttribMenu.hpp" />
+    <ClInclude Include="include\barcode\perkEditor.hpp" />
     <ClInclude Include="include\barcode\renderingutils.hpp" />
     <ClInclude Include="include\barcode\winstate.hpp" />
   </ItemGroup>
@@ -33,6 +35,8 @@
     <ClCompile Include="src\barcode\losestate.cpp" />
     <ClCompile Include="src\barcode\menustate.cpp" />
     <ClCompile Include="src\barcode\pathingmapmenu.cpp" />
+    <ClCompile Include="src\barcode\PerkAttribMenu.cpp" />
+    <ClCompile Include="src\barcode\perkEditor.cpp" />
     <ClCompile Include="src\barcode\renderingutils.cpp" />
     <ClCompile Include="src\barcode\winstate.cpp" />
     <ClCompile Include="src\main.cpp" />

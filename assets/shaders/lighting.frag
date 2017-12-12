@@ -131,8 +131,8 @@ void main() {
 	}
 	shadow = 1.0f - shadow;
 
-	if (glowAmnt > 0)
-		brightOutput = objectColor.rgb;
+	if(glowAmnt > 0)
+		brightOutput = objectColor.rgb * glowAmnt;
 	else
 		brightOutput = vec3(0);
 
