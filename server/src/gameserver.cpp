@@ -153,6 +153,17 @@ void GameServer::_makeWorld() {
 		delete[](char*)packet;
 	}
 
+	//std::cout << std::endl;
+	//for (int i = 0; i < WORLD_MAP_SIZE; i++)
+	//{
+	//	for (int j = 0; j < WORLD_MAP_SIZE; j++)
+	//	{
+	//		std::cout << _pathfindingMap[j][i];
+	//	}
+	//	std::cout << std::endl;
+	//}
+	//std::cout << std::endl;
+
 	SDL_Surface* map = SDL_CreateRGBSurface(0, WORLD_MAP_SIZE, WORLD_MAP_SIZE, 32, 0, 0, 0, 0);
 	{
 		auto color = colors[Tile::Void];
@@ -537,12 +548,12 @@ bool GameServer::_addPlayer(int id) {
 			pi.ti.scale = { 1, 1, 1 };
 			pi.ti.rot = glm::quat(1, 0, 0, 0);
 
-			auto rb = enttmp->addComponent<Hydra::Component::RigidBodyComponent>();
-			rb->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * glm::vec3{ 1, 1, 1 }, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
+			auto rbc = enttmp->addComponent<Hydra::Component::RigidBodyComponent>();
+			rbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * glm::vec3{ 1, 1, 1 }, glm::vec3(0, 1.0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
 				0, 0, 0.0f, 0);
-			rb->setAngularForce(glm::vec3(0, 0, 0));
-
-			rb->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
+			rbc->setAngularForce(glm::vec3(0, 0, 0));
+			
+			rbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
 
 
 			if (_players.size() > 1) {
@@ -552,15 +563,14 @@ bool GameServer::_addPlayer(int id) {
 				pi.ti.rot = tc->rotation;
 				pi.ti.scale = tc->scale;
 
-				auto rb = randomOther->addComponent<Hydra::Component::RigidBodyComponent>();
-				rb->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * glm::vec3{ 1, 1, 1 }, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
+				auto rbc = randomOther->addComponent<Hydra::Component::RigidBodyComponent>();
+				rbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * glm::vec3{ 1, 1, 1 }, glm::vec3(0, 1.0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
 					0, 0, 0.0f, 0);
-				rb->setAngularForce(glm::vec3(0, 0, 0));
 
-				rb->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
-				_physicsSystem.enable(static_cast<Hydra::Component::RigidBodyComponent*>(rb.get()));
+				rbc->setAngularForce(glm::vec3(0, 0, 0));
+				rbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
 			}
-			_physicsSystem.enable(static_cast<Hydra::Component::RigidBodyComponent*>(rb.get()));
+			_physicsSystem.enable(rbc.get());
 			printf("sendDataToClient:\n\ttype: ServerInitialize\n\tlen: %zu\n", pi.len);
 			int tmp = this->_server->sendDataToClient((char*)&pi, pi.len, id);
 		}

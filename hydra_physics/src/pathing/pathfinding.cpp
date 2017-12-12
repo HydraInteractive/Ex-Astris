@@ -43,18 +43,18 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 	if (isOutsideMap(mapCurrentPos.baseVec) || isOutsideMap(mapTargetPos.baseVec))
 		return false;
 
-	if (inWall(currentPos))
-	{
-		currentPos = findViableTile(currentPos);
-	}
+	//if (inWall(currentPos))
+	//{
+	//	currentPos = findViableTile(currentPos);
+	//}
 
-	if (targetPos.y < 4.5f) {
-		if (inWall(targetPos))
-		{
-			//printf("PLAYER IN WALL!\n");
-			targetPos = findViableTile(targetPos);
-		}
-	}
+	//if (targetPos.y < 4.5f) {
+	//	if (inWall(targetPos))
+	//	{
+	//		//printf("PLAYER IN WALL!\n");
+	//		targetPos = findViableTile(targetPos);
+	//	}
+	//}
 
 	mapCurrentPos = worldToMapCoords(currentPos);
 	mapTargetPos = worldToMapCoords(targetPos);
@@ -142,6 +142,7 @@ bool PathFinding::isOutOfBounds(const glm::ivec2& vec) const
 	}
 	if (map[vec.x][vec.y] == 0)
 	{
+		std::cout << "YES WALL" << std::endl;
 		return true;
 	}
 	return false;
