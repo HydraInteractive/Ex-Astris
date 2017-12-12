@@ -12,7 +12,7 @@
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/ghostobjectcomponent.hpp>
-#include <hydra/component/roomcomponent.hpp>
+#include <hydra/component/roomcomponent.hpp> 
 #include <hydra/component/textcomponent.hpp>
 #include <hydra/component/spawnpointcomponent.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -24,7 +24,8 @@ ComponentMenu::ComponentMenu()
 
 ComponentMenu::~ComponentMenu()
 {
-}
+	 
+}  
 
 void ComponentMenu::render(bool &openBool, Hydra::System::BulletPhysicsSystem& physicsSystem)
 {

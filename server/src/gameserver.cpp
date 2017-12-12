@@ -88,26 +88,55 @@ void GameServer::start() {
 	_makeWorld();
 }
 void GameServer::_makeWorld() {
+	EntityID mapID = world::invalidID;
 	{
 		ServerFreezePlayerPacket freeze;
 		freeze.action = ServerFreezePlayerPacket::Action::freeze;
 		_server->sendDataToAll((char*)&freeze, freeze.len);
 	}
-	_tileGeneration.reset();
-	for (auto c : Hydra::Component::NetworkSyncComponent::componentHandler->getActiveComponents())
-		world::getEntity(c->entityID)->dead = true;
-	for (auto c : Hydra::Component::AIComponent::componentHandler->getActiveComponents())
-		world::getEntity(c->entityID)->dead = true;
 
-	_networkEntities.erase(std::remove_if(_networkEntities.begin(), _networkEntities.end(), [](const auto& e) { return world::getEntity(e)->dead; }), _networkEntities.end());
+	{
+		ServerInitializePacket si;
+		si.ti.pos = { (ROOM_GRID_SIZE / 2 + 0.5f) * ROOM_SIZE, 3, (ROOM_GRID_SIZE / 2 + 0.5f) * ROOM_SIZE };
+		si.ti.scale = { 1, 1, 1 };
+		si.ti.rot = glm::quat(1, 0, 0, 0);
+		for (Player* player : _players) {
+			si.entityid = player->entityid;
+			_server->sendDataToClient((char*)&si, si.len, player->serverid);
+		}
+	}
+
+	ServerDeleteEntityPacket dp;
+	if (_tileGeneration)
+		mapID = _tileGeneration->mapentity->id;
+
+	_tileGeneration.reset();
+	for (auto c : Hydra::Component::NetworkSyncComponent::componentHandler->getActiveComponents()) {
+		auto e = world::getEntity(c->entityID);
+		if (e->dead)
+			continue;
+		e->dead = true;
+		dp.id = c->entityID;
+		_server->sendDataToAll((char*)&dp, dp.len);
+	}
+	for (auto c : Hydra::Component::AIComponent::componentHandler->getActiveComponents()) {
+		auto e = world::getEntity(c->entityID);
+		if (e->dead)
+			continue;
+		e->dead = true;
+		dp.id = c->entityID;
+		_server->sendDataToAll((char*)&dp, dp.len);
+	}
+
+	_networkEntities.erase(std::remove_if(_networkEntities.begin(), _networkEntities.end(), [](const auto& e) {	return world::getEntity(e)->dead; }), _networkEntities.end());
 	_deadSystem.tick(0);
 	size_t tries = 0;
 	const size_t minRoomCount = 25;
-	const size_t maxRoomCount = 9 * 9;
+	const size_t maxRoomCount = 9*9;
 	while (true) {
 		tries++;
 		_tileGeneration = std::make_unique<TileGeneration>(maxRoomCount, "assets/room/starterRoom.room", &GameServer::_onRobotShoot, static_cast<void*>(this));
-		_pathfindingMap = _tileGeneration->buildMap();
+		_tileGeneration->buildMap();
 		_deadSystem.tick(0);
 		printf("Room count: %zu\t(%zu)\n", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size(), _tileGeneration->roomCounter);
 		if (Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size() >= minRoomCount)
@@ -117,6 +146,16 @@ void GameServer::_makeWorld() {
 		_deadSystem.tick(0);
 	}
 	printf("\tTook %zu tries\n", tries);
+	_tileGeneration->spawnDoors();
+	_tileGeneration->spawnEnemies();
+	_tileGeneration->finalize();
+	_pathfindingMap = _tileGeneration->pathfindingMap;
+
+	{
+		auto packet = createServerSpawnEntity(_tileGeneration->mapentity.get());
+		_server->sendDataToAll((char*)packet, packet->len);
+		delete[](char*)packet;
+	}
 
 	SDL_Surface* map = SDL_CreateRGBSurface(0, WORLD_MAP_SIZE, WORLD_MAP_SIZE, 32, 0, 0, 0, 0);
 	{
@@ -201,6 +240,28 @@ void GameServer::_makeWorld() {
 		fclose(fp);
 	}
 
+	{
+		std::vector<std::shared_ptr<Entity>> entities;
+		world::getEntitiesWithComponents<NetworkSyncComponent>(entities);
+		for (size_t i = 0; i < entities.size(); i++) {
+			auto p = createServerSpawnEntity(entities[i].get());
+			_server->sendDataToAll((char*)p, p->len);
+			delete[](char*)p;
+		}
+	}
+
+	{
+		ServerInitializePVSPacket* pvs = (ServerInitializePVSPacket*)new char[sizeof(ServerInitializePVSPacket) + _pvsData.size()];
+		*pvs = ServerInitializePVSPacket(_pvsData.size());
+		memcpy(pvs->data, _pvsData.data(), _pvsData.size());
+		_server->sendDataToAll((char*)pvs, pvs->len);
+		delete[](char*)pvs;
+	}
+	if (mapID != world::invalidID) {
+		dp.id = mapID;
+		_server->sendDataToAll((char*)&dp, dp.len);
+	}
+
 	for (auto& rb : Hydra::Component::RigidBodyComponent::componentHandler->getActiveComponents()) {
 		//_engine->log(Hydra::LogLevel::normal, "Enabling BulletPhysicsSystem for %s", world::getEntity(rb->entityID)->name.c_str());
 		_physicsSystem.enable(static_cast<Hydra::Component::RigidBodyComponent*>(rb.get()));
@@ -281,9 +342,9 @@ void GameServer::run() {
 				ServerFreezePlayerPacket freeze;
 				freeze.action = ServerFreezePlayerPacket::Action::win;
 				_server->sendDataToAll((char*)&freeze, freeze.len);
+				level = 0;
 			}
-			else
-				_makeWorld();
+			_makeWorld();
 		}
 	}
 
@@ -493,15 +554,7 @@ bool GameServer::_addPlayer(int id) {
 		}
 
 		{
-			Entity* map = nullptr;
-			std::vector<EntityID> children = world::root()->children;
-			for (size_t i = 0; i < children.size(); i++) {
-				map = world::getEntity(children[i]).get();
-				if (map->name == "Map")
-					break;
-			}
-
-			auto packet = createServerSpawnEntity(map);
+			auto packet = createServerSpawnEntity(_tileGeneration->mapentity.get());
 			_server->sendDataToClient((char*)packet, packet->len, id);
 			delete[](char*)packet;
 		}

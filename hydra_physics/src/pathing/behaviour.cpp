@@ -794,12 +794,14 @@ unsigned int BossHand_Left::smashState(float dt) {
 		if (waitToSmashTimer >= 1.0f)
 			move(smashPosition);
 		if (hit == false) {
-			if (glm::distance(thisEnemy.transform->position, targetPlayer.transform->position) < 5.1f) {
-				targetPlayer.life->applyDamage(10);
-				hit = true;
+			if (glm::distance(thisEnemy.transform->position, targetPlayer.transform->position) < 10.0f) {
+				if (glm::distance(thisEnemy.transform->position.y, targetPlayer.transform->position.y) < 4.0f) {
+					targetPlayer.life->applyDamage(10);
+					hit = true;
+				}
 			}
 		}
-		if (thisEnemy.transform->position.y <= 3.5f) {
+		if (thisEnemy.transform->position.y <= 3.5f || hit == true) {
 			state = HandPhases::RETURN;
 			thisEnemy.transform->position.y = originalHeight;
 			smashing = false;

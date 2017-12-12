@@ -50,6 +50,9 @@ void SoundFxSystem::tick(float delta) {
 				Mix_ChannelFinished(removeChannelFromComponent);
 			}else{
 				auto chunk = Mix_LoadWAV(soundFx->soundsToPlay.back().c_str());
+				if (!chunk){
+					printf("Mix_LoadWAV: %s\n", Mix_GetError());
+				}
 				soundChunk.push_back(chunk);
 				soundPath.push_back(soundFx->soundsToPlay.back());
 				soundFx->playingChannels.push_back(Mix_PlayChannel(-1, chunk, 0));

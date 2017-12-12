@@ -59,7 +59,7 @@ void SpawnerSystem::tick(float delta)
 					if (spawner->spawnTimer >= 10)
 					{
 						auto alienSpawn = world::newEntity("SlowAlien2", world::root());
-						alienSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel.mATTIC");
+						alienSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel2.mATTIC");
 						auto as = alienSpawn->addComponent<Hydra::Component::AIComponent>();
 						as->behaviour = std::make_shared<AlienBehaviour>(alienSpawn);
 						as->behaviour->setPathMap(spawner->map);
@@ -112,7 +112,7 @@ void SpawnerSystem::tick(float delta)
 					if (spawner->spawnTimer >= 10)
 					{
 						auto robotSpawn = world::newEntity("Robot2", world::root());
-						robotSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel.mATTIC");
+						robotSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/RobotModel2.mATTIC");
 						auto as = robotSpawn->addComponent<Hydra::Component::AIComponent>();
 						as->behaviour = std::make_shared<RobotBehaviour>(robotSpawn);
 						as->behaviour->setPathMap(spawner->map);
