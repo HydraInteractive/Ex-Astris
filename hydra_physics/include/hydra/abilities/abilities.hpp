@@ -31,3 +31,12 @@ struct BulletSprayAbillity: public BaseAbility {
 	void useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity);
 	void tick(float delta, const std::shared_ptr<Hydra::World::Entity>& playerEntity);
 };
+
+struct BlindingLight : public BaseAbility {
+	BlindingLight() { tickFreq = 0.1f; }
+	void useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity);
+	glm::vec3 lightPos;
+	float tickTime = 0.0f;
+	std::vector<std::shared_ptr<Hydra::World::Entity>> entities;
+	void tick(float delta, const std::shared_ptr<Hydra::World::Entity>& playerEntity);
+};

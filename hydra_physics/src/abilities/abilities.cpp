@@ -8,8 +8,10 @@
 #include <hydra/component/soundfxcomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
+#include <hydra/component/pointlightcomponent.hpp>
 #include <hydra/abilities/grenadecomponent.hpp>
 #include <hydra/abilities/minecomponent.hpp>
+
 
 void GrenadeAbility::useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity) {
 	auto playerMovement = playerEntity->getComponent<Hydra::Component::MovementComponent>();
@@ -97,5 +99,36 @@ void BulletSprayAbillity::tick(float delta, const std::shared_ptr<Hydra::World::
 		rigidBody->setActivationState(DISABLE_DEACTIVATION);
 		rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * 300);
 		rigidBody->setGravity(btVector3(0, 0, 0));
+	}
+}
+
+void BlindingLight::useAbility(const std::shared_ptr<Hydra::World::Entity>& playerEntity) {
+
+	auto playerTransform = playerEntity->getComponent<Hydra::Component::TransformComponent>();
+
+	auto bullet = world::newEntity("Bullet", world::rootID);
+	bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Plate.mATTIC");
+
+	auto t = bullet->addComponent<Hydra::Component::TransformComponent>();
+	t->position = playerTransform->position;
+	t->position.y += 5;
+	lightPos = t->position;
+	t->scale = glm::vec3(0.5f);
+
+	auto l = bullet->addComponent<Hydra::Component::PointLightComponent>();
+	l->color = glm::vec3(1.0f, 0.9f, 0.45f);
+
+	world::getEntitiesWithComponents<Hydra::Component::AIComponent>(entities);
+
+}
+
+void BlindingLight::tick(float delta, const std::shared_ptr<Hydra::World::Entity>& playerEntity) {
+	using world = Hydra::World::World;
+
+	#pragma omp parallel for
+	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
+		if (glm::distance(entities[i]->getComponent<Hydra::Component::TransformComponent>()->position, lightPos) < 20.0f) {
+			entities[i]->getComponent<Hydra::Component::MovementComponent>()->movementSpeed = 0;
+		}
 	}
 }

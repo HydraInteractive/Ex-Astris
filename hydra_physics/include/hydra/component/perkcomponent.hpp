@@ -22,6 +22,7 @@ namespace Hydra::Component {
 			PERK_DMGUPSIZEUP,
 			PERK_SPEEDUP,
 			PERK_FASTSHOWLOWDMG,
+			PERK_BLINDINGLIGHT,
 			AMOUNTOFPERKS
 		};
 		std::vector<Perk> newPerks = std::vector<Perk>();
