@@ -490,7 +490,7 @@ namespace Barcode {
 			ImGui::PopStyleVar();
 		}
 
-		if (Hydra::Network::NetClient::running)
+		if (Hydra::Network::NetClient::running) 
 			Hydra::Network::NetClient::run();
 	}
 
