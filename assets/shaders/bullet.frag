@@ -15,7 +15,7 @@ layout(location = 6) uniform bool hasGlow;
 layout(location = 7) uniform float glowIntensity;
 
 layout (location = 1) out vec4 diffuse;
-layout(location = 4) out float glow;
+layout(location = 3) out float glow;
 //layout (location = 0) out vec4 fragColor;
 
 void main() {
