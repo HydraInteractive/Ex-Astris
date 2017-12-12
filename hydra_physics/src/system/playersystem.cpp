@@ -96,7 +96,7 @@ void PlayerSystem::tick(float delta) {
 						float rn = 500;//rand() % 1000;
 						rn /= 10000;
 
-						soundFx->soundsToPlay.push_back("assets/sounds/piano.wav");
+						soundFx->soundsToPlay.push_back("assets/sounds/Lazer.ogg");
 
 						rn *= 0.8;
 						weapon->_dpitch -= rn;
