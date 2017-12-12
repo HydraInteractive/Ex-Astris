@@ -1,4 +1,4 @@
-#include <barcode/PerkAttribMenu.hpp>
+#include <barcode/perkattribmenu.hpp>
 
 PerkAttribMenu::PerkAttribMenu()
 {
@@ -92,7 +92,7 @@ void PerkAttribMenu::writeToFile(const char* fileName)
 	
 	
 	std::string name = fileName;
-	std::string filepath = "C:/Users/destroyer/Documents/GitHub/Hydra/assets/perks/" + name + ".PERK";
+	std::string filepath = "assets/perks/" + name + ".PERK";
 	std::ofstream file;
 	file.open(filepath, std::ios::binary);
 	

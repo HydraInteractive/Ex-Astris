@@ -21,7 +21,7 @@
 #include <hydra/component/pickupcomponent.hpp>
 
 #include <hydra/system/perksystem.hpp>
-#include <barcode/perkEditor.hpp>
+#include <barcode/perkeditor.hpp>
 #include <algorithm>
 
 #define frand() (float(rand())/RAND_MAX)

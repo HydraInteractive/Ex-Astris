@@ -18,7 +18,7 @@
 #include <barcode/editorstate.hpp>
 #include <barcode/losestate.hpp>
 #include <barcode/winstate.hpp>
-#include <barcode/perkEditor.hpp>
+#include <barcode/perkeditor.hpp>
 #include <cstdio>
 #include <chrono>
 #include <imgui/imgui.h>

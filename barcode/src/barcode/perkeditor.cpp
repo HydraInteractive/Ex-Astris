@@ -1,4 +1,4 @@
-#include <barcode/perkEditor.hpp>
+#include <barcode/perkeditor.hpp>
 #include <barcode/menustate.hpp>
 #include <hydra/component/cameracomponent.hpp>
 

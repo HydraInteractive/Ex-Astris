@@ -128,10 +128,12 @@ void TileGeneration::spawnDoors() {
 				int nextDoorY = y + gridOff.y;
 				if (nextDoorX >= 0 && nextDoorX < ROOM_GRID_SIZE && nextDoorY >= 0 && nextDoorY < ROOM_GRID_SIZE) {
 					auto& nextRoom = roomGrid[nextDoorX][nextDoorY];
-					if (nextRoom && nextRoom->door[(direction + 2) % 4])
-						continue;
-					else
-						nextRoom->door[(direction + 2) % 4] = false;
+					if (nextRoom) {
+						if (nextRoom->door[(direction + 2) % 4])
+							continue;
+						else
+							nextRoom->door[(direction + 2) % 4] = false;
+					}
 				}
 
 				room->door[direction] = false;
