@@ -1,4 +1,4 @@
-#include "barcode\PerkAttribMenu.hpp"
+#include <barcode/PerkAttribMenu.hpp>
 
 PerkAttribMenu::PerkAttribMenu()
 {
