@@ -155,6 +155,7 @@ namespace Barcode {
 		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
 		ImGui::Checkbox("Enable SSAO", &MenuState::ssaoEnabled);
 		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);
+		ImGui::Checkbox("Enable Sound", &MenuState::soundEnabled);
 
 		const glm::vec3& cameraPos = _playerTransform->position;
 		auto viewMatrix = _cc->getViewMatrix();
@@ -304,6 +305,7 @@ namespace Barcode {
 				auto playerP = _playerTransform->position;
 				auto enemyP = enemy->getComponent<Hydra::Component::TransformComponent>()->position;
 				auto enemyDir = glm::normalize(enemyP - playerP);
+				float enemyDist = glm::length(enemyP - playerP);
 
 				glm::vec3 forward(-viewMat[0][2], -viewMat[1][2], -viewMat[2][2]);
 				glm::vec3 right = glm::normalize(glm::cross(glm::vec3(0, 1, 0), forward));
@@ -331,7 +333,12 @@ namespace Barcode {
 				ImGui::SetNextWindowPos(ImVec2(x + dotPlacment, 75)); //- 275
 				ImGui::SetNextWindowSize(ImVec2(20, 20));
 				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-				ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(10, 10));
+				if (enemyDist < 50.0) {
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(10, 10));
+				}
+				else{
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/RedFade.png")->getID()), ImVec2(10, 10));
+				}
 				ImGui::End();
 				i++;
 			}
@@ -484,7 +491,7 @@ namespace Barcode {
 			ImGui::PopStyleVar();
 		}
 
-		if (Hydra::Network::NetClient::running)
+		if (Hydra::Network::NetClient::running) 
 			Hydra::Network::NetClient::run();
 	}
 
@@ -508,7 +515,9 @@ namespace Barcode {
 		}
 
 		{ // Music
-			_soundFxSystem.startMusic("assets/sounds/flesh-edit-n-baws.mp3");
+			if (MenuState::soundEnabled) {
+				_soundFxSystem.startMusic("assets/sounds/flesh-edit-n-baws.mp3");
+			}
 		}
 
 		{

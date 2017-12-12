@@ -117,6 +117,7 @@ namespace Barcode {
 		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
 		ImGui::Checkbox("Enable SSAO", &MenuState::ssaoEnabled);
 		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);
+		ImGui::Checkbox("Enable Sound", &MenuState::soundEnabled);
 
 		auto viewMatrix = _cc->getViewMatrix();
 		glm::vec3 rightVector = { viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0] };

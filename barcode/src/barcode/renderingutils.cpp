@@ -20,8 +20,12 @@
 #include <hydra/component/bulletcomponent.hpp>
 #include <hydra/component/pickupcomponent.hpp>
 
-#define frand() (float(rand())/RAND_MAX)
+#include <hydra/system/perksystem.hpp>
+#include <barcode/perkEditor.hpp>
+#include <algorithm>
 
+#define frand() (float(rand())/RAND_MAX)
+#undef min
 using world = Hydra::World::World;
 
 namespace Barcode {
@@ -132,7 +136,6 @@ namespace Barcode {
 
 		_ssaoNoise = Hydra::Renderer::GLTexture::createFromData(noiseSize, noiseSize, Hydra::Renderer::TextureType::f16RGB, _getSSAONoise(noiseSize*noiseSize).data());
 
-
 		_glowBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/glow.vert", "", "assets/shaders/glow.frag", _engine->getView());
 		_glowBatch.batch.pipeline->setValue(1, 1);
 		_glowBatch.batch.pipeline->setValue(2, 2);
@@ -150,6 +153,9 @@ namespace Barcode {
 		_textBatch = RenderBatch<Hydra::Renderer::TextBatch>("assets/shaders/text.vert", "", "assets/shaders/text.frag", _engine->getView());
 		_textBatch.batch.clearFlags = ClearFlags::none;
 		_textBatch.pipeline->setValue(1, 0);
+
+		_bulletBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/bullet.vert", "", "assets/shaders/bullet.frag", _geometryBatch);
+		_bulletBatch.batch.clearFlags = ClearFlags::none;
 	}
 
 	DefaultGraphicsPipeline::~DefaultGraphicsPipeline() {}
@@ -171,6 +177,7 @@ namespace Barcode {
 		_geometryBatch.pipeline->setValue(0, cc.getViewMatrix());
 		_geometryBatch.pipeline->setValue(1, cc.getProjectionMatrix());
 		_geometryBatch.pipeline->setValue(2, cameraPos);
+
 
 		_geometryAnimationBatch.pipeline->setValue(0, cc.getViewMatrix());
 		_geometryAnimationBatch.pipeline->setValue(1, cc.getProjectionMatrix());
@@ -217,7 +224,7 @@ namespace Barcode {
 		for (auto e : entities) {
 			auto tc = e->getComponent<Hydra::Component::TransformComponent>();
 			auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
-			if (drawObj->disable || !drawObj->mesh)
+			if (drawObj->disable || !drawObj->mesh || e->getComponent<Hydra::Component::BulletComponent>())
 				continue;
 
 			bool renderNormal = true;
@@ -327,6 +334,34 @@ namespace Barcode {
 
 		_engine->getRenderer()->render(_geometryBatch.batch);
 		_engine->getRenderer()->renderAnimation(_geometryAnimationBatch.batch);
+		{ // Bullet thingie
+			for (auto& kv : _bulletBatch.batch.objects)
+				kv.second.clear();
+			glm::vec3 colour;
+			bool glow = false;
+			float glowIntensity = 0.0f;
+			for (auto& bc : Hydra::Component::BulletComponent::componentHandler->getActiveComponents()) {
+				auto bulletComponent = Hydra::World::World::getEntity(bc->entityID)->getComponent<Hydra::Component::BulletComponent>();
+				colour = glm::vec3(bulletComponent->colour[0], bulletComponent->colour[1], bulletComponent->colour[2]);
+				glow = bulletComponent->glow;
+				glowIntensity = bulletComponent->glowIntensity;
+				auto drawObj = Hydra::World::World::getEntity(bc->entityID)->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
+				_bulletBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+			}
+			//auto wp = Hydra::Component::WeaponComponent();
+			//glm::vec3 colour(wp.color[0], wp.color[1], wp.color[2]);
+
+			
+
+			_bulletBatch.pipeline->setValue(0, cc.getViewMatrix());
+			_bulletBatch.pipeline->setValue(1, cc.getProjectionMatrix());
+			_bulletBatch.pipeline->setValue(4, glm::vec3(1, 0, 0));
+			_bulletBatch.pipeline->setValue(5, colour);
+			_bulletBatch.pipeline->setValue(6, glow);
+			_bulletBatch.pipeline->setValue(7, glowIntensity);
+			_engine->getRenderer()->render(_bulletBatch.batch);
+		}
+		
 
 		{
 			_shadowBatch.pipeline->setValue(0, dirLight.getViewMatrix());

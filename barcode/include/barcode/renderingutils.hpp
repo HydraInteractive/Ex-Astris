@@ -128,6 +128,7 @@ namespace Barcode {
 		RenderBatch<Hydra::Renderer::Batch> _glowBatch;
 
 		RenderBatch<Hydra::Renderer::Batch> _copyBatch;
+		RenderBatch<Hydra::Renderer::Batch> _bulletBatch;
 
 		RenderBatch<Hydra::Renderer::ParticleBatch> _particleBatch;
 		std::shared_ptr<Hydra::Renderer::ITexture> _particleAtlases;
