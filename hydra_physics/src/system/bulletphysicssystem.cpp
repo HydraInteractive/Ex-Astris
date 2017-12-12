@@ -192,7 +192,7 @@ void BulletPhysicsSystem::tick(float delta) {
 		else if ((pickupComponent = eB->getComponent<PickUpComponent>().get()))
 			perkComponent = eA->getComponent<PerkComponent>().get();
 
-		if (pickupComponent && perkComponent) {
+		if (pickupComponent && perkComponent) { // What does this code do? - Stevan.
 			_addPickUp(pickupComponent, perkComponent);
 			_spawnText(Hydra::World::World::getEntity(playerComponent->entityID)->getComponent<Hydra::Component::TransformComponent>()->position, "eyyy\n");
 		}
@@ -200,6 +200,9 @@ void BulletPhysicsSystem::tick(float delta) {
 		// Gets the contact points
 		int numContacts = contactManifold->getNumContacts();
 		for (int j = 0; j < numContacts; j++) {
+			auto entityAMesh = eA->getComponent<Hydra::Component::MeshComponent>();
+			auto entityBMesh = eB->getComponent<Hydra::Component::MeshComponent>();
+
 			btManifoldPoint& pt = contactManifold->getContactPoint(j);
 			btVector3 collPosB = pt.getPositionWorldOnB();
 			btVector3 normalOnB = pt.m_normalWorldOnB;
@@ -211,7 +214,7 @@ void BulletPhysicsSystem::tick(float delta) {
 				else
 					playerComponent->onFloor = false;
 			}
-
+			printf("%u\n %u\n", obA->getUserIndex2(), obB->getUserIndex2());
 			if (lifeComponent) {
 				// Terrible HeadShot code.
 				auto rgbcA = eA->getComponent<Hydra::Component::RigidBodyComponent>();
@@ -233,12 +236,17 @@ void BulletPhysicsSystem::tick(float delta) {
 						headshot = true;
 					}
 				}
-				if (!Hydra::IEngine::getInstance()->getDeadSystem())
+
+				if (!Hydra::IEngine::getInstance()->getDeadSystem()) {
+					//printf("%f\n", lifeComponent->health);
 					lifeComponent->applyDamage(accumulatedDamage);
-				_spawnText(cast(collPosB), std::to_string(accumulatedDamage), textColor, textScale);
+					//printf("%f\n", lifeComponent->health);
+				}
+
 				auto targetEntity = Hydra::World::World::getEntity(lifeComponent->entityID);
 				auto aiComponent = targetEntity->getComponent<Hydra::Component::AIComponent>();
 
+				_spawnText(cast(collPosB), std::to_string(accumulatedDamage), textColor, textScale);
 				if (!targetEntity->getComponent<Hydra::Component::PlayerComponent>() && aiComponent) {
 					switch (aiComponent->behaviour->type) {
 					case Hydra::Physics::Behaviour::Behaviour::Type::ALIEN: {
@@ -261,6 +269,7 @@ void BulletPhysicsSystem::tick(float delta) {
 						break;
 					}
 				} else if (targetEntity->getComponent<SpawnerComponent>()) {
+					_spawnText(cast(collPosB), std::to_string(accumulatedDamage), textColor, textScale);
 					particleTexture = Hydra::Component::ParticleComponent::ParticleTexture::Energy;
 					_spawnParticleEmitterAt(cast(collPosB), cast(normalOnB), particleTexture);
 				}
@@ -270,7 +279,7 @@ void BulletPhysicsSystem::tick(float delta) {
 			if (bulletComponent)
 				World::World::World::getEntity(bulletComponent->entityID)->dead = true;
 
-			// Breaks because just wanna check the first collision.
+			// Breaks because just wanna check the first collision point.
 			break;
 		}
 	}

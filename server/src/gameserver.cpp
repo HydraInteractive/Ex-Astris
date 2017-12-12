@@ -545,6 +545,20 @@ bool GameServer::_addPlayer(int id) {
 				pi.ti.scale = tc->scale;
 			}
 
+			Hydra::Component::TransformComponent* tc = enttmp->addComponent<Hydra::Component::TransformComponent>().get();
+			auto life = enttmp->addComponent<Hydra::Component::LifeComponent>().get();
+			life->maxHP = 100;
+			life->health = 100;
+			tc->setPosition(pi.ti.pos);
+			tc->setScale(pi.ti.scale);
+			tc->setRotation(pi.ti.rot);
+
+			auto rgbc = enttmp->addComponent<Hydra::Component::RigidBodyComponent>();
+			rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * tc->scale, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
+				0, 0, 0.0f, 0);
+			rgbc->setAngularForce(glm::vec3(0, 0, 0));
+			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
+
 			printf("sendDataToClient:\n\ttype: ServerInitialize\n\tlen: %zu\n", pi.len);
 			int tmp = this->_server->sendDataToClient((char*)&pi, pi.len, id);
 		}
@@ -567,13 +581,6 @@ bool GameServer::_addPlayer(int id) {
 		}
 
 		{
-			Hydra::Component::TransformComponent* tc = enttmp->addComponent<Hydra::Component::TransformComponent>().get();
-			auto life = enttmp->addComponent<Hydra::Component::LifeComponent>().get();
-			life->maxHP = 100;
-			life->health = 100;
-			tc->setPosition(pi.ti.pos);
-			tc->setScale(pi.ti.scale);
-			tc->setRotation(pi.ti.rot);
 			this->_networkEntities.push_back(p->entityid);
 			printf("Player connected with entity id: %zu\n", pi.entityid);
 		}
