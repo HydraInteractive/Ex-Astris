@@ -17,7 +17,7 @@ void PerkAttribMenu::render(bool & thing, Hydra::Renderer::Batch * renderBatch, 
 	//whatever values the player already has
 	ImGui::Checkbox("Glow on/off", &Bullet.glow);
 	ImGui::Separator();
-	ImGui::Text("Glow Intensity:"); ImGui::SameLine(); ImGui::DragFloat("                             ", &Bullet.glowIntensity);
+	ImGui::Text("Glow Intensity:"); ImGui::SameLine(); ImGui::DragFloat("                             ", &Bullet.glowIntensity, 0.01f);
 	ImGui::Separator();
 	ImGui::Text("Bullet Size:"); ImGui::SameLine(); ImGui::DragFloat("", &Bullet.bulletSize);
 	ImGui::Separator();
