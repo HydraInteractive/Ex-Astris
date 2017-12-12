@@ -20,14 +20,7 @@ namespace Hydra::System {
 		enum class CollisionShape {
 			Box,
 			StaticPlane,
-			Sphere,
-			//TriangleMesh, // btBvhTriangleMesh
-			CapsuleX,
-			CapsuleY, // btCapsuleShape
-			CapsuleZ,
-			CylinderX,
-			CylinderY, // btCylinderShape
-			CylinderZ
+			CapsuleY,
 		};
 
 		enum CollisionTypes : const int{

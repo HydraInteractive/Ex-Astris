@@ -2,50 +2,38 @@
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
+#include <hydra/system/bulletphysicssystem.hpp>
 #include <server/server.hpp>
 #include <server/gameserver.hpp>
 
-ServerDeletePacket * createServerDeletePacket(EntityID entID) {
-	ServerDeletePacket* sdp = new ServerDeletePacket();
-	sdp->h.type = PacketType::ServerDeleteEntity;
-	sdp->h.len = sizeof(ServerDeletePacket);
+using namespace BarcodeServer;
+using namespace Hydra::Network;
+
+using world = Hydra::World::World;
+
+ServerDeleteEntityPacket* BarcodeServer::createServerDeleteEntityPacket(Hydra::World::EntityID entID) {
+	ServerDeleteEntityPacket* sdp = new ServerDeleteEntityPacket();
 	sdp->id = entID;
 	return sdp;
 }
 
-ServerPlayerPacket* createServerPlayerPacket(std::string name, TransformInfo ti) {
-	ServerPlayerPacket* spp;
-	int size = (sizeof(*spp) + sizeof(char) * name.length());
-	spp = (ServerPlayerPacket*)new char[size];
-	spp->h.type = PacketType::ServerPlayer;
-	spp->nameLength = name.length();
+ServerPlayerPacket* BarcodeServer::createServerPlayerPacket(const std::string& name, const TransformInfo& ti) {
+	ServerPlayerPacket* spp = (ServerPlayerPacket*)new char[sizeof(ServerPlayerPacket) + name.size()];
+	*spp = ServerPlayerPacket(name.size());
 	spp->ti = ti;
-	memcpy(spp->name, name.c_str(), name.length());
-	spp->h.len = spp->getSize();
+	memcpy(spp->name, name.c_str(), name.size());
 	return spp;
 }
 
-ClientUpdatePacket* createClientUpdatePacket(Entity* player) {
-	ClientUpdatePacket* cup;
-	cup = new ClientUpdatePacket();
-	cup->h.type = PacketType::ClientUpdate;
-	cup->h.len = sizeof(ClientUpdatePacket);
-	Hydra::Component::TransformComponent* tc = player->getComponent<Hydra::Component::TransformComponent>().get();
-	cup->ti.pos = tc->position;
-	cup->ti.rot = tc->rotation;
-	cup->ti.scale = tc->scale;
-	return cup;
-}
-
-void resolveClientUpdatePacket(ClientUpdatePacket* cup, EntityID entityID) {
-	std::vector<EntityID> children = World::root()->children;
-	if (cup->h.client == 1) {
+void BarcodeServer::resolveClientUpdatePacket(ClientUpdatePacket* cup, Hydra::World::EntityID entityID) {
+	std::vector<Hydra::World::EntityID> children = World::root()->children;
+	if (cup->client == 1) {
 		int j = 0;
 		j++;
 	}
 	for (size_t i = 0; i < children.size(); i++) {
 		if (children[i] == entityID) {
-			Hydra::Component::TransformComponent* tc = World::getEntity(children[i])->getComponent<Hydra::Component::TransformComponent>().get();
+			Hydra::Component::TransformComponent* tc = Hydra::World::World::getEntity(children[i])->getComponent<Hydra::Component::TransformComponent>().get();
 			if (tc != nullptr) {
 				tc->setPosition(cup->ti.pos);
 				tc->setScale(cup->ti.scale);
@@ -56,122 +44,75 @@ void resolveClientUpdatePacket(ClientUpdatePacket* cup, EntityID entityID) {
 	}
 }
 
-void createAndSendServerEntityPacket(Entity* ent, Server* s) {
-
+Hydra::Network::ServerSpawnEntityPacket* BarcodeServer::createServerSpawnEntity(Hydra::World::Entity* ent) {
 	std::vector<uint8_t> data;
 	nlohmann::json json;
 	ent->serialize(json);
 	data = json.to_msgpack(json);
 
-	ServerSpawnEntityPacket* ssep = new ServerSpawnEntityPacket();
-	ssep->h.type = PacketType::ServerSpawnEntity;
-	ssep->id = ent->id;
-	ssep->size = data.size();
-	ssep->h.len = ssep->getSize();
+	ServerSpawnEntityPacket* packet = (ServerSpawnEntityPacket*)new char[sizeof(ServerSpawnEntityPacket) + data.size()];
+	*packet = ServerSpawnEntityPacket(data.size());
+	packet->id = ent->id;
+	memcpy(packet->data, data.data(), data.size());
 
-	char* result = new char[sizeof(ServerSpawnEntityPacket) + data.size() * sizeof(uint8_t)];
-
-	memcpy(result, ssep, sizeof(ServerSpawnEntityPacket));
-	memcpy(result + sizeof(ServerSpawnEntityPacket), data.data(), data.size() * sizeof(uint8_t));
-
-	s->sendDataToAll(result, sizeof(ServerSpawnEntityPacket) + data.size() * sizeof(uint8_t));
-
-	delete[] result;
-
-	//s->sendDataToAll((char*)ssep, sizeof(ServerSpawnEntityPacket));
-	//s->sendDataToAll((char*)data.data(), data.size() * sizeof(uint8_t));
-
-	delete ssep;
+	return packet;
 }
 
-void createAndSendPlayerUpdateBulletPacket(Player * p, Server * s) {
+void BarcodeServer::createAndSendPlayerUpdateBulletPacket(Player * p, Server * s) {
 	std::vector<uint8_t> vec = p->bullet.to_msgpack(p->bullet);
-	ServerUpdateBulletPacket* packet = new ServerUpdateBulletPacket();
-	packet->h.type = PacketType::ServerUpdateBullet;
-	packet->size = vec.size();
-	packet->h.len = packet->getSize();
 
-	char* result = new char[sizeof(ServerUpdateBulletPacket) + vec.size() * sizeof(uint8_t)];
+	ServerUpdateBulletPacket* packet = (ServerUpdateBulletPacket*)new char[sizeof(ServerUpdateBulletPacket) + vec.size()];
+	*packet = ServerUpdateBulletPacket(vec.size());
+	packet->serverPlayerID = p->entityid;
+	memcpy(packet->data, vec.data(), vec.size());
+	s->sendDataToAllExcept((char*)packet, packet->len, p->serverid);
+	delete[] packet;
+}
 
-	memcpy(result, packet, sizeof(ServerUpdateBulletPacket));
-	memcpy(result + sizeof(ServerUpdateBulletPacket), vec.data(), vec.size() * sizeof(uint8_t));
+void BarcodeServer::createAndSendPlayerShootPacket(Player * p, ClientShootPacket * csp, Server * s) {
+	ServerShootPacket* packet = new ServerShootPacket();
 
-	s->sendDataToAllExcept(result, sizeof(ServerUpdateBulletPacket) + vec.size() * sizeof(uint8_t), p->serverid);
-	//_tcp.send(packet, sizeof(ClientSpawnEntityPacket)); // DATA SNED
-	//_tcp.send(vec.data(), vec.size() * sizeof(uint8_t)); // DATA SKJICJIK
-	//entptr->deserialize(json);
+	packet->direction = csp->direction;
+	packet->ti = csp->ti;
+	packet->serverPlayerID = p->entityid;
 
-	delete[] result;
+	printf("sendDataToAllExcept:\n\ttype: ServerShoot\n\tlen: %zu\n", packet->len);
+	s->sendDataToAllExcept((char*)packet, sizeof(ServerShootPacket), p->serverid);
+
 	delete packet;
 }
 
-void createAndSendPlayerShootPacket(Player * p, ClientShootPacket * csp, Server * s) {
-	ServerShootPacket* ssp = new ServerShootPacket();
+Hydra::World::Entity* BarcodeServer::resolveClientSpawnEntityPacket(ClientSpawnEntityPacket* csep, Hydra::World::EntityID id, Server* s) {
+	Hydra::World::Entity* ent = World::newEntity("CLIENT CREATED (ERROR)", World::root()).get();
+	std::vector<uint8_t> data = std::vector<uint8_t>(&csep->data[0], &csep->data[csep->size()]);
 
-	ssp->h.len = sizeof(ServerShootPacket);
-	ssp->h.type = PacketType::ServerShoot;
+	memcpy(data.data(), csep->data, csep->size());
 
-	ssp->direction = csp->direction;
-	ssp->ti = csp->ti;
-	ssp->serverPlayerID = p->entityid;
-
-	s->sendDataToAllExcept((char*)ssp, sizeof(ServerShootPacket), p->serverid);
-
-	delete ssp;
-}
-
-Entity* resolveClientSpawnEntityPacket(ClientSpawnEntityPacket* csep, EntityID id, Server* s) {
-	Entity* ent = World::newEntity("CLIENT CREATED (ERROR)", World::root()).get();
-	nlohmann::json json;
-	std::vector<uint8_t> data;
-	
-	//Inefficient
-	for (size_t i = 0; i < csep->size; i++) {
-		data.push_back(((uint8_t*)csep->data)[i]);
-	}
-
-	json = json.from_msgpack(data);
+	nlohmann::json json = nlohmann::json::from_msgpack(data);
 	ent->deserialize(json);
-	//ent->setID(world->getFreeID());
 
 	printf("Client Created Entity: \"%s\" with id: %zu\n", ent->name.c_str(), ent->id);
-	
-	ServerSpawnEntityPacket* ssep = new ServerSpawnEntityPacket();
-	ssep->h.type = PacketType::ServerSpawnEntity;
-	ssep->id = ent->id;
-	ssep->size = data.size();
-	ssep->h.len = ssep->getSize();
 
-	char* result = new char[sizeof(ServerSpawnEntityPacket) + data.size() * sizeof(uint8_t)];
+	ServerSpawnEntityPacket* packet = (ServerSpawnEntityPacket*)new char[sizeof(ServerSpawnEntityPacket) + data.size()];
+	*packet = ServerSpawnEntityPacket(data.size());
+	packet->id = id;
+	memcpy(packet->data, data.data(), data.size());
 
-	memcpy(result, ssep, sizeof(ServerSpawnEntityPacket));
-	memcpy(result + sizeof(ServerSpawnEntityPacket), data.data(), data.size() * sizeof(uint8_t));
+	printf("sendDataToAll:\n\ttype: ServerShoot\n\tlen: %zu\n", packet->len);
+	s->sendDataToAll((char*)packet, packet->len);
 
-	s->sendDataToAll(result, sizeof(ServerSpawnEntityPacket) + data.size() * sizeof(uint8_t));
-
-	delete[] result;
-
-	//s->sendDataToAll((char*)ssep, sizeof(ServerSpawnEntityPacket));
-	//s->sendDataToAll((char*)data.data(), data.size() * sizeof(uint8_t));
-	
-	delete ssep;
+	delete[] packet;
 	return ent;
 }
 
-void resolveClientUpdateBulletPacket(ClientUpdateBulletPacket * cubp, nlohmann::json & dest) {
-	std::vector<uint8_t> data;
-
-	//Inefficient
-	for (size_t i = 0; i < cubp->size; i++) {
-		data.push_back(((uint8_t*)cubp->data)[i]);
-	}
-
-	dest = dest.from_msgpack(data);
+void BarcodeServer::resolveClientUpdateBulletPacket(ClientUpdateBulletPacket * cubp, nlohmann::json& dest) {
+	dest = nlohmann::json::from_msgpack(std::vector<uint8_t>(&cubp->data[0], &cubp->data[cubp->size()]));
 	printf("Successfully updated bullet.\n");
 }
 
-Entity* resolveClientShootPacket(ClientShootPacket * csp, Player * p, Hydra::System::BulletPhysicsSystem* bps) {
-	std::shared_ptr<Entity> ptr = World::newEntity("BULLET", World::root());
+Hydra::World::Entity* BarcodeServer::resolveClientShootPacket(ClientShootPacket * csp, Player * p, Hydra::World::ISystem* physics) {
+	Hydra::System::BulletPhysicsSystem* bps = static_cast<Hydra::System::BulletPhysicsSystem*>(physics);
+	std::shared_ptr<Hydra::World::Entity> ptr = world::newEntity("BULLET", world::root());
 	ptr->deserialize(p->bullet);
 	auto otherptr = ptr->getComponent<Hydra::Component::BulletComponent>();
 	otherptr->direction = csp->direction;
@@ -185,6 +126,4 @@ Entity* resolveClientShootPacket(ClientShootPacket * csp, Player * p, Hydra::Sys
 		bps->enable(r.get());
 
 	return ptr.get();
-
-	//printf("DIOfjil-äsdfjosdofsiodfjiohsiodfjosdoi\n");
 }

@@ -11,7 +11,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\Desktop\perkEditor.hpp" />
     <ClInclude Include="include\barcode\editorstate.hpp" />
     <ClInclude Include="include\barcode\exportermenu.hpp" />
     <ClInclude Include="include\barcode\filetree.hpp" />
@@ -23,7 +22,6 @@
     <ClInclude Include="include\barcode\PerkAttribMenu.hpp" />
     <ClInclude Include="include\barcode\perkEditor.hpp" />
     <ClInclude Include="include\barcode\renderingutils.hpp" />
-    <ClInclude Include="include\barcode\tileGeneration.hpp" />
     <ClInclude Include="include\barcode\winstate.hpp" />
   </ItemGroup>
   <ItemGroup>
@@ -40,7 +38,6 @@
     <ClCompile Include="src\barcode\PerkAttribMenu.cpp" />
     <ClCompile Include="src\barcode\perkEditor.cpp" />
     <ClCompile Include="src\barcode\renderingutils.cpp" />
-    <ClCompile Include="src\barcode\tileGeneration.cpp" />
     <ClCompile Include="src\barcode\winstate.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>

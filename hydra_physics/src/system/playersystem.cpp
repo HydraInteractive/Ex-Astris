@@ -47,6 +47,8 @@ void PlayerSystem::tick(float delta) {
 		auto soundFx = entities[i]->getComponent<SoundFxComponent>();
 		auto perks = entities[i]->getComponent<PerkComponent>();
 		auto rbc = static_cast<btRigidBody*>(entities[i]->getComponent<RigidBodyComponent>()->getRigidBody());
+		if (player->frozen)
+			continue;
 
 		glm::mat4 rotation = glm::mat4_cast(transform->rotation);
 		movement->direction = -glm::vec3(glm::vec4{ 0, 0, 1, 0 } *rotation);

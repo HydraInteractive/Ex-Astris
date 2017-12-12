@@ -36,6 +36,13 @@ static inline void reportMemoryLeaks() {
 static inline void reportMemoryLeaks() {}
 #endif
 
+static void onQuit() {
+	// Mirror Hydra::World::World::reset, but without creating a new world root
+	Hydra::World::World::_isResetting = true;
+	Hydra::World::World::_entities.clear();
+	Hydra::World::World::_map.clear();
+}
+
 namespace Barcode {
 	using namespace Hydra;
 
@@ -43,23 +50,19 @@ namespace Barcode {
 	public:
 		Engine() {
 			IEngine::getInstance() = this;
-
+			atexit(&onQuit);
 			_view = View::SDLView::create("Ex Astris");
 			_renderer = Renderer::GLRenderer::create(*_view);
 			_uiRenderer = Renderer::UIRenderer::create(*_view);
-
 			_setupComponents();
 		}
-
 		~Engine() final {
 			_state.reset();
-
-			// Mirror Hydra::World::World::reset, but without create a new world root
+			// Mirror Hydra::World::World::reset, but without creating a new world root
 			Hydra::World::World::_isResetting = true;
 			Hydra::World::World::_entities.clear();
 			Hydra::World::World::_map.clear();
 		}
-
 		void run() final {
 			auto lastTime = std::chrono::high_resolution_clock::now();
 			_state = std::move(_newState);

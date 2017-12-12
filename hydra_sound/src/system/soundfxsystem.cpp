@@ -16,7 +16,9 @@ using namespace Hydra::Component;
 using world = Hydra::World::World;
 
 SoundFxSystem::SoundFxSystem() {}
-SoundFxSystem::~SoundFxSystem() {}
+SoundFxSystem::~SoundFxSystem() {
+	Mix_FreeMusic(music);
+}
 
 void SoundFxSystem::tick(float delta) {
 	std::shared_ptr<Hydra::World::Entity> player;
@@ -168,6 +170,12 @@ void Hydra::System::SoundFxSystem::removeChannelFromComponent(int channel){
 		}
 	}
 	entities.clear();
+}
+
+void Hydra::System::SoundFxSystem::startMusic(std::string songPath){
+	music = Mix_LoadMUS(songPath.c_str());
+	Mix_PlayMusic(music, -1);
+	Mix_VolumeMusic(MIX_MAX_VOLUME/4);
 }
 
 void SoundFxSystem::registerUI() {}

@@ -88,28 +88,8 @@ static std::unique_ptr<btCollisionShape> createShape(CollisionShape collisionSha
 		auto planeConstant = json["planeConstant"];
 		return std::unique_ptr<btCollisionShape>(new btStaticPlaneShape(btVector3(planeNormal[0].get<float>(), planeNormal[1].get<float>(), planeNormal[2].get<float>()), planeConstant.get<float>()));
 	}
-	case CollisionShape::Sphere:
-		return std::unique_ptr<btCollisionShape>(new btSphereShape(json["radius"].get<float>()));
-
-	case CollisionShape::CapsuleX:
-		return std::unique_ptr<btCollisionShape>(new btCapsuleShapeX(json["radius"].get<float>(), json["height"].get<float>()));
 	case CollisionShape::CapsuleY:
 		return std::unique_ptr<btCollisionShape>(new btCapsuleShape(json["radius"].get<float>(), json["height"].get<float>()));
-	case CollisionShape::CapsuleZ:
-		return std::unique_ptr<btCollisionShape>(new btCapsuleShapeZ(json["radius"].get<float>(), json["height"].get<float>()));
-
-	case CollisionShape::CylinderX: {
-		auto halfExtents = json["halfExtents"];
-		return std::unique_ptr<btCollisionShape>(new btCylinderShapeX(btVector3(halfExtents[0].get<float>(), halfExtents[1].get<float>(), halfExtents[2].get<float>())));
-	}
-	case CollisionShape::CylinderY: {
-		auto halfExtents = json["halfExtents"];
-		return std::unique_ptr<btCollisionShape>(new btCylinderShape(btVector3(halfExtents[0].get<float>(), halfExtents[1].get<float>(), halfExtents[2].get<float>())));
-	}
-	case CollisionShape::CylinderZ: {
-		auto halfExtents = json["halfExtents"];
-		return std::unique_ptr<btCollisionShape>(new btCylinderShapeZ(btVector3(halfExtents[0].get<float>(), halfExtents[1].get<float>(), halfExtents[2].get<float>())));
-	}
 	default:
 		assert(0);// Missing serializer
 		return nullptr;
@@ -133,46 +113,11 @@ static SerializeShape getShapeSerializer(CollisionShape collisionShape) {
 			json["planeNormal"] = {n.x(), n.y(), n.z()};
 			json["planeConstant"] = staticPlane->getPlaneConstant();
 		};
-	case CollisionShape::Sphere:
-		return [](nlohmann::json& json, btCollisionShape* shape) {
-			btSphereShape* sphere = static_cast<btSphereShape*>(shape);
-			json["radius"] = sphere->getRadius();
-		};
-	case CollisionShape::CapsuleX:
-		return [](nlohmann::json& json, btCollisionShape* shape) {
-			btCapsuleShapeX* capsule = static_cast<btCapsuleShapeX*>(shape);
-			json["radius"] = capsule->getRadius();
-			json["height"] = capsule->getHalfHeight() * 2;
-		};
 	case CollisionShape::CapsuleY:
 		return [](nlohmann::json& json, btCollisionShape* shape) {
 			btCapsuleShape* capsule = static_cast<btCapsuleShape*>(shape);
 			json["radius"] = capsule->getRadius();
 			json["height"] = capsule->getHalfHeight() * 2;
-		};
-	case CollisionShape::CapsuleZ:
-		return [](nlohmann::json& json, btCollisionShape* shape) {
-			btCapsuleShapeZ* capsule = static_cast<btCapsuleShapeZ*>(shape);
-			json["radius"] = capsule->getRadius();
-			json["height"] = capsule->getHalfHeight() * 2;
-		};
-	case CollisionShape::CylinderX:
-		return [](nlohmann::json& json, btCollisionShape* shape) {
-			btCylinderShapeX* cylinder = static_cast<btCylinderShapeX*>(shape);
-			auto halfExtents = cylinder->getHalfExtentsWithMargin();
-			json["halfExtents"] = {halfExtents.x(), halfExtents.y(), halfExtents.z()};
-		};
-	case CollisionShape::CylinderY:
-		return [](nlohmann::json& json, btCollisionShape* shape) {
-			btCylinderShape* cylinder = static_cast<btCylinderShape*>(shape);
-			auto halfExtents = cylinder->getHalfExtentsWithMargin();
-			json["halfExtents"] = {halfExtents.x(), halfExtents.y(), halfExtents.z()};
-		};
-	case CollisionShape::CylinderZ:
-		return [](nlohmann::json& json, btCollisionShape* shape) {
-			btCylinderShapeZ* cylinder = static_cast<btCylinderShapeZ*>(shape);
-			auto halfExtents = cylinder->getHalfExtentsWithMargin();
-			json["halfExtents"] = {halfExtents.x(), halfExtents.y(), halfExtents.z()};
 		};
 	default:
 		assert(0);// Missing serializer
@@ -181,40 +126,104 @@ static SerializeShape getShapeSerializer(CollisionShape collisionShape) {
 }
 
 struct RigidBodyComponent::Data {
-	Data(EntityID entityID, CollisionShape collisionShape, SerializeShape serializeShape, std::unique_ptr<btCollisionShape> shape, std::unique_ptr<btCompoundShape> compund, Hydra::System::BulletPhysicsSystem::CollisionTypes collType, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction) :
-		collisionShape(collisionShape), serializeShape(serializeShape), motionState(entityID), shape(std::move(shape)), compoundShape(std::move(compund)), collisionType(collType), mass(mass), linearDamping(linearDamping), angularDamping(angularDamping), friction(friction), rollingFriction(rollingFriction), eID(entityID){}
+	struct Shape {
+		CollisionShape collisionShape;
+		SerializeShape serializeShape;
+		btTransform transform;
+		std::unique_ptr<btCollisionShape> shape;
+	};
 
+	Data(EntityID entityID, Hydra::System::BulletPhysicsSystem::CollisionTypes collisionType, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction) :
+		motionState(entityID), entityID(entityID), mass(mass), linearDamping(linearDamping), angularDamping(angularDamping), friction(friction), rollingFriction(rollingFriction), collisionType(collisionType) { }
 
 	btRigidBody* getRigidBody() {
 		if (!rigidBody) {
-			btRigidBody::btRigidBodyConstructionInfo info(mass, &motionState, this->compoundShape.get());
+			btRigidBody::btRigidBodyConstructionInfo info(mass, &motionState, &compoundShape);
 			info.m_linearDamping = linearDamping;
 			info.m_angularDamping = angularDamping;
 			info.m_friction = friction;
 			info.m_rollingFriction = rollingFriction;
-			//shape->calculateLocalInertia(mass, info.m_localInertia);
-			compoundShape->calculateLocalInertia(mass, info.m_localInertia);
+			compoundShape.calculateLocalInertia(mass, info.m_localInertia);
 			rigidBody = std::make_unique<btRigidBody>(info);
-			rigidBody->setUserIndex(eID);
+			rigidBody->setUserIndex(entityID);
 			rigidBody->setUserIndex2(collisionType);
 		}
 		return rigidBody.get();
 	}
 
-	CollisionShape collisionShape;
-	SerializeShape serializeShape;
+	void addShape(Shape&& shape) {
+		compoundShape.addChildShape(shape.transform, shape.shape.get());
+		shapes.push_back(std::move(shape));
+	}
+
 	MotionStateImpl motionState;
-	std::unique_ptr<btCollisionShape> shape; // TODO: Share this among other RB
-	std::unique_ptr<btCompoundShape> compoundShape; // New boi.
+
+	std::vector<Shape> shapes; // TODO: Share this among other RB
+	btCompoundShape compoundShape; // New boi.
 
 	// Add collision mask.
+	EntityID entityID;
 	float mass;
 	float linearDamping;
 	float angularDamping;
 	float friction;
 	float rollingFriction;
 	Hydra::System::BulletPhysicsSystem::CollisionTypes collisionType;
-	EntityID eID;
+
+	void serialize(nlohmann::json& json) {
+		for (size_t i = 0; i < shapes.size(); i++) {
+			auto& entry = json[i];
+			auto& shape = shapes[i];
+			entry["collisionShape"] = static_cast<size_t>(shape.collisionShape);
+			shape.serializeShape(entry["data"], shape.shape.get());
+			btTransformFloatData t;
+			shape.transform.serializeFloat(t);
+
+			entry["transformBasis"] = {
+				{ t.m_basis.m_el[0].m_floats[0], t.m_basis.m_el[0].m_floats[1], t.m_basis.m_el[0].m_floats[2] },
+				{ t.m_basis.m_el[1].m_floats[0], t.m_basis.m_el[1].m_floats[1], t.m_basis.m_el[1].m_floats[2] },
+				{ t.m_basis.m_el[2].m_floats[0], t.m_basis.m_el[2].m_floats[1], t.m_basis.m_el[2].m_floats[2] }
+			};
+			entry["transformOrigin"] = { t.m_origin.m_floats[0], t.m_origin.m_floats[1], t.m_origin.m_floats[2] };
+		}
+	}
+
+	void deserialize(size_t version, nlohmann::json& json) {
+		if (version == 1) {
+			btTransform localTrans;
+
+			Shape shape;
+			shape.collisionShape = static_cast<CollisionShape>(json["collisionShape"].get<size_t>());
+			shape.serializeShape = getShapeSerializer(shape.collisionShape);
+			shape.transform.setIdentity();
+			shape.transform.setOrigin(cast(glm::vec3(0,0,0)));
+			shape.shape = std::unique_ptr<btCollisionShape>(createShape(shape.collisionShape, json["shapeData"]));
+			addShape(std::move(shape));
+		} else {
+			for (size_t i = 0; i < json.size(); i++) {
+				auto& entry = json[i];
+
+				auto& transformBasis = entry["transformBasis"];
+				auto& transformOrigin = entry["transformOrigin"];
+
+				btTransformFloatData t = {
+					btMatrix3x3FloatData{
+						btVector3FloatData{ transformBasis[0][0].get<float>(), transformBasis[0][1].get<float>(), transformBasis[0][2].get<float>() },
+						btVector3FloatData{ transformBasis[1][0].get<float>(), transformBasis[1][1].get<float>(), transformBasis[1][2].get<float>() },
+						btVector3FloatData{ transformBasis[2][0].get<float>(), transformBasis[2][1].get<float>(), transformBasis[2][2].get<float>() }
+					},
+					btVector3FloatData{ transformOrigin[0].get<float>(), transformOrigin[1].get<float>(), transformOrigin[2].get<float>() }
+				};
+
+				Shape shape;
+				shape.collisionShape = static_cast<CollisionShape>(entry["collisionShape"].get<size_t>());
+				shape.serializeShape = getShapeSerializer(shape.collisionShape);
+				shape.transform.deSerializeFloat(t);
+				shape.shape = std::unique_ptr<btCollisionShape>(createShape(shape.collisionShape, entry["data"]));
+				addShape(std::move(shape));
+			}
+		}
+	}
 
 private:
 	std::unique_ptr<btRigidBody> rigidBody;
@@ -223,82 +232,61 @@ private:
 RigidBodyComponent::~RigidBodyComponent() {
 	if (_handler)
 		_handler->disable(this);
-	delete _data;
+	if (_data)
+		delete _data;
 }
 
 #define DEFAULT_PARAMS Hydra::System::BulletPhysicsSystem::CollisionTypes collType, float mass, float linearDamping, float angularDamping, float friction, float rollingFriction
-#define MAKE_DATA(SHAPE_TYPE, SHAPE_PTR, COMPUND_PTR) _data = new Data(entityID, CollisionShape::SHAPE_TYPE, getShapeSerializer(CollisionShape::SHAPE_TYPE), std::unique_ptr<btCollisionShape>(SHAPE_PTR), std::unique_ptr<btCompoundShape>(COMPUND_PTR), collType, mass, linearDamping, angularDamping, friction, rollingFriction)
+#define MAKE_DATA() _data = new Data(entityID, collType, mass, linearDamping, angularDamping, friction, rollingFriction)
 
 void RigidBodyComponent::createBox(const glm::vec3& halfExtents, const glm::vec3& offset, DEFAULT_PARAMS) {
-	_halfExtents = halfExtents;
-	btCollisionShape* boxShape = new btBoxShape(cast(halfExtents));
-	btTransform localTrans;
-	localTrans.setIdentity();
-	localTrans.setOrigin(cast(offset));
-	if (!_data) {
-		btCompoundShape* compound = new btCompoundShape();
-		compound->addChildShape(localTrans, boxShape);
-		MAKE_DATA(Box, boxShape, compound);
-	}
-	else {
-		boxShape->setUserIndex(collType);
-		_data->compoundShape->addChildShape(localTrans, boxShape);
-	}
+	btBoxShape* boxShape = new btBoxShape(cast(halfExtents));
+	boxShape->setUserIndex(collType);
+
+	if (!_data)
+		MAKE_DATA();
+
+	Data::Shape shape;
+	shape.collisionShape = Hydra::System::BulletPhysicsSystem::CollisionShape::Box;
+	shape.serializeShape = getShapeSerializer(shape.collisionShape);
+	shape.transform.setIdentity();
+	shape.transform.setOrigin(cast(offset));
+	shape.shape = std::unique_ptr<btCollisionShape>(boxShape);
+	_data->addShape(std::move(shape));
 }
 
 void RigidBodyComponent::createStaticPlane(const glm::vec3& planeNormal, float planeConstant, DEFAULT_PARAMS) {
 	btStaticPlaneShape* plane = new btStaticPlaneShape(cast(planeNormal), planeConstant);
-	btTransform localTrans;
-	localTrans.setIdentity();
-	localTrans.setOrigin(btVector3(0, 0, 0));
-	if (!_data) {
-		btCompoundShape* compound = new btCompoundShape();
-		compound->addChildShape(localTrans, plane);
-		MAKE_DATA(StaticPlane, plane, compound);
-	}
-	else {
-		plane->setUserIndex(collType);
-		_data->compoundShape->addChildShape(localTrans, plane);
-	}
+	plane->setUserIndex(collType);
+
+	if (!_data)
+		MAKE_DATA();
+
+	Data::Shape shape;
+	shape.collisionShape = Hydra::System::BulletPhysicsSystem::CollisionShape::StaticPlane;
+	shape.serializeShape = getShapeSerializer(shape.collisionShape);
+	shape.transform.setIdentity();
+	shape.transform.setOrigin(btVector3(0, 0, 0));
+	shape.shape = std::unique_ptr<btCollisionShape>(plane);
+	_data->addShape(std::move(shape));
 }
 
-void RigidBodyComponent::createSphere(float radius, DEFAULT_PARAMS) {
-	MAKE_DATA(Sphere, new btSphereShape(radius), new btCompoundShape());
-}
-
-void RigidBodyComponent::createCapsuleX(float radius, float height, DEFAULT_PARAMS) {
-	MAKE_DATA(CapsuleX, new btCapsuleShapeX(radius, height), new btCompoundShape());
-}
 void RigidBodyComponent::createCapsuleY(float radius, float height, const glm::vec3& offset, DEFAULT_PARAMS) {
-	btTransform localTrans;
-	localTrans.setIdentity();
-	localTrans.setOrigin(cast(offset));
-	btCollisionShape* capsuleShape = new btCapsuleShape(radius, height);
-	if (!_data) {
-		btCompoundShape* compound = new btCompoundShape();
-		compound->addChildShape(localTrans, capsuleShape);
-		MAKE_DATA(CapsuleY, capsuleShape, compound);
-	}
-	else {
-		capsuleShape->setUserIndex(collType);
-		_data->compoundShape->addChildShape(localTrans, capsuleShape);
-	}
-}
-void RigidBodyComponent::createCapsuleZ(float radius, float height, DEFAULT_PARAMS) {
-	MAKE_DATA(CapsuleZ, new btCapsuleShapeZ(radius, height), new btCompoundShape());
+	btCapsuleShape* capsuleShape = new btCapsuleShape(radius, height);
+	capsuleShape->setUserIndex(collType);
+
+	if (!_data)
+		MAKE_DATA();
+
+	Data::Shape shape;
+	shape.collisionShape = Hydra::System::BulletPhysicsSystem::CollisionShape::CapsuleY;
+	shape.serializeShape = getShapeSerializer(shape.collisionShape);
+	shape.transform.setIdentity();
+	shape.transform.setOrigin(cast(offset));
+	shape.shape = std::unique_ptr<btCollisionShape>(capsuleShape);
+	_data->addShape( std::move(shape));
 }
 
-void RigidBodyComponent::createCylinderX(const glm::vec3& halfExtents, DEFAULT_PARAMS) {
-	MAKE_DATA(CylinderX, new btCylinderShapeX(cast(halfExtents)), new btCompoundShape());
-}
-void RigidBodyComponent::createCylinderY(const glm::vec3& halfExtents, DEFAULT_PARAMS) {
-	MAKE_DATA(CylinderY, new btCylinderShape(cast(halfExtents)), new btCompoundShape());
-}
-void RigidBodyComponent::createCylinderZ(const glm::vec3& halfExtents, DEFAULT_PARAMS) {
-	MAKE_DATA(CylinderZ, new btCylinderShapeZ(cast(halfExtents)), new btCompoundShape());
-}
-
-#undef MAKE_DATA
 #undef DEFAULT_PARAMS
 
 void RigidBodyComponent::setActivationState(ActivationState newState) {
@@ -306,56 +294,66 @@ void RigidBodyComponent::setActivationState(ActivationState newState) {
 	_data->getRigidBody()->setActivationState(lookup[static_cast<int>(newState)]);
 }
 
+void RigidBodyComponent::refreshTransform() {
+	btTransform t;
+	_data->motionState.getWorldTransform(t);
+	_data->getRigidBody()->setWorldTransform(t);
+}
+
 glm::vec3 RigidBodyComponent::getPosition(int childIndex) {
-	return _data->motionState.getPosition() + cast(_data->compoundShape->getChildTransform(childIndex).getOrigin());
-	//return _data->motionState.getPosition() + cast(_data->compoundShape->getChildTransform(0).getOrigin());
+	return _data->motionState.getPosition() + cast(_data->compoundShape.getChildTransform(childIndex).getOrigin());
 }
 
 glm::quat RigidBodyComponent::getRotation() {
 	return cast(_data->getRigidBody()->getWorldTransform().getRotation());
-	//return _data->motionState.getRotation();
 }
 
 void Hydra::Component::RigidBodyComponent::setAngularForce(glm::vec3 angularForce){
 	_data->getRigidBody()->setAngularFactor(btVector3(angularForce.x,angularForce.y,angularForce.z));
 }
 
-const std::string& RigidBodyComponent::getShapeString(int childIndex) {
-	return ShapeTypesStr[_data->compoundShape->getChildShape(childIndex)->getShapeType()];
+std::string RigidBodyComponent::getShapeString(int childIndex) {
+	return ShapeTypesStr[_data->compoundShape.getChildShape(childIndex)->getShapeType()];
 }
 
-const int RigidBodyComponent::getNumberOfChildren() {
-	return _data->compoundShape->getNumChildShapes();
+int RigidBodyComponent::getNumberOfChildren() {
+	return _data->compoundShape.getNumChildShapes();
 }
 
 void* RigidBodyComponent::getRigidBody() { return static_cast<void*>(_data->getRigidBody()); }
+
+glm::vec3 RigidBodyComponent::getHalfExtentScale() {
+	for (Data::Shape& shape : _data->shapes)
+		if (shape.collisionShape == Hydra::System::BulletPhysicsSystem::CollisionShape::Box)
+			return cast(static_cast<btBoxShape*>(shape.shape.get())->getHalfExtentsWithMargin());
+	return glm::vec3{0.5, 0.5, 0.5};
+}
+
 void RigidBodyComponent::serialize(nlohmann::json& json) const {
 	json = {
-		{"collisionShape", static_cast<size_t>(_data->collisionShape)},
-		{"collisionType", static_cast<int>(_data->collisionType)},
+		{"version", 2},
 		{"mass", _data->mass},
 		{"linearDamping", _data->linearDamping},
 		{"angularDamping", _data->angularDamping},
 		{"friction", _data->friction},
-		{"rollingFriction", _data->rollingFriction}
+		{"rollingFriction", _data->rollingFriction},
+		{"collisionType", static_cast<size_t>(_data->collisionType)}
 	};
 
-	_data->serializeShape(json["shapeData"], _data->shape.get());
+	_data->serialize(json["shapeData"]);
 }
 
 void RigidBodyComponent::deserialize(nlohmann::json& json) {
-	auto collisionShape = static_cast<CollisionShape>(json["collisionShape"].get<size_t>());
-	auto serializeShape = getShapeSerializer(collisionShape);
-	auto shape = createShape(collisionShape, json["shapeData"]);
-	std::unique_ptr<btCompoundShape> compound = std::make_unique<btCompoundShape>();
+	auto version = json.value<size_t>("version", 1);
 	auto mass = json["mass"].get<float>();
 	auto linearDamping = json["linearDamping"].get<float>();
 	auto angularDamping = json["angularDamping"].get<float>();
 	auto friction = json["friction"].get<float>();
 	auto rollingFriction = json["rollingFriction"].get<float>();
-	auto collisionType = static_cast<Hydra::System::BulletPhysicsSystem::CollisionTypes>(json["collisionType"].get<int>());
+	auto collType = static_cast<Hydra::System::BulletPhysicsSystem::CollisionTypes>(json["collisionType"].get<int>());
 
-	_data = new Data(entityID, collisionShape, serializeShape, std::move(shape), std::move(compound), collisionType, mass, linearDamping, angularDamping, friction, rollingFriction);
+	MAKE_DATA();
+	_data->deserialize(version, version == 1 ? json : json["shapeData"]);
 }
 
 void RigidBodyComponent::registerUI() {
@@ -372,5 +370,10 @@ void RigidBodyComponent::registerUI() {
 	if (ImGui::DragFloat("Rolling Friction", &_data->rollingFriction))
 		_data->getRigidBody()->setRollingFriction(_data->rollingFriction);
 
+	if (ImGui::Button("Refresh from Transform"))
+		refreshTransform();
+
 	//_data->shape->registerUI();
 }
+
+#undef MAKE_DATA

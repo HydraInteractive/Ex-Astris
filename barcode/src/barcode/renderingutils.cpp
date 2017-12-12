@@ -21,10 +21,11 @@
 #include <hydra/component/pickupcomponent.hpp>
 
 #include <hydra/system/perksystem.hpp>
-#include <barcode\perkEditor.hpp>
+#include <barcode/perkEditor.hpp>
+#include <algorithm>
 
 #define frand() (float(rand())/RAND_MAX)
-
+#undef min
 using world = Hydra::World::World;
 
 namespace Barcode {
@@ -87,9 +88,8 @@ namespace Barcode {
 			->addTexture(0, Hydra::Renderer::TextureType::f16RGB) // Position
 			.addTexture(1, Hydra::Renderer::TextureType::u8RGBA) // Diffuse
 			.addTexture(2, Hydra::Renderer::TextureType::f16RGB) // Normal
-			.addTexture(3, Hydra::Renderer::TextureType::f16RGBA) // Light pos
-			.addTexture(4, Hydra::Renderer::TextureType::u8R) // Glow.
-			.addTexture(5, Hydra::Renderer::TextureType::f32Depth) // Depth
+			.addTexture(3, Hydra::Renderer::TextureType::u8R) // Glow.
+			.addTexture(4, Hydra::Renderer::TextureType::f24Depth) // Depth
 			.finalize();
 		_geometryAnimationBatch = RenderBatch<Hydra::Renderer::AnimationBatch>("assets/shaders/animationGeometry.vert", "assets/shaders/animationGeometry.geom", "assets/shaders/animationGeometry.frag", _geometryBatch);
 		_geometryAnimationBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::none;
@@ -99,10 +99,18 @@ namespace Barcode {
 			->addTexture(0, Hydra::Renderer::TextureType::u8RGB)
 			.addTexture(1, Hydra::Renderer::TextureType::u8RGB)
 			.finalize();
+		_lightingBatch.pipeline->setValue(0, 0);
+		_lightingBatch.pipeline->setValue(1, 1);
+		_lightingBatch.pipeline->setValue(2, 2);
+		_lightingBatch.pipeline->setValue(3, 3);
+		_lightingBatch.pipeline->setValue(4, 4);
+		_lightingBatch.pipeline->setValue(5, 5);
+		_lightingBatch.pipeline->setValue(6, 6);
 
 		_shadowBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/shadow.vert", "", "assets/shaders/shadow.frag", glm::vec2(512));
-		_shadowBatch.output->addTexture(0, Hydra::Renderer::TextureType::f16Depth).finalize();
+		_shadowBatch.output->addTexture(0, Hydra::Renderer::TextureType::f24Depth).finalize();
 		_shadowBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::depth;
+		_shadowBatch.batch.clearColor = glm::vec4(1, 1, 1, 1);
 
 		_shadowAnimationBatch = RenderBatch<Hydra::Renderer::AnimationBatch>("assets/shaders/shadowAnimation.vert", "", "assets/shaders/shadow.frag", _shadowBatch);
 		_shadowAnimationBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::none;
@@ -111,13 +119,16 @@ namespace Barcode {
 		_ssaoBatch.output->addTexture(0, Hydra::Renderer::TextureType::f16R).finalize();
 		_ssaoBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::color;
 		_ssaoBatch.batch.clearColor = glm::vec4(0, 0, 0, 1);
+		_ssaoBatch.pipeline->setValue(0, 0);
+		_ssaoBatch.pipeline->setValue(1, 1);
 
 		_ssaoBlurBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/ssaoblur.vert", "", "assets/shaders/ssaoblur.frag", size);
 		_ssaoBlurBatch.output->addTexture(0, Hydra::Renderer::TextureType::f16R).finalize();
 		_ssaoBlurBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::color;
 		_ssaoBlurBatch.batch.clearColor = glm::vec4(0, 0, 0, 1);
+		_ssaoBlurBatch.pipeline->setValue(0, 0);
 
-		constexpr size_t kernelSize = 4;
+		constexpr size_t kernelSize = 14;
 		constexpr size_t noiseSize = 4;
 		auto ssaoKernel = _getSSAOKernel(kernelSize);
 		for (size_t i = 0; i < ssaoKernel.size(); i++)
@@ -126,22 +137,28 @@ namespace Barcode {
 		_ssaoNoise = Hydra::Renderer::GLTexture::createFromData(noiseSize, noiseSize, Hydra::Renderer::TextureType::f32RGB, _getSSAONoise(noiseSize*noiseSize).data());
 
 		_glowBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/glow.vert", "", "assets/shaders/glow.frag", _engine->getView());
+		_glowBatch.batch.pipeline->setValue(1, 1);
+		_glowBatch.batch.pipeline->setValue(2, 2);
+		_glowBatch.batch.pipeline->setValue(4, 4);
 
 		_copyBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/copy.vert", "", "assets/shaders/copy.frag", _engine->getView());
+		_copyBatch.batch.pipeline->setValue(1, 1);
+		_copyBatch.batch.pipeline->setValue(2, 2);
 
 		_particleBatch = RenderBatch<Hydra::Renderer::ParticleBatch>("assets/shaders/particles.vert", "", "assets/shaders/particles.frag", _engine->getView());
 		_particleAtlases = Hydra::Renderer::GLTexture::createFromFile("assets/textures/ParticleAtlases.png");
 		_particleBatch.batch.clearFlags = ClearFlags::none;
+		_particleBatch.pipeline->setValue(4, 0);
 
 		_textBatch = RenderBatch<Hydra::Renderer::TextBatch>("assets/shaders/text.vert", "", "assets/shaders/text.frag", _engine->getView());
 		_textBatch.batch.clearFlags = ClearFlags::none;
+		_textBatch.pipeline->setValue(1, 0);
 
 		_bulletBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/bullet.vert", "", "assets/shaders/bullet.frag", _geometryBatch);
 		_bulletBatch.batch.clearFlags = ClearFlags::none;
 	}
 
-	DefaultGraphicsPipeline::~DefaultGraphicsPipeline() {
-	}
+	DefaultGraphicsPipeline::~DefaultGraphicsPipeline() {}
 
 	void DefaultGraphicsPipeline::render(const glm::vec3& cameraPos, Hydra::Component::CameraComponent& cc, Hydra::Component::TransformComponent& playerTransform) {
 		auto& dirLight = *static_cast<Hydra::Component::LightComponent*>(Hydra::Component::LightComponent::componentHandler->getActiveComponents()[0].get());
@@ -154,19 +171,17 @@ namespace Barcode {
 			0.5, 0.5, 0.5, 1.0
 		);
 		glm::mat4 lightS = biasMatrix * lightPMX * lightViewMX;
-		
-	
-		
+
+		_lightingBatch.pipeline->setValue(94, MenuState::shadowEnabled);
+
 		_geometryBatch.pipeline->setValue(0, cc.getViewMatrix());
 		_geometryBatch.pipeline->setValue(1, cc.getProjectionMatrix());
 		_geometryBatch.pipeline->setValue(2, cameraPos);
-		_geometryBatch.pipeline->setValue(3, lightS);
 
 
 		_geometryAnimationBatch.pipeline->setValue(0, cc.getViewMatrix());
 		_geometryAnimationBatch.pipeline->setValue(1, cc.getProjectionMatrix());
 		_geometryAnimationBatch.pipeline->setValue(2, cameraPos);
-		_geometryAnimationBatch.pipeline->setValue(4, lightS);
 
 		for (auto& kv : _geometryBatch.batch.objects)
 			kv.second.clear();
@@ -189,10 +204,23 @@ namespace Barcode {
 		static bool enableFrustumCulling = false;
 		//ImGui::Checkbox("Enable VF Culling", &enableFrustumCulling);
 
+		auto worldToGrid = [](glm::vec2 pos) {
+			const int xGrid = (pos.x / ROOM_SIZE);// - 0.5f);
+			const int yGrid = (pos.y / ROOM_SIZE);// - 0.5f);
+			return glm::ivec2{xGrid, yGrid};
+		};
+
+		auto gp = worldToGrid({cameraPos.x, cameraPos.z});
+		auto& rs = _renderSets[gp.y][gp.x];
+
 		constexpr float radius = 5.f;
 		std::vector<std::shared_ptr<Entity>> entities;
 		world::getEntitiesWithComponents<Hydra::Component::MeshComponent, Hydra::Component::DrawObjectComponent, Hydra::Component::TransformComponent>(entities);
 
+		size_t animatedObjectCounter = 0;
+		size_t animatedObjectTotal = 0;
+		size_t objectCounter = 0;
+		size_t objectTotalNormal = 0;
 		for (auto e : entities) {
 			auto tc = e->getComponent<Hydra::Component::TransformComponent>();
 			auto drawObj = e->getComponent<Hydra::Component::DrawObjectComponent>()->drawObject;
@@ -207,29 +235,102 @@ namespace Barcode {
 			}
 
 			if (drawObj->mesh->hasAnimation()) {
+				animatedObjectTotal++;
 				auto mc = e->getComponent<Hydra::Component::MeshComponent>();
 
-				if (renderNormal) {
-					_geometryAnimationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-					_geometryAnimationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
-					_geometryAnimationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
-				}
+				const float x = drawObj->modelMatrix[3][0];
+				const float z = drawObj->modelMatrix[3][2];
 
-				if (MenuState::shadowEnabled) {
-					_shadowAnimationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-					_shadowAnimationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
-					_shadowAnimationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
+				bool toRender = false;
+				for (size_t i = 0; i < rs.worldBox.size() && !toRender; i++) {
+					const float x0 = rs.worldBox[i].x;
+					const float z0 = rs.worldBox[i].y;
+					const float x1 = x0 + rs.worldBox[i].z;
+					const float z1 = z0 + rs.worldBox[i].w;
+					toRender = x0 <= x && x <= x1 && z0 <= z && z <= z1;
+				}
+				if (toRender) {
+					animatedObjectCounter++;
+
+					if (renderNormal) {
+						_geometryAnimationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+						_geometryAnimationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
+						_geometryAnimationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
+					}
+
+					if (MenuState::shadowEnabled) {
+						_shadowAnimationBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+						_shadowAnimationBatch.batch.currentFrames[drawObj->mesh].push_back(mc->currentFrame);
+						_shadowAnimationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
+					}
 				}
 			} else {
-				if (renderNormal)
-					_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-				
-				if (MenuState::shadowEnabled && drawObj->hasShadow)
-					_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+				objectTotalNormal++;
+
+				const float x = drawObj->modelMatrix[3][0];
+				const float z = drawObj->modelMatrix[3][2];
+
+				bool toRender = false;
+				for (size_t i = 0; i < rs.worldBox.size() && !toRender; i++) {
+					const float x0 = rs.worldBox[i].x;
+					const float z0 = rs.worldBox[i].y;
+					const float x1 = x0 + rs.worldBox[i].z;
+					const float z1 = z0 + rs.worldBox[i].w;
+					toRender = x0 <= x && x <= x1 && z0 <= z && z <= z1;
+				}
+				if (toRender) {
+					objectCounter++;
+					if (renderNormal)
+						_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+
+					if (MenuState::shadowEnabled && drawObj->hasShadow)
+						_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+				}
 			}
 		}
 
+		for (auto doc : rs.objects) {
+			auto& drawObj = doc->drawObject;
+			if (!drawObj->mesh)
+				continue;
 
+			_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+			objectCounter++;
+
+			if (MenuState::shadowEnabled)
+				_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+		}
+		const int MAX_LIGHTS = 24;
+
+		size_t lightCount = 0;
+		{
+			int shaderPos = 15;
+			std::vector<Hydra::Component::PointLightComponent*> lights = rs.lights;
+			std::sort(lights.begin(), lights.end(), [cameraPos](auto a, auto b) {
+				return glm::distance(glm::vec3(a->getTransformComponent()->getMatrix()[3]), cameraPos) < glm::distance(glm::vec3(b->getTransformComponent()->getMatrix()[3]), cameraPos);
+			});
+			auto last = std::unique(lights.begin(), lights.end());
+			lights.erase(last, lights.end());
+			for (; lightCount < std::min(lights.size(), (size_t)MAX_LIGHTS); lightCount++) {
+				auto plc = lights[lightCount];
+				_lightingBatch.pipeline->setValue(shaderPos++, glm::vec3(plc->getTransformComponent()->getMatrix()[3]));
+				_lightingBatch.pipeline->setValue(shaderPos++, plc->color);
+				_lightingBatch.pipeline->setValue(shaderPos++, plc->constant);
+				_lightingBatch.pipeline->setValue(shaderPos++, plc->linear);
+				_lightingBatch.pipeline->setValue(shaderPos++, plc->quadratic);
+			}
+		}
+
+		size_t maxObjectCount = Hydra::Component::DrawObjectComponent::componentHandler->getActiveComponents().size();
+		size_t maxRoomsCount = Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size();
+		ImGui::Begin("Performance monitor", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
+		ImGui::Text("Currently rendering:\n\t%zu objects out of %zu (%.2f%%)\n\t%zu animation objects out of %zu (%.2f%%)\n\t%zu rooms out of %zu (%.2f%%)\n\t%zu lights out of %zu (slots: %d) (%.2f%%)",
+			objectCounter, maxObjectCount + objectTotalNormal, float(objectCounter * 100) / (maxObjectCount + objectTotalNormal),
+			animatedObjectCounter, animatedObjectTotal, float(animatedObjectCounter * 100) / (animatedObjectTotal),
+			rs.worldBox.size(), maxRoomsCount, float(rs.worldBox.size() * 100) / maxRoomsCount,
+			lightCount, rs.lights.size(), MAX_LIGHTS, float(lightCount * 100) / rs.lights.size()
+		);
+		ImGui::End();
 
 		_engine->getRenderer()->render(_geometryBatch.batch);
 		_engine->getRenderer()->renderAnimation(_geometryAnimationBatch.batch);
@@ -276,70 +377,50 @@ namespace Barcode {
 		}
 
 		if (MenuState::ssaoEnabled) {
-			//static float bias = 0.025f;
-			//static float radius = 0.5f;
-			//ImGui::DragFloat("Bias", &bias, 0.01f);
-			//ImGui::DragFloat("Radius", &radius, 0.01f);
-			_ssaoBatch.pipeline->setValue(0, 0);
-			_ssaoBatch.pipeline->setValue(1, 1);
+			static float bias = 0.025f;
+			static float radius = 0.5f;
+			ImGui::DragFloat("Bias", &bias, 0.01f);
+			ImGui::DragFloat("Radius", &radius, 0.01f);
 
-			_ssaoBatch.pipeline->setValue(5, cc.getProjectionMatrix());
-			//_ssaoBatch.pipeline->setValue(4, bias);
-			//_ssaoBatch.pipeline->setValue(5, radius);
+			_ssaoBatch.pipeline->setValue(3, cc.getProjectionMatrix());
+			_ssaoBatch.pipeline->setValue(4, bias);
+			_ssaoBatch.pipeline->setValue(5, radius);
 			_ssaoBatch.pipeline->setValue(6, cc.getViewMatrix());
 			_ssaoBatch.pipeline->setValue(7, glm::vec2(_ssaoBatch.output->getSize()));
 
 			_geometryBatch.output->getDepth()->bind(0);
 			_ssaoNoise->bind(1);
 			_engine->getRenderer()->postProcessing(_ssaoBatch.batch);
-			//_blurUtil.blur((*_ssaoBatch.output)[0], 2, (*_ssaoBatch.output)[0]->getSize());
 
-			_ssaoBlurBatch.pipeline->setValue(0, 0);
 			(*_ssaoBatch.output)[0]->bind(0);
 			_engine->getRenderer()->postProcessing(_ssaoBlurBatch.batch);
-
 		}
 
 		{ // Lighting pass
 			_lightingBatch.pipeline->setValue(0, 0);
 			_lightingBatch.pipeline->setValue(1, 1);
 			_lightingBatch.pipeline->setValue(2, 2);
-			_lightingBatch.pipeline->setValue(3, 3);
 			_lightingBatch.pipeline->setValue(4, 4);
 			_lightingBatch.pipeline->setValue(5, 5);
 			_lightingBatch.pipeline->setValue(6, 6);
-
 			_lightingBatch.pipeline->setValue(7, playerTransform.position);
 			_lightingBatch.pipeline->setValue(8, MenuState::ssaoEnabled);
-			auto& lights = Hydra::Component::PointLightComponent::componentHandler->getActiveComponents();
 
-			_lightingBatch.pipeline->setValue(9, (int)(lights.size()));
+			_lightingBatch.pipeline->setValue(9, (int)lightCount);
 			_lightingBatch.pipeline->setValue(10, dirLight.getDirVec());
 			_lightingBatch.pipeline->setValue(11, dirLight.color);
 			_lightingBatch.pipeline->setValue(12, cc.getProjectionMatrix());
-
-
-			// good code lmao XD
-			int i = 13;
-			for (auto& p : lights) {
-				auto pc = static_cast<Hydra::Component::PointLightComponent*>(p.get());
-				_lightingBatch.pipeline->setValue(i++, pc->getTransformComponent()->position);
-				_lightingBatch.pipeline->setValue(i++, pc->color);
-				_lightingBatch.pipeline->setValue(i++, pc->constant);
-				_lightingBatch.pipeline->setValue(i++, pc->linear);
-				_lightingBatch.pipeline->setValue(i++, pc->quadratic);
-			}
+			_lightingBatch.pipeline->setValue(13, lightS);
 
 			(*_geometryBatch.output)[0]->bind(0);
 			(*_geometryBatch.output)[1]->bind(1);
 
 			(*_geometryBatch.output)[2]->bind(2);
-			(*_geometryBatch.output)[3]->bind(3);
 			_shadowBatch.output->getDepth()->bind(4);
 			(*_ssaoBlurBatch.output)[0]->bind(5);
 			//(*_ssaoBatch.output)[0]->bind(5);
 			//_blurUtil.getOutput()->bind(5);
-			(*_geometryBatch.output)[4]->bind(6);
+			(*_geometryBatch.output)[3]->bind(6);
 
 			_engine->getRenderer()->postProcessing(_lightingBatch.batch);
 		}
@@ -349,18 +430,13 @@ namespace Barcode {
 
 			_blurUtil.blur((*_lightingBatch.output)[1], nrOfTimes, _lightingBatch.output->getSize() / 4);
 
-			_glowBatch.batch.pipeline->setValue(1, 1);
-			_glowBatch.batch.pipeline->setValue(2, 2);
-
 			(*_lightingBatch.output)[0]->bind(1);
 			_blurUtil.getOutput()->bind(2);
-			_glowBatch.batch.pipeline->setValue(4, 4);
 			_geometryBatch.output->getDepth()->bind(4);
+			_glowBatch.pipeline->setValue(5, glm::vec2(_ssaoBatch.output->getSize()));
 
 			_engine->getRenderer()->postProcessing(_glowBatch.batch);
 		} else {
-			_copyBatch.batch.pipeline->setValue(1, 1);
-			_copyBatch.batch.pipeline->setValue(2, 2);
 			(*_lightingBatch.output)[0]->bind(1);
 			_geometryBatch.output->getDepth()->bind(2);
 			_engine->getRenderer()->postProcessing(_copyBatch.batch);
@@ -397,7 +473,6 @@ namespace Barcode {
 				_particleBatch.pipeline->setValue(1, cc.getProjectionMatrix());
 				_particleBatch.pipeline->setValue(2, rightVector);
 				_particleBatch.pipeline->setValue(3, upVector);
-				_particleBatch.pipeline->setValue(4, 0);
 				_particleAtlases->bind(0);
 
 				// Can't sort with objects need to sort per particle.
@@ -443,7 +518,6 @@ namespace Barcode {
 				_textBatch.batch.colors.push_back(textC->color);
 			}
 			_textBatch.pipeline->setValue(0, cc.getProjectionMatrix() * cc.getViewMatrix());
-			_textBatch.pipeline->setValue(1, 0);
 			_textBatch.pipeline->setValue(3, rightVector);
 			_textBatch.pipeline->setValue(4, upVector);
 			_engine->getState()->getTextFactory()->getTexture()->bind(0);
@@ -452,6 +526,105 @@ namespace Barcode {
 
 	}
 
+	void DefaultGraphicsPipeline::updatePVS(nlohmann::json&& json) {
+		// First find rooms
+		std::shared_ptr<RoomComponent> rooms[ROOM_GRID_SIZE * ROOM_GRID_SIZE];
+
+		auto gridToWorld = [](glm::ivec2 grid) {
+			const float xPos = (grid.x + 0.5f) * ROOM_SIZE;
+			const float yPos = (grid.y + 0.5f) * ROOM_SIZE;
+			return glm::vec2{xPos, yPos};
+		};
+
+		for (auto rPtr : Hydra::Component::RoomComponent::componentHandler->getActiveComponents()) {
+			auto r = std::static_pointer_cast<Hydra::Component::RoomComponent>(rPtr);
+			rooms[r->gridPosition.y * ROOM_GRID_SIZE + r->gridPosition.x] = r;
+		}
+
+		printf("\n\n");
+		for (size_t x = 0; x < ROOM_GRID_SIZE + 1; x++)
+			if (x == 0)
+				printf("|      ");
+			else
+				printf("|   %zu  ", x - 1);
+		printf("|\n");
+
+		for (int y = 0; y < ROOM_GRID_SIZE; y++) {
+			printf("|   %d  ", y);
+			for (int x = 0; x < ROOM_GRID_SIZE; x++) {
+				std::shared_ptr<Hydra::Component::RoomComponent> rc = rooms[y *  ROOM_GRID_SIZE + x];
+				if (rc)
+					printf("| %c%c%c%c ",
+								 rc->door[Hydra::Component::RoomComponent::NORTH] ? 'N' : ' ',
+								 rc->door[Hydra::Component::RoomComponent::EAST]  ? 'E' : ' ',
+								 rc->door[Hydra::Component::RoomComponent::SOUTH] ? 'S' : ' ',
+								 rc->door[Hydra::Component::RoomComponent::WEST]  ? 'W' : ' '
+						);
+				else
+					printf("|      ");
+			}
+			printf("|\n");
+		}
+
+
+		for (std::shared_ptr<RoomComponent>& room : rooms) {
+			if (!room)
+				continue;
+			RenderSet rs;
+			rs.room = room;
+			auto wp = gridToWorld(room->gridPosition);
+			rs.worldBox.push_back(glm::vec4{wp.x - ROOM_SIZE / 2, wp.y - ROOM_SIZE / 2, ROOM_SIZE, ROOM_SIZE});
+
+			// Collect this room
+			_collectObjects(rs, world::getEntity(room->entityID).get());
+
+			// Collect PVS info rooms
+			for (nlohmann::json& entry : json[std::to_string(room->gridPosition.y * ROOM_GRID_SIZE + room->gridPosition.x)]) {
+				auto roomID = entry.get<size_t>();
+				glm::ivec2 grid = {roomID % ROOM_GRID_SIZE, roomID / ROOM_GRID_SIZE};
+				auto wpOther = gridToWorld(grid);
+				auto& r = rooms[grid.y * ROOM_GRID_SIZE + grid.x];
+				rs.worldBox.push_back(glm::vec4{wpOther.x - ROOM_SIZE / 2, wpOther.y - ROOM_SIZE / 2, ROOM_SIZE, ROOM_SIZE});
+				_collectObjects(rs, world::getEntity(r->entityID).get());
+			}
+
+			_renderSets[room->gridPosition.y][room->gridPosition.x] = std::move(rs);
+		}
+
+		printf("\n\n");
+		for (size_t x = 0; x < ROOM_GRID_SIZE + 1; x++)
+			if (x == 0)
+				printf("|      ");
+			else
+				printf("|   %zu  ", x - 1);
+		printf("|\n");
+
+		for (int y = 0; y < ROOM_GRID_SIZE; y++) {
+			printf("|   %d  ", y);
+			for (int x = 0; x < ROOM_GRID_SIZE; x++) {
+				if (_renderSets[y][x].room)
+					printf("| ROOM ");
+				else
+					printf("|      ");
+			}
+			printf("|\n");
+		}
+
+	}
+
+	void DefaultGraphicsPipeline::_collectObjects(RenderSet& rs, Hydra::World::Entity* e) {
+		if (auto doc = e->getComponent<Hydra::Component::DrawObjectComponent>(); doc) {
+			doc->drawObject->disable = true;
+			rs.objects.push_back(doc.get());
+		}
+		if (auto plc = e->getComponent<Hydra::Component::PointLightComponent>(); plc)
+			rs.lights.push_back(plc.get());
+
+		for (auto childID : e->children)
+			if (auto c = world::getEntity(childID).get(); c)
+				_collectObjects(rs, c);
+	};
+
 	std::vector<glm::vec3> DefaultGraphicsPipeline::_getSSAOKernel(size_t size) {
 		std::vector<glm::vec3> ssaoKernel;
 		ssaoKernel.resize(size);
@@ -459,7 +632,7 @@ namespace Barcode {
 			float x = frand() * 2.0 - 1.0;
 			float y = frand() * 2.0 - 1.0;
 			float z = frand();
-			
+
 			float scale = (float)i / size;
 			scale = 0.1 + (scale * scale) * (1.0 - 0.1);
 			ssaoKernel[i] = glm::normalize(glm::vec3{ x, y, z });

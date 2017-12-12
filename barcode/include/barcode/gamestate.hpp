@@ -49,11 +49,13 @@
 #include <hydra/system/pickupsystem.hpp>
 #include <hydra/system/textsystem.hpp>
 #include <hydra/system/lightsystem.hpp>
-#include <barcode/tileGeneration.hpp>
 
 namespace Barcode {
 	class GameState final : public Hydra::IState {
 	public:
+		static char addr[256];
+		static int port;
+
 		GameState();
 		~GameState() final;
 
@@ -61,7 +63,6 @@ namespace Barcode {
 		void load() final;
 		int currentFrame = 0;
 		void runFrame(float delta) final;
-		void setLC(bool state, float time);
 
 		inline Hydra::IO::ITextureLoader* getTextureLoader() final { return _textureLoader.get(); }
 		inline Hydra::IO::IMeshLoader* getMeshLoader() final { return _meshLoader.get(); }
@@ -102,13 +103,16 @@ namespace Barcode {
 		Hydra::Component::CameraComponent* _cc = nullptr;
 		Hydra::Component::TransformComponent* _playerTransform = nullptr;
 
-		float prevHP, hpTimeUp, timer = 0;
-		int  lCPicture = 0;
-		TileGeneration* tileGen;
-		bool** pathfindingMap = nullptr;
-		bool showLoadingScreen = false;
+		float _prevHP = 1;
+		float _hpTimeUp = 0;
+		int  _loadingScreenPicture = 0;
+		float _loadingScreenTimer = 1;
+		bool _didConnect = false;
 
 		void _initSystem();
 		void _initWorld();
+		static void _onPlayerShoot(Hydra::Component::WeaponComponent& weapon, Hydra::World::Entity* bullet, void* userdata);
+		static void _onUpdatePVS(nlohmann::json&& json, void* userdata);
+		static void _onWin(void* userdata);
 	};
 }

@@ -1,3 +1,4 @@
+#pragma once
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <hydra/world/world.hpp>
@@ -13,19 +14,19 @@ public:
 	void configureComponent(bool &openBool, std::string componentType, Hydra::System::BulletPhysicsSystem& physicsSystem);
 private:
 	Hydra::World::Entity* _selectedEntity = nullptr;
-	std::vector<std::string> _componentTypes = {"Transform", "PointLight", "RigidBody", "StaticObject"};
+	std::vector<std::string> _componentTypes = { "Transform", "PointLight", "RigidBody", "StaticObject", "SpawnPoint" };
 	std::string _selectedString = "";
 	void _menuBar();
-	void _renderEntity(Hydra::World::Entity*);
+	void _renderEntity(Hydra::World::Entity* entity);
 	//Transform
 	struct TI
 	{
-		glm::vec3 position = glm::vec3{ 0, 0, 0 };
-		glm::vec3 scale = glm::vec3{ 1, 1, 1 };
+		glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
+		glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
 		glm::quat rotation = glm::quat();
 		bool ignoreParent = false;
 	} transformInput;
-	
+
 	//PointLight
 	struct PLI
 	{
@@ -45,10 +46,18 @@ private:
 		float friction = 0.0f;
 		float rollingFriction = 0.0f;
 	} rigidBodyInput;
-	
+
 	//GhostObject
-	struct GOI{
+	struct GOI
+	{
 		glm::vec3 size = glm::vec3(1.0f, 1.0f, 1.0f);
 		int collisionType = 1;
 	} ghostObjectInput;
+
+	//SpawnPoint
+	struct SPI
+	{
+		bool playerSpawn = true;
+		bool enemySpawn = true;
+	} spawnPointInput;
 };
