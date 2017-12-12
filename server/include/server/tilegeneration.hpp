@@ -49,6 +49,7 @@ namespace BarcodeServer {
 		void spawnEnemies();
 		void finalize();
 
+		std::string getPathMapAsString();
 		std::shared_ptr<Hydra::World::Entity> mapentity = nullptr;
 
 	private:
