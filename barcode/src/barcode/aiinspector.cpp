@@ -1,19 +1,20 @@
 #include <barcode/aiinspector.hpp>
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
+#include <hydra/component/roomcomponent.hpp>
 
 AIInspector::AIInspector()
 {
-	testArray = new RGB[sizeX * sizeY];
-	for (int x = 0; x < sizeX; x++)
+	testArray = new RGB[WORLD_MAP_SIZE*WORLD_MAP_SIZE];
+	for (int x = 0; x < WORLD_MAP_SIZE; x++)
 	{
-		for (int y = 0; y < sizeY; y++)
+		for (int y = 0; y < WORLD_MAP_SIZE; y++)
 		{
 			//Paint an X for testing on the map
-			if (x == y || y == sizeY - x - 1)
-				testArray[x + (y*sizeX)] = RGB{ 255, 255, 255 };
+			if (x == y || y == WORLD_MAP_SIZE - x - 1)
+				testArray[x + (y*WORLD_MAP_SIZE)] = RGB{ 255, 255, 255 };
 			else
-				testArray[x + (y*sizeX)] = RGB{ 0, 0, 0 };
+				testArray[x + (y*WORLD_MAP_SIZE)] = RGB{ 0, 0, 0 };
 		}
 	}
 }
@@ -45,8 +46,8 @@ void AIInspector::render(bool &openBool)
 
 		ImGui::BeginChild("Pathing Map", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.7f, ImGui::GetWindowContentRegionMax().y - 60), true);
 		//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-		image = Hydra::Renderer::GLTexture::createFromData(sizeX, sizeY, Hydra::Renderer::TextureType::u8RGB, testArray);
-		ImGui::Image((ImTextureID)image->getID(), ImVec2(sizeX * 2, sizeY * 2));
+		image = Hydra::Renderer::GLTexture::createFromData(WORLD_MAP_SIZE, WORLD_MAP_SIZE, Hydra::Renderer::TextureType::u8RGB, testArray);
+		ImGui::Image((ImTextureID)image->getID(), ImVec2(WORLD_MAP_SIZE * 2, WORLD_MAP_SIZE * 2));
 		//ImGui::PopStyleVar();
 		ImGui::EndChild();
 	}
@@ -110,6 +111,16 @@ bool AIInspector::_aiSelector()
 			targetAI = _selectedAI;
 			confirm = true;
 			_selectorMenuOpen = false;
+			if (pathMap != nullptr)
+			{
+				for (int i = 0; i < WORLD_MAP_SIZE*WORLD_MAP_SIZE; i++)
+				{
+					if (pathMap[i] == true)
+						testArray[i] = RGB{ 255, 255, 255 };
+					else
+						testArray[i] = RGB{ 0, 0, 0 };
+				}
+			}
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::SameLine();
@@ -121,4 +132,10 @@ bool AIInspector::_aiSelector()
 		ImGui::EndPopup();
 	}
 	return confirm;
+}
+
+void AIInspector::_buildMap()
+{
+	/*delete[] testArray;
+	testArray = new RGB[WORLD_MAP_SIZE*WORLD_MAP_SIZE];*/
 }

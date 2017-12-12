@@ -54,6 +54,19 @@ bool** TileGeneration::buildMap() {
 	return pathfindingMap;
 }
 
+std::string BarcodeServer::TileGeneration::getPathMapAsString()
+{
+	std::string map = "";
+	for (int y = 0; y < WORLD_MAP_SIZE; y++)
+	{
+		for (int x = 0; x < WORLD_MAP_SIZE; x++)
+		{
+			map.append(std::to_string(pathfindingMap[x][y]));
+		}
+	}
+	return map;
+}
+
 void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 	//Random the rooms vector each time we're about to spawn a new room
 	_randomizeRooms();
@@ -184,9 +197,9 @@ void TileGeneration::_spawnEnemies() {
 	shuffle(entities.begin(), entities.end(), std::default_random_engine(seed));
 
 	size_t spawned = 0;
-	for (size_t i = 0; i < entities.size() && spawned < numberOfEnemies; i++)	{
+	for (size_t i = 0; i < entities.size() && spawned < numberOfEnemies; i++) {
 		auto sp = entities[i]->getComponent<Hydra::Component::SpawnPointComponent>();
-		if (sp->enemySpawn && !entities[i]->dead)	{
+		if (sp->enemySpawn && !entities[i]->dead) {
 			auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 			t->dirty = true;
 			_spawnRandomEnemy(t->getMatrix()[3]);
@@ -201,7 +214,7 @@ void TileGeneration::_spawnEnemies() {
 
 void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 	pos.y = pos.y + 2;
-	int randNr =  rand() % 3;
+	int randNr = rand() % 3;
 	printf("Spawning at (%.2f, %.2f, %.2f), AI: %d\n", pos.x, pos.y, pos.z, randNr);
 
 	switch (randNr) {
@@ -243,7 +256,7 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
 	}
-	break;
+			break;
 	case 2: {
 		auto robotEntity = world::newEntity("Robot1", world::root());
 		robotEntity->addComponent<Hydra::Component::NetworkSyncComponent>();
@@ -286,7 +299,7 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
 	}
-	break;
+			break;
 	default: {
 		auto alienEntity = world::newEntity("SlowAlien1", world::root());
 		alienEntity->addComponent<Hydra::Component::NetworkSyncComponent>();
@@ -326,7 +339,7 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
 	}
-	break;
+			 break;
 	}
 }
 
@@ -435,7 +448,7 @@ void TileGeneration::_spawnPickUps(std::shared_ptr<Hydra::World::Entity>& room)
 				auto pickUpEntity = world::newEntity("PickUp", room->id);
 
 				auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
-				t->position = {0, 3, 0};
+				t->position = { 0, 3, 0 };
 
 				pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Lock.mATTIC");
 
@@ -464,7 +477,7 @@ void TileGeneration::_spawnLight(std::shared_ptr<Hydra::Component::TransformComp
 	t->position.y = 7;
 	t->position.z = 0;
 	auto lc = pl->addComponent<Hydra::Component::PointLightComponent>();
-	lc->color = glm::vec3(frand()*2, frand()*2, frand()*2);
+	lc->color = glm::vec3(frand() * 2, frand() * 2, frand() * 2);
 #undef frand
 }
 
@@ -494,7 +507,8 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 		memcpy(room->openWalls, openWalls, sizeof(openWalls));
 
 		rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0, 1, 0));
-	}	else if (rot == 2) {
+	}
+	else if (rot == 2) {
 		decltype(room->door) doors = {
 			room->door[SOUTH],
 			room->door[WEST],
@@ -511,7 +525,8 @@ glm::quat TileGeneration::_rotateRoom(std::shared_ptr<Hydra::Component::RoomComp
 		memcpy(room->openWalls, openWalls, sizeof(openWalls));
 
 		rotation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0, 1, 0));
-	}	else if (rot == 3) {
+	}
+	else if (rot == 3) {
 		decltype(room->door) doors = {
 			room->door[WEST],
 			room->door[NORTH],

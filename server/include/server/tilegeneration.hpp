@@ -44,6 +44,7 @@ namespace BarcodeServer {
 		~TileGeneration();
 
 		bool** buildMap();
+		std::string getPathMapAsString();
 		std::shared_ptr<Hydra::World::Entity> mapentity = nullptr;
 
 	private:

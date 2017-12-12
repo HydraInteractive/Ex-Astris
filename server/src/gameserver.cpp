@@ -281,7 +281,8 @@ void GameServer::run() {
 				ServerFreezePlayerPacket freeze;
 				freeze.action = ServerFreezePlayerPacket::Action::win;
 				_server->sendDataToAll((char*)&freeze, freeze.len);
-			} else
+			}
+			else
 				_makeWorld();
 		}
 	}
@@ -536,6 +537,18 @@ bool GameServer::_addPlayer(int id) {
 			delete[](char*)pvs;
 		}
 
+		{
+			std::string map = _tileGeneration->getPathMapAsString();
+			ServerPathMapPacket* spm = (ServerPathMapPacket*)new char[sizeof(ServerPathMapPacket) + WORLD_MAP_SIZE*WORLD_MAP_SIZE];
+			*spm = ServerPathMapPacket(WORLD_MAP_SIZE*WORLD_MAP_SIZE);
+
+			for (int y = 0; y < WORLD_MAP_SIZE; y++)
+				for (int x = 0; x < WORLD_MAP_SIZE; x++)
+					spm->data[y * WORLD_MAP_SIZE + x] = _tileGeneration->pathfindingMap[x][y];
+			_server->sendDataToClient((char*)spm, spm->len, id);
+			delete[](char*)spm;
+		}
+
 		//SEND A PACKET TO ALL OTHER CLIENTS
 		ServerPlayerPacket* sppacket;
 		for (size_t i = 0; i < this->_players.size(); i++) {
@@ -563,7 +576,6 @@ bool GameServer::_addPlayer(int id) {
 	}
 	return false;
 }
-
 
 void GameServer::_onRobotShoot(WeaponComponent& weapon, Entity* bullet, void* userdata) {
 	GameServer* this_ = static_cast<GameServer*>(userdata);

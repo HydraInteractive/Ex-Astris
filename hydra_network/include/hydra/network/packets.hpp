@@ -22,7 +22,7 @@ namespace Hydra::Network {
 		ServerUpdateBullet,
 		ClientShoot,
 		ServerShoot,
-		ServerSendPathMap,
+		ServerPathMap,
 		//..
 		MAX_COUNT
 	};
@@ -40,7 +40,7 @@ namespace Hydra::Network {
 		"ServerUpdateBullet",
 		"ClientShoot",
 		"ServerShoot",
-		"ServerSendPathMap"
+		"ServerPathMap"
 	};
 
 	struct TransformInfo {
@@ -77,11 +77,11 @@ namespace Hydra::Network {
 		char data[0];
 	};
 
-	struct ServerSendPathMapPacket : public Packet
+	struct ServerPathMapPacket : public Packet
 	{
-		ServerSendPathMapPacket(size_t length) : Packet(PacketType::ServerSendPathMap, sizeof(ServerSendPathMapPacket) + (sizeof(bool)*length)) { this->length = length; }
-		bool* pathMap;
-		size_t length;
+		ServerPathMapPacket(size_t size) : Packet(PacketType::ServerPathMap, sizeof(ServerPathMapPacket) + size * sizeof(bool)) {}
+		size_t size() const { return (len - sizeof(ServerUpdateBulletPacket)) / sizeof(bool); }
+		bool data[0];
 	};
 
 	struct ClientShootPacket : public Packet {

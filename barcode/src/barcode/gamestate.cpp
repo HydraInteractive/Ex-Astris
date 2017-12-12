@@ -75,6 +75,7 @@ namespace Barcode {
 		if (!_didConnect) {
 			Hydra::Network::NetClient::updatePVS = &GameState::_onUpdatePVS;
 			Hydra::Network::NetClient::onWin = &GameState::_onWin;
+			Hydra::Network::NetClient::updatePathMap = &GameState::_onUpdatePathMap;
 			Hydra::Network::NetClient::userdata = static_cast<void*>(this);
 			_didConnect = Hydra::Network::NetClient::initialize(addr, port);
 		}
@@ -155,7 +156,6 @@ namespace Barcode {
 		_pickUpSystem.tick(delta);
 		_textSystem.tick(delta);
 		_lightSystem.tick(delta);
-
 
 		static bool enableHitboxDebug = false;
 		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
@@ -711,5 +711,10 @@ namespace Barcode {
 	void GameState::_onWin(void* userdata) {
 		GameState* this_ = static_cast<GameState*>(userdata);
 		this_->_engine->setState<WinState>();
+	}
+	void GameState::_onUpdatePathMap(bool* map, void* userdata)
+	{
+		GameState* this_ = static_cast<GameState*>(userdata);
+		this_->aiInspector->pathMap = map;
 	}
 }
