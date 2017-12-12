@@ -22,11 +22,12 @@ public:
 	AIInspector();
 	~AIInspector();
 
-	void render(bool &openBool);
+	void render(bool &openBool, Hydra::Component::TransformComponent* playerTransform);
 private:
 	bool _selectorMenuOpen = false;
+	bool _tracePlayer = true;
+	bool _traceAI = true;
 	std::weak_ptr<Hydra::World::Entity> _selectedAI = std::weak_ptr<Hydra::World::Entity>();
 	void _menuBar();
-	bool _aiSelector();
-	void _buildMap();
+	bool _aiSelector(Hydra::Component::TransformComponent* playerTransform);
 };

@@ -2,6 +2,7 @@
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
+#include <hydra/pathing/pathfinding.hpp>
 
 AIInspector::AIInspector()
 {
@@ -23,7 +24,7 @@ AIInspector::~AIInspector()
 {
 }
 
-void AIInspector::render(bool &openBool)
+void AIInspector::render(bool &openBool, Hydra::Component::TransformComponent* playerTransform)
 {
 	ImGui::SetNextWindowSize(ImVec2(1400, 700), ImGuiCond_Once);
 	ImGui::Begin("AI Inspector", &openBool, ImGuiWindowFlags_MenuBar);
@@ -32,10 +33,13 @@ void AIInspector::render(bool &openBool)
 	{
 		ImGui::OpenPopup("AI Selector");
 	}
-	_aiSelector();
-	if (!targetAI.expired())
+	_aiSelector(playerTransform);
+	if (!targetAI.expired() && testArray != nullptr)
 	{
-		ImGui::BeginChild("Components", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.3f, ImGui::GetWindowContentRegionMax().y - 60), true);
+		ImGui::BeginChild("Interface", ImVec2(250, ImGui::GetWindowContentRegionMax().y - 60), true);
+		ImGui::Checkbox("Trace Player", &_tracePlayer);
+		ImGui::Checkbox("Trace AI", &_traceAI);
+		ImGui::Separator();
 		auto t = targetAI.lock()->getComponent<Hydra::Component::TransformComponent>();
 		t->registerUI();
 		ImGui::Separator();
@@ -44,12 +48,23 @@ void AIInspector::render(bool &openBool)
 		ImGui::EndChild();
 		ImGui::SameLine();
 
-		ImGui::BeginChild("Pathing Map", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.7f, ImGui::GetWindowContentRegionMax().y - 60), true);
-		//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+		ImGui::BeginChild("Pathing Map", ImVec2(ImGui::GetWindowContentRegionWidth() - 200, ImGui::GetWindowContentRegionMax().y - 60), true);
+		if (_tracePlayer)
+		{
+			glm::ivec2 playerPos = PathFinding::worldToMapCoords(playerTransform->position).baseVec;
+			testArray[playerPos.x + (playerPos.y * WORLD_MAP_SIZE)] = RGB{ 0, 255, 0 };
+		}
+		if (_traceAI)
+		{
+			glm::ivec2 aiPos = PathFinding::worldToMapCoords(targetAI.lock()->getComponent<Hydra::Component::TransformComponent>()->position).baseVec;
+			testArray[aiPos.x + (aiPos.y * WORLD_MAP_SIZE)] = RGB{ 255, 0, 0 };
+		}
 		image = Hydra::Renderer::GLTexture::createFromData(WORLD_MAP_SIZE, WORLD_MAP_SIZE, Hydra::Renderer::TextureType::u8RGB, testArray);
-		ImGui::Image((ImTextureID)image->getID(), ImVec2(WORLD_MAP_SIZE * 2, WORLD_MAP_SIZE * 2));
-		//ImGui::PopStyleVar();
+		ImGui::Image((ImTextureID)image->getID(), ImVec2(WORLD_MAP_SIZE * 4, WORLD_MAP_SIZE * 4));
+
 		ImGui::EndChild();
+		ImGui::PopStyleVar();
 	}
 	else
 	{
@@ -74,7 +89,7 @@ void AIInspector::_menuBar()
 	}
 }
 
-bool AIInspector::_aiSelector()
+bool AIInspector::_aiSelector(Hydra::Component::TransformComponent* playerTransform)
 {
 	bool confirm = false;
 	if (ImGui::BeginPopupModal("AI Selector", NULL, ImGuiWindowFlags_AlwaysAutoResize))
@@ -132,10 +147,4 @@ bool AIInspector::_aiSelector()
 		ImGui::EndPopup();
 	}
 	return confirm;
-}
-
-void AIInspector::_buildMap()
-{
-	/*delete[] testArray;
-	testArray = new RGB[WORLD_MAP_SIZE*WORLD_MAP_SIZE];*/
 }

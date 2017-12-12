@@ -344,7 +344,7 @@ namespace Barcode {
 				if (enemyDist < 50.0) {
 					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(10, 10));
 				}
-				else{
+				else {
 					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/RedFade.png")->getID()), ImVec2(10, 10));
 				}
 				ImGui::End();
@@ -500,7 +500,7 @@ namespace Barcode {
 		}
 
 		if (aiInspectorOpen)
-			aiInspector->render(aiInspectorOpen);
+			aiInspector->render(aiInspectorOpen, _playerTransform);
 
 		if (Hydra::Network::NetClient::running)
 			Hydra::Network::NetClient::run();

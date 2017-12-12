@@ -32,7 +32,6 @@ public:
 		void set(const glm::vec2 &vec) { baseVec = vec; }
 		void set(const glm::vec3 &vec) { baseVec = glm::vec2(vec.x, vec.z); }
 
-
 		bool operator==(const MapVec& other) { return this->baseVec == other.baseVec; }
 		//operator glm::vec3() { return glm::ivec3(baseVec.x, 0, baseVec.y); }
 		operator glm::vec2() const { return baseVec; }
@@ -91,12 +90,11 @@ public:
 	virtual ~PathFinding();
 
 	bool findPath(glm::vec3 currentPos, glm::vec3 targetPos);
-	MapVec worldToMapCoords(const glm::vec3& worldPos) const;
-	glm::vec3 mapToWorldCoords(const MapVec& mapPos) const;
+	static MapVec worldToMapCoords(const glm::vec3& worldPos);
+	static glm::vec3 mapToWorldCoords(const MapVec& mapPos);
 	bool inLineOfSight(const glm::vec3& enemyPos, const glm::vec3& targetPos) const;
 	bool inWall(const glm::vec3 mapPos) const;
 	glm::vec3 findViableTile(glm::vec3 mapPos) const;
-
 
 	struct {
 		bool operator()(const Node* _Left, const Node* _Right) const
@@ -112,7 +110,7 @@ public:
 			return (_Left->getF() > _Right->getF());
 		}
 	} comparisonFunctor;
-	
+
 private:
 	std::vector<Node*> _visitedList = std::vector<Node*>();
 	std::vector<Node*> _openList = std::vector<Node*>();
