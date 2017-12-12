@@ -9,6 +9,7 @@
 #include <hydra/component/rigidbodycomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
 #include <hydra/component/pointlightcomponent.hpp>
+#include <hydra/component/aicomponent.hpp>
 #include <hydra/abilities/grenadecomponent.hpp>
 #include <hydra/abilities/minecomponent.hpp>
 

@@ -110,7 +110,7 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 		perk->activeAbilities.push_back(new BlindingLight());
 		perkDescriptionText = "The light is blinding";
 		break;
-	}															
+	}
 	default:
 		break;
 	}

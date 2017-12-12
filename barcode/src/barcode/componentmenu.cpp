@@ -228,7 +228,7 @@ void ComponentMenu::_menuBar()
 			{
 				refresh();
 			}
-			ImGui::EndMenu();
+			ImGui::EndMenu(); 
 		}
 		ImGui::EndMenuBar();
 	}
