@@ -61,7 +61,7 @@ void AIInspector::render(bool &openBool, Hydra::Component::TransformComponent* p
 			testArray[aiPos.x + (aiPos.y * WORLD_MAP_SIZE)] = RGB{ 255, 0, 0 };
 		}
 		image = Hydra::Renderer::GLTexture::createFromData(WORLD_MAP_SIZE, WORLD_MAP_SIZE, Hydra::Renderer::TextureType::u8RGB, testArray);
-		ImGui::Image((ImTextureID)image->getID(), ImVec2(WORLD_MAP_SIZE * 4, WORLD_MAP_SIZE * 4));
+		ImGui::Image(reinterpret_cast<ImTextureID>(image->getID()), ImVec2(WORLD_MAP_SIZE * 4, WORLD_MAP_SIZE * 4));
 
 		ImGui::EndChild();
 		ImGui::PopStyleVar();

@@ -241,7 +241,7 @@ namespace Barcode {
 				const float x = drawObj->modelMatrix[3][0];
 				const float z = drawObj->modelMatrix[3][2];
 
-				bool toRender = false;
+				bool toRender = disablePVS;
 				for (size_t i = 0; i < rs.worldBox.size() && !toRender; i++) {
 					const float x0 = rs.worldBox[i].x;
 					const float z0 = rs.worldBox[i].y;
@@ -270,7 +270,7 @@ namespace Barcode {
 				const float x = drawObj->modelMatrix[3][0];
 				const float z = drawObj->modelMatrix[3][2];
 
-				bool toRender = false;
+				bool toRender = disablePVS;
 				for (size_t i = 0; i < rs.worldBox.size() && !toRender; i++) {
 					const float x0 = rs.worldBox[i].x;
 					const float z0 = rs.worldBox[i].y;

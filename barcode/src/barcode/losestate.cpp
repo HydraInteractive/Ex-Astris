@@ -24,6 +24,7 @@ namespace Barcode {
 		_textFactory = Hydra::IO::GLTextFactory::create("assets/fonts/font.png");
 
 		_dgp = std::make_unique<DefaultGraphicsPipeline>(_cameraSystem, _engine->getView()->getSize());
+		_dgp->disablePVS = true;
 
 		_initSystem();
 		_initWorld();
