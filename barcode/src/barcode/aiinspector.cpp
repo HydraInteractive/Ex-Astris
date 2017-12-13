@@ -6,18 +6,7 @@
 
 AIInspector::AIInspector()
 {
-	testArray = new RGB[WORLD_MAP_SIZE*WORLD_MAP_SIZE];
-	for (int x = 0; x < WORLD_MAP_SIZE; x++)
-	{
-		for (int y = 0; y < WORLD_MAP_SIZE; y++)
-		{
-			//Paint an X for testing on the map
-			if (x == y || y == WORLD_MAP_SIZE - x - 1)
-				testArray[x + (y*WORLD_MAP_SIZE)] = RGB{ 255, 255, 255 };
-			else
-				testArray[x + (y*WORLD_MAP_SIZE)] = RGB{ 0, 0, 0 };
-		}
-	}
+	reset();
 }
 
 AIInspector::~AIInspector()
@@ -39,6 +28,10 @@ void AIInspector::render(bool &openBool, Hydra::Component::TransformComponent* p
 		ImGui::BeginChild("Interface", ImVec2(250, ImGui::GetWindowContentRegionMax().y - 60), true);
 		ImGui::Checkbox("Trace Player", &_tracePlayer);
 		ImGui::Checkbox("Trace AI", &_traceAI);
+		if (ImGui::Button("Reset"))
+		{
+			reset();
+		}
 		ImGui::Separator();
 		auto t = targetAI.lock()->getComponent<Hydra::Component::TransformComponent>();
 		t->registerUI();
@@ -71,6 +64,38 @@ void AIInspector::render(bool &openBool, Hydra::Component::TransformComponent* p
 		ImGui::Text("No AI selected");
 	}
 	ImGui::End();
+}
+
+void AIInspector::reset()
+{
+	if (testArray == nullptr)
+	{
+		testArray = new RGB[WORLD_MAP_SIZE*WORLD_MAP_SIZE];
+	}
+	if (pathMap != nullptr)
+	{
+		for (int i = 0; i < WORLD_MAP_SIZE*WORLD_MAP_SIZE; i++)
+		{
+			if (pathMap[i] == true)
+				testArray[i] = RGB{ 255, 255, 255 };
+			else
+				testArray[i] = RGB{ 0, 0, 0 };
+		}
+	}
+	else
+	{
+		for (int x = 0; x < WORLD_MAP_SIZE; x++)
+		{
+			for (int y = 0; y < WORLD_MAP_SIZE; y++)
+			{
+				//Paint an X for testing on the map
+				if (x == y || y == WORLD_MAP_SIZE - x - 1)
+					testArray[x + (y*WORLD_MAP_SIZE)] = RGB{ 255, 255, 255 };
+				else
+					testArray[x + (y*WORLD_MAP_SIZE)] = RGB{ 0, 0, 0 };
+			}
+		}
+	}
 }
 
 void AIInspector::_menuBar()
@@ -128,13 +153,7 @@ bool AIInspector::_aiSelector(Hydra::Component::TransformComponent* playerTransf
 			_selectorMenuOpen = false;
 			if (pathMap != nullptr)
 			{
-				for (int i = 0; i < WORLD_MAP_SIZE*WORLD_MAP_SIZE; i++)
-				{
-					if (pathMap[i] == true)
-						testArray[i] = RGB{ 255, 255, 255 };
-					else
-						testArray[i] = RGB{ 0, 0, 0 };
-				}
+				reset();
 			}
 			ImGui::CloseCurrentPopup();
 		}

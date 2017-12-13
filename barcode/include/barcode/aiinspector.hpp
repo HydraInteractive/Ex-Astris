@@ -23,6 +23,7 @@ public:
 	~AIInspector();
 
 	void render(bool &openBool, Hydra::Component::TransformComponent* playerTransform);
+	void reset();
 private:
 	bool _selectorMenuOpen = false;
 	bool _tracePlayer = true;
