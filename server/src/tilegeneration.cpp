@@ -387,27 +387,27 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 
 //TODO: Randomize spawners
 void BarcodeServer::TileGeneration::_createSpawner(glm::vec3 pos) {
-	//{
-	//	auto alienSpawner = world::newEntity("SpawnerAlien1", world::root());
-	//	alienSpawner->addComponent<Hydra::Component::NetworkSyncComponent>();
-	//	alienSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge1.mATTIC");
-	//	auto sa = alienSpawner->addComponent<Hydra::Component::SpawnerComponent>();
-	//	sa->map = pathfindingMap;
-	//	sa->spawnerID = Hydra::Component::SpawnerType::AlienSpawner;
-	//	auto h = alienSpawner->addComponent<Hydra::Component::LifeComponent>();
-	//	h->maxHP = 50;
-	//	h->health = 50;
-	//	auto t = alienSpawner->addComponent<Hydra::Component::TransformComponent>();
-	//	t->position = pos;
-	//	float randDirX = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
-	//	float randDirY = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
-	//	t->rotation = glm::angleAxis(atan2(randDirX, randDirY), glm::vec3(0, 1, 0));
-	//	t->scale = glm::vec3{ 1,1,1 };
-	//	auto rgbc = alienSpawner->addComponent<Hydra::Component::RigidBodyComponent>();
-	//	rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 0.0f, 0, 0, 0.6f, 1.0f);
-	//	rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-	//	rgbc->setAngularForce(glm::vec3(0));
-	//}
+	{
+		auto alienSpawner = world::newEntity("SpawnerAlien1", world::root());
+		alienSpawner->addComponent<Hydra::Component::NetworkSyncComponent>();
+		alienSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Fridge1.mATTIC");
+		auto sa = alienSpawner->addComponent<Hydra::Component::SpawnerComponent>();
+		sa->map = pathfindingMap;
+		sa->spawnerID = Hydra::Component::SpawnerType::AlienSpawner;
+		auto h = alienSpawner->addComponent<Hydra::Component::LifeComponent>();
+		h->maxHP = 50;
+		h->health = 50;
+		auto t = alienSpawner->addComponent<Hydra::Component::TransformComponent>();
+		t->position = pos;
+		float randDirX = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
+		float randDirY = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
+		t->rotation = glm::angleAxis(atan2(randDirX, randDirY), glm::vec3(0, 1, 0));
+		t->scale = glm::vec3{ 1,1,1 };
+		auto rgbc = alienSpawner->addComponent<Hydra::Component::RigidBodyComponent>();
+		rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 0.0f, 0, 0, 0.6f, 1.0f);
+		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+		rgbc->setAngularForce(glm::vec3(0));
+	}
 
 	//{
 	//	auto robotSpawner = world::newEntity("SpawnerAlien1", world::root());
