@@ -703,7 +703,7 @@ namespace Barcode {
 				_physicsSystem.enable(static_cast<Hydra::Component::GhostObjectComponent*>(goc.get()));
 			}
 		}
-	}
+	} 
 
 	void GameState::_onPlayerShoot(Hydra::Component::WeaponComponent& weapon, Hydra::World::Entity* bullet, void* userdata) {
 		GameState* this_ = static_cast<GameState*>(userdata);

@@ -144,5 +144,5 @@ void main() {
 
 	result += globalAmbient;
 
-	fragOutput = result;
+	fragOutput = normal;
 }
