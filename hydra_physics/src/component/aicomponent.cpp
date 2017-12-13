@@ -27,7 +27,7 @@ void AIComponent::serialize(nlohmann::json& json) const {
 		json["pathState"] = behaviour->state;
 		json["range"] = behaviour->range;
 		json["originalRange"] = behaviour->originalRange;
-		json["originalRange"] = behaviour->savedRange;
+		json["savedRange"] = behaviour->savedRange;
 	}
 	else
 	{
@@ -64,6 +64,7 @@ void AIComponent::deserialize(nlohmann::json& json) {
 
 	behaviour->range = json.value<float>("range", 0);
 	behaviour->originalRange = json.value<float>("originalRange", 0);
+	behaviour->savedRange = json.value<float>("savedRange", 0);
 }
 
 // Register UI buttons in the debug UI
@@ -73,6 +74,7 @@ void AIComponent::registerUI() {
 	ImGui::Checkbox("isAtGoal", &behaviour->isAtGoal);
 	ImGui::Checkbox("playerCanBeSeen", &behaviour->playerSeen);
 	ImGui::InputFloat("range", &behaviour->range);
+	ImGui::InputFloat("originalRange", &behaviour->originalRange);
 }
 
 std::shared_ptr<Hydra::World::Entity> AIComponent::getPlayerEntity()

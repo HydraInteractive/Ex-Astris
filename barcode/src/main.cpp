@@ -18,7 +18,7 @@
 #include <barcode/editorstate.hpp>
 #include <barcode/losestate.hpp>
 #include <barcode/winstate.hpp>
-
+#include <barcode/perkeditor.hpp>
 #include <cstdio>
 #include <chrono>
 #include <imgui/imgui.h>
@@ -36,6 +36,13 @@ static inline void reportMemoryLeaks() {
 static inline void reportMemoryLeaks() {}
 #endif
 
+static void onQuit() {
+	// Mirror Hydra::World::World::reset, but without creating a new world root
+	Hydra::World::World::_isResetting = true;
+	Hydra::World::World::_entities.clear();
+	Hydra::World::World::_map.clear();
+}
+
 namespace Barcode {
 	using namespace Hydra;
 
@@ -43,6 +50,7 @@ namespace Barcode {
 	public:
 		Engine() {
 			IEngine::getInstance() = this;
+			atexit(&onQuit);
 			_view = View::SDLView::create("Ex Astris");
 			_renderer = Renderer::GLRenderer::create(*_view);
 			_uiRenderer = Renderer::UIRenderer::create(*_view);
@@ -103,6 +111,9 @@ namespace Barcode {
 					setState<EditorState>();
 				if (ImGui::MenuItem("LoseState", NULL, typeid(*_state) == typeid(LoseState)))
 					setState<LoseState>();
+				if (ImGui::MenuItem("PerkEditor", NULL, typeid(*_state) == typeid(PerkEditorState)))
+					setState<PerkEditorState>();
+
 				if (ImGui::MenuItem("WinState", NULL, typeid(*_state) == typeid(WinState)))
 					setState<WinState>();
 				ImGui::EndMenu();

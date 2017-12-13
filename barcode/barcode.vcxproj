@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\barcode\aiinspector.hpp" />
     <ClInclude Include="include\barcode\editorstate.hpp" />
     <ClInclude Include="include\barcode\exportermenu.hpp" />
     <ClInclude Include="include\barcode\filetree.hpp" />
@@ -19,11 +20,14 @@
     <ClInclude Include="include\barcode\losestate.hpp" />
     <ClInclude Include="include\barcode\menustate.hpp" />
     <ClInclude Include="include\barcode\pathingmapmenu.hpp" />
+    <ClInclude Include="include\barcode\PerkAttribMenu.hpp" />
+    <ClInclude Include="include\barcode\perkEditor.hpp" />
     <ClInclude Include="include\barcode\renderingutils.hpp" />
     <ClInclude Include="include\barcode\winstate.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="include\barcode\componentmenu.hpp" />
+    <ClCompile Include="src\barcode\aiinspector.cpp" />
     <ClCompile Include="src\barcode\componentmenu.cpp" />
     <ClCompile Include="src\barcode\editorstate.cpp" />
     <ClCompile Include="src\barcode\exportermenu.cpp" />
@@ -33,6 +37,8 @@
     <ClCompile Include="src\barcode\losestate.cpp" />
     <ClCompile Include="src\barcode\menustate.cpp" />
     <ClCompile Include="src\barcode\pathingmapmenu.cpp" />
+    <ClCompile Include="src\barcode\PerkAttribMenu.cpp" />
+    <ClCompile Include="src\barcode\perkEditor.cpp" />
     <ClCompile Include="src\barcode\renderingutils.cpp" />
     <ClCompile Include="src\barcode\winstate.cpp" />
     <ClCompile Include="src\main.cpp" />

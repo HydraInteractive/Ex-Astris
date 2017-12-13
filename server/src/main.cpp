@@ -30,6 +30,14 @@ static inline void setup() {
 	signal(SIGPIPE, SIG_IGN);
 }
 #endif
+
+static void onQuit() {
+	// Mirror Hydra::World::World::reset, but without creating a new world root
+	Hydra::World::World::_isResetting = true;
+	Hydra::World::World::_entities.clear();
+	Hydra::World::World::_map.clear();
+}
+
 using namespace Hydra;
 namespace GServer {
 	class Engine final : public IEngine {
@@ -45,6 +53,7 @@ namespace GServer {
 		Bogdan _state;
 		Engine() {
 			IEngine::getInstance() = this;
+			atexit(&onQuit);
 		}
 
 		~Engine() final {

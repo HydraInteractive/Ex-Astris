@@ -79,6 +79,14 @@ void PlayerSystem::tick(float delta) {
 				rbc->applyCentralForce(btVector3(0, 12000, 0));
 				player->onGround = false;
 			}
+			if (keysArray[SDL_SCANCODE_P])
+			{
+				perks->newPerks.push_back(Hydra::Component::PerkComponent::PERK_RED);
+			}
+			if (keysArray[SDL_SCANCODE_L])
+			{
+				perks->newPerks.push_back(Hydra::Component::PerkComponent::PERK_GREEN);
+			}
 			if (movement->velocity.x != 0 || movement->velocity.y != 0 || movement->velocity.z != 0)
 				weaponMesh->animationIndex = 1;
 			else

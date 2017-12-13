@@ -32,7 +32,6 @@ public:
 		void set(const glm::vec2 &vec) { baseVec = vec; }
 		void set(const glm::vec3 &vec) { baseVec = glm::vec2(vec.x, vec.z); }
 
-
 		bool operator==(const MapVec& other) { return this->baseVec == other.baseVec; }
 		//operator glm::vec3() { return glm::ivec3(baseVec.x, 0, baseVec.y); }
 		operator glm::vec2() const { return baseVec; }
@@ -55,10 +54,10 @@ public:
 
 		//Manhattan Distance - do not use, gives invalid values
 		//Distance to side nodes is 1, diagonal is 2
-		//int hDistanceTo(Node* nodeEnd)
-		//{
-		//	return abs(this->pos.x() - nodeEnd->pos.x() + abs(this->pos.z() - nodeEnd->pos.z();
-		//}
+		int hDistanceTo(Node* nodeEnd)
+		{
+			return abs(this->pos.x() - nodeEnd->pos.x() + abs(this->pos.z() - nodeEnd->pos.z()));
+		}
 
 		//Chebychev Distance - inaccurate but safe
 		//Distance to all adjacent nodes is 1
@@ -68,10 +67,10 @@ public:
 		//}
 
 		//Actual Distance - probably the best maybe, float inaccuracies may break it
-		float hDistanceTo(Node* nodeEnd)
-		{
-			return std::sqrt(std::pow(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::pow(this->pos.z() - nodeEnd->pos.z(), 2.0f));
-		}
+		//float hDistanceTo(Node* nodeEnd)
+		//{
+		//	return std::sqrt(std::pow(this->pos.x() - nodeEnd->pos.x(), 2.0f) + std::pow(this->pos.z() - nodeEnd->pos.z(), 2.0f));
+		//}
 
 		//Must always be used to calculate G distance
 		float gDistanceTo(Node* nodeEnd)
@@ -91,12 +90,11 @@ public:
 	virtual ~PathFinding();
 
 	bool findPath(glm::vec3 currentPos, glm::vec3 targetPos);
-	MapVec worldToMapCoords(const glm::vec3& worldPos) const;
-	glm::vec3 mapToWorldCoords(const MapVec& mapPos) const;
+	static MapVec worldToMapCoords(const glm::vec3& worldPos);
+	static glm::vec3 mapToWorldCoords(const MapVec& mapPos);
 	bool inLineOfSight(const glm::vec3& enemyPos, const glm::vec3& targetPos) const;
 	bool inWall(const glm::vec3 mapPos) const;
 	glm::vec3 findViableTile(glm::vec3 mapPos) const;
-
 
 	struct {
 		bool operator()(const Node* _Left, const Node* _Right) const
@@ -112,7 +110,7 @@ public:
 			return (_Left->getF() > _Right->getF());
 		}
 	} comparisonFunctor;
-	
+
 private:
 	std::vector<Node*> _visitedList = std::vector<Node*>();
 	std::vector<Node*> _openList = std::vector<Node*>();
