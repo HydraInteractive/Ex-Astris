@@ -557,7 +557,8 @@ bool GameServer::_addPlayer(int id) {
 			rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * tc->scale, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
 				0, 0, 0.0f, 0);
 			rgbc->setAngularForce(glm::vec3(0, 0, 0));
-			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
+			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+			_physicsSystem.enable(rgbc.get());
 
 			printf("sendDataToClient:\n\ttype: ServerInitialize\n\tlen: %zu\n", pi.len);
 			int tmp = this->_server->sendDataToClient((char*)&pi, pi.len, id);
@@ -651,7 +652,6 @@ void GameServer::_onRobotShoot(WeaponComponent& weapon, Entity* bullet, void* us
 		packet->serverPlayerID = bullet->id;
 
 		this_->_server->sendDataToAll((char*)packet, sizeof(ServerShootPacket));
-
 		delete packet;
 	}
 }

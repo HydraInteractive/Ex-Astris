@@ -232,7 +232,8 @@ void TileGeneration::_spawnEnemies() {
 
 void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 	pos.y = pos.y + 2;
-	int randNr =  rand() % 3;
+	//int randNr =  rand() % 3;
+	int randNr = 2;
 	printf("Spawning at (%.2f, %.2f, %.2f), AI: %d\n", pos.x, pos.y, pos.z, randNr);
 
 	switch (randNr) {

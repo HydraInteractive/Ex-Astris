@@ -214,7 +214,6 @@ void BulletPhysicsSystem::tick(float delta) {
 				else
 					playerComponent->onFloor = false;
 			}
-			printf("%u\n %u\n", obA->getUserIndex2(), obB->getUserIndex2());
 			if (lifeComponent) {
 				// Terrible HeadShot code.
 				auto rgbcA = eA->getComponent<Hydra::Component::RigidBodyComponent>();
@@ -238,6 +237,7 @@ void BulletPhysicsSystem::tick(float delta) {
 				}
 
 				if (!Hydra::IEngine::getInstance()->getDeadSystem()) {
+					printf("%u\n %u\n", obA->getUserIndex2(), obB->getUserIndex2());
 					//printf("%f\n", lifeComponent->health);
 					lifeComponent->applyDamage(accumulatedDamage);
 					//printf("%f\n", lifeComponent->health);
@@ -246,8 +246,8 @@ void BulletPhysicsSystem::tick(float delta) {
 				auto targetEntity = Hydra::World::World::getEntity(lifeComponent->entityID);
 				auto aiComponent = targetEntity->getComponent<Hydra::Component::AIComponent>();
 
-				_spawnText(cast(collPosB), std::to_string(accumulatedDamage), textColor, textScale);
 				if (!targetEntity->getComponent<Hydra::Component::PlayerComponent>() && aiComponent) {
+					_spawnText(cast(collPosB), std::to_string(accumulatedDamage), textColor, textScale);
 					switch (aiComponent->behaviour->type) {
 					case Hydra::Physics::Behaviour::Behaviour::Type::ALIEN: {
 						if (headshot)
