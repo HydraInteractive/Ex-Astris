@@ -79,6 +79,14 @@ void PlayerSystem::tick(float delta) {
 				rbc->applyCentralForce(btVector3(0, 12000, 0));
 				player->onGround = false;
 			}
+			if (keysArray[SDL_SCANCODE_P])
+			{
+				perks->newPerks.push_back(Hydra::Component::PerkComponent::PERK_RED);
+			}
+			if (keysArray[SDL_SCANCODE_L])
+			{
+				perks->newPerks.push_back(Hydra::Component::PerkComponent::PERK_GREEN);
+			}
 			if (movement->velocity.x != 0 || movement->velocity.y != 0 || movement->velocity.z != 0)
 				weaponMesh->animationIndex = 1;
 			else
@@ -95,6 +103,8 @@ void PlayerSystem::tick(float delta) {
 					if (weapon->shoot(glm::vec3(transform->position - glm::vec3(0, 0.2f, 0) + movement->direction * 2.f) , movement->direction, bulletOrientation, bulletVelocity, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER_PROJECTILE)) {
 						float rn = 500;//rand() % 1000;
 						rn /= 10000;
+
+						soundFx->soundsToPlay.push_back("assets/sounds/plazma.ogg");
 
 						rn *= 0.8;
 						weapon->_dpitch -= rn;

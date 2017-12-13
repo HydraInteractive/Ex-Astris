@@ -30,6 +30,7 @@ namespace Barcode {
 		_textFactory = Hydra::IO::GLTextFactory::create("assets/fonts/font.png");
 		auto windowSize = _engine->getView()->getSize();
 		_dgp = std::make_unique<DefaultGraphicsPipeline>(_cameraSystem, windowSize);
+		_dgp->disablePVS = true;
 
 		{
 			_hitboxBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/hitboxdebug.vert", "", "assets/shaders/hitboxdebug.frag", _engine->getView());
@@ -117,6 +118,7 @@ namespace Barcode {
 		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
 		ImGui::Checkbox("Enable SSAO", &MenuState::ssaoEnabled);
 		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);
+		ImGui::Checkbox("Enable Sound", &MenuState::soundEnabled);
 
 		auto viewMatrix = _cc->getViewMatrix();
 		glm::vec3 rightVector = { viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0] };

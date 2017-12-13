@@ -104,6 +104,8 @@ namespace Barcode {
 
 	class DefaultGraphicsPipeline final : public IGraphicsPipeline {
 	public:
+		bool disablePVS = false;
+
 		DefaultGraphicsPipeline(Hydra::System::CameraSystem& cameraSystem, const glm::ivec2& size);
 		~DefaultGraphicsPipeline();
 		void render(const glm::vec3& cameraPos, Hydra::Component::CameraComponent& cc, Hydra::Component::TransformComponent& playerTransform) final;
@@ -128,6 +130,7 @@ namespace Barcode {
 		RenderBatch<Hydra::Renderer::Batch> _glowBatch;
 
 		RenderBatch<Hydra::Renderer::Batch> _copyBatch;
+		RenderBatch<Hydra::Renderer::Batch> _bulletBatch;
 
 		RenderBatch<Hydra::Renderer::ParticleBatch> _particleBatch;
 		std::shared_ptr<Hydra::Renderer::ITexture> _particleAtlases;
@@ -141,6 +144,7 @@ namespace Barcode {
 			std::vector<Hydra::Component::PointLightComponent*> lights;
 		};
 		RenderSet _renderSets[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
+
 
 		static void _collectObjects(RenderSet& rs, Hydra::World::Entity* e);
 		std::vector<glm::vec3> _getSSAOKernel(size_t size);

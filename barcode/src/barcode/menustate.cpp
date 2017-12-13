@@ -12,6 +12,7 @@ namespace Barcode {
 	bool MenuState::ssaoEnabled = true;
 	bool MenuState::glowEnabled = true;
 	bool MenuState::shadowEnabled = true;
+	bool MenuState::soundEnabled = true;
 	float MenuState::playerHPMultiplier = 1;
 
 	MenuState::MenuState() : _engine(Hydra::IEngine::getInstance()) {}
@@ -197,81 +198,69 @@ namespace Barcode {
 		switch (_submenu.play) {
 		case SubMenu::Play::none:
 			break;
-		case SubMenu::Play::coop:
+		case SubMenu::Play::coop: {
+			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
+			ImGui::SetNextWindowPos(ImVec2(0, oneHalfY));
+			ImGui::Begin("Main menu 1", nullptr, windowFlags);
 			{
-				ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
-				ImGui::SetNextWindowPos(ImVec2(0, oneHalfY));
-				ImGui::Begin("Main menu 1", nullptr, windowFlags);
-				{
-					auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/hostSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/hostTransparent.png")->getID());
-					ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
-				}
-				ImGui::End();
+				auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/hostSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/hostTransparent.png")->getID());
+				ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
 			}
+			ImGui::End();
+		}
+		{
+			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
+			ImGui::SetNextWindowPos(ImVec2(0, oneThirdY * 2));
+			ImGui::Begin("Main menu 2", nullptr, windowFlags);
 			{
-				ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
-				ImGui::SetNextWindowPos(ImVec2(0, oneThirdY * 2));
-				ImGui::Begin("Main menu 2", nullptr, windowFlags);
-				{
-					auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/joinSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/joinTransparent.png")->getID());
-					if (ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
-						ipPopup = true;
-				}
-				ImGui::End();
+				auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/joinSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/joinTransparent.png")->getID());
+				if (ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
+					ipPopup = true;
 			}
-			{
-				if (ipPopup == true)
+			ImGui::End();
+		}
+		{
+			if (ipPopup == true)
 				{
 					ImGui::OpenPopup("IP and Port?");
 					if (ImGui::BeginPopupModal("IP and Port?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-					{
-						std::string textline = "This action will overwrite the file at ... Continue?";
-						ImGui::Text("%s", textline.c_str());
-						ImGui::Separator();
-
-						ImGui::InputText("Address", GameState::addr, sizeof(GameState::addr));
-						ImGui::SameLine();
-						ImGui::InputInt("Port", &GameState::port);
-
-						if (ImGui::Button("OK", ImVec2(120, 0)))
 						{
-							//send to join function
-							_engine->setState<GameState>();
-							ImGui::CloseCurrentPopup();
+							std::string textline = "This action will overwrite the file at ... Continue?";
+							ImGui::Text("%s", textline.c_str());
+							ImGui::Separator();
+
+							ImGui::InputText("Address", GameState::addr, sizeof(GameState::addr));
+							ImGui::SameLine();
+							ImGui::InputInt("Port", &GameState::port);
+
+							if (ImGui::Button("OK", ImVec2(120, 0)))
+								{
+									//send to join function
+									_engine->setState<GameState>();
+									ImGui::CloseCurrentPopup();
+								}
+							ImGui::SameLine();
+							if (ImGui::Button("Cancel", ImVec2(120, 0)))
+								{
+									ipPopup = false;
+									ImGui::CloseCurrentPopup();
+								}
+							ImGui::EndPopup();
 						}
-						ImGui::SameLine();
-						if (ImGui::Button("Cancel", ImVec2(120, 0)))
-						{
-							ipPopup = false;
-							ImGui::CloseCurrentPopup();
-						}
-						ImGui::EndPopup();
-					}
 				}
-			}
-			break;
-		case SubMenu::Play::solo:
+		}
+		break;
+		case SubMenu::Play::solo: {
+			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
+			ImGui::SetNextWindowPos(ImVec2(oneThirdX * 2, oneHalfY));
+			ImGui::Begin("Main menu 5", nullptr, windowFlags);
 			{
-				ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
-				ImGui::SetNextWindowPos(ImVec2(oneThirdX * 2, oneHalfY));
-				ImGui::Begin("Main menu 5", nullptr, windowFlags);
-				{
-					auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/newSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/newTransparent.png")->getID());
-					if (ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
-						_openDifficultyPopup = true;
-				}
-				ImGui::End();
+				auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/newSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/newTransparent.png")->getID());
+				if (ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
+					_openDifficultyPopup = true;
 			}
-			{
-				ImGui::SetNextWindowSize(ImVec2(oneThirdX, 400), ImGuiCond_Once);
-				ImGui::SetNextWindowPos(ImVec2(oneThirdX * 2, oneThirdY * 2));
-				ImGui::Begin("Main menu 6", nullptr, windowFlags);
-				{
-					auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/continueSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/continueTransparent.png")->getID());
-					ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
-				}
-				ImGui::End();
-			}
+			ImGui::End();
+		}
 			break;
 		}
 	}
@@ -288,79 +277,24 @@ namespace Barcode {
 			}
 			ImGui::End();
 		}
-		{
-			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
-			ImGui::SetNextWindowPos(ImVec2(oneThirdX, twoThirdY));
-			ImGui::Begin("Main menu 2 4", nullptr, windowFlags);
-			{
-				auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/viewSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/viewTransparent.png")->getID());
-				if (ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
-					_submenu = SubMenu::Create::view;
-			}
-			ImGui::End();
-		}
 		switch (_submenu.create) {
 		case SubMenu::Create::none:
 			break;
-		case SubMenu::Create::createRoom:
+		case SubMenu::Create::createRoom:	{
+			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
+			ImGui::SetNextWindowPos(ImVec2(0, oneHalfY));
+			ImGui::Begin("Main menu 2 1", nullptr, windowFlags);
 			{
-				ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
-				ImGui::SetNextWindowPos(ImVec2(0, oneHalfY));
-				ImGui::Begin("Main menu 2 1", nullptr, windowFlags);
-				{
-					auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/nothingSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/nothingTransparent.png")->getID());
-					if (ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
-						_engine->setState<Barcode::EditorState>();
-				}
-				ImGui::End();
+				auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/nothingSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/nothingTransparent.png")->getID());
+				if (ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
+					_engine->setState<Barcode::EditorState>();
 			}
-			{
-				ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
-				ImGui::SetNextWindowPos(ImVec2(0, oneThirdY * 2));
-				ImGui::Begin("Main menu 2 2", nullptr, windowFlags);
-				{
-					auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/exsistingSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/exsistingTransparent.png")->getID());
-					ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
-				}
-				ImGui::End();
-			}
-			break;
-		case SubMenu::Create::view:
-			{
-				ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
-				ImGui::SetNextWindowPos(ImVec2(oneThirdX * 2, oneHalfY));
-				ImGui::Begin("Main menu 2 5", nullptr, windowFlags);
-				{
-					auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/defaultSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/defaultTransparent.png")->getID());
-					ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
-				}
-				ImGui::End();
-			}
-			{
-				ImGui::SetNextWindowSize(ImVec2(oneThirdX, 400), ImGuiCond_Once);
-				ImGui::SetNextWindowPos(ImVec2(oneThirdX * 2, oneThirdY * 2));
-				ImGui::Begin("Main menu 2 6", nullptr, windowFlags);
-				{
-					auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/customSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/customTransparent.png")->getID());
-					ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
-				}
-				ImGui::End();
-			}
+			ImGui::End();
+		}
 			break;
 		}
 	}
 	void MenuState::_optionsMenu() {
-		{
-			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
-			ImGui::SetNextWindowPos(ImVec2(oneThirdX, twoThirdY - (oneEightY * 2 )));
-			ImGui::Begin("Main menu 3 3", nullptr, windowFlags);
-			{
-				auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/gameplaySelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/gameplayTransparent.png")->getID());
-				if (ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
-					_submenu = SubMenu::Options::gameplay;
-			}
-			ImGui::End();
-		}
 		{
 			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
 			ImGui::SetNextWindowPos(ImVec2(oneThirdX, twoThirdY - oneEightY));
@@ -385,97 +319,56 @@ namespace Barcode {
 		}
 		switch (_submenu.options) {
 		case SubMenu::Options::none:
-				break;
+			break;
 		case SubMenu::Options::visual:
+		{
+			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
+			ImGui::SetNextWindowPos(ImVec2(0, twoThirdY - (oneEightY * 0.4)));
+			ImGui::Begin("Main menu 3 21", nullptr, windowFlags);
 			{
-				ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
-				ImGui::SetNextWindowPos(ImVec2(0, twoThirdY - (oneEightY * 2)));
-				ImGui::Begin("Main menu 3 1", nullptr, windowFlags);
-				{
-					auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/particlesSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/particlesTransparent.png")->getID());
-					ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
-				}
-				ImGui::End();
+				auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/shadowsSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/shadowsTransparent.png")->getID());
+				if(ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
+					shadowEnabled = !shadowEnabled;
 			}
+			ImGui::End();
+		}
+		{
+			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
+			ImGui::SetNextWindowPos(ImVec2(0, twoThirdY + (oneEightY * 0.4)));
+			ImGui::Begin("Main menu 3 22", nullptr, windowFlags);
 			{
-				ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
-				ImGui::SetNextWindowPos(ImVec2(0, twoThirdY - (oneEightY * 1.2)));
-				ImGui::Begin("Main menu 3 2", nullptr, windowFlags);
-				{
-					auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/msaaSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/msaaTransparent.png")->getID());
-					ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
-				}
-				ImGui::End();
+				auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/ssaoSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/ssaoTransparent.png")->getID());
+				if (ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
+					ssaoEnabled = !ssaoEnabled;
 			}
-			{
-				ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
-				ImGui::SetNextWindowPos(ImVec2(0, twoThirdY - (oneEightY * 0.4)));
-				ImGui::Begin("Main menu 3 21", nullptr, windowFlags);
-				{
-					auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/shadowsSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/shadowsTransparent.png")->getID());
-					if(ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
-						shadowEnabled = !shadowEnabled;
-				}
-				ImGui::End();
-			}
-			{
-				ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
-				ImGui::SetNextWindowPos(ImVec2(0, twoThirdY + (oneEightY * 0.4)));
-				ImGui::Begin("Main menu 3 22", nullptr, windowFlags);
-				{
-					auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/ssaoSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/ssaoTransparent.png")->getID());
-					if (ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
-						ssaoEnabled = !ssaoEnabled;
-				}
 
-				ImGui::End();
-			}
+			ImGui::End();
+		}
+		{
+			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
+			ImGui::SetNextWindowPos(ImVec2(0, twoThirdY + (oneEightY * 1.2)));
+			ImGui::Begin("Main menu 3 23", nullptr, windowFlags);
 			{
-				ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
-				ImGui::SetNextWindowPos(ImVec2(0, twoThirdY + (oneEightY * 1.2)));
-				ImGui::Begin("Main menu 3 23", nullptr, windowFlags);
-				{
-					auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/glowSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/glowTransparent.png")->getID());
-					if(ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
-						glowEnabled = !glowEnabled;
-				}
-				ImGui::End();
+				auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/glowSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/glowTransparent.png")->getID());
+				if(ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
+					glowEnabled = !glowEnabled;
 			}
-			break;
-		case SubMenu::Options::gameplay:
-			{
-				ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
-				ImGui::SetNextWindowPos(ImVec2(oneThirdX * 2, twoThirdY - (oneEightY * 2)));
-				ImGui::Begin("Main menu 3 5", nullptr, windowFlags);
-				{
-					auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/defaultSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/defaultTransparent.png")->getID());
-					ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
-				}
-				ImGui::End();
-			}
-			{
-				ImGui::SetNextWindowSize(ImVec2(oneThirdX, 400), ImGuiCond_Once);
-				ImGui::SetNextWindowPos(ImVec2(oneThirdX * 2, twoThirdY - (oneEightY * 1)));
-				ImGui::Begin("Main menu 3 6", nullptr, windowFlags);
-				{
-					auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/customSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/customTransparent.png")->getID());
-					ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
-				}
-				ImGui::End();
-			}
-			break;
+			ImGui::End();
+		}
+		break;
 		case SubMenu::Options::sound:
+		{
+			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
+			ImGui::SetNextWindowPos(ImVec2(oneThirdX * 2, twoThirdY));
+			ImGui::Begin("Main menu 3 7", nullptr, windowFlags);
 			{
-				ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
-				ImGui::SetNextWindowPos(ImVec2(oneThirdX * 2, twoThirdY));
-				ImGui::Begin("Main menu 3 7", nullptr, windowFlags);
-				{
-					auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/volumeSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/volumeTransparent.png")->getID());
-					ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
-				}
-				ImGui::End();
+				auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/volumeSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/volumeTransparent.png")->getID());
+				if(ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
+					soundEnabled = !soundEnabled;
 			}
-			break;
+			ImGui::End();
+		}
+		break;
 		}
 	}
 }

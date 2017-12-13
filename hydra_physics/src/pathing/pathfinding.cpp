@@ -119,12 +119,12 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 	return false;
 }
 
-PathFinding::MapVec PathFinding::worldToMapCoords(const glm::vec3& worldPos) const
+PathFinding::MapVec PathFinding::worldToMapCoords(const glm::vec3& worldPos)
 {
 	return MapVec((worldPos.x * ROOM_SCALE), (worldPos.z * ROOM_SCALE));
 }
 
-glm::vec3 PathFinding::mapToWorldCoords(const MapVec& mapPos) const
+glm::vec3 PathFinding::mapToWorldCoords(const MapVec& mapPos)
 {
 	return glm::vec3((mapPos.baseVec.x) / ROOM_SCALE, 0, (mapPos.baseVec.y) / ROOM_SCALE);
 }
@@ -175,7 +175,6 @@ bool PathFinding::inWall(const glm::vec3 mapPos) const
 		return true;
 	}
 	return false;
-
 }
 
 glm::vec3 PathFinding::findViableTile(glm::vec3 mapPos) const
@@ -311,7 +310,5 @@ void PathFinding::_discoverNode(int x, int z, Node* lastNode)
 		thisNode->H = thisNode->hDistanceTo(_endNode);
 		thisNode->lastNode = lastNode;
 	}
-
-	std::sort(_openList.begin(), _openList.end(), comparisonFunctor);
-	//std::qsort(_openList.data(), _openList.size(), sizeof(_openList.data()[0]), sortFunc);
+	std::qsort(_openList.data(), _openList.size(), sizeof(_openList.data()[0]), sortFunc);
 }

@@ -289,7 +289,6 @@ private:
 				_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/" + fileName);
 			else
 				_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/Floor_specular.png");
-
 			// _material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textuers/1x1gray.png");
 
 			delete[] tempFileName;

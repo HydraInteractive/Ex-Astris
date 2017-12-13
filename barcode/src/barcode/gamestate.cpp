@@ -23,7 +23,6 @@
 
 #include <hydra/network/netclient.hpp>
 
-
 using world = Hydra::World::World;
 
 namespace Barcode {
@@ -47,12 +46,20 @@ namespace Barcode {
 		}
 
 		_initWorld();
+		aiInspector = new AIInspector();
 	}
 
 	GameState::~GameState() {
 	}
 
-	void GameState::onMainMenu() { }
+	void GameState::onMainMenu() {
+		if (ImGui::BeginMenu("AI")) {
+			if (ImGui::MenuItem("Inspector...")) {
+				aiInspectorOpen = !aiInspectorOpen;
+			}
+			ImGui::EndMenu();
+		}
+	}
 
 	void GameState::runFrame(float delta) {
 		auto windowSize = _engine->getView()->getSize();
@@ -68,6 +75,7 @@ namespace Barcode {
 		if (!_didConnect) {
 			Hydra::Network::NetClient::updatePVS = &GameState::_onUpdatePVS;
 			Hydra::Network::NetClient::onWin = &GameState::_onWin;
+			Hydra::Network::NetClient::updatePathMap = &GameState::_onUpdatePathMap;
 			Hydra::Network::NetClient::userdata = static_cast<void*>(this);
 			_didConnect = Hydra::Network::NetClient::initialize(addr, port);
 		}
@@ -112,7 +120,7 @@ namespace Barcode {
 				ImGui::CloseCurrentPopup();
 			ImGui::EndPopup();
 		}
-		 
+
 		if (_paused != oldPaused) {
 			static bool oldMouseControl;
 			static bool oldNoClip;
@@ -122,7 +130,8 @@ namespace Barcode {
 				oldNoClip = _cc->noClip;
 				_cc->mouseControl = false;
 				_cc->noClip = false;
-			} else {
+			}
+			else {
 				_cc->mouseControl = oldMouseControl;
 				_cc->noClip = oldNoClip;
 			}
@@ -154,6 +163,7 @@ namespace Barcode {
 		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
 		ImGui::Checkbox("Enable SSAO", &MenuState::ssaoEnabled);
 		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);
+		ImGui::Checkbox("Enable Sound", &MenuState::soundEnabled);
 
 		const glm::vec3& cameraPos = _playerTransform->position;
 		auto viewMatrix = _cc->getViewMatrix();
@@ -164,7 +174,7 @@ namespace Barcode {
 		_cameraSystem.setCamDef(_playerTransform->position, forwardVector, upVector, rightVector, *_cc);
 
 		_dgp->render(cameraPos, *_cc, *_playerTransform);
-		 
+
 		if (enableHitboxDebug) {
 			for (auto& kv : _hitboxBatch.batch.objects)
 				kv.second.clear();
@@ -243,9 +253,10 @@ namespace Barcode {
 					ImGui::SetNextWindowPos(ImVec2(0, 0));
 					ImGui::SetNextWindowSize(ImVec2(1920, 1080));
 					ImGui::Begin("DamageBleed", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoInputs);
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/blood.png")->getID()), ImVec2(_engine->getView()->getSize().x, _engine->getView()->getSize().y), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1,1,1, _hpTimeUp));
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/blood.png")->getID()), ImVec2(_engine->getView()->getSize().x, _engine->getView()->getSize().y), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1, 1, 1, _hpTimeUp));
 					ImGui::End();
-				}	else {
+				}
+				else {
 					_prevHP = hpP;
 					_hpTimeUp = 0;
 				}
@@ -303,6 +314,7 @@ namespace Barcode {
 				auto playerP = _playerTransform->position;
 				auto enemyP = enemy->getComponent<Hydra::Component::TransformComponent>()->position;
 				auto enemyDir = glm::normalize(enemyP - playerP);
+				float enemyDist = glm::length(enemyP - playerP);
 
 				glm::vec3 forward(-viewMat[0][2], -viewMat[1][2], -viewMat[2][2]);
 				glm::vec3 right = glm::normalize(glm::cross(glm::vec3(0, 1, 0), forward));
@@ -330,7 +342,12 @@ namespace Barcode {
 				ImGui::SetNextWindowPos(ImVec2(x + dotPlacment, 75)); //- 275
 				ImGui::SetNextWindowSize(ImVec2(20, 20));
 				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-				ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(10, 10));
+				if (enemyDist < 50.0) {
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(10, 10));
+				}
+				else {
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/RedFade.png")->getID()), ImVec2(10, 10));
+				}
 				ImGui::End();
 				i++;
 			}
@@ -386,7 +403,6 @@ namespace Barcode {
 			auto perk = Hydra::World::World::getEntity(_playerID)->getComponent<PerkComponent>();
 
 			size_t amountOfActives = perk->activeAbilities.size();
-			
 			int *coolDownList = new int[perk->activeAbilities.size()];
 
 			int step = 0;
@@ -420,7 +436,7 @@ namespace Barcode {
 
 				ImGui::End();
 			}
-			delete [] coolDownList;
+			delete[] coolDownList;
 
 			//Perk Icons
 			size_t amountOfPerks = perk->activePerks.size();
@@ -483,7 +499,10 @@ namespace Barcode {
 			ImGui::PopStyleVar();
 		}
 
-		if (Hydra::Network::NetClient::running) 
+		if (aiInspectorOpen)
+			aiInspector->render(aiInspectorOpen, _playerTransform);
+
+		if (Hydra::Network::NetClient::running)
 			Hydra::Network::NetClient::run();
 	}
 
@@ -503,11 +522,12 @@ namespace Barcode {
 			rgbc->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_FLOOR
 				, 0, 0, 0, 0.6f, 0);
 			//floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
-
 		}
 
 		{ // Music
-			_soundFxSystem.startMusic("assets/sounds/flesh-edit-n-baws.mp3");
+			if (MenuState::soundEnabled) {
+				_soundFxSystem.startMusic("assets/sounds/flesh-edit-n-baws.mp3");
+			}
 		}
 
 		{
@@ -527,11 +547,10 @@ namespace Barcode {
 			t->position = glm::vec3(-10, 0, -10);
 			_playerTransform = t.get();
 			auto rgbc = playerEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0, 0.0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
+			rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
 				0, 0, 0.0f, 0);
 			rgbc->setAngularForce(glm::vec3(0, 0, 0));
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-			_physicsSystem.enable(rgbc.get());
 
 			//Boss
 			//{
@@ -641,7 +660,6 @@ namespace Barcode {
 			//	}
 			//}
 
-			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
 				auto w = weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
@@ -702,5 +720,11 @@ namespace Barcode {
 	void GameState::_onWin(void* userdata) {
 		GameState* this_ = static_cast<GameState*>(userdata);
 		this_->_engine->setState<WinState>();
+	}
+
+	void GameState::_onUpdatePathMap(bool* map, void* userdata)
+	{
+		GameState* this_ = static_cast<GameState*>(userdata);
+		this_->aiInspector->pathMap = map;
 	}
 }

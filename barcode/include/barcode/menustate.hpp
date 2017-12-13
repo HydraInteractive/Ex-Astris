@@ -23,6 +23,7 @@ namespace Barcode {
 		static bool glowEnabled;
 		static bool ssaoEnabled;
 		static bool shadowEnabled;
+		static bool soundEnabled;
 		static int difficulty;
 		static float playerHPMultiplier;
 
@@ -57,12 +58,10 @@ namespace Barcode {
 			enum class Create : uint8_t {
 				none = 0,
 				createRoom,
-				view
 			} create;
 			enum class Options : uint8_t {
 				none = 0,
 				visual,
-				gameplay,
 				sound
 			} options;
 
