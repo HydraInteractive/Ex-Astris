@@ -8,11 +8,13 @@
 namespace Hydra::Network {
 	struct HYDRA_NETWORK_API NetClient final {
 	public:
-		typedef void (*updatePVS_f)(nlohmann::json&& json, void* userdata);
-		typedef void (*onWin_f)(void* userdata);
+		typedef void(*updatePVS_f)(nlohmann::json&& json, void* userdata);
+		typedef void(*onWin_f)(void* userdata);
+		typedef void(*updatePathMap_f)(bool* map, void* userdata);
 
 		static updatePVS_f updatePVS;
 		static onWin_f onWin;
+		static updatePathMap_f updatePathMap;
 		static void* userdata;
 		static bool running;
 

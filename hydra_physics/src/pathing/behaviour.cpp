@@ -106,7 +106,7 @@ unsigned int Behaviour::searchingState(float dt)
 	}
 
 	pathFinding->findPath(thisEnemy.transform->position, targetPlayer.transform->position);
-	newPathTimer = 0;
+	newPathTimer = 0.0f;
 	return MOVING;
 }
 
@@ -123,10 +123,10 @@ unsigned int Behaviour::movingState(float dt)
 	}
 
 	//If enemy can see the player, move toward them
-	//if (pathFinding->inLineOfSight(thisEnemy.transform->position, targetPlayer.transform->position))
-	//{
-	//	move(targetPlayer.transform->position);
-	//}
+	if (pathFinding->inLineOfSight(thisEnemy.transform->position, targetPlayer.transform->position))
+	{
+		move(targetPlayer.transform->position);
+	}
 	//If there is nowhere to go, search (prob not needed, should always have a goal here)
 	if (!pathFinding->pathToEnd.empty())
 	{	
@@ -147,7 +147,7 @@ unsigned int Behaviour::movingState(float dt)
 
 				if (pathFinding->pathToEnd.empty())
 				{
-					//move(targetPlayer.transform->position);
+					move(targetPlayer.transform->position);
 					return SEARCHING;
 				}
 				else
@@ -162,13 +162,13 @@ unsigned int Behaviour::movingState(float dt)
 		}
 		else
 		{
-			//move(targetPlayer.transform->position);
+			move(targetPlayer.transform->position);
 			return SEARCHING;
 		}
 	}
 	else
 	{
-		//move(targetPlayer.transform->position);
+		move(targetPlayer.transform->position);
 		return SEARCHING;
 	}
 

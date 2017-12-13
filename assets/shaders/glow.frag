@@ -65,11 +65,10 @@ void main() {
 	else
 		finalOutput = result2;
 
-	//vec3 hdrColor = texture(originalImage, texCoords).rgb;
+	vec3 hdrColor = texture(originalImage, texCoords).rgb;
 	vec3 bloomColor = texture(blurrImage, texCoords).rgb;
 
-	//hdrColor += bloomColor;
-
+	hdrColor += bloomColor;
 	gl_FragDepth = texture(depth, texCoords).r;
-	finalOutput += bloomColor;
+	finalOutput += hdrColor;
 }

@@ -12,7 +12,7 @@
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/ghostobjectcomponent.hpp>
-#include <hydra/component/roomcomponent.hpp>
+#include <hydra/component/roomcomponent.hpp> 
 #include <hydra/component/textcomponent.hpp>
 #include <hydra/component/spawnpointcomponent.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -24,7 +24,8 @@ ComponentMenu::ComponentMenu()
 
 ComponentMenu::~ComponentMenu()
 {
-}
+	 
+}  
 
 void ComponentMenu::render(bool &openBool, Hydra::System::BulletPhysicsSystem& physicsSystem)
 {
@@ -40,7 +41,7 @@ void ComponentMenu::render(bool &openBool, Hydra::System::BulletPhysicsSystem& p
 	ImGui::NextColumn();
 	ImGui::Text("Select component type");
 	if (_selectedEntity != nullptr)
-	{
+	{ 
 		for (size_t i = 0; i < _componentTypes.size(); i++)
 		{
 			if (ImGui::MenuItem(_componentTypes[i].c_str(), "", (_selectedString == _componentTypes[i])))

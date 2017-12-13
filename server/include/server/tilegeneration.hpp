@@ -43,7 +43,13 @@ namespace BarcodeServer {
 		TileGeneration(size_t maxRooms, const std::string& middleRoomPath, Hydra::Component::WeaponComponent::onShoot_f onRobotShoot, void* userdata);
 		~TileGeneration();
 
-		bool** buildMap();
+		void buildMap();
+
+		void spawnDoors();
+		void spawnEnemies();
+		void finalize();
+
+		std::string getPathMapAsString();
 		std::shared_ptr<Hydra::World::Entity> mapentity = nullptr;
 
 	private:
@@ -60,7 +66,6 @@ namespace BarcodeServer {
 		void _obtainRoomFiles();
 		void _randomizeRooms();
 		bool _generatePlayerSpawnPoints();
-		void _spawnEnemies();
 		void _spawnRandomEnemy(glm::vec3 pos);
 		void _createSpawner(glm::vec3 pos);
 		void _clearSpawnPoints();
