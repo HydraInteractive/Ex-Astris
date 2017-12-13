@@ -70,7 +70,7 @@ void AIInspector::render(bool &openBool, Hydra::Component::TransformComponent* _
 		int scale = 1;
 		if (!_smallMap)
 			scale = 4;
-		ImGui::Image((ImTextureID)image->getID(), ImVec2(WORLD_MAP_SIZE * scale, WORLD_MAP_SIZE * scale));
+		ImGui::Image(reinterpret_cast<ImTextureID>(image->getID()), ImVec2(WORLD_MAP_SIZE * scale, WORLD_MAP_SIZE * scale));
 
 		ImGui::EndChild();
 		ImGui::PopStyleVar();
