@@ -96,7 +96,7 @@ void PlayerSystem::tick(float delta) {
 						float rn = 500;//rand() % 1000;
 						rn /= 10000;
 
-						soundFx->soundsToPlay.push_back("assets/sounds/Lazer.ogg");
+						soundFx->soundsToPlay.push_back("assets/sounds/plazma.ogg");
 
 						rn *= 0.8;
 						weapon->_dpitch -= rn;
@@ -124,8 +124,10 @@ void PlayerSystem::tick(float delta) {
 		if (speed > 10)
 			movement->velocity *= 10 / speed;
 
-		if (weapon->_isReloading)
+		if (weapon->_isReloading) {
+			soundFx->soundsToPlay.push_back("assets/sounds/reloadE.ogg");
 			weapon->_isReloading = weapon->reload(delta);
+		}
 
 		float& yaw = camera->cameraYaw;
 		float& pitch = camera->cameraPitch;

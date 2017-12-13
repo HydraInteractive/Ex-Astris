@@ -33,6 +33,7 @@ bool WeaponComponent::reload(float delta) {
 	if (this->currammo <= 0)
 		return false;
 	
+
 	this->reloadTime += delta;
 	//WTF IS THIS
 	this->currmagammo = (reloadTime / maxReloadTime) * maxmagammo;

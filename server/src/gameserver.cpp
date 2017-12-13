@@ -273,6 +273,7 @@ void GameServer::run() {
 			_deleteEntity(e);
 
 			_players.erase(std::remove_if(_players.begin(), _players.end(), [e](const auto& p) { return p->entityid == e; }), _players.end());
+
 		}
 
 		if (!Hydra::Component::AIComponent::componentHandler->getActiveComponents().size()) {
