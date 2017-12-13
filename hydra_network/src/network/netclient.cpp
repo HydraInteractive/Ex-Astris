@@ -8,6 +8,7 @@
 #include <hydra/component/bulletcomponent.hpp>
 #include <hydra/component/playercomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
+#include <hydra/component/roomcomponent.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <hydra/engine.hpp>
 
@@ -17,6 +18,7 @@ using world = Hydra::World::World;
 bool NetClient::running = false;
 NetClient::updatePVS_f NetClient::updatePVS = nullptr;
 NetClient::onWin_f NetClient::onWin = nullptr;
+NetClient::updatePathMap_f NetClient::updatePathMap = nullptr;
 void* NetClient::userdata = nullptr;
 
 TCPClient NetClient::_tcp;
@@ -72,7 +74,7 @@ void NetClient::sendEntity(EntityID ent) {
 
 	_tcp.send((char*)packet, packet->len);
 
-	delete[] (char*)packet;
+	delete[](char*)packet;
 }
 
 void NetClient::_resolvePackets() {
@@ -141,9 +143,10 @@ void NetClient::_resolvePackets() {
 			if (sfp->action == ServerFreezePlayerPacket::Action::win) {
 				if (onWin)
 					onWin(userdata);
-			}else
-			for (auto p : Hydra::Component::PlayerComponent::componentHandler->getActiveComponents())
-				((Hydra::Component::PlayerComponent*)p.get())->frozen = sfp->action == ServerFreezePlayerPacket::Action::freeze;
+			}
+			else
+				for (auto p : Hydra::Component::PlayerComponent::componentHandler->getActiveComponents())
+					((Hydra::Component::PlayerComponent*)p.get())->frozen = sfp->action == ServerFreezePlayerPacket::Action::freeze;
 			break;
 		}
 		case PacketType::ServerInitializePVS: {
@@ -152,6 +155,19 @@ void NetClient::_resolvePackets() {
 			auto sipp = (ServerInitializePVSPacket*)p;
 			nlohmann::json json = nlohmann::json::parse(sipp->data, sipp->data + sipp->size());
 			updatePVS(std::move(json), userdata);
+			break;
+		}
+		case PacketType::ServerPathMap: {
+			if (!updatePathMap)
+				break;
+			auto spm = (ServerPathMapPacket*)p;
+			bool* map = new bool[WORLD_MAP_SIZE * WORLD_MAP_SIZE];
+			for (int i = 0; i < WORLD_MAP_SIZE * WORLD_MAP_SIZE; i++)
+			{
+				map[i] = spm->data[i];
+			}
+
+			updatePathMap((bool*)map, userdata);
 			break;
 		}
 		default:
@@ -166,7 +182,6 @@ void NetClient::_resolvePackets() {
 	for (size_t i = 0; i < packets.size(); i++)
 		delete packets[i];
 }
-
 
 //ADD ENTITES IN ANY OTHER PLACE THAN ROOT?
 void NetClient::_resolveServerSpawnEntityPacket(ServerSpawnEntityPacket* entPacket) {
@@ -264,10 +279,9 @@ void NetClient::_addPlayer(Packet * playerPacket) {
 	delete[] c;
 }
 
-
 bool NetClient::initialize(char* ip, int port) {
 	SDLNet_Init();
-	if(_tcp.initialize(ip, port)) {
+	if (_tcp.initialize(ip, port)) {
 		_myID = 0;
 		NetClient::running = true;
 		return true;
@@ -302,24 +316,23 @@ void NetClient::updateBullet(EntityID newBulletID) {
 	memcpy(packet->data, vec.data(), vec.size());
 
 	_tcp.send((char*)packet, sizeof(ClientUpdateBulletPacket) + vec.size());
-	delete[] (char*)packet;
+	delete[](char*)packet;
 }
 
-
 void NetClient::run() {
-    {//Receive packets
-        _resolvePackets();
-    }
+	{//Receive packets
+		_resolvePackets();
+	}
 
-    //SendUpdate packet
-    {
-        _sendUpdatePacket();
-    }
+	//SendUpdate packet
+	{
+		_sendUpdatePacket();
+	}
 
-    //Nåt
-    {
-        //du gillar sovpotatisar no?
-    }
+	//Nåt
+	{
+		//du gillar sovpotatisar no?
+	}
 }
 
 void NetClient::reset() {

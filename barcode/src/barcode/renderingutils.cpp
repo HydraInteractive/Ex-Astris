@@ -21,7 +21,7 @@
 #include <hydra/component/pickupcomponent.hpp>
 
 #include <hydra/system/perksystem.hpp>
-#include <barcode/perkEditor.hpp>
+#include <barcode/perkeditor.hpp>
 #include <algorithm>
 
 #define frand() (float(rand())/RAND_MAX)
@@ -323,7 +323,9 @@ namespace Barcode {
 
 		size_t maxObjectCount = Hydra::Component::DrawObjectComponent::componentHandler->getActiveComponents().size();
 		size_t maxRoomsCount = Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size();
-		ImGui::Begin("Performance monitor", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
+
+		ImGui::SetNextWindowPos(ImVec2(_engine->getView()->getSize().x - (300 + 16), 24), ImGuiCond_Always);
+		ImGui::Begin("Performance monitor", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
 		ImGui::Text("Currently rendering:\n\t%zu objects out of %zu (%.2f%%)\n\t%zu animation objects out of %zu (%.2f%%)\n\t%zu rooms out of %zu (%.2f%%)\n\t%zu lights out of %zu (slots: %d) (%.2f%%)",
 			objectCounter, maxObjectCount + objectTotalNormal, float(objectCounter * 100) / (maxObjectCount + objectTotalNormal),
 			animatedObjectCounter, animatedObjectTotal, float(animatedObjectCounter * 100) / (animatedObjectTotal),

@@ -51,7 +51,7 @@
 #include <barcode/importermenu.hpp>
 #include <barcode/exportermenu.hpp>
 
-#include "barcode/PerkAttribMenu.hpp"
+#include <barcode/perkattribmenu.hpp>
 
 
 #include <fstream>

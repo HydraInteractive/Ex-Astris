@@ -58,12 +58,10 @@ namespace Barcode {
 			enum class Create : uint8_t {
 				none = 0,
 				createRoom,
-				view
 			} create;
 			enum class Options : uint8_t {
 				none = 0,
 				visual,
-				gameplay,
 				sound
 			} options;
 

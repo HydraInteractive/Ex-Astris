@@ -10,6 +10,6 @@ out vec3 vertNormal;
 
 void main() {
 	mat3 normalMatrix = inverse(transpose(mat3(m)));
-	vertNormal = normalize(m * normal).xyz;
+	vertNormal = normalize(normalMatrix * normal).xyz;
 	gl_Position = proj * view * m * vec4(position, 1);
 }

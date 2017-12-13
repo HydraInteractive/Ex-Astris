@@ -253,8 +253,8 @@ public:
 
 			if (_performanceWindow) {
 				ImGui::SetNextWindowPos(ImVec2(_view->getSize().x - (300 + 16), 24), ImGuiCond_Always);
-				ImGui::SetNextWindowSize(ImVec2(300 + 16, 300 + 24), ImGuiCond_Always);
-				ImGui::Begin("Performance monitor", &_performanceWindow, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
+				//ImGui::SetNextWindowSize(ImVec2(300 + 16, 300 + 24), ImGuiCond_Always);
+				ImGui::Begin("Performance monitor", &_performanceWindow, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
 				//ImGui::Text("Counter: %f", counter);
 				ImGui::PlotHistogram("##FPS", fpsValues, valueLen, 0, fpsName, FLT_MAX, FLT_MAX, ImVec2(300, 100));
 				ImGui::PlotHistogram("##RAM", ramValues, valueLen, 0, ramName, FLT_MAX, FLT_MAX, ImVec2(300, 100));

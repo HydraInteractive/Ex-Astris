@@ -136,7 +136,7 @@ void GameServer::_makeWorld() {
 	while (true) {
 		tries++;
 		_tileGeneration = std::make_unique<TileGeneration>(maxRoomCount, "assets/room/starterRoom.room", &GameServer::_onRobotShoot, static_cast<void*>(this));
-		_pathfindingMap = _tileGeneration->buildMap();
+		_tileGeneration->buildMap();
 		_deadSystem.tick(0);
 		printf("Room count: %zu\t(%zu)\n", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size(), _tileGeneration->roomCounter);
 		if (Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size() >= minRoomCount)
@@ -146,6 +146,10 @@ void GameServer::_makeWorld() {
 		_deadSystem.tick(0);
 	}
 	printf("\tTook %zu tries\n", tries);
+	_tileGeneration->spawnDoors();
+	_tileGeneration->spawnEnemies();
+	_tileGeneration->finalize();
+	_pathfindingMap = _tileGeneration->pathfindingMap;
 
 	{
 		auto packet = createServerSpawnEntity(_tileGeneration->mapentity.get());
@@ -594,6 +598,18 @@ bool GameServer::_addPlayer(int id) {
 			delete[](char*)pvs;
 		}
 
+		{
+			std::string map = _tileGeneration->getPathMapAsString();
+			ServerPathMapPacket* spm = (ServerPathMapPacket*)new char[sizeof(ServerPathMapPacket) + WORLD_MAP_SIZE*WORLD_MAP_SIZE];
+			*spm = ServerPathMapPacket(WORLD_MAP_SIZE*WORLD_MAP_SIZE);
+
+			for (int y = 0; y < WORLD_MAP_SIZE; y++)
+				for (int x = 0; x < WORLD_MAP_SIZE; x++)
+					spm->data[y * WORLD_MAP_SIZE + x] = _tileGeneration->pathfindingMap[x][y];
+			_server->sendDataToClient((char*)spm, spm->len, id);
+			delete[](char*)spm;
+		}
+
 		//SEND A PACKET TO ALL OTHER CLIENTS
 		ServerPlayerPacket* sppacket;
 		for (size_t i = 0; i < this->_players.size(); i++) {
@@ -621,7 +637,6 @@ bool GameServer::_addPlayer(int id) {
 	}
 	return false;
 }
-
 
 void GameServer::_onRobotShoot(WeaponComponent& weapon, Entity* bullet, void* userdata) {
 	GameServer* this_ = static_cast<GameServer*>(userdata);
