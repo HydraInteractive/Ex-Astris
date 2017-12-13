@@ -18,6 +18,7 @@ using world = Hydra::World::World;
 bool NetClient::running = false;
 NetClient::updatePVS_f NetClient::updatePVS = nullptr;
 NetClient::onWin_f NetClient::onWin = nullptr;
+NetClient::onNewEntity_f NetClient::onNewEntity = nullptr;
 NetClient::updatePathMap_f NetClient::updatePathMap = nullptr;
 void* NetClient::userdata = nullptr;
 
@@ -191,6 +192,8 @@ void NetClient::_resolveServerSpawnEntityPacket(ServerSpawnEntityPacket* entPack
 	_IDs[entPacket->id] = ent->id;
 
 	enableEntity(ent);
+	if (onNewEntity)
+		onNewEntity(ent, userdata);
 }
 
 void NetClient::_resolveServerDeleteEntityPacket(ServerDeleteEntityPacket* delPacket) {
@@ -349,5 +352,10 @@ void NetClient::reset() {
 		return;
 	_tcp.close();
 	_IDs.clear();
+	updatePVS = nullptr;
+	onWin = nullptr;
+	onNewEntity = nullptr;
+	updatePathMap = nullptr;
+	userdata = nullptr;
 	running = false;
 }

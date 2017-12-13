@@ -37,7 +37,7 @@ void LifeSystem::tick(float delta) {
 			//}
 		}
 
-		if (entities[i]->getComponent<Hydra::Component::ParticleComponent>() || entities[i]->getComponent<Hydra::Component::TextComponent>())
+		if (lifeC->tickDownWithTime || entities[i]->getComponent<Hydra::Component::ParticleComponent>() || entities[i]->getComponent<Hydra::Component::TextComponent>())
 			lifeC->health -= 1 * delta;
 	}
 

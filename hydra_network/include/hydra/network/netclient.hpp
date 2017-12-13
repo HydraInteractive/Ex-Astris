@@ -10,10 +10,12 @@ namespace Hydra::Network {
 	public:
 		typedef void(*updatePVS_f)(nlohmann::json&& json, void* userdata);
 		typedef void(*onWin_f)(void* userdata);
+		typedef void(*onNewEntity_f)(Entity* entity, void* userdata);
 		typedef void(*updatePathMap_f)(bool* map, void* userdata);
 
 		static updatePVS_f updatePVS;
 		static onWin_f onWin;
+		static onNewEntity_f onNewEntity;
 		static updatePathMap_f updatePathMap;
 		static void* userdata;
 		static bool running;

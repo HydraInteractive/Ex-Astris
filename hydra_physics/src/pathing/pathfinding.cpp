@@ -260,12 +260,6 @@ bool PathFinding::_inLineOfSight(const MapVec enemyPos, const MapVec playerPos) 
 	return true;
 }
 
-static int sortFunc(void const* aPtr, void const* bPtr) {
-	const std::shared_ptr<PathFinding::Node>& a = *static_cast<const std::shared_ptr<PathFinding::Node>*>(aPtr);
-	const std::shared_ptr<PathFinding::Node>& b = *static_cast<const std::shared_ptr<PathFinding::Node>*>(bPtr);
-	return a->getF() > b->getF();
-}
-
 void PathFinding::_discoverNode(int x, int z, Node* lastNode)
 {
 	MapVec currentPos = MapVec(x, z);
@@ -312,5 +306,4 @@ void PathFinding::_discoverNode(int x, int z, Node* lastNode)
 	}
 
 	std::sort(_openList.begin(), _openList.end(), comparisonFunctor);
-	//std::qsort(_openList.data(), _openList.size(), sizeof(_openList.data()[0]), sortFunc);
 }

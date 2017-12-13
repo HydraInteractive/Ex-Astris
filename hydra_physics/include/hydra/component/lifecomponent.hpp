@@ -19,6 +19,7 @@ namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API LifeComponent final : public IComponent<LifeComponent, ComponentBits::Life>{
 	float maxHP = 100.0f;
 	float health = 100.0f;
+	bool tickDownWithTime = false;
 
 	~LifeComponent() final;
 
