@@ -121,12 +121,12 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 
 PathFinding::MapVec PathFinding::worldToMapCoords(const glm::vec3& worldPos)
 {
-	return MapVec((worldPos.x * ROOM_SCALE) - ROOM_GRID_SIZE, (worldPos.z * ROOM_SCALE) - ROOM_GRID_SIZE);
+	return MapVec(worldPos.x * ROOM_SCALE, worldPos.z * ROOM_SCALE);
 }
 
 glm::vec3 PathFinding::mapToWorldCoords(const MapVec& mapPos)
 {
-	return glm::vec3((mapPos.baseVec.x + ROOM_GRID_SIZE) / ROOM_SCALE, 0, (mapPos.baseVec.y + ROOM_GRID_SIZE) / ROOM_SCALE);
+	return glm::vec3(mapPos.baseVec.x / ROOM_SCALE, 0, mapPos.baseVec.y / ROOM_SCALE);
 }
 
 bool PathFinding::isOutOfBounds(const glm::ivec2& vec) const
