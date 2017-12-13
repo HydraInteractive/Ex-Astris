@@ -121,12 +121,12 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 
 PathFinding::MapVec PathFinding::worldToMapCoords(const glm::vec3& worldPos)
 {
-	return MapVec((worldPos.x / ROOM_SCALE), (worldPos.z / ROOM_SCALE));
+	return MapVec((worldPos.x * ROOM_SCALE) - ROOM_GRID_SIZE, (worldPos.z * ROOM_SCALE) - ROOM_GRID_SIZE);
 }
 
 glm::vec3 PathFinding::mapToWorldCoords(const MapVec& mapPos)
 {
-	return glm::vec3((mapPos.baseVec.x) * ROOM_SCALE, 0, (mapPos.baseVec.y) * ROOM_SCALE);
+	return glm::vec3((mapPos.baseVec.x + ROOM_GRID_SIZE) / ROOM_SCALE, 0, (mapPos.baseVec.y + ROOM_GRID_SIZE) / ROOM_SCALE);
 }
 
 bool PathFinding::isOutOfBounds(const glm::ivec2& vec) const
@@ -185,60 +185,60 @@ glm::vec3 PathFinding::findViableTile(glm::vec3 mapPos) const
 	glm::ivec2& vec = p.baseVec;
 
 	glm::vec3 newPos = mapPos;
-	for (int i = 1; i < 3; i++)
-	{
-		if (map[vec.x + i][vec.y] == 1)
-		{
-			newPos = glm::vec3(mapPos.x + i, mapPos.y, mapPos.z);
-		}
-		else if (map[vec.x][vec.y + i] == 1)
-		{
-			newPos = glm::vec3(mapPos.x, mapPos.y, mapPos.z + i);
-		}
-		else if (map[vec.x - i][vec.y] == 1)
-		{
-			newPos = glm::vec3(mapPos.x - i, mapPos.y, mapPos.z);
-		}
-		else if (map[vec.x][vec.y - i] == 1)
-		{
-			newPos = glm::vec3(mapPos.x + 1, mapPos.y, mapPos.z - i);
-		}
-		else if (map[vec.x + i][vec.y + i] == 1)
-		{
-			newPos = glm::vec3(mapPos.x + i, mapPos.y, mapPos.z + i);
-		}
-		else if (map[vec.x - i][vec.y + i])
-		{
-			newPos = glm::vec3(mapPos.x - i, mapPos.y, mapPos.z + i);
-		}
-		else if (map[vec.x - i][vec.y - i])
-		{
-			newPos = glm::vec3(mapPos.x - i, mapPos.y, mapPos.z - i);
-		}
-		else if (map[vec.x + i][vec.y - i])
-		{
-			newPos = glm::vec3(mapPos.x + i, mapPos.y, mapPos.z - i);
-		}
-	}
-
-	//for (int i = 0; i < 3; i++)	{
-	//	if ((vec.x + i < WORLD_MAP_SIZE || vec.y < WORLD_MAP_SIZE || vec.x + i >= 0 || vec.y >= 0) && map[vec.x + i][vec.y] == 1)
-	//		return glm::vec3(mapPos.x + i, mapPos.y, mapPos.z);
-	//	else if ((vec.x < WORLD_MAP_SIZE || vec.y + i < WORLD_MAP_SIZE || vec.x >= 0 || vec.y + i >= 0) && map[vec.x][vec.y + i] == 1)
-	//		return glm::vec3(mapPos.x, mapPos.y, mapPos.z + i);
-	//	else if ((vec.x - i < WORLD_MAP_SIZE || vec.y < WORLD_MAP_SIZE || vec.x - i >= 0 || vec.y >= 0) && map[vec.x - i][vec.y] == 1)
-	//		return glm::vec3(mapPos.x - i, mapPos.y, mapPos.z);
-	//	else if ((vec.x < WORLD_MAP_SIZE || vec.y - i < WORLD_MAP_SIZE || vec.x >= 0 || vec.y - i >= 0) && map[vec.x][vec.y - i] == 1)
-	//		return glm::vec3(mapPos.x + 1, mapPos.y, mapPos.z - i);
-	//	else if ((vec.x + i < WORLD_MAP_SIZE || vec.y + i < WORLD_MAP_SIZE || vec.x + i >= 0 || vec.y + i >= 0) && map[vec.x + i][vec.y + i] == 1)
-	//		return glm::vec3(mapPos.x + i, mapPos.y, mapPos.z + i);
-	//	else if ((vec.x - i < WORLD_MAP_SIZE || vec.y + i < WORLD_MAP_SIZE || vec.x - i >= 0 || vec.y + i >= 0) && map[vec.x - i][vec.y + i] == 1)
-	//		return glm::vec3(mapPos.x - i, mapPos.y, mapPos.z + i);
-	//	else if ((vec.x - i < WORLD_MAP_SIZE || vec.y - i < WORLD_MAP_SIZE || vec.x - i >= 0 || vec.y - i >= 0) && map[vec.x - i][vec.y - i] == 1)
-	//		return glm::vec3(mapPos.x - i, mapPos.y, mapPos.z - i);
-	//	else if ((vec.x + i < WORLD_MAP_SIZE || vec.y - i < WORLD_MAP_SIZE || vec.x + i >= 0 || vec.y - i >= 0) && map[vec.x + i][vec.y - i] == 1)
-	//		return glm::vec3(mapPos.x + i, mapPos.y, mapPos.z - i);
+	//for (int i = 1; i < 3; i++)
+	//{
+	//	if (map[vec.x + i][vec.y] == 1)
+	//	{
+	//		newPos = glm::vec3(mapPos.x + i, mapPos.y, mapPos.z);
+	//	}
+	//	else if (map[vec.x][vec.y + i] == 1)
+	//	{
+	//		newPos = glm::vec3(mapPos.x, mapPos.y, mapPos.z + i);
+	//	}
+	//	else if (map[vec.x - i][vec.y] == 1)
+	//	{
+	//		newPos = glm::vec3(mapPos.x - i, mapPos.y, mapPos.z);
+	//	}
+	//	else if (map[vec.x][vec.y - i] == 1)
+	//	{
+	//		newPos = glm::vec3(mapPos.x + 1, mapPos.y, mapPos.z - i);
+	//	}
+	//	else if (map[vec.x + i][vec.y + i] == 1)
+	//	{
+	//		newPos = glm::vec3(mapPos.x + i, mapPos.y, mapPos.z + i);
+	//	}
+	//	else if (map[vec.x - i][vec.y + i])
+	//	{
+	//		newPos = glm::vec3(mapPos.x - i, mapPos.y, mapPos.z + i);
+	//	}
+	//	else if (map[vec.x - i][vec.y - i])
+	//	{
+	//		newPos = glm::vec3(mapPos.x - i, mapPos.y, mapPos.z - i);
+	//	}
+	//	else if (map[vec.x + i][vec.y - i])
+	//	{
+	//		newPos = glm::vec3(mapPos.x + i, mapPos.y, mapPos.z - i);
+	//	}
 	//}
+
+	for (int i = 0; i < 3; i++)	{
+		if ((vec.x + i < WORLD_MAP_SIZE && vec.y < WORLD_MAP_SIZE && vec.x + i >= 0 && vec.y >= 0) && map[vec.x + i][vec.y] == 1)
+			newPos = glm::vec3(mapPos.x + i, mapPos.y, mapPos.z);
+		else if ((vec.x < WORLD_MAP_SIZE && vec.y + i < WORLD_MAP_SIZE && vec.x >= 0 && vec.y + i >= 0) && map[vec.x][vec.y + i] == 1)
+			newPos = glm::vec3(mapPos.x, mapPos.y, mapPos.z + i);
+		else if ((vec.x - i < WORLD_MAP_SIZE && vec.y < WORLD_MAP_SIZE && vec.x - i >= 0 && vec.y >= 0) && map[vec.x - i][vec.y] == 1)
+			newPos = glm::vec3(mapPos.x - i, mapPos.y, mapPos.z);
+		else if ((vec.x < WORLD_MAP_SIZE && vec.y - i < WORLD_MAP_SIZE && vec.x >= 0 && vec.y - i >= 0) && map[vec.x][vec.y - i] == 1)
+			newPos = glm::vec3(mapPos.x + 1, mapPos.y, mapPos.z - i);
+		else if ((vec.x + i < WORLD_MAP_SIZE && vec.y + i < WORLD_MAP_SIZE && vec.x + i >= 0 && vec.y + i >= 0) && map[vec.x + i][vec.y + i] == 1)
+			newPos = glm::vec3(mapPos.x + i, mapPos.y, mapPos.z + i);
+		else if ((vec.x - i < WORLD_MAP_SIZE && vec.y + i < WORLD_MAP_SIZE && vec.x - i >= 0 && vec.y + i >= 0) && map[vec.x - i][vec.y + i] == 1)
+			newPos = glm::vec3(mapPos.x - i, mapPos.y, mapPos.z + i);
+		else if ((vec.x - i < WORLD_MAP_SIZE && vec.y - i < WORLD_MAP_SIZE && vec.x - i >= 0 && vec.y - i >= 0) && map[vec.x - i][vec.y - i] == 1)
+			newPos = glm::vec3(mapPos.x - i, mapPos.y, mapPos.z - i);
+		else if ((vec.x + i < WORLD_MAP_SIZE && vec.y - i < WORLD_MAP_SIZE && vec.x + i >= 0 && vec.y - i >= 0) && map[vec.x + i][vec.y - i] == 1)
+			newPos = glm::vec3(mapPos.x + i, mapPos.y, mapPos.z - i);
+	}
 
 	return newPos;
 }
@@ -310,5 +310,7 @@ void PathFinding::_discoverNode(int x, int z, Node* lastNode)
 		thisNode->H = thisNode->hDistanceTo(_endNode);
 		thisNode->lastNode = lastNode;
 	}
-	std::qsort(_openList.data(), _openList.size(), sizeof(_openList.data()[0]), sortFunc);
+
+	std::sort(_openList.begin(), _openList.end(), comparisonFunctor);
+	//std::qsort(_openList.data(), _openList.size(), sizeof(_openList.data()[0]), sortFunc);
 }

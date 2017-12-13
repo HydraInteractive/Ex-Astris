@@ -276,6 +276,15 @@ void NetClient::_addPlayer(Packet * playerPacket) {
 	tc->setPosition(spp->ti.pos);
 	tc->setRotation(spp->ti.rot);
 	tc->setScale(spp->ti.scale);
+
+	auto rbc = ent->addComponent<Hydra::Component::RigidBodyComponent>();
+	rbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * glm::vec3{ 1, 1, 1 }, glm::vec3(0, 1.0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
+		0, 0, 0.0f, 0);
+	rbc->setAngularForce(glm::vec3(0, 0, 0));
+
+	rbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
+	auto bulletPhysWorld = static_cast<Hydra::System::BulletPhysicsSystem*>(IEngine::getInstance()->getState()->getPhysicsSystem());
+	bulletPhysWorld->enable(rbc.get());
 	delete[] c;
 }
 

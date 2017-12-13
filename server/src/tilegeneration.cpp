@@ -446,6 +446,7 @@ void TileGeneration::_insertPathFindingMap(const glm::ivec2& room, uint8_t rot) 
 	// rot = 1 -> 90
 	// rot = 2 -> 180
 	// rot = 3 -> 270
+
 	auto roomC = roomGrid[room.x][room.y];
 	const int x = room.x * ROOM_MAP_SIZE;
 	const int y = room.y * ROOM_MAP_SIZE;

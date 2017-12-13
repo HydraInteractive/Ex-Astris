@@ -46,6 +46,7 @@ namespace Barcode {
 		}
 
 		_initWorld();
+
 		aiInspector = new AIInspector();
 	}
 
@@ -341,6 +342,7 @@ namespace Barcode {
 				ImGui::SetNextWindowPos(ImVec2(x + dotPlacment, 75)); //- 275
 				ImGui::SetNextWindowSize(ImVec2(20, 20));
 				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+
 				if (enemyDist < 50.0) {
 					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(10, 10));
 				}
@@ -436,6 +438,7 @@ namespace Barcode {
 
 				ImGui::End();
 			}
+
 			delete[] coolDownList;
 
 			//Perk Icons
