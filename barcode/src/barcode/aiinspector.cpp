@@ -1,6 +1,5 @@
 #include <barcode/aiinspector.hpp>
 #include <hydra/component/aicomponent.hpp>
-#include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
 #include <hydra/pathing/pathfinding.hpp>
 
@@ -13,8 +12,9 @@ AIInspector::~AIInspector()
 {
 }
 
-void AIInspector::render(bool &openBool, Hydra::Component::TransformComponent* playerTransform)
+void AIInspector::render(bool &openBool, Hydra::Component::TransformComponent* _playerTransform)
 {
+	playerTransform = _playerTransform;
 	ImGui::SetNextWindowSize(ImVec2(1400, 700), ImGuiCond_Once);
 	ImGui::Begin("AI Inspector", &openBool, ImGuiWindowFlags_MenuBar);
 	_menuBar();
@@ -22,7 +22,7 @@ void AIInspector::render(bool &openBool, Hydra::Component::TransformComponent* p
 	{
 		ImGui::OpenPopup("AI Selector");
 	}
-	_aiSelector(playerTransform);
+	_aiSelector();
 	if (!targetAI.expired() && testArray != nullptr)
 	{
 		if (_showOptions)
@@ -49,7 +49,7 @@ void AIInspector::render(bool &openBool, Hydra::Component::TransformComponent* p
 			ImGui::SameLine();
 
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-			ImGui::BeginChild("Pathing Map", ImVec2(ImGui::GetWindowContentRegionWidth() - 200, ImGui::GetWindowContentRegionMax().y - 60), true);
+			ImGui::BeginChild("Pathing Map", ImVec2(ImGui::GetWindowContentRegionWidth() - 250, ImGui::GetWindowContentRegionMax().y - 60), true);
 		}
 		else
 		{
@@ -138,7 +138,7 @@ void AIInspector::_menuBar()
 	}
 }
 
-bool AIInspector::_aiSelector(Hydra::Component::TransformComponent* playerTransform)
+bool AIInspector::_aiSelector()
 {
 	bool confirm = false;
 	if (ImGui::BeginPopupModal("AI Selector", NULL, ImGuiWindowFlags_AlwaysAutoResize))
@@ -153,11 +153,13 @@ bool AIInspector::_aiSelector(Hydra::Component::TransformComponent* playerTransf
 
 		std::vector<std::shared_ptr<Hydra::World::Entity>> entities;
 		Hydra::World::World::getEntitiesWithComponents<Hydra::Component::AIComponent, Hydra::Component::TransformComponent>(entities);
+		std::sort(entities.begin(), entities.end(), _distanceToPlayerComparator);
 		for (auto e : entities)
 		{
 			auto t = e->getComponent<Hydra::Component::TransformComponent>();
 			title = e->name + " [" + std::to_string(e->id) + "]";
-			pos = " (" + std::to_string((int)t->position.x) + " " + std::to_string((int)t->position.y) + " " + std::to_string((int)t->position.z) + ")";
+			int distance = glm::length(t->position - playerTransform->position);
+			pos = " (" + std::to_string((int)t->position.x) + " " + std::to_string((int)t->position.y) + " " + std::to_string((int)t->position.z) + ") Distance: " + std::to_string(distance);
 			if (!_selectedAI.expired())
 				selected = (e == _selectedAI.lock());
 			ImGui::MenuItem(title.c_str(), pos.c_str(), selected);
