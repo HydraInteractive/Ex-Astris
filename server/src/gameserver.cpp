@@ -368,6 +368,11 @@ void GameServer::run() {
 		}
 		mySleep(1000 / 30);
 	}
+	if (pathSendTimer >= 5)
+	{
+		_sendPathInfo();
+	}
+	pathSendTimer += delta;
 }
 
 void GameServer::quit() {
@@ -556,9 +561,8 @@ bool GameServer::_addPlayer(int id) {
 			rbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * glm::vec3{ 1, 1, 1 }, glm::vec3(0, 1.0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
 				0, 0, 0.0f, 0);
 			rbc->setAngularForce(glm::vec3(0, 0, 0));
-			
-			rbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
 
+			rbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
 
 			if (_players.size() > 1) {
 				auto randomOther = world::getEntity(_players[rand() % (_players.size() - 1)]->entityid);
@@ -654,6 +658,43 @@ bool GameServer::_addPlayer(int id) {
 		return true;
 	}
 	return false;
+}
+
+void BarcodeServer::GameServer::_sendPathInfo()
+{
+	if (auto e = world::getEntity(aiInspectorID))
+	{
+		if (auto a = e->getComponent<Hydra::Component::AIComponent>())
+		{
+			size_t open = a->behaviour->pathFinding->openList.size();
+			size_t closed = a->behaviour->pathFinding->visitedList.size();
+			size_t pathToEnd = a->behaviour->pathFinding->pathToEnd.size();
+
+			ServerAIInfoPacket* packet = (ServerAIInfoPacket*)new glm::vec2[open + closed + pathToEnd];
+			*packet = ServerAIInfoPacket(open + closed + pathToEnd);
+
+			packet->openList = open;
+			packet->closedList = closed;
+			packet->pathToEnd = pathToEnd;
+
+			int i = 0;
+			for (auto o : a->behaviour->pathFinding->openList)
+			{
+				packet->data[i] = o->pos.baseVec;
+				i++;
+			}
+			for (auto c : a->behaviour->pathFinding->visitedList)
+			{
+				packet->data[i] = c->pos.baseVec;
+				i++;
+			}
+			for (auto p : a->behaviour->pathFinding->pathToEnd)
+			{
+				packet->data[i] = PathFinding::worldToMapCoords(p);
+				i++;
+			}
+		}
+	}
 }
 
 void GameServer::_onRobotShoot(WeaponComponent& weapon, Entity* bullet, void* userdata) {

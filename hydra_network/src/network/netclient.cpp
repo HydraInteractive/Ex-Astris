@@ -19,6 +19,7 @@ bool NetClient::running = false;
 NetClient::updatePVS_f NetClient::updatePVS = nullptr;
 NetClient::onWin_f NetClient::onWin = nullptr;
 NetClient::updatePathMap_f NetClient::updatePathMap = nullptr;
+NetClient::updatePath_f NetClient::updatePath = nullptr;
 void* NetClient::userdata = nullptr;
 
 TCPClient NetClient::_tcp;
@@ -168,6 +169,29 @@ void NetClient::_resolvePackets() {
 			}
 
 			updatePathMap((bool*)map, userdata);
+			break;
+		}
+		case PacketType::ServerAIInfo: {
+			if (!updatePath)
+				break;
+			auto sai = (ServerAIInfoPacket*)p;
+			std::vector<glm::vec2> openList;
+			std::vector<glm::vec2> closedList;
+			std::vector<glm::vec2> pathToend;
+			int i = 0;
+			for (; i < sai->openList; i++)
+			{
+				openList.push_back(sai->data[i]);
+			}
+			for (; i < sai->openList + sai->closedList; i++)
+			{
+				closedList.push_back(sai->data[i]);
+			}
+			for (; i < sai->openList + sai->closedList + sai->pathToEnd; i++)
+			{
+				pathToend.push_back(sai->data[i]);
+			}
+			updatePath(openList, closedList, pathToend, userdata);
 			break;
 		}
 		default:

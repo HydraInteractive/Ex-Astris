@@ -13,7 +13,6 @@
 #include <json.hpp>
 
 namespace BarcodeServer {
-
 	struct Player {
 		int serverid = -1;
 		EntityID entityid = -1;
@@ -36,6 +35,7 @@ namespace BarcodeServer {
 		void syncEntity(Hydra::World::Entity* entity);
 
 	private:
+		Hydra::World::EntityID aiInspectorID = 0;
 		std::chrono::time_point<std::chrono::high_resolution_clock> _lastTime;
 		float _packetDelay;
 		Server* _server = nullptr;
@@ -43,6 +43,7 @@ namespace BarcodeServer {
 		std::vector<Player*> _players;
 		std::unique_ptr<TileGeneration> _tileGeneration;
 		bool** _pathfindingMap = nullptr;
+		float pathSendTimer = 5;
 		std::string _pvsData;
 		size_t level = 0;
 
@@ -64,8 +65,8 @@ namespace BarcodeServer {
 		Hydra::World::Entity* _createEntity(const std::string& name, Hydra::World::EntityID parentID, bool serverSynced);
 		Player* _getPlayer(Hydra::World::EntityID id);
 		bool _addPlayer(int id);
+		void _sendPathInfo();
 
 		static void _onRobotShoot(WeaponComponent& weapon, Entity* bullet, void* userdata);
 	};
-
 }

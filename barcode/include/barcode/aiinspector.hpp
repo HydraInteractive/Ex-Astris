@@ -16,6 +16,10 @@ public:
 	{
 		uint8_t r, g, b;
 	};
+	typedef void(*getAIInfo_f)(void* userdata);
+	static getAIInfo_f getAIInfo;
+	static void* userdata;
+
 	std::weak_ptr<Hydra::World::Entity> targetAI = std::weak_ptr<Hydra::World::Entity>();
 	RGB* testArray = nullptr;
 	bool* pathMap = nullptr;

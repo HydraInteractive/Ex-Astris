@@ -2,6 +2,10 @@
 #include <hydra/component/aicomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
 #include <hydra/pathing/pathfinding.hpp>
+#include <hydra/network/packets.hpp>
+
+AIInspector::getAIInfo_f AIInspector::getAIInfo = nullptr;
+void* AIInspector::userdata = nullptr;
 
 AIInspector::AIInspector()
 {
@@ -175,6 +179,7 @@ bool AIInspector::_aiSelector()
 		if (ImGui::Button("OK", ImVec2(120, 0)))
 		{
 			targetAI = _selectedAI;
+
 			confirm = true;
 			_selectorMenuOpen = false;
 			if (pathMap != nullptr)

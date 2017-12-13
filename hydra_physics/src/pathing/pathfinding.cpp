@@ -11,17 +11,17 @@
 #include <hydra/pathing/pathfinding.hpp>
 
 PathFinding::PathFinding() {
-	_openList = std::vector<Node*>();
-	_visitedList = std::vector<Node*>();
+	openList = std::vector<Node*>();
+	visitedList = std::vector<Node*>();
 	foundGoal = true;
 }
 
 PathFinding::~PathFinding() {
-	for (auto&& node : _openList)
+	for (auto&& node : openList)
 	{
 		delete node;
 	}
-	for (auto&& node : _visitedList)
+	for (auto&& node : visitedList)
 	{
 		delete node;
 	}
@@ -33,8 +33,8 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 	if (map == nullptr)
 		return false;
 
-	_openList.clear();
-	_visitedList.clear();
+	openList.clear();
+	visitedList.clear();
 	pathToEnd.clear();
 
 	MapVec mapCurrentPos = worldToMapCoords(currentPos);
@@ -70,15 +70,15 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 	_endNode = new Node(mapTargetPos.x(), mapTargetPos.z(), nullptr);
 
 	_startNode->H = _startNode->hDistanceTo(_endNode);
-	_openList.push_back(_startNode);
+	openList.push_back(_startNode);
 
 	foundGoal = false;
 
-	while (!_openList.empty() && !foundGoal)
+	while (!openList.empty() && !foundGoal)
 	{
-		Node* currentNode = _openList.back();
-		_visitedList.push_back(_openList.back());
-		_openList.pop_back();
+		Node* currentNode = openList.back();
+		visitedList.push_back(openList.back());
+		openList.pop_back();
 
 		//End reached
 		if (currentNode->pos == _endNode->pos)
@@ -221,7 +221,7 @@ glm::vec3 PathFinding::findViableTile(glm::vec3 mapPos) const
 	//	}
 	//}
 
-	for (int i = 0; i < 3; i++)	{
+	for (int i = 0; i < 3; i++) {
 		if ((vec.x + i < WORLD_MAP_SIZE && vec.y < WORLD_MAP_SIZE && vec.x + i >= 0 && vec.y >= 0) && map[vec.x + i][vec.y] == 1)
 			newPos = glm::vec3(mapPos.x + i, mapPos.y, mapPos.z);
 		else if ((vec.x < WORLD_MAP_SIZE && vec.y + i < WORLD_MAP_SIZE && vec.x >= 0 && vec.y + i >= 0) && map[vec.x][vec.y + i] == 1)
@@ -275,9 +275,9 @@ void PathFinding::_discoverNode(int x, int z, Node* lastNode)
 	}
 
 	//If the node has already been visited, don't worry about it
-	for (size_t i = 0; i < _visitedList.size(); i++)
+	for (size_t i = 0; i < visitedList.size(); i++)
 	{
-		if (currentPos == _visitedList[i]->pos)
+		if (currentPos == visitedList[i]->pos)
 		{
 			return;
 		}
@@ -285,11 +285,11 @@ void PathFinding::_discoverNode(int x, int z, Node* lastNode)
 	Node* thisNode = nullptr;
 
 	//If this node exists in the open list, don't add it again
-	for (size_t i = 0; i < _openList.size() && thisNode == nullptr; i++)
+	for (size_t i = 0; i < openList.size() && thisNode == nullptr; i++)
 	{
-		if (currentPos == _openList[i]->pos)
+		if (currentPos == openList[i]->pos)
 		{
-			thisNode = _openList[i];
+			thisNode = openList[i];
 		}
 	}
 	//This node hasn't been found before, add it to the open list
@@ -298,7 +298,7 @@ void PathFinding::_discoverNode(int x, int z, Node* lastNode)
 		thisNode = new Node(x, z, lastNode);
 		thisNode->G = INFINITY;
 		thisNode->H = INFINITY;
-		_openList.push_back(thisNode);
+		openList.push_back(thisNode);
 	}
 
 	//Check if this node has had a better path to it before
@@ -311,6 +311,6 @@ void PathFinding::_discoverNode(int x, int z, Node* lastNode)
 		thisNode->lastNode = lastNode;
 	}
 
-	std::sort(_openList.begin(), _openList.end(), comparisonFunctor);
-	//std::qsort(_openList.data(), _openList.size(), sizeof(_openList.data()[0]), sortFunc);
+	std::sort(openList.begin(), openList.end(), comparisonFunctor);
+	//std::qsort(openList.data(), openList.size(), sizeof(openList.data()[0]), sortFunc);
 }
