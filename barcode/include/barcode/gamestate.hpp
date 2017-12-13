@@ -50,6 +50,7 @@
 #include <hydra/system/textsystem.hpp>
 #include <hydra/system/lightsystem.hpp>
 
+#include<barcode/aiinspector.hpp>
 namespace Barcode {
 	class GameState final : public Hydra::IState {
 	public:
@@ -98,6 +99,9 @@ namespace Barcode {
 		std::shared_ptr<Hydra::Renderer::IMesh> _hitboxCube;
 		std::shared_ptr<Hydra::Renderer::IMesh> _hitboxCapsule;
 
+		AIInspector* aiInspector = nullptr;
+		bool aiInspectorOpen = false;
+
 		bool _paused = false;
 		Hydra::World::EntityID _playerID;
 		Hydra::Component::CameraComponent* _cc = nullptr;
@@ -114,5 +118,7 @@ namespace Barcode {
 		static void _onPlayerShoot(Hydra::Component::WeaponComponent& weapon, Hydra::World::Entity* bullet, void* userdata);
 		static void _onUpdatePVS(nlohmann::json&& json, void* userdata);
 		static void _onWin(void* userdata);
+		static void _onUpdatePathMap(bool* map, void* userdata);
+		static void _onNewEntity(Entity* entity, void* userdata);
 	};
 }

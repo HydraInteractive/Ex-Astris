@@ -131,12 +131,12 @@ void GameServer::_makeWorld() {
 	_networkEntities.erase(std::remove_if(_networkEntities.begin(), _networkEntities.end(), [](const auto& e) {	return world::getEntity(e)->dead; }), _networkEntities.end());
 	_deadSystem.tick(0);
 	size_t tries = 0;
-	const size_t minRoomCount = 25;
-	const size_t maxRoomCount = 9*9;
+	const size_t minRoomCount = 15;
+	const size_t maxRoomCount = 25;
 	while (true) {
 		tries++;
 		_tileGeneration = std::make_unique<TileGeneration>(maxRoomCount, "assets/room/starterRoom.room", &GameServer::_onRobotShoot, static_cast<void*>(this));
-		_pathfindingMap = _tileGeneration->buildMap();
+		_tileGeneration->buildMap();
 		_deadSystem.tick(0);
 		printf("Room count: %zu\t(%zu)\n", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size(), _tileGeneration->roomCounter);
 		if (Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size() >= minRoomCount)
@@ -146,12 +146,27 @@ void GameServer::_makeWorld() {
 		_deadSystem.tick(0);
 	}
 	printf("\tTook %zu tries\n", tries);
+	_tileGeneration->spawnDoors();
+	_tileGeneration->spawnEnemies();
+	_tileGeneration->finalize();
+	_pathfindingMap = _tileGeneration->pathfindingMap;
 
 	{
 		auto packet = createServerSpawnEntity(_tileGeneration->mapentity.get());
 		_server->sendDataToAll((char*)packet, packet->len);
 		delete[](char*)packet;
 	}
+
+	//std::cout << std::endl;
+	//for (int i = 0; i < WORLD_MAP_SIZE; i++)
+	//{
+	//	for (int j = 0; j < WORLD_MAP_SIZE; j++)
+	//	{
+	//		std::cout << _pathfindingMap[j][i];
+	//	}
+	//	std::cout << std::endl;
+	//}
+	//std::cout << std::endl;
 
 	SDL_Surface* map = SDL_CreateRGBSurface(0, WORLD_MAP_SIZE, WORLD_MAP_SIZE, 32, 0, 0, 0, 0);
 	{
@@ -326,10 +341,60 @@ void GameServer::run() {
 		//_perkSystem.tick(delta);
 		_lifeSystem.tick(delta);
 
-		for (Hydra::World::EntityID e : _lifeSystem.isKilled()) {
-			_deleteEntity(e);
+		for (Hydra::World::EntityID eID : _lifeSystem.isKilled()) {
+			auto e = world::getEntity(eID);
 
-			_players.erase(std::remove_if(_players.begin(), _players.end(), [e](const auto& p) { return p->entityid == e; }), _players.end());
+			if (auto ai = e->getComponent<Hydra::Component::AIComponent>(); ai && ai->behaviour->type != Behaviour::Type::ALIENBOSS) {
+				auto oldTransform = e->getComponent<Hydra::Component::TransformComponent>();
+				auto oldMesh = e->getComponent<Hydra::Component::MeshComponent>();
+				if (!oldTransform || !oldMesh)
+					continue;
+
+				char name[64] = {0};
+				snprintf(name, sizeof(name), "Dead body [%zu]", eID);
+				auto deadBody = world::newEntity(name, e->parent);
+				auto t = deadBody->addComponent<Hydra::Component::TransformComponent>();
+				t->position = oldTransform->position;
+				t->scale = oldTransform->scale;
+				t->rotation = oldTransform->rotation;
+				t->dirty = true;
+				auto mesh = deadBody->addComponent<Hydra::Component::MeshComponent>();
+				mesh->loadMesh(oldMesh->meshFile);
+				auto life = deadBody->addComponent<Hydra::Component::LifeComponent>();
+				life->health = life->maxHP = 25.0f / 24.0f;
+				life->tickDownWithTime = true;
+
+				switch (ai->behaviour->type) {
+				case Behaviour::Type::ALIEN:
+					mesh->currentFrame = 1;
+					mesh->animationIndex = 3;
+					break;
+
+				case Behaviour::Type::ROBOT:
+					mesh->currentFrame = 1;
+					mesh->animationIndex = 3;
+					break;
+
+				case Behaviour::Type::ALIENBOSS: // NOTE: IS NOT HANDLED, CHECK ABOVE
+					break;
+
+				case Behaviour::Type::BOSS_HAND:
+				case Behaviour::Type::BOSS_ARMS:
+				case Behaviour::Type::STATINARY_BOSS:
+					// TODO:
+					break;
+				}
+
+				printf("Syncing (%zu): %s\n", deadBody->id, deadBody->name.c_str());
+				auto p = createServerSpawnEntity(deadBody.get());
+				_server->sendDataToAll((char*)p, p->len);
+				delete[](char*)p;
+				deadBody->dead = true;
+			}
+
+			_deleteEntity(eID);
+
+			_players.erase(std::remove_if(_players.begin(), _players.end(), [eID](const auto& p) { return p->entityid == eID; }), _players.end());
 		}
 
 		if (!Hydra::Component::AIComponent::componentHandler->getActiveComponents().size()) {
@@ -362,6 +427,8 @@ void GameServer::quit() {
 }
 
 void GameServer::syncEntity(Hydra::World::Entity* entity) {
+	printf("Syncing (%zu): %s\n", entity->id, entity->name.c_str());
+
 	entity->addComponent<Hydra::Component::TransformComponent>();
 	this->_networkEntities.push_back(entity->id);
 
@@ -537,14 +604,29 @@ bool GameServer::_addPlayer(int id) {
 			pi.ti.scale = { 1, 1, 1 };
 			pi.ti.rot = glm::quat(1, 0, 0, 0);
 
+			auto rbc = enttmp->addComponent<Hydra::Component::RigidBodyComponent>();
+			rbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * glm::vec3{ 1, 1, 1 }, glm::vec3(0, 1.0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
+				0, 0, 0.0f, 0);
+			rbc->setAngularForce(glm::vec3(0, 0, 0));
+			
+			rbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
+
+
 			if (_players.size() > 1) {
 				auto randomOther = world::getEntity(_players[rand() % (_players.size() - 1)]->entityid);
 				auto tc = randomOther->getComponent<TransformComponent>();
 				pi.ti.pos = tc->position;
 				pi.ti.rot = tc->rotation;
 				pi.ti.scale = tc->scale;
-			}
 
+				auto rbc = randomOther->addComponent<Hydra::Component::RigidBodyComponent>();
+				rbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * glm::vec3{ 1, 1, 1 }, glm::vec3(0, 1.0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
+					0, 0, 0.0f, 0);
+
+				rbc->setAngularForce(glm::vec3(0, 0, 0));
+				rbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
+			}
+			_physicsSystem.enable(rbc.get());
 			printf("sendDataToClient:\n\ttype: ServerInitialize\n\tlen: %zu\n", pi.len);
 			int tmp = this->_server->sendDataToClient((char*)&pi, pi.len, id);
 		}
@@ -586,6 +668,18 @@ bool GameServer::_addPlayer(int id) {
 			delete[](char*)pvs;
 		}
 
+		{
+			std::string map = _tileGeneration->getPathMapAsString();
+			ServerPathMapPacket* spm = (ServerPathMapPacket*)new char[sizeof(ServerPathMapPacket) + WORLD_MAP_SIZE*WORLD_MAP_SIZE];
+			*spm = ServerPathMapPacket(WORLD_MAP_SIZE*WORLD_MAP_SIZE);
+
+			for (int y = 0; y < WORLD_MAP_SIZE; y++)
+				for (int x = 0; x < WORLD_MAP_SIZE; x++)
+					spm->data[y * WORLD_MAP_SIZE + x] = _tileGeneration->pathfindingMap[x][y];
+			_server->sendDataToClient((char*)spm, spm->len, id);
+			delete[](char*)spm;
+		}
+
 		//SEND A PACKET TO ALL OTHER CLIENTS
 		ServerPlayerPacket* sppacket;
 		for (size_t i = 0; i < this->_players.size(); i++) {
@@ -613,7 +707,6 @@ bool GameServer::_addPlayer(int id) {
 	}
 	return false;
 }
-
 
 void GameServer::_onRobotShoot(WeaponComponent& weapon, Entity* bullet, void* userdata) {
 	GameServer* this_ = static_cast<GameServer*>(userdata);
