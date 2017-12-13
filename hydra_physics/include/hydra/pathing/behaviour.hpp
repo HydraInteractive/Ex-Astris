@@ -189,7 +189,9 @@ public:
 
 	float idleTimer = 0.0f;
 	float aimTimer = 0.0f;
-	
+	float waitTimer = 0.0f;
+	bool shot = false;
+
 	void run(float dt);
 
 	unsigned int idleState(float dt) final;

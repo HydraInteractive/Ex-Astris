@@ -890,17 +890,50 @@ void BossArm::run(float dt) {
 		state = ArmPhases::CHILL;
 	}
 
-	playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
-	playerDir = glm::normalize(playerDir);
+	if (shot == false) {
+		playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
+		playerDir = glm::normalize(playerDir);
+
+		glm::vec3 up = glm::vec3(0, 1, 0);
+		glm::vec3 right = glm::cross(playerDir, up);
+		up = glm::cross(playerDir, right);
+
+		glm::mat4 myRot = glm::mat4(glm::vec4(playerDir, 0), glm::vec4(right, 0), glm::vec4(up, 0), glm::vec4(0, 0, 0, 1));
+
+		rotation = glm::toQuat(myRot);
+	}
+	///TO EULER, I THINK
+	//glm::quat quatRotation = thisEnemy.transform->rotation;
+	//glm::vec3 eulerRotation;
+	//
+	//// roll (x-axis rotation)
+	//double sinr = 2.0 * (quatRotation.w * quatRotation.x + quatRotation.y * quatRotation.z);
+	//double cosr = 1.0 - 2.0 * (quatRotation.x * quatRotation.x + quatRotation.y * quatRotation.y);
+	//eulerRotation.x = atan2(sinr, cosr);
+	//
+	//// pitch (y-axis rotation)
+	//double sinp = 2.0 * (quatRotation.w * quatRotation.y - quatRotation.z * quatRotation.x);
+	//if (fabs(sinp) >= 1)
+	//	eulerRotation.y = copysign(M_PI / 2, sinp); // use 90 degrees if out of range
+	//else
+	//	eulerRotation.y = asin(sinp);
+	//
+	//// yaw (z-axis rotation)
+	//double siny = 2.0 * (quatRotation.w * quatRotation.z + quatRotation.x * quatRotation.y);
+	//double cosy = 1.0 - 2.0 * (quatRotation.y * quatRotation.y + quatRotation.z * quatRotation.z);
+	//eulerRotation.z = atan2(siny, cosy);
+	//
+	//thisEnemy.transform->rotation = glm::quat(eulerRotation);
+	//
 	//rotation = atan2(playerDir.y, sqrt(playerDir.x * playerDir.x + playerDir.z * playerDir.z));
 	//rotation = glm::quat(playerDir);
 	//glm::mat4 direction = glm::lookAt(thisEnemy.transform->position, playerDir, glm::vec3(0, 1, 0));
 	//rotation = glm::toQuat(glm::inverse(direction));
 	//glm::look
-
-	glm::mat4 lookAt = glm::lookAtLH(thisEnemy.transform->position, 
-		targetPlayer.transform->position + playerDir, glm::vec3(0, 1, 0));
-	rotation = glm::toQuat(lookAt);
+	//
+	//glm::mat4 lookAt = glm::lookAtLH(thisEnemy.transform->position, 
+	//	targetPlayer.transform->position + playerDir, glm::vec3(0, 1, 0));
+	//rotation = glm::toQuat(lookAt);
 
 
 	thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->mesh->getAnimationCounter();
@@ -946,10 +979,21 @@ unsigned int BossArm::aimState(float dt) {
 }
 
 unsigned int BossArm::shootState(float dt) {
-	int state = ArmPhases::CHILL;
+	int state = ArmPhases::SHOOT;
 
-	thisEnemy.weapon->shoot(thisEnemy.transform->position, playerDir, glm::quat(), 2.2, 
-		Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
+	if (shot == false) {
+		thisEnemy.weapon->shoot(thisEnemy.transform->position, playerDir, glm::quat(), 2.2,
+			Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
+	}
+	shot = true;
+	if (shot == true) {
+		waitTimer += dt;
+		if (waitTimer >= 2) {
+			shot = false;
+			state = ArmPhases::CHILL;
+		}
+	}
+
 
 	return state;
 }

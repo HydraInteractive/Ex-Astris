@@ -346,7 +346,7 @@ namespace Barcode {
 		const std::vector<Hydra::World::ISystem*> systems = { _engine->getDeadSystem(), &_cameraSystem, &_particleSystem, &_abilitySystem, &_aiSystem, &_physicsSystem, &_bulletSystem, &_playerSystem, &_rendererSystem, &_spawnerSystem };
 		_engine->getUIRenderer()->registerSystems(systems);
 	}
-
+	  
 	void GameState::_initWorld() {
 		_hitboxCube = Hydra::IEngine::getInstance()->getState()->getMeshLoader()->getMesh("assets/objects/HitBox.mATTIC");
 		{
@@ -359,15 +359,23 @@ namespace Barcode {
 			//floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 
 		}
-		{
-		auto RainbowCube = world::newEntity("Floor", world::root()); 
-		auto t = RainbowCube->addComponent<Hydra::Component::TransformComponent>();           
-		t->position = glm::vec3(0, 3, 0);
-		auto m = RainbowCube->addComponent<Hydra::Component::MeshComponent>();
-		m->loadMesh("assets/objects/characters/polySurface1.mATTIC2");
-		m->animationIndex = 1;
-
-		}
+		//{
+		//	auto RainbowCube = world::newEntity("Floor", world::root());
+		//	auto t = RainbowCube->addComponent<Hydra::Component::TransformComponent>();
+		//	t->position = glm::vec3(0, 3, 0);
+		//	auto m = RainbowCube->addComponent<Hydra::Component::MeshComponent>();
+		//	m->loadMesh("assets/objects/characters/BossHand.mATTIC2");
+		//	m->animationIndex = 0;
+		//}
+		//{
+		//auto RainbowCube = world::newEntity("Floor", world::root()); 
+		//auto t = RainbowCube->addComponent<Hydra::Component::TransformComponent>();           
+		//t->position = glm::vec3(0, 3, 0);
+		//auto m = RainbowCube->addComponent<Hydra::Component::MeshComponent>();
+		//m->loadMesh("assets/objects/characters/BossHand.mATTIC2");
+		//m->animationIndex = 0;
+		//
+		//}
 		{
 			auto pickUpEntity = world::newEntity("PickUp", world::root());
 			auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
@@ -560,11 +568,11 @@ namespace Barcode {
 				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/FPSModel3.mATTIC");
 				auto t2 = weaponEntity->addComponent<Hydra::Component::TransformComponent>();
 				t2->position = glm::vec3(2, -7, -2);
-				t2->scale = glm::vec3(0.3f);
+				t2->scale = glm::vec3(0.3f); 
 				t2->rotation = glm::quat(0, 0, 1, 0);
 				t2->ignoreParent = true;
 			} 
-		}
+		} 
 
 		/*{
 			auto alienEntity = world::newEntity("Alien1", world::root());

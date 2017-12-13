@@ -42,11 +42,11 @@ public:
 	}
 
 	~GLMeshImpl() final {
-		GLuint buffers[2] = {_vbo, _ibo};
+		GLuint buffers[2] = { _vbo, _ibo };
 		glDeleteBuffers(sizeof(buffers) / sizeof(*buffers), buffers);
 
 		glDeleteVertexArrays(1, &_vao);
-		
+
 		for (size_t i = 0; i < 7; i++) {
 			for (size_t k = 0; k < skeleton[i].size(); k++) {
 				delete skeleton[i][k];
@@ -121,7 +121,7 @@ private:
 	GLuint _vbo; // Vertices
 	GLuint _ibo; // Indices
 	size_t _indicesCount;
-	
+
 	std::vector<skelInfo*> _finishedMatrices[7];
 	bool _meshHasAnimation = false;
 
@@ -201,7 +201,7 @@ private:
 	void _loadATTICModel(const char* filePath, GLuint modelMatrixBuffer) {
 		std::vector<Vertex> vertices;
 		std::vector<GLuint> indices;
-
+	
 		glm::vec3 vec3;
 		glm::vec2 vec2;
 		//Open the file
@@ -251,8 +251,8 @@ private:
 				//Read the UV for the vertex
 				in.read(reinterpret_cast<char*>(&vec2), sizeof(vec2));
 				newVertex.uv = vec2;
-
-				vertices.push_back(newVertex);
+				if(filePath[strlen(filePath) - 1] != '2')
+					vertices.push_back(newVertex);
 			}
 
 			int nrOfPrimitives = 0;
@@ -262,10 +262,33 @@ private:
 				//Read the indices
 				for (int q = 0; q < 3; q++) {
 					int indexData = 0;
-					glm::vec3 testNormal;
-					if(filePath[strlen(filePath) - 1] == '2')
-						in.read(reinterpret_cast<char*>(&testNormal), sizeof(testNormal));
 					in.read(reinterpret_cast<char*>(&indexData), sizeof(int));
+
+					//If we use mATTIC2
+					if (filePath[strlen(filePath) - 1] == '2') {
+						Vertex newVertex = {};
+						//Vertex
+						glm::vec3 vert;
+						in.read(reinterpret_cast<char*>(&vert), sizeof(vert));
+
+						//Normal
+						glm::vec3 testNormal;
+						in.read(reinterpret_cast<char*>(&testNormal), sizeof(testNormal));
+
+						//Tangent
+						glm::vec3 testTangent;
+						in.read(reinterpret_cast<char*>(&testTangent), sizeof(testTangent));
+
+						//UV
+						glm::vec2 uv;
+						in.read(reinterpret_cast<char*>(&uv.x), sizeof(float));
+						in.read(reinterpret_cast<char*>(&uv.y), sizeof(float));
+						newVertex.position = vert;
+						newVertex.normal = testNormal;
+						newVertex.tangent = testTangent;
+						newVertex.uv = uv;
+						vertices.push_back(newVertex);
+					}
 					//info->indices.push_back(indexData);
 					//vertices[w].normal = testNormal;
 					indices.push_back(indexData);
@@ -368,7 +391,10 @@ private:
 				in.read(tempAnimationFileName, nrOfFileChars);
 				animationFileName.append(tempAnimationFileName, nrOfFileChars);
 				delete[] tempAnimationFileName;
-				animationFileName += ".wATTIC";
+				if (filePath[strlen(filePath) - 1] != '2')
+					animationFileName += ".wATTIC";
+				else
+					animationFileName += ".wATTIC2";
 				animationFilePath += animationFileName;
 
 				_loadWeight(animationFilePath.c_str(), vertices);
@@ -382,7 +408,10 @@ private:
 					tempAnimationFileName = new char[nrOfFileChars];
 					in.read(tempAnimationFileName, nrOfFileChars);
 					animationFileName.append(tempAnimationFileName, nrOfFileChars);
-					animationFileName += ".sATTIC";
+					if (filePath[strlen(filePath) - 1] != '2')
+						animationFileName += ".sATTIC";
+					else
+						animationFileName += ".sATTIC2";
 					animationFilePath += animationFileName;
 
 					delete[] tempAnimationFileName;
@@ -398,31 +427,59 @@ private:
 				_meshHasAnimation = false;
 				_uploadData(vertices, indices, false, modelMatrixBuffer, 0, 0);
 			}
-
 		}
-	
 	}
 
 	void _loadWeight(const char* filePath, std::vector<Vertex>& vertices) {
 		std::ifstream in(filePath, std::ios::binary);
+		if (filePath[strlen(filePath) - 1] != '2') {
+			int nrOfCtrlPoints = 0;
+			in.read(reinterpret_cast<char*>(&nrOfCtrlPoints), sizeof(int));
 
-		int nrOfCtrlPoints = 0;
-		in.read(reinterpret_cast<char*>(&nrOfCtrlPoints), sizeof(int));
+			//int polygonIndex[3];
 
-		//int polygonIndex[3];
+			glm::ivec3 polygonVertexIndex;
+			glm::ivec4 controllers;
+			glm::vec4 weightInfluences;
 
-		glm::ivec3 polygonVertexIndex;
-		glm::ivec4 controllers;
-		glm::vec4 weightInfluences;
+			for (int k = 0; k < nrOfCtrlPoints; k++) {
+				for (int i = 0; i < 4; i++) {
+					in.read(reinterpret_cast<char*>(&controllers[i]), sizeof(int));
 
-		for (int k = 0; k < nrOfCtrlPoints; k++) {
-			for (int i = 0; i < 4; i++) {
-				in.read(reinterpret_cast<char*>(&controllers[i]), sizeof(int));
-
-				in.read(reinterpret_cast<char*>(&weightInfluences[i]), sizeof(float));
+					in.read(reinterpret_cast<char*>(&weightInfluences[i]), sizeof(float));
+				}
+				vertices[k].controllers = controllers;
+				vertices[k].influences = weightInfluences;
 			}
-			vertices[k].controllers = controllers;
-			vertices[k].influences = weightInfluences;
+		}
+		else {
+
+			int nrOfCtrlPolygons = 0;
+			in.read(reinterpret_cast<char*>(&nrOfCtrlPolygons), sizeof(int));
+
+			int polygonIndex[3];
+
+			glm::ivec3 polygonVertexIndex;
+			glm::ivec4 controllers;
+			glm::vec4 weightInfluences;
+
+			for (int k = 0; k < nrOfCtrlPolygons; k++) {
+				for (int polygonVertex = 0; polygonVertex < 3; polygonVertex++) {
+
+					in.read(reinterpret_cast<char*>(&polygonVertexIndex[polygonVertex]), sizeof(int));
+					polygonIndex[polygonVertex] = polygonVertexIndex[polygonVertex];
+				}
+				for (int q = 0; q < 3; q++) {
+					for (int i = 0; i < 4; i++) {
+						in.read(reinterpret_cast<char*>(&controllers[i]), sizeof(int));
+
+						in.read(reinterpret_cast<char*>(&weightInfluences[i]), sizeof(float));
+						vertices[polygonIndex[q]].controllers[i] = controllers[i];
+						vertices[polygonIndex[q]].influences[i] += weightInfluences[i];
+					}
+					
+				}
+			}
 		}
 		
 	}
