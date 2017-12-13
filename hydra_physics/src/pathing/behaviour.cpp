@@ -130,10 +130,11 @@ unsigned int Behaviour::movingState(float dt)
 	//If there is nowhere to go, search (prob not needed, should always have a goal here)
 	if (!pathFinding->pathToEnd.empty())
 	{	
+		//std::cout << pathFinding->pathToEnd.back().x << " " << pathFinding->pathToEnd.back().z << std::endl;
 		//Made these as the code got very hard to read otherwise
-		float distEnemyToNextPos = glm::distance(flatVector(thisEnemy.transform->position), flatVector(pathFinding->pathToEnd.back()));
-		float distEnemyToGoal = glm::distance(flatVector(thisEnemy.transform->position), flatVector(pathFinding->pathToEnd.front()));
-		float distPlayerToGoal = glm::distance(flatVector(targetPlayer.transform->position), flatVector(pathFinding->pathToEnd.front()));
+		float distEnemyToNextPos = glm::distance((thisEnemy.transform->position), (pathFinding->pathToEnd.back()));
+		float distEnemyToGoal = glm::distance((thisEnemy.transform->position), (pathFinding->pathToEnd.front()));
+		float distPlayerToGoal = glm::distance((targetPlayer.transform->position), (pathFinding->pathToEnd.front()));
 		
 		//Check that the goal is closer to the player than we are, otherwise the path is invalid
 		if (distPlayerToGoal < distEnemyToPlayer)
