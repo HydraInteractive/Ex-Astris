@@ -29,7 +29,7 @@ namespace Hydra::Physics::Behaviour {
 		enum HandPhases { IDLEHAND, SMASH, SWIPE, HANDCANON, COVER, RETURN };
 		HandPhases handPhase = HandPhases::IDLEHAND;
 
-		enum ArmPhases { SWEEP, SINGLE_BONK, MULTIPLE_BONK, CHILL };
+		enum ArmPhases { CHILL, AIM, SHOOT };
 		ArmPhases armPhase = ArmPhases::CHILL;
 
 		enum StatinoaryBossPhases { NOTHING, SPAWN };
@@ -138,11 +138,11 @@ namespace Hydra::Physics::Behaviour {
 		BossHand_Left();
 		~BossHand_Left();
 
-		const float originalHeight = 10.0f;
+		const float originalHeight = 20.0f;
 		glm::vec3 basePosition = glm::vec3(30, originalHeight, 40);
 		glm::vec3 swipePosition = glm::vec3(25, 1, 25);
 		glm::vec3 canonPosition = glm::vec3(30, originalHeight, 25);
-		glm::vec3 coverPosition = glm::vec3(45, originalHeight, 5);
+		glm::vec3 coverPosition = glm::vec3(40, 8, 5);
 		glm::vec3 smashPosition = glm::vec3(0);
 
 		float idleTimer = 0.0f;
@@ -154,6 +154,7 @@ namespace Hydra::Physics::Behaviour {
 		bool smashing = false;
 		bool covering = false;
 		bool shooting = false;
+		bool rotateToCover = false;
 		bool hit = false;
 		bool inBasePosition = true;
 		int spawnAmount = 0;
@@ -184,24 +185,21 @@ namespace Hydra::Physics::Behaviour {
 		BossArm();
 		~BossArm();
 
-		const float originalHeight = 10.0f;
-		glm::vec3 basePosition = glm::vec3(55, originalHeight, 15);
-		glm::vec3 swipePosition = glm::vec3(25, 1, 25);
-		glm::vec3 bonkPosition = glm::vec3(45, originalHeight, 5);
+		const float originalHeight = 20.0f;
 
-		float coverTimer = 0.0f;
-		float stunTimer = 0.0f;
-		float waitToSmashTimer = 0.0f;
-		bool stunned = false;
-		bool swiping = false;
-		bool smashing = false;
+		glm::vec3 playerDir;
+
+
+		float idleTimer = 0.0f;
+		float aimTimer = 0.0f;
+		float waitTimer = 0.0f;
+		bool shot = false;
 
 		void run(float dt);
 
 		unsigned int idleState(float dt) final;
-		unsigned int bonkState(float dt);
-		unsigned int multipleBonkState(float dt);
-		unsigned int sweepState(float dt);
+		unsigned int aimState(float dt);
+		unsigned int shootState(float dt);
 
 		void updateRigidBodyPosition();
 
@@ -230,7 +228,7 @@ namespace Hydra::Physics::Behaviour {
 		//unsigned int shootingState(float dt) final;
 		unsigned int spawnState(float dt);
 
-		//void applySpawnPositions();
+		void applySpawnPositions();
 	private:
 		bool refreshRequiredComponents() final;
 	};
