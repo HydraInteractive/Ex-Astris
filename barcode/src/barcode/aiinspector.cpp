@@ -25,24 +25,37 @@ void AIInspector::render(bool &openBool, Hydra::Component::TransformComponent* p
 	_aiSelector(playerTransform);
 	if (!targetAI.expired() && testArray != nullptr)
 	{
-		ImGui::BeginChild("Interface", ImVec2(250, ImGui::GetWindowContentRegionMax().y - 60), true);
-		ImGui::Checkbox("Trace Player", &_tracePlayer);
-		ImGui::Checkbox("Trace AI", &_traceAI);
-		if (ImGui::Button("Reset"))
+		if (_showOptions)
 		{
-			reset();
-		}
-		ImGui::Separator();
-		auto t = targetAI.lock()->getComponent<Hydra::Component::TransformComponent>();
-		t->registerUI();
-		ImGui::Separator();
-		auto ai = targetAI.lock()->getComponent<Hydra::Component::AIComponent>();
-		ai->registerUI();
-		ImGui::EndChild();
-		ImGui::SameLine();
+			ImGui::BeginChild("Interface", ImVec2(250, ImGui::GetWindowContentRegionMax().y - 60), true);
 
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-		ImGui::BeginChild("Pathing Map", ImVec2(ImGui::GetWindowContentRegionWidth() - 200, ImGui::GetWindowContentRegionMax().y - 60), true);
+			ImGui::Checkbox("Trace Player", &_tracePlayer);
+			ImGui::Checkbox("Trace AI", &_traceAI);
+			if (ImGui::Button("Reset"))
+			{
+				reset();
+			}
+			ImGui::Separator();
+
+			auto t = targetAI.lock()->getComponent<Hydra::Component::TransformComponent>();
+			t->registerUI();
+			ImGui::Separator();
+
+			auto ai = targetAI.lock()->getComponent<Hydra::Component::AIComponent>();
+			ai->registerUI();
+
+			ImGui::EndChild();
+
+			ImGui::SameLine();
+
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+			ImGui::BeginChild("Pathing Map", ImVec2(ImGui::GetWindowContentRegionWidth() - 200, ImGui::GetWindowContentRegionMax().y - 60), true);
+		}
+		else
+		{
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+			ImGui::BeginChild("Pathing Map", ImVec2(ImGui::GetWindowContentRegionWidth(), ImGui::GetWindowContentRegionMax().y - 60), true);
+		}
 		if (_tracePlayer)
 		{
 			glm::ivec2 playerPos = PathFinding::worldToMapCoords(playerTransform->position).baseVec;
@@ -54,7 +67,10 @@ void AIInspector::render(bool &openBool, Hydra::Component::TransformComponent* p
 			testArray[aiPos.x + (aiPos.y * WORLD_MAP_SIZE)] = RGB{ 255, 0, 0 };
 		}
 		image = Hydra::Renderer::GLTexture::createFromData(WORLD_MAP_SIZE, WORLD_MAP_SIZE, Hydra::Renderer::TextureType::u8RGB, testArray);
-		ImGui::Image((ImTextureID)image->getID(), ImVec2(WORLD_MAP_SIZE * 4, WORLD_MAP_SIZE * 4));
+		int scale = 1;
+		if (!_smallMap)
+			scale = 4;
+		ImGui::Image((ImTextureID)image->getID(), ImVec2(WORLD_MAP_SIZE * scale, WORLD_MAP_SIZE * scale));
 
 		ImGui::EndChild();
 		ImGui::PopStyleVar();
@@ -108,6 +124,14 @@ void AIInspector::_menuBar()
 			{
 				_selectorMenuOpen = !_selectorMenuOpen;
 			}
+			if (ImGui::MenuItem("Small map", NULL, _smallMap))
+			{
+				_smallMap = !_smallMap;
+			}
+			if (ImGui::MenuItem("Show options", NULL, _showOptions))
+			{
+				_showOptions = !_showOptions;
+			}
 			ImGui::EndMenu();
 		}
 		ImGui::EndMenuBar();
@@ -122,7 +146,7 @@ bool AIInspector::_aiSelector(Hydra::Component::TransformComponent* playerTransf
 		std::string textline = "Select an AI to preview";
 		ImGui::Text("%s", textline.c_str());
 
-		ImGui::BeginChild("AI List", ImVec2(350, 500), true);
+		ImGui::BeginChild("AI List", ImVec2(400, 600), true);
 		std::string title = "";
 		std::string pos = "";
 		bool selected = false;

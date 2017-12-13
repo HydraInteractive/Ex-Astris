@@ -28,6 +28,8 @@ private:
 	bool _selectorMenuOpen = false;
 	bool _tracePlayer = true;
 	bool _traceAI = true;
+	bool _smallMap = false;
+	bool _showOptions = true;
 	std::weak_ptr<Hydra::World::Entity> _selectedAI = std::weak_ptr<Hydra::World::Entity>();
 	void _menuBar();
 	bool _aiSelector(Hydra::Component::TransformComponent* playerTransform);
