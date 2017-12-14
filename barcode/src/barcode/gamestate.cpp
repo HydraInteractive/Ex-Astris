@@ -395,7 +395,7 @@ namespace Barcode {
 		}   
 		{
 			//Remove this to gain frames like never before
-			tileGen = new TileGeneration("assets/BossRoom/Bossroom.room");  
+			tileGen = new TileGeneration("assets/BossRoom/Bossroom2.room");  
 			//tileGen = new TileGeneration("assets/room/GeneratonInTheMiddle.room");
 			pathfindingMap = tileGen->buildMap();
 		} 
@@ -403,11 +403,11 @@ namespace Barcode {
 		{   
 			//Alien
 			{
-				auto BossMech = world::newEntity("Boss Alien", world::root());
-				BossMech->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossAlienModel.mATTIC");
+				auto BossAlien = world::newEntity("Boss Alien", world::root());
+				BossAlien->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossAlienModel.mATTIC");
 				
-				auto t = BossMech->addComponent<Hydra::Component::TransformComponent>();
-				t->position = glm::vec3(43, 8, 0);
+				auto t = BossAlien->addComponent<Hydra::Component::TransformComponent>();
+				t->position = glm::vec3(45, 38, 0);
 				t->rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
 			}
 				//Stationary Mech
@@ -422,7 +422,7 @@ namespace Barcode {
 				a->radius = 1;
 
 				auto t = BossMech->addComponent<Hydra::Component::TransformComponent>();
-				t->position = glm::vec3(51, 18, 0);
+				t->position = glm::vec3(51, 45, 0);
 				t->rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
 
 				auto l = BossMech->addComponent<Hydra::Component::LifeComponent>();
@@ -440,7 +440,7 @@ namespace Barcode {
 			}
 				//Arms
 			{
-				for (int i = 0; i < 1; i++) {
+				for (int i = 0; i < 1; i++) { 
 					{
 						auto bossEntity = world::newEntity("Upper BossArm", world::root());
 						bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossUpperArmModel.mATTIC");
