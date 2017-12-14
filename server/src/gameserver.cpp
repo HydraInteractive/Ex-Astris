@@ -81,7 +81,7 @@ void GameServer::start() {
 	auto transf = floor->addComponent<Hydra::Component::TransformComponent>();
 	transf->position = glm::vec3(0, 0, 0);
 	auto rgbcf = floor->addComponent<Hydra::Component::RigidBodyComponent>();
-	rgbcf->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_FLOOR
+	rgbcf->createStaticPlane(glm::vec3(0, 1, 0), 0, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_FLOOR
 		, 0, 0, 0, 0.6f, 0);
 	floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 
@@ -605,10 +605,10 @@ bool GameServer::_addPlayer(int id) {
 			pi.ti.rot = glm::quat(1, 0, 0, 0);
 
 			auto rbc = enttmp->addComponent<Hydra::Component::RigidBodyComponent>();
-			rbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * glm::vec3{ 1, 1, 1 }, glm::vec3(0, 1.0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
+			rbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f), glm::vec3(0, 2, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
 				0, 0, 0.0f, 0);
 			rbc->setAngularForce(glm::vec3(0, 0, 0));
-			
+
 			rbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
 
 
