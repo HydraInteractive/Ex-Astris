@@ -7,6 +7,7 @@
 
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/aicomponent.hpp>
+#include <hydra/component/spawnercomponent.hpp>
 #include <hydra/component/ghostobjectcomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
@@ -338,6 +339,15 @@ void GameServer::run() {
 		_bulletSystem.tick(delta);
 		////_abilitySystem.tick(delta);
 		_spawnerSystem.tick(delta);
+		{
+			for (size_t i = 0; i < _spawnerSystem.didJustSpawn.size(); i++) {
+				auto p = createServerSpawnEntity(_spawnerSystem.didJustSpawn[i]);
+				_server->sendDataToAll((char*)p, p->len);
+				delete[](char*)p;
+			}
+		}
+
+
 		//_perkSystem.tick(delta);
 		_lifeSystem.tick(delta);
 
@@ -397,7 +407,7 @@ void GameServer::run() {
 			_players.erase(std::remove_if(_players.begin(), _players.end(), [eID](const auto& p) { return p->entityid == eID; }), _players.end());
 		}
 
-		if (!Hydra::Component::AIComponent::componentHandler->getActiveComponents().size()) {
+		if (!Hydra::Component::AIComponent::componentHandler->getActiveComponents().size() && !Hydra::Component::SpawnerComponent::componentHandler->getActiveComponents().size()) {
 			level++;
 			if (level == 2) {
 				ServerFreezePlayerPacket freeze;
