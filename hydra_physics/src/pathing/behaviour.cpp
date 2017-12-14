@@ -211,7 +211,7 @@ void Behaviour::executeTransforms()
 {
 	//Line of sight check
 	//If AI dont have vision to shoot at player, move closer
-	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) <= 30.0f)
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) <= 35.0f)
 	{
 		auto callback = static_cast<btCollisionWorld::ClosestRayResultCallback*>(static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->rayTestFromTo(glm::vec3(thisEnemy.transform->position.x, thisEnemy.transform->position.y + 2.0f, thisEnemy.transform->position.z), targetPlayer.transform->position));
 		if (targetPlayer.transform->position.y < 4.5f)
@@ -236,7 +236,7 @@ void Behaviour::executeTransforms()
 		delete callback;
 	}
 
-	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 30.0f)
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 35.0f)
 	{
 		range = originalRange;
 	}
@@ -298,22 +298,28 @@ void AlienBehaviour::run(float dt)
 	newPathTimer += dt;
 	regainRange += dt;
 
-	//if (targetPlayer.playerComp != nullptr)
-	//{
-	//	printf("I made it \n");
-	//	if (!targetPlayer.playerComp->onFloor && targetPlayer.playerComp->onGround && pathFinding->inWall(targetPlayer.transform->position))
-	//	{
-	//		printf("time to shoot \n");
-	//		playerUnreachable = true;
-	//		originalRange = 15;
-	//	}
-	//	else if (targetPlayer.playerComp->onFloor && targetPlayer.playerComp->onGround)
-	//	{
-	//		printf("no shoot \n");
-	//		playerUnreachable = false;
-	//		originalRange = savedRange;
-	//	}
-	//}
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 35 && pathFinding->inWall(targetPlayer.transform->position))
+	{
+		auto callback = static_cast<btCollisionWorld::ClosestRayResultCallback*>(static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->rayTestFromTo(targetPlayer.transform->position, targetPlayer.transform->position + glm::vec3(0,-2.5,0)));
+		if (callback->hasHit()) {
+			auto hitboi = World::World::getEntity(callback->m_collisionObject->getUserIndex());
+			//std::cout << hitboi->name << std::endl;
+		}
+		if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_WALL)
+		{
+			playerUnreachable = true;
+			originalRange = 15;
+			/*range = 15;*/
+		}
+		else if(callback->hasHit() && !callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_WALL)
+		{
+			//playerUnreachable = false;
+			originalRange = savedRange;
+			//range = savedRange;
+		}
+		delete callback;
+	}
+
 
 	//if (pathFinding->inWall(targetPlayer.transform->position))
 	//{
@@ -346,7 +352,7 @@ unsigned int AlienBehaviour::attackingState(float dt)
 	//When the enemy attack, start the attack animation
 	resetAnimationOnStart(2);
 	float distEnemyToPlayer = glm::length(thisEnemy.transform->position - targetPlayer.transform->position);
-	
+
 	if (distEnemyToPlayer > range)
 	{
 		idleTimer = 0;

@@ -51,7 +51,6 @@ namespace Hydra::Physics::Behaviour {
 		int oldMapPosZ = 0;
 
 		bool hasRequiredComponents = false;
-		bool playerUnreachable = false;
 
 		float range = 1.0f;
 		float savedRange = 4.0f;
@@ -98,6 +97,8 @@ namespace Hydra::Physics::Behaviour {
 		AlienBehaviour();
 		~AlienBehaviour();
 		void run(float dt);
+
+		bool playerUnreachable = false;
 
 		unsigned int attackingState(float dt) final;
 	};
