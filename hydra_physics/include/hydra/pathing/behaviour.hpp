@@ -53,6 +53,7 @@ namespace Hydra::Physics::Behaviour {
 		bool playerUnreachable = false;
 
 		PathFinding* pathFinding = nullptr;
+		bool doDiddeliDoneDatPathfinding = false;
 
 		float range = 1.0f;
 		float savedRange = 4.0f;

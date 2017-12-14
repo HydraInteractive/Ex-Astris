@@ -35,7 +35,7 @@ namespace BarcodeServer {
 		void syncEntity(Hydra::World::Entity* entity);
 
 	private:
-		Hydra::World::EntityID aiInspectorID = 0;
+
 		std::chrono::time_point<std::chrono::high_resolution_clock> _lastTime;
 		float _packetDelay;
 		Server* _server = nullptr;
@@ -43,9 +43,13 @@ namespace BarcodeServer {
 		std::vector<Player*> _players;
 		std::unique_ptr<TileGeneration> _tileGeneration;
 		bool** _pathfindingMap = nullptr;
-		float pathSendTimer = 5;
 		std::string _pvsData;
 		size_t level = 0;
+		struct SyncBoi
+		{
+			Hydra::Network::ServerID client, ai;
+		};
+		std::vector<SyncBoi> aiInspectorSync;
 
 		Hydra::System::DeadSystem _deadSystem;
 		Hydra::System::AISystem _aiSystem;
@@ -68,5 +72,6 @@ namespace BarcodeServer {
 		void _sendPathInfo();
 
 		static void _onRobotShoot(WeaponComponent& weapon, Entity* bullet, void* userdata);
+		void _resolveClientRequestAIInfoPacket(Hydra::Network::ClientRequestAIInfoPacket* packet);
 	};
 }

@@ -304,5 +304,5 @@ void PathFinding::_discoverNode(int x, int z, Node* lastNode)
 		thisNode->lastNode = lastNode;
 	}
 
-	std::sort(_openList.begin(), _openList.end(), comparisonFunctor);
+	std::sort(openList.begin(), openList.end(), comparisonFunctor);
 }

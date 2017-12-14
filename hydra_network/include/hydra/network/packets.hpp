@@ -91,15 +91,15 @@ namespace Hydra::Network {
 	struct ClientRequestAIInfoPacket : public Packet
 	{
 		ClientRequestAIInfoPacket() : Packet(PacketType::ClientRequestAIInfo, sizeof(ClientRequestAIInfoPacket)) {}
-		EntityID entityID;
+		ServerID serverEntityID;
 	};
 	struct ServerAIInfoPacket : public Packet
 	{
-		ServerAIInfoPacket(size_t size) : Packet(PacketType::ServerAIInfo, sizeof(ServerAIInfoPacket) + size * sizeof(glm::vec2)) {}
+		ServerAIInfoPacket(size_t size) : Packet(PacketType::ServerAIInfo, sizeof(ServerAIInfoPacket) + size) {}
 		float openList;
 		float closedList;
 		float pathToEnd;
-		glm::vec2 data[0];
+		int8_t data[0];
 	};
 	/////////////////////////////////////////
 	struct ClientShootPacket : public Packet {

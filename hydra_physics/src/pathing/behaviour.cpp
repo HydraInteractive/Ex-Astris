@@ -103,6 +103,7 @@ unsigned int Behaviour::searchingState(float dt)
 	}
 
 	pathFinding->findPath(thisEnemy.transform->position, targetPlayer.transform->position);
+	doDiddeliDoneDatPathfinding = true;
 	newPathTimer = 0.0f;
 	return MOVING;
 }
@@ -222,7 +223,7 @@ void Behaviour::executeTransforms()
 				regainRange = 0;
 			}
 		}
-		
+
 		if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_PLAYER)
 		{
 			if (regainRange > 1.5)

@@ -3,7 +3,7 @@
 #include <hydra/component/roomcomponent.hpp>
 #include <hydra/pathing/pathfinding.hpp>
 #include <hydra/network/packets.hpp>
-
+#include <hydra/network/netclient.hpp>
 AIInspector::getAIInfo_f AIInspector::getAIInfo = nullptr;
 void* AIInspector::userdata = nullptr;
 
@@ -96,7 +96,7 @@ void AIInspector::reset()
 	{
 		for (int i = 0; i < WORLD_MAP_SIZE*WORLD_MAP_SIZE; i++)
 		{
-			if (pathMap[i] == true)
+			if (pathMap[i])
 				testArray[i] = RGB{ 255, 255, 255 };
 			else
 				testArray[i] = RGB{ 0, 0, 0 };
@@ -186,6 +186,7 @@ bool AIInspector::_aiSelector()
 			{
 				reset();
 			}
+			Hydra::Network::NetClient::requestAIInfo(targetAI.lock()->id);
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::SameLine();

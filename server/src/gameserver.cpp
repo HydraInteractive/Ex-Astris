@@ -157,16 +157,17 @@ void GameServer::_makeWorld() {
 		delete[](char*)packet;
 	}
 
-	//std::cout << std::endl;
-	//for (int i = 0; i < WORLD_MAP_SIZE; i++)
-	//{
-	//	for (int j = 0; j < WORLD_MAP_SIZE; j++)
-	//	{
-	//		std::cout << _pathfindingMap[j][i];
-	//	}
-	//	std::cout << std::endl;
-	//}
-	//std::cout << std::endl;
+	{
+		std::string map = _tileGeneration->getPathMapAsString();
+		ServerPathMapPacket* spm = (ServerPathMapPacket*)new char[sizeof(ServerPathMapPacket) + WORLD_MAP_SIZE*WORLD_MAP_SIZE];
+		*spm = ServerPathMapPacket(WORLD_MAP_SIZE*WORLD_MAP_SIZE);
+
+		for (int y = 0; y < WORLD_MAP_SIZE; y++)
+			for (int x = 0; x < WORLD_MAP_SIZE; x++)
+				spm->data[y * WORLD_MAP_SIZE + x] = _tileGeneration->pathfindingMap[x][y];
+		_server->sendDataToAll((char*)spm, spm->len);
+		delete[](char*)spm;
+	}
 
 	SDL_Surface* map = SDL_CreateRGBSurface(0, WORLD_MAP_SIZE, WORLD_MAP_SIZE, 32, 0, 0, 0, 0);
 	{
@@ -350,7 +351,7 @@ void GameServer::run() {
 				if (!oldTransform || !oldMesh)
 					continue;
 
-				char name[64] = {0};
+				char name[64] = { 0 };
 				snprintf(name, sizeof(name), "Dead body [%zu]", eID);
 				auto deadBody = world::newEntity(name, e->parent);
 				auto t = deadBody->addComponent<Hydra::Component::TransformComponent>();
@@ -418,11 +419,7 @@ void GameServer::run() {
 		}
 		mySleep(1000 / 30);
 	}
-	if (pathSendTimer >= 5)
-	{
-		_sendPathInfo();
-	}
-	pathSendTimer += delta;
+	_sendPathInfo();
 }
 
 void GameServer::quit() {
@@ -502,6 +499,9 @@ void GameServer::_resolvePackets(std::vector<Hydra::Network::Packet*> packets) {
 		case PacketType::ClientShoot:
 			resolveClientShootPacket((ClientShootPacket*)p, player, &_physicsSystem); //SUPER INEFFICIENT
 			createAndSendPlayerShootPacket(player, (ClientShootPacket*)p, this->_server);
+			break;
+		case PacketType::ClientRequestAIInfo:
+			_resolveClientRequestAIInfoPacket((ClientRequestAIInfoPacket*)p);
 			break;
 		default:
 			break;
@@ -714,36 +714,57 @@ bool GameServer::_addPlayer(int id) {
 
 void BarcodeServer::GameServer::_sendPathInfo()
 {
-	if (auto e = world::getEntity(aiInspectorID))
+	for (auto clientAI : aiInspectorSync)
 	{
-		if (auto a = e->getComponent<Hydra::Component::AIComponent>())
+		if (auto e = world::getEntity(clientAI.ai))
 		{
-			size_t open = a->behaviour->pathFinding->openList.size();
-			size_t closed = a->behaviour->pathFinding->visitedList.size();
-			size_t pathToEnd = a->behaviour->pathFinding->pathToEnd.size();
-
-			ServerAIInfoPacket* packet = (ServerAIInfoPacket*)new glm::vec2[open + closed + pathToEnd];
-			*packet = ServerAIInfoPacket(open + closed + pathToEnd);
-
-			packet->openList = open;
-			packet->closedList = closed;
-			packet->pathToEnd = pathToEnd;
-
-			int i = 0;
-			for (auto o : a->behaviour->pathFinding->openList)
+			if (auto a = e->getComponent<Hydra::Component::AIComponent>())
 			{
-				packet->data[i] = o->pos.baseVec;
-				i++;
-			}
-			for (auto c : a->behaviour->pathFinding->visitedList)
-			{
-				packet->data[i] = c->pos.baseVec;
-				i++;
-			}
-			for (auto p : a->behaviour->pathFinding->pathToEnd)
-			{
-				packet->data[i] = PathFinding::worldToMapCoords(p);
-				i++;
+				if (a->behaviour->doDiddeliDoneDatPathfinding)
+				{
+					size_t open = a->behaviour->pathFinding->openList.size();
+					size_t closed = a->behaviour->pathFinding->visitedList.size();
+					size_t pathToEnd = a->behaviour->pathFinding->pathToEnd.size();
+					std::cout << open << " " << closed << " " << pathToEnd << std::endl;
+					if (open + closed + pathToEnd <= 0)
+					{
+						continue;
+					}
+					ServerAIInfoPacket* packet = (ServerAIInfoPacket*)new char[open + closed + pathToEnd];
+					*packet = ServerAIInfoPacket(open + closed + pathToEnd);
+
+					packet->openList = open;
+					packet->closedList = closed;
+					packet->pathToEnd = pathToEnd;
+
+					int i = 0;
+					for (auto o : a->behaviour->pathFinding->openList)
+					{
+						packet->data[i] = o->pos.x();
+						i++;
+						packet->data[i] = o->pos.z();
+						i++;
+					}
+					for (auto c : a->behaviour->pathFinding->visitedList)
+					{
+						packet->data[i] = c->pos.x();
+						i++;
+						packet->data[i] = c->pos.z();
+						i++;
+					}
+					for (auto p : a->behaviour->pathFinding->pathToEnd)
+					{
+						glm::ivec2 pos = PathFinding::worldToMapCoords(p).baseVec;
+						packet->data[i] = pos.x;
+						i++;
+						packet->data[i] = pos.y;
+						i++;
+					}
+
+					_server->sendDataToClient((char*)packet, packet->len, clientAI.client);
+					a->behaviour->doDiddeliDoneDatPathfinding = false;
+					//delete[](char*)packet;
+				}
 			}
 		}
 	}
@@ -779,5 +800,27 @@ void GameServer::_onRobotShoot(WeaponComponent& weapon, Entity* bullet, void* us
 
 		this_->_server->sendDataToAll((char*)packet, sizeof(ServerShootPacket));
 		delete packet;
+	}
+}
+
+void BarcodeServer::GameServer::_resolveClientRequestAIInfoPacket(Hydra::Network::ClientRequestAIInfoPacket* packet)
+{
+	if (auto e = world::getEntity(packet->serverEntityID))
+	{
+		if (e->getComponent<Hydra::Component::AIComponent>())
+		{
+			for (auto ai : aiInspectorSync)
+			{
+				if (ai.client == packet->client)
+				{
+					ai.ai = packet->serverEntityID;
+					return;
+				}
+			}
+			SyncBoi s;
+			s.client = packet->client;
+			s.ai = packet->serverEntityID;
+			aiInspectorSync.push_back(s);
+		}
 	}
 }

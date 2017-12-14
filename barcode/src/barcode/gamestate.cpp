@@ -75,6 +75,7 @@ namespace Barcode {
 			Hydra::Network::NetClient::updatePVS = &GameState::_onUpdatePVS;
 			Hydra::Network::NetClient::onWin = &GameState::_onWin;
 			Hydra::Network::NetClient::updatePathMap = &GameState::_onUpdatePathMap;
+			Hydra::Network::NetClient::updatePath = &GameState::_onUpdatePath;
 			Hydra::Network::NetClient::userdata = static_cast<void*>(this);
 			_didConnect = Hydra::Network::NetClient::initialize(addr, port);
 		}
@@ -114,7 +115,8 @@ namespace Barcode {
 				oldNoClip = _cc->noClip;
 				_cc->mouseControl = false;
 				_cc->noClip = false;
-			} else {
+			}
+			else {
 				_cc->mouseControl = oldMouseControl;
 				_cc->noClip = oldNoClip;
 			}
@@ -589,9 +591,18 @@ namespace Barcode {
 		this_->_engine->setState<WinState>();
 	}
 
-	void GameState::_onUpdatePathMap(bool* map, void* userdata)	{
+	void GameState::_onUpdatePathMap(bool* map, void* userdata) {
 		GameState* this_ = static_cast<GameState*>(userdata);
+		if (this_->aiInspector->pathMap != nullptr)
+		{
+			delete[] this_->aiInspector->pathMap;
+		}
 		this_->aiInspector->pathMap = map;
+	}
+
+	void GameState::_onUpdatePath(std::vector<glm::ivec2>& openList, std::vector<glm::ivec2>& closedList, std::vector<glm::ivec2>& pathToEnd, void * userdata)
+	{
+		GameState* this_ = static_cast<GameState*>(userdata);
 	}
 
 	void GameState::_onNewEntity(Entity* entity, void* userdata) {

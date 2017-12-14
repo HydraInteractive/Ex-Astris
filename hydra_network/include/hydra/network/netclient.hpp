@@ -12,7 +12,7 @@ namespace Hydra::Network {
 		typedef void(*onWin_f)(void* userdata);
 		typedef void(*onNewEntity_f)(Entity* entity, void* userdata);
 		typedef void(*updatePathMap_f)(bool* map, void* userdata);
-		typedef void(*updatePath_f)(std::vector<glm::vec2>& openList, std::vector<glm::vec2>& closedList, std::vector<glm::vec2>& pathToEnd, void* userdata);
+		typedef void(*updatePath_f)(std::vector<glm::ivec2>& openList, std::vector<glm::ivec2>& closedList, std::vector<glm::ivec2>& pathToEnd, void* userdata);
 
 		static updatePVS_f updatePVS;
 		static onWin_f onWin;
@@ -29,8 +29,15 @@ namespace Hydra::Network {
 		static void run();
 		static void reset();
 		static void enableEntity(Entity* ent);
+		static void requestAIInfo(Hydra::World::EntityID id);
 
 	private:
+		struct {
+			bool operator()(const Hydra::World::EntityID& left, const Hydra::World::EntityID& right) const
+			{
+				return left == right;
+			}
+		} _findServerIDComparator;
 		static TCPClient _tcp;
 		static Hydra::World::EntityID _myID;
 		static std::map<ServerID, Hydra::World::EntityID> _IDs;

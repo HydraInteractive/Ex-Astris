@@ -176,21 +176,33 @@ void NetClient::_resolvePackets() {
 			if (!updatePath)
 				break;
 			auto sai = (ServerAIInfoPacket*)p;
-			std::vector<glm::vec2> openList;
-			std::vector<glm::vec2> closedList;
-			std::vector<glm::vec2> pathToend;
+			std::vector<glm::ivec2> openList;
+			std::vector<glm::ivec2> closedList;
+			std::vector<glm::ivec2> pathToend;
 			int i = 0;
-			for (; i < sai->openList; i++)
+			while (i < sai->openList)
 			{
-				openList.push_back(sai->data[i]);
+				int8_t x = sai->data[i];
+				i++;
+				int8_t y = sai->data[i];
+				i++;
+				openList.push_back(glm::ivec2(x, y));
 			}
-			for (; i < sai->openList + sai->closedList; i++)
+			while (i < sai->openList + sai->closedList)
 			{
-				closedList.push_back(sai->data[i]);
+				int8_t x = sai->data[i];
+				i++;
+				int8_t y = sai->data[i];
+				i++;
+				closedList.push_back(glm::ivec2(x, y));
 			}
-			for (; i < sai->openList + sai->closedList + sai->pathToEnd; i++)
+			while (i < sai->openList + sai->closedList + sai->pathToEnd)
 			{
-				pathToend.push_back(sai->data[i]);
+				int8_t x = sai->data[i];
+				i++;
+				int8_t y = sai->data[i];
+				i++;
+				pathToend.push_back(glm::ivec2(x, y));
 			}
 			updatePath(openList, closedList, pathToend, userdata);
 			break;
@@ -369,6 +381,27 @@ void NetClient::run() {
 	{
 		//du gillar sovpotatisar no?
 	}
+}
+
+void NetClient::requestAIInfo(Hydra::World::EntityID id)
+{
+	ServerID serverID = 0;
+	for (auto i : _IDs)
+	{
+		if (i.second == id)
+		{
+			serverID = i.first;
+			break;
+		}
+	}
+	if (serverID == 0)
+	{
+		return;
+	}
+	ClientRequestAIInfoPacket packet;
+	packet.serverEntityID = serverID;
+	packet.client =
+		NetClient::_tcp.send((char*)&packet, packet.len);
 }
 
 void NetClient::reset() {
