@@ -33,12 +33,17 @@ void BarcodeServer::resolveClientUpdatePacket(ClientUpdatePacket* cup, Hydra::Wo
 	}
 	for (size_t i = 0; i < children.size(); i++) {
 		if (children[i] == entityID) {
-			Hydra::Component::TransformComponent* tc = Hydra::World::World::getEntity(children[i])->getComponent<Hydra::Component::TransformComponent>().get();
+			auto entity = Hydra::World::World::World::getEntity(children[i]);
+			Hydra::Component::TransformComponent* tc = entity->getComponent<Hydra::Component::TransformComponent>().get();
 			if (tc != nullptr) {
 				tc->setPosition(cup->ti.pos);
 				tc->setScale(cup->ti.scale);
 				tc->setRotation(cup->ti.rot);
 			}
+			auto rbc = entity->getComponent<Hydra::Component::RigidBodyComponent>();
+			if (rbc)
+				rbc->refreshTransform();
+
 			return;
 		}
 	}

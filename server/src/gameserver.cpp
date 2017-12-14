@@ -566,15 +566,22 @@ bool GameServer::_addPlayer(int id) {
 				pi.ti.pos = tc->position;
 				pi.ti.rot = tc->rotation;
 				pi.ti.scale = tc->scale;
-
-				auto rbc = randomOther->addComponent<Hydra::Component::RigidBodyComponent>();
-				rbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * glm::vec3{ 1, 1, 1 }, glm::vec3(0, 1.0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
-					0, 0, 0.0f, 0);
-
-				rbc->setAngularForce(glm::vec3(0, 0, 0));
-				rbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
 			}
-			_physicsSystem.enable(rbc.get());
+
+			Hydra::Component::TransformComponent* tc = enttmp->addComponent<Hydra::Component::TransformComponent>().get();
+			auto life = enttmp->addComponent<Hydra::Component::LifeComponent>().get();
+			life->maxHP = 100;
+			life->health = 100;
+			tc->setPosition(pi.ti.pos);
+			tc->setScale(pi.ti.scale);
+			tc->setRotation(pi.ti.rot);
+
+			auto rgbc = enttmp->addComponent<Hydra::Component::RigidBodyComponent>();
+			rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * tc->scale, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
+				0, 0, 0.0f, 0);
+			rgbc->setAngularForce(glm::vec3(0, 0, 0));
+			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+			_physicsSystem.enable(rgbc.get());
 			printf("sendDataToClient:\n\ttype: ServerInitialize\n\tlen: %zu\n", pi.len);
 			int tmp = this->_server->sendDataToClient((char*)&pi, pi.len, id);
 		}
@@ -597,13 +604,6 @@ bool GameServer::_addPlayer(int id) {
 		}
 
 		{
-			Hydra::Component::TransformComponent* tc = enttmp->addComponent<Hydra::Component::TransformComponent>().get();
-			auto life = enttmp->addComponent<Hydra::Component::LifeComponent>().get();
-			life->maxHP = 100;
-			life->health = 100;
-			tc->setPosition(pi.ti.pos);
-			tc->setScale(pi.ti.scale);
-			tc->setRotation(pi.ti.rot);
 			this->_networkEntities.push_back(p->entityid);
 			printf("Player connected with entity id: %zu\n", pi.entityid);
 		}
@@ -685,7 +685,6 @@ void GameServer::_onRobotShoot(WeaponComponent& weapon, Entity* bullet, void* us
 		packet->serverPlayerID = bullet->id;
 
 		this_->_server->sendDataToAll((char*)packet, sizeof(ServerShootPacket));
-
 		delete packet;
 	}
 }

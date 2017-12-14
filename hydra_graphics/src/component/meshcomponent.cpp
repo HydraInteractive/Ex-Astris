@@ -33,8 +33,12 @@ void MeshComponent::loadMesh(const std::string meshFile) {
 
 	if (meshFile.find("Wall") != std::string::npos || meshFile.find("Tunnel") != std::string::npos
 		 || meshFile.find("Roof") != std::string::npos || meshFile.find("Floor_v") != std::string::npos
-		|| meshFile.find("HangingCable") != std::string::npos || meshFile.find("Monitor") != std::string::npos)
+		|| meshFile.find("HangingCable") != std::string::npos || meshFile.find("Monitor") != std::string::npos
+		|| meshFile.find("BookShelf") != std::string::npos || meshFile.find("Pillar") != std::string::npos || meshFile.find("Locker") != std::string::npos
+		|| meshFile.find("WaterContainer") != std::string::npos || meshFile.find("EnglishWordForHyllla") != std::string::npos
+		|| meshFile.find("Fridge") != std::string::npos || meshFile.find("Door") != std::string::npos){
 		drawObject->drawObject->hasShadow = false;
+	}
 }
 
 void MeshComponent::serialize(nlohmann::json& json) const {

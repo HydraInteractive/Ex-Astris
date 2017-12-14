@@ -39,7 +39,7 @@ layout(location = 9) uniform int nrOfPointLights;
 layout(location = 10) uniform DirLight dirLight;
 layout(location = 12) uniform mat4 projection;
 layout(location = 13) uniform mat4 lightS;
-layout(location = 14) uniform bool enableShadows;
+layout(location = 14) uniform bool enableShadows = true;
 layout(location = 15) uniform PointLight pointLights[MAX_LIGHTS];
 
 
@@ -113,9 +113,7 @@ void main() {
 
 	// Shadow
 	vec3 projCoords = lightPos.xyz / lightPos.w;
-	float closestDepth = texture(depthMap, projCoords.xy).r;
 	float currentDepth = projCoords.z;
-	float bias = max(0.005 * (1.0 - dot(normal.xyz, -dirLight.dir)), 0.01);
 	float shadow = 0.0f;
 
 	// PCF - 16 Samples

@@ -553,6 +553,8 @@ namespace Barcode {
 			rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
 				0, 0, 0.0f, 0);
 			rgbc->setAngularForce(glm::vec3(0, 0, 0));
+			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+
 
 			//Boss
 			//{
@@ -662,7 +664,6 @@ namespace Barcode {
 			//	}
 			//}
 
-			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
 				auto w = weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
@@ -724,6 +725,7 @@ namespace Barcode {
 		GameState* this_ = static_cast<GameState*>(userdata);
 		this_->_engine->setState<WinState>();
 	}
+
 	void GameState::_onUpdatePathMap(bool* map, void* userdata)
 	{
 		GameState* this_ = static_cast<GameState*>(userdata);
