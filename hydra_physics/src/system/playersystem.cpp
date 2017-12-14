@@ -75,10 +75,13 @@ void PlayerSystem::tick(float delta) {
 			if (keysArray[SDL_SCANCODE_D])
 				movement->velocity += movement->movementSpeed * right * delta;
 
-			if (keysArray[SDL_SCANCODE_SPACE] && player->onGround) {
-				rbc->applyCentralForce(btVector3(0, 12000, 0));
-				player->onGround = false;
+			player->lastJump += delta;
+			if (keysArray[SDL_SCANCODE_SPACE] && player->onGround && player->lastJump >= 0.2f) {
+				rbc->setLinearVelocity(btVector3(0, 6, 0));
+				player->lastJump = 0;
 			}
+			player->onGround = false;
+
 			if (keysArray[SDL_SCANCODE_P])
 			{
 				perks->newPerks.push_back(Hydra::Component::PerkComponent::PERK_RED);
