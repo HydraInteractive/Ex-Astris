@@ -211,49 +211,32 @@ void Behaviour::executeTransforms()
 {
 	//Line of sight check
 	//If AI dont have vision to shoot at player, move closer
-	//if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) <= 30.0f)
-	//{
-	//	auto callback = static_cast<btCollisionWorld::ClosestRayResultCallback*>(static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->rayTestFromTo(glm::vec3(thisEnemy.transform->position.x, thisEnemy.transform->position.y + 2.0f, thisEnemy.transform->position.z), targetPlayer.transform->position));
-	//	//std::cout << callback->m_rayFromWorld.x() << "," << callback->m_rayFromWorld.y() << ","<< callback->m_rayFromWorld.z() << std::endl;
-	//	//if (callback->hasHit())
-	//	//{
-	//	//	//std::cout << "CLOSEST : " << callback->m_closestHitFraction << std::endl;
-	//	//	auto hitboi = Hydra::World::World::getEntity(callback->m_collisionObject->getUserIndex());
-	//	//	auto hitboiParent = Hydra::World::World::getEntity(hitboi->parent);
-	//	//	if (hitboi->name != "Player")
-	//	//	{
-	//	//		std::cout << "FUCK : " << hitboiParent->name << std::endl;
-	//	//	}
-	//	//	else
-	//	//	{
-	//	//		std::cout << "FUCK : " << hitboi->name << std::endl;
-	//	//	}
-	//	//}
-	//	if (targetPlayer.transform->position.y < 4.5f)
-	//	{
-	//		if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_WALL)
-	//		{
-	//			printf("player cant be seen \n");
-	//			if (range > 3)
-	//			{
-	//				range -= 1;
-	//			}
-	//			regainRange = 0;
-	//		}
-	//	}
-	//	
-	//	if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_PLAYER)
-	//	{
-	//		printf("player seen \n");
-	//		if (regainRange > 1.5)
-	//		{
-	//			range = originalRange;
-	//		}
-	//	}
-	//	delete callback;
-	//}
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) <= 30.0f)
+	{
+		auto callback = static_cast<btCollisionWorld::ClosestRayResultCallback*>(static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->rayTestFromTo(glm::vec3(thisEnemy.transform->position.x, thisEnemy.transform->position.y + 2.0f, thisEnemy.transform->position.z), targetPlayer.transform->position));
+		if (targetPlayer.transform->position.y < 4.5f)
+		{
+			if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_WALL)
+			{
+				if (range > 3)
+				{
+					range -= 1;
+				}
+				regainRange = 0;
+			}
+		}
+		
+		if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_PLAYER)
+		{
+			if (regainRange > 1.5)
+			{
+				range = originalRange;
+			}
+		}
+		delete callback;
+	}
 
-	/*if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 30.0f)*/
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 30.0f)
 	{
 		range = originalRange;
 	}
@@ -283,16 +266,6 @@ void Behaviour::resetAnimationOnStart(int animationIndex) {
 
 void Behaviour::setPathMap(bool** map)
 {
-	//bool** tempMap = new bool*[WORLD_MAP_SIZE];
-	//for (int i = 0; i < WORLD_MAP_SIZE; i++)
-	//{
-	//	tempMap[i] = new bool[WORLD_MAP_SIZE];
-	//	for (int j = 0; j < WORLD_MAP_SIZE; j++)
-	//	{
-	//		tempMap[i][j] = map[j][i];
-	//	}
-	//}
-
 	pathFinding->map = map;
 }
 
@@ -325,20 +298,22 @@ void AlienBehaviour::run(float dt)
 	newPathTimer += dt;
 	regainRange += dt;
 
-	if (targetPlayer.entity->getComponent<Hydra::Component::PlayerComponent>() != nullptr)
-	{
-		auto pc = targetPlayer.entity->getComponent<Hydra::Component::PlayerComponent>();
-		if (!pc->onFloor && pc->onGround && pathFinding->inWall(targetPlayer.transform->position))
-		{
-			playerUnreachable = true;
-			originalRange = 15;
-		}
-		else if (pc->onFloor && pc->onGround)
-		{
-			playerUnreachable = false;
-			originalRange = savedRange;
-		}
-	}
+	//if (targetPlayer.playerComp != nullptr)
+	//{
+	//	printf("I made it \n");
+	//	if (!targetPlayer.playerComp->onFloor && targetPlayer.playerComp->onGround && pathFinding->inWall(targetPlayer.transform->position))
+	//	{
+	//		printf("time to shoot \n");
+	//		playerUnreachable = true;
+	//		originalRange = 15;
+	//	}
+	//	else if (targetPlayer.playerComp->onFloor && targetPlayer.playerComp->onGround)
+	//	{
+	//		printf("no shoot \n");
+	//		playerUnreachable = false;
+	//		originalRange = savedRange;
+	//	}
+	//}
 
 	//if (pathFinding->inWall(targetPlayer.transform->position))
 	//{

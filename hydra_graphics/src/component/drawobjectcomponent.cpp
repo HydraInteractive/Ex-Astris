@@ -17,10 +17,15 @@ DrawObjectComponent::~DrawObjectComponent() {
 		drawObject->refCounter = 0;
 }
 
-void DrawObjectComponent::serialize(nlohmann::json& json) const {}
+void DrawObjectComponent::serialize(nlohmann::json& json) const {
 
-void DrawObjectComponent::deserialize(nlohmann::json& json) {}
+}
+
+void DrawObjectComponent::deserialize(nlohmann::json& json) {
+
+}
 
 void DrawObjectComponent::registerUI() {
 	ImGui::Checkbox("Disable", &drawObject->disable);
+	ImGui::Checkbox("HasShadow", &drawObject->hasShadow);
 }

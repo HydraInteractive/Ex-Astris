@@ -32,6 +32,6 @@ vec4 getFinal(vec4 beginningVec) {
 }
 
 void main() {
-	vertNormal = getFinal(vec4(normal, 1.0f)).xyz;
+	vertNormal = normalize(getFinal(vec4(normal, 1.0f)).xyz);
 	gl_Position = proj * view * m * getFinal(vec4(position, 1.0f));
 }
