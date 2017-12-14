@@ -40,7 +40,6 @@ void Behaviour::setEnemyEntity(std::shared_ptr<Hydra::World::Entity> enemy)
 void Behaviour::setTargetPlayer(std::shared_ptr<Hydra::World::Entity> player)
 {
 	targetPlayer.entity = player.get();
-	targetPlayer.playerComp = player->getComponent<Hydra::Component::PlayerComponent>().get();
 	targetPlayer.life = player->getComponent<Hydra::Component::LifeComponent>().get();
 	targetPlayer.transform = player->getComponent<Hydra::Component::TransformComponent>().get();
 }
@@ -71,7 +70,6 @@ bool Behaviour::refreshRequiredComponents()
 			(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 			(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
 			(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
-			(targetPlayer.playerComp = targetPlayer.entity->getComponent<Hydra::Component::PlayerComponent>().get()) &&
 			(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 			(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
 		 );
@@ -300,22 +298,22 @@ void AlienBehaviour::run(float dt)
 	newPathTimer += dt;
 	regainRange += dt;
 
-	if (targetPlayer.playerComp != nullptr)
-	{
-		printf("I made it \n");
-		if (!targetPlayer.playerComp->onFloor && targetPlayer.playerComp->onGround && pathFinding->inWall(targetPlayer.transform->position))
-		{
-			printf("time to shoot \n");
-			playerUnreachable = true;
-			originalRange = 15;
-		}
-		else if (targetPlayer.playerComp->onFloor && targetPlayer.playerComp->onGround)
-		{
-			printf("no shoot \n");
-			playerUnreachable = false;
-			originalRange = savedRange;
-		}
-	}
+	//if (targetPlayer.playerComp != nullptr)
+	//{
+	//	printf("I made it \n");
+	//	if (!targetPlayer.playerComp->onFloor && targetPlayer.playerComp->onGround && pathFinding->inWall(targetPlayer.transform->position))
+	//	{
+	//		printf("time to shoot \n");
+	//		playerUnreachable = true;
+	//		originalRange = 15;
+	//	}
+	//	else if (targetPlayer.playerComp->onFloor && targetPlayer.playerComp->onGround)
+	//	{
+	//		printf("no shoot \n");
+	//		playerUnreachable = false;
+	//		originalRange = savedRange;
+	//	}
+	//}
 
 	//if (pathFinding->inWall(targetPlayer.transform->position))
 	//{
@@ -473,7 +471,6 @@ bool RobotBehaviour::refreshRequiredComponents()
 			(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 			(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
 			(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
-			(targetPlayer.playerComp = targetPlayer.entity->getComponent<Hydra::Component::PlayerComponent>().get()) &&
 			(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 			(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
 		);
