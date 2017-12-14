@@ -211,10 +211,10 @@ void Behaviour::executeTransforms()
 {
 	//Line of sight check
 	//If AI dont have vision to shoot at player, move closer
-	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) <= 35.0f)
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 40.0f)
 	{
-		auto callback = static_cast<btCollisionWorld::ClosestRayResultCallback*>(static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->rayTestFromTo(glm::vec3(thisEnemy.transform->position.x, thisEnemy.transform->position.y + 2.0f, thisEnemy.transform->position.z), targetPlayer.transform->position));
-		if (targetPlayer.transform->position.y < 4.5f)
+		auto callback = static_cast<btCollisionWorld::ClosestRayResultCallback*>(static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->rayTestFromTo(glm::vec3(thisEnemy.transform->position.x, thisEnemy.transform->position.y + 1.8, thisEnemy.transform->position.z), targetPlayer.transform->position));
+		if (targetPlayer.transform->position.y < 5.0f)
 		{
 			if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_WALL)
 			{
@@ -225,7 +225,7 @@ void Behaviour::executeTransforms()
 				regainRange = 0;
 			}
 		}
-		
+
 		if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_PLAYER)
 		{
 			if (regainRange > 1.5)
@@ -235,8 +235,7 @@ void Behaviour::executeTransforms()
 		}
 		delete callback;
 	}
-
-	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 35.0f)
+	else
 	{
 		range = originalRange;
 	}
@@ -298,26 +297,25 @@ void AlienBehaviour::run(float dt)
 	newPathTimer += dt;
 	regainRange += dt;
 
-	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 35 && pathFinding->inWall(targetPlayer.transform->position))
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 35)
 	{
-		auto callback = static_cast<btCollisionWorld::ClosestRayResultCallback*>(static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->rayTestFromTo(targetPlayer.transform->position, targetPlayer.transform->position + glm::vec3(0,-2.5,0)));
-		if (callback->hasHit()) {
-			auto hitboi = World::World::getEntity(callback->m_collisionObject->getUserIndex());
-			//std::cout << hitboi->name << std::endl;
-		}
-		if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_WALL)
-		{
+		if (pathFinding->inWall(targetPlayer.transform->position)){
+		auto callback = static_cast<btCollisionWorld::ClosestRayResultCallback*>(static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->rayTestFromTo(targetPlayer.transform->position, targetPlayer.transform->position + glm::vec3(0,-2.0,0)));
+
+		if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_WALL){
 			playerUnreachable = true;
-			originalRange = 15;
-			/*range = 15;*/
+			originalRange = 10;
 		}
-		else if(callback->hasHit() && !callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_WALL)
-		{
-			//playerUnreachable = false;
+		else if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() != Hydra::System::BulletPhysicsSystem::COLL_WALL){
+			playerUnreachable = false;
 			originalRange = savedRange;
-			//range = savedRange;
 		}
 		delete callback;
+		}
+		else{
+			playerUnreachable = false;
+			originalRange = savedRange;
+		}
 	}
 
 
@@ -368,6 +366,7 @@ unsigned int AlienBehaviour::attackingState(float dt)
 		{
 			if (playerUnreachable)
 			{
+				std::cout << "yes" << std::endl;
 				glm::vec3 forward = playerDir;
 				glm::vec3 right(forward.z, forward.y, -forward.x);
 
