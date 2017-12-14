@@ -148,6 +148,7 @@ void GameServer::_makeWorld() {
 	printf("\tTook %zu tries\n", tries);
 	_tileGeneration->spawnDoors();
 	_tileGeneration->spawnEnemies();
+	_tileGeneration->spawnPickUps();
 	_tileGeneration->finalize();
 	_pathfindingMap = _tileGeneration->pathfindingMap;
 
@@ -329,6 +330,7 @@ void GameServer::run() {
 		_spawnerSystem.tick(delta);
 		//_perkSystem.tick(delta);
 		_lifeSystem.tick(delta);
+		_pickupSystem.tick(delta);
 
 		for (Hydra::World::EntityID e : _lifeSystem.isKilled()) {
 			_deleteEntity(e);

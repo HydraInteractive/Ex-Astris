@@ -27,7 +27,7 @@
 #include <hydra/component/roomcomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/system/deadsystem.hpp>
-#define PICKUP_CHANCE 100
+#define PICKUP_CHANCE 20
 
 namespace BarcodeServer {
 	class TileGeneration {
@@ -46,6 +46,7 @@ namespace BarcodeServer {
 		void buildMap();
 
 		void spawnDoors();
+		void spawnPickUps();
 		void spawnEnemies();
 		void finalize();
 
@@ -69,7 +70,6 @@ namespace BarcodeServer {
 		void _spawnRandomEnemy(glm::vec3 pos);
 		void _createSpawner(glm::vec3 pos);
 		void _clearSpawnPoints();
-		void _spawnPickUps(std::shared_ptr<Hydra::World::Entity>& room);
 		void _spawnLight(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
 		glm::quat _rotateRoom(std::shared_ptr<Hydra::Component::RoomComponent>& room, uint8_t& rot);
 		glm::vec3 _gridToWorld(int x, int y);

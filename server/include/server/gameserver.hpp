@@ -10,6 +10,7 @@
 #include <hydra/system/spawnersystem.hpp>
 #include <hydra/system/perksystem.hpp>
 #include <hydra/system/lifesystem.hpp>
+#include <hydra/system/pickupsystem.hpp>
 #include <json.hpp>
 
 namespace BarcodeServer {
@@ -52,6 +53,7 @@ namespace BarcodeServer {
 		Hydra::System::SpawnerSystem _spawnerSystem;
 		Hydra::System::PerkSystem _perkSystem;
 		Hydra::System::LifeSystem _lifeSystem;
+		Hydra::System::PickUpSystem _pickupSystem;
 
 		void _makeWorld();
 		void _sendWorld();
