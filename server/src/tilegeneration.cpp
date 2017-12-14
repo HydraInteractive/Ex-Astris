@@ -19,6 +19,7 @@
 #include <hydra/component/spawnpointcomponent.hpp>
 #include <hydra/component/spawnercomponent.hpp>
 #include <hydra/component/networksynccomponent.hpp>
+#include <hydra/component/lightcomponent.hpp>
 using world = Hydra::World::World;
 
 using namespace BarcodeServer;
