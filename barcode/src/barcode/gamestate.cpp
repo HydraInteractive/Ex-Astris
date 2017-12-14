@@ -75,6 +75,7 @@ namespace Barcode {
 			Hydra::Network::NetClient::updatePVS = &GameState::_onUpdatePVS;
 			Hydra::Network::NetClient::onWin = &GameState::_onWin;
 			Hydra::Network::NetClient::updatePathMap = &GameState::_onUpdatePathMap;
+			Hydra::Network::NetClient::onNewEntity = &GameState::_onNewEntity;
 			Hydra::Network::NetClient::userdata = static_cast<void*>(this);
 			_didConnect = Hydra::Network::NetClient::initialize(addr, port);
 		}
@@ -522,7 +523,7 @@ namespace Barcode {
 			t->position = glm::vec3(-10, 0, -10);
 			_playerTransform = t.get();
 			auto rgbc = playerEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
+			rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0, -0.5, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
 				0, 0, 0.0f, 0);
 			rgbc->setAngularForce(glm::vec3(0, 0, 0));
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
