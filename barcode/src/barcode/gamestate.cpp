@@ -133,7 +133,7 @@ namespace Barcode {
 
 		_physicsSystem.tick(delta);
 		_cameraSystem.tick(delta);
-		//_aiSystem.tick(delta);
+		//_aiSystem.tick(delta); 
 		_bulletSystem.tick(delta);
 		_playerSystem.tick(delta);
 		_abilitySystem.tick(delta);

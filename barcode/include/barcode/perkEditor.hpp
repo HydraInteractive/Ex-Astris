@@ -72,6 +72,8 @@ namespace Barcode {
 		inline Hydra::IO::ITextFactory* getTextFactory() final { return _textFactory.get();}
 		inline Hydra::World::ISystem* getPhysicsSystem() final { return &_physicsSystem;}
 
+		int oldMeshID = 0;
+
 	private:
 		Hydra::IEngine* _engine;
 		

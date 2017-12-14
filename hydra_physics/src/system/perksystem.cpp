@@ -78,6 +78,8 @@ void PerkSystem::PerkChange(ReadBullet& b, const std::shared_ptr<Hydra::World::E
 	glm::vec3 oldColour = glm::vec3(w->color[0], w->color[1], w->color[2]);
 	glm::vec3 mixedColour = glm::clamp(glm::normalize((newColour + oldColour)), glm::vec3(0), glm::vec3(1));
 
+	w->meshType = b.meshType;
+
 	if (b.Adder)
 	{
 
@@ -143,6 +145,9 @@ void PerkSystem::PerkChange(ReadBullet& b, const std::shared_ptr<Hydra::World::E
 		w->glowIntensity = b.glowIntensity;
 		perkDescriptionText = b.perkDescription;
 	}
+	//Failsafe incase negative damage
+	if (w->damage < 0.0f) 
+		w->damage = 0.5f;
 }
 
 void PerkSystem::readFromFile(const char* fileName, ReadBullet &readBullet)
@@ -150,7 +155,7 @@ void PerkSystem::readFromFile(const char* fileName, ReadBullet &readBullet)
 
 	std::string name = fileName;
 	std::ifstream file(name, std::ios::binary);
-	file.open("C:/Users/destroyer/Documents/GitHub/Hydra/assets/perks/" + name + ".PERK");
+	file.open("assets/perks/" + name + ".PERK");
 
 	file.read(reinterpret_cast<char*>(&readBullet.bulletSize), sizeof(float));
 	file.read(reinterpret_cast<char*>(&readBullet.dmg), sizeof(float));
@@ -165,6 +170,7 @@ void PerkSystem::readFromFile(const char* fileName, ReadBullet &readBullet)
 	file.read(reinterpret_cast<char*>(&readBullet.Multiplier), sizeof(bool));
 	file.read(reinterpret_cast<char*>(&readBullet.glow), sizeof(bool));
 	file.read(reinterpret_cast<char*>(&readBullet.glowIntensity), sizeof(float));
+	file.read(reinterpret_cast<char*>(&readBullet.meshType), sizeof(int));
 
 	int nrOfChars = 0;
 	file.read(reinterpret_cast<char*>(&nrOfChars), sizeof(int));
@@ -217,27 +223,16 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 	}
 	case Hydra::Component::PerkComponent::PERK_RED: {
 		ReadBullet b;
-		readFromFile("Poorple", b);
-		PerkChange(b, playerEntity);
-	
+		readFromFile("Duck", b);
+		PerkChange(b, playerEntity);	
 		break;
 	}
-
-
-
-
-
 	case Hydra::Component::PerkComponent::PERK_GREEN: {
 		ReadBullet b;
-		readFromFile("Green", b);
+		readFromFile("StarTest", b);
 		PerkChange(b, playerEntity);
 		break;
 	}
-
-
-
-
-
 
 	default:
 		break;

@@ -28,6 +28,40 @@ namespace Barcode
 	{
 		_attribMenu.updateBullet(bullet);
 
+		std::vector<std::shared_ptr<Entity>> entities;
+		world::getEntitiesWithComponents<Hydra::Component::MeshComponent>(entities);
+
+		if (bullet.mesh != oldMeshID)
+		{
+			
+			entities[0]->dead = true;
+
+			auto newBullet = world::newEntity("bullet", world::root());
+			auto t = newBullet->addComponent<Hydra::Component::TransformComponent>();
+			t->position = glm::vec3(0, 0, -4);
+			t->rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
+			t->scale = glm::vec3(1);
+			t->dirty = true;
+
+
+
+			oldMeshID = bullet.mesh;
+			if (bullet.mesh == 0) {
+				newBullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Bullet.mATTIC");
+			}
+			if (bullet.mesh == 1) {
+				newBullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Star.mATTIC");
+			}
+			if (bullet.mesh == 2) {
+				newBullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Trident.mATTIC");
+			}
+			if (bullet.mesh == 3) {
+				newBullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Banana.mATTIC");
+			}
+			if (bullet.mesh == 4) {
+				newBullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Duck.mATTIC");
+			}
+		}
 		auto windwSize = _engine->getView()->getSize();
 
 		_cameraSystem.tick(delta);
@@ -47,8 +81,8 @@ namespace Barcode
 		for (auto& kv : _bulletRender.batch.objects)
 			kv.second.clear();
 
-		std::vector<std::shared_ptr<Entity>> entities;
-		world::getEntitiesWithComponents<Hydra::Component::MeshComponent>(entities);
+		//std::vector<std::shared_ptr<Entity>> entities;
+		//world::getEntitiesWithComponents<Hydra::Component::MeshComponent>(entities);
 		glm::vec3 colour(1.0f);
 		bool hasGlow = bullet.glow;
 		float glowIntensity = bullet.glowIntensity;

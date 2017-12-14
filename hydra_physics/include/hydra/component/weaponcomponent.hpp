@@ -32,6 +32,7 @@ namespace Hydra::Component {
 		float _dyaw, _dpitch = 0.0f;
 		bool _isReloading = false;
 		bool glow = false;
+		int meshType = 0;
 
 		/*unsigned short*/ int maxammo = 100000000;
 		/*unsigned short*/ int currammo = 100000000;

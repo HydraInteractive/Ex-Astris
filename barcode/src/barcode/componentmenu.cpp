@@ -24,7 +24,7 @@ ComponentMenu::ComponentMenu()
 
 ComponentMenu::~ComponentMenu()
 {
-	 
+	   
 }  
 
 void ComponentMenu::render(bool &openBool, Hydra::System::BulletPhysicsSystem& physicsSystem)
