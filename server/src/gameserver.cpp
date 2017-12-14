@@ -132,7 +132,7 @@ void GameServer::_makeWorld() {
 	_deadSystem.tick(0);
 	size_t tries = 0;
 	const size_t minRoomCount = 30;
-	const size_t maxRoomCount = 50;
+	const size_t maxRoomCount = 40;
 	while (true) {
 		tries++;
 		_tileGeneration = std::make_unique<TileGeneration>(maxRoomCount, "assets/room/starterRoom.room", &GameServer::_onRobotShoot, static_cast<void*>(this));
