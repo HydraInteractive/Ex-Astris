@@ -52,7 +52,7 @@ void ComponentMenu::render(bool &openBool, Hydra::System::BulletPhysicsSystem& p
 	}
 
 	ImGui::NextColumn();
-	ImGui::Text("Configure component");
+	ImGui::Text("Configure component"); 
 	if (_selectedString != "" && _selectedEntity != nullptr)
 	{
 		configureComponent(openBool, _selectedString, physicsSystem);

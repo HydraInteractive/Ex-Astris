@@ -46,6 +46,7 @@ namespace Barcode {
 		}
 
 		_initWorld();
+
 		aiInspector = new AIInspector();
 	}
 
@@ -54,9 +55,7 @@ namespace Barcode {
 
 	void GameState::onMainMenu() {
 		if (ImGui::BeginMenu("AI")) {
-			if (ImGui::MenuItem("Inspector...")) {
-				aiInspectorOpen = !aiInspectorOpen;
-			}
+			ImGui::MenuItem("Inspector...", nullptr, &aiInspectorOpen);
 			ImGui::EndMenu();
 		}
 	}
@@ -76,24 +75,10 @@ namespace Barcode {
 			Hydra::Network::NetClient::updatePVS = &GameState::_onUpdatePVS;
 			Hydra::Network::NetClient::onWin = &GameState::_onWin;
 			Hydra::Network::NetClient::updatePathMap = &GameState::_onUpdatePathMap;
+			Hydra::Network::NetClient::onNewEntity = &GameState::_onNewEntity;
 			Hydra::Network::NetClient::userdata = static_cast<void*>(this);
 			_didConnect = Hydra::Network::NetClient::initialize(addr, port);
 		}
-
-		/*{
-			static std::vector<std::shared_ptr<Entity>> _enemies;
-			static std::vector<std::shared_ptr<Entity>> _spawners;
-			world::getEntitiesWithComponents<Hydra::Component::SpawnerComponent, Hydra::Component::LifeComponent>(_spawners);
-			world::getEntitiesWithComponents<Hydra::Component::AIComponent, Hydra::Component::LifeComponent>(_enemies);
-			if (!_enemies.size() && !_spawners.size()) {
-				_enemies.clear();
-				_spawners.clear();
-				_engine->setState<WinState>();
-				return;
-			}
-			_enemies.clear();
-			_spawners.clear();
-		}*/
 
 		bool oldPaused = _paused;
 		if (ImGui::IsKeyPressed(SDLK_ESCAPE, false)) {
@@ -130,8 +115,7 @@ namespace Barcode {
 				oldNoClip = _cc->noClip;
 				_cc->mouseControl = false;
 				_cc->noClip = false;
-			}
-			else {
+			} else {
 				_cc->mouseControl = oldMouseControl;
 				_cc->noClip = oldNoClip;
 			}
@@ -142,7 +126,6 @@ namespace Barcode {
 
 		_physicsSystem.tick(delta);
 		_cameraSystem.tick(delta);
-		//_aiSystem.tick(delta);
 		_bulletSystem.tick(delta);
 		_playerSystem.tick(delta);
 		_abilitySystem.tick(delta);
@@ -168,7 +151,7 @@ namespace Barcode {
 		auto viewMatrix = _cc->getViewMatrix();
 		glm::vec3 rightVector = { viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0] };
 		glm::vec3 upVector = { viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1] };
-		glm::vec3 forwardVector = { viewMatrix[0][2], viewMatrix[1][2], viewMatrix[2][2] }; //glm::cross(rightVector, upVector);
+		glm::vec3 forwardVector = { viewMatrix[0][2], viewMatrix[1][2], viewMatrix[2][2] };
 		_cameraSystem.setCamInternals(*_cc);
 		_cameraSystem.setCamDef(_playerTransform->position, forwardVector, upVector, rightVector, *_cc);
 
@@ -242,7 +225,6 @@ namespace Barcode {
 			const ImVec2 pos = ImVec2(x, _engine->getView()->getSize().y / 2);
 
 			if (_prevHP > hpP) {
-				//prevHP = (1 - (delta*3)) * prevHP + (delta*3) * hpP; //LERP
 				if (_hpTimeUp == 0)
 					_hpTimeUp = 1;
 
@@ -325,22 +307,18 @@ namespace Barcode {
 				float dotPlacment = glm::dot(forward2D, enemy2D); // -1 - +1
 				float leftRight = glm::dot(right2D, enemy2D);
 				if (leftRight < 0)
-				{
 					leftRight = 1;
-				}
 				else
-				{
 					leftRight = -1;
-				}
+
 				if (dotPlacment < 0)
-				{
 					dotPlacment = 0;
-				}
 				dotPlacment = dotPlacment;
 				dotPlacment = leftRight * (1 - dotPlacment) * 275;
 				ImGui::SetNextWindowPos(ImVec2(x + dotPlacment, 75)); //- 275
 				ImGui::SetNextWindowSize(ImVec2(20, 20));
 				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+
 				if (enemyDist < 50.0) {
 					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(10, 10));
 				}
@@ -409,7 +387,6 @@ namespace Barcode {
 			for (auto usable : perk->activeAbilities)
 				coolDownList[step++] = usable->cooldown;
 
-			/*{ perk->activeAbilities[0]->cooldown ,5,5,5,5,5,5,5,5,5 };*/
 			float pForEatchDot = float(1) / float(amountOfActives);
 			float stepSize = float(70) * pForEatchDot;
 			for (size_t i = 0; i < amountOfActives; i++)
@@ -436,6 +413,7 @@ namespace Barcode {
 
 				ImGui::End();
 			}
+
 			delete[] coolDownList;
 
 			//Perk Icons
@@ -485,10 +463,10 @@ namespace Barcode {
 				ImGui::Begin("LoadingScreen", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
 				switch (_loadingScreenPicture) {
 				default:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/lS1.png")->getID()), ImVec2(windowSize.x, windowSize.y/*1280, 720*/));
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/lS1.png")->getID()), ImVec2(windowSize.x, windowSize.y));
 					break;
 				case 1:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/lS1.png")->getID()), ImVec2(windowSize.x, windowSize.y/*1280, 720*/));
+					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/lS1.png")->getID()), ImVec2(windowSize.x, windowSize.y));
 					break;
 				}
 				ImGui::End();
@@ -519,15 +497,13 @@ namespace Barcode {
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(0, 0, 0);
 			auto rgbc = floor->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_FLOOR
+			rgbc->createStaticPlane(glm::vec3(0, 1, 0), 0, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_FLOOR
 				, 0, 0, 0, 0.6f, 0);
-			//floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 		}
 
 		{ // Music
-			if (MenuState::soundEnabled) {
+			if (MenuState::soundEnabled)
 				_soundFxSystem.startMusic("assets/sounds/flesh-edit-n-baws.mp3");
-			}
 		}
 
 		{
@@ -547,119 +523,12 @@ namespace Barcode {
 			t->position = glm::vec3(-10, 0, -10);
 			_playerTransform = t.get();
 			auto rgbc = playerEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
+			const float PLAYER_HEIGHT = 3.25; // Make sure to update gamestate.cpp and netclient.cpp
+			rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0, 2 * t->scale.y - PLAYER_HEIGHT, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
 				0, 0, 0.0f, 0);
 			rgbc->setAngularForce(glm::vec3(0, 0, 0));
-
-			//Boss
-			//{
-			//	//Stationary Mech
-			//	{
-			//		auto BossMech = world::newEntity("BossMech", world::root());
-			//		BossMech->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossStationaryMechModel.mATTIC");
-			//
-			//		auto a = BossMech->addComponent<Hydra::Component::AIComponent>();
-			//		a->behaviour = std::make_shared<StationaryBoss>(BossMech);
-			//		a->damage = 7;
-			//		a->behaviour->originalRange = 20;
-			//		a->radius = 1;
-			//
-			//		auto t = BossMech->addComponent<Hydra::Component::TransformComponent>();
-			//		t->position = glm::vec3(51, 18, 0);
-			//		t->rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
-			//
-			//		auto l = BossMech->addComponent<Hydra::Component::LifeComponent>();
-			//		l->maxHP = 1000.0f;
-			//		l->health = 1000.0f;
-			//
-			//		auto m = BossMech->addComponent<Hydra::Component::MovementComponent>();
-			//		m->movementSpeed = 0.0f;
-			//
-			//		auto rgbc = BossMech->addComponent<Hydra::Component::RigidBodyComponent>();
-			//		rgbc->createBox(glm::vec3(10.0f, 16.0f, 10.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
-			//			0, 0, 0.6f, 1.0f);
-			//		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-			//		rgbc->setAngularForce(glm::vec3(0));
-			//	}
-			//	//Arms
-			//	{
-			//		for (int i = 0; i < 1; i++) {
-			//			auto bossEntity = world::newEntity("BossArm", world::root());
-			//			bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossArmModel.mATTIC");
-			//			auto a = bossEntity->addComponent<Hydra::Component::AIComponent>();
-			//			a->behaviour = std::make_shared<BossArm>(bossEntity);
-			//			a->damage = 7;
-			//			a->behaviour->originalRange = 20;
-			//			a->radius = 1;
-			//
-			//			//Set different positions for other arm
-			//			if (i == 1) {
-			//
-			//			}
-			//
-			//			auto m = bossEntity->addComponent<Hydra::Component::MovementComponent>();
-			//			m->movementSpeed = 25.0f;
-			//			auto t = bossEntity->addComponent<Hydra::Component::TransformComponent>();
-			//			t->position.y = 10;
-			//			t->scale = glm::vec3{ 1,1,1 };
-			//
-			//			auto rgbc = bossEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			//			rgbc->createBox(glm::vec3(8.0f, 2.5f, 8.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
-			//				0, 0, 0.6f, 1.0f);
-			//			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-			//			rgbc->setAngularForce(glm::vec3(0));
-			//		}
-			//	}
-			//
-			//	{
-			//		//Hands
-			//		for (int i = 0; i < 1; i++) {
-			//			auto bossEntity = world::newEntity("BossHand1", world::root());
-			//			bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossHandModel.mATTIC");
-			//			auto a = bossEntity->addComponent<Hydra::Component::AIComponent>();
-			//			a->behaviour = std::make_shared<BossHand_Left>(bossEntity);
-			//			a->behaviour->setPathMap(pathfindingMap);
-			//			a->damage = 7;
-			//			a->behaviour->originalRange = 20;
-			//			a->radius = 1;
-			//
-			//			//Set different positions for other hand
-			//			if (i == 1) {
-			//
-			//			}
-			//
-			//			auto h = bossEntity->addComponent<Hydra::Component::LifeComponent>();
-			//			h->maxHP = 70;
-			//			h->health = 70;
-			//
-			//			auto w = bossEntity->addComponent<Hydra::Component::WeaponComponent>();
-			//			w->bulletSpread = 1.0f;
-			//			w->fireRateRPM = 5000000;
-			//			w->fireRateTimer = 0.001f;
-			//			w->bulletsPerShot = 1;
-			//
-			//			w->damage = 7;
-			//			w->maxmagammo = 100000000;
-			//			w->currmagammo = 100000000;
-			//			w->maxammo = 100000000;
-			//
-			//			auto m = bossEntity->addComponent<Hydra::Component::MovementComponent>();
-			//			m->movementSpeed = 25.0f;
-			//			auto t = bossEntity->addComponent<Hydra::Component::TransformComponent>();
-			//			t->position.y = 10;
-			//			t->scale = glm::vec3{ 1,1,1 };
-			//
-			//
-			//			auto rgbc = bossEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			//			rgbc->createBox(glm::vec3(8.0f, 2.5f, 8.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
-			//				0, 0, 0.6f, 1.0f);
-			//			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-			//			rgbc->setAngularForce(glm::vec3(0));
-			//		}
-			//	}
-			//}
-
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+
 			{
 				auto weaponEntity = world::newEntity("Weapon", playerEntity);
 				auto w = weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
@@ -721,9 +590,13 @@ namespace Barcode {
 		GameState* this_ = static_cast<GameState*>(userdata);
 		this_->_engine->setState<WinState>();
 	}
-	void GameState::_onUpdatePathMap(bool* map, void* userdata)
-	{
+
+	void GameState::_onUpdatePathMap(bool* map, void* userdata)	{
 		GameState* this_ = static_cast<GameState*>(userdata);
 		this_->aiInspector->pathMap = map;
+	}
+
+	void GameState::_onNewEntity(Entity* entity, void* userdata) {
+		GameState* this_ = static_cast<GameState*>(userdata);
 	}
 }

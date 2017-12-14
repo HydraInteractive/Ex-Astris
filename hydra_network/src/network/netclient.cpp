@@ -18,6 +18,7 @@ using world = Hydra::World::World;
 bool NetClient::running = false;
 NetClient::updatePVS_f NetClient::updatePVS = nullptr;
 NetClient::onWin_f NetClient::onWin = nullptr;
+NetClient::onNewEntity_f NetClient::onNewEntity = nullptr;
 NetClient::updatePathMap_f NetClient::updatePathMap = nullptr;
 void* NetClient::userdata = nullptr;
 
@@ -53,7 +54,8 @@ void NetClient::_sendUpdatePacket() {
 		auto tc = tmp->getComponent<Hydra::Component::TransformComponent>();
 		auto cc = tmp->getComponent<Hydra::Component::CameraComponent>();
 		cpup.ti.pos = tc->position;
-		cpup.ti.pos.y -= 2;
+		const float PLAYER_HEIGHT = 3.25; // Make sure to update gamestate.cpp and netclient.cpp
+		cpup.ti.pos.y -= PLAYER_HEIGHT;
 		cpup.ti.scale = tc->scale;
 		//cpup.ti.rot = tc->rotation;
 		cpup.ti.rot = glm::angleAxis(cc->cameraYaw - 1.6f /* Player model fix */, glm::vec3(0, -1, 0));;
@@ -191,6 +193,8 @@ void NetClient::_resolveServerSpawnEntityPacket(ServerSpawnEntityPacket* entPack
 	_IDs[entPacket->id] = ent->id;
 
 	enableEntity(ent);
+	if (onNewEntity)
+		onNewEntity(ent, userdata);
 }
 
 void NetClient::_resolveServerDeleteEntityPacket(ServerDeleteEntityPacket* delPacket) {
@@ -276,6 +280,15 @@ void NetClient::_addPlayer(Packet * playerPacket) {
 	tc->setPosition(spp->ti.pos);
 	tc->setRotation(spp->ti.rot);
 	tc->setScale(spp->ti.scale);
+
+	auto rbc = ent->addComponent<Hydra::Component::RigidBodyComponent>();
+	rbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f), glm::vec3(0, 2, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
+		0, 0, 0.0f, 0);
+	rbc->setAngularForce(glm::vec3(0, 0, 0));
+
+	rbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
+	auto bulletPhysWorld = static_cast<Hydra::System::BulletPhysicsSystem*>(IEngine::getInstance()->getState()->getPhysicsSystem());
+	bulletPhysWorld->enable(rbc.get());
 	delete[] c;
 }
 
@@ -340,5 +353,10 @@ void NetClient::reset() {
 		return;
 	_tcp.close();
 	_IDs.clear();
+	updatePVS = nullptr;
+	onWin = nullptr;
+	onNewEntity = nullptr;
+	updatePathMap = nullptr;
+	userdata = nullptr;
 	running = false;
 }
