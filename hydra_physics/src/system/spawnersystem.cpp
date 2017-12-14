@@ -32,7 +32,7 @@ void SpawnerSystem::tick(float delta)
 		auto life = entities[i]->getComponent<Component::LifeComponent>();
 
 		spawner->spawnTimer += delta;
-		auto playerTrans = spawner->getPlayerEntity()->getComponent<Component::TransformComponent>();
+		//auto playerTrans = spawner->getPlayerEntity()->getComponent<Component::TransformComponent>();
 
 		for (size_t i = 0; i < spawner->spawnGroup.size(); i++)
 		{
@@ -48,8 +48,8 @@ void SpawnerSystem::tick(float delta)
 			life->health = 0;
 		}
 
-		if (glm::length(transform->position - playerTrans->position) < 50.0f)
-		{
+		/*if (glm::length(transform->position - playerTrans->position) < 50.0f)
+		{*/
 			switch (spawner->spawnerID)
 			{
 			case Component::SpawnerType::AlienSpawner:
@@ -158,7 +158,7 @@ void SpawnerSystem::tick(float delta)
 				}
 			}break;
 			}
-		}
+		//}
 
 	}
 

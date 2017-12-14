@@ -26,15 +26,6 @@ void Hydra::Component::SpawnerComponent::serialize(nlohmann::json & json) const
 		{ "spawnerID", (int)spawnerID },
 		{ "spawnCounter", (int)spawnCounter },
 	};
-
-	json["mapSize"] = (unsigned int)ROOM_MAP_SIZE;
-	for (size_t i = 0; i < WORLD_MAP_SIZE; i++)
-	{
-		for (size_t j = 0; j < WORLD_MAP_SIZE; j++)
-		{
-			json["map"][i][j] = map[i][j];
-		}
-	}
 }
 
 void Hydra::Component::SpawnerComponent::deserialize(nlohmann::json & json)
@@ -42,27 +33,6 @@ void Hydra::Component::SpawnerComponent::deserialize(nlohmann::json & json)
 	//spawnerID = json.value<int>("spawnerID", 0);
 	spawnerID = (SpawnerType)json["spawnerID"].get<int>();
 	spawnCounter = json["spawnCounter"].get<int>();
-
-	if (json.value<unsigned int>("mapSize", 0) == ROOM_MAP_SIZE)
-	{
-		for (size_t i = 0; i < ROOM_MAP_SIZE; i++)
-		{
-			for (size_t j = 0; j < ROOM_MAP_SIZE; j++)
-			{
-				map[i][j] = json["map"][i][j].get<bool>();
-			}
-		}
-	}
-	else
-	{
-		for (size_t i = 0; i < ROOM_MAP_SIZE; i++)
-		{
-			for (size_t j = 0; j < ROOM_MAP_SIZE; j++)
-			{
-				map[i][j] = true;
-			}
-		}
-	}
 }
 
 void Hydra::Component::SpawnerComponent::registerUI()

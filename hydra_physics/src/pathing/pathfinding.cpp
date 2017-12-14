@@ -73,7 +73,7 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 
 	foundGoal = false;
 
-	while (!_openList.empty() && !foundGoal)
+	while (!_openList.empty() && !foundGoal && _visitedList.size() < 100)
 	{
 		Node* currentNode = _openList.back();
 		_visitedList.push_back(_openList.back());

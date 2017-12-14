@@ -131,8 +131,8 @@ void GameServer::_makeWorld() {
 	_networkEntities.erase(std::remove_if(_networkEntities.begin(), _networkEntities.end(), [](const auto& e) {	return world::getEntity(e)->dead; }), _networkEntities.end());
 	_deadSystem.tick(0);
 	size_t tries = 0;
-	const size_t minRoomCount = 15;
-	const size_t maxRoomCount = 25;
+	const size_t minRoomCount = 30;
+	const size_t maxRoomCount = 50;
 	while (true) {
 		tries++;
 		_tileGeneration = std::make_unique<TileGeneration>(maxRoomCount, "assets/room/starterRoom.room", &GameServer::_onRobotShoot, static_cast<void*>(this));
