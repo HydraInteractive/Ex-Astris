@@ -784,7 +784,7 @@ unsigned int BossHand_Left::idleState(float dt) {
 	//Wait 2 seconds before next move
 	if (idleTimer >= 5.0f) {
 		int randomNextMove = rand() % 125;
-		return HandPhases::COVER;
+
 		if (randomNextMove < 30) {
 			Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Smash");
 			return HandPhases::SMASH;
@@ -981,16 +981,10 @@ void BossArm::run(float dt) {
 		if (!refreshRequiredComponents())
 			return;
 
-	//thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
 	thisEnemy.ai->debugState = state;
 
-	//attackTimer += dt;
-	//newPathTimer += dt;
-
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 500)
-	{
 		state = ArmPhases::CHILL;
-	}
 
 	if (shot == false) {
 		playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
@@ -1004,39 +998,6 @@ void BossArm::run(float dt) {
 
 		rotation = glm::toQuat(myRot);
 	}
-	///TO EULER, I THINK
-	//glm::quat quatRotation = thisEnemy.transform->rotation;
-	//glm::vec3 eulerRotation;
-	//
-	//// roll (x-axis rotation)
-	//double sinr = 2.0 * (quatRotation.w * quatRotation.x + quatRotation.y * quatRotation.z);
-	//double cosr = 1.0 - 2.0 * (quatRotation.x * quatRotation.x + quatRotation.y * quatRotation.y);
-	//eulerRotation.x = atan2(sinr, cosr);
-	//
-	//// pitch (y-axis rotation)
-	//double sinp = 2.0 * (quatRotation.w * quatRotation.y - quatRotation.z * quatRotation.x);
-	//if (fabs(sinp) >= 1)
-	//	eulerRotation.y = copysign(M_PI / 2, sinp); // use 90 degrees if out of range
-	//else
-	//	eulerRotation.y = asin(sinp);
-	//
-	//// yaw (z-axis rotation)
-	//double siny = 2.0 * (quatRotation.w * quatRotation.z + quatRotation.x * quatRotation.y);
-	//double cosy = 1.0 - 2.0 * (quatRotation.y * quatRotation.y + quatRotation.z * quatRotation.z);
-	//eulerRotation.z = atan2(siny, cosy);
-	//
-	//thisEnemy.transform->rotation = glm::quat(eulerRotation);
-	//
-	//rotation = atan2(playerDir.y, sqrt(playerDir.x * playerDir.x + playerDir.z * playerDir.z));
-	//rotation = glm::quat(playerDir);
-	//glm::mat4 direction = glm::lookAt(thisEnemy.transform->position, playerDir, glm::vec3(0, 1, 0));
-	//rotation = glm::toQuat(glm::inverse(direction));
-	//glm::look
-	//
-	//glm::mat4 lookAt = glm::lookAtLH(thisEnemy.transform->position, 
-	//	targetPlayer.transform->position + playerDir, glm::vec3(0, 1, 0));
-	//rotation = glm::toQuat(lookAt);
-
 
 	thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->mesh->getAnimationCounter();
 
@@ -1272,4 +1233,3 @@ bool StationaryBoss::refreshRequiredComponents()
 		);
 	return hasRequiredComponents;
 }
-
