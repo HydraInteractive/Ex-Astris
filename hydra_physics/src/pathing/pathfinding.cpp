@@ -51,7 +51,6 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 	if (targetPos.y < 4.5f) {
 		if (inWall(targetPos))
 		{
-			printf("PLAYER IN WALL!\n");
 			targetPos = findViableTile(targetPos);
 		}
 	}
@@ -121,12 +120,12 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 
 PathFinding::MapVec PathFinding::worldToMapCoords(const glm::vec3& worldPos)
 {
-	return MapVec((worldPos.x * ROOM_SCALE) - ROOM_GRID_SIZE, (worldPos.z * ROOM_SCALE) - ROOM_GRID_SIZE);
+	return MapVec(worldPos.x * ROOM_SCALE, worldPos.z * ROOM_SCALE);
 }
 
 glm::vec3 PathFinding::mapToWorldCoords(const MapVec& mapPos)
 {
-	return glm::vec3((mapPos.baseVec.x + ROOM_GRID_SIZE) / ROOM_SCALE, 0, (mapPos.baseVec.y + ROOM_GRID_SIZE) / ROOM_SCALE);
+	return glm::vec3(mapPos.baseVec.x / ROOM_SCALE, 0, mapPos.baseVec.y / ROOM_SCALE);
 }
 
 bool PathFinding::isOutOfBounds(const glm::ivec2& vec) const
@@ -260,12 +259,6 @@ bool PathFinding::_inLineOfSight(const MapVec enemyPos, const MapVec playerPos) 
 	return true;
 }
 
-static int sortFunc(void const* aPtr, void const* bPtr) {
-	const std::shared_ptr<PathFinding::Node>& a = *static_cast<const std::shared_ptr<PathFinding::Node>*>(aPtr);
-	const std::shared_ptr<PathFinding::Node>& b = *static_cast<const std::shared_ptr<PathFinding::Node>*>(bPtr);
-	return a->getF() > b->getF();
-}
-
 void PathFinding::_discoverNode(int x, int z, Node* lastNode)
 {
 	MapVec currentPos = MapVec(x, z);
@@ -311,6 +304,5 @@ void PathFinding::_discoverNode(int x, int z, Node* lastNode)
 		thisNode->lastNode = lastNode;
 	}
 
-	std::sort(openList.begin(), openList.end(), comparisonFunctor);
-	//std::qsort(openList.data(), openList.size(), sizeof(openList.data()[0]), sortFunc);
+	std::sort(_openList.begin(), _openList.end(), comparisonFunctor);
 }

@@ -14,44 +14,30 @@
 using namespace Hydra::World;
 using namespace Hydra::Component;
 
-Hydra::Component::LifeComponent::~LifeComponent()
-{
+Hydra::Component::LifeComponent::~LifeComponent() { }
+
+void Hydra::Component::LifeComponent::applyDamage(int damage) {
+	health -= damage;
 }
 
-void Hydra::Component::LifeComponent::applyDamage(int damage)
-{
-	if (health > 0)
-	{
-		health -= damage;
-	}
+bool Hydra::Component::LifeComponent::statusCheck() {
+	return health > 0;
 }
 
-bool Hydra::Component::LifeComponent::statusCheck()
-{
-	if (health <= 0)
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
-}
-
-void Hydra::Component::LifeComponent::serialize(nlohmann::json & json) const
-{
+void Hydra::Component::LifeComponent::serialize(nlohmann::json& json) const {
 	json["maxHP"] = maxHP;
 	json["health"] = health;
+	json["tickDownWithTime"] = tickDownWithTime;
 }
 
-void Hydra::Component::LifeComponent::deserialize(nlohmann::json & json)
-{
+void Hydra::Component::LifeComponent::deserialize(nlohmann::json& json) {
 	maxHP = json.value<int>("maxHP", 0);
 	health = json.value<int>("health", 0);
+	tickDownWithTime = json.value<bool>("tickDownWithTime", false);
 }
 
-void Hydra::Component::LifeComponent::registerUI()
-{
+void Hydra::Component::LifeComponent::registerUI() {
 	ImGui::InputFloat("maxHP", &maxHP);
 	ImGui::InputFloat("health", &health);
+	ImGui::Checkbox("Tick down with time", &tickDownWithTime);
 }

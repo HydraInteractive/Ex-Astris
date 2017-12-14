@@ -132,8 +132,10 @@ void PlayerSystem::tick(float delta) {
 		if (speed > 10)
 			movement->velocity *= 10 / speed;
 
-		if (weapon->_isReloading)
+		if (weapon->_isReloading) {
+			soundFx->soundsToPlay.push_back("assets/sounds/reloadE.ogg");
 			weapon->_isReloading = weapon->reload(delta);
+		}
 
 		float& yaw = camera->cameraYaw;
 		float& pitch = camera->cameraPitch;
