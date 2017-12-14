@@ -119,5 +119,6 @@ namespace Barcode {
 		static void _onUpdatePVS(nlohmann::json&& json, void* userdata);
 		static void _onWin(void* userdata);
 		static void _onUpdatePathMap(bool* map, void* userdata);
+		static void _onNewEntity(Entity* entity, void* userdata);
 	};
 }
