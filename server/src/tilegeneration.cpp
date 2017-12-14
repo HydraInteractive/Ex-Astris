@@ -48,7 +48,11 @@ TileGeneration::~TileGeneration() {
 }
 
 void TileGeneration::buildMap() {
-	_createMapRecursivly(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2));
+	if(level < 2)
+		_createMapRecursivly(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2));
+	else if (level == 2) {
+
+	}
 }
 
 void TileGeneration::finalize() {
