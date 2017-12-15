@@ -106,8 +106,7 @@ void PerkSystem::PerkChange(ReadBullet& b, const std::shared_ptr<Hydra::World::E
 		if (b.bulletSize > 0.0f)
 			w->bulletSize *= b.bulletSize;
 
-
-		w->bulletsPerShot = b.bulletPerShot;
+		w->bulletsPerShot *= b.bulletPerShot;
 		w->maxammo = b.ammoCap;
 		if (b.currentMagAmmo > 0.0f)
 			w->maxmagammo *= b.currentMagAmmo;
@@ -139,8 +138,8 @@ void PerkSystem::PerkChange(ReadBullet& b, const std::shared_ptr<Hydra::World::E
 	//Bullets Per Shot
 	if (w->bulletsPerShot < 0)
 		w->bulletsPerShot = 1;
-	else if (w->bulletsPerShot > 10)
-		w->bulletsPerShot = 10;
+	else if (w->bulletsPerShot > 30)
+		w->bulletsPerShot = 30;
 	//Max Ammo
 	if (w->maxammo != 0)
 		w->maxammo = 0;
@@ -148,8 +147,8 @@ void PerkSystem::PerkChange(ReadBullet& b, const std::shared_ptr<Hydra::World::E
 	//	w->maxammo = 200;
 	if (w->maxmagammo < 1)
 		w->maxmagammo = 1;
-	if (w->bulletSpread < 0)
-		w->bulletSpread = 0;
+	if (w->bulletSpread < -1)
+		w->bulletSpread = -1;
 	else if(w->bulletSpread > 1)
 		w->bulletSpread = 1;
 		
