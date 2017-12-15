@@ -319,6 +319,12 @@ std::string RigidBodyComponent::getShapeString(int childIndex) {
 int RigidBodyComponent::getNumberOfChildren() {
 	return _data->compoundShape.getNumChildShapes();
 }
+void RigidBodyComponent::setLinearVelocity(const glm::vec3 &newVel) {
+	_data->getRigidBody()->setLinearVelocity(cast(newVel));
+}
+void RigidBodyComponent::setGravity(const glm::vec3 &newGrav){
+	_data->getRigidBody()->setGravity(cast(newGrav));
+}
 
 void* RigidBodyComponent::getRigidBody() { return static_cast<void*>(_data->getRigidBody()); }
 

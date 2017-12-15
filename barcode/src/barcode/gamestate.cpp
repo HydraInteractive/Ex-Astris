@@ -75,6 +75,8 @@ namespace Barcode {
 			Hydra::Network::NetClient::updatePVS = &GameState::_onUpdatePVS;
 			Hydra::Network::NetClient::onWin = &GameState::_onWin;
 			Hydra::Network::NetClient::updatePathMap = &GameState::_onUpdatePathMap;
+			Hydra::Network::NetClient::onNewEntity = &GameState::_onNewEntity;
+			Hydra::Network::NetClient::updatePath = &GameState::_onUpdatePath;
 			Hydra::Network::NetClient::userdata = static_cast<void*>(this);
 			_didConnect = Hydra::Network::NetClient::initialize(addr, port);
 		}
@@ -114,7 +116,8 @@ namespace Barcode {
 				oldNoClip = _cc->noClip;
 				_cc->mouseControl = false;
 				_cc->noClip = false;
-			} else {
+			}
+			else {
 				_cc->mouseControl = oldMouseControl;
 				_cc->noClip = oldNoClip;
 			}
@@ -129,7 +132,7 @@ namespace Barcode {
 		_playerSystem.tick(delta);
 		_abilitySystem.tick(delta);
 		_particleSystem.tick(delta);
-		_rendererSystem.tick(delta);
+		_rendererSystem.tick(delta); 
 		_animationSystem.tick(delta);
 		_spawnerSystem.tick(delta);
 		_soundFxSystem.tick(delta);
@@ -496,7 +499,7 @@ namespace Barcode {
 			auto t = floor->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(0, 0, 0);
 			auto rgbc = floor->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_FLOOR
+			rgbc->createStaticPlane(glm::vec3(0, 1, 0), 0, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_FLOOR
 				, 0, 0, 0, 0.6f, 0);
 		}
 
@@ -522,7 +525,8 @@ namespace Barcode {
 			t->position = glm::vec3(-10, 0, -10);
 			_playerTransform = t.get();
 			auto rgbc = playerEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
+			const float PLAYER_HEIGHT = 3.25; // Make sure to update gamestate.cpp and netclient.cpp
+			rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0, 2 * t->scale.y - PLAYER_HEIGHT, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
 				0, 0, 0.0f, 0);
 			rgbc->setAngularForce(glm::vec3(0, 0, 0));
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
@@ -570,7 +574,7 @@ namespace Barcode {
 				_physicsSystem.enable(static_cast<Hydra::Component::GhostObjectComponent*>(goc.get()));
 			}
 		}
-	}
+	} 
 
 	void GameState::_onPlayerShoot(Hydra::Component::WeaponComponent& weapon, Hydra::World::Entity* bullet, void* userdata) {
 		GameState* this_ = static_cast<GameState*>(userdata);
@@ -589,9 +593,19 @@ namespace Barcode {
 		this_->_engine->setState<WinState>();
 	}
 
-	void GameState::_onUpdatePathMap(bool* map, void* userdata)	{
+	void GameState::_onUpdatePathMap(bool* map, void* userdata) {
 		GameState* this_ = static_cast<GameState*>(userdata);
+		if (this_->aiInspector->pathMap != nullptr)
+		{
+			delete[] this_->aiInspector->pathMap;
+		}
 		this_->aiInspector->pathMap = map;
+	}
+
+	void GameState::_onUpdatePath(std::vector<glm::ivec2>& openList, std::vector<glm::ivec2>& closedList, std::vector<glm::ivec2>& pathToEnd, void * userdata)
+	{
+		GameState* this_ = static_cast<GameState*>(userdata);
+		this_->aiInspector->updatePath(openList, closedList, pathToEnd);
 	}
 
 	void GameState::_onNewEntity(Entity* entity, void* userdata) {

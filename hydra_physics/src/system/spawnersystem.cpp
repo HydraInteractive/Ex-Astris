@@ -86,6 +86,8 @@ void SpawnerSystem::tick(float delta)
 							ws->maxmagammo = 0;
 							ws->currmagammo = 0;
 							ws->maxammo = 0;
+							ws->userdata = _userdata;
+							ws->onShoot = _onRobotShoot;
 
 							auto ms = alienSpawn->addComponent<Hydra::Component::MovementComponent>();
 							ms->movementSpeed = 5.0f;
@@ -97,8 +99,8 @@ void SpawnerSystem::tick(float delta)
 							ts->scale = glm::vec3{ 1,1,1 };
 
 							auto rgbcs = alienSpawn->addComponent<Hydra::Component::RigidBodyComponent>();
-							rgbcs->createBox(glm::vec3(0.4f, 0.8f, 0.4f) * ts->scale, glm::vec3(0, 1.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f, 0, 0, 0.6f, 1.0f);
-							rgbcs->createCapsuleY(0.3f, 0.8f * ts->scale.y, glm::vec3(0, 3.0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_HEAD, 10000, 0, 0, 0.0f, 0);
+							rgbcs->createBox(glm::vec3(0.5f, 1.0f, 0.5f) * ts->scale, glm::vec3(0, 1 * ts->scale.y, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f, 0, 0, 0.6f, 1.0f);
+							rgbcs->createCapsuleY(0.5f, 1.0f * ts->scale.y, glm::vec3(0, 2.6 * ts->scale.y, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_HEAD, 10000, 0, 0, 0.0f, 0);
 							rgbcs->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 							rgbcs->setAngularForce(glm::vec3(0));
 							spawner->spawnGroup.push_back(alienSpawn->id);
@@ -140,6 +142,8 @@ void SpawnerSystem::tick(float delta)
 							ws->maxmagammo = 0;
 							ws->currmagammo = 0;
 							ws->maxammo = 0;
+							ws->userdata = _userdata;
+							ws->onShoot = _onRobotShoot;
 
 							auto ms = robotSpawn->addComponent<Hydra::Component::MovementComponent>();
 							ms->movementSpeed = 3.0f;
@@ -150,10 +154,8 @@ void SpawnerSystem::tick(float delta)
 							ts->scale = glm::vec3{ 1,1,1 };
 
 							auto rgbcs = robotSpawn->addComponent<Hydra::Component::RigidBodyComponent>();
-							rgbcs->createBox(glm::vec3(0.4f, 1.0f, 0.4f) * ts->scale, glm::vec3(0, 1.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
-								0, 0, 0.6f, 1.0f);
-							rgbcs->createCapsuleY(0.3f, 0.8f * ts->scale.y, glm::vec3(0, 3.1, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_HEAD, 10000,
-								0, 0, 0.0f, 0);
+							rgbcs->createBox(glm::vec3(0.5f, 1.0f, 0.5f) * ts->scale, glm::vec3(0, 1 * ts->scale.y, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f, 0, 0, 0.6f, 1.0f);
+							rgbcs->createCapsuleY(0.5f, 1.0f * ts->scale.y, glm::vec3(0, 2.6 * ts->scale.y, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_HEAD, 10000, 0, 0, 0.0f, 0);
 							rgbcs->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 							rgbcs->setAngularForce(glm::vec3(0));
 							spawner->spawnGroup.push_back(robotSpawn->id);

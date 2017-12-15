@@ -193,8 +193,10 @@ void BulletPhysicsSystem::tick(float delta) {
 			perkComponent = eA->getComponent<PerkComponent>().get();
 
 		if (pickupComponent && perkComponent) { // What does this code do? - Stevan.
+			if (IEngine::getInstance()->getDeadSystem())
+				_spawnText(Hydra::World::World::getEntity(playerComponent->entityID)->getComponent<Hydra::Component::TransformComponent>()->position, "eyyy\n");
+			
 			_addPickUp(pickupComponent, perkComponent);
-			_spawnText(Hydra::World::World::getEntity(playerComponent->entityID)->getComponent<Hydra::Component::TransformComponent>()->position, "eyyy\n");
 		}
 
 		// Gets the contact points
@@ -239,10 +241,7 @@ void BulletPhysicsSystem::tick(float delta) {
 				}
 
 				if (!Hydra::IEngine::getInstance()->getDeadSystem()) {
-					printf("%u\n %u\n", obA->getUserIndex2(), obB->getUserIndex2());
-					//printf("%f\n", lifeComponent->health);
 					lifeComponent->applyDamage(accumulatedDamage);
-					//printf("%f\n", lifeComponent->health);
 				}
 
 				auto targetEntity = Hydra::World::World::getEntity(lifeComponent->entityID);
@@ -298,8 +297,8 @@ void BulletPhysicsSystem::_spawnParticleEmitterAt(const glm::vec3& pos, const gl
 	pETC->position = pos;
 
 	auto pEPC = pE->addComponent<Hydra::Component::ParticleComponent>();
-	pEPC->delay = 1.0f / 2.0f;
-	pEPC->accumulator = 2 * 5.0f;
+	pEPC->delay = 1.0f / 1.0f;
+	pEPC->accumulator = 4;
 	pEPC->tempVelocity = glm::vec3(6.0f, 6.0f, 6.0f);
 	pEPC->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::Explosion;
 	pEPC->texture = effect;
@@ -316,7 +315,7 @@ void BulletPhysicsSystem::_spawnText(const glm::vec3& pos, const std::string& te
 	transC->setScale(scale);
 	textEntity->addComponent<MeshComponent>()->loadMesh("TEXTQUAD");
 	auto lifeC = textEntity->addComponent<LifeComponent>();
-	lifeC->health = lifeC->maxHP = 2;
+	lifeC->health = lifeC->maxHP = 1;
 	auto textC = textEntity->addComponent<TextComponent>();
 	//char buff[64];
 	//snprintf(buff, sizeof(buff), "%.0f\x01\x02", text);
@@ -326,8 +325,9 @@ void BulletPhysicsSystem::_spawnText(const glm::vec3& pos, const std::string& te
 }
 
 
-void Hydra::System::BulletPhysicsSystem::_addPickUp(PickUpComponent * pickupComponent, PerkComponent * perkComponent)
-{
+void Hydra::System::BulletPhysicsSystem::_addPickUp(PickUpComponent * pickupComponent, PerkComponent * perkComponent) {
+
+
 	switch (pickupComponent->pickUpType)
 	{
 	case PickUpComponent::PICKUP_RANDOMPERK: {
@@ -355,8 +355,8 @@ void Hydra::System::BulletPhysicsSystem::_addPickUp(PickUpComponent * pickupComp
 			int newPerk = rand() % (perksNotFound.size());
 			perkComponent->newPerks.push_back(PerkComponent::Perk(perksNotFound[newPerk]));
 		}
-		
-		World::World::World::getEntity(pickupComponent->entityID)->dead = true;
+		if(IEngine::getInstance()->getDeadSystem())
+			World::World::World::getEntity(pickupComponent->entityID)->dead = true;
 	}
 		break;
 	case PickUpComponent::PICKUP_HEALTH: {
@@ -370,6 +370,18 @@ void Hydra::System::BulletPhysicsSystem::_addPickUp(PickUpComponent * pickupComp
 	default:
 		break;
 	}
+
+	if (!IEngine::getInstance()->getDeadSystem()) {
+
+		void(*p)(EntityID id);
+
+		void *tmp = (IEngine::getInstance()->getState()->getTextureLoader());
+		typedef void(*fptr)(EntityID);
+		fptr my_fptr = reinterpret_cast<fptr>(reinterpret_cast<long long>(tmp));
+
+		my_fptr(pickupComponent->entityID);
+	}
+
 }
 
 void BulletPhysicsSystem::registerUI() {}

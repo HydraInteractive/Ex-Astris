@@ -125,10 +125,11 @@ Hydra::World::Entity* BarcodeServer::resolveClientShootPacket(ClientShootPacket 
 	transform->setPosition(csp->ti.pos);
 	transform->setScale(csp->ti.scale);
 	transform->setRotation(csp->ti.rot);
-
 	auto r = ptr->getComponent<Hydra::Component::RigidBodyComponent>();
-	if (r)
+	if (r) {
+		r->setLinearVelocity(otherptr->direction * otherptr->velocity);
 		bps->enable(r.get());
-
+		r->setGravity(glm::vec3(0, 0, 0));
+	}
 	return ptr.get();
 }

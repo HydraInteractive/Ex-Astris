@@ -1,4 +1,4 @@
-#include "hydra/pathing/behaviour.hpp"
+#include <hydra/pathing/behaviour.hpp>
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/cameracomponent.hpp>
 #include <hydra/component/playercomponent.hpp>
@@ -15,11 +15,9 @@
 
 Behaviour::Behaviour(std::shared_ptr<Hydra::World::Entity> enemy)
 {
-
 	thisEnemy.entity = enemy.get();
 	refreshRequiredComponents();
 	pathFinding = new PathFinding();
-
 }
 Behaviour::Behaviour()
 {
@@ -45,7 +43,7 @@ void Behaviour::setTargetPlayer(std::shared_ptr<Hydra::World::Entity> player)
 }
 glm::vec2 Behaviour::flatVector(glm::vec3 vec)
 {
-	return glm::vec2(vec.x,vec.z);
+	return glm::vec2(vec.x, vec.z);
 }
 void Behaviour::move(glm::vec3 target)
 {
@@ -61,9 +59,9 @@ void Behaviour::move(glm::vec3 target)
 //Sets all components without setting new entities, use after adding new components to either entity
 bool Behaviour::refreshRequiredComponents()
 {
-	if(targetPlayer.entity)
+	if (targetPlayer.entity)
 		hasRequiredComponents = (
-			(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>().get()) &&
+		(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>().get()) &&
 			(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>().get()) &&
 			(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>().get()) &&
 			(thisEnemy.weapon = thisEnemy.entity->getComponent<Hydra::Component::WeaponComponent>().get()) &&
@@ -72,7 +70,7 @@ bool Behaviour::refreshRequiredComponents()
 			(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
 			(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 			(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
-		 );
+			);
 	return hasRequiredComponents;
 }
 
@@ -83,10 +81,10 @@ unsigned int Behaviour::idleState(float dt)
 
 	//if (!pathFinding->inWall(targetPlayer.transform->position))
 	//{
-		if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 50.0f)
-		{
-			return SEARCHING;
-		}
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 50.0f)
+	{
+		return SEARCHING;
+	}
 	//}
 
 	return state;
@@ -97,7 +95,7 @@ unsigned int Behaviour::searchingState(float dt)
 	//While the enemy is searching, play the walking animation
 	resetAnimationOnStart(1);
 	float distEnemyToPlayer = glm::length(thisEnemy.transform->position - targetPlayer.transform->position);
-	
+
 	if (distEnemyToPlayer <= range)
 	{
 		pathFinding->foundGoal = true;
@@ -105,6 +103,7 @@ unsigned int Behaviour::searchingState(float dt)
 	}
 
 	pathFinding->findPath(thisEnemy.transform->position, targetPlayer.transform->position);
+	doDiddeliDoneDatPathfinding = true;
 	newPathTimer = 0.0f;
 	return MOVING;
 }
@@ -112,9 +111,9 @@ unsigned int Behaviour::searchingState(float dt)
 unsigned int Behaviour::movingState(float dt)
 {
 	resetAnimationOnStart(1);
-	
+
 	float distEnemyToPlayer = glm::length(thisEnemy.transform->position - targetPlayer.transform->position);
-	
+
 	if (distEnemyToPlayer <= range)
 	{
 		isAtGoal = true;
@@ -128,13 +127,13 @@ unsigned int Behaviour::movingState(float dt)
 	}
 	//If there is nowhere to go, search (prob not needed, should always have a goal here)
 	if (!pathFinding->pathToEnd.empty())
-	{	
+	{
 		//std::cout << pathFinding->pathToEnd.back().x << " " << pathFinding->pathToEnd.back().z << std::endl;
 		//Made these as the code got very hard to read otherwise
 		float distEnemyToNextPos = glm::distance((thisEnemy.transform->position), (pathFinding->pathToEnd.back()));
 		float distEnemyToGoal = glm::distance((thisEnemy.transform->position), (pathFinding->pathToEnd.front()));
 		float distPlayerToGoal = glm::distance((targetPlayer.transform->position), (pathFinding->pathToEnd.front()));
-		
+
 		//Check that the goal is closer to the player than we are, otherwise the path is invalid
 		if (distPlayerToGoal < distEnemyToPlayer)
 		{
@@ -184,7 +183,7 @@ unsigned int Behaviour::attackingState(float dt)
 	//When the enemy attack, start the attack animation
 	resetAnimationOnStart(2);
 	float distEnemyToPlayer = glm::length(thisEnemy.transform->position - targetPlayer.transform->position);
-	
+
 	if (distEnemyToPlayer > range)
 	{
 		idleTimer = 0.0f;
@@ -247,7 +246,7 @@ void Behaviour::executeTransforms()
 	btVector3 vel = btVector3(movementForce.x, rigidBody->getLinearVelocity().y(), movementForce.z);
 	rigidBody->setLinearVelocity(vel);
 	//printf("vel: %.2f, %.2f, %.2f\n", vel.x(), vel.y(), vel.z());
-	
+
 	thisEnemy.transform->setRotation(rotation);
 }
 
@@ -259,7 +258,6 @@ void Behaviour::resetAnimationOnStart(int animationIndex) {
 		thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->currentFrame = 0;
 	}
 	thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->animationIndex = animationIndex;
-
 }
 
 void Behaviour::setPathMap(bool** map)
@@ -279,14 +277,13 @@ AlienBehaviour::AlienBehaviour()
 
 AlienBehaviour::~AlienBehaviour()
 {
-
 }
 
 void AlienBehaviour::run(float dt)
 {
 	//If all components haven't been found, try to find them and abort if one or more do not exist
 	if (!hasRequiredComponents)
-		if(!refreshRequiredComponents())
+		if (!refreshRequiredComponents())
 			return;
 	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
 	thisEnemy.ai->debugState = state;
@@ -369,7 +366,7 @@ unsigned int AlienBehaviour::attackingState(float dt)
 				glm::vec3 right(forward.z, forward.y, -forward.x);
 
 				glm::vec3 bulletPos = thisEnemy.transform->position + glm::vec3(0, 2.0, 0) + (forward* 2.0f) - (right * 1.0f);
-				thisEnemy.weapon->shoot(bulletPos, playerDir, rotation, 5.5f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
+				thisEnemy.weapon->shoot(bulletPos, playerDir, rotation, 20.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
 				attackTimer = 0;
 			}
 			else
@@ -395,7 +392,6 @@ RobotBehaviour::RobotBehaviour()
 
 RobotBehaviour::~RobotBehaviour()
 {
-
 }
 
 void RobotBehaviour::run(float dt)
@@ -458,16 +454,16 @@ unsigned int RobotBehaviour::idleState(float dt)
 				thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->currentFrame -= 2;
 			else
 				return SEARCHING;
-			}
 		}
+	}
 	return state;
 }
 
 bool RobotBehaviour::refreshRequiredComponents()
 {
-	if(targetPlayer.entity)
+	if (targetPlayer.entity)
 		hasRequiredComponents = (
-			(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>().get()) &&
+		(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>().get()) &&
 			(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>().get()) &&
 			(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>().get()) &&
 			(thisEnemy.weapon = thisEnemy.entity->getComponent<Hydra::Component::WeaponComponent>().get()) &&
@@ -476,7 +472,7 @@ bool RobotBehaviour::refreshRequiredComponents()
 			(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
 			(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 			(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
-		);
+			);
 	return hasRequiredComponents;
 }
 
@@ -494,12 +490,12 @@ unsigned int RobotBehaviour::attackingState(float dt)
 		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
 		playerDir = glm::normalize(playerDir);
 		rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
-		
+
 		glm::vec3 forward = playerDir;
 		glm::vec3 right(forward.z, forward.y, -forward.x);
 
 		glm::vec3 bulletPos = thisEnemy.transform->position + glm::vec3(0, 2.0, 0) + (forward* 2.0f) - (right * 1.0f);
-		thisEnemy.weapon->shoot(bulletPos, playerDir, rotation, 5.5f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
+		thisEnemy.weapon->shoot(bulletPos, playerDir, rotation, 15.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
 	}
 	return state;
 }
@@ -516,7 +512,6 @@ AlienBossBehaviour::AlienBossBehaviour()
 
 AlienBossBehaviour::~AlienBossBehaviour()
 {
-
 }
 
 void AlienBossBehaviour::run(float dt)
@@ -617,13 +612,13 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 				if (spawnTimer >= 2)
 				{
 					auto alienSpawn = world::newEntity("AlienSpawn", world::root());
-					
+
 					auto a = alienSpawn->addComponent <Hydra::Component::AIComponent>();
 					//a->behaviour = std::make_shared<AlienBehaviour>(alienSpawn);
 					a->damage = 4;
 					//a->behaviour->originalRange = 4;
 					a->radius = 1.0f;
-					
+
 					auto h = alienSpawn->addComponent<Hydra::Component::LifeComponent>();
 					h->maxHP = 80;
 					h->health = 80;
@@ -672,23 +667,17 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 }
 
 BossHand_Left::BossHand_Left(std::shared_ptr<Hydra::World::Entity> enemy) : Behaviour(enemy) {
-
 	this->type = Type::BOSS_HAND;
-
 }
 
 BossHand_Left::BossHand_Left() {
-
 	this->type = Type::BOSS_HAND;
-
 }
 
 BossHand_Left::~BossHand_Left() {
-
 }
 
 void BossHand_Left::run(float dt) {
-
 	if (!hasRequiredComponents)
 		if (!refreshRequiredComponents())
 			return;
@@ -730,11 +719,9 @@ void BossHand_Left::run(float dt) {
 	}
 
 	executeTransforms();
-
 }
 
 void BossHand_Left::move(glm::vec3 target) {
-
 	glm::vec3 direction = glm::normalize(target - thisEnemy.transform->position);
 
 	if (HandPhases::SMASH) {
@@ -748,16 +735,12 @@ void BossHand_Left::move(glm::vec3 target) {
 		thisEnemy.movement->velocity.z = (thisEnemy.movement->movementSpeed * direction.z);
 	}
 	//rotation = glm::angleAxis(atan2(direction.x, direction.y), glm::vec3(0, 1, 0));
-
 }
 void BossHand_Left::rotateAroundAxis(float newRotation, glm::vec3(direction)) {
-
 	rotation = glm::angleAxis(glm::radians(newRotation), direction);
-
 }
 
 unsigned int BossHand_Left::idleState(float dt) {
-
 	int state = HandPhases::IDLEHAND;
 	idleTimer += dt;
 	//Wait 2 seconds before next move
@@ -788,7 +771,6 @@ unsigned int BossHand_Left::idleState(float dt) {
 }
 
 unsigned int BossHand_Left::smashState(float dt) {
-
 	int state = HandPhases::SMASH;
 	if (smashing == false) {
 		move(glm::vec3(targetPlayer.transform->position.x, originalHeight, targetPlayer.transform->position.z));
@@ -821,7 +803,6 @@ unsigned int BossHand_Left::smashState(float dt) {
 }
 
 unsigned int BossHand_Left::swipeState(float dt) {
-
 	int state = HandPhases::SWIPE;
 
 	if (swiping == false) {
@@ -851,7 +832,6 @@ unsigned int BossHand_Left::swipeState(float dt) {
 }
 
 unsigned int BossHand_Left::canonState(float dt) {
-
 	int state = HandPhases::HANDCANON;
 	resetAnimationOnStart(2);
 	if (!shooting) {
@@ -881,7 +861,6 @@ unsigned int BossHand_Left::canonState(float dt) {
 }
 
 unsigned int BossHand_Left::coverState(float dt) {
-
 	int state = HandPhases::COVER;
 	bool covering = false;
 	resetAnimationOnStart(1);
@@ -932,22 +911,18 @@ bool BossHand_Left::refreshRequiredComponents()
 	return hasRequiredComponents;
 }
 
-
-
 BossArm::BossArm(std::shared_ptr<Hydra::World::Entity> enemy) : Behaviour(enemy) {
 	this->type = Type::BOSS_ARMS;
 }
 
 BossArm::BossArm() {
 	this->type = Type::BOSS_ARMS;
-
 }
 
 BossArm::~BossArm() {
 }
 
 void BossArm::run(float dt) {
-
 	if (!hasRequiredComponents)
 		if (!refreshRequiredComponents())
 			return;
@@ -980,16 +955,13 @@ void BossArm::run(float dt) {
 	case  ArmPhases::SWEEP:
 		state = sweepState(dt);
 		break;
-
 	}
 	updateRigidBodyPosition();
 	executeTransforms();
-
 }
 
 unsigned int BossArm::idleState(float dt) {
 	int state = ArmPhases::CHILL;
-
 
 	return state;
 }
@@ -997,13 +969,11 @@ unsigned int BossArm::idleState(float dt) {
 unsigned int BossArm::bonkState(float dt) {
 	int state = ArmPhases::SINGLE_BONK;
 
-
 	return state;
 }
 
 unsigned int BossArm::multipleBonkState(float dt) {
 	int state = ArmPhases::MULTIPLE_BONK;
-
 
 	return state;
 }
@@ -1012,14 +982,11 @@ unsigned int BossArm::sweepState(float dt)
 {
 	int state = ArmPhases::SWEEP;
 
-
 	return state;
 }
 
 void BossArm::updateRigidBodyPosition() {
-
 	//thisEnemy.rigidBody->
-
 }
 
 bool BossArm::refreshRequiredComponents() {
@@ -1050,7 +1017,6 @@ StationaryBoss::~StationaryBoss() {
 }
 
 void StationaryBoss::run(float dt) {
-
 	if (!hasRequiredComponents)
 		if (!refreshRequiredComponents())
 			return;
@@ -1083,7 +1049,6 @@ void StationaryBoss::run(float dt) {
 }
 
 unsigned int StationaryBoss::idleState(float dt) {
-
 	int state = StatinoaryBossPhases::NOTHING;
 
 	if (thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>()->health <= spawnEnemiesAtPercentage[spawnIndex]) {
@@ -1092,10 +1057,8 @@ unsigned int StationaryBoss::idleState(float dt) {
 	}
 
 	return state;
-
 }
 unsigned int StationaryBoss::spawnState(float dt) {
-
 	int state = StatinoaryBossPhases::NOTHING;
 
 	randomAliens = rand() % maxSpawn;
@@ -1147,11 +1110,9 @@ unsigned int StationaryBoss::spawnState(float dt) {
 	}
 	maxSpawn *= 2;
 	return state;
-
 }
 
 bool StationaryBoss::refreshRequiredComponents() {
-
 	hasRequiredComponents = (
 		(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>().get()) &&
 		(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>().get()) &&
@@ -1162,5 +1123,4 @@ bool StationaryBoss::refreshRequiredComponents() {
 		(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
 		);
 	return hasRequiredComponents;
-
 }

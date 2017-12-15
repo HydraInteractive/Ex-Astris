@@ -21,6 +21,7 @@ public:
 		float roundsPerMinute = 0.0f;
 		float reloadTime = 0.0f;
 		float glowIntensity = 0.0f;
+		int mesh = 0;
 
 		float bulletColor[4] = { 1.0f };
 		int currentMagAmmo = 0;
@@ -36,7 +37,7 @@ public:
 		bool glow = false;
 
 	}Bullet;
-
+	
 
 
 	bool openPopup = false;

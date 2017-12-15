@@ -20,6 +20,9 @@ namespace Hydra::System {
 
 		struct ReadBullet
 		{
+			enum bulletMesh {BULLET, STAR, TRIDENT, BANANA, DUCK };
+			bulletMesh mesh = bulletMesh::BULLET;
+			
 			float dmg = 0.0f;
 			float recoil = 0.0f;
 			float ammoCap = 0.0f;
@@ -28,6 +31,8 @@ namespace Hydra::System {
 			float roundsPerMinute = 0.0f;
 			float reloadTime = 0.0f;
 			float glowIntensity = 0.0f;
+
+			int meshType = 0;
 
 			float bulletColor[4] = { 1.0f };
 			int currentMagAmmo = 0;
@@ -43,7 +48,7 @@ namespace Hydra::System {
 		};
 		void readFromFile(const char* fileName, ReadBullet &readBullet);
 		void PerkChange(ReadBullet& b, const std::shared_ptr<Hydra::World::Entity>& playerEntity);
-
+		bool switchMesh = false;
 
 
 	private:
