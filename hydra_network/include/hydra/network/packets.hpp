@@ -23,6 +23,7 @@ namespace Hydra::Network {
 		ClientShoot,
 		ServerShoot,
 		ServerPathMap,
+		ServerUpdateComponent,
 		//..
 		MAX_COUNT
 	};
@@ -69,6 +70,14 @@ namespace Hydra::Network {
 		size_t size() const { return len - sizeof(ClientUpdateBulletPacket); }
 		char data[0];
 	};
+
+	struct ServerUpdateComponentPacket : public Packet {
+		ServerUpdateComponentPacket(size_t size) : Packet(PacketType::ServerUpdateComponent, sizeof(ServerUpdateComponentPacket) + size) {}
+
+		size_t size() const { return (len - sizeof(ServerUpdateComponentPacket)) / sizeof(bool); }
+		bool data[0];
+	};
+
 	struct ServerUpdateBulletPacket : public Packet {
 		ServerUpdateBulletPacket(size_t size) : Packet(PacketType::ServerUpdateBullet, sizeof(ServerUpdateBulletPacket) + size) {}
 		ServerID serverPlayerID;

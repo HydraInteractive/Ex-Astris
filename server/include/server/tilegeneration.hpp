@@ -27,7 +27,7 @@
 #include <hydra/component/roomcomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/system/deadsystem.hpp>
-#define PICKUP_CHANCE 20
+#define PICKUP_CHANCE 100
 
 namespace BarcodeServer {
 	class TileGeneration {

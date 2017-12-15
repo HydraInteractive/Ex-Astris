@@ -107,7 +107,7 @@ void PlayerSystem::tick(float delta) {
 						soundFx->soundsToPlay.push_back("assets/sounds/plazma.ogg");
 
 						rn *= 0.8;
-						weapon->_dpitch -= rn;
+						weapon->_dpitch -= rn * weapon->recoil;
 						rn = rand() % 900 + 100;
 						rn /= 10000;
 						rn *= 0.8;

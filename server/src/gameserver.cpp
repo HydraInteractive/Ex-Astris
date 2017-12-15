@@ -10,6 +10,7 @@
 #include <hydra/component/ghostobjectcomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
+#include <hydra/component/pickupcomponent.hpp>
 
 #include <iostream>
 #include <chrono>
@@ -343,6 +344,28 @@ void GameServer::run() {
 		_lifeSystem.tick(delta);
 		_pickupSystem.tick(delta);
 
+		//ÄNNU MER FUSK KOD JAAAAAA
+		//std::vector<std::shared_ptr<Entity>> children;
+		//world::getEntitiesWithComponents<PickUpComponent>(children);
+		//for (size_t i = 0; i < children.size(); i++) {
+		//	auto putc = children[i]->getComponent<TransformComponent>();
+		//	for (size_t j = 0; j < _players.size(); j++) {
+		//		auto ptc = world::getEntity(_players[j]->entityid)->getComponent<TransformComponent>();
+		//		if (glm::distance(putc->position, ptc->position) < 10.f) {
+		//			ServerDeleteEntityPacket p;
+		//			p.id = children[i]->id;
+		//			_server->sendDataToAllExcept((char*)&p, p.len, _players[j]->serverid);
+		//
+		//			_networkEntities.erase(std::remove_if(_networkEntities.begin(), _networkEntities.end(), [p](const auto& e) { return e == p.id; }), _networkEntities.end());
+		//			children[i]->dead = true;
+		//			continue;
+		//		}
+		//	}
+		//}
+
+
+		//END
+
 		for (Hydra::World::EntityID eID : _lifeSystem.isKilled()) {
 			auto e = world::getEntity(eID);
 
@@ -394,7 +417,7 @@ void GameServer::run() {
 				deadBody->dead = true;
 			}
 
-			_deleteEntity(eID);
+			deleteEntity(eID);
 
 			_players.erase(std::remove_if(_players.begin(), _players.end(), [eID](const auto& p) { return p->entityid == eID; }), _players.end());
 		}
@@ -438,6 +461,7 @@ void GameServer::syncEntity(Hydra::World::Entity* entity) {
 	_server->sendDataToAll((char*)p, p->len);
 	delete[](char*)p;
 }
+
 
 void GameServer::_sendWorld() {
 	ServerUpdatePacket* packet = (ServerUpdatePacket*)new char[(sizeof(ServerUpdatePacket) + (sizeof(ServerUpdatePacket::EntUpdate) * this->_networkEntities.size()))];
@@ -524,7 +548,7 @@ void GameServer::_setEntityID(int serverID, int64_t entityID) {
 		}
 }
 
-void GameServer::_deleteEntity(EntityID ent) {
+void GameServer::deleteEntity(EntityID ent) {
 	ServerDeleteEntityPacket* sdp = createServerDeleteEntityPacket(ent);
 
 	this->_server->sendDataToAll((char*)sdp, sdp->len);
@@ -548,7 +572,7 @@ void GameServer::_handleDisconnects() {
 				printf("Player disconnected, entity id : %zu\n", this->_players[k]->entityid);
 				for (size_t j = 0; j < this->_networkEntities.size(); j++) {
 					if (this->_networkEntities[j] == this->_players[k]->entityid) {
-						_deleteEntity(this->_networkEntities[j]);
+						deleteEntity(this->_networkEntities[j]);
 						break;
 					}
 				}
@@ -599,6 +623,7 @@ bool GameServer::_addPlayer(int id) {
 
 		ServerInitializePacket pi;
 		Entity* enttmp = World::newEntity("Player", World::root()).get();
+		enttmp->addComponent<PerkComponent>();
 		{
 			pi.entityid = enttmp->id;
 			this->_setEntityID(id, pi.entityid);

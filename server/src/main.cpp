@@ -11,6 +11,7 @@
 #include <hydra/component/componentmanager_physics.hpp>
 #include <server/gameserver.hpp>
 #include <hydra/engine.hpp>
+#include <server/packets.hpp>
 
 #include <cstdio>
 #include <chrono>
@@ -46,11 +47,12 @@ namespace GServer {
 	public:
 		class Bogdan : IState {
 		public:
+			void(*point)(EntityID);
 			void* psystem = nullptr;
-			void runFrame(float delta) {} void load() {} void onMainMenu() {} IO::ITextureLoader* getTextureLoader() { return nullptr; } IO::IMeshLoader* getMeshLoader() { return nullptr; } IO::ITextFactory* getTextFactory() { return nullptr; }
+			void runFrame(float delta) {} void load() {} void onMainMenu() {} IO::ITextureLoader* getTextureLoader() { return (IO::ITextureLoader*)this->point; } IO::IMeshLoader* getMeshLoader() { return nullptr; } IO::ITextFactory* getTextFactory() { return nullptr; }
 			Hydra::World::ISystem* getPhysicsSystem() { return (ISystem*)psystem; }
-		};
-		Bogdan _state;
+		} _state;
+
 		Engine() {
 			IEngine::getInstance() = this;
 			atexit(&onQuit);
@@ -90,7 +92,16 @@ namespace GServer {
 		}
 	};
 }
+
 #undef main
+
+
+
+BarcodeServer::GameServer server;
+void onPickUp(EntityID id) {
+	server.deleteEntity(id);
+}
+
 int main(int argc, char** argv) {
 	srand(time(NULL));
 	(void)argc;
@@ -105,8 +116,8 @@ int main(int argc, char** argv) {
 	registerComponents_network(map);
 	registerComponents_physics(map);
 	//registerComponents_sound(map);
-	BarcodeServer::GameServer server;
 	((GServer::Engine::Bogdan*)engine.getState())->psystem = (void*)(&server._physicsSystem);
+	engine._state.point = &onPickUp;
 	if (server.initialize(4545)) {
 		Hydra::World::World::reset();
 		server.start();
