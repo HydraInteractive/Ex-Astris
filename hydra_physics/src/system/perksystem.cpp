@@ -90,7 +90,8 @@ void PerkSystem::PerkChange(ReadBullet& b, const std::shared_ptr<Hydra::World::E
 		w->maxmagammo += b.currentMagAmmo;
 		w->ammoPerShot += b.ammoPerShot;
 		w->bulletSpread += b.bulletSpread;
-		
+		w->recoil += b.recoil;
+
 		w->color[0] = mixedColour[0];
 		w->color[1] = mixedColour[1];
 		w->color[2] = mixedColour[2];
@@ -117,6 +118,7 @@ void PerkSystem::PerkChange(ReadBullet& b, const std::shared_ptr<Hydra::World::E
 		if (b.bulletSpread > 0.0f)
 			w->bulletSpread *= b.bulletSpread;
 
+		w->recoil *= b.recoil;
 
 
 		w->color[0] = mixedColour[0];
@@ -149,8 +151,11 @@ void PerkSystem::PerkChange(ReadBullet& b, const std::shared_ptr<Hydra::World::E
 		w->maxmagammo = 1;
 	if (w->bulletSpread < -1)
 		w->bulletSpread = -1;
+	if (w->recoil > 3.0f)
+		w->recoil = 3.0f;
 	else if(w->bulletSpread > 1)
 		w->bulletSpread = 1;
+
 		
 }
 
@@ -233,7 +238,7 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 	}
 	case Hydra::Component::PerkComponent::PERK_GREEN: {
 		ReadBullet b;
-		readFromFile("Test1", b);
+		readFromFile("Gren", b);
 		PerkChange(b, playerEntity);
 		break;
 	}
