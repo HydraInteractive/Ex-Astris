@@ -43,7 +43,6 @@ namespace Hydra::Physics::Behaviour {
 		float phaseTimer = 0.0;
 		float regainRange = 0.0;
 
-
 		std::random_device rd;
 		bool playerSeen = false;
 		bool isAtGoal = false;
@@ -52,6 +51,9 @@ namespace Hydra::Physics::Behaviour {
 
 		bool hasRequiredComponents = false;
 		bool playerUnreachable = false;
+
+		PathFinding* pathFinding = nullptr;
+		bool doDiddeliDoneDatPathfinding = false;
 
 		float range = 1.0f;
 		float savedRange = 4.0f;
@@ -77,8 +79,6 @@ namespace Hydra::Physics::Behaviour {
 		ComponentSet thisEnemy = ComponentSet();
 		ComponentSet targetPlayer = ComponentSet();
 
-		PathFinding* pathFinding = nullptr;
-
 		glm::vec2 flatVector(glm::vec3 vec);
 		void move(glm::vec3 target);
 		virtual bool refreshRequiredComponents();
@@ -88,7 +88,6 @@ namespace Hydra::Physics::Behaviour {
 		virtual unsigned int attackingState(float dt);
 		virtual void executeTransforms();
 		virtual void resetAnimationOnStart(int animationIndex);
-
 	};
 
 	class HYDRA_PHYSICS_API AlienBehaviour final : public Behaviour
@@ -234,5 +233,4 @@ namespace Hydra::Physics::Behaviour {
 	private:
 		bool refreshRequiredComponents() final;
 	};
-
 }

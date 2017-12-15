@@ -20,6 +20,7 @@ NetClient::updatePVS_f NetClient::updatePVS = nullptr;
 NetClient::onWin_f NetClient::onWin = nullptr;
 NetClient::onNewEntity_f NetClient::onNewEntity = nullptr;
 NetClient::updatePathMap_f NetClient::updatePathMap = nullptr;
+NetClient::updatePath_f NetClient::updatePath = nullptr;
 void* NetClient::userdata = nullptr;
 
 TCPClient NetClient::_tcp;
@@ -136,8 +137,11 @@ void NetClient::_resolvePackets() {
 			tc->scale = ss->ti.scale;
 			tc->rotation = ss->ti.rot;
 			auto r = b->getComponent<Hydra::Component::RigidBodyComponent>();
-			if (r)
+			if (r) {
+				r->setLinearVelocity(bc->direction*bc->velocity);
 				static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->enable(r.get());
+				r->setGravity(glm::vec3(0, 0, 0));
+			}
 			break;
 		}
 		case PacketType::ServerFreezePlayer: {
@@ -170,6 +174,42 @@ void NetClient::_resolvePackets() {
 			}
 
 			updatePathMap((bool*)map, userdata);
+			break;
+		}
+		case PacketType::ServerAIInfo: {
+			if (!updatePath)
+				break;
+			auto sai = (ServerAIInfoPacket*)p;
+			std::vector<glm::ivec2> openList;
+			std::vector<glm::ivec2> closedList;
+			std::vector<glm::ivec2> pathToend;
+			//std::cout << "Vec2s recieved:" << sai->openList << " " << sai->closedList << " " << sai->pathToEnd << std::endl;
+			int i = 0;
+			while (i < sai->openList * 2)
+			{
+				int x = sai->data[i];
+				i++;
+				int y = sai->data[i];
+				i++;
+				openList.push_back(glm::ivec2(x, y));
+			}
+			while (i < (sai->openList + sai->closedList) * 2)
+			{
+				int x = sai->data[i];
+				i++;
+				int y = sai->data[i];
+				i++;
+				closedList.push_back(glm::ivec2(x, y));
+			}
+			while (i < (sai->openList + sai->closedList + sai->pathToEnd) * 2)
+			{
+				int x = sai->data[i];
+				i++;
+				int y = sai->data[i];
+				i++;
+				pathToend.push_back(glm::ivec2(x, y));
+			}
+			updatePath(openList, closedList, pathToend, userdata);
 			break;
 		}
 		default:
@@ -346,6 +386,26 @@ void NetClient::run() {
 	{
 		//du gillar sovpotatisar no?
 	}
+}
+
+void NetClient::requestAIInfo(Hydra::World::EntityID id)
+{
+	ServerID serverID = 0;
+	for (auto i : _IDs)
+	{
+		if (i.second == id)
+		{
+			serverID = i.first;
+			break;
+		}
+	}
+	if (serverID == 0)
+	{
+		return;
+	}
+	ClientRequestAIInfoPacket packet;
+	packet.serverEntityID = serverID;
+	NetClient::_tcp.send((char*)&packet, packet.len);
 }
 
 void NetClient::reset() {
