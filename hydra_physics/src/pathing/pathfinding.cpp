@@ -40,9 +40,6 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 	MapVec mapCurrentPos = worldToMapCoords(currentPos);
 	MapVec mapTargetPos = worldToMapCoords(targetPos);
 
-	if (isOutsideMap(mapCurrentPos.baseVec) || isOutsideMap(mapTargetPos.baseVec))
-		return false;
-
 	if (inWall(currentPos))
 	{
 		currentPos = findViableTile(currentPos);
@@ -61,10 +58,6 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 	if (isOutOfBounds(mapCurrentPos.baseVec) || isOutOfBounds(mapTargetPos.baseVec))
 		return false;
 
-	//If the player is in line of sight don't path just go straight
-	//if (_inLineOfSight(mapCurrentPos,mapTargetPos))
-	//	pathToEnd.push_back(targetPos);
-	//	return false;
 	_startNode = new Node(mapCurrentPos.x(), mapCurrentPos.z(), nullptr);
 	_endNode = new Node(mapTargetPos.x(), mapTargetPos.z(), nullptr);
 
@@ -145,14 +138,6 @@ bool PathFinding::isOutOfBounds(const glm::ivec2& vec) const
 	}
 	return false;
 }
-bool PathFinding::isOutsideMap(const glm::ivec2 & vec) const
-{
-	if (vec.x >= WORLD_MAP_SIZE || vec.y >= WORLD_MAP_SIZE || vec.x < 0 || vec.y < 0)
-	{
-		return true;
-	}
-	return false;
-}
 bool PathFinding::inLineOfSight(const glm::vec3& enemyPos, const glm::vec3& playerPos) const
 {
 	MapVec e = worldToMapCoords(enemyPos);
@@ -184,42 +169,6 @@ glm::vec3 PathFinding::findViableTile(glm::vec3 mapPos) const
 	glm::ivec2& vec = p.baseVec;
 
 	glm::vec3 newPos = mapPos;
-	//for (int i = 1; i < 3; i++)
-	//{
-	//	if (map[vec.x + i][vec.y] == 1)
-	//	{
-	//		newPos = glm::vec3(mapPos.x + i, mapPos.y, mapPos.z);
-	//	}
-	//	else if (map[vec.x][vec.y + i] == 1)
-	//	{
-	//		newPos = glm::vec3(mapPos.x, mapPos.y, mapPos.z + i);
-	//	}
-	//	else if (map[vec.x - i][vec.y] == 1)
-	//	{
-	//		newPos = glm::vec3(mapPos.x - i, mapPos.y, mapPos.z);
-	//	}
-	//	else if (map[vec.x][vec.y - i] == 1)
-	//	{
-	//		newPos = glm::vec3(mapPos.x + 1, mapPos.y, mapPos.z - i);
-	//	}
-	//	else if (map[vec.x + i][vec.y + i] == 1)
-	//	{
-	//		newPos = glm::vec3(mapPos.x + i, mapPos.y, mapPos.z + i);
-	//	}
-	//	else if (map[vec.x - i][vec.y + i])
-	//	{
-	//		newPos = glm::vec3(mapPos.x - i, mapPos.y, mapPos.z + i);
-	//	}
-	//	else if (map[vec.x - i][vec.y - i])
-	//	{
-	//		newPos = glm::vec3(mapPos.x - i, mapPos.y, mapPos.z - i);
-	//	}
-	//	else if (map[vec.x + i][vec.y - i])
-	//	{
-	//		newPos = glm::vec3(mapPos.x + i, mapPos.y, mapPos.z - i);
-	//	}
-	//}
-
 	for (int i = 0; i < 3; i++) {
 		if ((vec.x + i < WORLD_MAP_SIZE && vec.y < WORLD_MAP_SIZE && vec.x + i >= 0 && vec.y >= 0) && map[vec.x + i][vec.y] == 1)
 			newPos = glm::vec3(mapPos.x + i, mapPos.y, mapPos.z);
