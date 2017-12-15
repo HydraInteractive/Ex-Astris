@@ -82,7 +82,7 @@ void GameServer::start() {
 	auto transf = floor->addComponent<Hydra::Component::TransformComponent>();
 	transf->position = glm::vec3(0, 0, 0);
 	auto rgbcf = floor->addComponent<Hydra::Component::RigidBodyComponent>();
-	rgbcf->createStaticPlane(glm::vec3(0, 1, 0), 1, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_FLOOR
+	rgbcf->createStaticPlane(glm::vec3(0, 1, 0), 0, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_FLOOR
 		, 0, 0, 0, 0.6f, 0);
 	floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 
@@ -159,16 +159,17 @@ void GameServer::_makeWorld() {
 		delete[](char*)packet;
 	}
 
-	//std::cout << std::endl;
-	//for (int i = 0; i < WORLD_MAP_SIZE; i++)
-	//{
-	//	for (int j = 0; j < WORLD_MAP_SIZE; j++)
-	//	{
-	//		std::cout << _pathfindingMap[j][i];
-	//	}
-	//	std::cout << std::endl;
-	//}
-	//std::cout << std::endl;
+	{
+		std::string map = _tileGeneration->getPathMapAsString();
+		ServerPathMapPacket* spm = (ServerPathMapPacket*)new char[sizeof(ServerPathMapPacket) + WORLD_MAP_SIZE*WORLD_MAP_SIZE];
+		*spm = ServerPathMapPacket(WORLD_MAP_SIZE*WORLD_MAP_SIZE);
+
+		for (int y = 0; y < WORLD_MAP_SIZE; y++)
+			for (int x = 0; x < WORLD_MAP_SIZE; x++)
+				spm->data[y * WORLD_MAP_SIZE + x] = _tileGeneration->pathfindingMap[x][y];
+		_server->sendDataToAll((char*)spm, spm->len);
+		delete[](char*)spm;
+	}
 
 	SDL_Surface* map = SDL_CreateRGBSurface(0, WORLD_MAP_SIZE, WORLD_MAP_SIZE, 32, 0, 0, 0, 0);
 	{
@@ -375,7 +376,7 @@ void GameServer::run() {
 				if (!oldTransform || !oldMesh)
 					continue;
 
-				char name[64] = {0};
+				char name[64] = { 0 };
 				snprintf(name, sizeof(name), "Dead body [%zu]", eID);
 				auto deadBody = world::newEntity(name, e->parent);
 				auto t = deadBody->addComponent<Hydra::Component::TransformComponent>();
@@ -443,6 +444,7 @@ void GameServer::run() {
 		}
 		mySleep(1000 / 30);
 	}
+	_sendPathInfo();
 }
 
 void GameServer::quit() {
@@ -523,6 +525,9 @@ void GameServer::_resolvePackets(std::vector<Hydra::Network::Packet*> packets) {
 		case PacketType::ClientShoot:
 			resolveClientShootPacket((ClientShootPacket*)p, player, &_physicsSystem); //SUPER INEFFICIENT
 			createAndSendPlayerShootPacket(player, (ClientShootPacket*)p, this->_server);
+			break;
+		case PacketType::ClientRequestAIInfo:
+			_resolveClientRequestAIInfoPacket((ClientRequestAIInfoPacket*)p);
 			break;
 		default:
 			break;
@@ -632,12 +637,11 @@ bool GameServer::_addPlayer(int id) {
 			pi.ti.rot = glm::quat(1, 0, 0, 0);
 
 			auto rbc = enttmp->addComponent<Hydra::Component::RigidBodyComponent>();
-			rbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * glm::vec3{ 1, 1, 1 }, glm::vec3(0, 1.0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
+			rbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f), glm::vec3(0, 2, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
 				0, 0, 0.0f, 0);
 			rbc->setAngularForce(glm::vec3(0, 0, 0));
-			
-			rbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
 
+			rbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
 
 			if (_players.size() > 1) {
 				auto randomOther = world::getEntity(_players[rand() % (_players.size() - 1)]->entityid);
@@ -735,6 +739,64 @@ bool GameServer::_addPlayer(int id) {
 	return false;
 }
 
+void BarcodeServer::GameServer::_sendPathInfo()
+{
+	for (auto clientAI : aiInspectorSync)
+	{
+		if (auto e = world::getEntity(clientAI.ai))
+		{
+			if (auto a = e->getComponent<Hydra::Component::AIComponent>())
+			{
+				if (a->behaviour->doDiddeliDoneDatPathfinding)
+				{
+					size_t open = a->behaviour->pathFinding->openList.size();
+					size_t closed = a->behaviour->pathFinding->visitedList.size();
+					size_t pathToEnd = a->behaviour->pathFinding->pathToEnd.size();
+					//std::cout << "Vec2s sent:" << open << " " << closed << " " << pathToEnd << std::endl;
+					if (open + closed + pathToEnd <= 0)
+					{
+						continue;
+					}
+					ServerAIInfoPacket* packet = (ServerAIInfoPacket*)new char[sizeof(ServerAIInfoPacket) + ((open + closed + pathToEnd) * 2 * sizeof(int))];
+					*packet = ServerAIInfoPacket((open + closed + pathToEnd) * 2);
+
+					packet->openList = open;
+					packet->closedList = closed;
+					packet->pathToEnd = pathToEnd;
+
+					int i = 0;
+					for (size_t o = 0; o < a->behaviour->pathFinding->openList.size(); o++)
+					{
+						packet->data[i] = a->behaviour->pathFinding->openList[o]->pos.x();
+						i++;
+						packet->data[i] = a->behaviour->pathFinding->openList[o]->pos.z();
+						i++;
+					}
+					for (size_t c = 0; c < a->behaviour->pathFinding->visitedList.size(); c++)
+					{
+						packet->data[i] = a->behaviour->pathFinding->visitedList[c]->pos.x();
+						i++;
+						packet->data[i] = a->behaviour->pathFinding->visitedList[c]->pos.z();
+						i++;
+					}
+					for (size_t p = 0; p < a->behaviour->pathFinding->pathToEnd.size(); p++)
+					{
+						glm::ivec2 pos = PathFinding::worldToMapCoords(a->behaviour->pathFinding->pathToEnd[p]).baseVec;
+						packet->data[i] = pos.x;
+						i++;
+						packet->data[i] = pos.y;
+						i++;
+					}
+
+					_server->sendDataToClient((char*)packet, packet->len, clientAI.client);
+					a->behaviour->doDiddeliDoneDatPathfinding = false;
+					delete[](char*)packet;
+				}
+			}
+		}
+	}
+}
+
 void GameServer::_onRobotShoot(WeaponComponent& weapon, Entity* bullet, void* userdata) {
 	GameServer* this_ = static_cast<GameServer*>(userdata);
 
@@ -765,5 +827,27 @@ void GameServer::_onRobotShoot(WeaponComponent& weapon, Entity* bullet, void* us
 
 		this_->_server->sendDataToAll((char*)packet, sizeof(ServerShootPacket));
 		delete packet;
+	}
+}
+
+void BarcodeServer::GameServer::_resolveClientRequestAIInfoPacket(Hydra::Network::ClientRequestAIInfoPacket* packet)
+{
+	if (auto e = world::getEntity(packet->serverEntityID))
+	{
+		if (e->getComponent<Hydra::Component::AIComponent>())
+		{
+			for (size_t i = 0; i < aiInspectorSync.size(); i++)
+			{
+				if (aiInspectorSync[i].client == packet->client)
+				{
+					aiInspectorSync[i].ai = packet->serverEntityID;
+					return;
+				}
+			}
+			SyncBoi s;
+			s.client = packet->client;
+			s.ai = packet->serverEntityID;
+			aiInspectorSync.push_back(s);
+		}
 	}
 }

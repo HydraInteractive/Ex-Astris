@@ -241,10 +241,7 @@ void BulletPhysicsSystem::tick(float delta) {
 				}
 
 				if (!Hydra::IEngine::getInstance()->getDeadSystem()) {
-					printf("%u\n %u\n", obA->getUserIndex2(), obB->getUserIndex2());
-					//printf("%f\n", lifeComponent->health);
 					lifeComponent->applyDamage(accumulatedDamage);
-					//printf("%f\n", lifeComponent->health);
 				}
 
 				auto targetEntity = Hydra::World::World::getEntity(lifeComponent->entityID);
@@ -300,8 +297,8 @@ void BulletPhysicsSystem::_spawnParticleEmitterAt(const glm::vec3& pos, const gl
 	pETC->position = pos;
 
 	auto pEPC = pE->addComponent<Hydra::Component::ParticleComponent>();
-	pEPC->delay = 1.0f / 2.0f;
-	pEPC->accumulator = 2 * 5.0f;
+	pEPC->delay = 1.0f / 1.0f;
+	pEPC->accumulator = 4;
 	pEPC->tempVelocity = glm::vec3(6.0f, 6.0f, 6.0f);
 	pEPC->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::Explosion;
 	pEPC->texture = effect;
@@ -318,7 +315,7 @@ void BulletPhysicsSystem::_spawnText(const glm::vec3& pos, const std::string& te
 	transC->setScale(scale);
 	textEntity->addComponent<MeshComponent>()->loadMesh("TEXTQUAD");
 	auto lifeC = textEntity->addComponent<LifeComponent>();
-	lifeC->health = lifeC->maxHP = 2;
+	lifeC->health = lifeC->maxHP = 1;
 	auto textC = textEntity->addComponent<TextComponent>();
 	//char buff[64];
 	//snprintf(buff, sizeof(buff), "%.0f\x01\x02", text);

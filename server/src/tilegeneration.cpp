@@ -293,8 +293,8 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 		t->scale = glm::vec3{ 1,1,1 };
 
 		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(0.5f, 1.0f, 0.5f) * t->scale, glm::vec3(0, 1.1 + 0.8 * t->scale.y, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f, 0, 0, 0.6f, 1.0f);
-		rgbc->createCapsuleY(0.5f, 1.0f * t->scale.y, glm::vec3(0, 2.8 + 0.8 * t->scale.y, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_HEAD, 10000, 0, 0, 0.0f, 0);
+		rgbc->createBox(glm::vec3(0.5f, 1.0f, 0.5f) * t->scale, glm::vec3(0, 1 * t->scale.y, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f, 0, 0, 0.6f, 1.0f);
+		rgbc->createCapsuleY(0.5f, 1.0f * t->scale.y, glm::vec3(0, 2.6 * t->scale.y, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_HEAD, 10000, 0, 0, 0.0f, 0);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
 	}
@@ -336,8 +336,8 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 		t->scale = glm::vec3{ 1,1,1 };
 
 		auto rgbc = robotEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(0.5f, 1.0f, 0.5f) * t->scale, glm::vec3(0, 1.1 + 0.8 * t->scale.y, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f, 0, 0, 0.6f, 1.0f);
-		rgbc->createCapsuleY(0.5f, 1.0f * t->scale.y, glm::vec3(0, 2.8 + 0.8 * t->scale.y, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_HEAD, 10000, 0, 0, 0.0f, 0);
+		rgbc->createBox(glm::vec3(0.5f, 1.0f, 0.5f) * t->scale, glm::vec3(0, 1 * t->scale.y, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f, 0, 0, 0.6f, 1.0f);
+		rgbc->createCapsuleY(0.5f, 1.0f * t->scale.y, glm::vec3(0, 2.6 * t->scale.y, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_HEAD, 10000, 0, 0, 0.0f, 0);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
 	}
@@ -376,8 +376,8 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 		t->scale = glm::vec3{ 1,1,1 };
 
 		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(0.5f, 1.0f, 0.5f) * t->scale, glm::vec3(0, 1.1 + 0.8 * t->scale.y, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f, 0, 0, 0.6f, 1.0f);
-		rgbc->createCapsuleY(0.5f, 1.0f * t->scale.y, glm::vec3(0, 2.8 + 0.8 * t->scale.y, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_HEAD, 10000, 0, 0, 0.0f, 0);
+		rgbc->createBox(glm::vec3(0.5f, 1.0f, 0.5f) * t->scale, glm::vec3(0, 1 * t->scale.y, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f, 0, 0, 0.6f, 1.0f);
+		rgbc->createCapsuleY(0.5f, 1.0f * t->scale.y, glm::vec3(0, 2.6 * t->scale.y, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_HEAD, 10000, 0, 0, 0.0f, 0);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
 	}
@@ -387,6 +387,7 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 
 //TODO: Randomize spawners
 void BarcodeServer::TileGeneration::_createSpawner(glm::vec3 pos) {
+
 	//{
 	//	auto alienSpawner = world::newEntity("SpawnerAlien1", world::root());
 	//	alienSpawner->addComponent<Hydra::Component::NetworkSyncComponent>();
@@ -404,7 +405,7 @@ void BarcodeServer::TileGeneration::_createSpawner(glm::vec3 pos) {
 	//	t->rotation = glm::angleAxis(atan2(randDirX, randDirY), glm::vec3(0, 1, 0));
 	//	t->scale = glm::vec3{ 1,1,1 };
 	//	auto rgbc = alienSpawner->addComponent<Hydra::Component::RigidBodyComponent>();
-	//	rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 0.0f, 0, 0, 0.6f, 1.0f);
+	//	rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0, 2 * t->scale.y, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 0.0f, 0, 0, 0.6f, 1.0f);
 	//	rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 	//	rgbc->setAngularForce(glm::vec3(0));
 	//}
@@ -426,7 +427,7 @@ void BarcodeServer::TileGeneration::_createSpawner(glm::vec3 pos) {
 	//	t->rotation = glm::angleAxis(atan2(randDirX, randDirY), glm::vec3(0, 1, 0));
 	//	t->scale = glm::vec3{ 1,1,1 };
 	//	auto rgbc = robotSpawner->addComponent<Hydra::Component::RigidBodyComponent>();
-	//	rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 0.0f, 0, 0, 0.6f, 1.0f);
+	//	rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0, 2 * t->scale.y, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 0.0f, 0, 0, 0.6f, 1.0f);
 	//	rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 	//	rgbc->setAngularForce(glm::vec3(0));
 	//}

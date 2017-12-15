@@ -23,6 +23,8 @@ namespace Hydra::Network {
 		ClientShoot,
 		ServerShoot,
 		ServerPathMap,
+		ClientRequestAIInfo,
+		ServerAIInfo,
 		//..
 		MAX_COUNT
 	};
@@ -40,7 +42,9 @@ namespace Hydra::Network {
 		"ServerUpdateBullet",
 		"ClientShoot",
 		"ServerShoot",
-		"ServerPathMap"
+		"ServerPathMap",
+		"ClientRequestAIInfo",
+		"ServerAIInfo"
 	};
 
 	struct TransformInfo {
@@ -84,7 +88,21 @@ namespace Hydra::Network {
 		size_t size() const { return (len - sizeof(ServerUpdateBulletPacket)) / sizeof(bool); }
 		bool data[0];
 	};
-
+	///////////////////////////////////////
+	struct ClientRequestAIInfoPacket : public Packet
+	{
+		ClientRequestAIInfoPacket() : Packet(PacketType::ClientRequestAIInfo, sizeof(ClientRequestAIInfoPacket)) {}
+		ServerID serverEntityID;
+	};
+	struct ServerAIInfoPacket : public Packet
+	{
+		ServerAIInfoPacket(size_t size) : Packet(PacketType::ServerAIInfo, sizeof(ServerAIInfoPacket) + (size * sizeof(int))) {}
+		float openList;
+		float closedList;
+		float pathToEnd;
+		int data[0];
+	};
+	/////////////////////////////////////////
 	struct ClientShootPacket : public Packet {
 		ClientShootPacket() : Packet(PacketType::ClientShoot, sizeof(ClientShootPacket)) {}
 		TransformInfo ti;

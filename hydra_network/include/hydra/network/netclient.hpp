@@ -12,11 +12,13 @@ namespace Hydra::Network {
 		typedef void(*onWin_f)(void* userdata);
 		typedef void(*onNewEntity_f)(Entity* entity, void* userdata);
 		typedef void(*updatePathMap_f)(bool* map, void* userdata);
+		typedef void(*updatePath_f)(std::vector<glm::ivec2>& openList, std::vector<glm::ivec2>& closedList, std::vector<glm::ivec2>& pathToEnd, void* userdata);
 
 		static updatePVS_f updatePVS;
 		static onWin_f onWin;
 		static onNewEntity_f onNewEntity;
 		static updatePathMap_f updatePathMap;
+		static updatePath_f updatePath;
 		static void* userdata;
 		static bool running;
 
@@ -27,6 +29,7 @@ namespace Hydra::Network {
 		static void run();
 		static void reset();
 		static void enableEntity(Entity* ent);
+		static void requestAIInfo(Hydra::World::EntityID id);
 
 	private:
 		static TCPClient _tcp;

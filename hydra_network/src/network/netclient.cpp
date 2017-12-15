@@ -20,6 +20,7 @@ NetClient::updatePVS_f NetClient::updatePVS = nullptr;
 NetClient::onWin_f NetClient::onWin = nullptr;
 NetClient::onNewEntity_f NetClient::onNewEntity = nullptr;
 NetClient::updatePathMap_f NetClient::updatePathMap = nullptr;
+NetClient::updatePath_f NetClient::updatePath = nullptr;
 void* NetClient::userdata = nullptr;
 
 TCPClient NetClient::_tcp;
@@ -54,7 +55,8 @@ void NetClient::_sendUpdatePacket() {
 		auto tc = tmp->getComponent<Hydra::Component::TransformComponent>();
 		auto cc = tmp->getComponent<Hydra::Component::CameraComponent>();
 		cpup.ti.pos = tc->position;
-		cpup.ti.pos.y -= 2;
+		const float PLAYER_HEIGHT = 3.25; // Make sure to update gamestate.cpp and netclient.cpp
+		cpup.ti.pos.y -= PLAYER_HEIGHT;
 		cpup.ti.scale = tc->scale;
 		//cpup.ti.rot = tc->rotation;
 		cpup.ti.rot = glm::angleAxis(cc->cameraYaw - 1.6f /* Player model fix */, glm::vec3(0, -1, 0));;
@@ -135,8 +137,11 @@ void NetClient::_resolvePackets() {
 			tc->scale = ss->ti.scale;
 			tc->rotation = ss->ti.rot;
 			auto r = b->getComponent<Hydra::Component::RigidBodyComponent>();
-			if (r)
+			if (r) {
+				r->setLinearVelocity(bc->direction*bc->velocity);
 				static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->enable(r.get());
+				r->setGravity(glm::vec3(0, 0, 0));
+			}
 			break;
 		}
 		case PacketType::ServerFreezePlayer: {
@@ -169,6 +174,42 @@ void NetClient::_resolvePackets() {
 			}
 
 			updatePathMap((bool*)map, userdata);
+			break;
+		}
+		case PacketType::ServerAIInfo: {
+			if (!updatePath)
+				break;
+			auto sai = (ServerAIInfoPacket*)p;
+			std::vector<glm::ivec2> openList;
+			std::vector<glm::ivec2> closedList;
+			std::vector<glm::ivec2> pathToend;
+			//std::cout << "Vec2s recieved:" << sai->openList << " " << sai->closedList << " " << sai->pathToEnd << std::endl;
+			int i = 0;
+			while (i < sai->openList * 2)
+			{
+				int x = sai->data[i];
+				i++;
+				int y = sai->data[i];
+				i++;
+				openList.push_back(glm::ivec2(x, y));
+			}
+			while (i < (sai->openList + sai->closedList) * 2)
+			{
+				int x = sai->data[i];
+				i++;
+				int y = sai->data[i];
+				i++;
+				closedList.push_back(glm::ivec2(x, y));
+			}
+			while (i < (sai->openList + sai->closedList + sai->pathToEnd) * 2)
+			{
+				int x = sai->data[i];
+				i++;
+				int y = sai->data[i];
+				i++;
+				pathToend.push_back(glm::ivec2(x, y));
+			}
+			updatePath(openList, closedList, pathToend, userdata);
 			break;
 		}
 		default:
@@ -281,7 +322,7 @@ void NetClient::_addPlayer(Packet * playerPacket) {
 	tc->setScale(spp->ti.scale);
 
 	auto rbc = ent->addComponent<Hydra::Component::RigidBodyComponent>();
-	rbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * glm::vec3{ 1, 1, 1 }, glm::vec3(0, 1.0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
+	rbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f), glm::vec3(0, 2, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
 		0, 0, 0.0f, 0);
 	rbc->setAngularForce(glm::vec3(0, 0, 0));
 
@@ -345,6 +386,26 @@ void NetClient::run() {
 	{
 		//du gillar sovpotatisar no?
 	}
+}
+
+void NetClient::requestAIInfo(Hydra::World::EntityID id)
+{
+	ServerID serverID = 0;
+	for (auto i : _IDs)
+	{
+		if (i.second == id)
+		{
+			serverID = i.first;
+			break;
+		}
+	}
+	if (serverID == 0)
+	{
+		return;
+	}
+	ClientRequestAIInfoPacket packet;
+	packet.serverEntityID = serverID;
+	NetClient::_tcp.send((char*)&packet, packet.len);
 }
 
 void NetClient::reset() {
