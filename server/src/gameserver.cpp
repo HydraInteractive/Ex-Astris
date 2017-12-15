@@ -155,6 +155,7 @@ void GameServer::_spawnBoss() {
 				bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossLowerArmModel.mATTIC");
 				
 				bossEntity->addComponent<Hydra::Component::NetworkSyncComponent>();
+				//_networkEntities.push_back(bossEntity->id);
 
 				auto a = bossEntity->addComponent<Hydra::Component::AIComponent>();
 				a->behaviour = std::make_shared<BossArm>(bossEntity);
@@ -227,7 +228,8 @@ void GameServer::_spawnBoss() {
 				auto m = bossEntity->addComponent<Hydra::Component::MovementComponent>();
 				m->movementSpeed = 25.0f;
 				auto t = bossEntity->addComponent<Hydra::Component::TransformComponent>();
-				t->position.y = 20;
+
+				t->position = glm::vec3(0 + 150, 20, 0 + 150);
 				t->scale = glm::vec3{ 1,1,1 };
 				//t->rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(1, 0, 0));
 
@@ -295,8 +297,8 @@ void GameServer::_makeWorld() {
 		if(level < 2)
 			_tileGeneration = std::make_unique<TileGeneration>(maxRoomCount, "assets/room/starterRoom.room", &GameServer::_onRobotShoot, static_cast<void*>(this));
 		else {
-			_spawnBoss();
 			_tileGeneration = std::make_unique<TileGeneration>(1, "assets/BossRoom/Bossroom5.room", &GameServer::_onRobotShoot, static_cast<void*>(this));
+			_spawnBoss();
 			ServerFreezePlayerPacket freeze;
 			freeze.action = ServerFreezePlayerPacket::Action::noPVS;
 			_server->sendDataToAll((char*)&freeze, freeze.len);
