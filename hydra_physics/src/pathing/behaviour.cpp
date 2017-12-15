@@ -688,15 +688,14 @@ void BossHand_Left::run(float dt) {
 	if (!hasRequiredComponents)
 		if (!refreshRequiredComponents())
 			return;
-	if (thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>()->health <= 0)
-		return;
+	//if (thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>()->health <= 0)
+	//	return;
 
-	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
+	//thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
 	thisEnemy.ai->debugState = state;
 
 	idleTimer += dt;
-	attackTimer += dt;
-	newPathTimer += dt;
+	//newPathTimer += dt;
 
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 500)
 	{
@@ -921,18 +920,18 @@ unsigned int BossHand_Left::returnState(float dt)
 
 bool BossHand_Left::refreshRequiredComponents()
 {
-	hasRequiredComponents = (
+	if (targetPlayer.entity)
+		hasRequiredComponents = (
 		(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>().get()) &&
-		(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>().get()) &&
-		(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>().get()) &&
-		(thisEnemy.weapon = thisEnemy.entity->getComponent<Hydra::Component::WeaponComponent>().get()) &&
-		(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
-		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
-		(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
-		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity().get()) &&
-		(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
-		(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
-		);
+			(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>().get()) &&
+			(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>().get()) &&
+			(thisEnemy.weapon = thisEnemy.entity->getComponent<Hydra::Component::WeaponComponent>().get()) &&
+			//(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
+			(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
+			(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
+			(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
+			(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
+			);
 	return hasRequiredComponents;
 }
 
@@ -952,9 +951,9 @@ BossArm::~BossArm() {
 
 void BossArm::run(float dt) {
 
-	if (!hasRequiredComponents)
-		if (!refreshRequiredComponents())
-			return;
+	//if (!hasRequiredComponents)
+	//	if (!refreshRequiredComponents())
+	//		return;
 
 	thisEnemy.ai->debugState = state;
 
@@ -1048,9 +1047,9 @@ bool BossArm::refreshRequiredComponents() {
 		(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>().get()) &&
 		(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>().get()) &&
 		(thisEnemy.weapon = thisEnemy.entity->getComponent<Hydra::Component::WeaponComponent>().get()) &&
-		(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
-		(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
-		(targetPlayer.entity = thisEnemy.ai->getPlayerEntity().get()) &&
+		(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
+		//(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
+		//(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
 		(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 		(targetPlayer.transform = targetPlayer.entity->getComponent<Hydra::Component::TransformComponent>().get())
 		);

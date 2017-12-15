@@ -54,6 +54,7 @@ namespace BarcodeServer {
 		Hydra::System::LifeSystem _lifeSystem;
 
 		void _makeWorld();
+		void _spawnBoss();
 		void _sendWorld();
 		void _convertEntityToTransform(Hydra::Network::ServerUpdatePacket::EntUpdate& dest, Hydra::World::EntityID ent);
 		void _resolvePackets(std::vector<Hydra::Network::Packet*> packets);

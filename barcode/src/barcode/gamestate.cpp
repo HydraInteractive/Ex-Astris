@@ -30,7 +30,7 @@ namespace Barcode {
 	int GameState::port = 4545;
 
 	GameState::GameState() : _engine(Hydra::IEngine::getInstance()) {}
-
+	  
 	void GameState::load() {
 		Hydra::Network::NetClient::reset();
 		_textureLoader = Hydra::IO::GLTextureLoader::create();
