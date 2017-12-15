@@ -29,26 +29,10 @@ void BulletSystem::tick(float delta) {
 	}
 
 	//Process BulletComponent
-	world::getEntitiesWithComponents<Hydra::Component::BulletComponent, Hydra::Component::TransformComponent, Hydra::Component::RigidBodyComponent>(entities);
+	world::getEntitiesWithComponents<Hydra::Component::BulletComponent>(entities);
 	#pragma omp parallel for
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		auto b = entities[i]->getComponent<Hydra::Component::BulletComponent>();
-		auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
-		auto rbc = entities[i]->getComponent<Hydra::Component::RigidBodyComponent>();
-		auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
-		
-		btVector3 temp = rigidBody->getLinearVelocity();
-		if (temp.x() == 0)
-		{
-			rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * b->velocity);
-			auto entboi = Hydra::World::World::getEntity(rigidBody->getUserIndex());
-			std::cout << entboi->name << std::endl;
-		}
-		
-		if (rigidBody->getGravity() != btVector3(0, 0, 0))
-		{
-			rigidBody->setGravity(btVector3(0, 0, 0));
-		}
 
 		b->deleteTimer -= delta;
 		if (b->deleteTimer <= 0)

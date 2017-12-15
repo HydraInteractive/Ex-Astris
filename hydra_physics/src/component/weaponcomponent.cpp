@@ -83,7 +83,6 @@ bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 		auto b = bullet->addComponent<Hydra::Component::BulletComponent>();
 		b->direction = direction;
 		b->velocity = velocity;
-		b->bulletType = bulletType;
 		b->damage = damage;
 		b->colour[0] = color[0];
 		b->colour[1] = color[1];
@@ -129,7 +128,6 @@ bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 			auto b = bullet->addComponent<Hydra::Component::BulletComponent>();
 			b->direction = bulletDirection;
 			b->velocity = velocity;
-			b->bulletType = bulletType;
 			b->damage = damage;
 
 			auto t = bullet->addComponent<Hydra::Component::TransformComponent>();
