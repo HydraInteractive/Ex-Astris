@@ -26,6 +26,10 @@ void Hydra::Component::SpawnerComponent::serialize(nlohmann::json & json) const
 		{ "spawnerID", (int)spawnerID },
 		{ "spawnCounter", (int)spawnCounter },
 	};
+
+	json["playerPosX"] = playerPos[0];
+	json["playerPosY"] = playerPos[1];
+	json["playerPosZ"] = playerPos[2];
 }
 
 void Hydra::Component::SpawnerComponent::deserialize(nlohmann::json & json)
@@ -33,13 +37,17 @@ void Hydra::Component::SpawnerComponent::deserialize(nlohmann::json & json)
 	//spawnerID = json.value<int>("spawnerID", 0);
 	spawnerID = (SpawnerType)json["spawnerID"].get<int>();
 	spawnCounter = json["spawnCounter"].get<int>();
+
+	playerPos[0] = json.value<float>("playerPosX", 0);
+	playerPos[1] = json.value<float>("playerPosY", 0);
+	playerPos[2] = json.value<float>("playerPosZ", 0);
 }
 
 void Hydra::Component::SpawnerComponent::registerUI()
 {
 }
 
-std::shared_ptr<Hydra::World::Entity> SpawnerComponent::getPlayerEntity()
+void Hydra::Component::SpawnerComponent::setTargetPlayer(std::shared_ptr<Hydra::World::Entity> player)
 {
-	return Hydra::World::World::getEntity(PlayerComponent::componentHandler->getActiveComponents()[0]->entityID);
+	playerPos = player->getComponent<Hydra::Component::TransformComponent>().get()->position;
 }

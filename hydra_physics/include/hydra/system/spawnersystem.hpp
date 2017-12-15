@@ -5,7 +5,7 @@
 namespace Hydra::System {
 	class HYDRA_PHYSICS_API SpawnerSystem final : public Hydra::World::ISystem{
 	public:
-		std::vector<Entity*> didJustSpawn;
+		std::vector<Hydra::World::Entity*> didJustSpawn;	
 
 		SpawnerSystem();
 		~SpawnerSystem() final;

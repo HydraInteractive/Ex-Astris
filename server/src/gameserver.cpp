@@ -333,6 +333,29 @@ void GameServer::run() {
 			}
 		}
 		ents.clear();
+
+		static std::vector<std::shared_ptr<Entity>> spawnEnts;
+		world::getEntitiesWithComponents<Hydra::Component::SpawnerComponent>(spawnEnts);
+		for (size_t k = 0; k < spawnEnts.size(); k++) {
+			TransformComponent* ptc = spawnEnts[k]->getComponent<TransformComponent>().get();
+			float distance = FLT_MAX;
+			int target = -1;
+			for (size_t i = 0; i < this->_players.size(); i++) {
+				TransformComponent* tc = world::getEntity(this->_players[i]->entityid)->getComponent<TransformComponent>().get();
+				float f = glm::distance(ptc->position, tc->position);
+				if (f < distance) {
+					target = i;
+					distance = f;
+				}
+			}
+			auto spawn = spawnEnts[k]->getComponent<Hydra::Component::SpawnerComponent>().get();
+			if (target != -1) {
+				spawn->setTargetPlayer(world::getEntity(this->_players[target]->entityid));
+			}
+		}
+		spawnEnts.clear();
+
+
 		_deadSystem.tick(delta);
 		_physicsSystem.tick(delta);
 		_aiSystem.tick(delta);
@@ -341,7 +364,9 @@ void GameServer::run() {
 		_spawnerSystem.tick(delta);
 		{
 			for (size_t i = 0; i < _spawnerSystem.didJustSpawn.size(); i++) {
-				auto p = createServerSpawnEntity(_spawnerSystem.didJustSpawn[i]);
+				auto e = _spawnerSystem.didJustSpawn[i];
+				_networkEntities.push_back(e->id);
+				auto p = createServerSpawnEntity(e);
 				_server->sendDataToAll((char*)p, p->len);
 				delete[](char*)p;
 			}

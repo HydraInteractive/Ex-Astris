@@ -10,6 +10,7 @@
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
+#include <hydra/component/networksynccomponent.hpp>
 #include <hydra/engine.hpp>
 
 #include <btBulletDynamicsCommon.h>
@@ -33,7 +34,6 @@ void SpawnerSystem::tick(float delta)
 		auto life = entities[i]->getComponent<Component::LifeComponent>();
 
 		spawner->spawnTimer += delta;
-		//auto playerTrans = spawner->getPlayerEntity()->getComponent<Component::TransformComponent>();
 
 		for (size_t i = 0; i < spawner->spawnGroup.size(); i++)
 		{
@@ -49,8 +49,8 @@ void SpawnerSystem::tick(float delta)
 			life->health = 0;
 		}
 
-		/*if (glm::length(transform->position - playerTrans->position) < 50.0f)
-		{*/
+		if (glm::length(transform->position - spawner->playerPos) < 50.0f)
+		{
 			switch (spawner->spawnerID)
 			{
 			case Component::SpawnerType::AlienSpawner:
@@ -95,16 +95,15 @@ void SpawnerSystem::tick(float delta)
 						ts->scale = glm::vec3{ 1,1,1 };
 
 						auto rgbcs = alienSpawn->addComponent<Hydra::Component::RigidBodyComponent>();
-						rgbcs->createBox(glm::vec3(0.4f, 0.8f, 0.4f) * ts->scale, glm::vec3(0, 1.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
-							0, 0, 0.6f, 1.0f);
-						rgbcs->createCapsuleY(0.3f, 0.8f * ts->scale.y, glm::vec3(0, 3.0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_HEAD, 10000,
-							0, 0, 0.0f, 0);
+						rgbcs->createBox(glm::vec3(0.4f, 0.8f, 0.4f) * ts->scale, glm::vec3(0, 1.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f, 0, 0, 0.6f, 1.0f);
+						rgbcs->createCapsuleY(0.3f, 0.8f * ts->scale.y, glm::vec3(0, 3.0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_HEAD, 10000, 0, 0, 0.0f, 0);
 						rgbcs->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 						rgbcs->setAngularForce(glm::vec3(0));
 						spawner->spawnGroup.push_back(alienSpawn->id);
 						spawner->spawnTimer = 0;
 
 						static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->enable(rgbcs.get());
+						
 					}
 				}
 			}break;
@@ -122,7 +121,7 @@ void SpawnerSystem::tick(float delta)
 						as->behaviour = std::make_shared<RobotBehaviour>(robotSpawn);
 						as->behaviour->setPathMap(spawner->map);
 						as->damage = 7;
-						as->behaviour->originalRange = 18;
+						as->behaviour->originalRange = 18.0f;
 						as->behaviour->savedRange = as->behaviour->originalRange;
 						as->radius = 1;
 
@@ -159,11 +158,12 @@ void SpawnerSystem::tick(float delta)
 						spawner->spawnTimer = 0;
 
 						static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->enable(rgbcs.get());
+						
 					}
 				}
 			}break;
 			}
-		//}
+		}
 
 	}
 

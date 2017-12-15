@@ -108,6 +108,18 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 					_insertPathFindingMap(glm::ivec2(pos.x + offset[direction].x, pos.y + offset[direction].y), rot);
 					_spawnPickUps(loadedRoom);
 					_spawnLight(t);
+
+					int randomAlienSpawner = rand() % 101;
+					int randomRobotSpawner = rand() % 101;
+					if (randomAlienSpawner >= 5)
+					{
+						_createSpawner(loadedRoom, 1);
+					}
+					else if (randomAlienSpawner < 5 && randomRobotSpawner >= 96)
+					{
+						_createSpawner(loadedRoom, 2);
+					}
+
 					roomCounter++;
 					_createMapRecursivly(glm::ivec2(pos.x + offset[direction].x, pos.y + offset[direction].y));
 				}
@@ -244,20 +256,7 @@ void TileGeneration::spawnEnemies() {
 		if (sp->enemySpawn && !entities[i]->dead) {
 			auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 			t->dirty = true;
-			int randomAlienSpawner = rand() % 101;
-			int randomRobotSpawner = rand() % 101;
-			if (randomAlienSpawner >= 5)
-			{
-				_createSpawner(t->getMatrix()[3], 1);
-			}
-			else if (randomAlienSpawner < 5 && randomRobotSpawner >= 96)
-			{
-				_createSpawner(t->getMatrix()[3], 2);
-			}
-			else if (randomAlienSpawner < 5 && randomRobotSpawner < 96)
-			{
-				_spawnRandomEnemy(t->getMatrix()[3]);
-			}
+			_spawnRandomEnemy(t->getMatrix()[3]);
 			entities[i]->dead = true;
 			spawned++;
 		}
@@ -389,8 +388,8 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 		t->scale = glm::vec3{ 1,1,1 };
 
 		auto rgbc = alienEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(0.5f, 1.0f, 0.5f) * t->scale, glm::vec3(0, 1.1, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f, 0, 0, 0.6f, 1.0f);
-		rgbc->createCapsuleY(0.5f, 1.0f * t->scale.y, glm::vec3(0, 2.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_HEAD, 10000, 0, 0, 0.0f, 0);
+		rgbc->createBox(glm::vec3(0.4f, 0.8f, 0.4f) * t->scale, glm::vec3(0, 1.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f, 0, 0, 0.6f, 1.0f);
+		rgbc->createCapsuleY(0.3f, 0.8f * t->scale.y, glm::vec3(0, 3.0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_HEAD, 10000, 0, 0, 0.0f, 0);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
 	}
@@ -399,8 +398,38 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 }
 
 //TODO: Randomize spawners
-void BarcodeServer::TileGeneration::_createSpawner(glm::vec3 pos, int id) {
+void BarcodeServer::TileGeneration::_createSpawner(std::shared_ptr<Hydra::World::Entity>& room, int id) {
 	
+	glm::vec3 pos;
+	std::vector<std::shared_ptr<Hydra::World::Entity>> entities;
+	for (auto id : room->children)
+	{
+		if (world::getEntity(id)->hasComponent<Hydra::Component::SpawnPointComponent>())
+		{
+			entities.push_back(world::getEntity(id));
+
+			unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+			shuffle(entities.begin(), entities.end(), std::default_random_engine(seed));
+		}
+	}
+
+	for (size_t i = 0; i < entities.size(); i++) {
+		auto sp = entities[i]->getComponent<Hydra::Component::SpawnPointComponent>();
+		if (sp->enemySpawn && !entities[i]->dead) {
+
+			auto t = entities[0]->getComponent<Hydra::Component::TransformComponent>();
+			t->dirty = true;
+			pos = t->getMatrix()[3];
+			entities[i]->dead = true;
+		}
+
+		if (sp->enemySpawn && !entities[i]->dead)
+		{
+			entities[i]->dead = true;
+		}
+	}
+
+
 	if(id == 1){
 		auto alienSpawner = world::newEntity("SpawnerAlien1", world::root());
 		alienSpawner->addComponent<Hydra::Component::NetworkSyncComponent>();

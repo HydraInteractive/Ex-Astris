@@ -89,7 +89,6 @@ unsigned int Behaviour::idleState(float dt)
 		}
 	//}
 
-
 	return state;
 }
 
@@ -366,7 +365,6 @@ unsigned int AlienBehaviour::attackingState(float dt)
 		{
 			if (playerUnreachable)
 			{
-				std::cout << "yes" << std::endl;
 				glm::vec3 forward = playerDir;
 				glm::vec3 right(forward.z, forward.y, -forward.x);
 
