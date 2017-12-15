@@ -84,6 +84,8 @@ public:
 
 	bool foundGoal = false;
 	std::vector<glm::vec3> pathToEnd = std::vector<glm::vec3>();
+	std::vector<Node*> visitedList = std::vector<Node*>();
+	std::vector<Node*> openList = std::vector<Node*>();
 	bool** map = nullptr;
 
 	PathFinding();
@@ -112,8 +114,6 @@ public:
 	} comparisonFunctor;
 
 private:
-	std::vector<Node*> _visitedList = std::vector<Node*>();
-	std::vector<Node*> _openList = std::vector<Node*>();
 	Node* _startNode = nullptr;
 	Node* _endNode = nullptr;
 
