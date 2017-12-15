@@ -44,7 +44,7 @@ void SpawnerSystem::tick(float delta)
 			}
 		}
 
-		if (spawner->spawnCounter >= 9)
+		if (spawner->spawnCounter >= 6)
 		{
 			life->health = 0;
 		}
