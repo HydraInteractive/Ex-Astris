@@ -73,6 +73,7 @@ namespace Hydra::Network {
 		size_t size() const { return len - sizeof(ClientUpdateBulletPacket); }
 		char data[0];
 	};
+
 	struct ServerUpdateBulletPacket : public Packet {
 		ServerUpdateBulletPacket(size_t size) : Packet(PacketType::ServerUpdateBullet, sizeof(ServerUpdateBulletPacket) + size) {}
 		ServerID serverPlayerID;
