@@ -127,9 +127,32 @@ void PerkSystem::PerkChange(ReadBullet& b, const std::shared_ptr<Hydra::World::E
 		w->glowIntensity = b.glowIntensity;
 		perkDescriptionText = b.perkDescription;
 	}
-	//Failsafe incase negative damage
+	//Failsafes
+	//Damage
 	if (w->damage < 0.0f) 
 		w->damage = 0.5f;
+	//Bullet Size
+	if (w->bulletSize < 0.0f)
+		w->bulletSize = 0.3f;
+	else if (w->bulletSize > 6.0f)
+		w->bulletSize = 6.0f;
+	//Bullets Per Shot
+	if (w->bulletsPerShot < 0)
+		w->bulletsPerShot = 1;
+	else if (w->bulletsPerShot > 10)
+		w->bulletsPerShot = 10;
+	//Max Ammo
+	if (w->maxammo != 0)
+		w->maxammo = 0;
+	//else if (w->maxammo > 200)
+	//	w->maxammo = 200;
+	if (w->maxmagammo < 1)
+		w->maxmagammo = 1;
+	if (w->bulletSpread < 0)
+		w->bulletSpread = 0;
+	else if(w->bulletSpread > 1)
+		w->bulletSpread = 1;
+		
 }
 
 void PerkSystem::readFromFile(const char* fileName, ReadBullet &readBullet)
@@ -211,7 +234,7 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 	}
 	case Hydra::Component::PerkComponent::PERK_GREEN: {
 		ReadBullet b;
-		readFromFile("StarTest", b);
+		readFromFile("Test1", b);
 		PerkChange(b, playerEntity);
 		break;
 	}
