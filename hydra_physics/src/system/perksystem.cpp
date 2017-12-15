@@ -91,6 +91,7 @@ void PerkSystem::PerkChange(ReadBullet& b, const std::shared_ptr<Hydra::World::E
 		w->ammoPerShot += b.ammoPerShot;
 		w->bulletSpread += b.bulletSpread;
 		w->recoil += b.recoil;
+		w->fireRateRPM += b.roundsPerMinute;
 
 		w->color[0] = mixedColour[0];
 		w->color[1] = mixedColour[1];
@@ -108,6 +109,7 @@ void PerkSystem::PerkChange(ReadBullet& b, const std::shared_ptr<Hydra::World::E
 			w->bulletSize *= b.bulletSize;
 
 		w->bulletsPerShot *= b.bulletPerShot;
+		w->fireRateRPM *= b.roundsPerMinute;
 		w->maxammo = b.ammoCap;
 		if (b.currentMagAmmo > 0.0f)
 			w->maxmagammo *= b.currentMagAmmo;
