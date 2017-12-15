@@ -38,7 +38,7 @@ void PerkSystem::tick(float delta) {
 			perks->activeAbilities[perks->activeAbility]->cooldown = 1;
 			if (++perks->activeAbility >= perks->activeAbilities.size())
 				perks->activeAbility = 0;
-		}
+		}	
 
 		//Active abilities tick
 		for (size_t j = 0; j < perks->activeAbilities.size(); j++) {

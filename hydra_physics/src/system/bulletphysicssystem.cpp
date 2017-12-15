@@ -193,8 +193,10 @@ void BulletPhysicsSystem::tick(float delta) {
 			perkComponent = eA->getComponent<PerkComponent>().get();
 
 		if (pickupComponent && perkComponent) { // What does this code do? - Stevan.
+			if (IEngine::getInstance()->getDeadSystem())
+				_spawnText(Hydra::World::World::getEntity(playerComponent->entityID)->getComponent<Hydra::Component::TransformComponent>()->position, "eyyy\n");
+			
 			_addPickUp(pickupComponent, perkComponent);
-			_spawnText(Hydra::World::World::getEntity(playerComponent->entityID)->getComponent<Hydra::Component::TransformComponent>()->position, "eyyy\n");
 		}
 
 		// Gets the contact points
@@ -323,8 +325,9 @@ void BulletPhysicsSystem::_spawnText(const glm::vec3& pos, const std::string& te
 }
 
 
-void Hydra::System::BulletPhysicsSystem::_addPickUp(PickUpComponent * pickupComponent, PerkComponent * perkComponent)
-{
+void Hydra::System::BulletPhysicsSystem::_addPickUp(PickUpComponent * pickupComponent, PerkComponent * perkComponent) {
+
+
 	switch (pickupComponent->pickUpType)
 	{
 	case PickUpComponent::PICKUP_RANDOMPERK: {
@@ -352,8 +355,8 @@ void Hydra::System::BulletPhysicsSystem::_addPickUp(PickUpComponent * pickupComp
 			int newPerk = rand() % (perksNotFound.size());
 			perkComponent->newPerks.push_back(PerkComponent::Perk(perksNotFound[newPerk]));
 		}
-		
-		World::World::World::getEntity(pickupComponent->entityID)->dead = true;
+		if(IEngine::getInstance()->getDeadSystem())
+			World::World::World::getEntity(pickupComponent->entityID)->dead = true;
 	}
 		break;
 	case PickUpComponent::PICKUP_HEALTH: {
@@ -367,6 +370,18 @@ void Hydra::System::BulletPhysicsSystem::_addPickUp(PickUpComponent * pickupComp
 	default:
 		break;
 	}
+
+	if (!IEngine::getInstance()->getDeadSystem()) {
+
+		void(*p)(EntityID id);
+
+		void *tmp = (IEngine::getInstance()->getState()->getTextureLoader());
+		typedef void(*fptr)(EntityID);
+		fptr my_fptr = reinterpret_cast<fptr>(reinterpret_cast<long long>(tmp));
+
+		my_fptr(pickupComponent->entityID);
+	}
+
 }
 
 void BulletPhysicsSystem::registerUI() {}

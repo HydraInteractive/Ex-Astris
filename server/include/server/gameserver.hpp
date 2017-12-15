@@ -10,6 +10,7 @@
 #include <hydra/system/spawnersystem.hpp>
 #include <hydra/system/perksystem.hpp>
 #include <hydra/system/lifesystem.hpp>
+#include <hydra/system/pickupsystem.hpp>
 #include <json.hpp>
 
 namespace BarcodeServer {
@@ -31,9 +32,9 @@ namespace BarcodeServer {
 		void run();
 		void quit();
 		Hydra::System::BulletPhysicsSystem _physicsSystem;
-
+		inline BarcodeServer::Server* getServer() { return this->_server; }
 		void syncEntity(Hydra::World::Entity* entity);
-
+		void deleteEntity(Hydra::World::EntityID ent);
 	private:
 
 		std::chrono::time_point<std::chrono::high_resolution_clock> _lastTime;
@@ -57,6 +58,7 @@ namespace BarcodeServer {
 		Hydra::System::SpawnerSystem _spawnerSystem;
 		Hydra::System::PerkSystem _perkSystem;
 		Hydra::System::LifeSystem _lifeSystem;
+		Hydra::System::PickUpSystem _pickupSystem;
 
 		void _makeWorld();
 		void _sendWorld();
@@ -64,7 +66,6 @@ namespace BarcodeServer {
 		void _resolvePackets(std::vector<Hydra::Network::Packet*> packets);
 		int64_t _getEntityID(int serverid);
 		void _setEntityID(int serverID, int64_t entityID);
-		void _deleteEntity(Hydra::World::EntityID ent);
 		void _handleDisconnects();
 		Hydra::World::Entity* _createEntity(const std::string& name, Hydra::World::EntityID parentID, bool serverSynced);
 		Player* _getPlayer(Hydra::World::EntityID id);
