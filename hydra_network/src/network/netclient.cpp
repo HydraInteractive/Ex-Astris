@@ -55,7 +55,8 @@ void NetClient::_sendUpdatePacket() {
 		auto tc = tmp->getComponent<Hydra::Component::TransformComponent>();
 		auto cc = tmp->getComponent<Hydra::Component::CameraComponent>();
 		cpup.ti.pos = tc->position;
-		cpup.ti.pos.y -= 2;
+		const float PLAYER_HEIGHT = 3.25; // Make sure to update gamestate.cpp and netclient.cpp
+		cpup.ti.pos.y -= PLAYER_HEIGHT;
 		cpup.ti.scale = tc->scale;
 		//cpup.ti.rot = tc->rotation;
 		cpup.ti.rot = glm::angleAxis(cc->cameraYaw - 1.6f /* Player model fix */, glm::vec3(0, -1, 0));;
@@ -318,7 +319,7 @@ void NetClient::_addPlayer(Packet * playerPacket) {
 	tc->setScale(spp->ti.scale);
 
 	auto rbc = ent->addComponent<Hydra::Component::RigidBodyComponent>();
-	rbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * glm::vec3{ 1, 1, 1 }, glm::vec3(0, 1.0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
+	rbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f), glm::vec3(0, 2, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
 		0, 0, 0.0f, 0);
 	rbc->setAngularForce(glm::vec3(0, 0, 0));
 
