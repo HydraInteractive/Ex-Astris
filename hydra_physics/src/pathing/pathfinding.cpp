@@ -163,13 +163,12 @@ bool PathFinding::inLineOfSight(const glm::vec3& enemyPos, const glm::vec3& play
 bool PathFinding::inWall(const glm::vec3 mapPos) const
 {
 	MapVec p = worldToMapCoords(mapPos);
-	glm::ivec2& vec = p.baseVec;
 
-	if (vec.x >= WORLD_MAP_SIZE || vec.y >= WORLD_MAP_SIZE || vec.x < 0 || vec.y < 0)
+	if (p.x() >= WORLD_MAP_SIZE || p.z() >= WORLD_MAP_SIZE || p.x() < 0 || p.z() < 0)
 	{
 		return false;
 	}
-	if (map[vec.x][vec.y] == 0)
+	if (map[p.x()][p.z()] == 0)
 	{
 		return true;
 	}

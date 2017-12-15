@@ -151,23 +151,18 @@ void GameServer::_makeWorld() {
 	_tileGeneration->spawnEnemies();
 	_tileGeneration->finalize();
 	_pathfindingMap = _tileGeneration->pathfindingMap;
+	std::vector<std::shared_ptr<Hydra::World::Entity>> allSpawners;
+	world::getEntitiesWithComponents<Hydra::Component::SpawnerComponent>(allSpawners);
+	for (int_openmp_t i = 0; i < (int_openmp_t)allSpawners.size(); i++) {
+		auto sp = allSpawners[i]->getComponent<Hydra::Component::SpawnerComponent>();
+		sp->map = _tileGeneration->pathfindingMap;
+	}
 
 	{
 		auto packet = createServerSpawnEntity(_tileGeneration->mapentity.get());
 		_server->sendDataToAll((char*)packet, packet->len);
 		delete[](char*)packet;
 	}
-
-	//std::cout << std::endl;
-	//for (int i = 0; i < WORLD_MAP_SIZE; i++)
-	//{
-	//	for (int j = 0; j < WORLD_MAP_SIZE; j++)
-	//	{
-	//		std::cout << _pathfindingMap[j][i];
-	//	}
-	//	std::cout << std::endl;
-	//}
-	//std::cout << std::endl;
 
 	SDL_Surface* map = SDL_CreateRGBSurface(0, WORLD_MAP_SIZE, WORLD_MAP_SIZE, 32, 0, 0, 0, 0);
 	{

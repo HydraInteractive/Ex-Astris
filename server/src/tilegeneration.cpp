@@ -111,11 +111,11 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 
 					int randomAlienSpawner = rand() % 101;
 					int randomRobotSpawner = rand() % 101;
-					if (randomAlienSpawner >= 98)
+					if (randomAlienSpawner <= 3)
 					{
 						_createSpawner(loadedRoom, 1);
 					}
-					else if (randomAlienSpawner < 98 && randomRobotSpawner >= 99)
+					else if (randomRobotSpawner <= 1)
 					{
 						_createSpawner(loadedRoom, 2);
 					}
@@ -348,7 +348,7 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 		t->scale = glm::vec3{ 1,1,1 };
 
 		auto rgbc = robotEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(0.4f, 1.0f, 0.4f) * t->scale, glm::vec3(0, 1.6, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f, 0, 0, 0.6f, 1.0f);
+		rgbc->createBox(glm::vec3(0.4f, 1.0f, 0.4f) * t->scale, glm::vec3(0, 1.8, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f, 0, 0, 0.6f, 1.0f);
 		rgbc->createCapsuleY(0.3f, 0.8f * t->scale.y, glm::vec3(0, 3.1, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_HEAD, 10000, 0, 0, 0.0f, 0);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
@@ -402,16 +402,16 @@ void BarcodeServer::TileGeneration::_createSpawner(std::shared_ptr<Hydra::World:
 	
 	glm::vec3 pos;
 	std::vector<std::shared_ptr<Hydra::World::Entity>> entities;
-	for (auto id : room->children)
+	for (auto entid : room->children)
 	{
-		if (world::getEntity(id)->hasComponent<Hydra::Component::SpawnPointComponent>())
+		if (world::getEntity(entid)->hasComponent<Hydra::Component::SpawnPointComponent>())
 		{
-			entities.push_back(world::getEntity(id));
-
-			unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-			shuffle(entities.begin(), entities.end(), std::default_random_engine(seed));
+			entities.push_back(world::getEntity(entid));
 		}
 	}
+
+	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+	shuffle(entities.begin(), entities.end(), std::default_random_engine(seed));
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		auto sp = entities[i]->getComponent<Hydra::Component::SpawnPointComponent>();
@@ -435,7 +435,6 @@ void BarcodeServer::TileGeneration::_createSpawner(std::shared_ptr<Hydra::World:
 		alienSpawner->addComponent<Hydra::Component::NetworkSyncComponent>();
 		alienSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/Spawner.mATTIC");
 		auto sa = alienSpawner->addComponent<Hydra::Component::SpawnerComponent>();
-		sa->map = pathfindingMap;
 		sa->spawnerID = Hydra::Component::SpawnerType::AlienSpawner;
 
 		auto h = alienSpawner->addComponent<Hydra::Component::LifeComponent>();
@@ -478,7 +477,6 @@ void BarcodeServer::TileGeneration::_createSpawner(std::shared_ptr<Hydra::World:
 		robotSpawner->addComponent<Hydra::Component::NetworkSyncComponent>();
 		robotSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/Spawner.mATTIC");
 		auto sa = robotSpawner->addComponent<Hydra::Component::SpawnerComponent>();
-		sa->map = pathfindingMap;
 		sa->spawnerID = Hydra::Component::SpawnerType::RobotSpawner;
 
 		auto h = robotSpawner->addComponent<Hydra::Component::LifeComponent>();
