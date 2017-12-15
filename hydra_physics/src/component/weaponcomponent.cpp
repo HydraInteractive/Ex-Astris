@@ -83,7 +83,6 @@ bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 		auto b = bullet->addComponent<Hydra::Component::BulletComponent>();
 		b->direction = direction;
 		b->velocity = velocity;
-		b->bulletType = bulletType;
 		b->damage = damage;
 		b->colour[0] = color[0];
 		b->colour[1] = color[1];
@@ -103,7 +102,7 @@ bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 		auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
 		bulletPhysWorld->enable(rbc.get());
 		rigidBody->setActivationState(DISABLE_DEACTIVATION);
-		rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * velocity);
+		rigidBody->setLinearVelocity(btVector3(b->direction.x, b->direction.y, b->direction.z) * velocity);
 		rigidBody->setGravity(btVector3(0, 0, 0));
 		rbc->setAngularForce(glm::vec3(0));
 
@@ -129,7 +128,6 @@ bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 			auto b = bullet->addComponent<Hydra::Component::BulletComponent>();
 			b->direction = bulletDirection;
 			b->velocity = velocity;
-			b->bulletType = bulletType;
 			b->damage = damage;
 
 			auto t = bullet->addComponent<Hydra::Component::TransformComponent>();
@@ -144,7 +142,7 @@ bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 			auto rigidBody = static_cast<btRigidBody*>(rbc->getRigidBody());
 			bulletPhysWorld->enable(rbc.get());
 			rigidBody->setActivationState(DISABLE_DEACTIVATION);
-			rigidBody->applyCentralForce(btVector3(b->direction.x, b->direction.y, b->direction.z) * velocity);
+			rigidBody->setLinearVelocity(btVector3(b->direction.x, b->direction.y, b->direction.z) * velocity);
 			rbc->setAngularForce(glm::vec3(0));
 			rigidBody->setGravity(btVector3(0,0,0));
 
