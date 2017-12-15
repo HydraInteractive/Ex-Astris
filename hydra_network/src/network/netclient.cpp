@@ -18,6 +18,7 @@ using world = Hydra::World::World;
 bool NetClient::running = false;
 NetClient::updatePVS_f NetClient::updatePVS = nullptr;
 NetClient::onWin_f NetClient::onWin = nullptr;
+NetClient::onWin_f NetClient::onNoPVS = nullptr;
 NetClient::onNewEntity_f NetClient::onNewEntity = nullptr;
 NetClient::updatePathMap_f NetClient::updatePathMap = nullptr;
 NetClient::updatePath_f NetClient::updatePath = nullptr;
@@ -149,6 +150,15 @@ void NetClient::_resolvePackets() {
 			if (sfp->action == ServerFreezePlayerPacket::Action::win) {
 				if (onWin)
 					onWin(userdata);
+			}
+			else if (sfp->action == ServerFreezePlayerPacket::Action::noPVS){
+
+				printf("ASODIJAISFDJISADJFISJIODFJIOSDJFIJSIODFJIOSJIODFJSIODFJISOJFIOSD");
+				if (onNoPVS) {
+
+					printf("222222222222");
+					onNoPVS(userdata);
+				}
 			}
 			else
 				for (auto p : Hydra::Component::PlayerComponent::componentHandler->getActiveComponents())

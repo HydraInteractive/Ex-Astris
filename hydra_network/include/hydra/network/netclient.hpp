@@ -16,6 +16,7 @@ namespace Hydra::Network {
 
 		static updatePVS_f updatePVS;
 		static onWin_f onWin;
+		static onWin_f onNoPVS;
 		static onNewEntity_f onNewEntity;
 		static updatePathMap_f updatePathMap;
 		static updatePath_f updatePath;

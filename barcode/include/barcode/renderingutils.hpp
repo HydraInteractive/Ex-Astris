@@ -104,7 +104,7 @@ namespace Barcode {
 
 	class DefaultGraphicsPipeline final : public IGraphicsPipeline {
 	public:
-		bool disablePVS = false;
+		bool disablePVS = true;
 
 		DefaultGraphicsPipeline(Hydra::System::CameraSystem& cameraSystem, const glm::ivec2& size);
 		~DefaultGraphicsPipeline();
