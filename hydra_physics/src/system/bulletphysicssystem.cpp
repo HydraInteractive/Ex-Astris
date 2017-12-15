@@ -330,16 +330,7 @@ void BulletPhysicsSystem::_spawnText(const glm::vec3& pos, const std::string& te
 
 void Hydra::System::BulletPhysicsSystem::_addPickUp(PickUpComponent * pickupComponent, PerkComponent * perkComponent) {
 
-	if (!IEngine::getInstance()->getDeadSystem()) {
-		
-		void (*p)(EntityID id);
 
-		void *gptr = (IEngine::getInstance()->getState()->getTextFactory());
-		typedef void(*fptr)(EntityID);
-		fptr my_fptr = reinterpret_cast<fptr>(reinterpret_cast<long long>(gptr));
-
-		my_fptr(pickupComponent->entityID);
-	}
 	switch (pickupComponent->pickUpType)
 	{
 	case PickUpComponent::PICKUP_RANDOMPERK: {
@@ -382,6 +373,18 @@ void Hydra::System::BulletPhysicsSystem::_addPickUp(PickUpComponent * pickupComp
 	default:
 		break;
 	}
+
+	if (!IEngine::getInstance()->getDeadSystem()) {
+
+		void(*p)(EntityID id);
+
+		void *tmp = (IEngine::getInstance()->getState()->getTextureLoader());
+		typedef void(*fptr)(EntityID);
+		fptr my_fptr = reinterpret_cast<fptr>(reinterpret_cast<long long>(tmp));
+
+		my_fptr(pickupComponent->entityID);
+	}
+
 }
 
 void BulletPhysicsSystem::registerUI() {}
