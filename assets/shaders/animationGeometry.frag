@@ -23,9 +23,9 @@ layout (location = 10) uniform sampler2D glowTexture;
 void main() {
 	vec3 materialDiffuse = texture(diffuseTexture, inData.uv).rgb;
 	float specular = texture(specularTexture, inData.uv).r;
-	diffuse = vec4(materialDiffuse, specular);
+	diffuse = vec4(materialDiffuse, 0);
 
-	vec3 tempNormal = texture(normalTexture, inData.uv).rgb * 2 - 1;
+	vec3 tempNormal = normalize(texture(normalTexture, inData.uv).rgb * 2 - 1);
 	normal = normalize(inData.tbn * tempNormal);
 
 	glow = texture(glowTexture, inData.uv).r;

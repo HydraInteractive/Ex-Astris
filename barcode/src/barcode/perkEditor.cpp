@@ -1,4 +1,4 @@
-#include <barcode/perkEditor.hpp>
+#include <barcode/perkeditor.hpp>
 #include <barcode/menustate.hpp>
 #include <hydra/component/cameracomponent.hpp>
 
@@ -81,8 +81,8 @@ namespace Barcode
 		for (auto& kv : _bulletRender.batch.objects)
 			kv.second.clear();
 
-		//std::vector<std::shared_ptr<Entity>> entities;
-		//world::getEntitiesWithComponents<Hydra::Component::MeshComponent>(entities);
+		std::vector<std::shared_ptr<Entity>> entities;
+		world::getEntitiesWithComponents<Hydra::Component::MeshComponent>(entities);
 		glm::vec3 colour(1.0f);
 		bool hasGlow = bullet.glow;
 		float glowIntensity = bullet.glowIntensity;

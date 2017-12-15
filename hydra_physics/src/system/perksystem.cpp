@@ -101,40 +101,22 @@ void PerkSystem::PerkChange(ReadBullet& b, const std::shared_ptr<Hydra::World::E
 	if (b.Multiplier)
 	{
 		if (b.dmg > 0.0f)
-		{
 			w->damage *= b.dmg;
-		}
-		else
-			w->damage * 1.0;
+
 		if (b.bulletSize > 0.0f)
-		{
 			w->bulletSize *= b.bulletSize;
-		}
-		else
-			w->bulletSize * 1.0f;
 
 
 		w->bulletsPerShot = b.bulletPerShot;
 		w->maxammo = b.ammoCap;
 		if (b.currentMagAmmo > 0.0f)
-		{
 			w->maxmagammo *= b.currentMagAmmo;
-		}
-		else
-			w->maxmagammo * 1.0f;
 
 		if (b.ammoPerShot > 0.0f)
-		{
 			w->ammoPerShot *= b.ammoPerShot;
-		}
-		else
-			w->ammoPerShot * 1.0f;
+
 		if (b.bulletSpread > 0.0f)
-		{
 			w->bulletSpread *= b.bulletSpread;
-		}
-		else
-			w->bulletSpread * 1.0f;
 
 
 

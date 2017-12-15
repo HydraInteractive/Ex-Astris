@@ -41,7 +41,7 @@ void ComponentMenu::render(bool &openBool, Hydra::System::BulletPhysicsSystem& p
 	ImGui::NextColumn();
 	ImGui::Text("Select component type");
 	if (_selectedEntity != nullptr)
-	{
+	{ 
 		for (size_t i = 0; i < _componentTypes.size(); i++)
 		{
 			if (ImGui::MenuItem(_componentTypes[i].c_str(), "", (_selectedString == _componentTypes[i])))
@@ -52,7 +52,7 @@ void ComponentMenu::render(bool &openBool, Hydra::System::BulletPhysicsSystem& p
 	}
 
 	ImGui::NextColumn();
-	ImGui::Text("Configure component");
+	ImGui::Text("Configure component"); 
 	if (_selectedString != "" && _selectedEntity != nullptr)
 	{
 		configureComponent(openBool, _selectedString, physicsSystem);

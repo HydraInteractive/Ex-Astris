@@ -21,7 +21,7 @@
 #include <hydra/component/pickupcomponent.hpp>
 
 #include <hydra/system/perksystem.hpp>
-#include <barcode/perkEditor.hpp>
+#include <barcode/perkeditor.hpp>
 #include <algorithm>
 
 #define frand() (float(rand())/RAND_MAX)
@@ -107,7 +107,7 @@ namespace Barcode {
 		_lightingBatch.pipeline->setValue(5, 5);
 		_lightingBatch.pipeline->setValue(6, 6);
 
-		_shadowBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/shadow.vert", "", "assets/shaders/shadow.frag", glm::vec2(512));
+		_shadowBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/shadow.vert", "", "assets/shaders/shadow.frag", glm::vec2(1024));
 		_shadowBatch.output->addTexture(0, Hydra::Renderer::TextureType::f24Depth).finalize();
 		_shadowBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::depth;
 		_shadowBatch.batch.clearColor = glm::vec4(1, 1, 1, 1);
@@ -134,7 +134,7 @@ namespace Barcode {
 		for (size_t i = 0; i < ssaoKernel.size(); i++)
 			_ssaoBatch.pipeline->setValue(11 + i, ssaoKernel[i]);
 
-		_ssaoNoise = Hydra::Renderer::GLTexture::createFromData(noiseSize, noiseSize, Hydra::Renderer::TextureType::f32RGB, _getSSAONoise(noiseSize*noiseSize).data());
+		_ssaoNoise = Hydra::Renderer::GLTexture::createFromData(noiseSize, noiseSize, Hydra::Renderer::TextureType::f16RGB, _getSSAONoise(noiseSize*noiseSize).data());
 
 		_glowBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/glow.vert", "", "assets/shaders/glow.frag", _engine->getView());
 		_glowBatch.batch.pipeline->setValue(1, 1);
@@ -241,7 +241,7 @@ namespace Barcode {
 				const float x = drawObj->modelMatrix[3][0];
 				const float z = drawObj->modelMatrix[3][2];
 
-				bool toRender = false;
+				bool toRender = disablePVS;
 				for (size_t i = 0; i < rs.worldBox.size() && !toRender; i++) {
 					const float x0 = rs.worldBox[i].x;
 					const float z0 = rs.worldBox[i].y;
@@ -270,7 +270,7 @@ namespace Barcode {
 				const float x = drawObj->modelMatrix[3][0];
 				const float z = drawObj->modelMatrix[3][2];
 
-				bool toRender = false;
+				bool toRender = disablePVS;
 				for (size_t i = 0; i < rs.worldBox.size() && !toRender; i++) {
 					const float x0 = rs.worldBox[i].x;
 					const float z0 = rs.worldBox[i].y;
@@ -297,7 +297,7 @@ namespace Barcode {
 			_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 			objectCounter++;
 
-			if (MenuState::shadowEnabled)
+			if (MenuState::shadowEnabled && drawObj->hasShadow)
 				_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 		}
 		const int MAX_LIGHTS = 24;
@@ -323,7 +323,9 @@ namespace Barcode {
 
 		size_t maxObjectCount = Hydra::Component::DrawObjectComponent::componentHandler->getActiveComponents().size();
 		size_t maxRoomsCount = Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size();
-		ImGui::Begin("Performance monitor", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
+
+		ImGui::SetNextWindowPos(ImVec2(_engine->getView()->getSize().x - (300 + 16), 24), ImGuiCond_Always);
+		ImGui::Begin("Performance monitor", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
 		ImGui::Text("Currently rendering:\n\t%zu objects out of %zu (%.2f%%)\n\t%zu animation objects out of %zu (%.2f%%)\n\t%zu rooms out of %zu (%.2f%%)\n\t%zu lights out of %zu (slots: %d) (%.2f%%)",
 			objectCounter, maxObjectCount + objectTotalNormal, float(objectCounter * 100) / (maxObjectCount + objectTotalNormal),
 			animatedObjectCounter, animatedObjectTotal, float(animatedObjectCounter * 100) / (animatedObjectTotal),
