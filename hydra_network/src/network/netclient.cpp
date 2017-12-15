@@ -136,6 +136,7 @@ void NetClient::_resolvePackets() {
 			tc->scale = ss->ti.scale;
 			tc->rotation = ss->ti.rot;
 			auto r = b->getComponent<Hydra::Component::RigidBodyComponent>();
+			r->setLinearVelocity(bc->direction*bc->velocity);
 			if (r)
 				static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->enable(r.get());
 			break;

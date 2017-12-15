@@ -366,7 +366,7 @@ unsigned int AlienBehaviour::attackingState(float dt)
 				glm::vec3 right(forward.z, forward.y, -forward.x);
 
 				glm::vec3 bulletPos = thisEnemy.transform->position + glm::vec3(0, 2.0, 0) + (forward* 2.0f) - (right * 1.0f);
-				thisEnemy.weapon->shoot(bulletPos, playerDir, rotation, 5.5f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
+				thisEnemy.weapon->shoot(bulletPos, playerDir, rotation, 20.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
 				attackTimer = 0;
 			}
 			else
@@ -496,7 +496,7 @@ unsigned int RobotBehaviour::attackingState(float dt)
 		glm::vec3 right(forward.z, forward.y, -forward.x);
 
 		glm::vec3 bulletPos = thisEnemy.transform->position + glm::vec3(0, 2.0, 0) + (forward* 2.0f) - (right * 1.0f);
-		thisEnemy.weapon->shoot(bulletPos, playerDir, rotation, 5.5f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
+		thisEnemy.weapon->shoot(bulletPos, playerDir, rotation, 15.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
 	}
 	return state;
 }

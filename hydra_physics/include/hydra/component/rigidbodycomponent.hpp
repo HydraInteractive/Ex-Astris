@@ -79,6 +79,7 @@ namespace Hydra::Component {
 
 		void setActivationState(ActivationState newState);
 		void setAngularForce(glm::vec3 angularForce);
+		void setLinearVelocity(const glm::vec3 &newVel);
 		void* getRigidBody();
 
 		void refreshTransform();
