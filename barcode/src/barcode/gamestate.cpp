@@ -77,6 +77,7 @@ namespace Barcode {
 			Hydra::Network::NetClient::onNoPVS = &GameState::_onNoPVS;
 			Hydra::Network::NetClient::updatePathMap = &GameState::_onUpdatePathMap;
 			Hydra::Network::NetClient::onNewEntity = &GameState::_onNewEntity;
+			Hydra::Network::NetClient::updatePath = &GameState::_onUpdatePath;
 			Hydra::Network::NetClient::userdata = static_cast<void*>(this);
 			_didConnect = Hydra::Network::NetClient::initialize(addr, port);
 		}
@@ -116,7 +117,8 @@ namespace Barcode {
 				oldNoClip = _cc->noClip;
 				_cc->mouseControl = false;
 				_cc->noClip = false;
-			} else {
+			}
+			else {
 				_cc->mouseControl = oldMouseControl;
 				_cc->noClip = oldNoClip;
 			}
@@ -131,7 +133,7 @@ namespace Barcode {
 		_playerSystem.tick(delta);
 		_abilitySystem.tick(delta);
 		_particleSystem.tick(delta);
-		_rendererSystem.tick(delta);
+		_rendererSystem.tick(delta); 
 		_animationSystem.tick(delta);
 		_spawnerSystem.tick(delta);
 		_soundFxSystem.tick(delta);
@@ -596,9 +598,19 @@ namespace Barcode {
 		this_->_dgp->disablePVS = true;
 	}
 
-	void GameState::_onUpdatePathMap(bool* map, void* userdata)	{
+	void GameState::_onUpdatePathMap(bool* map, void* userdata) {
 		GameState* this_ = static_cast<GameState*>(userdata);
+		if (this_->aiInspector->pathMap != nullptr)
+		{
+			delete[] this_->aiInspector->pathMap;
+		}
 		this_->aiInspector->pathMap = map;
+	}
+
+	void GameState::_onUpdatePath(std::vector<glm::ivec2>& openList, std::vector<glm::ivec2>& closedList, std::vector<glm::ivec2>& pathToEnd, void * userdata)
+	{
+		GameState* this_ = static_cast<GameState*>(userdata);
+		this_->aiInspector->updatePath(openList, closedList, pathToEnd);
 	}
 
 	void GameState::_onNewEntity(Entity* entity, void* userdata) {

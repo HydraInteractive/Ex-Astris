@@ -18,20 +18,19 @@ using namespace Hydra::World;
 namespace Hydra::Component {
 	struct HYDRA_PHYSICS_API WeaponComponent final : public IComponent<WeaponComponent, ComponentBits::Weapon> {
 		typedef void (*onShoot_f)(WeaponComponent& weapon, Entity* bullet, void* userdata);
-
-		BulletComponent::BulletType bulletType = BulletComponent::BulletType::normal;
 		float fireRateTimer = 0.0f;
 		float fireRateRPM = 600.0f;
 		float bulletSize = 0.5f;
 		float bulletSpread = 0.0f;
 		float damage = 5.0f;
-		int bulletsPerShot = 14;
+		int bulletsPerShot = 1;
 		float recoil = 0.7f;
 		float glowIntensity = 0.0f;
 		float color[4] = { 0.0f };
 		float _dyaw, _dpitch = 0.0f;
 		bool _isReloading = false;
 		bool glow = false;
+		int meshType = 0;
 
 		/*unsigned short*/ int maxammo = 100000000;
 		/*unsigned short*/ int currammo = 100000000;

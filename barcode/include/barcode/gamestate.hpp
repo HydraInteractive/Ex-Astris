@@ -120,6 +120,7 @@ namespace Barcode {
 		static void _onWin(void* userdata);
 		static void _onNoPVS(void* userdata);
 		static void _onUpdatePathMap(bool* map, void* userdata);
+		static void _onUpdatePath(std::vector<glm::ivec2>& openList, std::vector<glm::ivec2>& closedList, std::vector<glm::ivec2>& pathToEnd, void* userdata);
 		static void _onNewEntity(Entity* entity, void* userdata);
 	};
 }
