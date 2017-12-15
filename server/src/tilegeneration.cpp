@@ -18,6 +18,7 @@
 #include <hydra/component/movementcomponent.hpp>
 #include <hydra/component/spawnpointcomponent.hpp>
 #include <hydra/component/spawnercomponent.hpp>
+#include <hydra/component/soundfxcomponent.hpp>
 #include <hydra/component/networksynccomponent.hpp>
 #include <hydra/component/lightcomponent.hpp>
 using world = Hydra::World::World;
@@ -297,6 +298,9 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 		rgbc->createCapsuleY(0.5f, 1.0f * t->scale.y, glm::vec3(0, 2.8 + 0.8 * t->scale.y, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_HEAD, 10000, 0, 0, 0.0f, 0);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
+
+		// sound
+		//alienEntity->addComponent<Hydra::Component::SoundFxComponent>();
 	}
 			break;
 	case 2: {

@@ -184,30 +184,31 @@ namespace Barcode {
 			}
 			ImGui::End();
 		}
-		{
-			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
-			ImGui::SetNextWindowPos(ImVec2(oneThirdX, twoThirdY));
-			ImGui::Begin("Main menu 4", nullptr, windowFlags);
-			{
-				auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/soloSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/soloTransparent.png")->getID());
-				if (ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
-					_submenu = SubMenu::Play::solo;
-			}
-			ImGui::End();
-		}
+		//{
+		//	ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
+		//	ImGui::SetNextWindowPos(ImVec2(oneThirdX, twoThirdY));
+		//	ImGui::Begin("Main menu 4", nullptr, windowFlags);
+		//	{
+		//		auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/soloSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/soloTransparent.png")->getID());
+		//		if (ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
+		//			_submenu = SubMenu::Play::solo;
+		//	}
+		//	ImGui::End();
+		//}
 		switch (_submenu.play) {
 		case SubMenu::Play::none:
 			break;
-		case SubMenu::Play::coop: {
-			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
-			ImGui::SetNextWindowPos(ImVec2(0, oneHalfY));
-			ImGui::Begin("Main menu 1", nullptr, windowFlags);
-			{
-				auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/hostSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/hostTransparent.png")->getID());
-				ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
-			}
-			ImGui::End();
-		}
+		case SubMenu::Play::coop: 
+		//{
+		//	ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
+		//	ImGui::SetNextWindowPos(ImVec2(0, oneHalfY));
+		//	ImGui::Begin("Main menu 1", nullptr, windowFlags);
+		//	{
+		//		auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/hostSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/hostTransparent.png")->getID());
+		//		ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
+		//	}
+		//	ImGui::End();
+		//}
 		{
 			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
 			ImGui::SetNextWindowPos(ImVec2(0, oneThirdY * 2));
@@ -250,7 +251,7 @@ namespace Barcode {
 				}
 		}
 		break;
-		case SubMenu::Play::solo: {
+		/*case SubMenu::Play::solo: {
 			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
 			ImGui::SetNextWindowPos(ImVec2(oneThirdX * 2, oneHalfY));
 			ImGui::Begin("Main menu 5", nullptr, windowFlags);
@@ -261,7 +262,7 @@ namespace Barcode {
 			}
 			ImGui::End();
 		}
-			break;
+			break;*/
 		}
 	}
 

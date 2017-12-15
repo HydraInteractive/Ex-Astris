@@ -19,13 +19,22 @@ using namespace Hydra::Component;
 SoundFxComponent::~SoundFxComponent() {}
 
 void SoundFxComponent::serialize(nlohmann::json& json) const {
-	json = {
-
-	};
+	//json["soundsToPlay"] = soundsToPlay;
+	//json["playingChannels"] = playingChannels;
 }
 
 void SoundFxComponent::deserialize(nlohmann::json& json) {
-	
+	//soundsToPlay.clear();
+	//playingChannels.clear();
+	//auto& soundslist = json["soundsToPlay"];
+	//for (auto& sound : soundslist) {
+	//	soundsToPlay.push_back(sound);
+	//}
+
+	//auto& channelslist = json["playingChannels"];
+	//for (auto& channel : channelslist){
+	//	playingChannels.push_back(channel);
+	//}
 }
 
 void SoundFxComponent::registerUI() {

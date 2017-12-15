@@ -597,10 +597,12 @@ namespace Barcode {
 
 	void GameState::_onNewEntity(Entity* entity, void* userdata) {
 		GameState* this_ = static_cast<GameState*>(userdata);
-		printf("somthing ded");
-		if (entity->getComponent<Hydra::Component::MeshComponent>()->animationIndex == 3) {
-			printf("sound of ded");
-			entity->getComponent<Hydra::Component::SoundFxComponent>()->soundsToPlay.push_back("assets/sounds/reloadE.ogg");
+		if (entity->getComponent<Hydra::Component::MeshComponent>() != NULL) {
+			if (entity->getComponent<Hydra::Component::MeshComponent>()->animationIndex == 3) {
+				entity->addComponent<Hydra::Component::SoundFxComponent>();
+				entity->getComponent<Hydra::Component::SoundFxComponent>()->soundsToPlay.push_back("assets/sounds/tie.ogg");
+			}
+				
 		}
 		//reinterpret_cast<void**>(&dxgifactory)
 		// chek enteti if enetety with animation 3 thats the deaf ani, play death saound
