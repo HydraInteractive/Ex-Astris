@@ -111,11 +111,11 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 
 					int randomAlienSpawner = rand() % 101;
 					int randomRobotSpawner = rand() % 101;
-					if (randomAlienSpawner <= 3)
+					if (randomAlienSpawner <= 4)
 					{
 						_createSpawner(loadedRoom, 1);
 					}
-					else if (randomRobotSpawner <= 1)
+					else if (randomRobotSpawner <= 2)
 					{
 						_createSpawner(loadedRoom, 2);
 					}
