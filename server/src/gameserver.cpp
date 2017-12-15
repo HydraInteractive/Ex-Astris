@@ -738,21 +738,21 @@ void BarcodeServer::GameServer::_sendPathInfo()
 					packet->pathToEnd = pathToEnd;
 
 					int i = 0;
-					for (int o = 0; o < a->behaviour->pathFinding->openList.size(); o++)
+					for (size_t o = 0; o < a->behaviour->pathFinding->openList.size(); o++)
 					{
 						packet->data[i] = a->behaviour->pathFinding->openList[o]->pos.x();
 						i++;
 						packet->data[i] = a->behaviour->pathFinding->openList[o]->pos.z();
 						i++;
 					}
-					for (int c = 0; c < a->behaviour->pathFinding->visitedList.size(); c++)
+					for (size_t c = 0; c < a->behaviour->pathFinding->visitedList.size(); c++)
 					{
 						packet->data[i] = a->behaviour->pathFinding->visitedList[c]->pos.x();
 						i++;
 						packet->data[i] = a->behaviour->pathFinding->visitedList[c]->pos.z();
 						i++;
 					}
-					for (int p = 0; p < a->behaviour->pathFinding->pathToEnd.size(); p++)
+					for (size_t p = 0; p < a->behaviour->pathFinding->pathToEnd.size(); p++)
 					{
 						glm::ivec2 pos = PathFinding::worldToMapCoords(a->behaviour->pathFinding->pathToEnd[p]).baseVec;
 						packet->data[i] = pos.x;
@@ -809,7 +809,7 @@ void BarcodeServer::GameServer::_resolveClientRequestAIInfoPacket(Hydra::Network
 	{
 		if (e->getComponent<Hydra::Component::AIComponent>())
 		{
-			for (int i = 0; i < aiInspectorSync.size(); i++)
+			for (size_t i = 0; i < aiInspectorSync.size(); i++)
 			{
 				if (aiInspectorSync[i].client == packet->client)
 				{
