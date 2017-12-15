@@ -133,21 +133,32 @@ void GameServer::_makeWorld() {
 	size_t tries = 0;
 	const size_t minRoomCount = 15;
 	const size_t maxRoomCount = 25;
-	_tileGeneration->level = level;
 	while (true) {
+		level = 2;
 		tries++;
+		//_tileGeneration->level = level;
 		if(level < 2)
 			_tileGeneration = std::make_unique<TileGeneration>(maxRoomCount, "assets/room/starterRoom.room", &GameServer::_onRobotShoot, static_cast<void*>(this));
-		else
-			_tileGeneration = std::make_unique<TileGeneration>(maxRoomCount, "assets/room/starterRoom.room", &GameServer::_onRobotShoot, static_cast<void*>(this));
+		else {
+			_tileGeneration = std::make_unique<TileGeneration>(1, "assets/BossRoom/Bossroom5.room", &GameServer::_onRobotShoot, static_cast<void*>(this));
+			ServerFreezePlayerPacket freeze;
+			freeze.action = ServerFreezePlayerPacket::Action::noPVS;
+			_server->sendDataToAll((char*)&freeze, freeze.len);
+			printf("ASODIJAISFDJISADJFISJIODFJIOSDJFIJSIODFJIOSJIODFJSIODFJISOJFIOSD");
+		}
 		_tileGeneration->buildMap();
-		_deadSystem.tick(0);
-		printf("Room count: %zu\t(%zu)\n", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size(), _tileGeneration->roomCounter);
-		if (Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size() >= minRoomCount)
+		if (level < 2) {
+			_deadSystem.tick(0);
+			printf("Room count: %zu\t(%zu)\n", Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size(), _tileGeneration->roomCounter);
+			if (Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size() >= minRoomCount)
+				break;
+			printf("\tTarget is >= %zu, redoing generation\n", minRoomCount);
+			_tileGeneration.reset();
+			_deadSystem.tick(0);
+		}
+		else {
 			break;
-		printf("\tTarget is >= %zu, redoing generation\n", minRoomCount);
-		_tileGeneration.reset();
-		_deadSystem.tick(0);
+		}
 	}
 	printf("\tTook %zu tries\n", tries);
 	_tileGeneration->spawnDoors();
@@ -400,18 +411,18 @@ void GameServer::run() {
 
 			_players.erase(std::remove_if(_players.begin(), _players.end(), [eID](const auto& p) { return p->entityid == eID; }), _players.end());
 		}
-
-		if (!Hydra::Component::AIComponent::componentHandler->getActiveComponents().size()) {
-			level++;
-			if (level == 2) {
-				ServerFreezePlayerPacket freeze;
-				freeze.action = ServerFreezePlayerPacket::Action::win;
-				_server->sendDataToAll((char*)&freeze, freeze.len);
-				level = 0;
-			}
-			
-			_makeWorld();
-		}
+		
+		//if (!Hydra::Component::AIComponent::componentHandler->getActiveComponents().size()) {
+		//	level++;
+		//	if (level == 2) {
+		//		ServerFreezePlayerPacket freeze;
+		//		freeze.action = ServerFreezePlayerPacket::Action::win;
+		//		_server->sendDataToAll((char*)&freeze, freeze.len);
+		//		level = 0;
+		//	}
+		//	
+		//	_makeWorld();
+		//}
 	}
 
 	//Send updated world to clients

@@ -74,6 +74,7 @@ namespace Barcode {
 		if (!_didConnect) {
 			Hydra::Network::NetClient::updatePVS = &GameState::_onUpdatePVS;
 			Hydra::Network::NetClient::onWin = &GameState::_onWin;
+			Hydra::Network::NetClient::onNoPVS = &GameState::_onNoPVS;
 			Hydra::Network::NetClient::updatePathMap = &GameState::_onUpdatePathMap;
 			Hydra::Network::NetClient::onNewEntity = &GameState::_onNewEntity;
 			Hydra::Network::NetClient::userdata = static_cast<void*>(this);
@@ -411,7 +412,7 @@ namespace Barcode {
 					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Yellow.png")->getID()), ImVec2(10, 10));
 				}
 
-				ImGui::End();
+				ImGui::End(); 
 			}
 
 			delete[] coolDownList;
@@ -589,6 +590,10 @@ namespace Barcode {
 	void GameState::_onWin(void* userdata) {
 		GameState* this_ = static_cast<GameState*>(userdata);
 		this_->_engine->setState<WinState>();
+	}
+	void GameState::_onNoPVS(void* userdata) {
+		GameState* this_ = static_cast<GameState*>(userdata);
+		this_->_dgp->disablePVS = true;
 	}
 
 	void GameState::_onUpdatePathMap(bool* map, void* userdata)	{

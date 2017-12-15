@@ -129,6 +129,7 @@ namespace Hydra::Network {
 		enum class Action {
 			freeze = 0,
 			unfreeze,
+			noPVS,
 			win
 		};
 		Action action;
