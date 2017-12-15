@@ -15,11 +15,19 @@ void PerkAttribMenu::render(bool & thing, Hydra::Renderer::Batch * renderBatch, 
 
 	//Whatever you choose in the editor will be added/multiplied by
 	//whatever values the player already has
+	
+	ImGui::RadioButton("Bullet: ", &Bullet.mesh, 0); ImGui::SameLine();
+	ImGui::RadioButton("Star: ", &Bullet.mesh, 1); ImGui::SameLine();
+	ImGui::RadioButton("Trident: ", &Bullet.mesh, 2); ImGui::SameLine();
+	ImGui::RadioButton("Banana: ", &Bullet.mesh, 3); ImGui::SameLine();
+	ImGui::RadioButton("Duck: ", &Bullet.mesh, 4);
+
+	ImGui::Separator();
 	ImGui::Checkbox("Glow on/off", &Bullet.glow);
 	ImGui::Separator();
 	ImGui::Text("Glow Intensity:"); ImGui::SameLine(); ImGui::DragFloat("                             ", &Bullet.glowIntensity, 0.01f);
 	ImGui::Separator();
-	ImGui::Text("Bullet Size:"); ImGui::SameLine(); ImGui::DragFloat("", &Bullet.bulletSize);
+	ImGui::Text("Bullet Size:"); ImGui::SameLine(); ImGui::DragFloat("", &Bullet.bulletSize, 0.01f);
 	ImGui::Separator();
 	ImGui::Text("Bullet Damage:"); ImGui::SameLine(); ImGui::DragFloat("  ",&Bullet.dmg);
 	ImGui::Separator();
@@ -38,6 +46,10 @@ void PerkAttribMenu::render(bool & thing, Hydra::Renderer::Batch * renderBatch, 
 	ImGui::Separator();
 	//ImGui::RadioButton("Multiplier", &Bullet.multi); ImGui::SameLine(); ImGui::RadioButton("Adder", &Bullet.add);
 	ImGui::Checkbox("Multiplier", &Bullet.Multiplier), ImGui::SameLine(); ImGui::Checkbox("Adder", &Bullet.Adder);
+	//ImGui::Checkbox("Bullet Mesh", )
+	//if (Bullet.mesh != lastMesh) {
+	//
+	//}
 
 	if (ImGui::Button("Export", ImVec2(200, 75)))
 	{
@@ -109,6 +121,7 @@ void PerkAttribMenu::writeToFile(const char* fileName)
 	file.write(reinterpret_cast<char *>(&Bullet.Multiplier), sizeof(bool));
 	file.write(reinterpret_cast<char *>(&Bullet.glow), sizeof(bool));
 	file.write(reinterpret_cast<char *>(&Bullet.glowIntensity), sizeof(float));
+	file.write(reinterpret_cast<char *> (&Bullet.mesh), sizeof(int));
 
 	std::string description = Bullet.perkDescription;
 	int size = description.size();

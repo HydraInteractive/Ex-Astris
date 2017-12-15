@@ -132,7 +132,7 @@ namespace Barcode {
 		_playerSystem.tick(delta);
 		_abilitySystem.tick(delta);
 		_particleSystem.tick(delta);
-		_rendererSystem.tick(delta);
+		_rendererSystem.tick(delta); 
 		_animationSystem.tick(delta);
 		_spawnerSystem.tick(delta);
 		_soundFxSystem.tick(delta);

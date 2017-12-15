@@ -78,7 +78,16 @@ bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 
 	if (bulletSpread == 0.0f) {
 		auto bullet = world::newEntity("Bullet", world::rootID);
-		bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Bullet.mATTIC");
+		if(meshType == 0)
+			bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Bullet.mATTIC");
+		else if (meshType == 1)
+			bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Star.mATTIC");
+		else if (meshType == 2)
+			bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Trident.mATTIC");
+		else if (meshType == 3)
+			bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Banana.mATTIC");
+		else
+			bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Duck.mATTIC");
 
 		auto b = bullet->addComponent<Hydra::Component::BulletComponent>();
 		b->direction = direction;
@@ -113,7 +122,17 @@ bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 	} else {
 		for (int i = 0; i < bulletsPerShot; i++) {
 			auto bullet = world::newEntity("Bullet", world::rootID);
-			bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Bullet.mATTIC");
+			if (meshType == 0)
+				bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Bullet.mATTIC");
+			else if (meshType == 1)
+				bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Star.mATTIC");
+			else if (meshType == 2)
+				bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Trident.mATTIC");
+			else if (meshType == 3)
+				bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Banana.mATTIC");
+			else
+				bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Duck.mATTIC");
+
 
 			float phi = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
 			float distance = ((float)rand() / (float)(RAND_MAX)) * bulletSpread;
