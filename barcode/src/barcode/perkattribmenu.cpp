@@ -16,11 +16,11 @@ void PerkAttribMenu::render(bool & thing, Hydra::Renderer::Batch * renderBatch, 
 	//Whatever you choose in the editor will be added/multiplied by
 	//whatever values the player already has
 	
-	ImGui::RadioButton("Bullet: ", &Bullet.mesh, 0); ImGui::SameLine();
-	ImGui::RadioButton("Star: ", &Bullet.mesh, 1); ImGui::SameLine();
-	ImGui::RadioButton("Trident: ", &Bullet.mesh, 2); ImGui::SameLine();
-	ImGui::RadioButton("Banana: ", &Bullet.mesh, 3); ImGui::SameLine();
-	ImGui::RadioButton("Duck: ", &Bullet.mesh, 4);
+	ImGui::RadioButton("Bullet", &Bullet.mesh, 0); ImGui::SameLine();
+	ImGui::RadioButton("Star", &Bullet.mesh, 1); ImGui::SameLine();
+	ImGui::RadioButton("Trident", &Bullet.mesh, 2); ImGui::SameLine();
+	ImGui::RadioButton("Banana", &Bullet.mesh, 3); ImGui::SameLine();
+	ImGui::RadioButton("Duck", &Bullet.mesh, 4);
 
 	ImGui::Separator();
 	ImGui::Checkbox("Glow on/off", &Bullet.glow);
@@ -33,10 +33,22 @@ void PerkAttribMenu::render(bool & thing, Hydra::Renderer::Batch * renderBatch, 
 	ImGui::Separator();
 	ImGui::Text("Weapon Recoil:"); ImGui::SameLine(); ImGui::DragFloat("   ", &Bullet.recoil, 0.01f);
 	ImGui::Separator();
+	//if (ImGui::IsItemHovered())
+	//{
+	//	ImGui::SetTooltip("This will add the amount of ammo that will fit in your magazine");
+	//}
 	ImGui::Text("Mag Ammo:"); ImGui::SameLine(); ImGui::DragInt("      ", &Bullet.currentMagAmmo);
 	ImGui::Separator();
+	//if (ImGui::IsItemHovered())
+	//{
+	//	ImGui::SetTooltip("This will make the shots go in dirrenrent direction");
+	//}
 	ImGui::Text("Shot Spread:"); ImGui::SameLine(); ImGui::DragFloat("       ", &Bullet.bulletSpread, 0.01f);
 	ImGui::Separator();
+	//if (ImGui::IsItemHovered())
+	//{
+	//	ImGui::SetTooltip("This will add the amount of shots you'll fire per minute");
+	//}
 	ImGui::Text("Shot RPM:"); ImGui::SameLine(); ImGui::DragFloat("          ", &Bullet.roundsPerMinute, 0.01f);
 	ImGui::Separator();
 	ImGui::ColorPicker4("Bullet Color:",(float*)&Bullet.bulletColor,ImGuiColorEditFlags_RGB);
