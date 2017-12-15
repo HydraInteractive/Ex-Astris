@@ -137,8 +137,11 @@ void NetClient::_resolvePackets() {
 			tc->scale = ss->ti.scale;
 			tc->rotation = ss->ti.rot;
 			auto r = b->getComponent<Hydra::Component::RigidBodyComponent>();
-			if (r)
+			if (r) {
+				r->setLinearVelocity(bc->direction*bc->velocity);
 				static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->enable(r.get());
+				r->setGravity(glm::vec3(0, 0, 0));
+			}
 			break;
 		}
 		case PacketType::ServerFreezePlayer: {
