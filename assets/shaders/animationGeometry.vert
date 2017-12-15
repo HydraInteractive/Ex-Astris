@@ -32,6 +32,10 @@ mat4 getMat(sampler2DRect tex, int joint) {
     return mat;
 }
 
+mat3 getMatForNormal(sampler2DRect tex, int joint) {
+    return transpose(inverse(mat3(getMat(tex, joint))));
+}
+
 vec4 getFinal(vec4 beginningVec) {
 	vec4 animPos = vec4(0.0);
 	animPos += weight[0] * (getMat(animationTexture, jointIdx[0]) * beginningVec);
@@ -41,9 +45,19 @@ vec4 getFinal(vec4 beginningVec) {
 	return animPos;
 }
 
+vec3 getNormal(vec3 beginningVec){
+	vec3 animNormal = vec3(0);
+	animNormal += weight[0] * (getMatForNormal(animationTexture, jointIdx[0]) * beginningVec);
+	animNormal += weight[1] * (getMatForNormal(animationTexture, jointIdx[1]) * beginningVec);
+	animNormal += weight[2] * (getMatForNormal(animationTexture, jointIdx[2]) * beginningVec);
+	animNormal += weight[3] * (getMatForNormal(animationTexture, jointIdx[3]) * beginningVec);
+	return animNormal;
+};
+
+
 void main() {
 	outData.position = getFinal(vec4(position, 1.0)).xyz;
-	outData.normal = getFinal(vec4(normal, 1.0)).xyz;
+	outData.normal = getNormal(normal);
 	outData.color = color;
 	outData.uv = uv;
 	outData.tangent = tangent;
