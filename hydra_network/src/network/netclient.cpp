@@ -179,28 +179,29 @@ void NetClient::_resolvePackets() {
 			std::vector<glm::ivec2> openList;
 			std::vector<glm::ivec2> closedList;
 			std::vector<glm::ivec2> pathToend;
+			//std::cout << "Vec2s recieved:" << sai->openList << " " << sai->closedList << " " << sai->pathToEnd << std::endl;
 			int i = 0;
-			while (i < sai->openList)
+			while (i < sai->openList * 2)
 			{
-				int8_t x = sai->data[i];
+				int x = sai->data[i];
 				i++;
-				int8_t y = sai->data[i];
+				int y = sai->data[i];
 				i++;
 				openList.push_back(glm::ivec2(x, y));
 			}
-			while (i < sai->openList + sai->closedList)
+			while (i < (sai->openList + sai->closedList) * 2)
 			{
-				int8_t x = sai->data[i];
+				int x = sai->data[i];
 				i++;
-				int8_t y = sai->data[i];
+				int y = sai->data[i];
 				i++;
 				closedList.push_back(glm::ivec2(x, y));
 			}
-			while (i < sai->openList + sai->closedList + sai->pathToEnd)
+			while (i < (sai->openList + sai->closedList + sai->pathToEnd) * 2)
 			{
-				int8_t x = sai->data[i];
+				int x = sai->data[i];
 				i++;
-				int8_t y = sai->data[i];
+				int y = sai->data[i];
 				i++;
 				pathToend.push_back(glm::ivec2(x, y));
 			}
@@ -400,8 +401,7 @@ void NetClient::requestAIInfo(Hydra::World::EntityID id)
 	}
 	ClientRequestAIInfoPacket packet;
 	packet.serverEntityID = serverID;
-	packet.client =
-		NetClient::_tcp.send((char*)&packet, packet.len);
+	NetClient::_tcp.send((char*)&packet, packet.len);
 }
 
 void NetClient::reset() {

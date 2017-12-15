@@ -21,7 +21,7 @@ public:
 	static void* userdata;
 
 	std::weak_ptr<Hydra::World::Entity> targetAI = std::weak_ptr<Hydra::World::Entity>();
-	RGB* testArray = nullptr;
+	RGB* colourArray = nullptr;
 	bool* pathMap = nullptr;
 	std::shared_ptr<ITexture> image = nullptr;
 
@@ -29,6 +29,7 @@ public:
 	~AIInspector();
 
 	void render(bool &openBool, Hydra::Component::TransformComponent* _playerTransform);
+	void updatePath(std::vector<glm::ivec2>& openList, std::vector<glm::ivec2>& closedList, std::vector<glm::ivec2>& pathToEnd);
 	void reset();
 private:
 	struct {

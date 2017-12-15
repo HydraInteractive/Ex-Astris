@@ -603,6 +603,7 @@ namespace Barcode {
 	void GameState::_onUpdatePath(std::vector<glm::ivec2>& openList, std::vector<glm::ivec2>& closedList, std::vector<glm::ivec2>& pathToEnd, void * userdata)
 	{
 		GameState* this_ = static_cast<GameState*>(userdata);
+		this_->aiInspector->updatePath(openList, closedList, pathToEnd);
 	}
 
 	void GameState::_onNewEntity(Entity* entity, void* userdata) {

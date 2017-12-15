@@ -27,7 +27,7 @@ void AIInspector::render(bool &openBool, Hydra::Component::TransformComponent* _
 		ImGui::OpenPopup("AI Selector");
 	}
 	_aiSelector();
-	if (!targetAI.expired() && testArray != nullptr)
+	if (!targetAI.expired() && colourArray != nullptr)
 	{
 		if (_showOptions)
 		{
@@ -63,14 +63,14 @@ void AIInspector::render(bool &openBool, Hydra::Component::TransformComponent* _
 		if (_tracePlayer)
 		{
 			glm::ivec2 playerPos = PathFinding::worldToMapCoords(playerTransform->position).baseVec;
-			testArray[playerPos.x + (playerPos.y * WORLD_MAP_SIZE)] = RGB{ 0, 255, 0 };
+			colourArray[playerPos.x + (playerPos.y * WORLD_MAP_SIZE)] = RGB{ 0, 0, 255 };
 		}
 		if (_traceAI)
 		{
 			glm::ivec2 aiPos = PathFinding::worldToMapCoords(targetAI.lock()->getComponent<Hydra::Component::TransformComponent>()->position).baseVec;
-			testArray[aiPos.x + (aiPos.y * WORLD_MAP_SIZE)] = RGB{ 255, 0, 0 };
+			colourArray[aiPos.x + (aiPos.y * WORLD_MAP_SIZE)] = RGB{ 255, 0, 0 };
 		}
-		image = Hydra::Renderer::GLTexture::createFromData(WORLD_MAP_SIZE, WORLD_MAP_SIZE, Hydra::Renderer::TextureType::u8RGB, testArray);
+		image = Hydra::Renderer::GLTexture::createFromData(WORLD_MAP_SIZE, WORLD_MAP_SIZE, Hydra::Renderer::TextureType::u8RGB, colourArray);
 		int scale = 1;
 		if (!_smallMap)
 			scale = 4;
@@ -86,20 +86,37 @@ void AIInspector::render(bool &openBool, Hydra::Component::TransformComponent* _
 	ImGui::End();
 }
 
+void AIInspector::updatePath(std::vector<glm::ivec2>& openList, std::vector<glm::ivec2>& closedList, std::vector<glm::ivec2>& pathToEnd)
+{
+	reset();
+	for (auto o : openList)
+	{
+		colourArray[o.x + (o.y*WORLD_MAP_SIZE)] = RGB{ 100, 100, 0 };
+	}
+	for (auto c : closedList)
+	{
+		colourArray[c.x + (c.y*WORLD_MAP_SIZE)] = RGB{ 255, 255, 0 };
+	}
+	for (auto p : pathToEnd)
+	{
+		colourArray[p.x + (p.y*WORLD_MAP_SIZE)] = RGB{ 0, 255, 0 };
+	}
+}
+
 void AIInspector::reset()
 {
-	if (testArray == nullptr)
+	if (colourArray == nullptr)
 	{
-		testArray = new RGB[WORLD_MAP_SIZE*WORLD_MAP_SIZE];
+		colourArray = new RGB[WORLD_MAP_SIZE*WORLD_MAP_SIZE];
 	}
 	if (pathMap != nullptr)
 	{
 		for (int i = 0; i < WORLD_MAP_SIZE*WORLD_MAP_SIZE; i++)
 		{
 			if (pathMap[i])
-				testArray[i] = RGB{ 255, 255, 255 };
+				colourArray[i] = RGB{ 255, 255, 255 };
 			else
-				testArray[i] = RGB{ 0, 0, 0 };
+				colourArray[i] = RGB{ 0, 0, 0 };
 		}
 	}
 	else
@@ -110,9 +127,9 @@ void AIInspector::reset()
 			{
 				//Paint an X for testing on the map
 				if (x == y || y == WORLD_MAP_SIZE - x - 1)
-					testArray[x + (y*WORLD_MAP_SIZE)] = RGB{ 255, 255, 255 };
+					colourArray[x + (y*WORLD_MAP_SIZE)] = RGB{ 255, 255, 255 };
 				else
-					testArray[x + (y*WORLD_MAP_SIZE)] = RGB{ 0, 0, 0 };
+					colourArray[x + (y*WORLD_MAP_SIZE)] = RGB{ 0, 0, 0 };
 			}
 		}
 	}

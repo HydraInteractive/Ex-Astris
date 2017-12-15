@@ -32,12 +32,6 @@ namespace Hydra::Network {
 		static void requestAIInfo(Hydra::World::EntityID id);
 
 	private:
-		struct {
-			bool operator()(const Hydra::World::EntityID& left, const Hydra::World::EntityID& right) const
-			{
-				return left == right;
-			}
-		} _findServerIDComparator;
 		static TCPClient _tcp;
 		static Hydra::World::EntityID _myID;
 		static std::map<ServerID, Hydra::World::EntityID> _IDs;

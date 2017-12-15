@@ -725,36 +725,36 @@ void BarcodeServer::GameServer::_sendPathInfo()
 					size_t open = a->behaviour->pathFinding->openList.size();
 					size_t closed = a->behaviour->pathFinding->visitedList.size();
 					size_t pathToEnd = a->behaviour->pathFinding->pathToEnd.size();
-					std::cout << open << " " << closed << " " << pathToEnd << std::endl;
+					//std::cout << "Vec2s sent:" << open << " " << closed << " " << pathToEnd << std::endl;
 					if (open + closed + pathToEnd <= 0)
 					{
 						continue;
 					}
-					ServerAIInfoPacket* packet = (ServerAIInfoPacket*)new char[open + closed + pathToEnd];
-					*packet = ServerAIInfoPacket(open + closed + pathToEnd);
+					ServerAIInfoPacket* packet = (ServerAIInfoPacket*)new char[sizeof(ServerAIInfoPacket) + ((open + closed + pathToEnd) * 2 * sizeof(int))];
+					*packet = ServerAIInfoPacket((open + closed + pathToEnd) * 2);
 
 					packet->openList = open;
 					packet->closedList = closed;
 					packet->pathToEnd = pathToEnd;
 
 					int i = 0;
-					for (auto o : a->behaviour->pathFinding->openList)
+					for (int o = 0; o < a->behaviour->pathFinding->openList.size(); o++)
 					{
-						packet->data[i] = o->pos.x();
+						packet->data[i] = a->behaviour->pathFinding->openList[o]->pos.x();
 						i++;
-						packet->data[i] = o->pos.z();
+						packet->data[i] = a->behaviour->pathFinding->openList[o]->pos.z();
 						i++;
 					}
-					for (auto c : a->behaviour->pathFinding->visitedList)
+					for (int c = 0; c < a->behaviour->pathFinding->visitedList.size(); c++)
 					{
-						packet->data[i] = c->pos.x();
+						packet->data[i] = a->behaviour->pathFinding->visitedList[c]->pos.x();
 						i++;
-						packet->data[i] = c->pos.z();
+						packet->data[i] = a->behaviour->pathFinding->visitedList[c]->pos.z();
 						i++;
 					}
-					for (auto p : a->behaviour->pathFinding->pathToEnd)
+					for (int p = 0; p < a->behaviour->pathFinding->pathToEnd.size(); p++)
 					{
-						glm::ivec2 pos = PathFinding::worldToMapCoords(p).baseVec;
+						glm::ivec2 pos = PathFinding::worldToMapCoords(a->behaviour->pathFinding->pathToEnd[p]).baseVec;
 						packet->data[i] = pos.x;
 						i++;
 						packet->data[i] = pos.y;
@@ -763,7 +763,7 @@ void BarcodeServer::GameServer::_sendPathInfo()
 
 					_server->sendDataToClient((char*)packet, packet->len, clientAI.client);
 					a->behaviour->doDiddeliDoneDatPathfinding = false;
-					//delete[](char*)packet;
+					delete[](char*)packet;
 				}
 			}
 		}
@@ -809,11 +809,11 @@ void BarcodeServer::GameServer::_resolveClientRequestAIInfoPacket(Hydra::Network
 	{
 		if (e->getComponent<Hydra::Component::AIComponent>())
 		{
-			for (auto ai : aiInspectorSync)
+			for (int i = 0; i < aiInspectorSync.size(); i++)
 			{
-				if (ai.client == packet->client)
+				if (aiInspectorSync[i].client == packet->client)
 				{
-					ai.ai = packet->serverEntityID;
+					aiInspectorSync[i].ai = packet->serverEntityID;
 					return;
 				}
 			}
