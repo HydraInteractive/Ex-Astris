@@ -13,14 +13,6 @@ layout(location = 5) uniform vec2 screenSize;
 const float quality[7] = {1.5, 2.0, 2.0, 2.0, 2.0, 4.0, 8.0};
 const float SUBPIXEL_QUALITY = 0.75;
 
-vec3 getColor(vec2 texCoords, ivec2 offset) {
-	vec3 hdrColor = textureOffset(originalImage, texCoords, offset).rgb;
-	vec3 bloomColor = textureOffset(blurrImage, texCoords, offset).rgb;
-
-	return hdrColor ;
-}
-
-
 void main() {
 
 	float FXAA_SPAN_MAX = 8.0;
