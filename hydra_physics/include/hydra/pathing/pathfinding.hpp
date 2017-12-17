@@ -118,7 +118,6 @@ private:
 	Node* _endNode = nullptr;
 
 	bool isOutOfBounds(const glm::ivec2& vec) const;
-	bool isOutsideMap(const glm::ivec2& vec) const;
 	bool _inLineOfSight(const MapVec enemyPos, const MapVec playerPos) const;
 	void _discoverNode(int x, int z, Node* lastNode);
 };

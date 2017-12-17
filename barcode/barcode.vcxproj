@@ -19,6 +19,7 @@
     <ClInclude Include="include\barcode\importermenu.hpp" />
     <ClInclude Include="include\barcode\losestate.hpp" />
     <ClInclude Include="include\barcode\menustate.hpp" />
+    <ClInclude Include="include\barcode\minimap.hpp" />
     <ClInclude Include="include\barcode\pathingmapmenu.hpp" />
     <ClInclude Include="include\barcode\PerkAttribMenu.hpp" />
     <ClInclude Include="include\barcode\perkEditor.hpp" />
@@ -27,6 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="include\barcode\componentmenu.hpp" />
+    <ClCompile Include="src\barcode\minimap.cpp" />
     <ClCompile Include="src\barcode\aiinspector.cpp" />
     <ClCompile Include="src\barcode\componentmenu.cpp" />
     <ClCompile Include="src\barcode\editorstate.cpp" />
