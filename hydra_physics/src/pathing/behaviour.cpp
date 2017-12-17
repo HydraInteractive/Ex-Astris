@@ -513,7 +513,7 @@ AlienBossBehaviour::~AlienBossBehaviour()
 void AlienBossBehaviour::run(float dt)
 {
 	//If all components haven't been found, try to find them and abort if one or more do not exist
-	if (!hasRequiredComponents)
+	/*if (!hasRequiredComponents)
 		if (!refreshRequiredComponents())
 			return;
 	thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
@@ -553,113 +553,113 @@ void AlienBossBehaviour::run(float dt)
 		state = attackingState(dt);
 		break;
 	}
-	executeTransforms();
+	executeTransforms();*/
 }
 
 unsigned int AlienBossBehaviour::attackingState(float dt)
 {
-	using world = Hydra::World::World;
+	//using world = Hydra::World::World;
 
-	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > range && !stunned)
-	{
-		idleTimer = 0;
-		return SEARCHING;
-	}
-	else
-	{
-		glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
-		playerDir = glm::normalize(playerDir);
+	//if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > range && !stunned)
+	//{
+	//	idleTimer = 0;
+	//	return SEARCHING;
+	//}
+	//else
+	//{
+	//	glm::vec3 playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
+	//	playerDir = glm::normalize(playerDir);
 
-		switch (bossPhase)
-		{
-		case BossPhase::CLAWING:
-		{
-			originalRange = 9.0f;
-			thisEnemy.movement->movementSpeed = 3.0f;
-			std::mt19937 rng(rd());
-			std::uniform_int_distribution<> randDmg(thisEnemy.ai->damage - 1, thisEnemy.ai->damage + 2);
-			if (attackTimer >= 3)
-			{
-				targetPlayer.life->applyDamage(randDmg(rng));
-				attackTimer = 0;
-			}
+	//	switch (bossPhase)
+	//	{
+	//	case BossPhase::CLAWING:
+	//	{
+	//		originalRange = 9.0f;
+	//		thisEnemy.movement->movementSpeed = 3.0f;
+	//		std::mt19937 rng(rd());
+	//		std::uniform_int_distribution<> randDmg(thisEnemy.ai->damage - 1, thisEnemy.ai->damage + 2);
+	//		if (attackTimer >= 3)
+	//		{
+	//			targetPlayer.life->applyDamage(randDmg(rng));
+	//			attackTimer = 0;
+	//		}
 
-			if (phaseTimer >= 10)
-			{
-				bossPhase = SPITTING;
-				phaseTimer = 0;
-			}
-		}break;
-		case BossPhase::SPITTING:
-		{
-			range = 30.0f;
-			thisEnemy.weapon->shoot(thisEnemy.transform->position, playerDir, glm::quat(), 15.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
-			if (phaseTimer >= 10)
-			{
-				bossPhase = SPAWNING;
-				phaseTimer = 0;
-			}
-		}break;
-		case BossPhase::SPAWNING:
-		{
-			range = 30.0f;
-			if (spawnAmount <= 3)
-			{
-				if (spawnTimer >= 2)
-				{
-					auto alienSpawn = world::newEntity("AlienSpawn", world::root());
+	//		if (phaseTimer >= 10)
+	//		{
+	//			bossPhase = SPITTING;
+	//			phaseTimer = 0;
+	//		}
+	//	}break;
+	//	case BossPhase::SPITTING:
+	//	{
+	//		range = 30.0f;
+	//		thisEnemy.weapon->shoot(thisEnemy.transform->position, playerDir, glm::quat(), 15.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
+	//		if (phaseTimer >= 10)
+	//		{
+	//			bossPhase = SPAWNING;
+	//			phaseTimer = 0;
+	//		}
+	//	}break;
+	//	case BossPhase::SPAWNING:
+	//	{
+	//		range = 30.0f;
+	//		if (spawnAmount <= 3)
+	//		{
+	//			if (spawnTimer >= 2)
+	//			{
+	//				auto alienSpawn = world::newEntity("AlienSpawn", world::root());
 
-					auto a = alienSpawn->addComponent <Hydra::Component::AIComponent>();
-					//a->behaviour = std::make_shared<AlienBehaviour>(alienSpawn);
-					a->damage = 4;
-					//a->behaviour->originalRange = 4;
-					a->radius = 1.0f;
+	//				auto a = alienSpawn->addComponent <Hydra::Component::AIComponent>();
+	//				//a->behaviour = std::make_shared<AlienBehaviour>(alienSpawn);
+	//				a->damage = 4;
+	//				//a->behaviour->originalRange = 4;
+	//				a->radius = 1.0f;
 
-					auto h = alienSpawn->addComponent<Hydra::Component::LifeComponent>();
-					h->maxHP = 80;
-					h->health = 80;
+	//				auto h = alienSpawn->addComponent<Hydra::Component::LifeComponent>();
+	//				h->maxHP = 80;
+	//				h->health = 80;
 
-					auto m = alienSpawn->addComponent<Hydra::Component::MovementComponent>();
-					m->movementSpeed = 8.0f;
+	//				auto m = alienSpawn->addComponent<Hydra::Component::MovementComponent>();
+	//				m->movementSpeed = 8.0f;
 
-					auto t = alienSpawn->addComponent<Hydra::Component::TransformComponent>();
-					t->position = thisEnemy.transform->position + glm::vec3(3, thisEnemy.transform->position.y, 3);
-					t->scale = glm::vec3{ 2,2,2 };
+	//				auto t = alienSpawn->addComponent<Hydra::Component::TransformComponent>();
+	//				t->position = thisEnemy.transform->position + glm::vec3(3, thisEnemy.transform->position.y, 3);
+	//				t->scale = glm::vec3{ 2,2,2 };
 
-					alienSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel2.mATTIC");
-					spawnAmount++;
-					spawnTimer = 0;
-				}
-			}
+	//				alienSpawn->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/AlienModel2.mATTIC");
+	//				spawnAmount++;
+	//				spawnTimer = 0;
+	//			}
+	//		}
 
-			if (phaseTimer >= 10)
-			{
-				bossPhase = CHILLING;
-				phaseTimer = 0;
-				stunTimer = 0;
-			}
-		}break;
-		case BossPhase::CHILLING:
-		{
-			range = 30.0f;
-			if (stunTimer >= 10)
-			{
-				stunned = !stunned;
-				if (stunned)
-				{
-					bossPhase = CLAWING;
-				}
-			}
-		}break;
-		}
+	//		if (phaseTimer >= 10)
+	//		{
+	//			bossPhase = CHILLING;
+	//			phaseTimer = 0;
+	//			stunTimer = 0;
+	//		}
+	//	}break;
+	//	case BossPhase::CHILLING:
+	//	{
+	//		range = 30.0f;
+	//		if (stunTimer >= 10)
+	//		{
+	//			stunned = !stunned;
+	//			if (stunned)
+	//			{
+	//				bossPhase = CLAWING;
+	//			}
+	//		}
+	//	}break;
+	//	}
 
-		if (!stunned)
-		{
-			rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
-		}
+	//	if (!stunned)
+	//	{
+	//		rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
+	//	}
 
-		return state;
-	}
+	//	return state;
+	//}
 }
 BossHand_Left::BossHand_Left(std::shared_ptr<Hydra::World::Entity> enemy) : Behaviour(enemy) {
 	this->type = Type::BOSS_HAND;
