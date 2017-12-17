@@ -537,7 +537,7 @@ namespace Barcode {
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 
 			{
-				auto weaponEntity = world::newEntity("Weapon", playerEntity);
+				auto weaponEntity = world::newEntity("Weapon", playerEntity); 
 				auto w = weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
 				w->userdata = static_cast<void*>(this);
 				w->onShoot = &GameState::_onPlayerShoot;

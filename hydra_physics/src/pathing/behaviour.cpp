@@ -594,6 +594,7 @@ unsigned int BossHand_Left::idleState(float dt) {
 		}
 		else if (randomNextMove < 85) {
 			Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Canon");
+			randomNrOfShots = rand() % 60 + 40;
 			return HandPhases::HANDCANON;
 		}
 		else if (randomNextMove < 100) {
@@ -646,9 +647,9 @@ unsigned int BossHand_Left::swipeState(float dt) {
 	if (swiping == false) {
 		swipePosition[handID].x = targetPlayer.transform->position.x;
 		move(swipePosition[handID]);
-	}
-	if (thisEnemy.transform->position.x >= targetPlayer.transform->position.x - 1 && thisEnemy.transform->position.x <= targetPlayer.transform->position.x + 1) {
-		swiping = true;
+		if (thisEnemy.transform->position.x >= targetPlayer.transform->position.x - 1 && thisEnemy.transform->position.x <= targetPlayer.transform->position.x + 1) {
+			swiping = true;
+		}
 	}
 	if (hit == false) {
 		if (glm::distance(thisEnemy.transform->position, targetPlayer.transform->position) < 3.0f) {
@@ -659,7 +660,7 @@ unsigned int BossHand_Left::swipeState(float dt) {
 	if (swiping == true) {
 		move(swipeFinish[handID]);
 		//thisEnemy.transform->position.z -= 0.1f;
-		if (glm::distance(flatVector(thisEnemy.transform->position), flatVector(swipeFinish[handID])) < 4.0f) {
+		if (glm::distance(thisEnemy.transform->position, swipeFinish[handID]) < 4.0f) {
 			state = HandPhases::RETURN;
 			swiping = false;
 			hit = false;
@@ -695,7 +696,6 @@ unsigned int BossHand_Left::canonState(float dt) {
 		}
 	}
 	else {
-		randomNrOfShots = rand() % 60 + 40;
 		move(canonPosition[handID]);
 	}
 
@@ -741,8 +741,10 @@ unsigned int BossHand_Left::returnState(float dt)
 	move(basePosition[handID]);
 	//rotateAroundAxis(-90, glm::vec3(1, 0, 0));
 
-	if (glm::distance(flatVector(thisEnemy.transform->position), flatVector(basePosition[handID])) < 3.0f)
+	if (glm::distance(flatVector(thisEnemy.transform->position), flatVector(basePosition[handID])) < 3.0f) {
 		state = HandPhases::IDLEHAND;
+		thisEnemy.movement->velocity = glm::vec3(0);
+	}
 
 	return state;
 }
@@ -787,7 +789,9 @@ void BossArm::run(float dt) {
 		state = ArmPhases::CHILL;
 
 	if (shot == false) {
+		
 		playerDir = targetPlayer.transform->position - thisEnemy.transform->position;
+		
 		playerDir = glm::normalize(playerDir);
 
 		glm::vec3 up = glm::vec3(0, 1, 0);
@@ -799,7 +803,7 @@ void BossArm::run(float dt) {
 		rotation = glm::toQuat(myRot);
 	}
 
-	thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->mesh->getAnimationCounter();
+	//thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>()->mesh->getAnimationCounter();
 
 	switch (state)
 	{
@@ -844,7 +848,7 @@ unsigned int BossArm::shootState(float dt) {
 	int state = ArmPhases::SHOOT;
 
 	if (shot == false) {
-		thisEnemy.weapon->shoot(thisEnemy.transform->position, playerDir, glm::quat(), 2.2,
+		thisEnemy.weapon->shoot(thisEnemy.transform->position, playerDir, glm::quat(), 90.0f,
 			Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
 	}
 	shot = true;
@@ -858,6 +862,9 @@ unsigned int BossArm::shootState(float dt) {
 	return state;
 }
 
+void BossArm::executeTransforms() {
+	thisEnemy.transform->setRotation(rotation);
+}
 
 void BossArm::updateRigidBodyPosition() {
 	//thisEnemy.rigidBody->
@@ -870,7 +877,7 @@ bool BossArm::refreshRequiredComponents() {
 			(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>().get()) &&
 			(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>().get()) &&
 			(thisEnemy.weapon = thisEnemy.entity->getComponent<Hydra::Component::WeaponComponent>().get()) &&
-			//(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
+			(thisEnemy.life = thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&
 			//(thisEnemy.movement = thisEnemy.entity->getComponent<Hydra::Component::MovementComponent>().get()) &&
 			//(thisEnemy.rigidBody = thisEnemy.entity->getComponent<Hydra::Component::RigidBodyComponent>().get()) &&
 			(targetPlayer.life = targetPlayer.entity->getComponent<Hydra::Component::LifeComponent>().get()) &&

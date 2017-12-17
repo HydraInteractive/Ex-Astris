@@ -149,11 +149,11 @@ void GameServer::_spawnBoss() {
 					auto t = bossEntity->addComponent<Hydra::Component::TransformComponent>();
 					t->rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
 					if (i == 0) {
-						t->position = glm::vec3(45 + 150, 20, 24 + 150);
+						t->position = glm::vec3(210, 30, 24 + 150);
 						t->scale = glm::vec3{ 1,1,1 };
 					}
 					else {
-						t->position = glm::vec3(45 + 150, 20, -24 + 150);
+						t->position = glm::vec3(210, 30, -24 + 150);
 						t->scale = glm::vec3{ -1,1,-1 };
 					}
 
@@ -168,10 +168,7 @@ void GameServer::_spawnBoss() {
 				{
 					auto bossEntity = world::newEntity("Lower BossArm", world::root());
 					bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossLowerArmModel.mATTIC");
-
-
 					bossEntity->addComponent<Hydra::Component::NetworkSyncComponent>();
-					//_networkEntities.push_back(bossEntity->id);
 
 					auto a = bossEntity->addComponent<Hydra::Component::AIComponent>();
 					a->behaviour = std::make_shared<BossArm>(bossEntity);
@@ -181,27 +178,28 @@ void GameServer::_spawnBoss() {
 
 					auto w = bossEntity->addComponent<Hydra::Component::WeaponComponent>();
 					w->ammoPerShot = 1;
-					w->bulletSize = 2.5f;
+					w->bulletSize = 2.0f;
 					w->damage = 15;
 					w->maxmagammo = 0;
 					w->currmagammo = 0;
 					w->maxammo = 0;
 					w->fireRateTimer = 1;
+					w->userdata = _tileGeneration->_userdata;
+					w->onShoot = _onRobotShoot;
 
 					auto t = bossEntity->addComponent<Hydra::Component::TransformComponent>();
 					if (i == 0) {
-						t->position = glm::vec3(40 + 150, 20, 40 + 150);
+						t->position = glm::vec3(210, 30, 40 + 150);
 						t->scale = glm::vec3{ 1,1,1 };
 					}
 					else {
-						t->position = glm::vec3(40 + 150, 20, -40 + 150);
-						t->scale = glm::vec3{ -1,1,-1 };
-						
-						//test->basePosition = glm::vec3(30 + 150, 40, -40 + 150);
-						//test->canonPosition = glm::vec3(30 + 150, 40, -25 + 150);
-						//test->coverPosition = glm::vec3(170, 33, 200);
-						//test->swipePosition = glm::vec3(25 + 150, 1, -25 + 150);
+						t->position = glm::vec3(210, 30, -40 + 150);
+						t->scale = glm::vec3{ 1,1,1 };
 					}
+
+					auto l = bossEntity->addComponent<Hydra::Component::LifeComponent>();
+					l->maxHP = 10000000;
+					l->health = 10000000;
 
 					//auto l = bossEntity->addComponent<Hydra::Component::LifeComponent>();
 					//l->maxHP = 150;
@@ -332,7 +330,7 @@ void GameServer::_makeWorld() {
 	const size_t minRoomCount = 30;
 	const size_t maxRoomCount = 40;
 	while (true) {
-		level = 0;
+		level = 2;
 		tries++;
 		//_tileGeneration->level = level;
 		if (level < 2) {
@@ -342,17 +340,10 @@ void GameServer::_makeWorld() {
 		}
 		else {
 			_tileGeneration = std::make_unique<TileGeneration>(1, "assets/BossRoom/Bossroom5.room", &GameServer::_onRobotShoot, static_cast<void*>(this));
-<<<<<<< HEAD
-			//ServerFreezePlayerPacket freeze;
-			//freeze.action = ServerFreezePlayerPacket::Action::noPVS;
-			//_server->sendDataToAll((char*)&freeze, freeze.len);
-=======
-			_spawnerSystem.userdata = static_cast<void*>(this);
-			_spawnerSystem.onShoot = &GameServer::_onRobotShoot;
 			ServerFreezePlayerPacket freeze;
 			freeze.action = ServerFreezePlayerPacket::Action::noPVS;
 			_server->sendDataToAll((char*)&freeze, freeze.len);
->>>>>>> master
+
 			printf("ASODIJAISFDJISADJFISJIODFJIOSDJFIJSIODFJIOSJIODFJSIODFJISOJFIOSD");
 		}
 		_tileGeneration->buildMap();
@@ -365,14 +356,9 @@ void GameServer::_makeWorld() {
 			_tileGeneration.reset();
 			_deadSystem.tick(0);
 		}
-<<<<<<< HEAD
 		else {
 			_spawnBoss();
 			break;
-=======
-		else {
-			break;
->>>>>>> master
 		}
 	}
 	printf("\tTook %zu tries\n", tries);

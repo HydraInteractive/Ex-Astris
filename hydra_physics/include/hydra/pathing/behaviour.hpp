@@ -124,11 +124,11 @@ namespace Hydra::Physics::Behaviour {
 
 		const float originalHeight = 40.0f;
 		glm::vec3 basePosition[2] = { glm::vec3(30 + 150, originalHeight, 40 + 150),  glm::vec3(30 + 150, originalHeight, -40 + 150) };
-		glm::vec3 swipePosition[2] = { glm::vec3(135, 1, 210),glm::vec3(95, 1, 140) };
-		glm::vec3 swipeFinish[2] = { glm::vec3(135, 1, 160),glm::vec3(95, 1, 140) };
+		glm::vec3 swipePosition[2] = { glm::vec3(135, 1, 210),glm::vec3(140, 1, 90) };
+		glm::vec3 swipeFinish[2] = { glm::vec3(135, 1, 160),glm::vec3(135, 1, 140) };
 		glm::vec3 canonPosition[2] = { glm::vec3(30 + 150, originalHeight, 25 + 150), glm::vec3(30 + 150, originalHeight, -25 + 150) };
 		glm::vec3 coverPosition[2] = { glm::vec3(180, 20, 160), glm::vec3(180, 20, 140) };
-		glm::vec3 smashPosition[2] = { glm::vec3(0) };
+		glm::vec3 smashPosition[2] = { glm::vec3(0), glm::vec3(0) };
 
 		float idleTimer = 0.0f;
 		float coverTimer = 0.0f;
@@ -188,6 +188,7 @@ namespace Hydra::Physics::Behaviour {
 		unsigned int aimState(float dt);
 		unsigned int shootState(float dt);
 
+		void executeTransforms();
 		void updateRigidBodyPosition();
 
 	private:
