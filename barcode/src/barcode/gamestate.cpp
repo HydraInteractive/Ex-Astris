@@ -440,15 +440,15 @@ namespace Barcode {
 				case Hydra::Component::PerkComponent::PERK_DMGUPSIZEUP:
 					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/DamageUpgrade.png")->getID()), ImVec2(20, 20));
 					break;
-				case Hydra::Component::PerkComponent::PERK_GRENADE:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Grenade.png")->getID()), ImVec2(20, 20));
-					break;
-				case Hydra::Component::PerkComponent::PERK_MINE:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Mine.png")->getID()), ImVec2(20, 20));
-					break;
-				case Hydra::Component::PerkComponent::PERK_BULLETSPRAY:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Spread.png")->getID()), ImVec2(20, 20));
-					break;
+				//case Hydra::Component::PerkComponent::PERK_GRENADE:
+				//	ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Grenade.png")->getID()), ImVec2(20, 20));
+				//	break;
+				//case Hydra::Component::PerkComponent::PERK_MINE:
+				//	ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Mine.png")->getID()), ImVec2(20, 20));
+				//	break;
+				//case Hydra::Component::PerkComponent::PERK_BULLETSPRAY:
+				//	ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Spread.png")->getID()), ImVec2(20, 20));
+				//	break;
 				case Hydra::Component::PerkComponent::PERK_SPEEDUP:
 					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/ExtraJump.png")->getID()), ImVec2(20, 20));
 					break;

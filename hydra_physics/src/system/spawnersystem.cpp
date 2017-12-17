@@ -79,7 +79,7 @@ void SpawnerSystem::tick(float delta)
 							hs->health = 80;
 
 							auto ws = alienSpawn->addComponent<Hydra::Component::WeaponComponent>();
-							ws->meshType = 4;
+							ws->meshType = 5;
 							ws->bulletSpread = 0.2f;
 							ws->bulletsPerShot = 1;
 							ws->damage = 4;

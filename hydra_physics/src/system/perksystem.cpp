@@ -137,10 +137,10 @@ void PerkSystem::PerkChange(ReadBullet& b, const std::shared_ptr<Hydra::World::E
 	if (w->damage < 0.0f) 
 		w->damage = 0.5f;
 	//Bullet Size
-	if (w->bulletSize < 0.3f)
-		w->bulletSize = 0.3f;
-	else if (w->bulletSize > 3.0f)
-		w->bulletSize = 6.0f;
+	if (w->bulletSize < 0.2f)
+		w->bulletSize = 0.2f;
+	else if (w->bulletSize > 2.0f)
+		w->bulletSize = 2.0f;
 	//Bullets Per Shot
 	if (w->bulletsPerShot < 1)
 		w->bulletsPerShot = 1;
@@ -206,36 +206,36 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 	perk->activePerks.push_back(newPerk);
 
 	switch (newPerk){
-	case Hydra::Component::PerkComponent::PERK_GRENADE: {
-		perk->activeAbilities.push_back(new GrenadeAbility());
-		perkDescriptionText = "One big grenade perk boio";
-		break;
-	}
-	case Hydra::Component::PerkComponent::PERK_MINE: {
-		perk->activeAbilities.push_back(new MineAbility());
-		perkDescriptionText = "One slidey mine thing";
-		break;
-	}
-	case Hydra::Component::PerkComponent::PERK_BULLETSPRAY: {
-		perk->activeAbilities.push_back(new BulletSprayAbillity());
-		perkDescriptionText = "Press F to spray to victory";
-		break;
-	}
+	//case Hydra::Component::PerkComponent::PERK_GRENADE: {
+	//	perk->activeAbilities.push_back(new GrenadeAbility());
+	//	perkDescriptionText = "One big grenade perk boio";
+	//	break;
+	//}
+	//case Hydra::Component::PerkComponent::PERK_MINE: {
+	//	perk->activeAbilities.push_back(new MineAbility());
+	//	perkDescriptionText = "One slidey mine thing";
+	//	break;
+	//}
+	//case Hydra::Component::PerkComponent::PERK_BULLETSPRAY: {
+	//	perk->activeAbilities.push_back(new BulletSprayAbillity());
+	//	perkDescriptionText = "Press F to spray to victory";
+	//	break;
+	//}
 	case Hydra::Component::PerkComponent::PERK_DMGUPSIZEUP: {
 		playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>()->bulletSize *= 2;
 		playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>()->damage*= 2;
-		perkDescriptionText = "DMG ++++++++++ BIG BOI BULLET";
+		perkDescriptionText = "Increased bullet size and damage";
 		break;
 	}
 	case Hydra::Component::PerkComponent::PERK_SPEEDUP: {
 		auto weapon = playerEntity->getComponent<MovementComponent>()->movementSpeed *= 2;
-		perkDescriptionText = "IM FAST AS FUCK BOI";
+		perkDescriptionText = "Speed up";
 		break;
 	}
 	case Hydra::Component::PerkComponent::PERK_FASTSHOWLOWDMG: {
 		playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>()->fireRateRPM *= 3;
 		playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>()->damage /= 2.5;
-		perkDescriptionText = "SHIIIIIET SHOOOTY FAST AND RECOILI UP";
+		perkDescriptionText = "Lots of bullets, lots of recoil";
 		break;
 	}
 	case Hydra::Component::PerkComponent::PERK_RED: {
@@ -250,8 +250,15 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 		PerkChange(b, playerEntity);
 		break;
 	}
+	case Hydra::Component::PerkComponent::PERK_SPREAD: {
+		ReadBullet b;
+		readFromFile("BulletSpread", b);
+		PerkChange(b, playerEntity);
+		break;
+	}
 
 	default:
+		perkDescriptionText = "No perk";
 		break;
 	}
 	perkDescriptionTimer = 5;

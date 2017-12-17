@@ -25,18 +25,18 @@ void MiniMap::render(bool &openBool, Hydra::Component::TransformComponent* _play
 	//	scale = 2;
 	ImGui::SetNextWindowSize(ImVec2(WORLD_MAP_SIZE*scale, WORLD_MAP_SIZE*scale), ImGuiCond_Once);
 	ImGui::SetNextWindowPos(ImVec2(windowSize.x - WORLD_MAP_SIZE*scale, windowSize.y - WORLD_MAP_SIZE*scale));
-	std::cout << windowSize.x << " " << windowSize.y << std::endl;
+	//std::cout << windowSize.x << " " << windowSize.y << std::endl;
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
 	ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-	
+
 	ImGui::Begin("MiniMap", &openBool, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 	if (colourArray != nullptr)
 	{
 		glm::ivec2 playerPos = PathFinding::worldToMapCoords(playerTransform->position).baseVec;
 		colourArray[playerPos.x + (playerPos.y * WORLD_MAP_SIZE)] = RGB{ 0, 255, 0 };
-		
+
 		image = Hydra::Renderer::GLTexture::createFromData(WORLD_MAP_SIZE, WORLD_MAP_SIZE, Hydra::Renderer::TextureType::u8RGB, colourArray);
 		ImGui::Image(reinterpret_cast<ImTextureID>(image->getID()), ImVec2(WORLD_MAP_SIZE*scale, WORLD_MAP_SIZE*scale));
 	}

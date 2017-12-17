@@ -137,9 +137,9 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 }
 
 void TileGeneration::spawnDoors() {
-	const int        nesw[4]    = { NORTH, EAST, SOUTH, WEST };
+	const int        nesw[4] = { NORTH, EAST, SOUTH, WEST };
 	const char*      strNESW[4] = { "NORTH", "EAST", "SOUTH", "WEST" };
-	const glm::ivec2 offset[4]  = { {0, -1}, {1, 0}, {0, 1}, {-1, 0} };
+	const glm::ivec2 offset[4] = { {0, -1}, {1, 0}, {0, 1}, {-1, 0} };
 
 	for (int y = 0; y < ROOM_GRID_SIZE; y++)
 		for (int x = 0; x < ROOM_GRID_SIZE; x++) {
@@ -170,17 +170,16 @@ void TileGeneration::spawnDoors() {
 				room->door[direction] = false;
 
 				printf("\t\t\tAdding door\n");
-				char tmp[64] = {0};
+				char tmp[64] = { 0 };
 				snprintf(tmp, sizeof(tmp), "Door-%s", strNESW[direction]);
 
 				auto doorBlock = world::newEntity(tmp, room->entityID);
 				doorBlock->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Door.mATTIC");
 
 				auto t = doorBlock->addComponent<Hydra::Component::TransformComponent>();
-				t->position = {(ROOM_SIZE / 2) * roomOff.x, 3, (ROOM_SIZE / 2) * roomOff.y};
+				t->position = { (ROOM_SIZE / 2) * roomOff.x, 3, (ROOM_SIZE / 2) * roomOff.y };
 				t->scale = glm::vec3(1, 6, 8);
 				t->rotation = glm::angleAxis(glm::radians((dir + 1) * 90.0f), glm::vec3(0, 1, 0));
-
 
 				auto rgbc = doorBlock->addComponent<Hydra::Component::GhostObjectComponent>();
 				rgbc->createBox(glm::vec3(1), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_WALL, glm::quat());
@@ -295,7 +294,7 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 		h->health = 60;
 
 		auto w = alienEntity->addComponent<Hydra::Component::WeaponComponent>();
-		w->meshType = 4;
+		w->meshType = 5;
 		w->bulletSpread = 0.2f;
 		w->bulletsPerShot = 1;
 		w->damage = 4;
@@ -381,7 +380,7 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 		h->health = 80;
 
 		auto w = alienEntity->addComponent<Hydra::Component::WeaponComponent>();
-		w->meshType = 4;
+		w->meshType = 5;
 		w->bulletSpread = 0.2f;
 		w->bulletsPerShot = 1;
 		w->damage = 4;
@@ -410,8 +409,7 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 }
 
 //TODO: Randomize spawners
-void BarcodeServer::TileGeneration::_createSpawner(std::shared_ptr<Hydra::World::Entity>& room, int id) {
-	
+void TileGeneration::_createSpawner(std::shared_ptr<Hydra::World::Entity>& room, int id) {
 	glm::vec3 pos;
 	std::vector<std::shared_ptr<Hydra::World::Entity>> entities;
 	for (auto entid : room->children)
@@ -428,7 +426,6 @@ void BarcodeServer::TileGeneration::_createSpawner(std::shared_ptr<Hydra::World:
 	for (size_t i = 0; i < entities.size(); i++) {
 		auto sp = entities[i]->getComponent<Hydra::Component::SpawnPointComponent>();
 		if (sp->enemySpawn && !entities[i]->dead) {
-
 			auto t = entities[0]->getComponent<Hydra::Component::TransformComponent>();
 			t->dirty = true;
 			pos = t->getMatrix()[3];
@@ -441,8 +438,7 @@ void BarcodeServer::TileGeneration::_createSpawner(std::shared_ptr<Hydra::World:
 		}
 	}
 
-
-	if(id == 1){
+	if (id == 1) {
 		auto alienSpawner = world::newEntity("SpawnerAlien1", world::root());
 		alienSpawner->addComponent<Hydra::Component::NetworkSyncComponent>();
 		alienSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/Spawner.mATTIC");
@@ -484,7 +480,7 @@ void BarcodeServer::TileGeneration::_createSpawner(std::shared_ptr<Hydra::World:
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
 	}
-	else if(id = 2){
+	else if (id = 2) {
 		auto robotSpawner = world::newEntity("SpawnerRobot1", world::root());
 		robotSpawner->addComponent<Hydra::Component::NetworkSyncComponent>();
 		robotSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/Spawner.mATTIC");
@@ -581,27 +577,27 @@ void TileGeneration::spawnPickUps()
 
 			if (randomChance < (int)PICKUP_CHANCE) {
 				auto room = roomGrid[x][y];
-				
+
 				if (room) {
 					for (auto id : world::getEntity(room->entityID)->children)
 					{
 						if (world::getEntity(id)->hasComponent<Hydra::Component::SpawnPointComponent>())
 						{
 							auto pos = world::getEntity(id)->getComponent<Hydra::Component::TransformComponent>();
-					
+
 							auto pickUpEntity = world::newEntity("PickUp", world::root());
 							pickUpEntity->addComponent<NetworkSyncComponent>();
 							auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
-							t->position = { room->gridPosition.x * ROOM_SIZE + ROOM_SIZE/2, 3, room->gridPosition.y * ROOM_SIZE + ROOM_SIZE / 2 };
-					
+							t->position = { room->gridPosition.x * ROOM_SIZE + ROOM_SIZE / 2, 3, room->gridPosition.y * ROOM_SIZE + ROOM_SIZE / 2 };
+
 							pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Lock.mATTIC");
-					
+
 							auto pickUpC = pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
-					
+
 							auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 							rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
 							rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-					
+
 							auto lc = pickUpEntity->addComponent<Hydra::Component::LifeComponent>();
 							lc->health = lc->maxHP;
 							break;
@@ -612,13 +608,11 @@ void TileGeneration::spawnPickUps()
 			deadSystem.tick(0);
 		}
 	}
-
 }
 
 void TileGeneration::_spawnLight(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform) {
 #define frand() (float(rand()) / RAND_MAX)
 	auto pl = world::newEntity("Pointlight-GENERATED", roomTransform->entityID);
-	pl->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Cup.mATTIC");
 	pl->addComponent<Hydra::Component::TransformComponent>();
 	auto t = pl->getComponent<Hydra::Component::TransformComponent>();
 	t->position.x = 0;
