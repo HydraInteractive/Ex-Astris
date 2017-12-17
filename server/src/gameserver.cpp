@@ -286,10 +286,10 @@ void GameServer::_makeWorld() {
 	_networkEntities.erase(std::remove_if(_networkEntities.begin(), _networkEntities.end(), [](const auto& e) {	return world::getEntity(e)->dead; }), _networkEntities.end());
 	_deadSystem.tick(0);
 	size_t tries = 0;
-	const size_t minRoomCount = 15;
-	const size_t maxRoomCount = 25;
+	const size_t minRoomCount = 30;
+	const size_t maxRoomCount = 40;
 	while (true) {
-		level = 2;
+		level = 0;
 		tries++;
 		//_tileGeneration->level = level;
 		if(level < 2)
