@@ -48,14 +48,16 @@ namespace Barcode {
 		_initWorld();
 
 		aiInspector = new AIInspector();
+		miniMap = new MiniMap();
 	}
 
 	GameState::~GameState() {
 	}
 
 	void GameState::onMainMenu() {
-		if (ImGui::BeginMenu("AI")) {
-			ImGui::MenuItem("Inspector...", nullptr, &aiInspectorOpen);
+		if (ImGui::BeginMenu("Map")) {
+			ImGui::MenuItem("Enable Minimap", nullptr, &miniMapOpen);
+			ImGui::MenuItem("AI Inspector...", nullptr, &aiInspectorOpen);
 			ImGui::EndMenu();
 		}
 	}
@@ -483,6 +485,8 @@ namespace Barcode {
 		if (aiInspectorOpen)
 			aiInspector->render(aiInspectorOpen, _playerTransform);
 
+		if (miniMapOpen)
+			miniMap->render(aiInspectorOpen, _playerTransform, _engine->getView()->getSize());
 		if (Hydra::Network::NetClient::running)
 			Hydra::Network::NetClient::run();
 	}
@@ -600,11 +604,21 @@ namespace Barcode {
 
 	void GameState::_onUpdatePathMap(bool* map, void* userdata) {
 		GameState* this_ = static_cast<GameState*>(userdata);
+		//AI Inspector
 		if (this_->aiInspector->pathMap != nullptr)
 		{
 			delete[] this_->aiInspector->pathMap;
 		}
 		this_->aiInspector->pathMap = map;
+		this_->aiInspector->reset();
+
+		//MiniMap
+		if (this_->miniMap->pathMap != nullptr)
+		{
+			delete[] this_->miniMap->pathMap;
+		}
+		this_->miniMap->pathMap = map;
+		this_->miniMap->reset();
 	}
 
 	void GameState::_onUpdatePath(std::vector<glm::ivec2>& openList, std::vector<glm::ivec2>& closedList, std::vector<glm::ivec2>& pathToEnd, void * userdata)

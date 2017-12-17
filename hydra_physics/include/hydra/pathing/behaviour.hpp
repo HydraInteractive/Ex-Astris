@@ -17,7 +17,7 @@ namespace Hydra::Physics::Behaviour {
 		Behaviour();
 		virtual ~Behaviour();
 
-		enum class Type { ALIEN, ROBOT, ALIENBOSS, BOSS_HAND, BOSS_ARMS, STATINARY_BOSS };
+		enum class Type { ALIEN, ROBOT, BOSS_HAND, BOSS_ARMS, STATINARY_BOSS };
 		Type type = Type::ALIEN;
 
 		enum { IDLE, SEARCHING, MOVING, ATTACKING };
@@ -112,22 +112,6 @@ namespace Hydra::Physics::Behaviour {
 		unsigned int attackingState(float dt) final;
 	private:
 		bool refreshRequiredComponents() final;
-	};
-
-	class HYDRA_PHYSICS_API AlienBossBehaviour final : public Behaviour
-	{
-	public:
-		AlienBossBehaviour(std::shared_ptr<Hydra::World::Entity> enemy);
-		AlienBossBehaviour();
-		~AlienBossBehaviour();
-
-		float stunTimer = 0.0f;
-		bool stunned = false;
-		int spawnAmount = 0;
-
-		void run(float dt);
-		unsigned int attackingState(float dt) final;
-	private:
 	};
 
 	class HYDRA_PHYSICS_API BossHand_Left final : public Behaviour
