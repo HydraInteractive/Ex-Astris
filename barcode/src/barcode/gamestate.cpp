@@ -599,7 +599,7 @@ namespace Barcode {
 	}
 	void GameState::_onNoPVS(void* userdata) {
 		GameState* this_ = static_cast<GameState*>(userdata);
-		this_->_dgp->disablePVS = true;
+		this_->_dgp->disablePVS = true; 
 	}
 
 	void GameState::_onUpdatePathMap(bool* map, void* userdata) {
