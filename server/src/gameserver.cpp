@@ -225,7 +225,7 @@ void GameServer::_spawnBoss() {
 
 		{
 			//Hands
-			for (int i = 0; i < 1; i++) {
+			for (int i = 0; i < 2; i++) {
 				auto bossEntity = world::newEntity("BossHand1", world::root());
 				bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossHandModel2.mATTIC");
 				auto a = bossEntity->addComponent<Hydra::Component::AIComponent>();
@@ -239,12 +239,12 @@ void GameServer::_spawnBoss() {
 				auto t = bossEntity->addComponent<Hydra::Component::TransformComponent>();
 				//Set different positions for other hand
 				if (i == 0) {
-					t->position = glm::vec3(30 + 150, 30, -40 + 150);
+					t->position = glm::vec3(30 + 150, 30, 40 + 150);
 					t->scale = glm::vec3{ 1,1,1 };
 				}
 				else {
 					a->behaviour->handID = 1;
-					t->position = glm::vec3(30 + 150, 30, 40 + 150);
+					t->position = glm::vec3(30 + 150, 30, -40 + 150);
 					t->scale = glm::vec3{ -1,1,-1 };
 				}
 
