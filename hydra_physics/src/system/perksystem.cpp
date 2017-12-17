@@ -250,6 +250,12 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 		PerkChange(b, playerEntity);
 		break;
 	}
+	case Hydra::Component::PerkComponent::PERK_SPREAD: {
+		ReadBullet b;
+		readFromFile("BulletSpread", b);
+		PerkChange(b, playerEntity);
+		break;
+	}
 
 	default:
 		perkDescriptionText = "No perk";

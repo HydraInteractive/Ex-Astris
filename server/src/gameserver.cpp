@@ -287,8 +287,8 @@ void GameServer::_makeWorld() {
 	_networkEntities.erase(std::remove_if(_networkEntities.begin(), _networkEntities.end(), [](const auto& e) {	return world::getEntity(e)->dead; }), _networkEntities.end());
 	_deadSystem.tick(0);
 	size_t tries = 0;
-	const size_t minRoomCount = 30;
-	const size_t maxRoomCount = 40;
+	const size_t minRoomCount = 25;
+	const size_t maxRoomCount = 30;
 	while (true) {
 		level = 0;
 		tries++;
@@ -586,6 +586,8 @@ void GameServer::run() {
 		for (Hydra::World::EntityID eID : _lifeSystem.isKilled()) {
 			auto e = world::getEntity(eID);
 
+			if (!e)
+				continue;
 			if (auto ai = e->getComponent<Hydra::Component::AIComponent>(); ai) {
 				auto oldTransform = e->getComponent<Hydra::Component::TransformComponent>();
 				auto oldMesh = e->getComponent<Hydra::Component::MeshComponent>();
