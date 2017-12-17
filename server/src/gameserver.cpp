@@ -284,8 +284,8 @@ void GameServer::_makeWorld() {
 	_networkEntities.erase(std::remove_if(_networkEntities.begin(), _networkEntities.end(), [](const auto& e) {	return world::getEntity(e)->dead; }), _networkEntities.end());
 	_deadSystem.tick(0);
 	size_t tries = 0;
-	const size_t minRoomCount = 30;
-	const size_t maxRoomCount = 40;
+	const size_t minRoomCount = 25;
+	const size_t maxRoomCount = 30;
 	while (true) {
 		level = 0;
 		tries++;
@@ -556,7 +556,7 @@ void GameServer::run() {
 		_lifeSystem.tick(delta);
 		_pickupSystem.tick(delta);
 
-		//ÄNNU MER FUSK KOD JAAAAAA
+		//ï¿½NNU MER FUSK KOD JAAAAAA
 		//std::vector<std::shared_ptr<Entity>> children;
 		//world::getEntitiesWithComponents<PickUpComponent>(children);
 		//for (size_t i = 0; i < children.size(); i++) {
