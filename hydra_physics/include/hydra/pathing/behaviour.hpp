@@ -27,7 +27,7 @@ namespace Hydra::Physics::Behaviour {
 		BossPhase bossPhase = BossPhase::CLAWING;
 
 		enum HandPhases { IDLEHAND, SMASH, SWIPE, HANDCANON, COVER, RETURN };
-		HandPhases handPhase = HandPhases::IDLEHAND;
+		HandPhases handPhase = HandPhases::RETURN;
 
 		enum ArmPhases { CHILL, AIM, SHOOT };
 		ArmPhases armPhase = ArmPhases::CHILL;
@@ -49,9 +49,10 @@ namespace Hydra::Physics::Behaviour {
 		int oldMapPosX = 0;
 		int oldMapPosZ = 0;
 
-		bool playerUnreachable = false;
+		int handID = 0;
 		bool hasRequiredComponents = false;
 
+		bool playerUnreachable = false;
 		PathFinding* pathFinding = nullptr;
 		bool doDiddeliDoneDatPathfinding = false;
 
@@ -121,12 +122,13 @@ namespace Hydra::Physics::Behaviour {
 		BossHand_Left();
 		~BossHand_Left();
 
-		const float originalHeight = 30.0f;
-		glm::vec3 basePosition = glm::vec3(30 + 150, originalHeight, 40 + 150);
-		glm::vec3 swipePosition = glm::vec3(25 + 150, 1, 25 + 150);
-		glm::vec3 canonPosition = glm::vec3(30 + 150, originalHeight, 25 + 150);
-		glm::vec3 coverPosition = glm::vec3(40 + 150, 36, 5 + 150);
-		glm::vec3 smashPosition = glm::vec3(0);
+		const float originalHeight = 40.0f;
+		glm::vec3 basePosition[2] = { glm::vec3(30 + 150, originalHeight, 40 + 150),  glm::vec3(30 + 150, originalHeight, -40 + 150) };
+		glm::vec3 swipePosition[2] = { glm::vec3(135, 1, 210),glm::vec3(140, 1, 90) };
+		glm::vec3 swipeFinish[2] = { glm::vec3(135, 1, 160),glm::vec3(135, 1, 140) };
+		glm::vec3 canonPosition[2] = { glm::vec3(30 + 150, originalHeight, 25 + 150), glm::vec3(30 + 150, originalHeight, -25 + 150) };
+		glm::vec3 coverPosition[2] = { glm::vec3(180, 20, 160), glm::vec3(180, 20, 140) };
+		glm::vec3 smashPosition[2] = { glm::vec3(0), glm::vec3(0) };
 
 		float idleTimer = 0.0f;
 		float coverTimer = 0.0f;
@@ -144,6 +146,8 @@ namespace Hydra::Physics::Behaviour {
 		int targetedPlayer = 0;
 		int randomNrOfShots = 0;
 		int shotsFired = 0;
+
+		
 
 		void run(float dt);
 		void move(glm::vec3 target);
@@ -184,6 +188,7 @@ namespace Hydra::Physics::Behaviour {
 		unsigned int aimState(float dt);
 		unsigned int shootState(float dt);
 
+		void executeTransforms();
 		void updateRigidBodyPosition();
 
 	private:
@@ -204,7 +209,7 @@ namespace Hydra::Physics::Behaviour {
 
 		std::vector<glm::vec3> spawnPositions;
 
-		float spawnEnemiesAtPercentage[3] = { 600.0f, 300.0f, 150.0f };
+		float spawnEnemiesAtPercentage[3] = { 2000.f, 1000.0f, 500.0f };
 		int spawnIndex = 0;
 		float idleTimer = 0.0f;
 		unsigned int idleState(float dt) final;

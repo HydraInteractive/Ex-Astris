@@ -136,6 +136,9 @@ void Hydra::System::BulletPhysicsSystem::enable(GhostObjectComponent * component
 	case CollisionTypes::COLL_SPAWNER:
 		_data->dynamicsWorld->addCollisionObject(component->ghostObject, COLL_SPAWNER, CollisionCondition::spawnerCollidesWith);
 		break;
+	//case CollisionTypes::COLL_BOSSHAND:
+	//	_data->dynamicsWorld->addCollisionObject(component->ghostObject, COLL_BOSSHAND, CollisionCondition::enemyCollidesWith);
+	//	break;
 	default:
 		_data->dynamicsWorld->addCollisionObject(component->ghostObject, COLL_NOTHING, COLL_NOTHING);
 		break;

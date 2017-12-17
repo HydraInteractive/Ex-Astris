@@ -34,7 +34,8 @@ namespace Hydra::System {
 			COLL_PICKUP_OBJECT = BIT(7),
 			COLL_FLOOR = BIT(8),
 			COLL_SPAWNER = BIT(9),
-			COLL_HEAD = BIT(10)
+			COLL_HEAD = BIT(10),
+			COLL_BOSSHAND = BIT(11)
 		};
 
 		enum CollisionCondition : std::underlying_type<CollisionTypes>::type {
@@ -46,7 +47,8 @@ namespace Hydra::System {
 			miscObjectCollidesWith = COLL_WALL | COLL_ENEMY | COLL_PLAYER | COLL_ENEMY_PROJECTILE | COLL_PLAYER_PROJECTILE | COLL_FLOOR | COLL_SPAWNER,
 			pickupObjectCollidesWith = COLL_PLAYER,
 			floorCollidesWith = COLL_MISC_OBJECT | COLL_PLAYER | COLL_ENEMY | COLL_ENEMY_PROJECTILE | COLL_PLAYER_PROJECTILE | COLL_SPAWNER,
-			spawnerCollidesWith = COLL_WALL | COLL_MISC_OBJECT | COLL_PLAYER | COLL_PLAYER_PROJECTILE | COLL_FLOOR
+			spawnerCollidesWith = COLL_WALL | COLL_MISC_OBJECT | COLL_PLAYER | COLL_PLAYER_PROJECTILE | COLL_FLOOR/*,
+			bossHandCollidesWith = COLL_WALL | COLL_MISC_OBJECT | COLL_PLAYER | COLL_PLAYER_PROJECTILE | COLL_FLOOR, COLL_ENEMY*/
 		};
 
 		BulletPhysicsSystem();

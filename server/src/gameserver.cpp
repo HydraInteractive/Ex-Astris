@@ -97,14 +97,26 @@ void GameServer::_spawnBoss() {
 		{
 			auto BossAlien = world::newEntity("Boss Alien", world::root());
 			BossAlien->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossAlienModel.mATTIC");
-
 			BossAlien->addComponent<Hydra::Component::NetworkSyncComponent>();
 
+			auto a = BossAlien->addComponent<Hydra::Component::AIComponent>();
+			a->behaviour = std::make_shared<StationaryBoss>(BossAlien);
+						
 			auto t = BossAlien->addComponent<Hydra::Component::TransformComponent>();
-			t->position = glm::vec3(45 + 150, 26, 0 + 150);
+			t->position = glm::vec3(45 + 150, 26, 3 + 150);
 			t->rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
+
+			auto l = BossAlien->addComponent<Hydra::Component::LifeComponent>();
+			l->maxHP = 3000;
+			l->health = 3000;
+
+			auto rgbc = BossAlien->addComponent<Hydra::Component::RigidBodyComponent>();
+			rgbc->createBox(glm::vec3(8.0f, 2.5f, 8.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 0.0f,
+				0, 0, 0.6f, 1.0f);
+			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
+			rgbc->setAngularForce(glm::vec3(0));
 		}
-		//Stationary Mech
+		///Stationary Mech
 		//{
 		//	auto BossMech = world::newEntity("BossMech", world::root());
 		//	BossMech->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossStationaryMechModel.mATTIC");
@@ -132,109 +144,144 @@ void GameServer::_spawnBoss() {
 		//	rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		//	rgbc->setAngularForce(glm::vec3(0));
 		//}
-		//Arms
+		///Arms
 		{
-			for (int i = 0; i < 1; i++) {
+			for (int i = 0; i < 2; i++) {
 				{
 					auto bossEntity = world::newEntity("Upper BossArm", world::root());
 					bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossUpperArmModel.mATTIC");
-
 					auto t = bossEntity->addComponent<Hydra::Component::TransformComponent>();
-					t->position = glm::vec3(45 + 150, 20, 24 + 150);
-					t->scale = glm::vec3{ 1,1,1 };
 					t->rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
+					if (i == 0) {
+						t->position = glm::vec3(210, 30, 24 + 150);
+						t->scale = glm::vec3{ 1,1,1 };
+					}
+					else {
+						t->position = glm::vec3(210, 30, -24 + 150);
+						t->scale = glm::vec3{ -1,1,-1 };
+					}
 
 					bossEntity->addComponent<Hydra::Component::NetworkSyncComponent>();
 
 					auto rgbc = bossEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-					rgbc->createBox(glm::vec3(8.0f, 2.5f, 8.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+					rgbc->createBox(glm::vec3(8.0f, 2.5f, 8.0f) * glm::vec3(1), glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 						0, 0, 0.6f, 1.0f);
 					rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
 					rgbc->setAngularForce(glm::vec3(0));
 				}
-				auto bossEntity = world::newEntity("Lower BossArm", world::root());
-				bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossLowerArmModel.mATTIC");
+				{
+					auto bossEntity = world::newEntity("Lower BossArm", world::root());
+					bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossLowerArmModel.mATTIC");
+					bossEntity->addComponent<Hydra::Component::NetworkSyncComponent>();
 
-				bossEntity->addComponent<Hydra::Component::NetworkSyncComponent>();
+					auto a = bossEntity->addComponent<Hydra::Component::AIComponent>();
+					a->behaviour = std::make_shared<BossArm>(bossEntity);
+					a->damage = 7;
+					a->behaviour->originalRange = 20;
+					a->radius = 1;
 
-				auto a = bossEntity->addComponent<Hydra::Component::AIComponent>();
-				a->behaviour = std::make_shared<BossArm>(bossEntity);
-				a->damage = 7;
-				a->behaviour->originalRange = 20;
-				a->radius = 1;
+					auto w = bossEntity->addComponent<Hydra::Component::WeaponComponent>();
+					w->ammoPerShot = 1;
+					w->bulletSize = 2.0f;
+					w->damage = 15;
+					w->maxmagammo = 0;
+					w->currmagammo = 0;
+					w->maxammo = 0;
+					w->fireRateTimer = 1;
+					w->userdata = _tileGeneration->_userdata;
+					w->onShoot = _onRobotShoot;
 
-				auto w = bossEntity->addComponent<Hydra::Component::WeaponComponent>();
-				w->ammoPerShot = 1;
-				w->bulletSize = 2.5f;
-				w->damage = 15;
-				w->currammo = 500000;
-				w->fireRateTimer = 1;
+					auto t = bossEntity->addComponent<Hydra::Component::TransformComponent>();
+					if (i == 0) {
+						t->position = glm::vec3(210, 30, 40 + 150);
+						t->scale = glm::vec3{ 1,1,1 };
+					}
+					else {
+						t->position = glm::vec3(210, 30, -40 + 150);
+						t->scale = glm::vec3{ 1,1,1 };
+					}
 
-				//auto l = bossEntity->addComponent<Hydra::Component::LifeComponent>();
-				//l->maxHP = 150;
-				//l->health = 150;
+					auto l = bossEntity->addComponent<Hydra::Component::LifeComponent>();
+					l->maxHP = 10000000;
+					l->health = 10000000;
 
-				auto t = bossEntity->addComponent<Hydra::Component::TransformComponent>();
-				t->position = glm::vec3(40 + 150, 20, 40 + 150);
-				t->scale = glm::vec3{ 1,1,1 };
-				t->rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
+					//auto l = bossEntity->addComponent<Hydra::Component::LifeComponent>();
+					//l->maxHP = 150;
+					//l->health = 150;
 
-				//auto rgbc = bossEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-				//rgbc->createBox(glm::vec3(8.0f, 2.5f, 8.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
-				//	0, 0, 0.6f, 1.0f);
-				//rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
-				//rgbc->setAngularForce(glm::vec3(0));
-
-				//auto m = bossEntity->addComponent<Hydra::Component::MovementComponent>();
-				//m->movementSpeed = 25.0f;
+					//auto t = bossEntity->addComponent<Hydra::Component::TransformComponent>();
+					//t->position = glm::vec3(40 + 150, 20, 40 + 150);
+					//t->scale = glm::vec3{ 1,1,1 };
+					//t->rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
+					//
+					//auto rgbc = bossEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+					//rgbc->createBox(glm::vec3(8.0f, 2.5f, 8.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+					//	0, 0, 0.6f, 1.0f);
+					//rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
+					//rgbc->setAngularForce(glm::vec3(0));
+					//
+					//auto m = bossEntity->addComponent<Hydra::Component::MovementComponent>();
+					//m->movementSpeed = 25.0f;
+				}
 			}
 		}
 
 		{
 			//Hands
-			for (int i = 0; i < 1; i++) {
+			for (int i = 0; i < 2; i++) {
 				auto bossEntity = world::newEntity("BossHand1", world::root());
 				bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossHandModel2.mATTIC");
 				auto a = bossEntity->addComponent<Hydra::Component::AIComponent>();
 				a->behaviour = std::make_shared<BossHand_Left>(bossEntity);
 				//a->behaviour->setPathMap(_pathfindingMap);
+
 				a->damage = 7;
 				a->behaviour->originalRange = 20;
 				a->radius = 1;
 
 				bossEntity->addComponent<Hydra::Component::NetworkSyncComponent>();
-
+				auto t = bossEntity->addComponent<Hydra::Component::TransformComponent>();
 				//Set different positions for other hand
-				if (i == 1) {
+				if (i == 0) {
+					t->position = glm::vec3(30 + 150, 30, 40 + 150);
+					t->scale = glm::vec3{ 1,1,1 };
+				}
+				else {
+					a->behaviour->handID = 1;
+					t->position = glm::vec3(30 + 150, 30, -40 + 150);
+					t->scale = glm::vec3{ -1,1,-1 };
 				}
 
 				auto h = bossEntity->addComponent<Hydra::Component::LifeComponent>();
-				h->maxHP = 70;
-				h->health = 70;
+				h->maxHP = 2000000000;
+				h->health = 2000000000;
 
 				auto w = bossEntity->addComponent<Hydra::Component::WeaponComponent>();
 				w->bulletSpread = 1.0f;
 				w->fireRateRPM = 5000000;
-				w->fireRateTimer = 0.001f;
+				w->fireRateTimer = 0.1f;
 				w->bulletsPerShot = 1;
-
 				w->damage = 7;
+
 				w->maxmagammo = 0;
-				w->currmagammo = 100000000;
-				w->maxammo = 100000000;
+				w->currmagammo = 0;
+				w->maxammo = 0;
+				w->color[0] = 1;
+				w->color[1] = 0;
+				w->color[2] = 1;
+				w->color[3] = 0.5f;
+				w->userdata = _tileGeneration->_userdata;
+				w->onShoot = _onRobotShoot;
 
 				auto m = bossEntity->addComponent<Hydra::Component::MovementComponent>();
-				m->movementSpeed = 25.0f;
-				auto t = bossEntity->addComponent<Hydra::Component::TransformComponent>();
-				t->position.y = 20;
-				t->scale = glm::vec3{ 1,1,1 };
-				//t->rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(1, 0, 0));
+				m->movementSpeed = 50.0f;
+	
+				auto rgbc = bossEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+				rgbc->createBox(glm::vec3(8.0f, 2.5f, 8.0f) * glm::vec3(1), glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+					0, 0, 0.6f, 1.0f);
+				rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+				rgbc->setAngularForce(glm::vec3(0));
 
-				//auto rgbc = bossEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-				//rgbc->createBox(glm::vec3(8.0f, 2.5f, 8.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
-				//	0, 0, 0.6f, 1.0f);
-				//rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-				//rgbc->setAngularForce(glm::vec3(0));
 			}
 		}
 	}
@@ -287,22 +334,20 @@ void GameServer::_makeWorld() {
 	const size_t minRoomCount = 25;
 	const size_t maxRoomCount = 30;
 	while (true) {
-		level = 0;
+		//level = 2;
 		tries++;
 		//_tileGeneration->level = level;
 		if (level < 2) {
-			_tileGeneration = std::make_unique<TileGeneration>(maxRoomCount, "assets/room/starterRoom.room", &GameServer::_onRobotShoot, static_cast<void*>(this));
+			_tileGeneration = std::make_unique<TileGeneration>(maxRoomCount, "assets/room/starterRoom.room", &GameServer::_onRobotShoot, static_cast<void*>(this), level);
 			_spawnerSystem.userdata = static_cast<void*>(this);
 			_spawnerSystem.onShoot = &GameServer::_onRobotShoot;
 		}
 		else {
-			_spawnBoss();
-			_tileGeneration = std::make_unique<TileGeneration>(1, "assets/BossRoom/Bossroom5.room", &GameServer::_onRobotShoot, static_cast<void*>(this));
-			_spawnerSystem.userdata = static_cast<void*>(this);
-			_spawnerSystem.onShoot = &GameServer::_onRobotShoot;
+			_tileGeneration = std::make_unique<TileGeneration>(1, "assets/BossRoom/Bossroom5.room", &GameServer::_onRobotShoot, static_cast<void*>(this), level);
 			ServerFreezePlayerPacket freeze;
 			freeze.action = ServerFreezePlayerPacket::Action::noPVS;
 			_server->sendDataToAll((char*)&freeze, freeze.len);
+
 			printf("ASODIJAISFDJISADJFISJIODFJIOSDJFIJSIODFJIOSJIODFJSIODFJISOJFIOSD");
 		}
 		_tileGeneration->buildMap();
@@ -316,6 +361,7 @@ void GameServer::_makeWorld() {
 			_deadSystem.tick(0);
 		}
 		else {
+			_spawnBoss();
 			break;
 		}
 	}

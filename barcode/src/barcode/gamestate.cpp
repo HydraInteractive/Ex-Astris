@@ -537,7 +537,7 @@ namespace Barcode {
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 
 			{
-				auto weaponEntity = world::newEntity("Weapon", playerEntity);
+				auto weaponEntity = world::newEntity("Weapon", playerEntity); 
 				auto w = weaponEntity->addComponent<Hydra::Component::WeaponComponent>();
 				w->userdata = static_cast<void*>(this);
 				w->onShoot = &GameState::_onPlayerShoot;
@@ -599,7 +599,7 @@ namespace Barcode {
 	}
 	void GameState::_onNoPVS(void* userdata) {
 		GameState* this_ = static_cast<GameState*>(userdata);
-		this_->_dgp->disablePVS = true;
+		this_->_dgp->disablePVS = true; 
 	}
 
 	void GameState::_onUpdatePathMap(bool* map, void* userdata) {
