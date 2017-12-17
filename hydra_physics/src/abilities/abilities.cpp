@@ -124,8 +124,6 @@ void BlindingLight::useAbility(const std::shared_ptr<Hydra::World::Entity>& play
 }
 
 void BlindingLight::tick(float delta, const std::shared_ptr<Hydra::World::Entity>& playerEntity) {
-	using world = Hydra::World::World;
-
 	#pragma omp parallel for
 	for (int_openmp_t i = 0; i < (int_openmp_t)entities.size(); i++) {
 		if (glm::distance(entities[i]->getComponent<Hydra::Component::TransformComponent>()->position, lightPos) < 20.0f) {

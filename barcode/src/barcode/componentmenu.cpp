@@ -105,7 +105,7 @@ void ComponentMenu::configureComponent(bool &openBool, std::string componentType
 				//openBool = false;
 			}
 			ImGui::EndChild();
-		}
+		} 
 	}
 	else if (componentType == "PointLight")
 	{

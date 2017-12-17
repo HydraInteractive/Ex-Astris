@@ -50,8 +50,14 @@ void AIComponent::deserialize(nlohmann::json& json) {
 	case Behaviour::Type::ROBOT:
 		behaviour = std::make_shared<RobotBehaviour>(Hydra::World::World::getEntity(entityID));
 		break;
-	case Behaviour::Type::ALIENBOSS:
-		behaviour = std::make_shared<AlienBossBehaviour>(Hydra::World::World::getEntity(entityID));
+	case Behaviour::Type::BOSS_HAND:
+		behaviour = std::make_shared<BossHand_Left>(Hydra::World::World::getEntity(entityID));
+		break;
+	case Behaviour::Type::BOSS_ARMS:
+		behaviour = std::make_shared<BossArm>(Hydra::World::World::getEntity(entityID));
+		break;
+	case Behaviour::Type::STATINARY_BOSS:
+		behaviour = std::make_shared<StationaryBoss>(Hydra::World::World::getEntity(entityID));
 		break;
 	case Behaviour::Type::BOSS_HAND:
 		behaviour = std::make_shared<BossHand_Left>(Hydra::World::World::getEntity(entityID));
