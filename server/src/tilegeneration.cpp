@@ -24,7 +24,8 @@ using world = Hydra::World::World;
 
 using namespace BarcodeServer;
 
-TileGeneration::TileGeneration(size_t maxRooms, const std::string& middleRoomPath, Hydra::Component::WeaponComponent::onShoot_f onRobotShoot, void* userdata) : maxRooms(maxRooms), _onRobotShoot(onRobotShoot), _userdata(userdata) {
+TileGeneration::TileGeneration(size_t maxRooms, const std::string& middleRoomPath, Hydra::Component::WeaponComponent::onShoot_f onRobotShoot, void* userdata, int level) : maxRooms(maxRooms), _onRobotShoot(onRobotShoot), _userdata(userdata) {
+	_level = level;
 	mapentity = world::newEntity("Map", world::root());
 	_obtainRoomFiles();
 	pathfindingMap = new bool*[WORLD_MAP_SIZE];
@@ -48,9 +49,9 @@ TileGeneration::~TileGeneration() {
 }
 
 void TileGeneration::buildMap() {
-	if(level < 2)
+	if(_level < 2)
 		_createMapRecursivly(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2));
-	else if (level == 2) {
+	else if (_level == 2) {
 
 	}
 }
@@ -198,7 +199,8 @@ void TileGeneration::_setUpMiddleRoom(const std::string& middleRoomPath) {
 	roomC->gridPosition = { ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2 };
 	_insertPathFindingMap(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2), 0 /* No rotation */);
 	_generatePlayerSpawnPoints();
-	_clearSpawnPoints();
+	if(_level != 2)
+		_clearSpawnPoints();
 	//_spawnPickUps(room);
 	_spawnLight(t);
 }

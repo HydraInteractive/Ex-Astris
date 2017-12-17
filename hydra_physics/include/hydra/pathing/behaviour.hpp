@@ -209,7 +209,7 @@ namespace Hydra::Physics::Behaviour {
 
 		std::vector<glm::vec3> spawnPositions;
 
-		float spawnEnemiesAtPercentage[3] = { 600.0f, 300.0f, 150.0f };
+		float spawnEnemiesAtPercentage[3] = { 2000.f, 1000.0f, 500.0f };
 		int spawnIndex = 0;
 		float idleTimer = 0.0f;
 		unsigned int idleState(float dt) final;

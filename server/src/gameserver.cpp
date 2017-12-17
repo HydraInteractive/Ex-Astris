@@ -106,8 +106,12 @@ void GameServer::_spawnBoss() {
 			t->position = glm::vec3(45 + 150, 26, 3 + 150);
 			t->rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
 
+			auto l = BossAlien->addComponent<Hydra::Component::LifeComponent>();
+			l->maxHP = 3000;
+			l->health = 3000;
+
 			auto rgbc = BossAlien->addComponent<Hydra::Component::RigidBodyComponent>();
-			rgbc->createBox(glm::vec3(8.0f, 2.5f, 8.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
+			rgbc->createBox(glm::vec3(8.0f, 2.5f, 8.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 0.0f,
 				0, 0, 0.6f, 1.0f);
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
 			rgbc->setAngularForce(glm::vec3(0));
@@ -334,12 +338,12 @@ void GameServer::_makeWorld() {
 		tries++;
 		//_tileGeneration->level = level;
 		if (level < 2) {
-			_tileGeneration = std::make_unique<TileGeneration>(maxRoomCount, "assets/room/starterRoom.room", &GameServer::_onRobotShoot, static_cast<void*>(this));
+			_tileGeneration = std::make_unique<TileGeneration>(maxRoomCount, "assets/room/starterRoom.room", &GameServer::_onRobotShoot, static_cast<void*>(this), level);
 			_spawnerSystem.userdata = static_cast<void*>(this);
 			_spawnerSystem.onShoot = &GameServer::_onRobotShoot;
 		}
 		else {
-			_tileGeneration = std::make_unique<TileGeneration>(1, "assets/BossRoom/Bossroom5.room", &GameServer::_onRobotShoot, static_cast<void*>(this));
+			_tileGeneration = std::make_unique<TileGeneration>(1, "assets/BossRoom/Bossroom5.room", &GameServer::_onRobotShoot, static_cast<void*>(this), level);
 			ServerFreezePlayerPacket freeze;
 			freeze.action = ServerFreezePlayerPacket::Action::noPVS;
 			_server->sendDataToAll((char*)&freeze, freeze.len);
