@@ -130,6 +130,8 @@ bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 				bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Trident.mATTIC");
 			else if (meshType == 3)
 				bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Banana.mATTIC");
+			else if (meshType == 4)
+				bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Rock.mATTIC");
 			else
 				bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Duck.mATTIC");
 

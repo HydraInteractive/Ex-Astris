@@ -18,7 +18,7 @@ namespace Hydra::Component {
 		glm::vec3 direction = glm::vec3(0.0f,0.0f,0.0f);
 		float velocity = 0.0f;
 		float deleteTimer = 10.0f;
-		float damage = 30.0f;
+		float damage = 6.0f;
 		float glowIntensity = 1.0f;
 		bool glow = true;
 		float colour[4] = { 0.0f };

@@ -6,6 +6,7 @@
 #include <hydra/network/netclient.hpp>
 AIInspector::getAIInfo_f AIInspector::getAIInfo = nullptr;
 void* AIInspector::userdata = nullptr;
+Hydra::Component::TransformComponent* AIInspector::playerTransform = nullptr;
 
 AIInspector::AIInspector()
 {

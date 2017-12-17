@@ -28,6 +28,7 @@ namespace Hydra::Component {
 		bool firstPerson = true;
 		bool isDead = false;
 		bool frozen = false;
+		float lastJump = 0;
 		~PlayerComponent() final;
 
 		std::shared_ptr<Hydra::World::Entity> getWeapon();

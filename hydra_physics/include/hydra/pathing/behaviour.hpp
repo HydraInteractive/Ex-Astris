@@ -17,7 +17,7 @@ namespace Hydra::Physics::Behaviour {
 		Behaviour();
 		virtual ~Behaviour();
 
-		enum class Type { ALIEN, ROBOT, ALIENBOSS, BOSS_HAND, BOSS_ARMS, STATINARY_BOSS };
+		enum class Type { ALIEN, ROBOT, BOSS_HAND, BOSS_ARMS, STATINARY_BOSS };
 		Type type = Type::ALIEN;
 
 		enum { IDLE, SEARCHING, MOVING, ATTACKING };
@@ -38,7 +38,7 @@ namespace Hydra::Physics::Behaviour {
 		float idleTimer = 0.0;
 		float attackTimer = 0.0;
 		float newPathTimer = 0.0;
-		float newPathDelay = 3.0;
+		float newPathDelay = 1.0;
 		float spawnTimer = 0.0;
 		float phaseTimer = 0.0;
 		float regainRange = 0.0;
@@ -49,8 +49,8 @@ namespace Hydra::Physics::Behaviour {
 		int oldMapPosX = 0;
 		int oldMapPosZ = 0;
 
-		bool hasRequiredComponents = false;
 		bool playerUnreachable = false;
+		bool hasRequiredComponents = false;
 
 		PathFinding* pathFinding = nullptr;
 		bool doDiddeliDoneDatPathfinding = false;
@@ -112,22 +112,6 @@ namespace Hydra::Physics::Behaviour {
 		unsigned int attackingState(float dt) final;
 	private:
 		bool refreshRequiredComponents() final;
-	};
-
-	class HYDRA_PHYSICS_API AlienBossBehaviour final : public Behaviour
-	{
-	public:
-		AlienBossBehaviour(std::shared_ptr<Hydra::World::Entity> enemy);
-		AlienBossBehaviour();
-		~AlienBossBehaviour();
-
-		float stunTimer = 0.0f;
-		bool stunned = false;
-		int spawnAmount = 0;
-
-		void run(float dt);
-		unsigned int attackingState(float dt) final;
-	private:
 	};
 
 	class HYDRA_PHYSICS_API BossHand_Left final : public Behaviour
