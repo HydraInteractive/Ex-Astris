@@ -37,7 +37,7 @@ namespace BarcodeServer {
 		size_t maxRooms = 40;
 		size_t roomCounter = 0;
 		size_t numberOfPlayers = 4;
-		size_t numberOfEnemies = 30; //Can be per room or for the whole map depending on if the _spawnEnemies function is run once per room or after the whole map is generated
+		size_t numberOfEnemies = 40; //Can be per room or for the whole map depending on if the _spawnEnemies function is run once per room or after the whole map is generated
 		std::vector<glm::vec3> playerSpawns = std::vector<glm::vec3>();
 
 		TileGeneration(size_t maxRooms, const std::string& middleRoomPath, Hydra::Component::WeaponComponent::onShoot_f onRobotShoot, void* userdata);
@@ -52,6 +52,8 @@ namespace BarcodeServer {
 
 		std::string getPathMapAsString();
 		std::shared_ptr<Hydra::World::Entity> mapentity = nullptr;
+
+		int level = 0;
 
 	private:
 		enum { NORTH, EAST, SOUTH, WEST };

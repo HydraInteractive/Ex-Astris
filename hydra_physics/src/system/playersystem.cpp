@@ -95,6 +95,9 @@ void PlayerSystem::tick(float delta) {
 			else
 				weaponMesh->animationIndex = 0;
 
+			//if (keysArray[SDL_SCANCODE_P])
+				//perks->newPerks.push_back(Hydra::Component::PerkComponent::PERK_BLINDINGLIGHT);
+
 			if (camera->mouseControl && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
 				
 				//TODO: Make pretty?
