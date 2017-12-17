@@ -540,7 +540,7 @@ void GameServer::run() {
 		for (Hydra::World::EntityID eID : _lifeSystem.isKilled()) {
 			auto e = world::getEntity(eID);
 
-			if (auto ai = e->getComponent<Hydra::Component::AIComponent>(); ai && ai->behaviour->type != Behaviour::Type::ALIENBOSS) {
+			if (auto ai = e->getComponent<Hydra::Component::AIComponent>(); ai) {
 				auto oldTransform = e->getComponent<Hydra::Component::TransformComponent>();
 				auto oldMesh = e->getComponent<Hydra::Component::MeshComponent>();
 				if (!oldTransform || !oldMesh)
@@ -569,9 +569,6 @@ void GameServer::run() {
 				case Behaviour::Type::ROBOT:
 					mesh->currentFrame = 1;
 					mesh->animationIndex = 3;
-					break;
-
-				case Behaviour::Type::ALIENBOSS: // NOTE: IS NOT HANDLED, CHECK ABOVE
 					break;
 
 				case Behaviour::Type::BOSS_HAND:
