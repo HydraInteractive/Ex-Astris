@@ -97,9 +97,9 @@ namespace Hydra::Network {
 	struct ServerAIInfoPacket : public Packet
 	{
 		ServerAIInfoPacket(size_t size) : Packet(PacketType::ServerAIInfo, sizeof(ServerAIInfoPacket) + (size * sizeof(int))) {}
-		float openList;
-		float closedList;
-		float pathToEnd;
+		size_t openList;
+		size_t closedList;
+		size_t pathToEnd;
 		int data[0];
 	};
 	/////////////////////////////////////////

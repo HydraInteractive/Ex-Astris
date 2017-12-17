@@ -99,7 +99,7 @@ void GameServer::_spawnBoss() {
 			BossAlien->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossAlienModel.mATTIC");
 
 			BossAlien->addComponent<Hydra::Component::NetworkSyncComponent>();
-			
+
 			auto t = BossAlien->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(45 + 150, 26, 0 + 150);
 			t->rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
@@ -154,7 +154,7 @@ void GameServer::_spawnBoss() {
 				}
 				auto bossEntity = world::newEntity("Lower BossArm", world::root());
 				bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossLowerArmModel.mATTIC");
-				
+
 				bossEntity->addComponent<Hydra::Component::NetworkSyncComponent>();
 
 				auto a = bossEntity->addComponent<Hydra::Component::AIComponent>();
@@ -187,7 +187,6 @@ void GameServer::_spawnBoss() {
 
 				//auto m = bossEntity->addComponent<Hydra::Component::MovementComponent>();
 				//m->movementSpeed = 25.0f;
-
 			}
 		}
 
@@ -207,7 +206,6 @@ void GameServer::_spawnBoss() {
 
 				//Set different positions for other hand
 				if (i == 1) {
-
 				}
 
 				auto h = bossEntity->addComponent<Hydra::Component::LifeComponent>();
@@ -231,7 +229,6 @@ void GameServer::_spawnBoss() {
 				t->position.y = 20;
 				t->scale = glm::vec3{ 1,1,1 };
 				//t->rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(1, 0, 0));
-
 
 				//auto rgbc = bossEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 				//rgbc->createBox(glm::vec3(8.0f, 2.5f, 8.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
@@ -434,7 +431,7 @@ void GameServer::_makeWorld() {
 		fseek(fp, 0, SEEK_SET);
 		fread(_pvsData.data(), _pvsData.size(), 1, fp);
 		fclose(fp);
-	}
+}
 
 	{
 		std::vector<std::shared_ptr<Entity>> entities;
@@ -539,7 +536,6 @@ void GameServer::run() {
 		}
 		spawnEnts.clear();
 
-
 		_deadSystem.tick(delta);
 		_physicsSystem.tick(delta);
 		_aiSystem.tick(delta);
@@ -555,7 +551,6 @@ void GameServer::run() {
 				delete[](char*)p;
 			}
 		}
-
 
 		//_perkSystem.tick(delta);
 		_lifeSystem.tick(delta);
@@ -580,62 +575,60 @@ void GameServer::run() {
 		//	}
 		//}
 
-
 		//END
 
 		for (Hydra::World::EntityID eID : _lifeSystem.isKilled()) {
-			auto e = world::getEntity(eID);
+			if (auto e = world::getEntity(eID)) {
+				if (auto ai = e->getComponent<Hydra::Component::AIComponent>(); ai) {
+					auto oldTransform = e->getComponent<Hydra::Component::TransformComponent>();
+					auto oldMesh = e->getComponent<Hydra::Component::MeshComponent>();
+					if (!oldTransform || !oldMesh)
+						continue;
 
-			if (auto ai = e->getComponent<Hydra::Component::AIComponent>(); ai) {
-				auto oldTransform = e->getComponent<Hydra::Component::TransformComponent>();
-				auto oldMesh = e->getComponent<Hydra::Component::MeshComponent>();
-				if (!oldTransform || !oldMesh)
-					continue;
+					char name[64] = { 0 };
+					snprintf(name, sizeof(name), "Dead body [%zu]", eID);
+					auto deadBody = world::newEntity(name, e->parent);
+					auto t = deadBody->addComponent<Hydra::Component::TransformComponent>();
+					t->position = oldTransform->position;
+					t->scale = oldTransform->scale;
+					t->rotation = oldTransform->rotation;
+					t->dirty = true;
+					auto mesh = deadBody->addComponent<Hydra::Component::MeshComponent>();
+					mesh->loadMesh(oldMesh->meshFile);
+					auto life = deadBody->addComponent<Hydra::Component::LifeComponent>();
+					life->health = life->maxHP = 25.0f / 24.0f;
+					life->tickDownWithTime = true;
 
-				char name[64] = { 0 };
-				snprintf(name, sizeof(name), "Dead body [%zu]", eID);
-				auto deadBody = world::newEntity(name, e->parent);
-				auto t = deadBody->addComponent<Hydra::Component::TransformComponent>();
-				t->position = oldTransform->position;
-				t->scale = oldTransform->scale;
-				t->rotation = oldTransform->rotation;
-				t->dirty = true;
-				auto mesh = deadBody->addComponent<Hydra::Component::MeshComponent>();
-				mesh->loadMesh(oldMesh->meshFile);
-				auto life = deadBody->addComponent<Hydra::Component::LifeComponent>();
-				life->health = life->maxHP = 25.0f / 24.0f;
-				life->tickDownWithTime = true;
+					switch (ai->behaviour->type) {
+					case Behaviour::Type::ALIEN:
+						mesh->currentFrame = 1;
+						mesh->animationIndex = 3;
+						break;
 
-				switch (ai->behaviour->type) {
-				case Behaviour::Type::ALIEN:
-					mesh->currentFrame = 1;
-					mesh->animationIndex = 3;
-					break;
+					case Behaviour::Type::ROBOT:
+						mesh->currentFrame = 1;
+						mesh->animationIndex = 3;
+						break;
 
-				case Behaviour::Type::ROBOT:
-					mesh->currentFrame = 1;
-					mesh->animationIndex = 3;
-					break;
+					case Behaviour::Type::BOSS_HAND:
+					case Behaviour::Type::BOSS_ARMS:
+					case Behaviour::Type::STATINARY_BOSS:
+						// TODO:
+						break;
+					}
 
-				case Behaviour::Type::BOSS_HAND:
-				case Behaviour::Type::BOSS_ARMS:
-				case Behaviour::Type::STATINARY_BOSS:
-					// TODO:
-					break;
+					printf("Syncing (%zu): %s\n", deadBody->id, deadBody->name.c_str());
+					auto p = createServerSpawnEntity(deadBody.get());
+					_server->sendDataToAll((char*)p, p->len);
+					delete[](char*)p;
+					deadBody->dead = true;
 				}
 
-				printf("Syncing (%zu): %s\n", deadBody->id, deadBody->name.c_str());
-				auto p = createServerSpawnEntity(deadBody.get());
-				_server->sendDataToAll((char*)p, p->len);
-				delete[](char*)p;
-				deadBody->dead = true;
+				deleteEntity(eID);
+
+				_players.erase(std::remove_if(_players.begin(), _players.end(), [eID](const auto& p) { return p->entityid == eID; }), _players.end());
 			}
-
-			deleteEntity(eID);
-
-			_players.erase(std::remove_if(_players.begin(), _players.end(), [eID](const auto& p) { return p->entityid == eID; }), _players.end());
 		}
-
 		if (!Hydra::Component::AIComponent::componentHandler->getActiveComponents().size()) {
 			level++;
 			if (level == 2) {
@@ -644,7 +637,7 @@ void GameServer::run() {
 				_server->sendDataToAll((char*)&freeze, freeze.len);
 				level = 0;
 			}
-			
+
 			_makeWorld();
 		}
 	}
@@ -677,7 +670,6 @@ void GameServer::syncEntity(Hydra::World::Entity* entity) {
 	_server->sendDataToAll((char*)p, p->len);
 	delete[](char*)p;
 }
-
 
 void GameServer::_sendWorld() {
 	ServerUpdatePacket* packet = (ServerUpdatePacket*)new char[(sizeof(ServerUpdatePacket) + (sizeof(ServerUpdatePacket::EntUpdate) * this->_networkEntities.size()))];
