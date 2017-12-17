@@ -658,7 +658,7 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 	//		rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
 	//	}
 
-	//	return state;
+		return state;
 	//}
 }
 BossHand_Left::BossHand_Left(std::shared_ptr<Hydra::World::Entity> enemy) : Behaviour(enemy) {

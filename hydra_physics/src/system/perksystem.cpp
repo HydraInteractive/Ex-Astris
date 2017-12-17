@@ -85,8 +85,8 @@ void PerkSystem::PerkChange(ReadBullet& b, const std::shared_ptr<Hydra::World::E
 
 		w->damage += b.dmg;
 		w->bulletSize += b.bulletSize;
-		w->bulletsPerShot = b.bulletPerShot;
-		w->maxammo = b.ammoCap;
+		w->bulletsPerShot += b.bulletPerShot;
+		//w->maxmagammo += b.ammoCap;
 		w->maxmagammo += b.currentMagAmmo;
 		w->ammoPerShot += b.ammoPerShot;
 		w->bulletSpread += b.bulletSpread;
@@ -110,7 +110,9 @@ void PerkSystem::PerkChange(ReadBullet& b, const std::shared_ptr<Hydra::World::E
 
 		w->bulletsPerShot *= b.bulletPerShot;
 		w->fireRateRPM *= b.roundsPerMinute;
-		w->maxammo = b.ammoCap;
+		//if (b.ammoCap != 0) {
+		//	w->maxmagammo *= b.ammoCap;
+		//}
 		if (b.currentMagAmmo > 0.0f)
 			w->maxmagammo *= b.currentMagAmmo;
 
@@ -145,7 +147,7 @@ void PerkSystem::PerkChange(ReadBullet& b, const std::shared_ptr<Hydra::World::E
 	else if (w->bulletsPerShot > 30)
 		w->bulletsPerShot = 30;
 	//Max Ammo
-	if (w->maxammo != 0)
+	if (w->maxammo != 0.0f)
 		w->maxammo = 0;
 	//else if (w->maxammo > 200)
 	//	w->maxammo = 200;
@@ -153,10 +155,14 @@ void PerkSystem::PerkChange(ReadBullet& b, const std::shared_ptr<Hydra::World::E
 		w->maxmagammo = 1;
 	if (w->bulletSpread < -1)
 		w->bulletSpread = -1;
-	if (w->recoil > 3.0f)
-		w->recoil = 3.0f;
 	else if(w->bulletSpread > 1)
 		w->bulletSpread = 1;
+	if (w->recoil > 3.0f)
+		w->recoil = 3.0f;
+	if (w->fireRateRPM <= 100)
+		w->fireRateRPM = 100;
+	else if(w->fireRateRPM >= 2000)
+		w->fireRateRPM = 2000;
 
 		
 }
@@ -234,13 +240,13 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 	}
 	case Hydra::Component::PerkComponent::PERK_RED: {
 		ReadBullet b;
-		readFromFile("Duck", b);
+		readFromFile("Banana", b);
 		PerkChange(b, playerEntity);	
 		break;
 	}
 	case Hydra::Component::PerkComponent::PERK_GREEN: {
 		ReadBullet b;
-		readFromFile("Gren", b);
+		readFromFile("DangerousDuck", b);
 		PerkChange(b, playerEntity);
 		break;
 	}
