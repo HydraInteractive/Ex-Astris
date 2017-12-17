@@ -204,13 +204,15 @@ namespace Barcode {
 		static bool enableFrustumCulling = false;
 		//ImGui::Checkbox("Enable VF Culling", &enableFrustumCulling);
 
+		ImGui::Checkbox("Disable PVS rendering", &disablePVS);
+
 		auto worldToGrid = [](glm::vec2 pos) {
 			const int xGrid = (pos.x / ROOM_SIZE);// - 0.5f);
 			const int yGrid = (pos.y / ROOM_SIZE);// - 0.5f);
-			return glm::ivec2{xGrid, yGrid};
+			return glm::ivec2{ xGrid, yGrid };
 		};
 
-		auto gp = worldToGrid({cameraPos.x, cameraPos.z});
+		auto gp = worldToGrid({ cameraPos.x, cameraPos.z });
 		auto& rs = _renderSets[gp.y][gp.x];
 
 		constexpr float radius = 5.f;
@@ -264,7 +266,8 @@ namespace Barcode {
 						_shadowAnimationBatch.batch.currAnimIndices[drawObj->mesh].push_back(mc->animationIndex);
 					}
 				}
-			} else {
+			}
+			else {
 				objectTotalNormal++;
 
 				const float x = drawObj->modelMatrix[3][0];
@@ -289,23 +292,43 @@ namespace Barcode {
 			}
 		}
 
-		for (auto doc : rs.objects) {
-			auto& drawObj = doc->drawObject;
-			if (!drawObj->mesh)
-				continue;
 
-			_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-			objectCounter++;
+		std::vector<Hydra::Component::PointLightComponent*> lights;
+		if (!disablePVS) {
+			lights = rs.lights;
+			for (auto doc : rs.objects) {
+				auto& drawObj = doc->drawObject;
+				if (!drawObj->mesh)
+					continue;
 
-			if (MenuState::shadowEnabled && drawObj->hasShadow)
-				_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-		}
+				_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+				objectCounter++;
+
+				if (MenuState::shadowEnabled && drawObj->hasShadow)
+					_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+			}
+		} else
+			for (int y = 0; y < ROOM_GRID_SIZE; y++)
+				for (int x = 0; x < ROOM_GRID_SIZE; x++) {
+					for (auto& l : _renderSets[y][x].lights)
+						lights.push_back(l);
+					for (auto doc : _renderSets[y][x].objects) {
+						auto& drawObj = doc->drawObject;
+						if (!drawObj->mesh)
+							continue;
+
+						_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+						objectCounter++;
+
+						if (MenuState::shadowEnabled && drawObj->hasShadow)
+							_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
+					}
+				}
 		const int MAX_LIGHTS = 24;
 
 		size_t lightCount = 0;
 		{
 			int shaderPos = 15;
-			std::vector<Hydra::Component::PointLightComponent*> lights = rs.lights;
 			std::sort(lights.begin(), lights.end(), [cameraPos](auto a, auto b) {
 				return glm::distance(glm::vec3(a->getTransformComponent()->getMatrix()[3]), cameraPos) < glm::distance(glm::vec3(b->getTransformComponent()->getMatrix()[3]), cameraPos);
 			});

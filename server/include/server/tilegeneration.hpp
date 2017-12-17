@@ -34,7 +34,7 @@ namespace BarcodeServer {
 	public:
 		std::shared_ptr<Hydra::Component::RoomComponent> roomGrid[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
 		bool** pathfindingMap = nullptr;
-		size_t maxRooms = 50;
+		size_t maxRooms = 40;
 		size_t roomCounter = 0;
 		size_t numberOfPlayers = 4;
 		size_t numberOfEnemies = 50; //Can be per room or for the whole map depending on if the _spawnEnemies function is run once per room or after the whole map is generated
@@ -52,6 +52,8 @@ namespace BarcodeServer {
 
 		std::string getPathMapAsString();
 		std::shared_ptr<Hydra::World::Entity> mapentity = nullptr;
+
+		int level = 0;
 
 	private:
 		enum { NORTH, EAST, SOUTH, WEST };
