@@ -252,6 +252,7 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 	}
 
 	default:
+		perkDescriptionText = "No perk";
 		break;
 	}
 	perkDescriptionTimer = 5;
