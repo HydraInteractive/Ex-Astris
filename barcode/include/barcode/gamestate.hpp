@@ -50,7 +50,8 @@
 #include <hydra/system/textsystem.hpp>
 #include <hydra/system/lightsystem.hpp>
 
-#include<barcode/aiinspector.hpp>
+#include <barcode/minimap.hpp>
+#include <barcode/aiinspector.hpp>
 namespace Barcode {
 	class GameState final : public Hydra::IState {
 	public:
@@ -101,6 +102,9 @@ namespace Barcode {
 
 		AIInspector* aiInspector = nullptr;
 		bool aiInspectorOpen = false;
+
+		MiniMap* miniMap = nullptr;
+		bool miniMapOpen = true;
 
 		bool _paused = false;
 		Hydra::World::EntityID _playerID;

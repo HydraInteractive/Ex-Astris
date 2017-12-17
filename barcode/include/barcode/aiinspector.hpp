@@ -9,13 +9,13 @@
 #include <hydra/renderer/glrenderer.hpp>
 #include <hydra/component/transformcomponent.hpp>
 using namespace Hydra::World;
-static Hydra::Component::TransformComponent* playerTransform = nullptr;
 class AIInspector final {
 public:
 	struct RGB
 	{
 		uint8_t r, g, b;
 	};
+	static Hydra::Component::TransformComponent* playerTransform;
 	typedef void(*getAIInfo_f)(void* userdata);
 	static getAIInfo_f getAIInfo;
 	static void* userdata;
