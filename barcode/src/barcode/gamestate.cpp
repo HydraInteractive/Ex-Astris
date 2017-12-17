@@ -233,7 +233,7 @@ namespace Barcode {
 				if (_hpTimeUp == 0)
 					_hpTimeUp = 1;
 
-				_hpTimeUp -= delta;
+				_hpTimeUp -= delta; 
 
 				if (_hpTimeUp >= 0) {
 					ImGui::SetNextWindowPos(ImVec2(0, 0));
