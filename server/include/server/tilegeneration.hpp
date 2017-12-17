@@ -37,7 +37,7 @@ namespace BarcodeServer {
 		size_t maxRooms = 40;
 		size_t roomCounter = 0;
 		size_t numberOfPlayers = 4;
-		size_t numberOfEnemies = 40; //Can be per room or for the whole map depending on if the _spawnEnemies function is run once per room or after the whole map is generated
+		size_t numberOfEnemies = 50; //Can be per room or for the whole map depending on if the _spawnEnemies function is run once per room or after the whole map is generated
 		std::vector<glm::vec3> playerSpawns = std::vector<glm::vec3>();
 
 		TileGeneration(size_t maxRooms, const std::string& middleRoomPath, Hydra::Component::WeaponComponent::onShoot_f onRobotShoot, void* userdata);
@@ -70,7 +70,7 @@ namespace BarcodeServer {
 		void _randomizeRooms();
 		bool _generatePlayerSpawnPoints();
 		void _spawnRandomEnemy(glm::vec3 pos);
-		void _createSpawner(glm::vec3 pos);
+		void _createSpawner(std::shared_ptr<Hydra::World::Entity>& room, int id);
 		void _clearSpawnPoints();
 		void _spawnLight(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
 		glm::quat _rotateRoom(std::shared_ptr<Hydra::Component::RoomComponent>& room, uint8_t& rot);

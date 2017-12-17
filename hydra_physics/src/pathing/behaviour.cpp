@@ -209,10 +209,10 @@ void Behaviour::executeTransforms()
 {
 	//Line of sight check
 	//If AI dont have vision to shoot at player, move closer
-	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) <= 30.0f)
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 40.0f)
 	{
-		auto callback = static_cast<btCollisionWorld::ClosestRayResultCallback*>(static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->rayTestFromTo(glm::vec3(thisEnemy.transform->position.x, thisEnemy.transform->position.y + 2.0f, thisEnemy.transform->position.z), targetPlayer.transform->position));
-		if (targetPlayer.transform->position.y < 4.5f)
+		auto callback = static_cast<btCollisionWorld::ClosestRayResultCallback*>(static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->rayTestFromTo(glm::vec3(thisEnemy.transform->position.x, thisEnemy.transform->position.y + 1.8, thisEnemy.transform->position.z), targetPlayer.transform->position));
+		if (targetPlayer.transform->position.y < 5.0f)
 		{
 			if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_WALL)
 			{
@@ -233,8 +233,7 @@ void Behaviour::executeTransforms()
 		}
 		delete callback;
 	}
-
-	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 30.0f)
+	else
 	{
 		range = originalRange;
 	}
@@ -294,22 +293,27 @@ void AlienBehaviour::run(float dt)
 	newPathTimer += dt;
 	regainRange += dt;
 
-	//if (targetPlayer.playerComp != nullptr)
-	//{
-	//	printf("I made it \n");
-	//	if (!targetPlayer.playerComp->onFloor && targetPlayer.playerComp->onGround && pathFinding->inWall(targetPlayer.transform->position))
-	//	{
-	//		printf("time to shoot \n");
-	//		playerUnreachable = true;
-	//		originalRange = 15;
-	//	}
-	//	else if (targetPlayer.playerComp->onFloor && targetPlayer.playerComp->onGround)
-	//	{
-	//		printf("no shoot \n");
-	//		playerUnreachable = false;
-	//		originalRange = savedRange;
-	//	}
-	//}
+	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) < 35)
+	{
+		if (pathFinding->inWall(targetPlayer.transform->position)){
+		auto callback = static_cast<btCollisionWorld::ClosestRayResultCallback*>(static_cast<Hydra::System::BulletPhysicsSystem*>(Hydra::IEngine::getInstance()->getState()->getPhysicsSystem())->rayTestFromTo(targetPlayer.transform->position, targetPlayer.transform->position + glm::vec3(0,-2.0,0)));
+
+		if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() == Hydra::System::BulletPhysicsSystem::COLL_WALL){
+			playerUnreachable = true;
+			originalRange = 10;
+		}
+		else if (callback->hasHit() && callback->m_collisionObject->getUserIndex2() != Hydra::System::BulletPhysicsSystem::COLL_WALL){
+			playerUnreachable = false;
+			originalRange = savedRange;
+		}
+		delete callback;
+		}
+		else{
+			playerUnreachable = false;
+			originalRange = savedRange;
+		}
+	}
+
 
 	//if (pathFinding->inWall(targetPlayer.transform->position))
 	//{
@@ -354,7 +358,7 @@ unsigned int AlienBehaviour::attackingState(float dt)
 		std::uniform_int_distribution<> randDmg(thisEnemy.ai->damage - 1, thisEnemy.ai->damage + 2);
 		glm::vec3 playerDir = glm::normalize(targetPlayer.transform->position - thisEnemy.transform->position);
 
-		if (attackTimer > 2.8)
+		if (attackTimer > 1.5)
 		{
 			if (playerUnreachable)
 			{
@@ -491,7 +495,7 @@ unsigned int RobotBehaviour::attackingState(float dt)
 		glm::vec3 right(forward.z, forward.y, -forward.x);
 
 		glm::vec3 bulletPos = thisEnemy.transform->position + glm::vec3(0, 2.0, 0) + (forward* 2.0f) - (right * 1.0f);
-		thisEnemy.weapon->shoot(bulletPos, playerDir, rotation, 15.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
+		thisEnemy.weapon->shoot(bulletPos, playerDir, rotation, 20.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
 	}
 	return state;
 }
@@ -658,7 +662,7 @@ unsigned int AlienBossBehaviour::attackingState(float dt)
 	//		rotation = glm::angleAxis(atan2(playerDir.x, playerDir.z), glm::vec3(0, 1, 0));
 	//	}
 
-	//	return state;
+		return state;
 	//}
 }
 BossHand_Left::BossHand_Left(std::shared_ptr<Hydra::World::Entity> enemy) : Behaviour(enemy) {

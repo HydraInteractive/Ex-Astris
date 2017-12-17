@@ -12,6 +12,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <hydra/component/playercomponent.hpp>
 #include <hydra/world/world.hpp>
+#include <hydra/component/weaponcomponent.hpp>
 
 using namespace Hydra::World;
 namespace Hydra::Component {
@@ -27,14 +28,14 @@ namespace Hydra::Component {
 	float spawnTimer = 0.0f;
 	bool** map = nullptr;
 	int spawnCounter = 0;
+	glm::vec3 playerPos;
 
 	~SpawnerComponent() final;
 
 	inline const std::string type() const final { return "SpawnerComponent"; }
-	std::shared_ptr<Hydra::World::Entity> getPlayerEntity();
 	void serialize(nlohmann::json& json) const final;
 	void deserialize(nlohmann::json& json) final;
 	void registerUI() final;
-
+	void setTargetPlayer(std::shared_ptr<Hydra::World::Entity> player);
 	};
 };
