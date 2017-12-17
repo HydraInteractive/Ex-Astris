@@ -331,8 +331,8 @@ void GameServer::_makeWorld() {
 	_networkEntities.erase(std::remove_if(_networkEntities.begin(), _networkEntities.end(), [](const auto& e) {	return world::getEntity(e)->dead; }), _networkEntities.end());
 	_deadSystem.tick(0);
 	size_t tries = 0;
-	const size_t minRoomCount = 25;
-	const size_t maxRoomCount = 30;
+	const size_t minRoomCount = 2;
+	const size_t maxRoomCount = 3;
 	while (true) {
 		//level = 2;
 		tries++;
@@ -347,8 +347,6 @@ void GameServer::_makeWorld() {
 			ServerFreezePlayerPacket freeze;
 			freeze.action = ServerFreezePlayerPacket::Action::noPVS;
 			_server->sendDataToAll((char*)&freeze, freeze.len);
-
-			printf("ASODIJAISFDJISADJFISJIODFJIOSDJFIJSIODFJIOSJIODFJSIODFJISOJFIOSD");
 		}
 		_tileGeneration->buildMap();
 		if (level < 2) {
@@ -982,6 +980,10 @@ bool GameServer::_addPlayer(int id) {
 
 		{
 			ServerFreezePlayerPacket freeze;
+			if (level == 2) {
+				freeze.action = ServerFreezePlayerPacket::Action::noPVS;
+				_server->sendDataToClient((char*)&freeze, freeze.len, id);
+			}
 			freeze.action = ServerFreezePlayerPacket::Action::unfreeze;
 			_server->sendDataToClient((char*)&freeze, freeze.len, id);
 		}
@@ -1051,8 +1053,6 @@ void BarcodeServer::GameServer::_sendPathInfo()
 
 void GameServer::_onRobotShoot(WeaponComponent& weapon, Entity* bullet, void* userdata) {
 	GameServer* this_ = static_cast<GameServer*>(userdata);
-
-	printf("Robot shoot");
 
 	{
 		nlohmann::json json;
