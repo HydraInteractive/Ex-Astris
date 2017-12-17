@@ -52,13 +52,13 @@ namespace BarcodeServer {
 
 		std::string getPathMapAsString();
 		std::shared_ptr<Hydra::World::Entity> mapentity = nullptr;
-
+		void* _userdata;
 		int level = 0;
 
 	private:
 		enum { NORTH, EAST, SOUTH, WEST };
 		Hydra::Component::WeaponComponent::onShoot_f _onRobotShoot;
-		void* _userdata;
+		
 
 		std::vector<std::string> _roomFileNames;
 		Hydra::System::DeadSystem deadSystem;

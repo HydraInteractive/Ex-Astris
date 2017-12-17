@@ -137,11 +137,11 @@ namespace Hydra::Physics::Behaviour {
 		BossHand_Left();
 		~BossHand_Left();
 
-		const float originalHeight = 30.0f;
+		const float originalHeight = 40.0f;
 		glm::vec3 basePosition = glm::vec3(30 + 150, originalHeight, 40 + 150);
 		glm::vec3 swipePosition = glm::vec3(25 + 150, 1, 25 + 150);
 		glm::vec3 canonPosition = glm::vec3(30 + 150, originalHeight, 25 + 150);
-		glm::vec3 coverPosition = glm::vec3(40 + 150, 36, 5 + 150);
+		glm::vec3 coverPosition = glm::vec3(170, 36, 200);
 		glm::vec3 smashPosition = glm::vec3(0);
 
 		float idleTimer = 0.0f;
