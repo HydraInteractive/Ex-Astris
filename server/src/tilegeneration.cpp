@@ -293,7 +293,7 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 		h->health = 60;
 
 		auto w = alienEntity->addComponent<Hydra::Component::WeaponComponent>();
-		w->meshType = 4;
+		w->meshType = 5;
 		w->bulletSpread = 0.2f;
 		w->bulletsPerShot = 1;
 		w->damage = 4;
@@ -379,7 +379,7 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 		h->health = 80;
 
 		auto w = alienEntity->addComponent<Hydra::Component::WeaponComponent>();
-		w->meshType = 4;
+		w->meshType = 5;
 		w->bulletSpread = 0.2f;
 		w->bulletsPerShot = 1;
 		w->damage = 4;

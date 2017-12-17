@@ -131,10 +131,11 @@ bool WeaponComponent::shoot(glm::vec3 position, glm::vec3 direction, glm::quat b
 			else if (meshType == 3)
 				bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Banana.mATTIC");
 			else if (meshType == 4)
+				bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Duck.mATTIC");
+			else if (meshType == 5)
 				bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Rock.mATTIC");
 			else
-				bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Duck.mATTIC");
-
+				bullet->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Rock.mATTIC");
 
 			float phi = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
 			float distance = ((float)rand() / (float)(RAND_MAX)) * bulletSpread;
