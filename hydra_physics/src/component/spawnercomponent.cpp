@@ -27,14 +27,9 @@ void Hydra::Component::SpawnerComponent::serialize(nlohmann::json & json) const
 		{ "spawnCounter", (int)spawnCounter },
 	};
 
-	json["mapSize"] = (unsigned int)ROOM_MAP_SIZE;
-	for (size_t i = 0; i < WORLD_MAP_SIZE; i++)
-	{
-		for (size_t j = 0; j < WORLD_MAP_SIZE; j++)
-		{
-			json["map"][i][j] = map[i][j];
-		}
-	}
+	json["playerPosX"] = playerPos[0];
+	json["playerPosY"] = playerPos[1];
+	json["playerPosZ"] = playerPos[2];
 }
 
 void Hydra::Component::SpawnerComponent::deserialize(nlohmann::json & json)
@@ -43,33 +38,16 @@ void Hydra::Component::SpawnerComponent::deserialize(nlohmann::json & json)
 	spawnerID = (SpawnerType)json["spawnerID"].get<int>();
 	spawnCounter = json["spawnCounter"].get<int>();
 
-	if (json.value<unsigned int>("mapSize", 0) == ROOM_MAP_SIZE)
-	{
-		for (size_t i = 0; i < ROOM_MAP_SIZE; i++)
-		{
-			for (size_t j = 0; j < ROOM_MAP_SIZE; j++)
-			{
-				map[i][j] = json["map"][i][j].get<bool>();
-			}
-		}
-	}
-	else
-	{
-		for (size_t i = 0; i < ROOM_MAP_SIZE; i++)
-		{
-			for (size_t j = 0; j < ROOM_MAP_SIZE; j++)
-			{
-				map[i][j] = true;
-			}
-		}
-	}
+	playerPos[0] = json.value<float>("playerPosX", 0);
+	playerPos[1] = json.value<float>("playerPosY", 0);
+	playerPos[2] = json.value<float>("playerPosZ", 0);
 }
 
 void Hydra::Component::SpawnerComponent::registerUI()
 {
 }
 
-std::shared_ptr<Hydra::World::Entity> SpawnerComponent::getPlayerEntity()
+void Hydra::Component::SpawnerComponent::setTargetPlayer(std::shared_ptr<Hydra::World::Entity> player)
 {
-	return Hydra::World::World::getEntity(PlayerComponent::componentHandler->getActiveComponents()[0]->entityID);
+	playerPos = player->getComponent<Hydra::Component::TransformComponent>().get()->position;
 }

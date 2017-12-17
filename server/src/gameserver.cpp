@@ -7,6 +7,7 @@
 
 #include <hydra/component/meshcomponent.hpp>
 #include <hydra/component/aicomponent.hpp>
+#include <hydra/component/spawnercomponent.hpp>
 #include <hydra/component/ghostobjectcomponent.hpp>
 #include <hydra/component/lifecomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
@@ -292,11 +293,16 @@ void GameServer::_makeWorld() {
 		level = 0;
 		tries++;
 		//_tileGeneration->level = level;
-		if(level < 2)
+		if (level < 2) {
 			_tileGeneration = std::make_unique<TileGeneration>(maxRoomCount, "assets/room/starterRoom.room", &GameServer::_onRobotShoot, static_cast<void*>(this));
+			_spawnerSystem.userdata = static_cast<void*>(this);
+			_spawnerSystem.onShoot = &GameServer::_onRobotShoot;
+		}
 		else {
 			_spawnBoss();
 			_tileGeneration = std::make_unique<TileGeneration>(1, "assets/BossRoom/Bossroom5.room", &GameServer::_onRobotShoot, static_cast<void*>(this));
+			_spawnerSystem.userdata = static_cast<void*>(this);
+			_spawnerSystem.onShoot = &GameServer::_onRobotShoot;
 			ServerFreezePlayerPacket freeze;
 			freeze.action = ServerFreezePlayerPacket::Action::noPVS;
 			_server->sendDataToAll((char*)&freeze, freeze.len);
@@ -322,6 +328,12 @@ void GameServer::_makeWorld() {
 	_tileGeneration->spawnPickUps();
 	_tileGeneration->finalize();
 	_pathfindingMap = _tileGeneration->pathfindingMap;
+	std::vector<std::shared_ptr<Hydra::World::Entity>> allSpawners;
+	world::getEntitiesWithComponents<Hydra::Component::SpawnerComponent>(allSpawners);
+	for (int_openmp_t i = 0; i < (int_openmp_t)allSpawners.size(); i++) {
+		auto sp = allSpawners[i]->getComponent<Hydra::Component::SpawnerComponent>();
+		sp->map = _tileGeneration->pathfindingMap;
+	}
 
 	{
 		auto packet = createServerSpawnEntity(_tileGeneration->mapentity.get());
@@ -505,12 +517,46 @@ void GameServer::run() {
 			}
 		}
 		ents.clear();
+
+		static std::vector<std::shared_ptr<Entity>> spawnEnts;
+		world::getEntitiesWithComponents<Hydra::Component::SpawnerComponent>(spawnEnts);
+		for (size_t k = 0; k < spawnEnts.size(); k++) {
+			TransformComponent* ptc = spawnEnts[k]->getComponent<TransformComponent>().get();
+			float distance = FLT_MAX;
+			int target = -1;
+			for (size_t i = 0; i < this->_players.size(); i++) {
+				TransformComponent* tc = world::getEntity(this->_players[i]->entityid)->getComponent<TransformComponent>().get();
+				float f = glm::distance(ptc->position, tc->position);
+				if (f < distance) {
+					target = i;
+					distance = f;
+				}
+			}
+			auto spawn = spawnEnts[k]->getComponent<Hydra::Component::SpawnerComponent>().get();
+			if (target != -1) {
+				spawn->setTargetPlayer(world::getEntity(this->_players[target]->entityid));
+			}
+		}
+		spawnEnts.clear();
+
+
 		_deadSystem.tick(delta);
 		_physicsSystem.tick(delta);
 		_aiSystem.tick(delta);
 		_bulletSystem.tick(delta);
 		////_abilitySystem.tick(delta);
 		_spawnerSystem.tick(delta);
+		{
+			for (size_t i = 0; i < _spawnerSystem.didJustSpawn.size(); i++) {
+				auto e = _spawnerSystem.didJustSpawn[i];
+				_networkEntities.push_back(e->id);
+				auto p = createServerSpawnEntity(e);
+				_server->sendDataToAll((char*)p, p->len);
+				delete[](char*)p;
+			}
+		}
+
+
 		//_perkSystem.tick(delta);
 		_lifeSystem.tick(delta);
 		_pickupSystem.tick(delta);
@@ -589,18 +635,18 @@ void GameServer::run() {
 
 			_players.erase(std::remove_if(_players.begin(), _players.end(), [eID](const auto& p) { return p->entityid == eID; }), _players.end());
 		}
-		
-		//if (!Hydra::Component::AIComponent::componentHandler->getActiveComponents().size()) {
-		//	level++;
-		//	if (level == 2) {
-		//		ServerFreezePlayerPacket freeze;
-		//		freeze.action = ServerFreezePlayerPacket::Action::win;
-		//		_server->sendDataToAll((char*)&freeze, freeze.len);
-		//		level = 0;
-		//	}
-		//	
-		//	_makeWorld();
-		//}
+
+		if (!Hydra::Component::AIComponent::componentHandler->getActiveComponents().size()) {
+			level++;
+			if (level == 2) {
+				ServerFreezePlayerPacket freeze;
+				freeze.action = ServerFreezePlayerPacket::Action::win;
+				_server->sendDataToAll((char*)&freeze, freeze.len);
+				level = 0;
+			}
+			
+			_makeWorld();
+		}
 	}
 
 	//Send updated world to clients

@@ -38,7 +38,7 @@ namespace Hydra::Physics::Behaviour {
 		float idleTimer = 0.0;
 		float attackTimer = 0.0;
 		float newPathTimer = 0.0;
-		float newPathDelay = 3.0;
+		float newPathDelay = 1.0;
 		float spawnTimer = 0.0;
 		float phaseTimer = 0.0;
 		float regainRange = 0.0;
@@ -49,8 +49,8 @@ namespace Hydra::Physics::Behaviour {
 		int oldMapPosX = 0;
 		int oldMapPosZ = 0;
 
-		bool hasRequiredComponents = false;
 		bool playerUnreachable = false;
+		bool hasRequiredComponents = false;
 
 		PathFinding* pathFinding = nullptr;
 		bool doDiddeliDoneDatPathfinding = false;

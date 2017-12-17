@@ -70,7 +70,7 @@ namespace BarcodeServer {
 		void _randomizeRooms();
 		bool _generatePlayerSpawnPoints();
 		void _spawnRandomEnemy(glm::vec3 pos);
-		void _createSpawner(glm::vec3 pos);
+		void _createSpawner(std::shared_ptr<Hydra::World::Entity>& room, int id);
 		void _clearSpawnPoints();
 		void _spawnLight(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
 		glm::quat _rotateRoom(std::shared_ptr<Hydra::Component::RoomComponent>& room, uint8_t& rot);
