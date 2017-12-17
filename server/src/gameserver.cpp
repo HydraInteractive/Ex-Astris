@@ -100,8 +100,7 @@ void GameServer::_spawnBoss() {
 
 			auto a = BossAlien->addComponent<Hydra::Component::AIComponent>();
 			a->behaviour = std::make_shared<StationaryBoss>(BossAlien);
-
-			
+						
 			auto t = BossAlien->addComponent<Hydra::Component::TransformComponent>();
 			t->position = glm::vec3(45 + 150, 26, 3 + 150);
 			t->rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
@@ -182,7 +181,9 @@ void GameServer::_spawnBoss() {
 					w->ammoPerShot = 1;
 					w->bulletSize = 2.5f;
 					w->damage = 15;
-					w->currammo = 500000;
+					w->maxmagammo = 0;
+					w->currmagammo = 0;
+					w->maxammo = 0;
 					w->fireRateTimer = 1;
 
 					auto t = bossEntity->addComponent<Hydra::Component::TransformComponent>();
@@ -208,13 +209,13 @@ void GameServer::_spawnBoss() {
 					//t->position = glm::vec3(40 + 150, 20, 40 + 150);
 					//t->scale = glm::vec3{ 1,1,1 };
 					//t->rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
-
+					//
 					//auto rgbc = bossEntity->addComponent<Hydra::Component::RigidBodyComponent>();
 					//rgbc->createBox(glm::vec3(8.0f, 2.5f, 8.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 100.0f,
 					//	0, 0, 0.6f, 1.0f);
 					//rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableSimulation);
 					//rgbc->setAngularForce(glm::vec3(0));
-
+					//
 					//auto m = bossEntity->addComponent<Hydra::Component::MovementComponent>();
 					//m->movementSpeed = 25.0f;
 				}
@@ -224,7 +225,7 @@ void GameServer::_spawnBoss() {
 
 		{
 			//Hands
-			for (int i = 0; i < 2; i++) {
+			for (int i = 0; i < 1; i++) {
 				auto bossEntity = world::newEntity("BossHand1", world::root());
 				bossEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossHandModel2.mATTIC");
 				auto a = bossEntity->addComponent<Hydra::Component::AIComponent>();
@@ -242,6 +243,7 @@ void GameServer::_spawnBoss() {
 					t->scale = glm::vec3{ 1,1,1 };
 				}
 				else {
+					a->behaviour->handID = 1;
 					t->position = glm::vec3(30 + 150, 30, 40 + 150);
 					t->scale = glm::vec3{ -1,1,-1 };
 				}
@@ -256,9 +258,9 @@ void GameServer::_spawnBoss() {
 				w->fireRateTimer = 0.1f;
 				w->bulletsPerShot = 1;
 				w->damage = 7;
-				w->maxmagammo = 10000000;
-				w->currmagammo = 100000000;
-				w->maxammo = 100000000;
+				w->maxmagammo = 0;
+				w->currmagammo = 0;
+				w->maxammo = 0;
 				w->color[0] = 1;
 				w->color[1] = 0;
 				w->color[2] = 1;
@@ -267,7 +269,7 @@ void GameServer::_spawnBoss() {
 				w->onShoot = _onRobotShoot;
 
 				auto m = bossEntity->addComponent<Hydra::Component::MovementComponent>();
-				m->movementSpeed = 25.0f;
+				m->movementSpeed = 50.0f;
 			
 				//t->rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(1, 0, 0));
 				
