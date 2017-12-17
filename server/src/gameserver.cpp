@@ -334,7 +334,7 @@ void GameServer::_makeWorld() {
 	const size_t minRoomCount = 30;
 	const size_t maxRoomCount = 40;
 	while (true) {
-		level = 2;
+		//level = 2;
 		tries++;
 		//_tileGeneration->level = level;
 		if (level < 2) {
