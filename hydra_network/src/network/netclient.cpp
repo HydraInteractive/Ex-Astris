@@ -194,7 +194,7 @@ void NetClient::_resolvePackets() {
 			std::vector<glm::ivec2> closedList;
 			std::vector<glm::ivec2> pathToend;
 			//std::cout << "Vec2s recieved:" << sai->openList << " " << sai->closedList << " " << sai->pathToEnd << std::endl;
-			int i = 0;
+			size_t i = 0;
 			while (i < sai->openList * 2)
 			{
 				int x = sai->data[i];

@@ -480,7 +480,7 @@ void TileGeneration::_createSpawner(std::shared_ptr<Hydra::World::Entity>& room,
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
 	}
-	else if (id = 2) {
+	else if (id == 2) {
 		auto robotSpawner = world::newEntity("SpawnerRobot1", world::root());
 		robotSpawner->addComponent<Hydra::Component::NetworkSyncComponent>();
 		robotSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/Spawner.mATTIC");
