@@ -136,7 +136,7 @@ void SpawnerSystem::tick(float delta)
 
 							auto ws = robotSpawn->addComponent<Hydra::Component::WeaponComponent>();
 							ws->bulletSpread = 0.3f;
-							ws->fireRateRPM = 50;
+							ws->fireRateRPM = 70;
 							ws->bulletsPerShot = 1;
 							ws->damage = 6;
 							ws->bulletSize = 0.3;
