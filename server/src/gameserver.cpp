@@ -293,11 +293,16 @@ void GameServer::_makeWorld() {
 		level = 0;
 		tries++;
 		//_tileGeneration->level = level;
-		if(level < 2)
+		if (level < 2) {
 			_tileGeneration = std::make_unique<TileGeneration>(maxRoomCount, "assets/room/starterRoom.room", &GameServer::_onRobotShoot, static_cast<void*>(this));
+			_spawnerSystem.userdata = static_cast<void*>(this);
+			_spawnerSystem.onShoot = &GameServer::_onRobotShoot;
+		}
 		else {
 			_spawnBoss();
 			_tileGeneration = std::make_unique<TileGeneration>(1, "assets/BossRoom/Bossroom5.room", &GameServer::_onRobotShoot, static_cast<void*>(this));
+			_spawnerSystem.userdata = static_cast<void*>(this);
+			_spawnerSystem.onShoot = &GameServer::_onRobotShoot;
 			ServerFreezePlayerPacket freeze;
 			freeze.action = ServerFreezePlayerPacket::Action::noPVS;
 			_server->sendDataToAll((char*)&freeze, freeze.len);

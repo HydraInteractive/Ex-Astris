@@ -358,7 +358,7 @@ unsigned int AlienBehaviour::attackingState(float dt)
 		std::uniform_int_distribution<> randDmg(thisEnemy.ai->damage - 1, thisEnemy.ai->damage + 2);
 		glm::vec3 playerDir = glm::normalize(targetPlayer.transform->position - thisEnemy.transform->position);
 
-		if (attackTimer > 2.8)
+		if (attackTimer > 1.5)
 		{
 			if (playerUnreachable)
 			{
@@ -495,7 +495,7 @@ unsigned int RobotBehaviour::attackingState(float dt)
 		glm::vec3 right(forward.z, forward.y, -forward.x);
 
 		glm::vec3 bulletPos = thisEnemy.transform->position + glm::vec3(0, 2.0, 0) + (forward* 2.0f) - (right * 1.0f);
-		thisEnemy.weapon->shoot(bulletPos, playerDir, rotation, 15.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
+		thisEnemy.weapon->shoot(bulletPos, playerDir, rotation, 20.0f, Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
 	}
 	return state;
 }

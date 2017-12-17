@@ -79,6 +79,7 @@ void SpawnerSystem::tick(float delta)
 							hs->health = 80;
 
 							auto ws = alienSpawn->addComponent<Hydra::Component::WeaponComponent>();
+							ws->meshType = 4;
 							ws->bulletSpread = 0.2f;
 							ws->bulletsPerShot = 1;
 							ws->damage = 4;
@@ -86,8 +87,8 @@ void SpawnerSystem::tick(float delta)
 							ws->maxmagammo = 0;
 							ws->currmagammo = 0;
 							ws->maxammo = 0;
-							ws->userdata = _userdata;
-							ws->onShoot = _onRobotShoot;
+							ws->userdata = userdata;
+							ws->onShoot = onShoot;
 
 							auto ms = alienSpawn->addComponent<Hydra::Component::MovementComponent>();
 							ms->movementSpeed = 5.0f;
@@ -124,7 +125,7 @@ void SpawnerSystem::tick(float delta)
 							auto as = robotSpawn->addComponent<Hydra::Component::AIComponent>();
 							as->behaviour = std::make_shared<RobotBehaviour>(robotSpawn);
 							as->behaviour->setPathMap(spawner->map);
-							as->damage = 7;
+							as->damage = 6;
 							as->behaviour->originalRange = 18.0f;
 							as->behaviour->savedRange = as->behaviour->originalRange;
 							as->radius = 1;
@@ -137,13 +138,13 @@ void SpawnerSystem::tick(float delta)
 							ws->bulletSpread = 0.3f;
 							ws->fireRateRPM = 50;
 							ws->bulletsPerShot = 1;
-							ws->damage = 7;
+							ws->damage = 6;
 							ws->bulletSize = 0.3;
 							ws->maxmagammo = 0;
 							ws->currmagammo = 0;
 							ws->maxammo = 0;
-							ws->userdata = _userdata;
-							ws->onShoot = _onRobotShoot;
+							ws->userdata = userdata;
+							ws->onShoot = onShoot;
 
 							auto ms = robotSpawn->addComponent<Hydra::Component::MovementComponent>();
 							ms->movementSpeed = 3.0f;

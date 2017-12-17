@@ -7,8 +7,9 @@ namespace Hydra::System {
 	class HYDRA_PHYSICS_API SpawnerSystem final : public Hydra::World::ISystem{
 	public:
 		std::vector<Hydra::World::Entity*> didJustSpawn;	
-		Hydra::Component::WeaponComponent::onShoot_f _onRobotShoot;
-		void* _userdata;
+
+		Hydra::Component::WeaponComponent::onShoot_f onShoot;
+		void* userdata;
 
 		SpawnerSystem();
 		~SpawnerSystem() final;

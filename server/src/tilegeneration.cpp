@@ -119,7 +119,7 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 					{
 						_createSpawner(loadedRoom, 1);
 					}
-					else if (randomRobotSpawner <= 2)
+					else if (randomRobotSpawner <= 80)
 					{
 						_createSpawner(loadedRoom, 2);
 					}
@@ -293,6 +293,7 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 		h->health = 60;
 
 		auto w = alienEntity->addComponent<Hydra::Component::WeaponComponent>();
+		w->meshType = 4;
 		w->bulletSpread = 0.2f;
 		w->bulletsPerShot = 1;
 		w->damage = 4;
@@ -325,7 +326,7 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 		a->behaviour = std::make_shared<RobotBehaviour>(robotEntity);
 		a->behaviour->setPathMap(pathfindingMap);
 
-		a->damage = 7;
+		a->damage = 6;
 		a->behaviour->originalRange = 18;
 		a->behaviour->savedRange = a->behaviour->originalRange;
 		a->radius = 1;
@@ -338,7 +339,7 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 		w->bulletSpread = 0.3f;
 		w->fireRateRPM = 70;
 		w->bulletsPerShot = 1;
-		w->damage = 7;
+		w->damage = 6;
 		w->bulletSize = 0.3;
 		w->maxmagammo = 0;
 		w->currmagammo = 0;
@@ -378,6 +379,7 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 		h->health = 80;
 
 		auto w = alienEntity->addComponent<Hydra::Component::WeaponComponent>();
+		w->meshType = 4;
 		w->bulletSpread = 0.2f;
 		w->bulletsPerShot = 1;
 		w->damage = 4;

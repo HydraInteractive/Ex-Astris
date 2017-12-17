@@ -12,6 +12,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <hydra/component/playercomponent.hpp>
 #include <hydra/world/world.hpp>
+#include <hydra/component/weaponcomponent.hpp>
 
 using namespace Hydra::World;
 namespace Hydra::Component {
