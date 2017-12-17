@@ -52,8 +52,7 @@ vec3 getNormal(vec3 beginningVec){
 	animNormal += weight[2] * (getMatForNormal(animationTexture, jointIdx[2]) * beginningVec);
 	animNormal += weight[3] * (getMatForNormal(animationTexture, jointIdx[3]) * beginningVec);
 	return animNormal;
-};
-
+}
 
 void main() {
 	outData.position = getFinal(vec4(position, 1.0)).xyz;

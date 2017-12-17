@@ -28,13 +28,13 @@ enum string CFlagsHydraSoundLib = "-DHYDRA_SOUND_EXPORTS " ~ CFlagsLib;
 enum string CFlagsBarcodeExec = "-DBARCODE_EXPORTS -fuse-ld=gold " ~ CFlagsExecBase ~ warnings ~ " -Ibarcode/include " ~ SubProjectsInclude;
 enum string CFlagsServerExec = "-DSERVER_EXPORTS -fuse-ld=gold " ~ CFlagsExecBase ~ warnings ~ " -Iserver/include " ~ SubProjectsServerInclude;
 
-enum LFlagsHydraBaseLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodeproject.objs -Lobjs/barcodeproject.objs -fdiagnostics-color=always -lm -ldl -lSDL2";
-enum LFlagsHydraGraphicsLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodeproject.objs -Lobjs/barcodeproject.objs -fdiagnostics-color=always -ldl -lhydra -lGL -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer";
-enum LFlagsHydraNetworkLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodeproject.objs -Lobjs/barcodeproject.objs -fdiagnostics-color=always -lhydra -lhydra_graphics -lhydra_physics -lSDL2_net";
-enum LFlagsHydraPhysicsLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodeproject.objs -Lobjs/barcodeproject.objs -fdiagnostics-color=always -lhydra -lhydra_graphics -lSDL2 -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath -lSDL2_mixer";
-enum LFlagsHydraSoundLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,objs/barcodeproject.objs -Lobjs/barcodeproject.objs -fdiagnostics-color=always -lhydra -lhydra_graphics -lSDL2 -lSDL2_mixer";
-enum LFlagsBarcodeExec = optimization ~ " -rdynamic -Wl,--no-undefined -Wl,-rpath,. -Wl,-rpath,objs/barcodeproject.objs -Lobjs/barcodeproject.objs -fdiagnostics-color=always -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath -lSDL2_mixer " ~ SubProjectsLink;
-enum LFlagsServerExec = optimization ~ " -rdynamic -Wl,--no-undefined -Wl,-rpath,. -Wl,-rpath,objs/barcodeproject.objs -Lobjs/barcodeproject.objs -fdiagnostics-color=always -lSDL2 -lSDL2_net -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath " ~ SubProjectsServerLink;
+enum LFlagsHydraBaseLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,.reggae/objs/barcodeproject.objs -L.reggae/objs/barcodeproject.objs -fdiagnostics-color=always -lm -ldl -lSDL2";
+enum LFlagsHydraGraphicsLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,.reggae/objs/barcodeproject.objs -L.reggae/objs/barcodeproject.objs -fdiagnostics-color=always -ldl -lhydra -lGL -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer";
+enum LFlagsHydraNetworkLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,.reggae/objs/barcodeproject.objs -L.reggae/objs/barcodeproject.objs -fdiagnostics-color=always -lhydra -lhydra_graphics -lhydra_physics -lSDL2_net";
+enum LFlagsHydraPhysicsLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,.reggae/objs/barcodeproject.objs -L.reggae/objs/barcodeproject.objs -fdiagnostics-color=always -lhydra -lhydra_graphics -lSDL2 -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath -lSDL2_mixer";
+enum LFlagsHydraSoundLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,.reggae/objs/barcodeproject.objs -L.reggae/objs/barcodeproject.objs -fdiagnostics-color=always -lhydra -lhydra_graphics -lSDL2 -lSDL2_mixer";
+enum LFlagsBarcodeExec = optimization ~ " -rdynamic -Wl,--no-undefined -Wl,-rpath,. -Wl,-rpath,.reggae/objs/barcodeproject.objs -L.reggae/objs/barcodeproject.objs -fdiagnostics-color=always -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath -lSDL2_mixer " ~ SubProjectsLink;
+enum LFlagsServerExec = optimization ~ " -rdynamic -Wl,--no-undefined -Wl,-rpath,. -Wl,-rpath,.reggae/objs/barcodeproject.objs -L.reggae/objs/barcodeproject.objs -fdiagnostics-color=always -lSDL2 -lSDL2_net -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath " ~ SubProjectsServerLink;
 
 enum CC = "g++";
 //enum CC = "distcc g++";
@@ -84,9 +84,9 @@ Build myBuild() {
 	auto barcode = Target("barcodegame", LinkBarcodeExec, MakeObjects!("barcode/src/", CompileBarcodeExec), [libhydra, libhydra_graphics, libhydra_network, libhydra_physics, libhydra_sound]);
 	auto server = Target("barcodeserver", LinkServerExec, MakeObjects!("server/src/", CompileServerExec), [libhydra, libhydra_graphics, libhydra_network, libhydra_physics]);
 
-	auto project = Target.phony("barcodeproject", "(cp objs/barcodeproject.objs/barcodegame . || true); (cp objs/barcodeproject.objs/barcodeserver . || true)", [barcode, server]);
+	auto project = Target.phony("barcodeproject", "(cp .reggae/objs/barcodeproject.objs/barcodegame . || true); (cp .reggae/objs/barcodeproject.objs/barcodeserver . || true)", [barcode, server]);
 
-	auto dist = optional(Target.phony("dist", `tar cfz dist-$$(git describe --long --tags | sed 's/\([^-]*-\)g/r\1/').tar.xz barcodegame barcodeserver assets -C objs/barcodeproject.objs libhydra{,_{graphics,network,physics,sound}}.so`, [project]));
+	auto dist = optional(Target.phony("dist", `tar cfz dist-$$(git describe --long --tags | sed 's/\([^-]*-\)g/r\1/').tar.xz barcodegame barcodeserver assets -C .reggae/objs/barcodeproject.objs libhydra{,_{graphics,network,physics,sound}}.so`, [project]));
 
 	return Build(project, dist);
 }

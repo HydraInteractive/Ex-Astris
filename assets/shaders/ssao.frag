@@ -15,8 +15,6 @@ layout(location = 6) uniform mat4 view;
 layout(location = 7) uniform vec2 screenSize;
 layout(location = 11) uniform vec3 samples[kernelSize];
 
-const vec2 noiseScale = vec2(screenSize.x / 4, screenSize.y / 4);
-
 vec3 calcViewPos(vec2 uv, float depth) {
 	mat4 invProj = inverse(projection);
 	depth = depth * 2.0 - 1.0;
@@ -41,6 +39,7 @@ void main() {
 	//float bias = 0.025f;
 	//float kernelRadius = 0.5f;
 
+	const vec2 noiseScale = vec2(screenSize.x / 4, screenSize.y / 4);
 	vec3 randomVec = normalize(texture(texNoise, texCoords * noiseScale).xyz);
 
 	vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
