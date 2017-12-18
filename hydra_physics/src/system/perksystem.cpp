@@ -245,9 +245,9 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 		PerkChange(b, playerEntity);	
 		break;
 	}
-	case Hydra::Component::PerkComponent::PERK_TRIKENT: {
+	case Hydra::Component::PerkComponent::PERK_DUCK: {
 		ReadBullet b;
-		readFromFile("TriKent", b);
+		readFromFile("DangerousDuck", b);
 		PerkChange(b, playerEntity);
 		break;
 	}
