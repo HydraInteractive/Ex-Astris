@@ -690,9 +690,9 @@ void GameServer::run() {
 		if (!Hydra::Component::AIComponent::componentHandler->getActiveComponents().size() || (level == 2 && !world::getEntity(_bossID))) {
 			level++;
 			if (level > 2) {
-				//ServerFreezePlayerPacket freeze{};
-				//freeze.action = ServerFreezePlayerPacket::Action::win;
-				//_server->sendDataToAll((char*)&freeze, freeze.len);
+				ServerFreezePlayerPacket freeze{};
+				freeze.action = ServerFreezePlayerPacket::Action::win;
+				_server->sendDataToAll((char*)&freeze, freeze.len);
 
 				level = 0;
 				_makeWorld();
