@@ -334,9 +334,9 @@ void GameServer::_makeWorld() {
 	const size_t minRoomCount = 25;
 	const size_t maxRoomCount = 32;
 	while (true) {
-		//level = 2;
 		tries++;
 		//_tileGeneration->level = level;
+		level = 2;
 		if (level < 2) {
 			_tileGeneration = std::make_unique<TileGeneration>(maxRoomCount, "assets/room/starterRoom.room", &GameServer::_onRobotShoot, static_cast<void*>(this), level);
 			_spawnerSystem.userdata = static_cast<void*>(this);

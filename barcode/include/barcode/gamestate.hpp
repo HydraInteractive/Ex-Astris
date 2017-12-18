@@ -108,6 +108,7 @@ namespace Barcode {
 
 		bool _paused = false;
 		Hydra::World::EntityID _playerID;
+		Hydra::World::EntityID _shadowCastLight;
 		Hydra::Component::CameraComponent* _cc = nullptr;
 		Hydra::Component::TransformComponent* _playerTransform = nullptr;
 
