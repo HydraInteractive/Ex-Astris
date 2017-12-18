@@ -614,6 +614,13 @@ namespace Barcode {
 		auto t3 = lightEntity->addComponent<Hydra::Component::TransformComponent>();
 		t3->position = glm::vec3(153, 50, 153);
 		this_->miniMapOpen = false;
+		
+		{ // Music
+			if (MenuState::soundEnabled) {
+
+			}
+				//_soundFxSystem.startMusic("assets/sounds/flesh-edit-n-baws.mp3");
+		}
 	}
 
 	void GameState::_onUpdatePathMap(bool* map, void* userdata) {
