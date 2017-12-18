@@ -88,6 +88,12 @@ void GameServer::start() {
 	floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 
 	_makeWorld();
+
+
+	printf("\n\n\n\n");
+	printf("================SERVER INFO================\n");
+	printf("Server is now ready for players!\n");
+	printf("===========================================\n");
 }
 
 void GameServer::_spawnBoss() {
@@ -684,10 +690,16 @@ void GameServer::run() {
 				ServerFreezePlayerPacket freeze{};
 				freeze.action = ServerFreezePlayerPacket::Action::win;
 				_server->sendDataToAll((char*)&freeze, freeze.len);
-				level = 0;
-			}
 
-			_makeWorld();
+				level = 0;
+				_makeWorld();
+
+				printf("\n\n\n\n");
+				printf("================SERVER INFO================\n");
+				printf("The boss has been defeated, resetting server\n");
+				printf("===========================================\n");
+			} else
+				_makeWorld();
 		}
 	}
 
