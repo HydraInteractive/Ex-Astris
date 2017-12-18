@@ -48,7 +48,6 @@ namespace BarcodeServer {
 		void spawnDoors();
 		void spawnPickUps();
 		void spawnEnemies();
-		void createSpawner();
 		void finalize();
 
 		std::string getPathMapAsString();
@@ -72,6 +71,7 @@ namespace BarcodeServer {
 		bool _generatePlayerSpawnPoints();
 		void _spawnRandomEnemy(glm::vec3 pos);
 		void _clearSpawnPoints();
+		void _createSpawner(std::shared_ptr<Hydra::World::Entity>& room, int id);
 		void _spawnLight(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
 		glm::quat _rotateRoom(std::shared_ptr<Hydra::Component::RoomComponent>& room, uint8_t& rot);
 		glm::vec3 _gridToWorld(int x, int y);
