@@ -630,7 +630,7 @@ unsigned int BossHand_Left::smashState(float dt) {
 		if (hit == false) {
 	
 			if (glm::distance(thisEnemy.transform->position, targetPlayer.transform->position) < 10.1f) {
-				if (glm::distance(thisEnemy.transform->position.y, targetPlayer.transform->position.y) < 4.1f) {
+				if (glm::distance(thisEnemy.transform->position.y, targetPlayer.transform->position.y) < 4.5f) {
 					targetPlayer.life->applyDamage(10);
 					hit = true;
 					smashing = false;
@@ -660,15 +660,14 @@ unsigned int BossHand_Left::swipeState(float dt) {
 		}
 	}
 	if (hit == false) {
-		if (glm::distance(thisEnemy.transform->position, targetPlayer.transform->position) < 5.0f) {
+		if (glm::distance(thisEnemy.transform->position, targetPlayer.transform->position) < 10.0f) {
 			targetPlayer.life->applyDamage(10);
 			hit = true;
 		}
 	}
 	if (swiping == true) {
 		move(swipeFinish[handID]);
-		//thisEnemy.transform->position.z -= 0.1f;
-		if (glm::distance(thisEnemy.transform->position, swipeFinish[handID]) < 4.0f) {
+		if (glm::distance(thisEnemy.transform->position, swipeFinish[handID]) < 4.0f || hit) {
 			state = HandPhases::RETURN;
 			swiping = false;
 			hit = false;
@@ -857,7 +856,7 @@ unsigned int BossArm::shootState(float dt) {
 	int state = ArmPhases::SHOOT;
 
 	if (shot == false) {
-		thisEnemy.weapon->shoot(thisEnemy.transform->position, playerDir, glm::quat(), 90.0f,
+		thisEnemy.weapon->shoot(thisEnemy.transform->position, playerDir, glm::quat(), 75.0f,
 			Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
 	}
 	shot = true;

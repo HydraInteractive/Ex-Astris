@@ -162,7 +162,7 @@ namespace Barcode {
 
 		_dgp->render(cameraPos, *_cc, *_playerTransform);
 
-		if (enableHitboxDebug) {
+		if (enableHitboxDebug) { 
 			for (auto& kv : _hitboxBatch.batch.objects)
 				kv.second.clear();
 

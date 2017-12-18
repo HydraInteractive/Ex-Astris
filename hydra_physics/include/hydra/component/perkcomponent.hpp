@@ -25,6 +25,13 @@ namespace Hydra::Component {
 			PERK_RED,
 			PERK_GREEN,
 			PERK_SPREAD,
+			HP_UP1,
+			HP_UP2,
+			HP_UP3,
+			PERK_PURPLETRIDENT,
+			PERK_SNIPINGTRIDENT,
+			PERK_DMGUP1,
+			PERK_DMGDOWN1,
 			AMOUNTOFPERKS
 		};
 		std::vector<Perk> newPerks = std::vector<Perk>();
