@@ -162,7 +162,7 @@ namespace Barcode {
 
 		_dgp->render(cameraPos, *_cc, *_playerTransform);
 
-		if (enableHitboxDebug) {
+		if (enableHitboxDebug) { 
 			for (auto& kv : _hitboxBatch.batch.objects)
 				kv.second.clear();
 
@@ -233,7 +233,7 @@ namespace Barcode {
 				if (_hpTimeUp == 0)
 					_hpTimeUp = 1;
 
-				_hpTimeUp -= delta;
+				_hpTimeUp -= delta; 
 
 				if (_hpTimeUp >= 0) {
 					ImGui::SetNextWindowPos(ImVec2(0, 0));
