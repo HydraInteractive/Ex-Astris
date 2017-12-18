@@ -533,7 +533,7 @@ namespace Barcode {
 			const float PLAYER_HEIGHT = 3.25; // Make sure to update gamestate.cpp and netclient.cpp
 			rgbc->createBox(glm::vec3(1.0f, 2.0f, 1.0f) * t->scale, glm::vec3(0, 2 * t->scale.y - PLAYER_HEIGHT, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PLAYER, 100,
 				0, 0, 0.0f, 0);
-			rgbc->setAngularForce(glm::vec3(0, 0, 0));
+			rgbc->setAngularForce(glm::vec3(0, 0, 0)); 
 			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 
 			{
