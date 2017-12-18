@@ -310,7 +310,9 @@ private:
 			tempNormalFileName = new char[fileNameLength];
 			in.read(tempNormalFileName, fileNameLength);
 			fileName.append(tempNormalFileName, fileNameLength);
-			if (fileName != "NULL" && fileNameLength != 0)
+			if (fileName[0] == 'D' && fileName[1] == ':')
+				_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/LowPolyArmNormalMap.png");
+			else if (fileName != "NULL" && fileNameLength != 0)
 				_material.normal = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/normals/" + fileName);
 			else
 				_material.normal = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/normals/1x1ErrorNormal.png");

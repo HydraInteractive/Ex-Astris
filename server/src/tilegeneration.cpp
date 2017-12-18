@@ -52,7 +52,7 @@ void TileGeneration::buildMap() {
 	if(_level < 2)
 		_createMapRecursivly(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2));
 	else if (_level == 2) {
-		_setUpMiddleRoom("assets/BossRoom/Bossroom5.room");
+		//_setUpMiddleRoom("assets/BossRoom/Bossroom5.room");
 	}
 }
 
