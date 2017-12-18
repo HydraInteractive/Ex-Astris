@@ -599,7 +599,6 @@ unsigned int BossHand_Left::idleState(float dt) {
 	//Wait 2 seconds before next move
 	if (idleTimer >= 5.0f) {
 		int randomNextMove = rand() % 125;
-
 		if (randomNextMove < 30) {
 			Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Smash");
 			return HandPhases::SMASH;
@@ -747,6 +746,7 @@ unsigned int BossHand_Left::coverState(float dt) {
 	if (coverTimer >= 5) {
 		coverTimer = 0;
 		rotateToCover = false;
+		covering = false;
 		rotation = glm::angleAxis(glm::radians(0.0f), glm::vec3(0, 0, 1));
 		state = HandPhases::RETURN;
 	}

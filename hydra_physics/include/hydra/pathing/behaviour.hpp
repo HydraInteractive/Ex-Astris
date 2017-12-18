@@ -127,7 +127,7 @@ namespace Hydra::Physics::Behaviour {
 		glm::vec3 swipePosition[2] = { glm::vec3(135, 1, 210),glm::vec3(140, 1, 90) };
 		glm::vec3 swipeFinish[2] = { glm::vec3(135, 1, 160),glm::vec3(135, 1, 140) };
 		glm::vec3 canonPosition[2] = { glm::vec3(30 + 150, originalHeight, 25 + 150), glm::vec3(30 + 150, originalHeight, -25 + 150) };
-		glm::vec3 coverPosition[2] = { glm::vec3(180, 20, 160), glm::vec3(180, 20, 140) };
+		glm::vec3 coverPosition[2] = { glm::vec3(170, 20, 155), glm::vec3(170, 20, 145) };
 		glm::vec3 smashPosition[2] = { glm::vec3(0), glm::vec3(0) };
 		glm::vec3 lastPosition[2] = { glm::vec3(0), glm::vec3(0) };
 
@@ -212,7 +212,7 @@ namespace Hydra::Physics::Behaviour {
 
 		std::vector<glm::vec3> spawnPositions;
 
-		float spawnEnemiesAtPercentage[3] = { 2000.f, 1000.0f, 500.0f };
+		float spawnEnemiesAtPercentage[3] = { 2800.f, 1000.0f, 500.0f };
 		int spawnIndex = 0;
 		float idleTimer = 0.0f;
 		unsigned int idleState(float dt) final;
