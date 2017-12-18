@@ -28,7 +28,7 @@ enum string CFlagsHydraSoundLib = "-DHYDRA_SOUND_EXPORTS " ~ CFlagsLib;
 enum string CFlagsBarcodeExec = "-DBARCODE_EXPORTS -fuse-ld=gold " ~ CFlagsExecBase ~ warnings ~ " -Ibarcode/include " ~ SubProjectsInclude;
 enum string CFlagsServerExec = "-DSERVER_EXPORTS -fuse-ld=gold " ~ CFlagsExecBase ~ warnings ~ " -Iserver/include " ~ SubProjectsServerInclude;
 
-enum LFlagsHydraBaseLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,.reggae/objs/barcodeproject.objs -L.reggae/objs/barcodeproject.objs -fdiagnostics-color=always -lm -ldl -lSDL2";
+enum LFlagsHydraBaseLib = optimization ~ " -shared -Wl,--no-undefined -L.reggae/objs/barcodeproject.objs -fdiagnostics-color=always -lm -ldl -lSDL2";
 enum LFlagsHydraGraphicsLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,.reggae/objs/barcodeproject.objs -L.reggae/objs/barcodeproject.objs -fdiagnostics-color=always -ldl -lhydra -lGL -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer";
 enum LFlagsHydraNetworkLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,.reggae/objs/barcodeproject.objs -L.reggae/objs/barcodeproject.objs -fdiagnostics-color=always -lhydra -lhydra_graphics -lhydra_physics -lSDL2_net";
 enum LFlagsHydraPhysicsLib = optimization ~ " -shared -Wl,--no-undefined -Wl,-rpath,.reggae/objs/barcodeproject.objs -L.reggae/objs/barcodeproject.objs -fdiagnostics-color=always -lhydra -lhydra_graphics -lSDL2 -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath -lSDL2_mixer";

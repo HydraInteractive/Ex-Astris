@@ -1053,7 +1053,7 @@ unsigned int StationaryBoss::spawnState(float dt) {
 	//	rgbc->setAngularForce(glm::vec3(0));
 	//}
 	//maxSpawn *= 2;
-	//return state;
+	return state;
 }
 
 //unsigned int StationaryBoss::shootingState(float dt) {
