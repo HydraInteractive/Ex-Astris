@@ -16,7 +16,7 @@
 
 #include <btBulletDynamicsCommon.h>
 
-Behaviour::Behaviour(std::shared_ptr<Hydra::World::Entity> enemy)
+Behaviour::Behaviour(std::shared_ptr<Hydra::World::Entity> enemy) 
 {
 	thisEnemy.entity = enemy.get();
 	refreshRequiredComponents();
