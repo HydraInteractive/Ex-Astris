@@ -139,7 +139,8 @@ void PlayerSystem::tick(float delta) {
 			movement->velocity *= 10 / speed;
 
 		if (weapon->_isReloading) {
-			soundFx->soundsToPlay.push_back("assets/sounds/reloadE.ogg");
+			if (weapon->currmagammo < weapon->maxmagammo)
+				soundFx->soundsToPlay.push_back("assets/sounds/reloadE.ogg");
 			weapon->_isReloading = weapon->reload(delta);
 		}
 
