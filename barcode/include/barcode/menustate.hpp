@@ -43,22 +43,11 @@ namespace Barcode {
 	private:
 		enum class Menu : uint8_t {
 			none = 0,
-			play,
-			create,
 			options
 		};
 
 		union SubMenu {
 			uint8_t data;
-			enum class Play : uint8_t {
-				none = 0,
-				coop,
-				solo
-			} play;
-			enum class Create : uint8_t {
-				none = 0,
-				createRoom,
-			} create;
 			enum class Options : uint8_t {
 				none = 0,
 				visual,
@@ -66,8 +55,6 @@ namespace Barcode {
 			} options;
 
 			SubMenu(uint8_t d) : data(d) {}
-			SubMenu(Play p) : play(p) {}
-			SubMenu(Create c) : create(c) {}
 			SubMenu(Options o) : options(o) {}
 		};
 
@@ -86,8 +73,6 @@ namespace Barcode {
 		void _initSystem();
 		void _initWorld();
 
-		void _playMenu();
-		void _createMenu();
 		void _optionsMenu();
 
 		bool ipPopup = false;
