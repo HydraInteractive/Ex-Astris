@@ -120,7 +120,7 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 					{
 						_createSpawner(loadedRoom, 1);
 					}
-					else if (randomRobotSpawner <= 1)
+					else if (randomRobotSpawner <= 2)
 					{
 						_createSpawner(loadedRoom, 2);
 					}
@@ -571,49 +571,6 @@ void TileGeneration::_insertPathFindingMap(const glm::ivec2& room, uint8_t rot) 
 //This function should be called once per room
 void TileGeneration::spawnPickUps()
 {
-	//int randomChance = rand() % 100 + 1;
-	//if (randomChance < (int)PICKUP_CHANCE) {
-	//	glm::vec3 pos;
-	//	std::vector<std::shared_ptr<Hydra::World::Entity>> entities;
-	//	for (auto entid : room->children)
-	//	{
-	//		if (world::getEntity(entid)->hasComponent<Hydra::Component::SpawnPointComponent>())
-	//		{
-	//			entities.push_back(world::getEntity(entid));
-	//		}
-	//	}
-
-	//	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-	//	shuffle(entities.begin(), entities.end(), std::default_random_engine(seed));
-
-	//	for (size_t i = 0; i < entities.size(); i++) {
-	//		auto sp = entities[i]->getComponent<Hydra::Component::SpawnPointComponent>();
-	//		if (sp->perkSpawn && !entities[i]->dead) {
-	//			auto pickUpEntity = world::newEntity("PickUp", world::root());
-	//			pickUpEntity->addComponent<NetworkSyncComponent>();
-	//			auto tp = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
-	//			auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
-	//			t->dirty = true;
-	//			tp->position = t->getMatrix()[3];
-	//			tp->position.y = 3;
-
-	//			pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Lock.mATTIC");
-
-	//			auto pickUpC = pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
-
-	//			auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-	//			rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
-	//			rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-
-	//			auto lc = pickUpEntity->addComponent<Hydra::Component::LifeComponent>();
-	//			lc->health = lc->maxHP;
-
-	//			entities[i]->dead = true;
-	//		}
-	//	}
-	//}
-	//deadSystem.tick(0);
-
 	for (int x = 0; x < ROOM_GRID_SIZE; x++) {
 		for (int y = 0; y < ROOM_GRID_SIZE; y++) {
 			int randomChance = rand() % 100 + 1;
@@ -624,26 +581,32 @@ void TileGeneration::spawnPickUps()
 				if (room) {
 					for (auto id : world::getEntity(room->entityID)->children)
 					{
-						if (world::getEntity(id)->hasComponent<Hydra::Component::SpawnPointComponent>())
+						int otherSpawner = rand() % 101;
+						if (otherSpawner <= 70)
 						{
-							auto pos = world::getEntity(id)->getComponent<Hydra::Component::TransformComponent>();
+							if (world::getEntity(id)->hasComponent<Hydra::Component::SpawnPointComponent>())
+							{
+								if (!world::getEntity(id)->dead) {
+									auto pos = world::getEntity(id)->getComponent<Hydra::Component::TransformComponent>();
 
-							auto pickUpEntity = world::newEntity("PickUp", world::root());
-							pickUpEntity->addComponent<NetworkSyncComponent>();
-							auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
-							t->position = { pos->position.x + room->gridPosition.x * ROOM_SIZE + ROOM_SIZE / 2, 3, pos->position.z + room->gridPosition.y * ROOM_SIZE + ROOM_SIZE / 2 };
+									auto pickUpEntity = world::newEntity("PickUp", world::root());
+									pickUpEntity->addComponent<NetworkSyncComponent>();
+									auto t = pickUpEntity->addComponent<Hydra::Component::TransformComponent>();
+									t->position = { pos->position.x + room->gridPosition.x * ROOM_SIZE + ROOM_SIZE / 2, 3, pos->position.z + room->gridPosition.y * ROOM_SIZE + ROOM_SIZE / 2 };
 
-							pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Lock.mATTIC");
+									pickUpEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Lock.mATTIC");
 
-							auto pickUpC = pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
+									auto pickUpC = pickUpEntity->addComponent<Hydra::Component::PickUpComponent>();
 
-							auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
-							rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
-							rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+									auto rgbc = pickUpEntity->addComponent<Hydra::Component::RigidBodyComponent>();
+									rgbc->createBox(glm::vec3(2.0f, 1.5f, 1.7f), glm::vec3(0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_PICKUP_OBJECT, 10);
+									rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 
-							auto lc = pickUpEntity->addComponent<Hydra::Component::LifeComponent>();
-							lc->health = lc->maxHP;
-							break;
+									auto lc = pickUpEntity->addComponent<Hydra::Component::LifeComponent>();
+									lc->health = lc->maxHP;
+								}
+								break;
+							}
 						}
 					}
 				}
