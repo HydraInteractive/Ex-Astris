@@ -87,10 +87,10 @@ public:
 	std::vector<Node*> visitedList = std::vector<Node*>();
 	std::vector<Node*> openList = std::vector<Node*>();
 	bool** map = nullptr;
-
+	bool roomMap[ROOM_GRID_SIZE][ROOM_GRID_SIZE] = { false };
 	PathFinding();
 	virtual ~PathFinding();
-
+	void prePathfinding(MapVec origin, MapVec target);
 	bool findPath(glm::vec3 currentPos, glm::vec3 targetPos);
 	static MapVec worldToMapCoords(const glm::vec3& worldPos);
 	static glm::vec3 mapToWorldCoords(const MapVec& mapPos);

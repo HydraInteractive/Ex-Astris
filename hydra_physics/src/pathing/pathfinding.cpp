@@ -28,6 +28,11 @@ PathFinding::~PathFinding() {
 	delete _endNode;
 }
 
+void PathFinding::prePathfinding(MapVec origin, MapVec target)
+{
+
+}
+
 bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 {
 	if (map == nullptr)
@@ -57,6 +62,8 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 	//If either position is out of bounds, abort
 	if (isOutOfBounds(mapCurrentPos.baseVec) || isOutOfBounds(mapTargetPos.baseVec))
 		return false;
+
+	prePathfinding(mapCurrentPos, mapTargetPos);
 
 	_startNode = new Node(mapCurrentPos.x(), mapCurrentPos.z(), nullptr);
 	_endNode = new Node(mapTargetPos.x(), mapTargetPos.z(), nullptr);

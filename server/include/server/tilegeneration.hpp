@@ -32,7 +32,7 @@
 namespace BarcodeServer {
 	class TileGeneration {
 	public:
-		std::shared_ptr<Hydra::Component::RoomComponent> roomGrid[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
+		static std::shared_ptr<Hydra::Component::RoomComponent> roomGrid[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
 		bool** pathfindingMap = nullptr;
 		size_t maxRooms = 30;
 		size_t roomCounter = 0;

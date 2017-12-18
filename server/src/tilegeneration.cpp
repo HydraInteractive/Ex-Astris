@@ -24,6 +24,8 @@ using world = Hydra::World::World;
 
 using namespace BarcodeServer;
 
+std::shared_ptr<Hydra::Component::RoomComponent> TileGeneration::roomGrid[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
+
 TileGeneration::TileGeneration(size_t maxRooms, const std::string& middleRoomPath, Hydra::Component::WeaponComponent::onShoot_f onRobotShoot, void* userdata, int level) : maxRooms(maxRooms), _onRobotShoot(onRobotShoot), _userdata(userdata) {
 	_level = level;
 	mapentity = world::newEntity("Map", world::root());
