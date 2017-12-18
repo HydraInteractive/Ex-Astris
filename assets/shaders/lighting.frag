@@ -63,7 +63,7 @@ vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec4 objectColor){
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128);
 	vec3 specular = spec * objectColor.a * light.color;
 
-	float fadeout = min(1, max(0, 2*2 - pow(length(light.pos - cameraPos) / 34, 2) + 1));
+	float fadeout = min(1, max(0, 2*2*2 - pow(length(light.pos - cameraPos) / 34, 2) + 1));
 
 	return max(vec3(0, 0, 0), (specular + diffuse) * attenuation) * fadeout;
 }

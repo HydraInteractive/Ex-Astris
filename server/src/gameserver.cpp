@@ -87,7 +87,7 @@ void GameServer::start() {
 		, 0, 0, 0, 0.6f, 0);
 	floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 
-	level = 1;
+	level = 0;
 	_makeWorld();
 
 
@@ -115,8 +115,8 @@ void GameServer::_spawnBoss() {
 			t->rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
 
 			auto l = BossAlien->addComponent<Hydra::Component::LifeComponent>();
-			l->maxHP = 3000;
-			l->health = 3000;
+			l->maxHP = 5000;
+			l->health = 5000;
 
 			auto rgbc = BossAlien->addComponent<Hydra::Component::RigidBodyComponent>();
 			rgbc->createBox(glm::vec3(8.0f, 2.5f, 8.0f) * t->scale, glm::vec3(0, 0, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY, 0.0f,
@@ -378,7 +378,6 @@ void GameServer::_makeWorld() {
 	printf("\tTook %zu tries\n", tries);
 	_tileGeneration->spawnDoors();
 	_tileGeneration->spawnEnemies();
-	_tileGeneration->createSpawner();
 	_tileGeneration->spawnPickUps();
 	_tileGeneration->finalize();
 	_pathfindingMap = _tileGeneration->pathfindingMap;
