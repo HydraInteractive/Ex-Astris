@@ -378,7 +378,6 @@ void GameServer::_makeWorld() {
 	printf("\tTook %zu tries\n", tries);
 	_tileGeneration->spawnDoors();
 	_tileGeneration->spawnEnemies();
-	_tileGeneration->createSpawner();
 	_tileGeneration->spawnPickUps();
 	_tileGeneration->finalize();
 	_pathfindingMap = _tileGeneration->pathfindingMap;
