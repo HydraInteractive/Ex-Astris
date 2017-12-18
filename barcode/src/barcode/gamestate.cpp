@@ -606,17 +606,12 @@ namespace Barcode {
 		GameState* this_ = static_cast<GameState*>(userdata);
 		//AI Inspector
 		if (this_->aiInspector->pathMap != nullptr)
-		{
 			delete[] this_->aiInspector->pathMap;
-		}
 		this_->aiInspector->pathMap = map;
 		this_->aiInspector->reset();
 
 		//MiniMap
-		if (this_->miniMap->pathMap != nullptr)
-		{
-			delete[] this_->miniMap->pathMap;
-		}
+		// miniMap->pathMap is the same as aiInspector->pathMap
 		this_->miniMap->pathMap = map;
 		this_->miniMap->reset();
 	}

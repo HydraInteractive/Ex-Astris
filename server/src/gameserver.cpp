@@ -290,13 +290,13 @@ void GameServer::_spawnBoss() {
 void GameServer::_makeWorld() {
 	EntityID mapID = world::invalidID;
 	{
-		ServerFreezePlayerPacket freeze;
+		ServerFreezePlayerPacket freeze{};
 		freeze.action = ServerFreezePlayerPacket::Action::freeze;
 		_server->sendDataToAll((char*)&freeze, freeze.len);
 	}
 
 	{
-		ServerInitializePacket si;
+		ServerInitializePacket si{};
 		si.ti.pos = { (ROOM_GRID_SIZE / 2 + 0.5f) * ROOM_SIZE, 3, (ROOM_GRID_SIZE / 2 + 0.5f) * ROOM_SIZE };
 		si.ti.scale = { 1, 1, 1 };
 		si.ti.rot = glm::quat(1, 0, 0, 0);
@@ -306,7 +306,7 @@ void GameServer::_makeWorld() {
 		}
 	}
 
-	ServerDeleteEntityPacket dp;
+	ServerDeleteEntityPacket dp{};
 	if (_tileGeneration)
 		mapID = _tileGeneration->mapentity->id;
 
@@ -331,8 +331,8 @@ void GameServer::_makeWorld() {
 	_networkEntities.erase(std::remove_if(_networkEntities.begin(), _networkEntities.end(), [](const auto& e) {	return world::getEntity(e)->dead; }), _networkEntities.end());
 	_deadSystem.tick(0);
 	size_t tries = 0;
-	const size_t minRoomCount = 2;
-	const size_t maxRoomCount = 3;
+	const size_t minRoomCount = 25;
+	const size_t maxRoomCount = 32;
 	while (true) {
 		//level = 2;
 		tries++;
@@ -344,7 +344,7 @@ void GameServer::_makeWorld() {
 		}
 		else {
 			_tileGeneration = std::make_unique<TileGeneration>(1, "assets/BossRoom/Bossroom5.room", &GameServer::_onRobotShoot, static_cast<void*>(this), level);
-			ServerFreezePlayerPacket freeze;
+			ServerFreezePlayerPacket freeze{};
 			freeze.action = ServerFreezePlayerPacket::Action::noPVS;
 			_server->sendDataToAll((char*)&freeze, freeze.len);
 		}
@@ -515,7 +515,7 @@ void GameServer::_makeWorld() {
 		_networkEntities.push_back(entities[i]->id);
 
 	{
-		ServerFreezePlayerPacket freeze;
+		ServerFreezePlayerPacket freeze{};
 		freeze.action = ServerFreezePlayerPacket::Action::unfreeze;
 		_server->sendDataToAll((char*)&freeze, freeze.len);
 	}
@@ -608,7 +608,7 @@ void GameServer::run() {
 		//	for (size_t j = 0; j < _players.size(); j++) {
 		//		auto ptc = world::getEntity(_players[j]->entityid)->getComponent<TransformComponent>();
 		//		if (glm::distance(putc->position, ptc->position) < 10.f) {
-		//			ServerDeleteEntityPacket p;
+		//			ServerDeleteEntityPacket p{};
 		//			p.id = children[i]->id;
 		//			_server->sendDataToAllExcept((char*)&p, p.len, _players[j]->serverid);
 		//
@@ -676,7 +676,7 @@ void GameServer::run() {
 		if (!Hydra::Component::AIComponent::componentHandler->getActiveComponents().size()) {
 			level++;
 			if (level == 2) {
-				ServerFreezePlayerPacket freeze;
+				ServerFreezePlayerPacket freeze{};
 				freeze.action = ServerFreezePlayerPacket::Action::win;
 				_server->sendDataToAll((char*)&freeze, freeze.len);
 				level = 0;
@@ -871,12 +871,12 @@ bool GameServer::_addPlayer(int id) {
 		p->connected = true;
 		this->_players.push_back(p);
 		{
-			ServerFreezePlayerPacket freeze;
+			ServerFreezePlayerPacket freeze{};
 			freeze.action = ServerFreezePlayerPacket::Action::freeze;
 			_server->sendDataToClient((char*)&freeze, freeze.len, id);
 		}
 
-		ServerInitializePacket pi;
+		ServerInitializePacket pi{};
 		Entity* enttmp = World::newEntity("Player", World::root()).get();
 		enttmp->addComponent<PerkComponent>();
 		{
@@ -979,7 +979,7 @@ bool GameServer::_addPlayer(int id) {
 		delete[](char*)spp;
 
 		{
-			ServerFreezePlayerPacket freeze;
+			ServerFreezePlayerPacket freeze{};
 			if (level == 2) {
 				freeze.action = ServerFreezePlayerPacket::Action::noPVS;
 				_server->sendDataToClient((char*)&freeze, freeze.len, id);
