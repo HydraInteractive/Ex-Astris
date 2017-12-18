@@ -81,23 +81,32 @@ public:
 		bool operator==(Node& other) { return this->getF() == other.getF(); }
 		bool operator>(Node& other) { return this->getF() > other.getF(); }
 	};
+	
+	PathFinding();
+	virtual ~PathFinding();
+	static MapVec worldToMapCoords(const glm::vec3& worldPos);
+	static glm::vec3 mapToWorldCoords(const MapVec& mapPos);
 
-	bool foundGoal = false;
+	//PREPATHING
+	std::vector<Node*> roomVisitedList = std::vector<Node*>();
+	std::vector<Node*> roomOpenList = std::vector<Node*>();
+	static std::shared_ptr<Hydra::Component::RoomComponent> roomGrid[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
+	bool roomPathMap[ROOM_GRID_SIZE][ROOM_GRID_SIZE] = { false };
+
+	bool prePathfinding(MapVec origin, MapVec target);
+	static void setRoomGrid(std::shared_ptr<Hydra::Component::RoomComponent> roomGrid[ROOM_GRID_SIZE][ROOM_GRID_SIZE]);
+
+	//PATHING
 	std::vector<glm::vec3> pathToEnd = std::vector<glm::vec3>();
 	std::vector<Node*> visitedList = std::vector<Node*>();
 	std::vector<Node*> openList = std::vector<Node*>();
 	bool** map = nullptr;
-
-	PathFinding();
-	virtual ~PathFinding();
+	bool foundGoal = false;
 
 	bool findPath(glm::vec3 currentPos, glm::vec3 targetPos);
-	static MapVec worldToMapCoords(const glm::vec3& worldPos);
-	static glm::vec3 mapToWorldCoords(const MapVec& mapPos);
 	bool inLineOfSight(const glm::vec3& enemyPos, const glm::vec3& targetPos) const;
 	bool inWall(const glm::vec3 mapPos) const;
 	glm::vec3 findViableTile(glm::vec3 mapPos) const;
-
 	struct {
 		bool operator()(const Node* _Left, const Node* _Right) const
 		{
@@ -114,6 +123,12 @@ public:
 	} comparisonFunctor;
 
 private:
+	//PREPATHING
+	Node* originNode = nullptr;
+	Node* targetNode = nullptr;
+	void _discoverPrePathNode(int x, int z, Node* lastNode, size_t oppositeDir);
+
+	//PATHING
 	Node* _startNode = nullptr;
 	Node* _endNode = nullptr;
 

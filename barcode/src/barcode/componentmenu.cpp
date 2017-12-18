@@ -14,6 +14,7 @@
 #include <hydra/component/ghostobjectcomponent.hpp>
 #include <hydra/component/roomcomponent.hpp>
 #include <hydra/component/textcomponent.hpp>
+
 #include <hydra/component/spawnpointcomponent.hpp>
 #include <glm/gtc/type_ptr.hpp>
 using world = Hydra::World::World;
@@ -21,7 +22,7 @@ ComponentMenu::ComponentMenu()
 {
 	glm::vec3 size = glm::vec3(1.0f, 1.0f, 1.0f);
 }
-
+ 
 ComponentMenu::~ComponentMenu()
 {
 }
@@ -31,7 +32,7 @@ void ComponentMenu::render(bool &openBool, Hydra::System::BulletPhysicsSystem& p
 	ImGui::SetNextWindowSize(ImVec2(1000, 700), ImGuiCond_Once);
 	ImGui::Begin("Add component", &openBool, ImGuiWindowFlags_MenuBar);
 	_menuBar();
-
+	 
 	ImGui::Columns(3, "Columns");
 	ImGui::Text("Select entity");
 	if (getRoomEntity() != nullptr)

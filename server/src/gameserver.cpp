@@ -338,6 +338,7 @@ void GameServer::_makeWorld() {
 	const size_t minRoomCount = 25;
 	const size_t maxRoomCount = 32;
 	while (true) {
+		//level = 2;
 		tries++;
 		//_tileGeneration->level = level;
 		if (level < 2) {
@@ -372,6 +373,7 @@ void GameServer::_makeWorld() {
 	_tileGeneration->spawnPickUps();
 	_tileGeneration->finalize();
 	_pathfindingMap = _tileGeneration->pathfindingMap;
+	PathFinding::setRoomGrid(_tileGeneration->roomGrid);
 	std::vector<std::shared_ptr<Hydra::World::Entity>> allSpawners;
 	world::getEntitiesWithComponents<Hydra::Component::SpawnerComponent>(allSpawners);
 	for (int_openmp_t i = 0; i < (int_openmp_t)allSpawners.size(); i++) {
