@@ -129,11 +129,14 @@ namespace Hydra::Physics::Behaviour {
 		glm::vec3 canonPosition[2] = { glm::vec3(30 + 150, originalHeight, 25 + 150), glm::vec3(30 + 150, originalHeight, -25 + 150) };
 		glm::vec3 coverPosition[2] = { glm::vec3(180, 20, 160), glm::vec3(180, 20, 140) };
 		glm::vec3 smashPosition[2] = { glm::vec3(0), glm::vec3(0) };
+		glm::vec3 lastPosition[2] = { glm::vec3(0), glm::vec3(0) };
+
 
 		float idleTimer = 0.0f;
 		float coverTimer = 0.0f;
 		float stunTimer = 0.0f;
 		float waitToSmashTimer = 0.0f;
+		float stuckTimer = 0.0f;
 		bool stunned = false;
 		bool swiping = false;
 		bool smashing = false;

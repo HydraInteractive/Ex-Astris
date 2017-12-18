@@ -529,11 +529,21 @@ void BossHand_Left::run(float dt) {
 	thisEnemy.ai->debugState = state;
 
 	idleTimer += dt;
+	stuckTimer += dt;
 	//newPathTimer += dt;
 
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 500)
 	{
 		state = HandPhases::IDLEHAND;
+	}
+
+	//Prevent the hands from getting stuck
+	if (stuckTimer == 5.0f) {
+		lastPosition[handID] = thisEnemy.transform->position;
+		if (glm::distance(lastPosition[handID], thisEnemy.transform->position) < 2.0f) {
+			state = HandPhases::RETURN;
+			stuckTimer = 0;
+		}
 	}
 
 	switch (state)
