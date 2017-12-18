@@ -96,6 +96,7 @@ void GameServer::_spawnBoss() {
 		//Alien
 		{
 			auto BossAlien = world::newEntity("Boss Alien", world::root());
+			_bossID = BossAlien->id;
 			BossAlien->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/BossAlienModel.mATTIC");
 			BossAlien->addComponent<Hydra::Component::NetworkSyncComponent>();
 
@@ -339,7 +340,6 @@ void GameServer::_makeWorld() {
 	while (true) {
 		tries++;
 		//_tileGeneration->level = level;
-		level = 2;
 		if (level < 2) {
 			_tileGeneration = std::make_unique<TileGeneration>(maxRoomCount, "assets/room/starterRoom.room", &GameServer::_onRobotShoot, static_cast<void*>(this), level);
 			_spawnerSystem.userdata = static_cast<void*>(this);
@@ -676,9 +676,9 @@ void GameServer::run() {
 				_players.erase(std::remove_if(_players.begin(), _players.end(), [eID](const auto& p) { return p->entityid == eID; }), _players.end());
 			}
 		}
-		if (!Hydra::Component::AIComponent::componentHandler->getActiveComponents().size()) {
+		if (!Hydra::Component::AIComponent::componentHandler->getActiveComponents().size() || (level == 2 && !world::getEntity(_bossID))) {
 			level++;
-			if (level == 2) {
+			if (level > 2) {
 				ServerFreezePlayerPacket freeze{};
 				freeze.action = ServerFreezePlayerPacket::Action::win;
 				_server->sendDataToAll((char*)&freeze, freeze.len);
@@ -687,6 +687,11 @@ void GameServer::run() {
 
 			_makeWorld();
 		}
+	}
+
+	for (Player* p : _players) {
+#undef max
+		p->shootAnimation = std::max(0.0f, p->shootAnimation - delta);
 	}
 
 	//Send updated world to clients
@@ -763,7 +768,7 @@ void GameServer::_resolvePackets(std::vector<Hydra::Network::Packet*> packets) {
 		//printf("Resolving:\n\ttype: %s\n\tlen: %d\n", PacketTypeName[p->type], p->len);
 		switch (p->type) {
 		case PacketType::ClientUpdate:
-			resolveClientUpdatePacket((ClientUpdatePacket*)p, entity);
+			resolveClientUpdatePacket(player, (ClientUpdatePacket*)p, entity);
 			break;
 
 		case PacketType::ClientSpawnEntity:
@@ -903,6 +908,10 @@ bool GameServer::_addPlayer(int id) {
 				pi.ti.rot = tc->rotation;
 				pi.ti.scale = tc->scale;
 			}
+
+			auto mesh = enttmp->addComponent<Hydra::Component::MeshComponent>();
+			mesh->loadMesh("assets/objects/characters/PlayerModel2.mATTIC");
+			mesh->animationIndex = 1;
 
 			Hydra::Component::TransformComponent* tc = enttmp->addComponent<Hydra::Component::TransformComponent>().get();
 			auto life = enttmp->addComponent<Hydra::Component::LifeComponent>().get();

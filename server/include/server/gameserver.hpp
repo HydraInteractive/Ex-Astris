@@ -19,6 +19,7 @@ namespace BarcodeServer {
 		EntityID entityid = -1;
 		bool connected = false;
 		nlohmann::json bullet;
+		float shootAnimation = 0;
 
 		Player() {}
 	};
@@ -51,6 +52,7 @@ namespace BarcodeServer {
 			Hydra::Network::ServerID client, ai;
 		};
 		std::vector<SyncBoi> aiInspectorSync;
+		Hydra::World::EntityID _bossID;
 
 		Hydra::System::DeadSystem _deadSystem;
 		Hydra::System::AISystem _aiSystem;
