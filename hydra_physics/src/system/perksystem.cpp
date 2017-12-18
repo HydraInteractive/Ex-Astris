@@ -7,6 +7,7 @@
 #include <hydra/component/playercomponent.hpp>
 #include <hydra/component/perkcomponent.hpp>
 #include <hydra/component/movementcomponent.hpp>
+#include <hydra/component/lifecomponent.hpp>
 
 using namespace Hydra::System;
 using namespace Hydra::Component;
@@ -238,25 +239,97 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 		perkDescriptionText = "Lots of bullets, lots of recoil";
 		break;
 	}
-	case Hydra::Component::PerkComponent::PERK_RED: {
+	case Hydra::Component::PerkComponent::PERK_BANANA1: {
 		ReadBullet b;
 		readFromFile("Banana", b);
 		PerkChange(b, playerEntity);	
 		break;
 	}
-	case Hydra::Component::PerkComponent::PERK_GREEN: {
+	case Hydra::Component::PerkComponent::PERK_TRIKENT: {
 		ReadBullet b;
 		readFromFile("TriKent", b);
 		PerkChange(b, playerEntity);
 		break;
 	}
-	case Hydra::Component::PerkComponent::PERK_SPREAD: {
+	case Hydra::Component::PerkComponent::HP_DOWN1: {
+		playerEntity->getComponent<Hydra::Component::LifeComponent>()->maxHP -= 10;
+		perkDescriptionText = "HP Down!";
+		break;
+	}
+	case Hydra::Component::PerkComponent::HP_UP1: {
+		playerEntity->getComponent<Hydra::Component::LifeComponent>()->maxHP += 30;
+		playerEntity->getComponent<Hydra::Component::LifeComponent>()->health += 30;		
+		perkDescriptionText = "HP Up!";
+		break;
+	}
+	case Hydra::Component::PerkComponent::HP_UP2: {
+		playerEntity->getComponent<Hydra::Component::LifeComponent>()->maxHP += 30;
+		playerEntity->getComponent<Hydra::Component::LifeComponent>()->health += 30;
+		perkDescriptionText = "HP Up!";
+		break;
+	}
+	case Hydra::Component::PerkComponent::HP_UP3: {
+		playerEntity->getComponent<Hydra::Component::LifeComponent>()->maxHP += 30;
+		playerEntity->getComponent<Hydra::Component::LifeComponent>()->health += 30;
+		perkDescriptionText = "HP Up!";
+		break;
+	}
+	case Hydra::Component::PerkComponent::PERK_PURPLETRIDENT: {
 		ReadBullet b;
-		readFromFile("BulletSpread", b);
+		readFromFile("PurpleTrident", b);
 		PerkChange(b, playerEntity);
 		break;
 	}
-
+	case Hydra::Component::PerkComponent::PERK_DMGUP1: {
+		ReadBullet b;
+		readFromFile("DamageUp1", b);
+		PerkChange(b, playerEntity);
+		break;
+	}
+	case Hydra::Component::PerkComponent::PERK_DMGDOWN1: {
+		ReadBullet b;
+		readFromFile("DamageDown1", b);
+		PerkChange(b, playerEntity);
+		break;
+	}
+	case Hydra::Component::PerkComponent::PERK_SNIPINGTRIDENT: {
+		ReadBullet b;
+		readFromFile("SnipingTrident", b);
+		PerkChange(b, playerEntity);
+		break;
+	}
+	case Hydra::Component::PerkComponent::PERK_HPDMGSTAR1: {
+		ReadBullet b;
+		readFromFile("HpDmgStar1", b);
+		PerkChange(b, playerEntity);
+		playerEntity->getComponent<Hydra::Component::LifeComponent>()->maxHP += 30;
+		playerEntity->getComponent<Hydra::Component::LifeComponent>()->health += 30;
+		break;
+	}		
+	case Hydra::Component::PerkComponent::PERK_POSEIDONSCURSE: {
+		ReadBullet b;
+		readFromFile("PoseidonsCurse", b);
+		PerkChange(b, playerEntity);
+		break;
+	}
+	case Hydra::Component::PerkComponent::PERK_AMMOCAPDOWNDAMAGEUP1: {
+		ReadBullet b;
+		readFromFile("AmmoCapDownDamageUp1", b);
+		PerkChange(b, playerEntity);
+		break;
+	}
+	case Hydra::Component::PerkComponent::PERK_BULLETSEVERYWHERE: {
+		ReadBullet b;
+		readFromFile("BulletsEverywhere", b);
+		PerkChange(b, playerEntity);
+		break;
+	}
+	case Hydra::Component::PerkComponent::PERK_CALMDOWN: {
+		ReadBullet b;
+		readFromFile("CalmDown1", b);
+		PerkChange(b, playerEntity);
+		break;
+	}														  
 	default:
 		perkDescriptionText = "No perk";
 		break;

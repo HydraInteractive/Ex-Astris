@@ -188,6 +188,9 @@ void GameServer::_spawnBoss() {
 					w->currmagammo = 0;
 					w->maxammo = 0;
 					w->fireRateTimer = 1;
+					w->color[0] = 1.0f;
+					w->glow = true;
+					w->glowIntensity = 1.0f;
 					w->userdata = _tileGeneration->_userdata;
 					w->onShoot = _onRobotShoot;
 
