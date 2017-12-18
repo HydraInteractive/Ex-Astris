@@ -369,6 +369,7 @@ void GameServer::_makeWorld() {
 	_tileGeneration->spawnPickUps();
 	_tileGeneration->finalize();
 	_pathfindingMap = _tileGeneration->pathfindingMap;
+	PathFinding::setRoomGrid(_tileGeneration->roomGrid);
 	std::vector<std::shared_ptr<Hydra::World::Entity>> allSpawners;
 	world::getEntitiesWithComponents<Hydra::Component::SpawnerComponent>(allSpawners);
 	for (int_openmp_t i = 0; i < (int_openmp_t)allSpawners.size(); i++) {

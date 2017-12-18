@@ -24,8 +24,6 @@ using world = Hydra::World::World;
 
 using namespace BarcodeServer;
 
-std::shared_ptr<Hydra::Component::RoomComponent> TileGeneration::roomGrid[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
-
 TileGeneration::TileGeneration(size_t maxRooms, const std::string& middleRoomPath, Hydra::Component::WeaponComponent::onShoot_f onRobotShoot, void* userdata, int level) : maxRooms(maxRooms), _onRobotShoot(onRobotShoot), _userdata(userdata) {
 	_level = level;
 	mapentity = world::newEntity("Map", world::root());
@@ -482,7 +480,7 @@ void TileGeneration::_createSpawner(std::shared_ptr<Hydra::World::Entity>& room,
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
 	}
-	else if (id == 2) {
+	else if (id = 2) {
 		auto robotSpawner = world::newEntity("SpawnerRobot1", world::root());
 		robotSpawner->addComponent<Hydra::Component::NetworkSyncComponent>();
 		robotSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/Spawner.mATTIC");

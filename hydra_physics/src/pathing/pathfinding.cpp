@@ -9,7 +9,7 @@
 */
 
 #include <hydra/pathing/pathfinding.hpp>
-
+std::shared_ptr<Hydra::Component::RoomComponent> PathFinding::roomGrid[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
 PathFinding::PathFinding() {
 	openList = std::vector<Node*>();
 	visitedList = std::vector<Node*>();
@@ -28,11 +28,137 @@ PathFinding::~PathFinding() {
 	delete _endNode;
 }
 
-void PathFinding::prePathfinding(MapVec origin, MapVec target)
+bool PathFinding::prePathfinding(MapVec origin, MapVec target)
 {
+	for (int i = 0; i < ROOM_GRID_SIZE; i++)
+	{
+		for (int j = 0; j < ROOM_GRID_SIZE; j++)
+		{
+			roomPathMap[i][j] = false;
+		}
+	}
+	roomOpenList.clear();
+	roomVisitedList.clear();
+	origin.baseVec = origin.baseVec / ROOM_MAP_SIZE;
+	target.baseVec = target.baseVec / ROOM_MAP_SIZE;
 
+	if (origin.x() >= ROOM_GRID_SIZE || origin.z() >= ROOM_GRID_SIZE || origin.x() < 0 || origin.z() < 0)
+	{
+		return false;
+	}
+	if (target.x() >= ROOM_GRID_SIZE || target.z() >= ROOM_GRID_SIZE || target.x() < 0 || target.z() < 0)
+	{
+		return false;
+	}
+
+	originNode = new Node(origin.x(), origin.z(), nullptr);
+	targetNode = new Node(target.x(), target.z(), nullptr);
+
+	originNode->H = originNode->hDistanceTo(targetNode);
+	roomOpenList.push_back(originNode);
+
+	enum { NORTH, EAST, SOUTH, WEST };
+	while (!roomOpenList.empty())
+	{
+		Node* currentNode = roomOpenList.back();
+		roomVisitedList.push_back(roomOpenList.back());
+		roomOpenList.pop_back();
+
+		//End reached
+		if (currentNode->pos == targetNode->pos)
+		{
+			targetNode->lastNode = currentNode->lastNode;
+
+			Node* getPath = targetNode;
+
+			while (getPath != nullptr)
+			{
+				roomPathMap[getPath->pos.x()][getPath->pos.z()] = true;
+				getPath = getPath->lastNode;
+				
+			}
+			return true;
+		}
+		//Navigate map
+		else
+		{
+			if (roomGrid[currentNode->pos.x()][currentNode->pos.z()] == nullptr)
+			{
+				continue;
+			}
+			//East
+			if(roomGrid[currentNode->pos.x()][currentNode->pos.z()]->door[EAST])
+				_discoverPrePathNode(currentNode->pos.x() + 1, currentNode->pos.z(), currentNode, WEST);
+			//West
+			if (roomGrid[currentNode->pos.x()][currentNode->pos.z()]->door[WEST])
+				_discoverPrePathNode(currentNode->pos.x() - 1, currentNode->pos.z(), currentNode, EAST);
+			//North
+			if (roomGrid[currentNode->pos.x()][currentNode->pos.z()]->door[NORTH])
+				_discoverPrePathNode(currentNode->pos.x(), currentNode->pos.z() - 1, currentNode, SOUTH);
+			//South
+			if (roomGrid[currentNode->pos.x()][currentNode->pos.z()]->door[SOUTH])
+				_discoverPrePathNode(currentNode->pos.x(), currentNode->pos.z() + 1, currentNode, NORTH);
+		}
+	}
+	return false;
 }
+void PathFinding::_discoverPrePathNode(int x, int z, Node* lastNode, size_t oppositeDir)
+{
+	MapVec currentPos = MapVec(x, z);
+	if (currentPos.x() >= ROOM_GRID_SIZE || currentPos.z() >= ROOM_GRID_SIZE || currentPos.x() < 0 || currentPos.z() < 0)
+	{
+		return;
+	}
 
+	if (roomGrid[currentPos.x()][currentPos.z()] == nullptr)
+	{
+		return;
+	}
+	//If the room isn't open in this direction, don't go to it
+	if (!roomGrid[currentPos.x()][currentPos.z()]->door[oppositeDir])
+	{
+		return;
+	}
+
+	//If the node has already been visited, don't worry about it
+	for (size_t i = 0; i < roomVisitedList.size(); i++)
+	{
+		if (currentPos == roomVisitedList[i]->pos)
+		{
+			return;
+		}
+	}
+	Node* thisNode = nullptr;
+
+	//If this node exists in the open list, don't add it again
+	for (size_t i = 0; i < roomOpenList.size() && thisNode == nullptr; i++)
+	{
+		if (currentPos == roomOpenList[i]->pos)
+		{
+			thisNode = roomOpenList[i];
+		}
+	}
+	//This node hasn't been found before, add it to the open list
+	if (thisNode == nullptr)
+	{
+		thisNode = new Node(x, z, lastNode);
+		thisNode->G = INFINITY;
+		thisNode->H = INFINITY;
+		roomOpenList.push_back(thisNode);
+	}
+
+	//Check if this node has had a better path to it before
+	float thisPathF = lastNode->G + lastNode->gDistanceTo(thisNode) + thisNode->hDistanceTo(targetNode);
+	//If this is a better path than previously, replace the old path values
+	if (thisNode->getF() > thisPathF)
+	{
+		thisNode->G = lastNode->G + lastNode->gDistanceTo(thisNode);
+		thisNode->H = thisNode->hDistanceTo(targetNode);
+		thisNode->lastNode = lastNode;
+	}
+
+	std::sort(roomOpenList.begin(), roomOpenList.end(), comparisonFunctor);
+}
 bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 {
 	if (map == nullptr)
@@ -59,11 +185,14 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 
 	mapCurrentPos = worldToMapCoords(currentPos);
 	mapTargetPos = worldToMapCoords(targetPos);
+	
+	if (!prePathfinding(mapCurrentPos, mapTargetPos))
+	{
+		std::cout << "WARNING NO PREPATHING PATH FOUND, IS AI OUTSIDE OF MAP?" << std::endl;
+	}
 	//If either position is out of bounds, abort
 	if (isOutOfBounds(mapCurrentPos.baseVec) || isOutOfBounds(mapTargetPos.baseVec))
 		return false;
-
-	prePathfinding(mapCurrentPos, mapTargetPos);
 
 	_startNode = new Node(mapCurrentPos.x(), mapCurrentPos.z(), nullptr);
 	_endNode = new Node(mapTargetPos.x(), mapTargetPos.z(), nullptr);
@@ -74,7 +203,7 @@ bool PathFinding::findPath(glm::vec3 currentPos, glm::vec3 targetPos)
 	foundGoal = false;
 
 
-	while (!openList.empty() && !foundGoal && visitedList.size() < 500)
+	while (!openList.empty() && !foundGoal && visitedList.size() < 1000)
 	{
 		Node* currentNode = openList.back();
 		visitedList.push_back(openList.back());
@@ -140,7 +269,12 @@ bool PathFinding::isOutOfBounds(const glm::ivec2& vec) const
 		std::cout << "ERROR: NO PATHFINDING MAP\n";
 		return true;
 	}
-	if (map[vec.x][vec.y] == 0)
+	if (map[vec.x][vec.y] == false)
+	{
+		return true;
+	}
+	//std::cout << vec.x / ROOM_MAP_SIZE << " " << vec.y / ROOM_MAP_SIZE << std::endl;
+	if (roomPathMap[vec.x/ROOM_MAP_SIZE][vec.y/ROOM_MAP_SIZE] == false)
 	{
 		return true;
 	}
@@ -196,6 +330,17 @@ glm::vec3 PathFinding::findViableTile(glm::vec3 mapPos) const
 	}
 
 	return newPos;
+}
+
+void PathFinding::setRoomGrid(std::shared_ptr<Hydra::Component::RoomComponent> newRoomGrid[ROOM_GRID_SIZE][ROOM_GRID_SIZE])
+{
+	for (int i = 0; i < ROOM_GRID_SIZE; i++)
+	{
+		for (int j = 0; j < ROOM_GRID_SIZE; j++)
+		{
+			roomGrid[i][j] = newRoomGrid[i][j];
+		}
+	}
 }
 
 bool PathFinding::_inLineOfSight(const MapVec enemyPos, const MapVec playerPos) const
