@@ -46,7 +46,7 @@ namespace BarcodeServer {
 		std::unique_ptr<TileGeneration> _tileGeneration;
 		bool** _pathfindingMap = nullptr;
 		std::string _pvsData;
-		size_t level = 0;
+		size_t level = 1;
 		struct SyncBoi
 		{
 			Hydra::Network::ServerID client, ai;

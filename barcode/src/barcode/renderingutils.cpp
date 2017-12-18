@@ -292,7 +292,6 @@ namespace Barcode {
 			}
 		}
 
-
 		std::vector<Hydra::Component::PointLightComponent*> lights;
 		if (!disablePVS) {
 			lights = rs.lights;
@@ -313,7 +312,12 @@ namespace Barcode {
 					for (auto& l : _renderSets[y][x].lights)
 						lights.push_back(l);
 					for (auto doc : _renderSets[y][x].objects) {
+						if (!doc)
+							continue;
 						auto& drawObj = doc->drawObject;
+						if (!drawObj)
+							continue;
+
 						if (!drawObj->mesh)
 							continue;
 
@@ -329,9 +333,15 @@ namespace Barcode {
 		size_t lightCount = 0;
 		{
 			int shaderPos = 15;
-			std::sort(lights.begin(), lights.end(), [cameraPos](auto a, auto b) {
-				return glm::distance(glm::vec3(a->getTransformComponent()->getMatrix()[3]), cameraPos) < glm::distance(glm::vec3(b->getTransformComponent()->getMatrix()[3]), cameraPos);
-			});
+			lights.erase(std::remove_if(lights.begin(), lights.end(), [](auto& a) { 
+				return !a || !a->getTransformComponent(); }), lights.end());
+			if(lights.size() > 1)
+				std::sort(lights.begin(), lights.end(), [cameraPos](auto a, auto b) {
+				if (!a->getTransformComponent() || !b->getTransformComponent())
+					printf("AJABAAJAJAJAJAJAJA");
+				else
+					return glm::distance(glm::vec3(a->getTransformComponent()->getMatrix()[3]), cameraPos) < glm::distance(glm::vec3(b->getTransformComponent()->getMatrix()[3]), cameraPos);
+				});
 			auto last = std::unique(lights.begin(), lights.end());
 			lights.erase(last, lights.end());
 			for (; lightCount < std::min(lights.size(), (size_t)MAX_LIGHTS); lightCount++) {

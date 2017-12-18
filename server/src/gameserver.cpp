@@ -368,6 +368,7 @@ void GameServer::_makeWorld() {
 			_deadSystem.tick(0);
 		}
 		else {
+			_deadSystem.tick(0);
 			_spawnBoss();
 			break;
 		}
@@ -686,9 +687,9 @@ void GameServer::run() {
 		if (!Hydra::Component::AIComponent::componentHandler->getActiveComponents().size() || (level == 2 && !world::getEntity(_bossID))) {
 			level++;
 			if (level > 2) {
-				ServerFreezePlayerPacket freeze{};
-				freeze.action = ServerFreezePlayerPacket::Action::win;
-				_server->sendDataToAll((char*)&freeze, freeze.len);
+				//ServerFreezePlayerPacket freeze{};
+				//freeze.action = ServerFreezePlayerPacket::Action::win;
+				//_server->sendDataToAll((char*)&freeze, freeze.len);
 
 				level = 0;
 				_makeWorld();
@@ -742,19 +743,22 @@ void GameServer::_sendWorld() {
 	for (size_t i = 0; i < this->_networkEntities.size(); i++) {
 		ServerUpdatePacket::EntUpdate& entupdate = packet->data[i];
 		Entity* entity = world::getEntity(this->_networkEntities[i]).get();
-		this->_convertEntityToTransform(packet->data[i], this->_networkEntities[i]);
+		if (entity) {
+			this->_convertEntityToTransform(packet->data[i], this->_networkEntities[i]);
 
-		auto life = entity->getComponent<LifeComponent>();
-		if (life)
-			entupdate.life = life->health;
-		else
-			entupdate.life = INT32_MAX;
+			auto life = entity->getComponent<LifeComponent>();
+			if (life)
+				entupdate.life = life->health;
+			else
+				entupdate.life = INT32_MAX;
 
-		auto mesh = entity->getComponent<MeshComponent>();
-		if (mesh)
-			entupdate.animationIndex = mesh->animationIndex;
-		else
-			entupdate.animationIndex = 0;
+			auto mesh = entity->getComponent<MeshComponent>();
+			if (mesh)
+				entupdate.animationIndex = mesh->animationIndex;
+			else
+				entupdate.animationIndex = 0;
+		} else
+			this->_networkEntities.erase(_networkEntities.begin() + i);
 	}
 
 	this->_server->sendDataToAll((char*)packet, packet->len);

@@ -52,7 +52,7 @@ void TileGeneration::buildMap() {
 	if(_level < 2)
 		_createMapRecursivly(glm::ivec2(ROOM_GRID_SIZE / 2, ROOM_GRID_SIZE / 2));
 	else if (_level == 2) {
-
+		_setUpMiddleRoom("assets/BossRoom/Bossroom5.room");
 	}
 }
 
@@ -410,7 +410,7 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 
 //TODO: Randomize spawners
 void TileGeneration::_createSpawner(std::shared_ptr<Hydra::World::Entity>& room, int id) {
-	glm::vec3 pos;
+	/*glm::vec3 pos;
 	std::vector<std::shared_ptr<Hydra::World::Entity>> entities;
 	for (auto entid : room->children)
 	{
@@ -521,7 +521,7 @@ void TileGeneration::_createSpawner(std::shared_ptr<Hydra::World::Entity>& room,
 			0, 0, 0.6f, 1.0f);
 		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 		rgbc->setAngularForce(glm::vec3(0));
-	}
+	}*/
 }
 
 void TileGeneration::_clearSpawnPoints() {
@@ -624,14 +624,12 @@ void TileGeneration::_spawnLight(std::shared_ptr<Hydra::Component::TransformComp
 	}
 	else {
 		auto pl = world::newEntity("Pointlight-GENERATED", roomTransform->entityID);
-		pl->addComponent<Hydra::Component::TransformComponent>();
-		auto t = pl->getComponent<Hydra::Component::TransformComponent>();
+		auto t = pl->addComponent<Hydra::Component::TransformComponent>();
 		t->position.x = 0;
 		t->position.y = 50;
 		t->position.z = 0;
 		auto lc = pl->addComponent<Hydra::Component::PointLightComponent>();
 		lc->color = glm::vec3(20);
-
 	}
 #undef frand
 }
