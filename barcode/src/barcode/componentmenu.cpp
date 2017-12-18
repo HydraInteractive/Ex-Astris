@@ -21,7 +21,7 @@ ComponentMenu::ComponentMenu()
 {
 	glm::vec3 size = glm::vec3(1.0f, 1.0f, 1.0f);
 }
-
+ 
 ComponentMenu::~ComponentMenu()
 {
 }

@@ -529,12 +529,25 @@ void BossHand_Left::run(float dt) {
 	thisEnemy.ai->debugState = state;
 
 	idleTimer += dt;
+	stuckTimer += dt;
 	//newPathTimer += dt;
 
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 500)
 	{
 		state = HandPhases::IDLEHAND;
 	}
+
+	//Prevent the hands from getting stuck
+	if (stuckTimer >= 5.0f) {
+		if (glm::distance(lastPosition[handID], thisEnemy.transform->position) < 5.0f) {
+			state = HandPhases::RETURN;
+			stuckTimer = 0;
+		}
+		else
+			stuckTimer = 0;
+	}
+	else if(stuckTimer <= 0.2f)
+		lastPosition[handID] = thisEnemy.transform->position;
 
 	switch (state)
 	{
@@ -586,7 +599,6 @@ unsigned int BossHand_Left::idleState(float dt) {
 	//Wait 2 seconds before next move
 	if (idleTimer >= 5.0f) {
 		int randomNextMove = rand() % 125;
-
 		if (randomNextMove < 30) {
 			Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Smash");
 			return HandPhases::SMASH;
@@ -734,6 +746,7 @@ unsigned int BossHand_Left::coverState(float dt) {
 	if (coverTimer >= 5) {
 		coverTimer = 0;
 		rotateToCover = false;
+		covering = false;
 		rotation = glm::angleAxis(glm::radians(0.0f), glm::vec3(0, 0, 1));
 		state = HandPhases::RETURN;
 	}
@@ -913,8 +926,10 @@ void StationaryBoss::run(float dt) {
 	if (!hasRequiredComponents)
 		if (!refreshRequiredComponents())
 			return;
-	if (thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>()->health <= 0)
-		return;
+	if (thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>()->health <= 0) {
+
+	}
+		
 
 	//thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
 	thisEnemy.ai->debugState = state;
@@ -1054,12 +1069,6 @@ unsigned int StationaryBoss::spawnState(float dt) {
 	//maxSpawn *= 2;
 	return state;
 }
-
-//unsigned int StationaryBoss::shootingState(float dt) {
-//
-//
-//	
-//}
 
 void StationaryBoss::applySpawnPositions() {
 

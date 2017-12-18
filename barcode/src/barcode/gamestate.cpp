@@ -592,7 +592,7 @@ namespace Barcode {
 		GameState* this_ = static_cast<GameState*>(userdata);
 		this_->_engine->log(Hydra::LogLevel::error, "Have PVS: %zu", json.size());
 		this_->_dgp->updatePVS(std::move(json));
-	}
+	}  
 
 	void GameState::_onWin(void* userdata) {
 		GameState* this_ = static_cast<GameState*>(userdata);
