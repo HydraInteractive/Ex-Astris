@@ -293,6 +293,7 @@ public:
 				counter++;
 				continue;
 			}
+
 			mesh->getMaterial().diffuse->bind(0);
 			mesh->getMaterial().normal->bind(1);
 			mesh->getMaterial().specular->bind(2);

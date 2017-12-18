@@ -27,14 +27,14 @@
 #include <hydra/component/roomcomponent.hpp>
 #include <hydra/component/weaponcomponent.hpp>
 #include <hydra/system/deadsystem.hpp>
-#define PICKUP_CHANCE 100
+#define PICKUP_CHANCE 60
 
 namespace BarcodeServer {
 	class TileGeneration {
 	public:
 		std::shared_ptr<Hydra::Component::RoomComponent> roomGrid[ROOM_GRID_SIZE][ROOM_GRID_SIZE];
 		bool** pathfindingMap = nullptr;
-		size_t maxRooms = 30;
+		size_t maxRooms = 31;
 		size_t roomCounter = 0;
 		size_t numberOfPlayers = 4;
 		size_t numberOfEnemies = 40; //Can be per room or for the whole map depending on if the _spawnEnemies function is run once per room or after the whole map is generated
@@ -48,6 +48,7 @@ namespace BarcodeServer {
 		void spawnDoors();
 		void spawnPickUps();
 		void spawnEnemies();
+		void createSpawner();
 		void finalize();
 
 		std::string getPathMapAsString();
@@ -70,7 +71,6 @@ namespace BarcodeServer {
 		void _randomizeRooms();
 		bool _generatePlayerSpawnPoints();
 		void _spawnRandomEnemy(glm::vec3 pos);
-		void _createSpawner(std::shared_ptr<Hydra::World::Entity>& room, int id);
 		void _clearSpawnPoints();
 		void _spawnLight(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform);
 		glm::quat _rotateRoom(std::shared_ptr<Hydra::Component::RoomComponent>& room, uint8_t& rot);
