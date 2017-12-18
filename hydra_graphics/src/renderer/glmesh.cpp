@@ -284,11 +284,15 @@ private:
 				fileName.erase(fileName.size() - 2, fileName.size());
 				fileName.append("ng", fileNameLength - 2);
 			}
-
-			if (fileName != "NULL" && fileNameLength != 0)
-				_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/" + fileName);
+			if (name != "AlienBossModel") {
+				if (fileName != "NULL" && fileNameLength != 0)
+					_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/" + fileName);
+				else
+					_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/Floor_specular.png");
+			}
 			else
-				_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/Floor_specular.png");
+				_material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textures/AlienBossTexture.png");
+				
 			// _material.diffuse = IEngine::getInstance()->getState()->getTextureLoader()->getTexture("assets/textuers/1x1gray.png");
 
 			delete[] tempFileName;
