@@ -538,13 +538,16 @@ void BossHand_Left::run(float dt) {
 	}
 
 	//Prevent the hands from getting stuck
-	if (stuckTimer == 5.0f) {
-		lastPosition[handID] = thisEnemy.transform->position;
-		if (glm::distance(lastPosition[handID], thisEnemy.transform->position) < 2.0f) {
+	if (stuckTimer >= 5.0f) {
+		if (glm::distance(lastPosition[handID], thisEnemy.transform->position) < 5.0f) {
 			state = HandPhases::RETURN;
 			stuckTimer = 0;
 		}
+		else
+			stuckTimer = 0;
 	}
+	else if(stuckTimer <= 0.2f)
+		lastPosition[handID] = thisEnemy.transform->position;
 
 	switch (state)
 	{
