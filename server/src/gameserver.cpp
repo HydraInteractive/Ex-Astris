@@ -87,6 +87,7 @@ void GameServer::start() {
 		, 0, 0, 0, 0.6f, 0);
 	floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 
+	level = 1;
 	_makeWorld();
 
 
@@ -342,7 +343,7 @@ void GameServer::_makeWorld() {
 	_deadSystem.tick(0);
 	size_t tries = 0;
 	const size_t minRoomCount = 25;
-	const size_t maxRoomCount = 32;
+	const size_t maxRoomCount = 31;
 	while (true) {
 
 		tries++;
@@ -369,6 +370,7 @@ void GameServer::_makeWorld() {
 			_deadSystem.tick(0);
 		}
 		else {
+			_deadSystem.tick(0);
 			_spawnBoss();
 			break;
 		}
@@ -743,19 +745,22 @@ void GameServer::_sendWorld() {
 	for (size_t i = 0; i < this->_networkEntities.size(); i++) {
 		ServerUpdatePacket::EntUpdate& entupdate = packet->data[i];
 		Entity* entity = world::getEntity(this->_networkEntities[i]).get();
-		this->_convertEntityToTransform(packet->data[i], this->_networkEntities[i]);
+		if (entity) {
+			this->_convertEntityToTransform(packet->data[i], this->_networkEntities[i]);
 
-		auto life = entity->getComponent<LifeComponent>();
-		if (life)
-			entupdate.life = life->health;
-		else
-			entupdate.life = INT32_MAX;
+			auto life = entity->getComponent<LifeComponent>();
+			if (life)
+				entupdate.life = life->health;
+			else
+				entupdate.life = INT32_MAX;
 
-		auto mesh = entity->getComponent<MeshComponent>();
-		if (mesh)
-			entupdate.animationIndex = mesh->animationIndex;
-		else
-			entupdate.animationIndex = 0;
+			auto mesh = entity->getComponent<MeshComponent>();
+			if (mesh)
+				entupdate.animationIndex = mesh->animationIndex;
+			else
+				entupdate.animationIndex = 0;
+		} else
+			this->_networkEntities.erase(_networkEntities.begin() + i);
 	}
 
 	this->_server->sendDataToAll((char*)packet, packet->len);
@@ -967,6 +972,13 @@ bool GameServer::_addPlayer(int id) {
 			printf("Player connected with entity id: %zu\n", pi.entityid);
 		}
 
+
+		if (level == 2) {
+			ServerFreezePlayerPacket freeze{};
+			freeze.action = ServerFreezePlayerPacket::Action::noPVS;
+			_server->sendDataToClient((char*)&freeze, freeze.len, id);
+		}
+
 		{
 			ServerInitializePVSPacket* pvs = (ServerInitializePVSPacket*)new char[sizeof(ServerInitializePVSPacket) + _pvsData.size()];
 			*pvs = ServerInitializePVSPacket(_pvsData.size());
@@ -1006,10 +1018,6 @@ bool GameServer::_addPlayer(int id) {
 
 		{
 			ServerFreezePlayerPacket freeze{};
-			if (level == 2) {
-				freeze.action = ServerFreezePlayerPacket::Action::noPVS;
-				_server->sendDataToClient((char*)&freeze, freeze.len, id);
-			}
 			freeze.action = ServerFreezePlayerPacket::Action::unfreeze;
 			_server->sendDataToClient((char*)&freeze, freeze.len, id);
 		}

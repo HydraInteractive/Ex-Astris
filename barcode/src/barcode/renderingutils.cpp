@@ -292,12 +292,13 @@ namespace Barcode {
 			}
 		}
 
-
 		std::vector<Hydra::Component::PointLightComponent*> lights;
 		if (!disablePVS) {
 			lights = rs.lights;
 			for (auto doc : rs.objects) {
 				auto& drawObj = doc->drawObject;
+				if (!drawObj)
+					continue;
 				if (!drawObj->mesh)
 					continue;
 
@@ -307,28 +308,17 @@ namespace Barcode {
 				if (MenuState::shadowEnabled && drawObj->hasShadow)
 					_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
 			}
-		} else
-			for (int y = 0; y < ROOM_GRID_SIZE; y++)
-				for (int x = 0; x < ROOM_GRID_SIZE; x++) {
-					for (auto& l : _renderSets[y][x].lights)
-						lights.push_back(l);
-					for (auto doc : _renderSets[y][x].objects) {
-						auto& drawObj = doc->drawObject;
-						if (!drawObj->mesh)
-							continue;
-
-						_geometryBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-						objectCounter++;
-
-						if (MenuState::shadowEnabled && drawObj->hasShadow)
-							_shadowBatch.batch.objects[drawObj->mesh].push_back(drawObj->modelMatrix);
-					}
-				}
+		}
+		else {
+			for (auto& l : Hydra::Component::PointLightComponent::componentHandler->getActiveComponents())
+				lights.push_back(static_cast<Hydra::Component::PointLightComponent*>(l.get()));
+		}
 		const int MAX_LIGHTS = 24;
 
 		size_t lightCount = 0;
 		{
 			int shaderPos = 15;
+			lights.erase(std::remove_if(lights.begin(), lights.end(), [](auto& a) { return !a || !a->getTransformComponent(); }), lights.end());
 			std::sort(lights.begin(), lights.end(), [cameraPos](auto a, auto b) {
 				return glm::distance(glm::vec3(a->getTransformComponent()->getMatrix()[3]), cameraPos) < glm::distance(glm::vec3(b->getTransformComponent()->getMatrix()[3]), cameraPos);
 			});
@@ -554,6 +544,17 @@ namespace Barcode {
 	void DefaultGraphicsPipeline::updatePVS(nlohmann::json&& json) {
 		// First find rooms
 		std::shared_ptr<RoomComponent> rooms[ROOM_GRID_SIZE * ROOM_GRID_SIZE];
+
+		if (disablePVS) {
+			for (size_t y = 0; y < ROOM_GRID_SIZE; y++)
+				for (size_t x = 0; x < ROOM_GRID_SIZE; x++) {
+					auto& rs  = _renderSets[y][x];
+					rs.room.reset();
+					rs.objects.clear();
+					rs.lights.clear();
+				}
+			return;
+		}
 
 		auto gridToWorld = [](glm::ivec2 grid) {
 			const float xPos = (grid.x + 0.5f) * ROOM_SIZE;
