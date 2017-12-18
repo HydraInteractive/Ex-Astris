@@ -36,6 +36,8 @@ namespace Hydra::Component {
 			PERK_SNIPINGTRIDENT,
 			PERK_DMGUP1,
 			PERK_DMGDOWN1,
+			PERK_BULLETSEVERYWHERE,
+			PERK_CALMDOWN,
 			AMOUNTOFPERKS
 		};
 		std::vector<Perk> newPerks = std::vector<Perk>();

@@ -318,6 +318,18 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 		PerkChange(b, playerEntity);
 		break;
 	}
+	case Hydra::Component::PerkComponent::PERK_BULLETSEVERYWHERE: {
+		ReadBullet b;
+		readFromFile("BulletsEverywhere", b);
+		PerkChange(b, playerEntity);
+		break;
+	}
+	case Hydra::Component::PerkComponent::PERK_CALMDOWN: {
+		ReadBullet b;
+		readFromFile("CalmDown1", b);
+		PerkChange(b, playerEntity);
+		break;
+	}														  
 	default:
 		perkDescriptionText = "No perk";
 		break;
