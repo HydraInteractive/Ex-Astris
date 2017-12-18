@@ -24,7 +24,7 @@ namespace Hydra::Component {
 			PERK_FASTSHOWLOWDMG,
 			PERK_BANANA1,
 			PERK_GREEN,
-			PERK_TRIKENT,
+			PERK_DUCK,
 			HP_DOWN1,
 			HP_UP1,
 			HP_UP2,
