@@ -146,11 +146,11 @@ namespace Barcode {
 		_lightSystem.tick(delta);
 
 		static bool enableHitboxDebug = false;
-		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
+	/*	ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
 		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
 		ImGui::Checkbox("Enable SSAO", &MenuState::ssaoEnabled);
 		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);
-		ImGui::Checkbox("Enable Sound", &MenuState::soundEnabled);
+		ImGui::Checkbox("Enable Sound", &MenuState::soundEnabled);*/
 
 		const glm::vec3& cameraPos = _playerTransform->position;
 		auto viewMatrix = _cc->getViewMatrix();
@@ -613,24 +613,18 @@ namespace Barcode {
 		l->zFar = 64;
 		auto t3 = lightEntity->addComponent<Hydra::Component::TransformComponent>();
 		t3->position = glm::vec3(153, 50, 153);
+		this_->miniMapOpen = false;
 	}
 
 	void GameState::_onUpdatePathMap(bool* map, void* userdata) {
 		GameState* this_ = static_cast<GameState*>(userdata);
 		//AI Inspector
 		if (this_->aiInspector->pathMap != nullptr)
-		{
 			delete[] this_->aiInspector->pathMap;
-		}
-		this_->aiInspector->pathMap = map;
+		this_->aiInspector->pathMap = this_->miniMap->pathMap = map;
 		this_->aiInspector->reset();
 
 		//MiniMap
-		if (this_->miniMap->pathMap != nullptr)
-		{
-			delete[] this_->miniMap->pathMap;
-		}
-		this_->miniMap->pathMap = map;
 		this_->miniMap->reset();
 	}
 

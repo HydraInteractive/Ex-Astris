@@ -2,6 +2,7 @@
 #include <hydra/component/transformcomponent.hpp>
 #include <hydra/component/bulletcomponent.hpp>
 #include <hydra/component/rigidbodycomponent.hpp>
+#include <hydra/component/meshcomponent.hpp>
 #include <hydra/system/bulletphysicssystem.hpp>
 #include <server/server.hpp>
 #include <server/gameserver.hpp>
@@ -25,7 +26,7 @@ ServerPlayerPacket* BarcodeServer::createServerPlayerPacket(const std::string& n
 	return spp;
 }
 
-void BarcodeServer::resolveClientUpdatePacket(ClientUpdatePacket* cup, Hydra::World::EntityID entityID) {
+void BarcodeServer::resolveClientUpdatePacket(Player* p, ClientUpdatePacket* cup, Hydra::World::EntityID entityID) {
 	std::vector<Hydra::World::EntityID> children = World::root()->children;
 	if (cup->client == 1) {
 		int j = 0;
@@ -36,6 +37,16 @@ void BarcodeServer::resolveClientUpdatePacket(ClientUpdatePacket* cup, Hydra::Wo
 			auto entity = Hydra::World::World::World::getEntity(children[i]);
 			Hydra::Component::TransformComponent* tc = entity->getComponent<Hydra::Component::TransformComponent>().get();
 			if (tc != nullptr) {
+				auto mesh = entity->getComponent<Hydra::Component::MeshComponent>();
+
+				if (mesh) {
+					if (cup->ti.pos == tc->position)
+						mesh->animationIndex = p->shootAnimation > 0 ? 2 : 0;
+					else {
+						mesh->animationIndex = 1;
+						p->shootAnimation = 0;
+					}
+				}
 				tc->setPosition(cup->ti.pos);
 				tc->setScale(cup->ti.scale);
 				tc->setRotation(cup->ti.rot);
@@ -131,5 +142,11 @@ Hydra::World::Entity* BarcodeServer::resolveClientShootPacket(ClientShootPacket 
 		bps->enable(r.get());
 		r->setGravity(glm::vec3(0, 0, 0));
 	}
+
+	if (auto player = world::getEntity(p->entityid); player)
+		if (auto mesh = player->getComponent<Hydra::Component::MeshComponent>(); mesh) {
+			mesh->animationIndex = 2;
+			p->shootAnimation = 0.25;
+		}
 	return ptr.get();
 }

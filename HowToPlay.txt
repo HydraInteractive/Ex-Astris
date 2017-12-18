@@ -1,0 +1,22 @@
+Ex Astris
+=========
+
+1. How to play
+--------------
+
+1.1 Launching the server
+------------------------
+
+Launch barcodeserver.exe on your machine of choice, for maximum performance use
+a different PC than the one your use for playing.
+
+Don't connect to the server before it prints "Server is now ready for players!"
+
+
+1.2 Launching the client
+------------------------
+
+Launch barcodegame.exe and in the main menu choose 'Play'. Enter the address to
+the server machine, if you are hosting it on the same PC, use "127.0.0.1",
+and then press 'OK'. You will now connect to the server and be able to play the
+game.

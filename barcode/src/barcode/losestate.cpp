@@ -1,5 +1,6 @@
 #include <barcode/losestate.hpp>
 
+#include <barcode/gamestate.hpp>
 #include <barcode/menustate.hpp>
 
 #include <hydra/renderer/glrenderer.hpp>
@@ -75,6 +76,9 @@ namespace Barcode {
 			ImGui::Dummy(ImVec2(0, 64 * scale));
 			if (ImGui::Button("Main Menu", ImVec2((128 * 2 + 32) * scale, (64 + 32) * scale)))
 				_engine->setState<MenuState>();
+
+			if (ImGui::Button("Reconnect", ImVec2((128 * 2 + 32) * scale, (64 + 32) * scale)))
+				_engine->setState<GameState>();
 
 			ImGui::Dummy(ImVec2(0, 32 * scale));
 			if (ImGui::Button("Quit", ImVec2((128 * 2 + 32) * scale, (64 + 32) * scale)))

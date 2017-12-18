@@ -61,22 +61,8 @@ namespace Barcode {
 			ImGui::Begin("Main menu Play", nullptr, windowFlags);
 			{
 				auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/playSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/playTransparent.png")->getID());
-				if (ImGui::ImageButton(image, ImVec2(oneTenthX, oneEightY / 2), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
-					_menu = Menu::play;
-					_submenu = SubMenu::Play::none;
-				}
-			}
-			ImGui::End();
-
-			ImGui::SetNextWindowSize(ImVec2(oneTenthX, oneEightY / 2), ImGuiCond_Once);
-			ImGui::SetNextWindowPos(ImVec2(oneTenthX * 2 - (oneTenthX / 2), oneThirdY));
-			ImGui::Begin("Main menu Create", nullptr, windowFlags);
-			{
-				auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/createSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/createTransparent.png")->getID());
-				if (ImGui::ImageButton(image, ImVec2(oneTenthX, oneEightY / 2), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
-					_menu = Menu::create;
-					_submenu = SubMenu::Create::none;
-				}
+				if (ImGui::ImageButton(image, ImVec2(oneTenthX, oneEightY / 2), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
+					ipPopup = true;
 			}
 			ImGui::End();
 
@@ -106,12 +92,6 @@ namespace Barcode {
 		switch (_menu) {
 		case Menu::none:
 			break;
-		case Menu::play:
-			_playMenu();
-			break;
-		case Menu::create:
-			_createMenu();
-			break;
 		case Menu::options:
 			_optionsMenu();
 			break;
@@ -125,38 +105,24 @@ namespace Barcode {
 		ImGui::PopStyleColor();
 		ImGui::PopStyleColor();
 
-		if (_openDifficultyPopup) {
-			ImGui::OpenPopup("Select Difficulty");
-			_openDifficultyPopup = false;
+		if (ipPopup == true) {
+			ImGui::OpenPopup("IP and Port?");
+			ipPopup = false;
 		}
-
-		if (ImGui::BeginPopupModal("Select Difficulty", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-			ImGui::Text("Please select the difficulty you want");
-
-			static int item = 1;
-
-			static const char* items[] = { "Easy", "Normal", "Hard", "Über" };
-			static float values[] = { 2, 1, 0.5f, 0.25f };
-			ImGui::ListBoxHeader("Difficulty", IM_ARRAYSIZE(items));
-			ImGui::Columns(2);
-			for (int i = 0; i < IM_ARRAYSIZE(items); i++) {
-				if (ImGui::Selectable(items[i], item == i)) {
-					playerHPMultiplier = values[i];
-					item = i;
-				}
-				ImGui::NextColumn();
-				ImGui::Text("%3.0f%% Player HP", 100 * values[i]);
-				ImGui::NextColumn();
-			}
-			ImGui::Columns(1);
-			ImGui::ListBoxFooter();
-
-			ImGui::Separator();
-			if (ImGui::Button("Start"))
-				_engine->setState<Barcode::GameState>();
+		if (ImGui::BeginPopupModal("IP and Port?", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+			ImGui::InputText("Address", GameState::addr, sizeof(GameState::addr));
 			ImGui::SameLine();
-			if(ImGui::Button("Cancel"))
+			ImGui::InputInt("Port", &GameState::port);
+
+			if (ImGui::Button("OK", ImVec2(120, 0))) {
+				_engine->setState<GameState>();
 				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+				ipPopup = false;
+				ImGui::CloseCurrentPopup();
+			}
 			ImGui::EndPopup();
 		}
 	}
@@ -172,128 +138,6 @@ namespace Barcode {
 		world::newEntity("Menu entity", world::root());
 	}
 
-	void MenuState::_playMenu() {
-		{
-			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY * 2), ImGuiCond_Once);
-			ImGui::SetNextWindowPos(ImVec2(oneThirdX, oneHalfY - (oneEightY / 1.6)));
-			ImGui::Begin("Main menu 3", nullptr, windowFlags);
-			{
-				auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/coopSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/coopTransparent.png")->getID());
-				if (ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY * 2), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
-					_submenu = SubMenu::Play::coop;
-			}
-			ImGui::End();
-		}
-		{
-			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
-			ImGui::SetNextWindowPos(ImVec2(oneThirdX, twoThirdY));
-			ImGui::Begin("Main menu 4", nullptr, windowFlags);
-			{
-				auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/soloSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/soloTransparent.png")->getID());
-				if (ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
-					_submenu = SubMenu::Play::solo;
-			}
-			ImGui::End();
-		}
-		switch (_submenu.play) {
-		case SubMenu::Play::none:
-			break;
-		case SubMenu::Play::coop: {
-			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
-			ImGui::SetNextWindowPos(ImVec2(0, oneHalfY));
-			ImGui::Begin("Main menu 1", nullptr, windowFlags);
-			{
-				auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/hostSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/hostTransparent.png")->getID());
-				ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
-			}
-			ImGui::End();
-		}
-		{
-			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
-			ImGui::SetNextWindowPos(ImVec2(0, oneThirdY * 2));
-			ImGui::Begin("Main menu 2", nullptr, windowFlags);
-			{
-				auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/joinSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/joinTransparent.png")->getID());
-				if (ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
-					ipPopup = true;
-			}
-			ImGui::End();
-		}
-		{
-			if (ipPopup == true)
-				{
-					ImGui::OpenPopup("IP and Port?");
-					if (ImGui::BeginPopupModal("IP and Port?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-						{
-							std::string textline = "This action will overwrite the file at ... Continue?";
-							ImGui::Text("%s", textline.c_str());
-							ImGui::Separator();
-
-							ImGui::InputText("Address", GameState::addr, sizeof(GameState::addr));
-							ImGui::SameLine();
-							ImGui::InputInt("Port", &GameState::port);
-
-							if (ImGui::Button("OK", ImVec2(120, 0)))
-								{
-									//send to join function
-									_engine->setState<GameState>();
-									ImGui::CloseCurrentPopup();
-								}
-							ImGui::SameLine();
-							if (ImGui::Button("Cancel", ImVec2(120, 0)))
-								{
-									ipPopup = false;
-									ImGui::CloseCurrentPopup();
-								}
-							ImGui::EndPopup();
-						}
-				}
-		}
-		break;
-		case SubMenu::Play::solo: {
-			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
-			ImGui::SetNextWindowPos(ImVec2(oneThirdX * 2, oneHalfY));
-			ImGui::Begin("Main menu 5", nullptr, windowFlags);
-			{
-				auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/newSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/newTransparent.png")->getID());
-				if (ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
-					_openDifficultyPopup = true;
-			}
-			ImGui::End();
-		}
-			break;
-		}
-	}
-
-	void MenuState::_createMenu() {
-		{
-			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY * 2), ImGuiCond_Once);
-			ImGui::SetNextWindowPos(ImVec2(oneThirdX, oneHalfY - (oneEightY / 1.6)));
-			ImGui::Begin("Main menu 2 3", nullptr, windowFlags);
-			{
-				auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/createRoomSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/createRoomTransparent.png")->getID());
-				if (ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY * 2), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
-					_submenu = SubMenu::Create::createRoom;
-			}
-			ImGui::End();
-		}
-		switch (_submenu.create) {
-		case SubMenu::Create::none:
-			break;
-		case SubMenu::Create::createRoom:	{
-			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);
-			ImGui::SetNextWindowPos(ImVec2(0, oneHalfY));
-			ImGui::Begin("Main menu 2 1", nullptr, windowFlags);
-			{
-				auto image = ImGui::IsItemHovered() ? reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/nothingSelected.png")->getID()) : reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/ui/nothingTransparent.png")->getID());
-				if (ImGui::ImageButton(image, ImVec2(oneThirdX, oneEightY), ImVec2(0, 0), ImVec2(1, 1), 0, ImColor(0, 0, 0, 0), ImVec4(1, 1, 1, 1)))
-					_engine->setState<Barcode::EditorState>();
-			}
-			ImGui::End();
-		}
-			break;
-		}
-	}
 	void MenuState::_optionsMenu() {
 		{
 			ImGui::SetNextWindowSize(ImVec2(oneThirdX, oneEightY), ImGuiCond_Once);

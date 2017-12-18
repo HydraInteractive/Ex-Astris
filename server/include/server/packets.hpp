@@ -14,7 +14,7 @@ namespace BarcodeServer {
 	void createAndSendPlayerUpdateBulletPacket(Player* p, Server* s);
 	void createAndSendPlayerShootPacket(Player* p, Hydra::Network::ClientShootPacket* csp, Server* s);
 
-	void resolveClientUpdatePacket(Hydra::Network::ClientUpdatePacket* cup, Hydra::World::EntityID entityID);
+	void resolveClientUpdatePacket(Player* p, Hydra::Network::ClientUpdatePacket* cup, Hydra::World::EntityID entityID);
 	Hydra::World::Entity* resolveClientSpawnEntityPacket(Hydra::Network::ClientSpawnEntityPacket* csep, Hydra::World::EntityID entityID, Server* s);
 	void resolveClientUpdateBulletPacket(Hydra::Network::ClientUpdateBulletPacket* cubp, nlohmann::json& dest);
 	Hydra::World::Entity* resolveClientShootPacket(Hydra::Network::ClientShootPacket* csp, Player* p, Hydra::World::ISystem* bp);
