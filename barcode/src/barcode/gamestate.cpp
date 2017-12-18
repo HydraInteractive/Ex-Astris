@@ -510,7 +510,7 @@ namespace Barcode {
 
 		{ // Music
 			if (MenuState::soundEnabled)
-				_soundFxSystem.startMusic("assets/sounds/flesh-edit-n-baws.mp3");
+				_soundFxSystem.startMusic("assets/sounds/flesh.ogg");
 		}
 
 		{
@@ -615,12 +615,8 @@ namespace Barcode {
 		t3->position = glm::vec3(153, 50, 153);
 		this_->miniMapOpen = false;
 		
-		{ // Music
-			if (MenuState::soundEnabled) {
-
-			}
-				//_soundFxSystem.startMusic("assets/sounds/flesh-edit-n-baws.mp3");
-		}
+		if (MenuState::soundEnabled)
+			this_->_soundFxSystem.startMusic("assets/sounds/bossMusic.ogg");
 	}
 
 	void GameState::_onUpdatePathMap(bool* map, void* userdata) {
