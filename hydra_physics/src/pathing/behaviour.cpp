@@ -926,8 +926,10 @@ void StationaryBoss::run(float dt) {
 	if (!hasRequiredComponents)
 		if (!refreshRequiredComponents())
 			return;
-	if (thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>()->health <= 0)
-		return;
+	if (thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>()->health <= 0) {
+
+	}
+		
 
 	//thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
 	thisEnemy.ai->debugState = state;
@@ -1067,12 +1069,6 @@ unsigned int StationaryBoss::spawnState(float dt) {
 	//maxSpawn *= 2;
 	return state;
 }
-
-//unsigned int StationaryBoss::shootingState(float dt) {
-//
-//
-//	
-//}
 
 void StationaryBoss::applySpawnPositions() {
 
