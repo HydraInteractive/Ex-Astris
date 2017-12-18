@@ -426,7 +426,7 @@ void TileGeneration::_createSpawner(std::shared_ptr<Hydra::World::Entity>& room,
 	for (size_t i = 0; i < entities.size(); i++) {
 		auto sp = entities[i]->getComponent<Hydra::Component::SpawnPointComponent>();
 		if (sp->enemySpawn && !entities[i]->dead) {
-			auto t = entities[0]->getComponent<Hydra::Component::TransformComponent>();
+			auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 			t->dirty = true;
 			pos = t->getMatrix()[3];
 			entities[i]->dead = true;
