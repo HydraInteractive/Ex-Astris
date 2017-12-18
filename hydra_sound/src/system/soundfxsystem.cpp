@@ -17,7 +17,11 @@ using world = Hydra::World::World;
 
 SoundFxSystem::SoundFxSystem() {}
 SoundFxSystem::~SoundFxSystem() {
-	Mix_FreeMusic(music);
+	if (Mix_PlayingMusic())
+	{
+		Mix_HaltMusic();
+		Mix_FreeMusic(music);
+	}
 }
 
 void SoundFxSystem::tick(float delta) {
@@ -176,6 +180,11 @@ void Hydra::System::SoundFxSystem::removeChannelFromComponent(int channel){
 }
 
 void Hydra::System::SoundFxSystem::startMusic(std::string songPath){
+	if (Mix_PlayingMusic())
+	{
+		Mix_HaltMusic();
+		Mix_FreeMusic(music);
+	}
 	music = Mix_LoadMUS(songPath.c_str());
 	Mix_PlayMusic(music, -1);
 	Mix_VolumeMusic(MIX_MAX_VOLUME/4);
