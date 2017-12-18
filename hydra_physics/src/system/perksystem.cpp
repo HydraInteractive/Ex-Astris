@@ -349,6 +349,19 @@ void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const s
 		playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>()->bulletsPerShot += 1;
 		break;
 	}
+	case Hydra::Component::PerkComponent::PERK_PATIANCENINJA: {
+		ReadBullet b;
+		readFromFile("PatienceNinja", b);
+		PerkChange(b, playerEntity);
+		playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>()->bulletsPerShot += 1;
+		break;
+	}
+	case Hydra::Component::PerkComponent::PERK_CLUMSYNINJA: {
+		ReadBullet b;
+		readFromFile("ClumsyNinja", b);
+		PerkChange(b, playerEntity);
+		break;
+	}
 	default:
 		perkDescriptionText = "No perk";
 		break;

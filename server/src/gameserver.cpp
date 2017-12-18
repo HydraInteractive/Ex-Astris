@@ -87,6 +87,7 @@ void GameServer::start() {
 		, 0, 0, 0, 0.6f, 0);
 	floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 
+	level = 1;
 	_makeWorld();
 
 
@@ -342,8 +343,9 @@ void GameServer::_makeWorld() {
 	_deadSystem.tick(0);
 	size_t tries = 0;
 	const size_t minRoomCount = 25;
-	const size_t maxRoomCount = 32;
+	const size_t maxRoomCount = 31;
 	while (true) {
+
 		tries++;
 		//_tileGeneration->level = level;
 		if (level < 2) {
@@ -376,6 +378,7 @@ void GameServer::_makeWorld() {
 	printf("\tTook %zu tries\n", tries);
 	_tileGeneration->spawnDoors();
 	_tileGeneration->spawnEnemies();
+	_tileGeneration->createSpawner();
 	_tileGeneration->spawnPickUps();
 	_tileGeneration->finalize();
 	_pathfindingMap = _tileGeneration->pathfindingMap;
@@ -970,6 +973,13 @@ bool GameServer::_addPlayer(int id) {
 			printf("Player connected with entity id: %zu\n", pi.entityid);
 		}
 
+
+		if (level == 2) {
+			ServerFreezePlayerPacket freeze{};
+			freeze.action = ServerFreezePlayerPacket::Action::noPVS;
+			_server->sendDataToClient((char*)&freeze, freeze.len, id);
+		}
+
 		{
 			ServerInitializePVSPacket* pvs = (ServerInitializePVSPacket*)new char[sizeof(ServerInitializePVSPacket) + _pvsData.size()];
 			*pvs = ServerInitializePVSPacket(_pvsData.size());
@@ -1009,10 +1019,6 @@ bool GameServer::_addPlayer(int id) {
 
 		{
 			ServerFreezePlayerPacket freeze{};
-			if (level == 2) {
-				freeze.action = ServerFreezePlayerPacket::Action::noPVS;
-				_server->sendDataToClient((char*)&freeze, freeze.len, id);
-			}
 			freeze.action = ServerFreezePlayerPacket::Action::unfreeze;
 			_server->sendDataToClient((char*)&freeze, freeze.len, id);
 		}
