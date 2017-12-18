@@ -52,7 +52,7 @@ void NetClient::enableEntity(Entity* ent) {
 void NetClient::_sendUpdatePacket() {
 	Entity* tmp = world::getEntity(_myID).get();
 	if (tmp) {
-		ClientUpdatePacket cpup;
+		ClientUpdatePacket cpup{};
 		auto tc = tmp->getComponent<Hydra::Component::TransformComponent>();
 		auto cc = tmp->getComponent<Hydra::Component::CameraComponent>();
 		cpup.ti.pos = tc->position;
@@ -194,7 +194,7 @@ void NetClient::_resolvePackets() {
 			std::vector<glm::ivec2> closedList;
 			std::vector<glm::ivec2> pathToend;
 			//std::cout << "Vec2s recieved:" << sai->openList << " " << sai->closedList << " " << sai->pathToEnd << std::endl;
-			int i = 0;
+			size_t i = 0;
 			while (i < sai->openList * 2)
 			{
 				int x = sai->data[i];
@@ -232,7 +232,7 @@ void NetClient::_resolvePackets() {
 		_updateWorld(serverUpdate);
 
 	for (size_t i = 0; i < packets.size(); i++)
-		delete packets[i];
+		delete[] (char*)packets[i];
 }
 
 //ADD ENTITES IN ANY OTHER PLACE THAN ROOT?
@@ -355,16 +355,14 @@ bool NetClient::initialize(char* ip, int port) {
 
 void NetClient::shoot(Hydra::Component::TransformComponent * tc, const glm::vec3& direction) {
 	if (NetClient::_tcp.isConnected()) {
-		ClientShootPacket* csp = new ClientShootPacket();
+		ClientShootPacket csp{};
 
-		csp->direction = direction;
-		csp->ti.pos = tc->position;
-		csp->ti.scale = tc->scale;
-		csp->ti.rot = tc->rotation;
+		csp.direction = direction;
+		csp.ti.pos = tc->position;
+		csp.ti.scale = tc->scale;
+		csp.ti.rot = tc->rotation;
 
-		NetClient::_tcp.send(csp, sizeof(ClientShootPacket));
-
-		delete csp;
+		NetClient::_tcp.send(&csp, csp.len);
 	}
 }
 
@@ -413,7 +411,7 @@ void NetClient::requestAIInfo(Hydra::World::EntityID id)
 	{
 		return;
 	}
-	ClientRequestAIInfoPacket packet;
+	ClientRequestAIInfoPacket packet{};
 	packet.serverEntityID = serverID;
 	NetClient::_tcp.send((char*)&packet, packet.len);
 }
