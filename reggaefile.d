@@ -86,7 +86,7 @@ Build myBuild() {
 
 	auto project = Target.phony("barcodeproject", "(cp .reggae/objs/barcodeproject.objs/barcodegame . || true); (cp .reggae/objs/barcodeproject.objs/barcodeserver . || true)", [barcode, server]);
 
-	auto dist = optional(Target.phony("dist", `tar cfz dist-$$(git describe --long --tags | sed 's/\([^-]*-\)g/r\1/').tar.xz barcodegame barcodeserver assets -C .reggae/objs/barcodeproject.objs libhydra{,_{graphics,network,physics,sound}}.so`, [project]));
+	auto dist = optional(Target.phony("dist", `tar cfz linux64-dist-$$(git describe --long --tags | sed 's/\([^-]*-\)g/r\1/').tar.xz barcodegame barcodeserver HowToPlay.txt LICENSE bin/PVSTest assets -C .reggae/objs/barcodeproject.objs libhydra{,_{graphics,network,physics,sound}}.so -C ..`, []));
 
 	return Build(project, dist);
 }
