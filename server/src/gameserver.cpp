@@ -87,7 +87,7 @@ void GameServer::start() {
 		, 0, 0, 0, 0.6f, 0);
 	floor->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/Floor_v2.mATTIC");
 
-	level = 1;
+	level = 0;
 	_makeWorld();
 
 
