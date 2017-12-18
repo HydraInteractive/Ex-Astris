@@ -185,94 +185,94 @@ public:
 	}
 
 	void render(float delta) final {
-		constexpr float MiB = 1024.0f * 1024.0f;
-		if (ImGui::BeginMainMenuBar()) {
-			if (ImGui::BeginMenu("File")) {
-				ImGui::MenuItem("Log", nullptr, &_logWindow);
-				ImGui::MenuItem("Entity List", nullptr, &_entityWindow);
-				ImGui::MenuItem("Performance Window", nullptr, &_performanceWindow);
-				ImGui::Separator();
-				ImGui::MenuItem("ImGui Test Window", nullptr, &_testWindow);
-				ImGui::Separator();
-				if (ImGui::MenuItem("Quit"))
-						_view->quit();
-				ImGui::EndMenu();
-			}
+	///*	constexpr float MiB = 1024.0f * 1024.0f;
+	//	if (ImGui::BeginMainMenuBar()) {
+	//		if (ImGui::BeginMenu("File")) {
+	//			ImGui::MenuItem("Log", nullptr, &_logWindow);
+	//			ImGui::MenuItem("Entity List", nullptr, &_entityWindow);
+	//			ImGui::MenuItem("Performance Window", nullptr, &_performanceWindow);
+	//			ImGui::Separator();
+	//			ImGui::MenuItem("ImGui Test Window", nullptr, &_testWindow);
+	//			ImGui::Separator();
+	//			if (ImGui::MenuItem("Quit"))
+	//					_view->quit();
+	//			ImGui::EndMenu();
+	//		}
 
-			_engine->onMainMenu();
+	//	 _engine->onMainMenu();
 
-			static char buf[128];
-			float fps = ImGui::GetIO().Framerate;
+	//		static char buf[128];
+	//		float fps = ImGui::GetIO().Framerate;
 
-			const float ramReal = Hydra::Ext::getCurrentRSS() / MiB;
-			const float ramPeak = Hydra::Ext::getPeakRSS() / MiB;
-			const float vram = Hydra::Ext::getCurrentVRAM() / MiB;
-			const float vramMax = Hydra::Ext::getMaxVRAM() / MiB;
-			float ram = ramReal - vram;
-			if (Hydra::Ext::isVRAMDedicated())
-				ram = ramReal;
-			snprintf(buf, sizeof(buf), "Application average %.3f ms/frame (%.1f FPS) - RAM: %.2fMiB (Real: %.2fMiB / Peak %.2fMiB) - VRAM: %.2fMiB / %.2fMiB", 1000.0f / fps, fps, ram, ramReal, ramPeak, vram, vramMax);
+	//		const float ramReal = Hydra::Ext::getCurrentRSS() / MiB;
+	//		const float ramPeak = Hydra::Ext::getPeakRSS() / MiB;
+	//		const float vram = Hydra::Ext::getCurrentVRAM() / MiB;
+	//		const float vramMax = Hydra::Ext::getMaxVRAM() / MiB;
+	//		float ram = ramReal - vram;
+	//		if (Hydra::Ext::isVRAMDedicated())
+	//			ram = ramReal;
+	//		snprintf(buf, sizeof(buf), "Application average %.3f ms/frame (%.1f FPS) - RAM: %.2fMiB (Real: %.2fMiB / Peak %.2fMiB) - VRAM: %.2fMiB / %.2fMiB", 1000.0f / fps, fps, ram, ramReal, ramPeak, vram, vramMax);
 
-			auto indent = _view->getSize().x / 2 - ImGui::CalcTextSize(buf).x / 2;
+	//		auto indent = _view->getSize().x / 2 - ImGui::CalcTextSize(buf).x / 2;
 
-			ImGui::Indent(indent);
-			ImGui::Text("%s", buf);
-			ImGui::Unindent(indent);
+	//		ImGui::Indent(indent);
+	//		ImGui::Text("%s", buf);
+	//		ImGui::Unindent(indent);
 
-			ImGui::EndMainMenuBar();
-		}
+	//		ImGui::EndMainMenuBar();
+	//	}
 
-		{
-			constexpr int valueLen = 128;
-			static float fpsValues[valueLen] = {0};
-			static float ramValues[valueLen] = {0};
-			static float vramValues[valueLen] = {0};
+	//	{
+	//		constexpr int valueLen = 128;
+	//		static float fpsValues[valueLen] = {0};
+	//		static float ramValues[valueLen] = {0};
+	//		static float vramValues[valueLen] = {0};
 
-			static char fpsName[64] = {0};
-			static char ramName[64] = {0};
-			static char vramName[64] = {0};
+	//		static char fpsName[64] = {0};
+	//		static char ramName[64] = {0};
+	//		static char vramName[64] = {0};
 
-			static float counter = 0;
+	//		static float counter = 0;
 
-			counter += delta;
+	//		counter += delta;
 
-			if (counter >= 0.1f) {
-				counter -= 0.1f;
-				memmove(&fpsValues[0], &fpsValues[1], (valueLen - 1) * sizeof(float));
-				fpsValues[valueLen - 1] = ImGui::GetIO().Framerate;
-				snprintf(fpsName, sizeof(fpsName), "FPS: %.2f / %.3f ms/frame", fpsValues[valueLen - 1], 1000.0f / fpsValues[valueLen - 1]);
+	//		if (counter >= 0.1f) {
+	//			counter -= 0.1f;
+	//			memmove(&fpsValues[0], &fpsValues[1], (valueLen - 1) * sizeof(float));
+	//			fpsValues[valueLen - 1] = ImGui::GetIO().Framerate;
+	//			snprintf(fpsName, sizeof(fpsName), "FPS: %.2f / %.3f ms/frame", fpsValues[valueLen - 1], 1000.0f / fpsValues[valueLen - 1]);
 
-				memmove(&ramValues[0], &ramValues[1], (valueLen - 1) * sizeof(float));
-				ramValues[valueLen - 1] = (Hydra::Ext::getCurrentRSS() - Hydra::Ext::getCurrentVRAM()) / MiB;
-				snprintf(ramName, sizeof(ramName), "RAM: %.2f MiB", ramValues[valueLen - 1]);
+	//			memmove(&ramValues[0], &ramValues[1], (valueLen - 1) * sizeof(float));
+	//			ramValues[valueLen - 1] = (Hydra::Ext::getCurrentRSS() - Hydra::Ext::getCurrentVRAM()) / MiB;
+	//			snprintf(ramName, sizeof(ramName), "RAM: %.2f MiB", ramValues[valueLen - 1]);
 
-				memmove(&vramValues[0], &vramValues[1], (valueLen - 1) * sizeof(float));
-				vramValues[valueLen - 1] = Hydra::Ext::getCurrentVRAM() / MiB;
-				snprintf(vramName, sizeof(vramName), "VRAM: %.2f MiB", vramValues[valueLen - 1]);
-			}
+	//			memmove(&vramValues[0], &vramValues[1], (valueLen - 1) * sizeof(float));
+	//			vramValues[valueLen - 1] = Hydra::Ext::getCurrentVRAM() / MiB;
+	//			snprintf(vramName, sizeof(vramName), "VRAM: %.2f MiB", vramValues[valueLen - 1]);
+	//		}
 
-			if (_performanceWindow) {
-				ImGui::SetNextWindowPos(ImVec2(_view->getSize().x - (300 + 16), 24), ImGuiCond_Always);
-				//ImGui::SetNextWindowSize(ImVec2(300 + 16, 300 + 24), ImGuiCond_Always);
-				ImGui::Begin("Performance monitor", &_performanceWindow, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
-				//ImGui::Text("Counter: %f", counter);
-				ImGui::PlotHistogram("##FPS", fpsValues, valueLen, 0, fpsName, FLT_MAX, FLT_MAX, ImVec2(300, 100));
-				ImGui::PlotHistogram("##RAM", ramValues, valueLen, 0, ramName, FLT_MAX, FLT_MAX, ImVec2(300, 100));
-				ImGui::PlotHistogram("##VRAM", vramValues, valueLen, 0, vramName, FLT_MAX, FLT_MAX, ImVec2(300, 100));
-				ImGui::End();
-			}
-		}
+	//		if (_performanceWindow) {
+	//			ImGui::SetNextWindowPos(ImVec2(_view->getSize().x - (300 + 16), 24), ImGuiCond_Always);
+	//			ImGui::SetNextWindowSize(ImVec2(300 + 16, 300 + 24), ImGuiCond_Always);
+	//			ImGui::Begin("Performance monitor", &_performanceWindow, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
+	//			ImGui::Text("Counter: %f", counter);
+	//			ImGui::PlotHistogram("##FPS", fpsValues, valueLen, 0, fpsName, FLT_MAX, FLT_MAX, ImVec2(300, 100));
+	//			ImGui::PlotHistogram("##RAM", ramValues, valueLen, 0, ramName, FLT_MAX, FLT_MAX, ImVec2(300, 100));
+	//			ImGui::PlotHistogram("##VRAM", vramValues, valueLen, 0, vramName, FLT_MAX, FLT_MAX, ImVec2(300, 100));
+	//			ImGui::End();
+	//		}
+	//	}
 
-		_engine->getRenderer()->showGuizmo();
+	//	_engine->getRenderer()->showGuizmo();
 
-		if (_logWindow)
-			_log->render(&_logWindow);
+	//	if (_logWindow)
+	//		_log->render(&_logWindow);
 
-		if (_entityWindow)
-			_renderEntityWindow();
+	//	if (_entityWindow)
+	//		_renderEntityWindow();
 
-		if (_testWindow)
-			ImGui::ShowTestWindow(&_testWindow);
+	//	if (_testWindow)
+	//		ImGui::ShowTestWindow(&_testWindow);*/
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0); // Bind the screen (0)
 		ImGui::Render();

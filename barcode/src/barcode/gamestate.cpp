@@ -144,11 +144,11 @@ namespace Barcode {
 		_lightSystem.tick(delta);
 
 		static bool enableHitboxDebug = false;
-		ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
+		/*ImGui::Checkbox("Enable Hitbox Debug", &enableHitboxDebug);
 		ImGui::Checkbox("Enable Glow", &MenuState::glowEnabled);
 		ImGui::Checkbox("Enable SSAO", &MenuState::ssaoEnabled);
 		ImGui::Checkbox("Enable Shadow", &MenuState::shadowEnabled);
-		ImGui::Checkbox("Enable Sound", &MenuState::soundEnabled);
+		ImGui::Checkbox("Enable Sound", &MenuState::soundEnabled);*/
 
 		const glm::vec3& cameraPos = _playerTransform->position;
 		auto viewMatrix = _cc->getViewMatrix();
@@ -227,7 +227,7 @@ namespace Barcode {
 			const int x = _engine->getView()->getSize().x / 2;
 			const ImVec2 pos = ImVec2(x, _engine->getView()->getSize().y / 2);
 
-			if (_prevHP > hpP) {
+		/*	if (_prevHP > hpP) {
 				if (_hpTimeUp == 0)
 					_hpTimeUp = 1;
 
@@ -244,7 +244,7 @@ namespace Barcode {
 					_prevHP = hpP;
 					_hpTimeUp = 0;
 				}
-			}
+			}*/
 			//Crosshair
 			ImGui::SetNextWindowPos(ImVec2(-10 + pos.x, 1 + pos.y));
 			ImGui::SetNextWindowSize(ImVec2(20, 20));
@@ -252,7 +252,7 @@ namespace Barcode {
 			ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Crosshair.png")->getID()), ImVec2(20, 20));
 			ImGui::End();
 
-			//AimRing
+			// AimRing
 			ImGui::SetNextWindowPos(ImVec2(-51 + pos.x, -42 + pos.y));
 			ImGui::SetNextWindowSize(ImVec2(120, 120));
 			ImGui::Begin("AimRing", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
@@ -379,84 +379,84 @@ namespace Barcode {
 				i++;
 			}
 
-			//Dynamic cooldown dots
-			auto perk = Hydra::World::World::getEntity(_playerID)->getComponent<PerkComponent>();
+			////Dynamic cooldown dots
+			//auto perk = Hydra::World::World::getEntity(_playerID)->getComponent<PerkComponent>();
 
-			size_t amountOfActives = perk->activeAbilities.size();
+			//size_t amountOfActives = perk->activeAbilities.size();
 
-			int *coolDownList = new int[perk->activeAbilities.size()];
+			//int *coolDownList = new int[perk->activeAbilities.size()];
 
-			int step = 0;
-			for (auto usable : perk->activeAbilities)
-				coolDownList[step++] = usable->cooldown;
+			//int step = 0;
+			//for (auto usable : perk->activeAbilities)
+			//	coolDownList[step++] = usable->cooldown;
 
-			float pForEatchDot = float(1) / float(amountOfActives);
-			float stepSize = float(70) * pForEatchDot;
-			for (size_t i = 0; i < amountOfActives; i++)
-			{
-				char buf[128];
-				snprintf(buf, sizeof(buf), "Cooldown%lu", i);
-				float yOffset = float(stepSize * float(i + 1));
-				float xOffset = pow(abs((yOffset - (stepSize / float(2)) - float(35))) * 0.1069, 2);
-				ImGui::SetNextWindowPos(ImVec2(-64 + xOffset + pos.x, -24 + yOffset - ((stepSize + 10.0) / 2.0) + pos.y));
-				ImGui::SetNextWindowSize(ImVec2(15, 15));
-				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-				if (coolDownList[i] >= 7)
-				{
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(10, 10));
-				}
-				else if (coolDownList[i] <= 0)
-				{
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Green.png")->getID()), ImVec2(10, 10));
-				}
-				else
-				{
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Yellow.png")->getID()), ImVec2(10, 10));
-				}
+			//float pForEatchDot = float(1) / float(amountOfActives);
+			//float stepSize = float(70) * pForEatchDot;
+			//for (size_t i = 0; i < amountOfActives; i++)
+			//{
+			//	char buf[128];
+			//	snprintf(buf, sizeof(buf), "Cooldown%lu", i);
+			//	float yOffset = float(stepSize * float(i + 1));
+			//	float xOffset = pow(abs((yOffset - (stepSize / float(2)) - float(35))) * 0.1069, 2);
+			//	ImGui::SetNextWindowPos(ImVec2(-64 + xOffset + pos.x, -24 + yOffset - ((stepSize + 10.0) / 2.0) + pos.y));
+			//	ImGui::SetNextWindowSize(ImVec2(15, 15));
+			//	ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+			//	if (coolDownList[i] >= 7)
+			//	{
+			//		ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Red.png")->getID()), ImVec2(10, 10));
+			//	}
+			//	else if (coolDownList[i] <= 0)
+			//	{
+			//		ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Green.png")->getID()), ImVec2(10, 10));
+			//	}
+			//	else
+			//	{
+			//		ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Yellow.png")->getID()), ImVec2(10, 10));
+			//	}
 
-				ImGui::End(); 
-			}
+			//	ImGui::End(); 
+			//}
 
-			delete[] coolDownList;
+			//delete[] coolDownList;
 
-			//Perk Icons
-			size_t amountOfPerks = perk->activePerks.size();
-			for (size_t i = 0; i < amountOfPerks; i++)
-			{
-				char buf[128];
-				snprintf(buf, sizeof(buf), "Perk%lu", i);
-				//Hydra::Component::PerkComponent::PERK_DMGUPSIZEUP;
-				int xOffset = (-10 * amountOfPerks) + (20 * (i + 1));
-				ImGui::SetNextWindowPos(ImVec2(5 + xOffset + pos.x, 240 + pos.y));
-				ImGui::SetNextWindowSize(ImVec2(20, 20));
-				ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
-				switch (perk->activePerks[i])
-				{
-				default:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/DamageUpgrade.png")->getID()), ImVec2(20, 20));
-					break;
-				case Hydra::Component::PerkComponent::PERK_DMGUPSIZEUP:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/DamageUpgrade.png")->getID()), ImVec2(20, 20));
-					break;
-				case Hydra::Component::PerkComponent::PERK_GRENADE:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Grenade.png")->getID()), ImVec2(20, 20));
-					break;
-				case Hydra::Component::PerkComponent::PERK_MINE:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Mine.png")->getID()), ImVec2(20, 20));
-					break;
-				case Hydra::Component::PerkComponent::PERK_BULLETSPRAY:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Spread.png")->getID()), ImVec2(20, 20));
-					break;
-				case Hydra::Component::PerkComponent::PERK_SPEEDUP:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/ExtraJump.png")->getID()), ImVec2(20, 20));
-					break;
-				case Hydra::Component::PerkComponent::PERK_FASTSHOWLOWDMG:
-					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/BulletVelocity.png")->getID()), ImVec2(20, 20));
-					break;
-				}
+			////Perk Icons
+			//size_t amountOfPerks = perk->activePerks.size();
+			//for (size_t i = 0; i < amountOfPerks; i++)
+			//{
+			//	char buf[128];
+			//	snprintf(buf, sizeof(buf), "Perk%lu", i);
+			//	//Hydra::Component::PerkComponent::PERK_DMGUPSIZEUP;
+			//	int xOffset = (-10 * amountOfPerks) + (20 * (i + 1));
+			//	ImGui::SetNextWindowPos(ImVec2(5 + xOffset + pos.x, 240 + pos.y));
+			//	ImGui::SetNextWindowSize(ImVec2(20, 20));
+			//	ImGui::Begin(buf, NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove);
+			//	switch (perk->activePerks[i])
+			//	{
+			//	default:
+			//		ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/DamageUpgrade.png")->getID()), ImVec2(20, 20));
+			//		break;
+			//	case Hydra::Component::PerkComponent::PERK_DMGUPSIZEUP:
+			//		ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/DamageUpgrade.png")->getID()), ImVec2(20, 20));
+			//		break;
+			//	case Hydra::Component::PerkComponent::PERK_GRENADE:
+			//		ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Grenade.png")->getID()), ImVec2(20, 20));
+			//		break;
+			//	case Hydra::Component::PerkComponent::PERK_MINE:
+			//		ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Mine.png")->getID()), ImVec2(20, 20));
+			//		break;
+			//	case Hydra::Component::PerkComponent::PERK_BULLETSPRAY:
+			//		ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/Spread.png")->getID()), ImVec2(20, 20));
+			//		break;
+			//	case Hydra::Component::PerkComponent::PERK_SPEEDUP:
+			//		ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/ExtraJump.png")->getID()), ImVec2(20, 20));
+			//		break;
+			//	case Hydra::Component::PerkComponent::PERK_FASTSHOWLOWDMG:
+			//		ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/BulletVelocity.png")->getID()), ImVec2(20, 20));
+			//		break;
+			//	}
 
-				ImGui::End();
-			}
+			//	ImGui::End();
+			//}
 
 			// Loading screen
 			if (_loadingScreenTimer > 0) {
@@ -539,7 +539,9 @@ namespace Barcode {
 				w->onShoot = &GameState::_onPlayerShoot;
 				w->bulletSize /= 2;
 				w->maxammo = 0;
-				weaponEntity->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/FPSModel3.mATTIC");
+				auto weaponMesh = weaponEntity->addComponent<Hydra::Component::MeshComponent>();
+				weaponMesh->loadMesh("assets/objects/characters/FPSModel3.mATTIC");
+				//weaponMesh->drawObject->drawObject->disable = true;
 				auto t2 = weaponEntity->addComponent<Hydra::Component::TransformComponent>();
 				t2->position = glm::vec3(2, -7, -2);
 				t2->scale = glm::vec3(0.3f);

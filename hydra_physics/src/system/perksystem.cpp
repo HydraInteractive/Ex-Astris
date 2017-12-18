@@ -198,56 +198,58 @@ void PerkSystem::readFromFile(const char* fileName, ReadBullet &readBullet)
 void PerkSystem::onPickUp(Hydra::Component::PerkComponent::Perk newPerk, const std::shared_ptr<Hydra::World::Entity>& playerEntity) {
 	auto perk = playerEntity->getComponent<PerkComponent>();
 	perk->activePerks.push_back(newPerk);
-
+	float temporaryTimer = 5;
 	switch (newPerk){
 	case Hydra::Component::PerkComponent::PERK_GRENADE: {
 		perk->activeAbilities.push_back(new GrenadeAbility());
-		perkDescriptionText = "One big grenade perk boio";
+		perkDescriptionText = "Grenade Perk: Press F to throw a grenade which deals area of effect damage when it explodes.";
 		break;
 	}
 	case Hydra::Component::PerkComponent::PERK_MINE: {
 		perk->activeAbilities.push_back(new MineAbility());
-		perkDescriptionText = "One slidey mine thing";
+		perkDescriptionText = "Mine Perk: Press F to throw a mine which upon contact with enemies explodes and deals area of effect damage.";
 		break;
 	}
 	case Hydra::Component::PerkComponent::PERK_BULLETSPRAY: {
 		perk->activeAbilities.push_back(new BulletSprayAbillity());
-		perkDescriptionText = "Press F to spray to victory";
+		perkDescriptionText = "Bullet Spray Perk: Press F to spray bullets in a cone infront of you.";
 		break;
 	}
 	case Hydra::Component::PerkComponent::PERK_DMGUPSIZEUP: {
 		playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>()->bulletSize *= 2;
 		playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>()->damage*= 2;
-		perkDescriptionText = "DMG ++++++++++ BIG BOI BULLET";
+		perkDescriptionText = "Damage Up Perk: Your bullets has increased in size and deals more damage on impact!";
 		break;
 	}
 	case Hydra::Component::PerkComponent::PERK_SPEEDUP: {
 		auto weapon = playerEntity->getComponent<MovementComponent>()->movementSpeed *= 2;
-		perkDescriptionText = "IM FAST AS FUCK BOI";
+		perkDescriptionText = "Movement Speed Perk: You feel slightly faster...";
 		break;
 	}
 	case Hydra::Component::PerkComponent::PERK_FASTSHOWLOWDMG: {
 		playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>()->fireRateRPM *= 3;
 		playerEntity->getComponent<PlayerComponent>()->getWeapon()->getComponent<WeaponComponent>()->damage /= 2.5;
-		perkDescriptionText = "SHIIIIIET SHOOOTY FAST AND RECOILI UP";
+		perkDescriptionText = "Faster Shooting Perk: You shoot faster but your bullets deals less damage.";
 		break;
 	}
 	case Hydra::Component::PerkComponent::PERK_RED: {
 		ReadBullet b;
 		readFromFile("Duck", b);
 		PerkChange(b, playerEntity);	
+		temporaryTimer = 0;
 		break;
 	}
 	case Hydra::Component::PerkComponent::PERK_GREEN: {
 		ReadBullet b;
 		readFromFile("Gren", b);
 		PerkChange(b, playerEntity);
+		temporaryTimer = 0;
 		break;
 	}
 
 	default:
 		break;
 	}
-	perkDescriptionTimer = 5;
+	perkDescriptionTimer = temporaryTimer;
 }
 void PerkSystem::registerUI() {}

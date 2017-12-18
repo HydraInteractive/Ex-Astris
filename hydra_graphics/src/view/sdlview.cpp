@@ -24,10 +24,10 @@ public:
 	SDLViewImpl(const std::string& title) {
 		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER);
 		Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
-		//_size = glm::ivec2{1920, 1080};
-		_size = glm::ivec2{1280, 720};
+		_size = glm::ivec2{1920, 1080};
+		//_size = glm::ivec2{1280, 720};
 		_wantToClose = false;
-		_fullScreen = false;
+		_fullScreen = true;
 
 		_window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _size.x, _size.y, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 	}

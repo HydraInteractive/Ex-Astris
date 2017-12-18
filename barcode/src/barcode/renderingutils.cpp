@@ -107,8 +107,8 @@ namespace Barcode {
 		_lightingBatch.pipeline->setValue(5, 5);
 		_lightingBatch.pipeline->setValue(6, 6);
 
-		_shadowBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/shadow.vert", "", "assets/shaders/shadow.frag", glm::vec2(1024));
-		_shadowBatch.output->addTexture(0, Hydra::Renderer::TextureType::f24Depth).finalize();
+		_shadowBatch = RenderBatch<Hydra::Renderer::Batch>("assets/shaders/shadow.vert", "", "assets/shaders/shadow.frag", glm::vec2(8192));
+		_shadowBatch.output->addTexture(0, Hydra::Renderer::TextureType::f32Depth).finalize();
 		_shadowBatch.batch.clearFlags = Hydra::Renderer::ClearFlags::depth;
 		_shadowBatch.batch.clearColor = glm::vec4(1, 1, 1, 1);
 
@@ -204,7 +204,7 @@ namespace Barcode {
 		static bool enableFrustumCulling = false;
 		//ImGui::Checkbox("Enable VF Culling", &enableFrustumCulling);
 
-		ImGui::Checkbox("Disable PVS rendering", &disablePVS);
+		/*ImGui::Checkbox("Disable PVS rendering", &disablePVS);*/
 
 		auto worldToGrid = [](glm::vec2 pos) {
 			const int xGrid = (pos.x / ROOM_SIZE);// - 0.5f);
@@ -347,15 +347,15 @@ namespace Barcode {
 		size_t maxObjectCount = Hydra::Component::DrawObjectComponent::componentHandler->getActiveComponents().size();
 		size_t maxRoomsCount = Hydra::Component::RoomComponent::componentHandler->getActiveComponents().size();
 
-		ImGui::SetNextWindowPos(ImVec2(_engine->getView()->getSize().x - (300 + 16), 24), ImGuiCond_Always);
-		ImGui::Begin("Performance monitor", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
-		ImGui::Text("Currently rendering:\n\t%zu objects out of %zu (%.2f%%)\n\t%zu animation objects out of %zu (%.2f%%)\n\t%zu rooms out of %zu (%.2f%%)\n\t%zu lights out of %zu (slots: %d) (%.2f%%)",
-			objectCounter, maxObjectCount + objectTotalNormal, float(objectCounter * 100) / (maxObjectCount + objectTotalNormal),
-			animatedObjectCounter, animatedObjectTotal, float(animatedObjectCounter * 100) / (animatedObjectTotal),
-			rs.worldBox.size(), maxRoomsCount, float(rs.worldBox.size() * 100) / maxRoomsCount,
-			lightCount, rs.lights.size(), MAX_LIGHTS, float(lightCount * 100) / rs.lights.size()
-		);
-		ImGui::End();
+		//ImGui::SetNextWindowPos(ImVec2(_engine->getView()->getSize().x - (300 + 16), 24), ImGuiCond_Always);
+		//ImGui::Begin("Performance monitor", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
+		//ImGui::Text("Currently rendering:\n\t%zu objects out of %zu (%.2f%%)\n\t%zu animation objects out of %zu (%.2f%%)\n\t%zu rooms out of %zu (%.2f%%)\n\t%zu lights out of %zu (slots: %d) (%.2f%%)",
+		//	objectCounter, maxObjectCount + objectTotalNormal, float(objectCounter * 100) / (maxObjectCount + objectTotalNormal),
+		//	animatedObjectCounter, animatedObjectTotal, float(animatedObjectCounter * 100) / (animatedObjectTotal),
+		//	rs.worldBox.size(), maxRoomsCount, float(rs.worldBox.size() * 100) / maxRoomsCount,
+		//	lightCount, rs.lights.size(), MAX_LIGHTS, float(lightCount * 100) / rs.lights.size()
+		//);
+		//ImGui::End();
 
 		_engine->getRenderer()->render(_geometryBatch.batch);
 		_engine->getRenderer()->renderAnimation(_geometryAnimationBatch.batch);
@@ -404,8 +404,8 @@ namespace Barcode {
 		if (MenuState::ssaoEnabled) {
 			static float bias = 0.025f;
 			static float radius = 0.5f;
-			ImGui::DragFloat("Bias", &bias, 0.01f);
-			ImGui::DragFloat("Radius", &radius, 0.01f);
+			/*ImGui::DragFloat("Bias", &bias, 0.01f);
+			ImGui::DragFloat("Radius", &radius, 0.01f);*/
 
 			_ssaoBatch.pipeline->setValue(3, cc.getProjectionMatrix());
 			_ssaoBatch.pipeline->setValue(4, bias);

@@ -22,10 +22,10 @@ namespace Hydra::Component {
 
 		float zNear = -28.0f;
 		float zFar = 28.0f;
-		float xNear = -28.0f;
-		float xFar = 28.0f;
-		float yNear = -28.0f;
-		float yFar = 28.0f;
+		float xNear = -56.0f;
+		float xFar = 56.0f;
+		float yNear = -56.0f;
+		float yFar = 56.0f;
 		~LightComponent() final;
 
 		void serialize(nlohmann::json& json) const;
