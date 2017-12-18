@@ -529,12 +529,25 @@ void BossHand_Left::run(float dt) {
 	thisEnemy.ai->debugState = state;
 
 	idleTimer += dt;
+	stuckTimer += dt;
 	//newPathTimer += dt;
 
 	if (glm::length(thisEnemy.transform->position - targetPlayer.transform->position) > 500)
 	{
 		state = HandPhases::IDLEHAND;
 	}
+
+	//Prevent the hands from getting stuck
+	if (stuckTimer >= 5.0f) {
+		if (glm::distance(lastPosition[handID], thisEnemy.transform->position) < 5.0f) {
+			state = HandPhases::RETURN;
+			stuckTimer = 0;
+		}
+		else
+			stuckTimer = 0;
+	}
+	else if(stuckTimer <= 0.2f)
+		lastPosition[handID] = thisEnemy.transform->position;
 
 	switch (state)
 	{
@@ -586,7 +599,6 @@ unsigned int BossHand_Left::idleState(float dt) {
 	//Wait 2 seconds before next move
 	if (idleTimer >= 5.0f) {
 		int randomNextMove = rand() % 125;
-		//return HandPhases::SWIPE;
 		if (randomNextMove < 30) {
 			Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Smash");
 			return HandPhases::SMASH;
@@ -604,9 +616,10 @@ unsigned int BossHand_Left::idleState(float dt) {
 			Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Cover");
 			return HandPhases::COVER;
 		}
-		else
+		else {
 			return HandPhases::IDLEHAND;
-		idleTimer = 0.0f;
+			idleTimer = 0.0f;
+		}
 	}
 	return state;
 }
@@ -628,9 +641,12 @@ unsigned int BossHand_Left::smashState(float dt) {
 			move(smashPosition[handID]);
 		if (hit == false) {
 	
-			if (glm::distance(thisEnemy.transform->position, targetPlayer.transform->position) < 5.1f) {
-				targetPlayer.life->applyDamage(10);
-				hit = true;
+			if (glm::distance(thisEnemy.transform->position, targetPlayer.transform->position) < 10.1f) {
+				if (glm::distance(thisEnemy.transform->position.y, targetPlayer.transform->position.y) < 4.5f) {
+					targetPlayer.life->applyDamage(10);
+					hit = true;
+					smashing = false;
+				}
 			}
 		}
 		if (thisEnemy.transform->position.y <= 3.5f || hit) {
@@ -656,15 +672,14 @@ unsigned int BossHand_Left::swipeState(float dt) {
 		}
 	}
 	if (hit == false) {
-		if (glm::distance(thisEnemy.transform->position, targetPlayer.transform->position) < 3.0f) {
+		if (glm::distance(thisEnemy.transform->position, targetPlayer.transform->position) < 10.0f) {
 			targetPlayer.life->applyDamage(10);
 			hit = true;
 		}
 	}
 	if (swiping == true) {
 		move(swipeFinish[handID]);
-		//thisEnemy.transform->position.z -= 0.1f;
-		if (glm::distance(thisEnemy.transform->position, swipeFinish[handID]) < 4.0f) {
+		if (glm::distance(thisEnemy.transform->position, swipeFinish[handID]) < 4.0f || hit) {
 			state = HandPhases::RETURN;
 			swiping = false;
 			hit = false;
@@ -701,6 +716,7 @@ unsigned int BossHand_Left::canonState(float dt) {
 	}
 	else {
 		move(canonPosition[handID]);
+
 	}
 
 	return state;
@@ -721,7 +737,7 @@ unsigned int BossHand_Left::coverState(float dt) {
 	}
 	else {
 		move(coverPosition[handID]);
-		if (glm::distance(thisEnemy.transform->position, coverPosition[handID]) < 3.0f) {
+		if (glm::distance(thisEnemy.transform->position, coverPosition[handID]) < 5.0f) {
 			covering = true;
 			thisEnemy.movement->velocity = glm::vec3(0);
 		}
@@ -730,6 +746,7 @@ unsigned int BossHand_Left::coverState(float dt) {
 	if (coverTimer >= 5) {
 		coverTimer = 0;
 		rotateToCover = false;
+		covering = false;
 		rotation = glm::angleAxis(glm::radians(0.0f), glm::vec3(0, 0, 1));
 		state = HandPhases::RETURN;
 	}
@@ -852,7 +869,7 @@ unsigned int BossArm::shootState(float dt) {
 	int state = ArmPhases::SHOOT;
 
 	if (shot == false) {
-		thisEnemy.weapon->shoot(thisEnemy.transform->position, playerDir, glm::quat(), 90.0f,
+		thisEnemy.weapon->shoot(thisEnemy.transform->position, playerDir, glm::quat(), 75.0f,
 			Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_ENEMY_PROJECTILE);
 	}
 	shot = true;
@@ -875,8 +892,10 @@ void BossArm::updateRigidBodyPosition() {
 }
 
 bool BossArm::refreshRequiredComponents() {
+
 	if (targetPlayer.entity)
 		hasRequiredComponents = (
+
 		(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>().get()) &&
 			(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>().get()) &&
 			(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>().get()) &&
@@ -907,8 +926,10 @@ void StationaryBoss::run(float dt) {
 	if (!hasRequiredComponents)
 		if (!refreshRequiredComponents())
 			return;
-	if (thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>()->health <= 0)
-		return;
+	if (thisEnemy.entity->getComponent<Hydra::Component::LifeComponent>()->health <= 0) {
+
+	}
+		
 
 	//thisEnemy.movement->velocity = glm::vec3(0, 0, 0);
 	thisEnemy.ai->debugState = state;
@@ -996,6 +1017,8 @@ unsigned int StationaryBoss::spawnState(float dt) {
 	
 	}
 
+	return StatinoaryBossPhases::NOTHING;
+
 	//randomAliens = rand() % maxSpawn;
 	//randomRobots = maxSpawn - randomAliens;
 	//for (int i = 0; i < randomAliens; i++) {
@@ -1046,12 +1069,6 @@ unsigned int StationaryBoss::spawnState(float dt) {
 	//maxSpawn *= 2;
 	return state;
 }
-
-//unsigned int StationaryBoss::shootingState(float dt) {
-//
-//
-//	
-//}
 
 void StationaryBoss::applySpawnPositions() {
 

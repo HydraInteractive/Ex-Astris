@@ -612,6 +612,7 @@ void TileGeneration::spawnPickUps()
 
 void TileGeneration::_spawnLight(std::shared_ptr<Hydra::Component::TransformComponent>& roomTransform) {
 #define frand() (float(rand()) / RAND_MAX)
+	if (_level < 2) {
 	auto pl = world::newEntity("Pointlight-GENERATED", roomTransform->entityID);
 	pl->addComponent<Hydra::Component::TransformComponent>();
 	auto t = pl->getComponent<Hydra::Component::TransformComponent>();
@@ -620,6 +621,18 @@ void TileGeneration::_spawnLight(std::shared_ptr<Hydra::Component::TransformComp
 	t->position.z = 0;
 	auto lc = pl->addComponent<Hydra::Component::PointLightComponent>();
 	lc->color = glm::vec3(frand() * 2, frand() * 2, frand() * 2);
+	}
+	else {
+		auto pl = world::newEntity("Pointlight-GENERATED", roomTransform->entityID);
+		pl->addComponent<Hydra::Component::TransformComponent>();
+		auto t = pl->getComponent<Hydra::Component::TransformComponent>();
+		t->position.x = 0;
+		t->position.y = 50;
+		t->position.z = 0;
+		auto lc = pl->addComponent<Hydra::Component::PointLightComponent>();
+		lc->color = glm::vec3(20);
+
+	}
 #undef frand
 }
 
