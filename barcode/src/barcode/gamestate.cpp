@@ -233,11 +233,11 @@ namespace Barcode {
 				if (_hpTimeUp == 0)
 					_hpTimeUp = 1;
 
-				_hpTimeUp -= delta; 
+				_hpTimeUp -= delta;
 
 				if (_hpTimeUp >= 0) {
 					ImGui::SetNextWindowPos(ImVec2(0, 0));
-					ImGui::SetNextWindowSize(ImVec2(1920, 1080));
+					ImGui::SetNextWindowSize(ImVec2(_engine->getView()->getSize().x, _engine->getView()->getSize().y));
 					ImGui::Begin("DamageBleed", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoInputs);
 					ImGui::Image(reinterpret_cast<ImTextureID>(_textureLoader->getTexture("assets/hud/blood.png")->getID()), ImVec2(_engine->getView()->getSize().x, _engine->getView()->getSize().y), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1, 1, 1, _hpTimeUp));
 					ImGui::End();
