@@ -553,6 +553,7 @@ namespace Barcode {
 
 			{
 				auto lightEntity = world::newEntity("Light: I cast Shadows", playerEntity->id);
+				_shadowCastLight = lightEntity->id;
 				auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
 				auto t3 = lightEntity->addComponent<Hydra::Component::TransformComponent>();
 				t3->position = glm::vec3(0, 7, 0);
@@ -597,21 +598,38 @@ namespace Barcode {
 		GameState* this_ = static_cast<GameState*>(userdata);
 		this_->_engine->setState<WinState>();
 	}
+
 	void GameState::_onNoPVS(void* userdata) {
 		GameState* this_ = static_cast<GameState*>(userdata);
-		this_->_dgp->disablePVS = true; 
+		this_->_dgp->disablePVS = true;
+		Hydra::World::World::removeEntity(this_->_shadowCastLight);
+		auto lightEntity = world::newEntity("Light: I cast Shadows", world::root());
+		auto l = lightEntity->addComponent<Hydra::Component::LightComponent>();
+		l->xNear = -64;
+		l->xFar = 64;
+		l->yNear = -64;
+		l->yFar = 64;
+		l->zNear = 0;
+		l->zFar = 64;
+		auto t3 = lightEntity->addComponent<Hydra::Component::TransformComponent>();
+		t3->position = glm::vec3(153, 50, 153);
 	}
 
 	void GameState::_onUpdatePathMap(bool* map, void* userdata) {
 		GameState* this_ = static_cast<GameState*>(userdata);
 		//AI Inspector
 		if (this_->aiInspector->pathMap != nullptr)
+		{
 			delete[] this_->aiInspector->pathMap;
+		}
 		this_->aiInspector->pathMap = map;
 		this_->aiInspector->reset();
 
 		//MiniMap
-		// miniMap->pathMap is the same as aiInspector->pathMap
+		if (this_->miniMap->pathMap != nullptr)
+		{
+			delete[] this_->miniMap->pathMap;
+		}
 		this_->miniMap->pathMap = map;
 		this_->miniMap->reset();
 	}
