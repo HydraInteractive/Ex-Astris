@@ -16,7 +16,7 @@
 
 #include <btBulletDynamicsCommon.h>
 
-Behaviour::Behaviour(std::shared_ptr<Hydra::World::Entity> enemy) 
+Behaviour::Behaviour(std::shared_ptr<Hydra::World::Entity> enemy)
 {
 	thisEnemy.entity = enemy.get();
 	refreshRequiredComponents();
@@ -586,7 +586,7 @@ unsigned int BossHand_Left::idleState(float dt) {
 	//Wait 2 seconds before next move
 	if (idleTimer >= 5.0f) {
 		int randomNextMove = rand() % 125;
-		//return HandPhases::SWIPE;
+
 		if (randomNextMove < 30) {
 			Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Smash");
 			return HandPhases::SMASH;
@@ -604,9 +604,10 @@ unsigned int BossHand_Left::idleState(float dt) {
 			Hydra::IEngine::getInstance()->log(Hydra::LogLevel::normal, "Boss Cover");
 			return HandPhases::COVER;
 		}
-		else
+		else {
 			return HandPhases::IDLEHAND;
-		idleTimer = 0.0f;
+			idleTimer = 0.0f;
+		}
 	}
 	return state;
 }
@@ -628,9 +629,12 @@ unsigned int BossHand_Left::smashState(float dt) {
 			move(smashPosition[handID]);
 		if (hit == false) {
 	
-			if (glm::distance(thisEnemy.transform->position, targetPlayer.transform->position) < 5.1f) {
-				targetPlayer.life->applyDamage(10);
-				hit = true;
+			if (glm::distance(thisEnemy.transform->position, targetPlayer.transform->position) < 10.1f) {
+				if (glm::distance(thisEnemy.transform->position.y, targetPlayer.transform->position.y) < 4.1f) {
+					targetPlayer.life->applyDamage(10);
+					hit = true;
+					smashing = false;
+				}
 			}
 		}
 		if (thisEnemy.transform->position.y <= 3.5f || hit) {
@@ -656,7 +660,7 @@ unsigned int BossHand_Left::swipeState(float dt) {
 		}
 	}
 	if (hit == false) {
-		if (glm::distance(thisEnemy.transform->position, targetPlayer.transform->position) < 3.0f) {
+		if (glm::distance(thisEnemy.transform->position, targetPlayer.transform->position) < 5.0f) {
 			targetPlayer.life->applyDamage(10);
 			hit = true;
 		}
@@ -701,6 +705,7 @@ unsigned int BossHand_Left::canonState(float dt) {
 	}
 	else {
 		move(canonPosition[handID]);
+
 	}
 
 	return state;
@@ -721,7 +726,7 @@ unsigned int BossHand_Left::coverState(float dt) {
 	}
 	else {
 		move(coverPosition[handID]);
-		if (glm::distance(thisEnemy.transform->position, coverPosition[handID]) < 3.0f) {
+		if (glm::distance(thisEnemy.transform->position, coverPosition[handID]) < 5.0f) {
 			covering = true;
 			thisEnemy.movement->velocity = glm::vec3(0);
 		}
@@ -875,8 +880,10 @@ void BossArm::updateRigidBodyPosition() {
 }
 
 bool BossArm::refreshRequiredComponents() {
+
 	if (targetPlayer.entity)
 		hasRequiredComponents = (
+
 		(thisEnemy.ai = thisEnemy.entity->getComponent<Hydra::Component::AIComponent>().get()) &&
 			(thisEnemy.transform = thisEnemy.entity->getComponent<Hydra::Component::TransformComponent>().get()) &&
 			(thisEnemy.meshComp = thisEnemy.entity->getComponent<Hydra::Component::MeshComponent>().get()) &&
@@ -995,6 +1002,8 @@ unsigned int StationaryBoss::spawnState(float dt) {
 		rgbc->setAngularForce(glm::vec3(0));
 	
 	}
+
+	return StatinoaryBossPhases::NOTHING;
 
 	//randomAliens = rand() % maxSpawn;
 	//randomRobots = maxSpawn - randomAliens;
