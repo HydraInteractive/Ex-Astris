@@ -40,6 +40,8 @@ namespace Hydra::Component {
 			PERK_CALMDOWN,
 			PERK_DMGUPSPREADDOWN1,
 			PERK_EXTRASHOT1,
+			PERK_PATIANCENINJA,
+			PERK_CLUMSYNINJA,
 			AMOUNTOFPERKS
 		};
 		std::vector<Perk> newPerks = std::vector<Perk>();
