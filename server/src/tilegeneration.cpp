@@ -401,8 +401,6 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 
 void TileGeneration::createSpawner() {
 	glm::vec3 pos;
-	int randomAlienSpawner = rand() % 101;
-	int randomRobotSpawner = rand() % 101;
 
 	std::vector<std::shared_ptr<Hydra::World::Entity>> entities;
 	world::getEntitiesWithComponents<Hydra::Component::SpawnPointComponent, Hydra::Component::TransformComponent>(entities);
@@ -413,12 +411,14 @@ void TileGeneration::createSpawner() {
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		auto sp = entities[i]->getComponent<Hydra::Component::SpawnPointComponent>();
+		int randomAlienSpawner = rand() % 101;
+		int randomRobotSpawner = rand() % 101;
 		if (sp->enemySpawn && !entities[i]->dead) {
 			auto ts = entities[i]->getComponent<Hydra::Component::TransformComponent>();
 			ts->dirty = true;
 			pos = ts->getMatrix()[3];
 
-			if (randomAlienSpawner <= 3)
+			if (randomAlienSpawner <= 2)
 			{
 				auto alienSpawner = world::newEntity("SpawnerAlien1", world::root());
 				alienSpawner->addComponent<Hydra::Component::NetworkSyncComponent>();
@@ -460,8 +460,9 @@ void TileGeneration::createSpawner() {
 					0, 0, 0.6f, 1.0f);
 				rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 				rgbc->setAngularForce(glm::vec3(0));
+				entities[i]->dead = true;
 			}
-			else if (randomRobotSpawner <= 2)
+			else if (randomRobotSpawner <= 1)
 			{
 				auto robotSpawner = world::newEntity("SpawnerRobot1", world::root());
 				robotSpawner->addComponent<Hydra::Component::NetworkSyncComponent>();
@@ -503,9 +504,8 @@ void TileGeneration::createSpawner() {
 					0, 0, 0.6f, 1.0f);
 				rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
 				rgbc->setAngularForce(glm::vec3(0));
+				entities[i]->dead = true;
 			}
-
-			entities[i]->dead = true;
 		}
 	}
 }
