@@ -114,17 +114,6 @@ void TileGeneration::_createMapRecursivly(const glm::ivec2& pos) {
 					//spawnPickUps();
 					_spawnLight(t);
 
-					int randomAlienSpawner = rand() % 101;
-					int randomRobotSpawner = rand() % 101;
-					if (randomAlienSpawner <= 3)
-					{
-						_createSpawner(loadedRoom, 1);
-					}
-					else if (randomRobotSpawner <= 2)
-					{
-						_createSpawner(loadedRoom, 2);
-					}
-
 					roomCounter++;
 					_createMapRecursivly(glm::ivec2(pos.x + offset[direction].x, pos.y + offset[direction].y));
 				}
@@ -410,16 +399,14 @@ void TileGeneration::_spawnRandomEnemy(glm::vec3 pos) {
 
 //TODO: Randomize spawners
 
-void TileGeneration::_createSpawner(std::shared_ptr<Hydra::World::Entity>& room, int id) {
+void TileGeneration::createSpawner() {
 	glm::vec3 pos;
+	int randomAlienSpawner = rand() % 101;
+	int randomRobotSpawner = rand() % 101;
+
 	std::vector<std::shared_ptr<Hydra::World::Entity>> entities;
-	for (auto entid : room->children)
-	{
-		if (world::getEntity(entid)->hasComponent<Hydra::Component::SpawnPointComponent>())
-		{
-			entities.push_back(world::getEntity(entid));
-		}
-	}
+	world::getEntitiesWithComponents<Hydra::Component::SpawnPointComponent, Hydra::Component::TransformComponent>(entities);
+	//Randomize order
 
 	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
 	shuffle(entities.begin(), entities.end(), std::default_random_engine(seed));
@@ -427,101 +414,99 @@ void TileGeneration::_createSpawner(std::shared_ptr<Hydra::World::Entity>& room,
 	for (size_t i = 0; i < entities.size(); i++) {
 		auto sp = entities[i]->getComponent<Hydra::Component::SpawnPointComponent>();
 		if (sp->enemySpawn && !entities[i]->dead) {
-			auto t = entities[i]->getComponent<Hydra::Component::TransformComponent>();
-			t->dirty = true;
-			pos = t->getMatrix()[3];
+			auto ts = entities[i]->getComponent<Hydra::Component::TransformComponent>();
+			ts->dirty = true;
+			pos = ts->getMatrix()[3];
+
+			if (randomAlienSpawner <= 3)
+			{
+				auto alienSpawner = world::newEntity("SpawnerAlien1", world::root());
+				alienSpawner->addComponent<Hydra::Component::NetworkSyncComponent>();
+				alienSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/Spawner.mATTIC");
+				auto sa = alienSpawner->addComponent<Hydra::Component::SpawnerComponent>();
+				sa->spawnerID = Hydra::Component::SpawnerType::AlienSpawner;
+
+				auto h = alienSpawner->addComponent<Hydra::Component::LifeComponent>();
+				h->maxHP = 50;
+				h->health = 50;
+
+				auto t = alienSpawner->addComponent<Hydra::Component::TransformComponent>();
+				t->position.x = pos.x;
+				t->position.y = 0.8;
+				t->position.z = pos.z;
+				float randDirX = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
+				float randDirY = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
+				t->rotation = glm::angleAxis(atan2(randDirX, randDirY), glm::vec3(0, 1, 0));
+				t->scale = glm::vec3{ 1,1,1 };
+
+				{
+					auto pE = Hydra::World::World::newEntity("Spawner Collision Particle Spawner", alienSpawner->id);
+
+					pE->addComponent<MeshComponent>()->loadMesh("PARTICLEQUAD");
+
+					auto pETC = pE->addComponent<TransformComponent>();
+					pETC->position.y = 1.0;
+
+					auto pEPC = pE->addComponent<Hydra::Component::ParticleComponent>();
+					pEPC->delay = 1.0f / 10.0f;
+					pEPC->accumulator = 2 * 5.0f;
+					pEPC->tempVelocity = glm::vec3(6.0f, 6.0f, 6.0f);
+					pEPC->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::SpawnerBeam;
+					pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::Spawner;
+				}
+
+				auto rgbc = alienSpawner->addComponent<Hydra::Component::RigidBodyComponent>();
+				rgbc->createBox(glm::vec3(2.0f, 0.8f, 2.0f) * t->scale, glm::vec3(0, -0.2, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_SPAWNER, 0.0f,
+					0, 0, 0.6f, 1.0f);
+				rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+				rgbc->setAngularForce(glm::vec3(0));
+			}
+			else if (randomRobotSpawner <= 2)
+			{
+				auto robotSpawner = world::newEntity("SpawnerRobot1", world::root());
+				robotSpawner->addComponent<Hydra::Component::NetworkSyncComponent>();
+				robotSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/Spawner.mATTIC");
+				auto sa = robotSpawner->addComponent<Hydra::Component::SpawnerComponent>();
+				sa->spawnerID = Hydra::Component::SpawnerType::RobotSpawner;
+
+				auto h = robotSpawner->addComponent<Hydra::Component::LifeComponent>();
+				h->maxHP = 50;
+				h->health = 50;
+
+				auto t = robotSpawner->addComponent<Hydra::Component::TransformComponent>();
+				t->position.x = pos.x;
+				t->position.y = 0.8;
+				t->position.z = pos.z;
+				float randDirX = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
+				float randDirY = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
+				t->rotation = glm::angleAxis(atan2(randDirX, randDirY), glm::vec3(0, 1, 0));
+				t->scale = glm::vec3{ 1,1,1 };
+
+				{
+					auto pE = Hydra::World::World::newEntity("Spawner Collision Particle Spawner", robotSpawner->id);
+
+					pE->addComponent<MeshComponent>()->loadMesh("PARTICLEQUAD");
+
+					auto pETC = pE->addComponent<TransformComponent>();
+					pETC->position.y = 1.0;
+
+					auto pEPC = pE->addComponent<Hydra::Component::ParticleComponent>();
+					pEPC->delay = 1.0f / 10.0f;
+					pEPC->accumulator = 2 * 5.0f;
+					pEPC->tempVelocity = glm::vec3(6.0f, 6.0f, 6.0f);
+					pEPC->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::SpawnerBeam;
+					pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::Spawner;
+				}
+
+				auto rgbc = robotSpawner->addComponent<Hydra::Component::RigidBodyComponent>();
+				rgbc->createBox(glm::vec3(2.0f, 0.8f, 2.0f) * t->scale, glm::vec3(0, -0.2, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_SPAWNER, 0.0f,
+					0, 0, 0.6f, 1.0f);
+				rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
+				rgbc->setAngularForce(glm::vec3(0));
+			}
+
 			entities[i]->dead = true;
 		}
-
-		if (sp->enemySpawn && !entities[i]->dead)
-		{
-			entities[i]->dead = true;
-		}
-	}
-
-	if (id == 1) {
-		auto alienSpawner = world::newEntity("SpawnerAlien1", world::root());
-		alienSpawner->addComponent<Hydra::Component::NetworkSyncComponent>();
-		alienSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/Spawner.mATTIC");
-		auto sa = alienSpawner->addComponent<Hydra::Component::SpawnerComponent>();
-		sa->spawnerID = Hydra::Component::SpawnerType::AlienSpawner;
-
-		auto h = alienSpawner->addComponent<Hydra::Component::LifeComponent>();
-		h->maxHP = 50;
-		h->health = 50;
-
-		auto t = alienSpawner->addComponent<Hydra::Component::TransformComponent>();
-		t->position.x = pos.x;
-		t->position.y = 0.8;
-		t->position.z = pos.z;
-		float randDirX = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
-		float randDirY = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
-		t->rotation = glm::angleAxis(atan2(randDirX, randDirY), glm::vec3(0, 1, 0));
-		t->scale = glm::vec3{ 1,1,1 };
-
-		{
-			auto pE = Hydra::World::World::newEntity("Spawner Collision Particle Spawner", alienSpawner->id);
-
-			pE->addComponent<MeshComponent>()->loadMesh("PARTICLEQUAD");
-
-			auto pETC = pE->addComponent<TransformComponent>();
-			pETC->position.y = 1.0;
-
-			auto pEPC = pE->addComponent<Hydra::Component::ParticleComponent>();
-			pEPC->delay = 1.0f / 10.0f;
-			pEPC->accumulator = 2 * 5.0f;
-			pEPC->tempVelocity = glm::vec3(6.0f, 6.0f, 6.0f);
-			pEPC->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::SpawnerBeam;
-			pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::Spawner;
-		}
-
-		auto rgbc = alienSpawner->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(2.0f, 0.8f, 2.0f) * t->scale, glm::vec3(0, -0.2, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_SPAWNER, 0.0f,
-			0, 0, 0.6f, 1.0f);
-		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-		rgbc->setAngularForce(glm::vec3(0));
-	}
-	else if (id == 2) {
-		auto robotSpawner = world::newEntity("SpawnerRobot1", world::root());
-		robotSpawner->addComponent<Hydra::Component::NetworkSyncComponent>();
-		robotSpawner->addComponent<Hydra::Component::MeshComponent>()->loadMesh("assets/objects/characters/Spawner.mATTIC");
-		auto sa = robotSpawner->addComponent<Hydra::Component::SpawnerComponent>();
-		sa->spawnerID = Hydra::Component::SpawnerType::RobotSpawner;
-
-		auto h = robotSpawner->addComponent<Hydra::Component::LifeComponent>();
-		h->maxHP = 50;
-		h->health = 50;
-
-		auto t = robotSpawner->addComponent<Hydra::Component::TransformComponent>();
-		t->position.x = pos.x;
-		t->position.y = 0.8;
-		t->position.z = pos.z;
-		float randDirX = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
-		float randDirY = ((float)rand() / (float)(RAND_MAX)) * (2.0f*3.14f);
-		t->rotation = glm::angleAxis(atan2(randDirX, randDirY), glm::vec3(0, 1, 0));
-		t->scale = glm::vec3{ 1,1,1 };
-
-		{
-			auto pE = Hydra::World::World::newEntity("Spawner Collision Particle Spawner", robotSpawner->id);
-
-			pE->addComponent<MeshComponent>()->loadMesh("PARTICLEQUAD");
-
-			auto pETC = pE->addComponent<TransformComponent>();
-			pETC->position.y = 1.0;
-
-			auto pEPC = pE->addComponent<Hydra::Component::ParticleComponent>();
-			pEPC->delay = 1.0f / 10.0f;
-			pEPC->accumulator = 2 * 5.0f;
-			pEPC->tempVelocity = glm::vec3(6.0f, 6.0f, 6.0f);
-			pEPC->behaviour = Hydra::Component::ParticleComponent::EmitterBehaviour::SpawnerBeam;
-			pEPC->texture = Hydra::Component::ParticleComponent::ParticleTexture::Spawner;
-		}
-
-		auto rgbc = robotSpawner->addComponent<Hydra::Component::RigidBodyComponent>();
-		rgbc->createBox(glm::vec3(2.0f, 0.8f, 2.0f) * t->scale, glm::vec3(0, -0.2, 0), Hydra::System::BulletPhysicsSystem::CollisionTypes::COLL_SPAWNER, 0.0f,
-			0, 0, 0.6f, 1.0f);
-		rgbc->setActivationState(Hydra::Component::RigidBodyComponent::ActivationState::disableDeactivation);
-		rgbc->setAngularForce(glm::vec3(0));
 	}
 }
 
