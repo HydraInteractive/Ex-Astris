@@ -112,7 +112,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_graphics/lib-include;$(SolutionDir)/hydra/include;$(SolutionDir)/hydra/lib-include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_GRAPHICS_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_GRAPHICS_EXPORTS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <DisableSpecificWarnings>4250;4251</DisableSpecificWarnings>
@@ -133,7 +133,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_graphics/lib-include;$(SolutionDir)/hydra/include;$(SolutionDir)/hydra/lib-include;$(SolutionDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_GRAPHICS_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_GRAPHICS_EXPORTS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4250;4251</DisableSpecificWarnings>
     </ClCompile>

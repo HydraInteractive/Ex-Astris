@@ -58,7 +58,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_network/include;$(SolutionDir)/hydra_sound/include;$(SolutionDir)/hydra_graphics/lib-include;$(SolutionDir)/hydra_physics/include;$(SolutionDir)/hydra/include;$(SolutionDir)/hydra/lib-include;$(SolutionDir)/include;$(SolutionDir)/barcode/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_PHYSICS_EXPORTS;BT_THREADSAFE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_PHYSICS_EXPORTS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;BT_THREADSAFE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <DisableSpecificWarnings>4250;4251</DisableSpecificWarnings>
@@ -79,7 +79,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)/hydra_graphics/include;$(SolutionDir)/hydra_network/include;$(SolutionDir)/hydra_sound/include;$(SolutionDir)/hydra_graphics/lib-include;$(SolutionDir)/hydra_physics/include;$(SolutionDir)/hydra/include;$(SolutionDir)/hydra/lib-include;$(SolutionDir)/include;C:\Users\Emil\Documents\GitHub\Hydra\barcode\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_PHYSICS_EXPORTS;BT_THREADSAFE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;HYDRA_PHYSICS_EXPORTS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;BT_THREADSAFE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4250;4251</DisableSpecificWarnings>
     </ClCompile>
