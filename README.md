@@ -1,2 +1,3 @@
-# Hydra
-A 3D engine for a school project
+# Ex Astris
+
+An online co-op shooter game with a randomly generated map.
